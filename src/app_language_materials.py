@@ -10,10 +10,10 @@ from typing import Dict, List
 import streamlit as st
 import json
 
-DATA_DIR = Path(__file__).parent / "language_materials"
+DATA_DIR = Path(__file__).parent.parent / "language_materials"
 
 # Cache version - increment when language list or structure changes
-CACHE_VERSION = "1.8.0"
+CACHE_VERSION = "1.8.1"
 
 
 @st.cache_data
@@ -62,7 +62,7 @@ def get_language_structure(language: str, _cache_version: str = CACHE_VERSION) -
     }
     
     # Directories to exclude from category discovery (backup/deprecated)
-    excluded_dirs = {'phrases-original', 'story-scenes', 'phrasebook-topics'}
+    excluded_dirs = {'phrases-original', 'story-scenes'}
     
     # Scan all subdirectories
     for category_dir in sorted(lang_dir.iterdir()):

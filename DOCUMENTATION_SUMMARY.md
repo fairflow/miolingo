@@ -7,7 +7,7 @@
 
 ### 1. Created New Documentation Structure
 
-```
+```dirs
 app-docs/
 ├── README.md               # Documentation index (navigation guide)
 ├── USER_GUIDE.md           # Non-technical guide for app users
