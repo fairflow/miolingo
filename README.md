@@ -1,176 +1,123 @@
-# Miolingo - Multi-Language Pronunciation Trainer + eSpeak NG
+# Miolingo
 
-**Version 2.1.0** | Web-based multi-language pronunciation practice with instant AI feedback
-
----
-
-## 🎯 Miolingo Pronunciation Trainer App
-
-This repository contains **Miolingo**, a multi-language pronunciation trainer web application built on top of eSpeak NG. The app helps learners practice pronunciation in **6 languages** (Portuguese, French, Spanish, German, Dutch, Italian) with real-time feedback and immersive story-based learning.
-
-### For App Users
-
-📱 **Want to practice pronunciation?** See the [User Guide](app-docs/USER_GUIDE.md)
-
-🧪 **Want to help test the app?** See the [Testing Guide](app-docs/TESTING_GUIDE.md)
-- Includes CCS testing mode for advanced users (no coding required!)
-
-👨‍💻 **Want to contribute code?** See the [Developer Guide](app-docs/DEVELOPER_GUIDE.md)
-
-📚 **All app documentation**: [app-docs/](app-docs/)
-
-### Quick Start
-
-Access the live app at: **[Your Streamlit Cloud URL]**
-
-Or run locally:
-```bash
-source venv/bin/activate
-streamlit run app.py
-```
-
----
-
-## 📚 eSpeak NG Text-to-Speech (Base Project)
-
-- [Features](#features)
-- [Supported languages](docs/languages.md)
-- [Documentation](#documentation)
-- [eSpeak Compatibility](#espeak-compatibility)
-- [History](#history)
-- [License Information](#license-information)
-----------
-
-The eSpeak NG is a compact open source software text-to-speech synthesizer for 
-Linux, Windows, Android and other operating systems. It supports 
-[more than 100 languages and accents](docs/languages.md). It is based on the eSpeak engine
-created by Jonathan Duddington.
-
-eSpeak NG uses a "formant synthesis" method. This allows many languages to be
-provided in a small size. The speech is clear, and can be used at high speeds,
-but is not as natural or smooth as larger synthesizers which are based on human
-speech recordings. It also supports Klatt formant synthesis, and the ability
-to use MBROLA as backend speech synthesizer.
-
-eSpeak NG is available as:
-
-*  A [command line](src/espeak-ng.1.ronn) program (Linux and Windows) to speak text from a file or
-   from stdin.
-*  A [shared library](docs/integration.md) version for use by other programs. (On Windows this is
-   a DLL).
-*  A SAPI5 version for Windows, so it can be used with screen-readers and
-   other programs that support the Windows SAPI5 interface.
-*  eSpeak NG has been ported to other platforms, including Solaris and Mac
-   OSX.
+Multi-language pronunciation trainer with real-time AI feedback.
 
 ## Features
 
-*  Includes different Voices, whose characteristics can be altered.
-*  Can produce speech output as a WAV file.
-*  SSML (Speech Synthesis Markup Language) is supported (not complete),
-   and also HTML.
-*  Compact size.  The program and its data, including many languages,
-   totals about few Mbytes.
-*  Can be used as a front-end to [MBROLA diphone voices](docs/mbrola.md).
-   eSpeak NG converts text to phonemes with pitch and length information.
-*  Can translate text into phoneme codes, so it could be adapted as a
-   front end for another speech synthesis engine.
-*  Potential for other languages. Several are included in varying stages
-   of progress. Help from native speakers for these or other languages is
-   welcome.
-*  Written in C.
+- **Multi-language support**: Portuguese (PT-BR, PT-PT), French, Dutch, Flemish
+- **Real-time feedback**: AI-powered pronunciation analysis using Whisper ASR
+- **Text-to-Speech**: High-quality pronunciation examples using eSpeak NG and gTTS
+- **Progress tracking**: Database-backed user progress and history
+- **Admin dashboard**: Monitor usage, manage users, track costs
+- **Practice modes**: Words, phrases, conversations, and stories
 
-See the [ChangeLog](ChangeLog.md) for a description of the changes in the
-various releases and with the eSpeak NG project.
+## Quick Start
 
-The following platforms are supported:
+### Prerequisites
 
-| Platform    | Minimum Version | Status |
-|-------------|-----------------|--------|
-| Linux       |                 | ![CI](https://github.com/espeak-ng/espeak-ng/actions/workflows/ci.yml/badge.svg) |
-| BSD         |                 |        |
-| Android     | 4.0             |        |
-| Windows     | Windows 8       |        |
-| Mac         |                 |        |
+- Python 3.8+ (3.10+ recommended)
+- eSpeak NG (for text-to-speech)
+- ffmpeg (for audio conversion)
+- portaudio (for audio recording)
+- MySQL database (local or remote)
+
+### Installation
+
+```bash
+# 1. Configure environment
+./configure
+
+# 2. Activate virtual environment
+source venv/bin/activate
+
+# 3. Install dependencies
+make install
+
+# 4. Configure secrets
+cp .streamlit/secrets_template.toml .streamlit/secrets.toml
+# Edit .streamlit/secrets.toml with your credentials
+
+# 5. Run the app
+make run
+```
+
+### Admin Dashboard
+
+```bash
+make run-admin
+```
+
+Visit http://localhost:8505
 
 ## Documentation
 
-1. [User guide](docs/guide.md) explains how to set up and use eSpeak NG from command line or as a library.
-2. [Building guide](docs/building.md) provides info how to compile and build eSpeak NG from the source.
-4. [Index](docs/index.md) provides full list of more detailed information for contributors and developers.
-5. Look at [contribution guide](docs/contributing.md) to start your contribution.
-6. Look at [eSpeak NG roadmap](https://github.com/espeak-ng/espeak-ng/wiki/eSpeak-NG-roadmap) to participate in development of eSpeak NG.
+- [User Guide](docs/app-docs/USER_GUIDE.md) - How to use the app
+- [Developer Guide](docs/app-docs/DEVELOPER_GUIDE.md) - Development setup
+- [Admin Guide](docs/admin-docs/ADMIN_GUIDE.md) - Admin dashboard
+- [Version Workflow](VERSION_WORKFLOW.md) - Versioning and releases
+- [Local Build Guide](LOCAL-BUILD.md) - Building eSpeak NG locally
 
-## eSpeak Compatibility
+## eSpeak NG Integration
 
-The *espeak-ng* binaries use the same command-line options as *espeak*, with
-several additions to provide new functionality from *espeak-ng* such as specifying
-the output audio device name to use. The build creates symlinks of `espeak` to
-`espeak-ng`, and `speak` to `speak-ng`.
+Miolingo uses eSpeak NG for text-to-speech. You can:
 
-The espeak `speak_lib.h` include file is located in `espeak-ng/speak_lib.h` with
-an optional symlink in `espeak/speak_lib.h`. This file contains the espeak 1.48.15
-API, with a change to the `ESPEAK_API` macro to fix building on Windows
-and some minor changes to the documentation comments. This C API is API and ABI
-compatible with espeak.
+1. Use system-installed eSpeak NG: `brew install espeak-ng` or `port install espeak-ng`
+2. Build eSpeak NG locally (see [LOCAL-BUILD.md](LOCAL-BUILD.md))
+3. Point to custom installation in `config/.miolingo.config`
 
-The `espeak-data` data has been moved to `espeak-ng-data` to avoid conflicts with
-espeak. There have been various changes to the voice, dictionary and phoneme files
-that make them incompatible with espeak.
+See [ESPEAK_USAGE.md](ESPEAK_USAGE.md) for detailed integration guide.
 
-The *espeak-ng* project does not include the *espeakedit* program. It has moved
-the logic to build the dictionary, phoneme and intonation binary files into the
-`libespeak-ng.so` file that is accessible from the `espeak-ng` command line and
-C API.
+## Development
 
-## History
+```bash
+# Install with development dependencies
+make install-dev
 
-The program was originally known as __speak__ and originally written
-for Acorn/RISC\_OS computers starting in 1995 by Jonathan Duddington. This was
-enhanced and re-written in 2007 as __eSpeak__, including a relaxation of the
-original memory and processing power constraints, and with support for additional
-languages.
+# Run tests
+make test
 
-In 2010, Reece H. Dunn started maintaining a version of eSpeak on GitHub that
-was designed to make it easier to build eSpeak on POSIX systems, porting the
-build system to autotools in 2012. In late 2015, this project was officially
-forked to a new __eSpeak NG__ project. The new eSpeak NG project is a significant
-departure from the eSpeak project, with the intention of cleaning up the
-existing codebase, adding new features, and adding to and improving the
-supported languages.
+# Version management
+source venv/bin/activate
+python scripts/bump_app.py minor tag push
+python scripts/bump_admin.py patch tag push
+```
 
-The *historical* branch contains the available older releases of the original
-eSpeak that are not contained in the subversion repository.
+See [BUMP_GUIDE.md](BUMP_GUIDE.md) for version management details.
 
-1.24.02 is the first version of eSpeak to appear in the subversion
-repository, but releases from 1.05 to 1.24 are available at
-[http://sourceforge.net/projects/espeak/files/espeak/](http://sourceforge.net/projects/espeak/files/espeak/).
+## Architecture
 
-These early releases have been checked into the historical branch,
-with the 1.24.02 release as the last entry. This makes it possible
-to use the replace functionality of git to see the earlier history:
+```
+miolingo/
+├── src/              # Python source code
+├── docs/             # Documentation
+│   ├── app-docs/     # App documentation
+│   └── admin-docs/   # Admin documentation
+├── scripts/          # Utility scripts
+├── config/           # Configuration templates
+├── language_materials/  # Language content
+├── .streamlit/       # Streamlit configuration
+└── tests/            # Test suite
+```
 
-	git replace 8d59235f 63c1c019
+## Technology Stack
 
-__NOTE:__ The source releases contain the `big_endian`, `espeak-edit`,
-`praat-mod`, `riskos`, `windows_dll` and `windows_sapi` folders. These
-do not appear in the source repository until later releases, so have
-been excluded from the historical commits to align them better with
-the 1.24.02 source commit.
+- **Framework**: Streamlit
+- **Speech Recognition**: OpenAI Whisper
+- **Text-to-Speech**: eSpeak NG, gTTS
+- **Database**: MySQL
+- **Audio Processing**: ffmpeg, soundfile, numpy
+- **Deployment**: Streamlit Cloud, local
 
-## License Information
+## License
 
-eSpeak NG Text-to-Speech is released under the [GPL version 3](COPYING) or
-later license.
+See [COPYING](COPYING) files for license information.
 
-The `getopt.c` compatibility implementation for getopt support on Windows is
-taken from the NetBSD `getopt_long` implementation, which is licensed under a
-[2-clause BSD](COPYING.BSD2) license.
+## Contributing
 
-Android is a trademark of Google LLC.
+See [DEVELOPER_GUIDE.md](docs/app-docs/DEVELOPER_GUIDE.md) for contribution guidelines.
 
-## Acknowledgements
+## Support
 
-The catalan extension was funded by [Departament de la Vicepresidència i de Polítiques Digitals i Territori de la Generalitat de Catalunya](https://politiquesdigitals.gencat.cat/ca/inici/index.html#googtrans(ca|en) 
-within the framework of 
-[Projecte AINA](https://politiquesdigitals.gencat.cat/ca/economia/catalonia-ai/aina).
+- Documentation: See `docs/` directory
+- Issues: GitHub Issues
+- Email: io@miolingo.io
