@@ -1,5 +1,9 @@
 # Miolingo Development: A Detailed Chronicle
 
+## Authorship
+
+This was essentially written by Claude Sonnet 4.5, with contractions and corrections by the developer, Matthew Fairtlough (aka fairflow).
+
 ## Introduction
 
 This document contains extensive information about the Miolingo app development history, drawn from the complete development transcript. This includes all commands, corrections, tags, and comments showing how the app unfolded through the collaboration between developer and LLM—the missteps, mistakes, and leaps forward.
