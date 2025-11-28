@@ -33,36 +33,44 @@ bump_app.py minor tag
 bump_app.py patch tag # not advised
 ```
 
+### Bump + commit + push (no tag)
+
+```bash
+bump_app.py major push   # unusual
+bump_app.py minor push   # unusual
+bump_app.py patch push   # normal for patches
+```
+
 ### Bump + commit + tag + push
 
 ```bash
 bump_app.py major tag push
 bump_app.py minor tag push
-bump_app.py patch push # tag push not advised
 ```
 
 ## Typical Workflow
 
-1. **During development**: Use plain `bump patch` to update version numbers
+1. **During development**: Use `bump patch push` for quick releases
 
    ```bash
    source venv/bin/activate
-   bump_app.py patch
-   # Review changes
-   git add -A
-   git commit -m "Fix bug XYZ"
+   bump_app.py patch push
+   # This will:
+   # - Bump version (e.g., 3.0.2 → 3.0.3)
+   # - Commit with message "v3.0.3: Version bump"
+   # - Push to remote (no tag created)
    ```
 
-2. **For releases**: Use `bump tag` or `bump tag push`
+2. **For releases**: Use `bump [major|minor] tag push`
 
    ```bash
    source venv/bin/activate
    bump_app.py minor tag push
    # This will:
-   # - Bump 2.2.3 → 2.3.0 in all files
-   # - Commit with message "v2.3.0: Version bump"
-   # - Create tag v2.3.0
-   # - Push to remote
+   # - Bump version (e.g., 3.0.3 → 3.1.0)
+   # - Commit with message "v3.1.0: Version bump"
+   # - Create tag v3.1.0
+   # - Push commits and tags to remote
    ```
 
 3. **For hotfixes**:
@@ -72,8 +80,8 @@ bump_app.py patch push # tag push not advised
    # Fix the bug first, commit it
    git commit -m "Fix critical bug"
    
-   # Then bump and release
-   bump_app.py patch tag push
+   # Then bump and push (patches typically not tagged)
+   bump_app.py patch push
    ```
 
 ## What It Does

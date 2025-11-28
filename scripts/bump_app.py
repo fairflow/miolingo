@@ -6,10 +6,13 @@ Usage:
     bump_app.py major          # Bump major version (1.2.3 -> 2.0.0)
     bump_app.py minor          # Bump minor version (1.2.3 -> 1.3.0)
     bump_app.py patch          # Bump patch version (1.2.3 -> 1.2.4)
+    bump_app.py major push     # Bump major + commit + push (no tag)
+    bump_app.py minor push     # Bump minor + commit + push (no tag)
+    bump_app.py patch push     # Bump patch + commit + push (no tag)
     bump_app.py major tag      # Bump major + commit + tag
     bump_app.py minor tag      # Bump minor + commit + tag
-    bump_app.py patch tag      # Bump patch + commit + tag
-    bump_app.py patch tag push # Bump patch + commit + tag + push
+    bump_app.py major tag push # Bump major + commit + tag + push
+    bump_app.py minor tag push # Bump minor + commit + tag + push
 
 Note: Activate virtual environment first: source venv/bin/activate
 """
@@ -194,8 +197,8 @@ def update_all_files(program_files: List[str], doc_files: List[str], bump_type: 
     
     return current_version, new_version, updated_files
 
-def git_commit_and_tag(version: str, files: List[str]):
-    """Commit changes and create git tag."""
+def git_commit(version: str, files: List[str]):
+    """Commit changes."""
     print(f"\n📝 Committing changes...")
     
     # Add files
@@ -205,12 +208,14 @@ def git_commit_and_tag(version: str, files: List[str]):
     commit_msg = f"v{version}: Version bump"
     subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
     
-    # Tag
+    print(f"✅ Committed version {version}")
+
+def git_tag(version: str):
+    """Create git tag."""
     print(f"🏷️  Creating tag v{version}...")
     tag_msg = f"Version {version}"
     subprocess.run(['git', 'tag', '-a', f'v{version}', '-m', tag_msg], check=True)
-    
-    print(f"✅ Committed and tagged as v{version}")
+    print(f"✅ Tagged as v{version}")
 
 def git_push():
     """Push commits and tags to remote."""
@@ -250,16 +255,21 @@ def main():
     
     print(f"\n✅ Updated {len(updated_files)} file(s)")
     
-    # Commit and tag if requested
-    if do_tag:
-        git_commit_and_tag(new_version, updated_files)
+    # Commit if tag or push is requested
+    if do_tag or do_push:
+        git_commit(new_version, updated_files)
+        
+        # Create tag if requested
+        if do_tag:
+            git_tag(new_version)
         
         # Push if requested
         if do_push:
             git_push()
     else:
-        print("\n💡 Run with 'tag' to commit and tag: bump_app.py", bump_type, "tag")
-        print("💡 Run with 'tag push' to also push: bump_app.py", bump_type, "tag push")
+        print("\n💡 Run with 'push' to commit and push: bump_app.py", bump_type, "push")
+        print("💡 Run with 'tag' to commit and tag: bump_app.py", bump_type, "tag")
+        print("💡 Run with 'tag push' to commit, tag and push: bump_app.py", bump_type, "tag push")
 
 if __name__ == '__main__':
     main()
