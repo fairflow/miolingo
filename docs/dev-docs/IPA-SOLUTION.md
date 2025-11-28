@@ -22,7 +22,6 @@ If your IPA transcriptions represent actual Portuguese words, find and speak the
 ```
 
 **Using the helper script:**
-
 ```bash
 # Compare your IPA with a Portuguese word
 python3 ipa_to_espeak.py "kˈazɐ" --compare "casa"

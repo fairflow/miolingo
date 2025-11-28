@@ -10,6 +10,7 @@
 ## 📊 Project Status
 
 ### ✅ Completed (Planning Phase)
+
 1. **Multi-user implementation plan** (MULTI_USER_IMPLEMENTATION_PLAN.md)
    - Complete technical specification
    - Database schema (6 tables)
@@ -78,6 +79,7 @@
 ## 🔐 Security Features
 
 ### Password Security (Hardened for Emerald)
+
 - **Algorithm:** Argon2id (memory-hard, GPU-resistant)
 - **Parameters:**
   - Time cost: 4 iterations (vs standard 3)
@@ -87,12 +89,14 @@
 - **Blacklist:** Common passwords blocked
 
 ### Session Security
+
 - **Tokens:** 32-byte cryptographically secure (256 bits entropy)
 - **Expiration:** 24 hours (force daily re-authentication)
 - **IP Validation:** Detect session hijacking
 - **Automatic cleanup:** Expired sessions removed
 
 ### Rate Limiting (Enhanced for Production)
+
 | Action | Limit | Window |
 |--------|-------|--------|
 | Login attempts | 5 | 15 min |
@@ -104,11 +108,13 @@
 | Connection attempts | 10 | 10 sec |
 
 ### Failed Login Protection
+
 - 10 failed attempts = 1-hour account lockout
 - Admin notification sent
 - Activity logged for forensics
 
 ### Input Validation
+
 - ✅ Username: 3-20 chars, alphanumeric + underscore/hyphen
 - ✅ Email: RFC 5322 compliant, disposable domains blocked
 - ✅ Password: Strong complexity requirements
@@ -116,12 +122,14 @@
 - ✅ Phrases: HTML/script sanitization, 500 char limit
 
 ### Audit Logging
+
 - **All user actions logged:** Login, logout, settings changes, practice
 - **Security events:** Rate limits, session hijacking, failed logins
 - **Retention:** 90 days (leveraging Emerald unlimited storage)
 - **Anomaly detection:** Multiple IPs, unusual volumes
 
 ### SQL Injection Prevention
+
 - ✅ All queries use parameterized statements
 - ✅ No string concatenation with user input
 - ✅ Dedicated MySQL user (not root)
@@ -132,6 +140,7 @@
 ## 💰 Cost Analysis
 
 ### Krystal Emerald Plan: £19/month (~$24/month)
+
 - Unlimited MySQL databases
 - Unlimited storage
 - Unlimited bandwidth
@@ -143,6 +152,7 @@
 - UK-based support
 
 ### Streamlit Cloud: $0/month (Free Tier)
+
 - Community Cloud hosting
 - Automatic deployments
 - HTTPS included
@@ -151,11 +161,13 @@
 ### Total: £19/month (~$24/month)
 
 ### Comparison
+
 - **Supabase Free:** $0/month (but 500MB limit, will hit quickly)
 - **Supabase Pro:** $25/month (needed for production)
 - **Krystal Emerald:** £19/month (~$24/month) ✅
 
 **Winner:** Krystal Emerald
+
 - $1/month cheaper than Supabase Pro
 - Unlimited storage (no constraints)
 - You control the infrastructure
@@ -167,6 +179,7 @@
 ## 📋 Implementation Checklist
 
 ### Phase 1: Database Setup (Week 1)
+
 - [ ] Contact Krystal support for MySQL connection details
 - [ ] Create MySQL database via cPanel (`miolingo_users`)
 - [ ] Create database user (`miolingo_app`)
@@ -176,6 +189,7 @@
 - [ ] Test connection from local machine
 
 ### Phase 2: Python Module (Week 1)
+
 - [ ] Create `app_mysql.py` with all functions
 - [ ] Configure `.streamlit/secrets.toml` locally
 - [ ] Test connection pooling
@@ -185,6 +199,7 @@
 - [ ] Test rate limiting functions
 
 ### Phase 3: Authentication UI (Week 2)
+
 - [ ] Build login page UI
 - [ ] Build registration page UI
 - [ ] Implement password reset flow
@@ -194,6 +209,7 @@
 - [ ] Test login/logout flow
 
 ### Phase 4: User-Specific Features (Week 2-3)
+
 - [ ] Replace global settings with per-user settings
 - [ ] Update `save_settings()` to use MySQL
 - [ ] Update `load_settings()` to use MySQL
@@ -204,6 +220,7 @@
 - [ ] Add language-specific progress views
 
 ### Phase 5: Security & Testing (Week 3-4)
+
 - [ ] Implement rate limiting on all endpoints
 - [ ] Add failed login lockout logic
 - [ ] Implement session IP validation
@@ -216,6 +233,7 @@
 - [ ] XSS testing
 
 ### Phase 6: Deployment (Week 4)
+
 - [ ] Configure Streamlit Cloud secrets
 - [ ] Test remote MySQL connection from Streamlit Cloud
 - [ ] Deploy to staging environment
@@ -231,6 +249,7 @@
 ## 🎯 Key Features (v1.3.0)
 
 ### User Authentication
+
 - ✅ Secure user registration
 - ✅ Email/username + password login
 - ✅ Session-based authentication
@@ -238,18 +257,21 @@
 - ✅ Email verification (optional)
 
 ### Per-User Settings
+
 - ✅ Each user has independent settings
 - ✅ Settings persist across sessions
 - ✅ Settings per language
 - ✅ Voice/dialect preferences saved
 
 ### Per-User, Per-Language Progress
+
 - ✅ Practice history per user per language
 - ✅ Statistics per user per language
 - ✅ Progress tracking per user
 - ✅ No cross-user data leakage
 
 ### Security & Anti-Abuse
+
 - ✅ Hardened password hashing (Argon2id)
 - ✅ Rate limiting on all actions
 - ✅ Failed login protection
@@ -259,6 +281,7 @@
 - ✅ SQL injection prevention
 
 ### GDPR Compliance
+
 - ✅ User data export
 - ✅ Account deletion (right to erasure)
 - ✅ Data minimization (only essential PII)
@@ -307,6 +330,7 @@
 ## 🚀 Next Steps
 
 ### Immediate (User Action Required)
+
 1. **Contact Krystal support** to confirm:
    - MySQL hostname for remote connections
    - SSL/TLS support details
@@ -314,12 +338,14 @@
    - Best practices for Streamlit Cloud connections
 
 ### After Krystal Confirmation
+
 2. **Create MySQL database** via cPanel (15 minutes)
 3. **Deploy SQL schema** via phpMyAdmin (10 minutes)
 4. **Test connection** from local machine (30 minutes)
 5. **Configure Streamlit Cloud secrets** (5 minutes)
 
 ### Development Phase (3-4 weeks)
+
 6. **Build authentication UI** (Week 2)
 7. **Integrate user-specific features** (Week 2-3)
 8. **Security hardening and testing** (Week 3-4)
@@ -332,22 +358,26 @@
 This implementation provides **enterprise-grade security** by leveraging the Emerald plan's enhanced resources:
 
 ### Password Security
+
 - **10x stronger** than typical web apps (100MB memory vs 10MB)
 - **GPU-resistant** (Argon2id memory-hard algorithm)
 - **Brute-force resistant** (4 seconds per hash attempt)
 
 ### Rate Limiting
+
 - **200% more capacity** than standard plans (200 vs 100 practice/hour)
 - **Aggressive protection** against abuse and DDoS
 - **Granular limits** on all user actions
 
 ### Audit Logging
+
 - **Comprehensive** (all user actions logged)
 - **Long retention** (90 days vs typical 30 days)
 - **Unlimited storage** (Emerald plan advantage)
 - **Forensic-ready** (SQL queries for incident response)
 
 ### Monitoring
+
 - **Anomaly detection** (unusual patterns flagged)
 - **Admin alerts** (HIGH severity events)
 - **Session validation** (IP address tracking)
@@ -358,24 +388,28 @@ This implementation provides **enterprise-grade security** by leveraging the Eme
 ## ✅ Why This Architecture Wins
 
 ### Professional
+
 - ✅ Hosted on your own domain (miolingo.io)
 - ✅ Full control over infrastructure
 - ✅ No vendor lock-in
 - ✅ Professional appearance
 
 ### Cost-Effective
+
 - ✅ £19/month total cost
 - ✅ Cheaper than Supabase Pro ($25/month)
 - ✅ Unlimited storage (no usage-based fees)
 - ✅ Predictable costs (no surprises)
 
 ### Scalable
+
 - ✅ Emerald plan has enhanced resources
 - ✅ Unlimited storage for growth
 - ✅ Connection pooling for concurrency
 - ✅ Can handle thousands of users
 
 ### Secure
+
 - ✅ Enterprise-grade password hashing
 - ✅ Comprehensive rate limiting
 - ✅ Audit logging and monitoring
@@ -383,6 +417,7 @@ This implementation provides **enterprise-grade security** by leveraging the Eme
 - ✅ Daily backups included
 
 ### Future-Proof
+
 - ✅ Standard MySQL (widely supported)
 - ✅ Well-documented architecture
 - ✅ No proprietary APIs
@@ -394,6 +429,7 @@ This implementation provides **enterprise-grade security** by leveraging the Eme
 ## 🎉 Ready to Launch!
 
 All planning complete, architecture designed, security hardened. Just waiting for:
+
 1. ✅ Krystal MySQL connection details
 2. ✅ Database creation
 3. ✅ 3-4 weeks of focused development

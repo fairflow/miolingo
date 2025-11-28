@@ -291,6 +291,7 @@ All miolingo development after this commit will be preserved.
 ## Non-Tracked Essential Files to Document
 
 User must manually copy these:
+
 - `.streamlit/secrets.toml` (contains passwords)
 - `practice_config.json` (user's actual config)
 - `practice_history.json` (user's practice data)

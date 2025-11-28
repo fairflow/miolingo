@@ -1,5 +1,5 @@
 # Program files containing version numbers
 # One file per line, relative to project root
-app.py
+src/app.py
 VERSION_WORKFLOW.md
 APP_CHANGELOG.md
