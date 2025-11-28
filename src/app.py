@@ -254,6 +254,7 @@ def show_login_page():
     """Display login/registration page."""
     st.title("🔐 Miolingo Login")
     st.markdown("**Multi-language pronunciation trainer** - Practice Portuguese, French, Italian, German, Dutch and Spanish!")
+    st.caption(f"Version {__version__}")
     
     tab1, tab2, tab3 = st.tabs(["Login", "Register", "Guest Mode"])
     
