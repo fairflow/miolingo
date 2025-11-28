@@ -1,6 +1,6 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# espeak is a standard Python library
 
-# espeak is a standard Python library; we built a local version to enable sound, a common problem on a mac.  But we don't need to use that.  We do need to play recordings, and can use .wav if needed.  Can you give me a workflow for checking this out in detail please?  We do have ssh enabled and have been able to use it.
+we built a local version to enable sound, a common problem on a mac.  But we don't need to use that.  We do need to play recordings, and can use .wav if needed.  Can you give me a workflow for checking this out in detail please?  We do have ssh enabled and have been able to use it.
 
 You should be able to run this on Emerald using Krystal’s Python App + your existing SSH, treating audio as simple .wav file serving and playback in the browser.[^1][^2]
 

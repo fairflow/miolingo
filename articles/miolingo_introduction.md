@@ -1,4 +1,4 @@
-# Miolingo Case Study: Shared Introduction
+# Miolingo Case Study: Introduction
 
 Miolingo was not built by a non‑technical founder clicking around a no‑code tool, nor by an expert full‑stack engineer at the top of their game. It was built by a human developer with strong core software and theoretical grounding, working closely with an LLM (Claude Sonnet 4.5) that supplied most of the hands‑on implementation detail.
 
