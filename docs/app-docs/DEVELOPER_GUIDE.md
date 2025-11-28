@@ -22,7 +22,7 @@ This guide is for developers who want to contribute to, modify, or understand th
 
 ### What Is This?
 
-A Streamlit web application for practicing pronunciation in multiple languages (Portuguese, French, Dutch, Flemish) with real-time feedback using AI speech recognition. Users can select their language and voice/dialect in the sidebar; all practice features work identically for every supported language.
+A Streamlit web application for practicing pronunciation in multiple languages (Portuguese, French, Dutch, Flemish, German, Italian, Spanish) with real-time feedback using AI speech recognition. Users can select their language and voice/dialect in the sidebar; all practice features work identically for every supported language.
 
 ### Tech Stack
 
@@ -35,40 +35,53 @@ A Streamlit web application for practicing pronunciation in multiple languages (
 ### Repository Structure
 
 ```
-espeak-ng/
-├── app.py                          # Main Streamlit application (v0.9.1)
-├── app-docs/                       # App documentation (this folder)
-│   ├── README.md                   # Documentation index
-│   ├── USER_GUIDE.md               # User guide
-│   ├── TESTING_GUIDE.md            # Testing guide
-│   └── DEVELOPER_GUIDE.md          # This file
-├── practice_config.json            # User settings (not in git)
-├── practice_history.json           # Practice history (not in git)
+miolingo/
+├── src/                            # Python source code
+│   ├── app.py                      # Main Streamlit application
+│   ├── miolingo-admin.py          # Admin dashboard
+│   ├── app_language_materials.py  # Language materials browser
+│   ├── app_mysql.py               # Database functions
+│   └── [other modules]            # Additional app modules
+├── docs/                           # Documentation
+│   ├── app-docs/                  # User and developer guides
+│   │   ├── README.md              # Documentation index
+│   │   ├── USER_GUIDE.md          # User guide
+│   │   ├── TESTING_GUIDE.md       # Testing guide
+│   │   └── DEVELOPER_GUIDE.md     # This file
+│   ├── admin-docs/                # Admin dashboard documentation
+│   │   └── sources/               # Admin module sources
+│   ├── dev-docs/                  # Development documentation
+│   └── archive/                   # Historical documentation
+├── scripts/                        # Utility scripts
+│   ├── bump_app.py                # App version bumping
+│   ├── bump_admin.py              # Admin version bumping
+│   └── language-generation/       # Language content generation
+├── data/                           # Data files
+│   └── practice-sets/             # Practice phrases and word lists
+├── language_materials/             # Language learning content
+│   ├── pt/ fr/ nl/ de/ es/ it/   # 6 language directories
+│   └── [level]/                   # Organized by CEFR level
+├── config/                         # Configuration templates
+├── .streamlit/                     # Streamlit configuration
 ├── APP_CHANGELOG.md                # App version history
 ├── VERSION_WORKFLOW.md             # Git workflow documentation
+├── BUMP_GUIDE.md                   # Version bump script guide
 ├── requirements.txt                # Python dependencies
-├── ccs_test_framework.py           # CCS testing framework
-├── ccs_test_integration.py         # CCS Streamlit integration
-├── CCS_TESTING_README.md           # CCS testing docs
-├── practice_phrases_with_translations.txt  # Sample phrases
-├── phsource/                       # eSpeak phoneme source files
-├── dictsource/                     # eSpeak dictionary sources
-├── espeak-ng-data/                 # Compiled eSpeak data
-├── src/                            # eSpeak NG C source code
-├── docs/                           # eSpeak NG documentation
-└── [other espeak-ng files]         # Original eSpeak NG project files
+└── README.md                       # Project overview
 ```
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
-| `app.py` | Main Streamlit app (renamed from `streamlit_app_v2.py`) |
-| `practice_config.json` | Persists user settings (created at runtime) |
-| `practice_history.json` | Stores practice sessions (created at runtime) |
+| `src/app.py` | Main Streamlit application |
+| `src/miolingo-admin.py` | Admin dashboard for monitoring |
+| `src/app_language_materials.py` | Language materials browser |
+| `scripts/bump_app.py` | Automated version bumping |
 | `requirements.txt` | Python package dependencies |
 | `APP_CHANGELOG.md` | App-specific version history |
 | `VERSION_WORKFLOW.md` | Git branching and versioning guide |
+| `BUMP_GUIDE.md` | Version bump script usage guide |
 
 ---
 
@@ -96,8 +109,8 @@ espeak-ng/
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/fairflow/espeak-ng-pt-br.git
-cd espeak-ng-pt-br
+git clone https://github.com/fairflow/miolingo.git
+cd miolingo
 ```
 
 #### 2. Create Virtual Environment
@@ -115,21 +128,28 @@ pip install -r requirements.txt
 
 **Note**: First run will download Whisper model (~150MB for `base` model).
 
-#### 4. Verify eSpeak NG
+#### 4. Verify eSpeak
 
 ```bash
-espeak-ng --version
+espeak --version
 ```
 
-If not found, you may need to build from source (see eSpeak NG docs).
+**Note**: The binary is `espeak`, not `espeak-ng`. If not found, install via:
+- macOS: `brew install espeak-ng` or `port install espeak-ng`
+- Linux: `apt-get install espeak-ng`
 
 #### 5. Run the App Locally
 
 ```bash
-streamlit run app.py
+streamlit run src/app.py
 ```
 
 App will open at `http://localhost:8501`
+
+For the admin dashboard:
+```bash
+streamlit run src/miolingo-admin.py --server.port 8505
+```
 
 ### Development Environment
 
@@ -326,77 +346,81 @@ We follow the workflow documented in `VERSION_WORKFLOW.md`:
 
 #### Making Changes
 
-1. **Create feature branch**:
+1. **Fork the repository** (if you haven't already)
+   - Go to https://github.com/fairflow/miolingo
+   - Click "Fork" button
+
+2. **Clone your fork**:
+```bash
+git clone https://github.com/YOUR_USERNAME/miolingo.git
+cd miolingo
+git remote add upstream https://github.com/fairflow/miolingo.git
+```
+
+3. **Create feature branch**:
 ```bash
 git checkout main
-git pull myfork main
+git pull upstream main
 git checkout -b feature/new-practice-mode
 ```
 
-2. **Make changes and commit**:
+4. **Make changes and commit**:
 ```bash
-git add app.py
+git add src/app.py
 git commit -m "Add spaced repetition practice mode"
 ```
 
-3. **Push to remote**:
+5. **Push to your fork**:
 ```bash
-git push myfork feature/new-practice-mode
+git push origin feature/new-practice-mode
 ```
 
-4. **Test thoroughly** before merging to main
+6. **Create Pull Request**:
+   - Go to https://github.com/fairflow/miolingo/pulls
+   - Click "New Pull Request"
+   - Select your fork and branch
+   - Fill in PR description (see guidelines below)
+   - Submit for review
 
-5. **Merge to main** (with permission):
-```bash
-git checkout main
-git merge feature/new-practice-mode
-git push myfork main
-```
+7. **Address review feedback** if requested
+
+8. **Merge** will be done by maintainer after approval
 
 ### Versioning
 
-
 Follow **Semantic Versioning** (MAJOR.MINOR.PATCH):
 
-- **PATCH** (0.9.0 → 0.9.1): Bug fixes only
-- **MINOR** (0.9.1 → 0.10.0): New features (backward compatible)
-- **MAJOR** (0.9.9 → 1.0.0 → 1.0.1): Breaking changes or stable milestone
+- **PATCH** (3.0.1 → 3.0.2): Bug fixes only
+- **MINOR** (3.0.2 → 3.1.0): New features (backward compatible)
+- **MAJOR** (3.1.0 → 4.0.0): Breaking changes or major milestone
 
-**Note**: 0.9.9 → 1.0.0 → 1.0.1 (NOT 0.10.0)
+#### Releasing a New Version (Automated)
 
-#### Releasing a New Version
+Use the bump scripts for consistent version management:
 
-1. **Update version in `app.py`**:
-```python
-__version__ = "0.9.2"
-```
-
-2. **Update `APP_CHANGELOG.md`**:
-```markdown
-## Version 0.9.2 (2025-11-XX)
-
-### Added
-- New spaced repetition mode
-
-### Fixed
-- Audio playback on Firefox
-```
-
-3. **Commit changes**:
 ```bash
-git add app.py APP_CHANGELOG.md
-git commit -m "Bump version to 0.9.2"
+# Activate virtual environment
+source venv/bin/activate
+
+# For patches (bug fixes) - no tag:
+python scripts/bump_app.py patch push
+
+# For minor releases (new features):
+python scripts/bump_app.py minor tag push
+
+# For major releases (breaking changes):
+python scripts/bump_app.py major tag push
 ```
 
-4. **Create git tag**:
-```bash
-git tag -a v0.9.2 -m "Version 0.9.2 - Spaced repetition mode"
-```
+The bump script automatically:
+- Updates version in `src/app.py`
+- Updates all documentation files
+- Updates `APP_CHANGELOG.md`
+- Commits changes (if `tag` or `push` specified)
+- Creates git tag (if `tag` specified)
+- Pushes to remote (if `push` specified)
 
-5. **Push with tags**:
-```bash
-git push myfork main --follow-tags
-```
+See [BUMP_GUIDE.md](../../BUMP_GUIDE.md) for detailed usage.
 
 ### Code Style
 
@@ -412,13 +436,14 @@ Before pushing:
 
 1. **Run the app**:
 ```bash
-streamlit run app.py
+streamlit run src/app.py
 ```
 
 2. **Test all practice modes**
-3. **Test on different browsers** (if possible)
-4. **Check console for errors** (F12 → Console tab)
-5. **Verify settings persistence** (reload page, check settings)
+3. **Test language materials browser** with all 6 languages
+4. **Test on different browsers** (if possible)
+5. **Check console for errors** (F12 → Console tab)
+6. **Verify database connectivity** (if using MySQL features)
 
 ---
 
@@ -447,23 +472,26 @@ Enables systematic testing of UI state consistency.
 
 ### Streamlit Cloud (Recommended)
 
+**Live App**: [miolingo3.streamlit.app](https://miolingo3.streamlit.app)
+
 1. **Push code to GitHub**:
 ```bash
-git push myfork main
+git push origin main
 ```
 
 2. **Go to** [share.streamlit.io](https://share.streamlit.io)
 
 3. **Create new app**:
-   - Repository: `fairflow/espeak-ng-pt-br`
+   - Repository: `fairflow/miolingo`
    - Branch: `main`
-   - Main file path: `app.py`
+   - Main file path: `src/app.py`
 
 4. **Deploy**
 
-5. **Configure settings** (if needed):
-   - Python version: 3.10
-   - Secrets: (none required for this app)
+5. **Configure settings**:
+   - Python version: 3.12 (see `runtime.txt`)
+   - System packages: `espeak-ng`, `ffmpeg` (see `packages.txt`)
+   - Secrets: MySQL database credentials (if using database features)
 
 ### Local Deployment
 
@@ -603,8 +631,10 @@ subprocess.run(
 
 For questions or collaboration:
 
-- GitHub Issues: [Create an issue](https://github.com/fairflow/espeak-ng-pt-br/issues)
-- Email: [Add contact email]
+- **Issues**: [github.com/fairflow/miolingo/issues](https://github.com/fairflow/miolingo/issues)
+- **Pull Requests**: [github.com/fairflow/miolingo/pulls](https://github.com/fairflow/miolingo/pulls)
+- **Email**: io@miolingo.io
+- **Live App**: [miolingo3.streamlit.app](https://miolingo3.streamlit.app)
 - Maintainer: Matthew & Contributors
 
 ---
@@ -617,4 +647,4 @@ GPL-3.0 (inherited from eSpeak NG)
 
 **Happy coding! 🚀**
 
-*Last updated: Version 1.0.1 (November 11, 2025)*
+*Last updated: Version 3.0.1 (28 November 2025)*
