@@ -2,22 +2,18 @@
 
 ## Introduction
 
-This document contains extensive information about the Miolingo app development history, drawn from the complete development transcript. It includes all commands, corrections, tags, and comments showing how the app unfolded through the collaboration between developer and LLM—the missteps, mistakes, and leaps forward.
+This document contains extensive information about the Miolingo app development history, drawn from the complete development transcript. This includes all commands, corrections, tags, and comments showing how the app unfolded through the collaboration between developer and LLM—the missteps, mistakes, and leaps forward.
 
-The main repository is at [https://github.com/fairflow/miolingo](https://github.com/fairflow/miolingo) with documentation in the `docs/` directory. This analysis goes deeper than previous expositions, examining four key aspects of the development process.
+The main repository is at [https://github.com/fairflow/miolingo](https://github.com/fairflow/miolingo) with documentation in the `docs/` directory.
 
-## Analysis Framework
+## Analysis
 
-This analysis examines four key aspects:
+We examine four key aspects of the development process [^1][^2]:
 
 1. **Development Story**: Chronological narrative identifying initial vision, major features, key challenges, and the role Claude played at each stage
 2. **Technical Insights**: Technology choices, technical challenges, code architecture evolution, and where AI vs human expertise was critical
 3. **AI Collaboration Insights**: Interaction patterns, prompt effectiveness, mistake patterns, and steering techniques
 4. **Efficiency Analysis**: Time quantification, AI speedups, areas where AI didn't help, and comparison to traditional development
-
-The following is a four-part analysis based on the development transcript and Miolingo description, focusing on chronology, technical details, collaboration patterns, and efficiency.[^1][^2]
-
-***
 
 ### Development Story
 
@@ -36,6 +32,7 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
     - Early UX: minimal UI, robotic eSpeak audio, but already demonstrated that similarity scoring and IPA feedback could work in real time.[^2]
 2. **Curated materials and history for the local practice app**
     - Word and phrase lists organized into levels (A–D), with duplicates cleaned, case normalized, and counts reported (e.g., “Level A 74→69 words, 5 duplicates removed”).[^2]
+    - This structure was later discarded as automated level analysis proved unsatisfactory
     - Data files plus comments and tags embedded into the practice pipeline so that every attempt could be logged and later reviewed.[^2]
 3. **Transition to Miolingo web app (Streamlit)**
     - Core page with a standard pattern: “Enter or pick phrase → Listen to target → Record → See score and IPA comparison → Replay your audio and what ASR heard.”[^1][^2]
@@ -45,7 +42,7 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
     - The transcript describes a “standard workflow” section explicitly teaching: click Listen First → record → check pronunciation → replay both target and recognized speech.[^2]
 5. **Six-language expansion and content build-out**
     - Languages: Portuguese (Brazilian), French, Italian, German, Dutch, Spanish were added with curated word/phrase sets and stories for contextual practice.[^1][^2]
-    - For at least French and Portuguese, the transcript shows bulk generation and cleaning of hundreds of items (e.g., 628 French and 255 Portuguese entries, with IPA and translations).[^2]
+    - The transcript shows bulk generation and cleaning of hundreds of items (e.g., 628 French and 255 Portuguese entries, with IPA and translations).[^2]
 6. **Better audio: Google Cloud TTS + fallback chain**
     - Early versions relied on eSpeak NG for both target and phoneme-level feedback, resulting in robotic target audio.[^2]
     - A pivotal turning point was adding Google Cloud TTS for “natural-sounding” target speech, with gTTS and eSpeak NG as fallback options to handle rate limits or outages.[^3][^2]
@@ -64,7 +61,7 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
     - Solution: Split roles—Google Cloud TTS for natural target audio, eSpeak NG retained underneath for IPA and phoneme comparison, creating a layered feedback system.[^3][^2]
 2. **Whisper hallucinations and short-word recognition**
     - Problem: Whisper would hallucinate content with silence (e.g., isso being decoded as something closer to “Jesus”) or garbled syllables like “p,easy toU”.[^2]
-    - Solution: Introduced better recording guidance, shorter durations for single words, temperature tuning, and tests with dedicated scripts (e.g., `testisso.py`) to enforce tight timing.[^2]
+    - Solution: Introduced better recording guidance, shorter durations for single words, moderated trimming of silence, temperature tuning, and tests with dedicated scripts (e.g., `testisso.py`) to enforce tight timing.[^2]
 3. **SSH tunnel lifecycle in Streamlit**
     - Problem: Streamlit reruns the entire script on each interaction, causing tunnels to be repeatedly opened, left dangling, or reported as “already started.”[^2]
     - Solution: Iterative debugging led to using `st.session_state` plus explicit “is active?” checks so the tunnel survives UI reruns without spawning duplicates.[^2]
@@ -72,7 +69,7 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
     - Problem: Local SQLite would be wiped on each deployment restart; storing user data on the Streamlit instance wasn’t viable.[^2]
     - Solution: Move to remote MySQL hosted on Krystal and reach it via SSH tunnel, voluntarily accepting extra network complexity for persistence and control.[^3][^2]
 5. **Function signature refactors and missing call-site updates**
-    - Problem: Changing a function like `generate_target_audio` without updating all callers caused runtime errors, which the LLM did not always catch.[^2]
+    - Problem: Changing a function like `generate_target_audio` without updating all callers caused runtime errors, which the LLM did not catch.[^2]
     - Solution: Human spotted the errors via test runs and pushed for a post-mortem that documented the failure mode and recommended static checks for future work.[^2]
 6. **LLM forgetfulness under long context**
     - Problem: Over a 43,000-line log, the model repeatedly forgot details like “use `espeak`, not `espeak-ng`”, “activate the venv first”, and earlier utility scripts, leading to reinvention and corrections.[^2]
@@ -83,13 +80,11 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
 
 #### Claude’s role at each stage
 
-- **Early local tool phase:** Almost all Python code and scripts (practice app, filters, wordlist cleaning) were generated by Claude, while the human ran commands, validated outputs, and corrected mistakes.[^2]
+- **Early local tool phase:** All Python code and scripts (practice app, filters, wordlist cleaning) were generated by Claude, while the human ran commands, validated outputs, and corrected mistakes.[^2]
 - **Streamlit app inception:** Claude scaffolded the Streamlit UI, state handling, audio widgets, and basic layout; the human tweaked UX and validated that the flow felt pedagogically sound.[^1][^2]
-- **Feature growth (multi-language, Listen First, built-in materials):** Claude wrote the bulk of the code and performed content manipulation (creating cleaned text files, IPA-enriched resources), while the human chose language sets, curated materials, and tested language quality.[^2]
+- **Feature growth (multi-language, Listen First, built-in materials):** Claude wrote the the code and the large bulk of the documentation and performed content manipulation (creating cleaned text files, IPA-enriched resources), while the human chose language sets, curated materials, and tested language quality.[^2]
 - **Infrastructure \& security:** Claude proposed and implemented Argon2id, SSH tunneling, and schema designs, with the human deciding on hosting provider, cost envelope, and acceptable complexity.[^3][^2]
 - **Stabilization:** The human increasingly acted as QA lead and product owner—catching refactor bugs, noticing forgotten constraints, and insisting on coherent documentation and naming, while Claude iterated on fixes.[^2]
-
-***
 
 ### Technical Insights
 
@@ -128,7 +123,7 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
         - Experiment with Whisper parameters (e.g., temperature) and, when needed, treat suspicious transcriptions with caution in scoring.[^2]
     - Outcome: Dramatically fewer absurd recognitions and more reliable feedback for short items.[^2]
 3. **Managing long-running, high-context development with an LLM**
-    - Challenge: Over thousands of turns, Claude forgot binary names, environment setup, and previously created utilities, and response times degraded.[^2]
+    - Challenge: Over hundreds of turns, Claude forgot binary names, environment setup, and previously created utilities, and response times degraded.[^2]
     - Approach:
         - Push for explicit checklists (“remember: `espeak`, not `espeak-ng`; always activate venv”) and meta-instructions for future prompts.[^2]
         - Capture stable decisions (e.g., versioning conventions, file paths) into documentation files that could be re-pasted or referenced.[^2]
@@ -138,6 +133,7 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
 #### Code architecture evolution
 
 - **Phase 1: Single-file practice script**
+
     - A monolithic Python script handled recording, ASR, scoring, and history persistence in JSON, appropriate for a solo CLI tool.[^2]
 - **Phase 2: Streamlit monolith with clustered functions**
     - The app logic was pulled into functions (e.g., for audio capture, scoring, display) but still largely in one file, with sections divided by UI panels.[^2]
@@ -157,8 +153,6 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
     - Steering architecture choices (e.g., “own the MySQL DB on our host, don’t rely on Supabase”) and deciding acceptable complexity.[^3][^2]
     - Managing the LLM’s forgetfulness with checklists and reminders, and noticing when a “solution” was just reinventing previous work.[^2]
     - Providing pedagogical judgment about UI flows and content—what will actually help a learner pronounce better, not just what’s easy to implement.[^1][^2]
-
-***
 
 ### AI Collaboration Insights
 
@@ -207,8 +201,6 @@ The Streamlit-based Miolingo UI emerged as the natural next step: turn the CLI-s
     - PROJECT_CHECKLIST-like prompts and persistent docs compensate for LLM amnesia over long sessions.[^2]
 4. **The human is the safety net and product owner**
     - Catching refactors, aligning with user goals, and making architectural trade-offs are not things the model can safely own alone.[^2]
-
-***
 
 ### Efficiency Analysis
 
