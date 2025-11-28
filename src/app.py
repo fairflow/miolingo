@@ -256,6 +256,15 @@ def show_login_page():
     st.markdown("**Multi-language pronunciation trainer** - Practice Portuguese, French, Italian, German, Dutch and Spanish!")
     st.caption(f"Version {__version__}")
     
+    # About section with links
+    st.markdown("---")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("📖 **[About Miolingo](https://github.com/fairflow/miolingo/blob/main/README.md)** - Learn about features, tech stack, and how to use")
+    with col2:
+        st.markdown("📚 **[Development Story](https://github.com/fairflow/miolingo/blob/main/articles/development_detailed.md)** - How this app was built with AI collaboration")
+    st.markdown("---")
+    
     tab1, tab2, tab3 = st.tabs(["Login", "Register", "Guest Mode"])
     
     with tab1:
