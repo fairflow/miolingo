@@ -51,7 +51,7 @@ Miolingo is a currently free web app that helps you improve your pronunciation i
 
 ## 🚀 Getting Started
 
-1. **Visit** [miolingo.io](https://miolingo.streamlit.app) (or your deployment URL)
+1. **Visit** [miolingo.io](https://miolingo3.streamlit.app) (or your deployment URL)
 2. **Choose** Guest Mode to try it out, or create a free account to save progress
 3. **Select** your target language
 4. **Practice** by listening to the target audio and recording yourself
@@ -81,4 +81,4 @@ Miolingo is a currently free web app that helps you improve your pronunciation i
 
 ---
 
-**Ready to improve your pronunciation?** Start practicing now at [miolingo.io](https://miolingo.io)
+**Ready to improve your pronunciation?** Start practicing now at [miolingo.io](https://miolingo3.io)

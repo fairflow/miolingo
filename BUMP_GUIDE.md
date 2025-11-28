@@ -30,7 +30,7 @@ bump_app.py patch   # 1.2.3 → 1.2.4
 ```bash
 bump_app.py major tag
 bump_app.py minor tag
-bump_app.py patch tag
+bump_app.py patch tag # not advised
 ```
 
 ### Bump + commit + tag + push
@@ -38,7 +38,7 @@ bump_app.py patch tag
 ```bash
 bump_app.py major tag push
 bump_app.py minor tag push
-bump_app.py patch tag push
+bump_app.py patch push # tag push not advised
 ```
 
 ## Typical Workflow

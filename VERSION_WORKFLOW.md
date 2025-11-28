@@ -3,10 +3,13 @@
 ## Quick Reference
 
 <!-- VERSION MARKER - Update this when releasing new version -->
-**Current Version:** 2.2.3
-**App File:** `app.py`
+**Current Version:** 3.0.1
+**App File:** `src/app.py`
+**Admin File:** `src/miolingo-admin.py`
 **Versioning:** Semantic Versioning (MAJOR.MINOR.PATCH)
-**Git Tags:** Match versions (`v0.9.0`, `v1.0.0`, etc.)
+**Git Tags:** Match versions (`v3.0.0`, `v3.1.0`, etc.)
+**Repository:** `fairflow/miolingo` on GitHub
+**Live App:** [miolingo3.streamlit.app](https://miolingo3.streamlit.app)
 
 ## Version Number Rules
 
@@ -89,12 +92,49 @@ git merge hotfix/critical-issue
 
 ## Releasing a New Version
 
+### Automated Method (Recommended)
+
+Use the bump scripts for consistent version management:
+
+```bash
+# 1. Activate virtual environment
+source venv/bin/activate
+
+# 2. Choose release type and run bump script
+# For minor release (new features):
+python scripts/bump_app.py minor tag push
+
+# For major release (breaking changes):
+python scripts/bump_app.py major tag push
+
+# For patch (bug fixes) - typically not tagged:
+python scripts/bump_app.py patch
+git add -A
+git commit -m "Fix: description"
+git push origin main
+```
+
+The `bump_app.py` script automatically:
+- Updates version in `src/app.py`
+- Updates all documentation files
+- Updates `APP_CHANGELOG.md` with new version entry
+- Commits with standardized message (if `tag` specified)
+- Creates git tag (if `tag` specified)
+- Pushes to remote (if `push` specified)
+
+See [BUMP_GUIDE.md](BUMP_GUIDE.md) for detailed bump script usage.
+
+### Manual Method (Not Recommended)
+
+<details>
+<summary>Click to expand manual steps</summary>
+
 ### 1. Update Version Number
 
-Edit `app.py`:
+Edit `src/app.py`:
 
 ```python
-__version__ = "0.9.1"  # Increment appropriately
+__version__ = "3.0.2"  # Increment appropriately
 ```
 
 ### 2. Update Changelog
@@ -102,7 +142,7 @@ __version__ = "0.9.1"  # Increment appropriately
 Edit `APP_CHANGELOG.md`:
 
 ```markdown
-## [0.9.1] - 2025-11-XX
+## [3.0.2] - 2025-11-XX
 
 ### Added
 - New feature descriptions
@@ -114,38 +154,50 @@ Edit `APP_CHANGELOG.md`:
 - Changes to existing features
 ```
 
-### 3. Commit Version Bump
+### 3. Update Documentation
+
+Update version numbers in:
+- `docs/app-docs/USER_GUIDE.md`
+- `docs/app-docs/DEVELOPER_GUIDE.md`
+- `docs/app-docs/TESTING_GUIDE.md`
+- `README.md`
+- `VERSION_WORKFLOW.md` (this file)
+- `VERSION_CHECKLIST.md`
+
+### 4. Commit Version Bump
 
 ```bash
-git add app.py APP_CHANGELOG.md
-git commit -m "Bump version to 0.9.1
+git add -A
+git commit -m "Bump version to 3.0.2
 
 - Summary of main changes
 - Key bug fixes
 - Important notes"
 ```
 
-### 4. Create Git Tag
+### 5. Create Git Tag
 
 ```bash
-# Tag must match version in app.py
-git tag -a v0.9.1 -m "Version 0.9.1
+# Tag must match version in src/app.py
+git tag -a v3.0.2 -m "Version 3.0.2
 
 - Feature/fix summary
 - Important changes
 - Known issues (if any)"
 ```
 
-### 5. Push Everything
+### 6. Push Everything
 
 ```bash
 # Push main branch AND tags together
-git push myfork main --follow-tags
+git push origin main --follow-tags
 ```
 
-### 6. Verify Deployment
+</details>
 
-- Check Streamlit Cloud picks up changes
+### 7. Verify Deployment
+
+- Check Streamlit Cloud picks up changes at [miolingo3.streamlit.app](https://miolingo3.streamlit.app)
 - Reboot app if needed via Streamlit dashboard
 - Verify version number shows in sidebar
 
@@ -154,11 +206,11 @@ git push myfork main --follow-tags
 The app automatically shows version info in the sidebar:
 
 ```
-Portuguese Pronunciation Trainer
-Version 0.9.0
+Pronunciation Trainer
+Version 3.0.1
 ```
 
-This is pulled from `__version__` in `app.py`.
+This is pulled from `__version__` in `src/app.py`.
 
 ## Rollback Procedure
 
@@ -189,22 +241,18 @@ git push myfork main --force  # Only if necessary!
 6. **Small increments** - Patch versions for fixes, minor for features
 7. **Wait for permission** - Don't merge to main without approval
 
-## When to Release 1.0.0
+## Version History
 
-Version 1.0.0 should be released when:
+- **3.0.x** - Current: Major restructuring, 6 languages, language materials browser
+- **2.x.x** - Feature expansion, admin dashboard
+- **1.0.0** - First stable release
+- **0.9.x** - Beta/pre-release
 
-- All major features are stable
-- No critical bugs remain
-- App has been tested on multiple devices/platforms
-- Documentation is complete
-- You're confident it's production-ready
+### Major Version Milestones
 
-Until then, stay in 0.x.x versions:
-
-- 0.9.x = beta/pre-release
-- 1.0.0 = first stable release
-- 1.x.x = stable with new features
-- 2.0.0 = major breaking changes
+- **3.0.0** - Repository reorganization, expanded to 6 languages (pt, fr, nl, de, es, it), language materials browser
+- **2.0.0** - Admin dashboard, cost tracking, multi-user support
+- **1.0.0** - First production-ready release with core features
 
 ## Viewing Version History
 
@@ -224,7 +272,7 @@ git describe --tags
 
 ## Remote Repository
 
-- **myfork**: `fairflow/espeak-ng-pt-br` (your fork)
-- **origin**: `espeak-ng/espeak-ng` (upstream, read-only)
+- **origin**: `fairflow/miolingo` on GitHub (main repository)
+- **Live deployment**: [miolingo3.streamlit.app](https://miolingo3.streamlit.app)
 
-Always push to `myfork`, never `origin`.
+Push all changes to `origin main` branch.

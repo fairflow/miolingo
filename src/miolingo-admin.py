@@ -457,7 +457,7 @@ with tab4:
         from pathlib import Path
         
         # Add admin-sources to path
-        admin_sources = Path(__file__).parent / "admin-sources"
+        admin_sources = Path(__file__).parent.parent / "docs" / "admin-docs" / "sources"
         if str(admin_sources) not in sys.path:
             sys.path.insert(0, str(admin_sources))
         
