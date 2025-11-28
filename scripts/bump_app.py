@@ -21,13 +21,19 @@ from pathlib import Path
 from typing import List, Tuple
 from datetime import datetime
 
-# Configuration files
-PROGRAM_FILES_LIST = "bump_program_files.txt"
-DOC_FILES_LIST = "bump_doc_files.txt"
+# Get script directory
+SCRIPT_DIR = Path(__file__).parent
 
-def read_file_list(filename: str) -> List[str]:
+# Configuration files (relative to script directory)
+PROGRAM_FILES_LIST = SCRIPT_DIR / "bump_program_files.txt"
+DOC_FILES_LIST = SCRIPT_DIR / "bump_doc_files.txt"
+
+# Project root (parent of scripts directory)
+PROJECT_ROOT = SCRIPT_DIR.parent
+
+def read_file_list(filename: Path) -> List[str]:
     """Read list of files from config file, ignoring comments and blank lines."""
-    config_file = Path(filename)
+    config_file = filename
     if not config_file.exists():
         print(f"Warning: {filename} not found, skipping")
         return []
@@ -36,7 +42,8 @@ def read_file_list(filename: str) -> List[str]:
     for line in config_file.read_text().splitlines():
         line = line.strip()
         if line and not line.startswith('#'):
-            files.append(line)
+            # Convert to absolute path from project root
+            files.append(str(PROJECT_ROOT / line))
     return files
 
 def find_version_in_file(filepath: str) -> Tuple[str, str]:
@@ -47,7 +54,10 @@ def find_version_in_file(filepath: str) -> Tuple[str, str]:
     - **Version 1.2.3**
     - Current Version: 1.2.3
     """
-    content = Path(filepath).read_text()
+    file_path = Path(filepath)
+    if not file_path.exists():
+        return None, None
+    content = file_path.read_text()
     
     # Pattern 1: Python __version__ = "1.2.3"
     match = re.search(r'__version__\s*=\s*["\'](\d+\.\d+\.\d+)["\']', content)
