@@ -1,6 +1,6 @@
 # Miolingo - Multi-Language Pronunciation Trainer - Documentation
 
-**Version 3.0.3** | Last Updated: 28 November 2025
+**Version 3.1.0** | Last Updated: 28 November 2025
 
 Welcome to the documentation for Miolingo, the multi-language pronunciation trainer app!
 

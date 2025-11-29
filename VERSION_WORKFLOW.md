@@ -134,7 +134,7 @@ See [BUMP_GUIDE.md](BUMP_GUIDE.md) for detailed bump script usage.
 Edit `src/app.py`:
 
 ```python
-__version__ = "3.0.3"  # Increment appropriately
+__version__ = "3.1.0"  # Increment appropriately
 ```
 
 ### 2. Update Changelog

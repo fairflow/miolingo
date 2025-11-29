@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "3.0.3"
+__version__ = "3.1.0"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -422,7 +422,7 @@ def check_authentication():
 # When activating: Set BANNER_START_TIME to current time, banner shows time+5 minutes
 # Remember to deactivate after maintenance by commenting out the st.warning line!
 # ========================================
-st.success("🎉 **Now supporting 6 languages!** Practice pronunciation in Portuguese, French, Dutch, German, Italian, and Spanish.")
+# st.success("🎉 **Now supporting 6 languages!** Practice pronunciation in Portuguese, French, Dutch, German, Italian, and Spanish.")
 
 # Check authentication BEFORE loading the app
 check_authentication()
