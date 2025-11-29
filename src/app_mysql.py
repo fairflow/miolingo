@@ -980,6 +980,154 @@ def get_user_activity_log(user_id: int, limit: int = 100) -> List[Dict]:
 
 
 # ============================================================================
+# ANNOUNCEMENTS
+# ============================================================================
+
+def get_active_announcements(location: str = 'both') -> Dict[str, Optional[str]]:
+    """
+    Get active announcements for a specific location.
+    
+    Args:
+        location: 'login', 'app', or 'both'
+        
+    Returns:
+        Dict with 'system' and 'feature' keys containing message strings or None
+    """
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Query for system announcement
+        system_query = """
+            SELECT message FROM announcements
+            WHERE type = 'system' 
+            AND active = TRUE
+            AND (display_on = %s OR display_on = 'both')
+            AND (expires_at IS NULL OR expires_at > NOW())
+            ORDER BY created_at DESC
+            LIMIT 1
+        """
+        cursor.execute(system_query, (location,))
+        system_result = cursor.fetchone()
+        
+        # Query for feature announcement
+        feature_query = """
+            SELECT message FROM announcements
+            WHERE type = 'feature'
+            AND active = TRUE
+            AND (display_on = %s OR display_on = 'both')
+            AND (expires_at IS NULL OR expires_at > NOW())
+            ORDER BY created_at DESC
+            LIMIT 1
+        """
+        cursor.execute(feature_query, (location,))
+        feature_result = cursor.fetchone()
+        
+        cursor.close()
+        
+        return {
+            'system': system_result['message'] if system_result else None,
+            'feature': feature_result['message'] if feature_result else None
+        }
+        
+    except Error as e:
+        # Silently fail - don't disrupt app if announcements fail
+        return {'system': None, 'feature': None}
+    
+    finally:
+        if conn:
+            conn.close()
+
+
+def create_announcement(ann_type: str, message: str, display_on: str = 'both', 
+                       expires_at: Optional[datetime] = None) -> bool:
+    """
+    Create a new announcement. Deactivates any existing active announcement of the same type.
+    
+    Args:
+        ann_type: 'system' or 'feature'
+        message: Announcement text
+        display_on: 'login', 'app', or 'both'
+        expires_at: Optional expiration datetime
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Deactivate existing active announcements of this type
+        deactivate_query = """
+            UPDATE announcements 
+            SET active = FALSE 
+            WHERE type = %s AND active = TRUE
+        """
+        cursor.execute(deactivate_query, (ann_type,))
+        
+        # Insert new announcement
+        insert_query = """
+            INSERT INTO announcements (type, message, active, display_on, expires_at)
+            VALUES (%s, %s, TRUE, %s, %s)
+        """
+        cursor.execute(insert_query, (ann_type, message, display_on, expires_at))
+        
+        conn.commit()
+        cursor.close()
+        
+        return True
+        
+    except Error as e:
+        st.error(f"❌ Error creating announcement: {e}")
+        if conn:
+            conn.rollback()
+        return False
+    
+    finally:
+        if conn:
+            conn.close()
+
+
+def clear_announcement(ann_type: str) -> bool:
+    """
+    Deactivate active announcement of the specified type.
+    
+    Args:
+        ann_type: 'system' or 'feature'
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        query = """
+            UPDATE announcements 
+            SET active = FALSE 
+            WHERE type = %s AND active = TRUE
+        """
+        cursor.execute(query, (ann_type,))
+        conn.commit()
+        cursor.close()
+        
+        return True
+        
+    except Error as e:
+        st.error(f"❌ Error clearing announcement: {e}")
+        if conn:
+            conn.rollback()
+        return False
+    
+    finally:
+        if conn:
+            conn.close()
+
+
+# ============================================================================
 # UTILITY FUNCTIONS
 # ============================================================================
 

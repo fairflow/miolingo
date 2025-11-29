@@ -13,6 +13,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import pandas as pd
 from collections import defaultdict
+import time
 
 # Page config
 st.set_page_config(
@@ -59,7 +60,7 @@ def get_db_connection():
         return None, None
 
 # Tab layout
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "⚙️ Settings"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"])
 
 # TAB 1: Resource Usage
 with tab1:
@@ -548,8 +549,131 @@ with tab4:
         st.error("❌ Email monitor module not found")
         st.caption("Make sure email_monitor.py is in the admin-sources directory")
 
-# TAB 5: Settings
+# TAB 5: Announcements
 with tab5:
+    st.header("📢 Announcements")
+    st.caption("Manage system and feature announcements for users")
+    
+    # System Announcements Section
+    st.subheader("⚠️ System Announcements")
+    st.caption("Urgent messages (maintenance, downtime, etc.) - displayed in orange")
+    
+    system_templates = [
+        "Custom message...",
+        "⚠️ System maintenance in progress - some features may be unavailable",
+        "⚠️ App will restart in 10 minutes - please save your work!",
+        "⚠️ App will restart in 1 hour - please save your work!",
+        "⚠️ Scheduled maintenance tonight at 11 PM GMT - expect brief downtime",
+        "⚠️ Database maintenance in progress - progress tracking temporarily unavailable",
+    ]
+    
+    system_template = st.selectbox("System Announcement Template", system_templates, key="system_template")
+    
+    if system_template == "Custom message...":
+        system_message = st.text_area("Custom system message", key="system_message_custom", height=100)
+    else:
+        system_message = st.text_area("System message", value=system_template, key="system_message", height=100)
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        system_show_login = st.checkbox("Show on login page", value=True, key="system_login")
+    with col2:
+        system_show_app = st.checkbox("Show in main app", value=True, key="system_app")
+    
+    # Determine display_on for system
+    if system_show_login and system_show_app:
+        system_display_on = 'both'
+    elif system_show_login:
+        system_display_on = 'login'
+    elif system_show_app:
+        system_display_on = 'app'
+    else:
+        system_display_on = 'both'  # Default if neither checked
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📢 Publish System Announcement", type="primary", key="publish_system"):
+            if system_message.strip():
+                if app_mysql.create_announcement('system', system_message.strip(), system_display_on):
+                    st.success("✅ System announcement published!")
+                    st.cache_data.clear()  # Clear cache to show immediately
+                    time.sleep(1)
+                    st.rerun()
+            else:
+                st.error("❌ Message cannot be empty")
+    
+    with col2:
+        if st.button("🗑️ Clear System Announcement", key="clear_system"):
+            if app_mysql.clear_announcement('system'):
+                st.success("✅ System announcement cleared")
+                st.cache_data.clear()  # Clear cache to update immediately
+                time.sleep(1)
+                st.rerun()
+    
+    st.markdown("---")
+    
+    # Feature Announcements Section
+    st.subheader("✨ Feature Announcements")
+    st.caption("New features, updates, improvements - displayed in green")
+    
+    feature_templates = [
+        "Custom message...",
+        "✨ New feature: Multi-language support now available!",
+        "✨ New: Language materials browser with curated content",
+        "✨ Improved: Better pronunciation scoring algorithm",
+        "✨ New: Progress tracking dashboard for all languages",
+        "✨ Updated: Enhanced audio quality with Google Cloud TTS",
+        "✨ New: Export your practice history and statistics",
+    ]
+    
+    feature_template = st.selectbox("Feature Announcement Template", feature_templates, key="feature_template")
+    
+    if feature_template == "Custom message...":
+        feature_message = st.text_area("Custom feature message", key="feature_message_custom", height=100)
+    else:
+        feature_message = st.text_area("Feature message", value=feature_template, key="feature_message", height=100)
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        feature_show_login = st.checkbox("Show on login page", value=False, key="feature_login")
+    with col2:
+        feature_show_app = st.checkbox("Show in main app", value=True, key="feature_app")
+    
+    # Determine display_on for feature
+    if feature_show_login and feature_show_app:
+        feature_display_on = 'both'
+    elif feature_show_login:
+        feature_display_on = 'login'
+    elif feature_show_app:
+        feature_display_on = 'app'
+    else:
+        feature_display_on = 'both'  # Default if neither checked
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📢 Publish Feature Announcement", type="primary", key="publish_feature"):
+            if feature_message.strip():
+                if app_mysql.create_announcement('feature', feature_message.strip(), feature_display_on):
+                    st.success("✅ Feature announcement published!")
+                    st.cache_data.clear()  # Clear cache to show immediately
+                    time.sleep(1)
+                    st.rerun()
+            else:
+                st.error("❌ Message cannot be empty")
+    
+    with col2:
+        if st.button("🗑️ Clear Feature Announcement", key="clear_feature"):
+            if app_mysql.clear_announcement('feature'):
+                st.success("✅ Feature announcement cleared")
+                st.cache_data.clear()  # Clear cache to update immediately
+                time.sleep(1)
+                st.rerun()
+    
+    st.markdown("---")
+    st.info("💡 Announcements are cached for 60 seconds. Users will see updates within 1 minute.")
+
+# TAB 6: Settings
+with tab6:
     st.header("⚙️ Settings & Configuration")
     
     st.subheader("🔑 Secrets Status")

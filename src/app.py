@@ -247,22 +247,45 @@ def save_settings(settings: Dict):
 
 
 # ============================================================================
+# ANNOUNCEMENTS
+# ============================================================================
+
+@st.cache_data(ttl=60)  # Cache for 60 seconds
+def get_announcements(location: str) -> Dict[str, Optional[str]]:
+    """Get active announcements for display. Cached for 60 seconds."""
+    return app_mysql.get_active_announcements(location)
+
+
+def show_announcements(location: str):
+    """Display active announcements for the specified location."""
+    announcements = get_announcements(location)
+    
+    # System announcement (orange, priority)
+    if announcements.get('system'):
+        st.warning(f"⚠️ {announcements['system']}")
+    
+    # Feature announcement (green, secondary)
+    if announcements.get('feature'):
+        st.success(f"✨ {announcements['feature']}")
+
+
+# ============================================================================
 # AUTHENTICATION (Test Implementation for v1.3.0)
 # ============================================================================
 
 def show_login_page():
     """Display login/registration page."""
-    st.title("🔐 Miolingo Login")
-    st.markdown("**Multi-language pronunciation trainer** - Practice Portuguese, French, Italian, German, Dutch and Spanish!")
-    st.caption(f"Version {__version__}")
+    st.markdown(f"# 🔐 Miolingo <small>{__version__}</small>", unsafe_allow_html=True)
+    
+    # Get language list from config
+    languages = ", ".join(LANGUAGE_CONFIG.keys())
+    st.markdown(f"Pronunciation trainer - practice {languages}")
+    
+    # Show announcements for login page
+    show_announcements('login')
     
     # About section with links
-    st.markdown("---")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("📖 **[About Miolingo](https://github.com/fairflow/miolingo/blob/main/README.md)** - Learn about features, tech stack, and how to use")
-    with col2:
-        st.markdown("📚 **[Development Story](https://github.com/fairflow/miolingo/blob/main/articles/development_detailed.md)** - How this app was built with AI collaboration")
+    st.markdown("📖 [About & Features](https://github.com/fairflow/miolingo/blob/main/README.md) • 📚 [Development Story](https://github.com/fairflow/miolingo/blob/main/articles/development_detailed.md)")
     st.markdown("---")
     
     tab1, tab2, tab3 = st.tabs(["Login", "Register", "Guest Mode"])
@@ -1971,6 +1994,10 @@ def main():
     
     flag = flag_emojis.get(st.session_state.language, "🌍")
     st.title(f"{flag} {lang_config['display_name']}")
+    
+    # Show announcements for main app
+    show_announcements('app')
+    
     st.markdown("---")
     
     # Sidebar - Settings and Navigation
