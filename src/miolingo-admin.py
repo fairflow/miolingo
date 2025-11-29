@@ -6,7 +6,7 @@ Local admin interface for monitoring resource usage, users, and logs.
 Run with: streamlit run miolingo-admin.py --server.port 8505 --server.headless=true
 Then open: http://localhost:8505
 
-Version: 1.4.0
+Version: 1.4.1
 """
 
 import streamlit as st
@@ -26,7 +26,7 @@ st.set_page_config(
 )
 
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface")
+st.caption("Local monitoring and management interface • v1.4.1")
 
 # Quick reconnect button in sidebar
 with st.sidebar:
