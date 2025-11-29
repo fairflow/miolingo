@@ -5,6 +5,8 @@ Miolingo Admin Dashboard
 Local admin interface for monitoring resource usage, users, and logs.
 Run with: streamlit run miolingo-admin.py --server.port 8505 --server.headless=true
 Then open: http://localhost:8505
+
+Version: 1.4.0
 """
 
 import streamlit as st
@@ -14,6 +16,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from collections import defaultdict
 import time
+import app_mysql
 
 # Page config
 st.set_page_config(
