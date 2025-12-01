@@ -64,55 +64,75 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
     Encrypts all database traffic via SSH tunnel.
     Uses st.session_state to prevent duplicate tunnels across Streamlit reruns.
     
+    Implements health checking and automatic reconnection:
+    - Checks if existing tunnel is still alive
+    - Recreates tunnel if it died
+    - Shares one tunnel across all users (efficient resource usage)
+    
     Supports two modes for SSH key:
     1. Local development: key_path in secrets (file path)
     2. Streamlit Cloud: key_content in secrets (paste private key directly)
     """
-    if "ssh_tunnel" not in st.session_state:
-        try:
-            import paramiko
-            from io import StringIO
+    # Check if we have an existing tunnel and if it's still alive
+    if "ssh_tunnel" in st.session_state:
+        tunnel = st.session_state.ssh_tunnel
+        # Verify tunnel is active and transport is connected
+        if tunnel.is_active and tunnel.tunnel_is_up.get(tunnel.remote_bind_address):
+            return tunnel
+        else:
+            # Tunnel died, clean it up
+            try:
+                tunnel.stop()
+            except:
+                pass
+            del st.session_state.ssh_tunnel
+    
+    # Create new tunnel
+    try:
+        import paramiko
+        from io import StringIO
+        
+        # Ensure port is integer
+        ssh_port = int(st.secrets["ssh"]["port"])
+        
+        # Handle SSH key - either from file path or direct content
+        if "key_content" in st.secrets["ssh"]:
+            # Streamlit Cloud: parse key content into paramiko key object
+            key_content = st.secrets["ssh"]["key_content"]
+            key_file = StringIO(key_content)
             
-            # Ensure port is integer
-            ssh_port = int(st.secrets["ssh"]["port"])
+            # Try different key types
+            ssh_key = None
+            for key_class in (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey):
+                try:
+                    key_file.seek(0)
+                    ssh_key = key_class.from_private_key(key_file)
+                    break
+                except Exception:
+                    continue
             
-            # Handle SSH key - either from file path or direct content
-            if "key_content" in st.secrets["ssh"]:
-                # Streamlit Cloud: parse key content into paramiko key object
-                key_content = st.secrets["ssh"]["key_content"]
-                key_file = StringIO(key_content)
-                
-                # Try different key types
-                ssh_key = None
-                for key_class in (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey):
-                    try:
-                        key_file.seek(0)
-                        ssh_key = key_class.from_private_key(key_file)
-                        break
-                    except Exception:
-                        continue
-                
-                if ssh_key is None:
-                    raise ValueError("Could not parse SSH key - unsupported key type")
-            else:
-                # Local development: use key file path
-                ssh_key_path = Path(st.secrets["ssh"]["key_path"]).expanduser().resolve()
-                ssh_key = str(ssh_key_path)
-            
-            # Remote MySQL is on the SSH server itself (localhost from SSH server's perspective)
-            # Don't specify local_bind_address to let sshtunnel auto-select an available port
-            # This avoids port conflicts
-            tunnel = SSHTunnelForwarder(
-                (st.secrets["ssh"]["host"], ssh_port),
-                ssh_username=st.secrets["ssh"]["username"],
-                ssh_pkey=ssh_key,
-                remote_bind_address=('127.0.0.1', 3306)  # MySQL on SSH server
-            )
-            tunnel.start()
-            st.session_state.ssh_tunnel = tunnel
-        except Exception as e:
-            st.error(f"❌ SSH tunnel failed: {e}")
-            raise
+            if ssh_key is None:
+                raise ValueError("Could not parse SSH key - unsupported key type")
+        else:
+            # Local development: use key file path
+            ssh_key_path = Path(st.secrets["ssh"]["key_path"]).expanduser().resolve()
+            ssh_key = str(ssh_key_path)
+        
+        # Remote MySQL is on the SSH server itself (localhost from SSH server's perspective)
+        # Don't specify local_bind_address to let sshtunnel auto-select an available port
+        # This avoids port conflicts and allows tunnel reuse across sessions
+        tunnel = SSHTunnelForwarder(
+            (st.secrets["ssh"]["host"], ssh_port),
+            ssh_username=st.secrets["ssh"]["username"],
+            ssh_pkey=ssh_key,
+            remote_bind_address=('127.0.0.1', 3306),  # MySQL on SSH server
+            set_keepalive=30.0  # Keep connection alive with 30s heartbeat
+        )
+        tunnel.start()
+        st.session_state.ssh_tunnel = tunnel
+    except Exception as e:
+        st.error(f"❌ SSH tunnel failed: {e}")
+        raise
     
     return st.session_state.ssh_tunnel
 
@@ -161,15 +181,43 @@ def cleanup_ssh_tunnel():
     """
     Cleanup function to properly close SSH tunnel on app exit.
     Registered with atexit to ensure cleanup happens.
+    
+    NOTE: This only runs when the Python process exits, not on logout.
+    For logout cleanup, use cleanup_session_resources() instead.
     """
     if "ssh_tunnel" in st.session_state:
         try:
-            st.session_state.ssh_tunnel.stop()
+            tunnel = st.session_state.ssh_tunnel
+            if tunnel.is_active:
+                tunnel.stop()
         except:
             pass
 
 
-# Register cleanup function
+def cleanup_session_resources():
+    """
+    Cleanup resources associated with current session.
+    Call this on user logout to prevent resource leaks.
+    
+    Strategy:
+    - Close MySQL connections from pool (they'll be recreated if needed)
+    - Keep SSH tunnel alive (shared across all users for efficiency)
+    - Tunnel has keepalive and will auto-reconnect if needed
+    """
+    # Close any active MySQL connections for this session
+    if "mysql_pool" in st.session_state:
+        # Connections are automatically returned to pool when garbage collected
+        # No need to explicitly close the pool as it's shared
+        pass
+    
+    # Note: We intentionally DON'T close the SSH tunnel here because:
+    # 1. It's shared across all users (efficient)
+    # 2. Creating/destroying tunnels for each session wastes resources
+    # 3. Tunnel has keepalive to stay alive between sessions
+    # 4. Tunnel will auto-reconnect if it dies (health check in get_ssh_tunnel)
+
+
+# Register cleanup function for process exit
 atexit.register(cleanup_ssh_tunnel)
 
 

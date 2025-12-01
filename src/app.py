@@ -443,9 +443,12 @@ with st.sidebar:
     
     # Logout button at bottom of this section
     if st.button("🚪 Logout"):
-        # Delete session
+        # Delete session from database
         if 'session_id' in st.session_state:
             app_mysql.delete_session(st.session_state['session_id'])
+        
+        # Cleanup session resources (connections, etc)
+        app_mysql.cleanup_session_resources()
         
         # Clear session state
         st.session_state.clear()
