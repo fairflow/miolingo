@@ -584,12 +584,20 @@ def get_wav2vec2_model():
 
 
 def get_espeak_path():
-    """Get espeak-ng path (local build or system-wide)"""
-    local_path = "./local/bin/run-espeak-ng"
+    """
+    Get espeak path (local build or system-wide)
+    
+    CRITICAL: The binary is called "espeak" NOT "espeak-ng"!
+    - espeak-ng is the PROJECT/REPO name
+    - espeak is the BINARY name
+    DO NOT CHANGE THIS BACK TO "espeak-ng" - it will break phoneme analysis!
+    """
+    local_path = "opt/local/bin/espeak"
     if Path(local_path).exists():
         return local_path
-    # Try system-wide espeak-ng (for Streamlit Cloud)
-    return "espeak-ng"
+    # System-wide binary (macOS/Linux with eSpeak NG installed)
+    # The binary is called "espeak" even though the project is "espeak-ng"
+    return "espeak"
 
 
 def get_phonemes(text: str, voice: str = "pt-br") -> str:
