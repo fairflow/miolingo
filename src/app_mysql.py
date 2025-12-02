@@ -58,34 +58,51 @@ pwd_hasher = PasswordHasher(
 # SSH TUNNEL & CONNECTION POOLING (Secure, Optimized for Emerald Plan)
 # ============================================================================
 
+# Global SSH tunnel shared across ALL Streamlit sessions
+# This prevents creating multiple tunnels and hitting server connection limits
+_global_ssh_tunnel = None
+
+
 def get_ssh_tunnel() -> SSHTunnelForwarder:
     """
     Get or create SSH tunnel to MySQL server.
     Encrypts all database traffic via SSH tunnel.
     Uses st.session_state to prevent duplicate tunnels across Streamlit reruns.
     
+    CRITICAL: Uses global (not session_state) to share tunnel across ALL sessions.
+    This prevents creating multiple tunnels and hitting server connection limits.
+    
     Implements health checking and automatic reconnection:
     - Checks if existing tunnel is still alive
     - Recreates tunnel if it died
-    - Shares one tunnel across all users (efficient resource usage)
+    - Shares ONE tunnel across all users (efficient resource usage)
+    - Tracks tunnel creation for debugging
     
     Supports two modes for SSH key:
     1. Local development: key_path in secrets (file path)
     2. Streamlit Cloud: key_content in secrets (paste private key directly)
     """
+    # Use a global variable to share tunnel across ALL Streamlit sessions
+    # This is critical to prevent multiple tunnels from accumulating
+    global _global_ssh_tunnel
+    
     # Check if we have an existing tunnel and if it's still alive
-    if "ssh_tunnel" in st.session_state:
-        tunnel = st.session_state.ssh_tunnel
+    if '_global_ssh_tunnel' in globals() and _global_ssh_tunnel is not None:
+        tunnel = _global_ssh_tunnel
         # Verify tunnel is active and transport is connected
-        if tunnel.is_active and tunnel.tunnel_is_up.get(tunnel.remote_bind_address):
-            return tunnel
-        else:
-            # Tunnel died, clean it up
-            try:
-                tunnel.stop()
-            except:
-                pass
-            del st.session_state.ssh_tunnel
+        try:
+            if tunnel.is_active and tunnel.tunnel_is_up.get(tunnel.remote_bind_address):
+                # Tunnel is healthy, return it
+                return tunnel
+        except:
+            pass
+        
+        # Tunnel died, clean it up
+        try:
+            tunnel.stop()
+        except:
+            pass
+        _global_ssh_tunnel = None
     
     # Create new tunnel
     try:
@@ -129,12 +146,19 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
             set_keepalive=30.0  # Keep connection alive with 30s heartbeat
         )
         tunnel.start()
-        st.session_state.ssh_tunnel = tunnel
+        
+        # Store in global variable so it's shared across ALL Streamlit sessions
+        _global_ssh_tunnel = tunnel
+        
+        # Log tunnel creation for debugging
+        import logging
+        logging.info(f"SSH tunnel created on local port {tunnel.local_bind_port}")
+        
     except Exception as e:
         st.error(f"❌ SSH tunnel failed: {e}")
         raise
     
-    return st.session_state.ssh_tunnel
+    return _global_ssh_tunnel
 
 
 def get_connection_pool() -> pooling.MySQLConnectionPool:
@@ -185,13 +209,16 @@ def cleanup_ssh_tunnel():
     NOTE: This only runs when the Python process exits, not on logout.
     For logout cleanup, use cleanup_session_resources() instead.
     """
-    if "ssh_tunnel" in st.session_state:
+    global _global_ssh_tunnel
+    
+    if _global_ssh_tunnel is not None:
         try:
-            tunnel = st.session_state.ssh_tunnel
-            if tunnel.is_active:
-                tunnel.stop()
+            if _global_ssh_tunnel.is_active:
+                _global_ssh_tunnel.stop()
+                logging.info("SSH tunnel closed on process exit")
         except:
             pass
+        _global_ssh_tunnel = None
 
 
 def cleanup_session_resources():
