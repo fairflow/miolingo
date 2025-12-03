@@ -508,17 +508,12 @@ def initialize_session_state():
     if 'settings' not in st.session_state:
         st.session_state.settings = load_settings()
     
-    # Initialize material_language first (this drives language selection)
-    if 'material_language' not in st.session_state:
-        st.session_state.material_language = 'fr'  # Default to French
+    # Material language will be initialized by the selectbox widget with key="material_language"
+    # Do NOT manually initialize it here - that conflicts with the widget's key
     
-    # Initialize language based on material_language
+    # Initialize language - will be set correctly in main() based on material_language
     if 'language' not in st.session_state:
-        material_to_training = {
-            'de': 'German', 'es': 'Spanish', 'fr': 'French',
-            'it': 'Italian', 'nl': 'Dutch', 'pt': 'Portuguese'
-        }
-        st.session_state.language = material_to_training.get(st.session_state.material_language, 'French')
+        st.session_state.language = 'French'  # Safe default
     
     if 'history' not in st.session_state:
         st.session_state.history = load_history()
@@ -537,9 +532,13 @@ def initialize_session_state():
     if 'session_saved' not in st.session_state:
         st.session_state.session_saved = False
     
-    if 'last_result' not in st.session_state:
-        st.session_state.last_result = None
+    # Mode-specific result storage (no shared last_result)
+    if 'quick_last_result' not in st.session_state:
+        st.session_state.quick_last_result = None
+    if 'story_last_result' not in st.session_state:
+        st.session_state.story_last_result = None
     
+    # Legacy - keep for backward compatibility but unused
     if 'audio_input_key' not in st.session_state:
         st.session_state.audio_input_key = 0
     
@@ -592,7 +591,7 @@ def get_espeak_path():
     - espeak is the BINARY name
     DO NOT CHANGE THIS BACK TO "espeak-ng" - it will break phoneme analysis!
     """
-    local_path = "opt/local/bin/espeak"
+    local_path = "/opt/local/bin/espeak"
     if Path(local_path).exists():
         return local_path
     # System-wide binary (macOS/Linux with eSpeak NG installed)
@@ -603,28 +602,32 @@ def get_espeak_path():
 def get_phonemes(text: str, voice: str = "pt-br") -> str:
     """Get eSpeak phoneme codes (eIPA) for text"""
     try:
+        espeak_cmd = get_espeak_path()
         result = subprocess.run(
-            [get_espeak_path(), "-v", voice, "-x", "-q", text],
+            [espeak_cmd, "-v", voice, "-x", "-q", text],
             capture_output=True,
             text=True,
             check=True
         )
         return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        st.warning(f"eSpeak phoneme error: {e} (cmd: {get_espeak_path()})")
         return "[phonemes unavailable]"
 
 
 def get_ipa(text: str, voice: str = "pt-br") -> str:
     """Get IPA transcription for text"""
     try:
+        espeak_cmd = get_espeak_path()
         result = subprocess.run(
-            [get_espeak_path(), "-v", voice, "--ipa", "-q", text],
+            [espeak_cmd, "-v", voice, "--ipa", "-q", text],
             capture_output=True,
             text=True,
             check=True
         )
         return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        st.warning(f"eSpeak IPA error: {e} (cmd: {get_espeak_path()})")
         return "[IPA unavailable]"
 
 
@@ -1356,7 +1359,7 @@ def practice_word_from_audio(text: str, audio_bytes: bytes, settings: Dict):
             **session_data
         })
         st.session_state.session_saved = False
-        st.session_state.last_result = result
+        # Note: last_result is now stored per-mode (quick_last_result, story_last_result) by the caller
         
         # Save to database immediately
         if st.session_state.get('authenticated', False):
@@ -1421,6 +1424,11 @@ def render_practice_interface(text, key_prefix="practice"):
         st.info("👆 Enter a word or phrase above to begin")
         return
     
+    # Initialize mode-specific state variables
+    audio_key_name = f"{key_prefix}_audio_input_key"
+    if audio_key_name not in st.session_state:
+        st.session_state[audio_key_name] = 0
+    
     # Show target audio directly - one click to play
     st.write("🎯 **Target pronunciation:**")
     with st.spinner("Generating audio..."):
@@ -1433,7 +1441,7 @@ def render_practice_interface(text, key_prefix="practice"):
     st.write("🎙️ **Now record your pronunciation:**")
     
     # Streamlit's built-in audio input with dynamic key (unique per mode)
-    audio_data = st.audio_input("Click to record", key=f"{key_prefix}_audio_input_{st.session_state.audio_input_key}")
+    audio_data = st.audio_input("Click to record", key=f"{key_prefix}_audio_input_{st.session_state[audio_key_name]}")
     
     # Show recording tip after the recording widget (mobile-friendly)
     language_name = st.session_state.language
@@ -1453,13 +1461,19 @@ def render_practice_interface(text, key_prefix="practice"):
                         audio_data.getvalue(),
                         st.session_state.settings
                     )
+                    if result:
+                        # Store result with mode-specific key
+                        st.session_state[f"{key_prefix}_last_result"] = result
+                        st.success("✓ Result processed successfully")
+                    else:
+                        st.error("❌ Processing failed - check terminal for errors")
         
         with col2:
             # CRITICAL: Always show Remove Recording button when audio exists
             if st.button("🗑️ Remove Recording", key=f"{key_prefix}_clear_btn"):
                 # Clear the recording, results, and force widget reset
-                st.session_state.last_result = None
-                st.session_state.audio_input_key += 1  # Change key to reset widget
+                st.session_state[f"{key_prefix}_last_result"] = None
+                st.session_state[audio_key_name] += 1  # Change key to reset widget
                 st.rerun()
 
 
@@ -1699,7 +1713,7 @@ def render_scene_practice_mode(scenes_dir):
     if selected_scene_path != st.session_state.story_practice_scene_file:
         st.session_state.story_practice_scene_file = selected_scene_path
         st.session_state.story_practice_index = 0
-        st.session_state.last_result = None
+        st.session_state.story_last_result = None
         st.rerun()
     
     # Load the scene
@@ -1750,12 +1764,12 @@ def render_scene_practice_mode(scenes_dir):
         with col1:
             if st.button("⬅️ Previous", disabled=(current_idx == 0), key="story_prev"):
                 st.session_state.story_practice_index -= 1
-                st.session_state.last_result = None
+                st.session_state.story_last_result = None
                 st.rerun()
         with col2:
             if st.button("Next ➡️", disabled=(current_idx >= total_phrases - 1), key="story_next"):
                 st.session_state.story_practice_index += 1
-                st.session_state.last_result = None
+                st.session_state.story_last_result = None
                 st.rerun()
         with col3:
             st.caption(f"💡 Navigate through {total_phrases} phrases in this scene")
@@ -1777,8 +1791,8 @@ def render_scene_practice_mode(scenes_dir):
         render_practice_interface(current_phrase, key_prefix="story")
         
         # Show results
-        if st.session_state.last_result:
-            render_practice_results(st.session_state.last_result, key_prefix="story")
+        if st.session_state.get('story_last_result'):
+            render_practice_results(st.session_state.story_last_result, key_prefix="story")
             
     except json.JSONDecodeError as e:
         st.error(f"Error parsing scene file: {e}")
@@ -1792,59 +1806,67 @@ def render_story_reader():
     Modular design allows easy UX refactoring
     Language-aware: displays story for current target language
     """
-    # Get material language from session state (affects story display)
-    lang_code = st.session_state.get('material_language', 'fr')
-    
-    # Story titles and paths per language
-    story_config = {
-        'pt': {'title': 'Sophie & Lucas: Uma Jornada aos Alpes', 'setting': 'Brazil'},
-        'fr': {'title': 'Sophie & Lucas: A Journey to the Alps', 'setting': 'French Alps'},
-        'nl': {'title': 'Sophie & Lucas: Een Reis naar de Alpen', 'setting': 'Netherlands'},
-        'de': {'title': 'Sophie & Lucas: Eine Reise in die Alpen', 'setting': 'Black Forest/Alps'},
-        'it': {'title': 'Sophie & Lucas: Un Viaggio sulle Alpi', 'setting': 'Italian Dolomites'},
-        'es': {'title': 'Sophie & Lucas: Un Viaje a Sierra Nevada', 'setting': 'Sierra Nevada, Spain'}
-    }
-    
-    # Check if story materials exist for this language
-    story_md_path = Path(f"language_materials/{lang_code}/story.md")
-    story_scenes_dir = Path(f"language_materials/{lang_code}/story-scenes-json")
-    
-    config = story_config.get(lang_code, {'title': 'Story', 'setting': 'Unknown'})
-    st.header(f"📖 {config['title']}")
-    
-    # Check what story materials are available
-    has_full_story = story_md_path.exists()
-    has_scenes = story_scenes_dir.exists() and list(story_scenes_dir.glob("scene-*.json"))
-    
-    if not has_full_story and not has_scenes:
-        st.warning("Story materials not found. Please ensure story files exist for this language.")
-        return
-    
-    # Story mode selector - show only available modes
-    available_modes = []
-    if has_full_story:
-        available_modes.append("📄 Full Story")
-    if has_scenes:
-        available_modes.extend(["🎬 Scene by Scene", "🎙️ Practice Mode"])
-    
-    # Initialize story_mode in session state if not present
-    if 'story_mode' not in st.session_state:
-        st.session_state.story_mode = "🎬 Scene by Scene"
-    
-    story_mode = st.radio(
-        "Choose reading mode:",
-        available_modes,
-        horizontal=True,
-        key='story_mode',
-        help="Read the complete story, explore individual scenes, or practice pronunciation"
-    )
-    
-    if story_mode == "📄 Full Story":
-        render_full_story(story_md_path)
-    elif story_mode == "🎬 Scene by Scene":
-        render_scene_by_scene(story_scenes_dir, lang_code)
-    elif story_mode == "🎙️ Practice Mode":
-        render_scene_practice_mode(story_scenes_dir)
+    try:
+        # Get material language from session state (affects story display)
+        lang_code = st.session_state.get('material_language', 'fr')
+        
+        # Story titles and paths per language
+        story_config = {
+            'pt': {'title': 'Sophie & Lucas: Uma Jornada aos Alpes', 'setting': 'Brazil'},
+            'fr': {'title': 'Sophie & Lucas: A Journey to the Alps', 'setting': 'French Alps'},
+            'nl': {'title': 'Sophie & Lucas: Een Reis naar de Alpen', 'setting': 'Netherlands'},
+            'de': {'title': 'Sophie & Lucas: Eine Reise in die Alpen', 'setting': 'Black Forest/Alps'},
+            'it': {'title': 'Sophie & Lucas: Un Viaggio sulle Alpi', 'setting': 'Italian Dolomites'},
+            'es': {'title': 'Sophie & Lucas: Un Viaje a Sierra Nevada', 'setting': 'Sierra Nevada, Spain'}
+        }
+        
+        # Check if story materials exist for this language
+        story_md_path = Path(f"language_materials/{lang_code}/story.md")
+        story_scenes_dir = Path(f"language_materials/{lang_code}/story-scenes-json")
+        
+        config = story_config.get(lang_code, {'title': 'Story', 'setting': 'Unknown'})
+        st.header(f"📖 {config['title']}")
+        
+        # Check what story materials are available
+        has_full_story = story_md_path.exists()
+        has_scenes = story_scenes_dir.exists() and list(story_scenes_dir.glob("scene-*.json"))
+        
+        if not has_full_story and not has_scenes:
+            st.warning("Story materials not found. Please ensure story files exist for this language.")
+            return
+        
+        # Story mode selector - show only available modes
+        available_modes = []
+        if has_full_story:
+            available_modes.append("📄 Full Story")
+        if has_scenes:
+            available_modes.extend(["🎬 Scene by Scene", "🎙️ Practice Mode"])
+        
+        # Default index for radio button (Scene by Scene if available)
+        default_idx = 0
+        if "🎬 Scene by Scene" in available_modes:
+            default_idx = available_modes.index("🎬 Scene by Scene")
+        
+        story_mode = st.radio(
+            "Choose reading mode:",
+            available_modes,
+            index=default_idx,
+            horizontal=True,
+            key='story_mode',
+            help="Read the complete story, explore individual scenes, or practice pronunciation"
+        )
+        
+        if story_mode == "📄 Full Story":
+            render_full_story(story_md_path)
+        elif story_mode == "🎬 Scene by Scene":
+            render_scene_by_scene(story_scenes_dir, lang_code)
+        elif story_mode == "🎙️ Practice Mode":
+            render_scene_practice_mode(story_scenes_dir)
+        
+    except Exception as e:
+        st.error(f"❌ Story Reader Error: {e}")
+        import traceback
+        st.error(f"```\n{traceback.format_exc()}\n```")
 
 
 def render_full_story(story_path):
@@ -1964,6 +1986,30 @@ def main():
     """Main Streamlit app"""
     initialize_session_state()
     
+    # DEBUG: Track what changed to trigger this rerun
+    import inspect
+    caller_frame = inspect.currentframe()
+    if 'last_state_snapshot' not in st.session_state:
+        st.session_state.last_state_snapshot = {}
+    
+    # Compare key state variables
+    current_snapshot = {
+        'material_language': st.session_state.get('material_language'),
+        'story_mode': st.session_state.get('story_mode'),
+        'quick_last_result': st.session_state.get('quick_last_result') is not None,
+        'story_last_result': st.session_state.get('story_last_result') is not None,
+    }
+    
+    changes = []
+    for key, val in current_snapshot.items():
+        if key not in st.session_state.last_state_snapshot or st.session_state.last_state_snapshot[key] != val:
+            changes.append(f"{key}: {st.session_state.last_state_snapshot.get(key)} → {val}")
+    
+    if changes:
+        st.warning(f"🔍 State changed: {', '.join(changes)}")
+    
+    st.session_state.last_state_snapshot = current_snapshot.copy()
+    
     # Header - Dynamic title based on selected language
     lang_config = LANGUAGE_CONFIG[st.session_state.language]
     
@@ -1972,8 +2018,8 @@ def main():
     # Material Language selection
     from app_language_materials import get_available_languages, format_language_name
     
-    if 'material_language' not in st.session_state:
-        st.session_state.material_language = 'fr'  # Default to French (has story)
+    # Material language is managed by the selectbox widget with key="material_language"
+    # First time: widget initializes it based on index parameter
     
     # Map material language to training language
     material_to_training = {
@@ -1986,11 +2032,14 @@ def main():
     }
     
     # Ensure session_state.language is set from material_language
-    if 'language' not in st.session_state:
+    # This runs after the selectbox has set material_language
+    if 'material_language' in st.session_state:
         if st.session_state.material_language in material_to_training:
             st.session_state.language = material_to_training[st.session_state.material_language]
         else:
-            st.session_state.language = 'French'  # Fallback
+            st.session_state.language = 'French'
+    elif 'language' not in st.session_state:
+        st.session_state.language = 'French'
     
     # NOW we can safely render the title with correct language
     flag_emojis = {
@@ -2022,29 +2071,32 @@ def main():
         available_materials = get_available_languages()
         if available_materials:
             # Find current index
-            try:
-                current_idx = available_materials.index(st.session_state.material_language)
-            except ValueError:
-                current_idx = 0
-                st.session_state.material_language = available_materials[0]
+            # Determine index without manually setting st.session_state
+            current_idx = 0
+            if 'material_language' in st.session_state:
+                try:
+                    current_idx = available_materials.index(st.session_state.material_language)
+                except ValueError:
+                    pass  # Invalid value, use default
             
-            previous_material_language = st.session_state.material_language
-            st.session_state.material_language = st.selectbox(
+            # Save previous value (use .get() to avoid AttributeError on first run)
+            previous_material_language = st.session_state.get('material_language', None)
+            st.selectbox(
                 "Language",
                 available_materials,
                 index=current_idx,
                 format_func=format_language_name,
                 help="Language of practice materials and stories to display",
-                key="material_language_selector"
+                key="material_language"  # Widget automatically updates st.session_state.material_language
             )
             
-            # Set training language directly from material language (simple and clean)
+            # Derive training language from material language
             if st.session_state.material_language in material_to_training:
                 training_language = material_to_training[st.session_state.material_language]
             else:
-                training_language = 'French'  # Fallback
+                training_language = 'French'
             
-            # Update session_state.language for compatibility with existing code
+            # Update training language if material language changed
             if previous_material_language != st.session_state.material_language:
                 st.session_state.language = training_language
                 # Ensure session exists for new language
@@ -2053,8 +2105,13 @@ def main():
                         "date": datetime.now().isoformat(),
                         "practices": []
                     }
-                # Rerun to update banner
-                st.rerun()
+        
+        # Ensure session exists for current language (safety check)
+        if st.session_state.language not in st.session_state.current_sessions:
+            st.session_state.current_sessions[st.session_state.language] = {
+                "date": datetime.now().isoformat(),
+                "practices": []
+            }
         
         # Get current language config from the derived training language
         lang_config = LANGUAGE_CONFIG[st.session_state.language]
@@ -2251,16 +2308,21 @@ def main():
             if st.session_state.ccs_test.enabled:
                 st.session_state.ccs_test.render_validation_ui()
     
-    # Main content - Tabs
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "🎯 Quick Practice",
-        "📖 Story Reader",
-        "📊 Statistics",
-        "📜 History"
-    ])
+    # Main content - Tabs with state management
+    tab_names = ["🎯 Quick Practice", "📖 Story Reader", "📊 Statistics", "📜 History"]
+    
+    # Use radio buttons to preserve tab state across reruns
+    selected_tab_index = st.radio(
+        "Select Tab",
+        range(len(tab_names)),
+        format_func=lambda i: tab_names[i],
+        key='active_tab',
+        horizontal=True,
+        label_visibility='collapsed'
+    )
     
     # Tab 1: Quick Practice
-    with tab1:
+    if selected_tab_index == 0:
         st.header("Quick Practice")
         
         # Language announcement banner
@@ -2343,7 +2405,7 @@ def main():
                                     phrases = load_phrase_file(str(metadata['path']))
                                     st.session_state.phrase_list = phrases
                                     st.session_state.current_phrase_index = 0
-                                    st.session_state.last_result = None
+                                    st.session_state.quick_last_result = None
                                     st.session_state.material_source = f"{format_language_name(material_lang)} - {format_category_name(category)} - {selected_file}"
                                     st.success(f"✓ Loaded {len(phrases)} items from built-in library")
                                     st.rerun()
@@ -2406,7 +2468,7 @@ def main():
                         if st.button("✅ Use This File", type="primary", key="use_upload"):
                             st.session_state.phrase_list = phrases
                             st.session_state.current_phrase_index = 0
-                            st.session_state.last_result = None
+                            st.session_state.quick_last_result = None
                             st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
                             st.rerun()
                             
@@ -2421,7 +2483,7 @@ def main():
             if st.button("🗑️ Clear Material"):
                 st.session_state.phrase_list = []
                 st.session_state.current_phrase_index = 0
-                st.session_state.last_result = None
+                st.session_state.quick_last_result = None
                 st.session_state.material_source = None
                 st.rerun()
         
@@ -2571,34 +2633,34 @@ def main():
         render_practice_interface(text, key_prefix="quick")
         
         # Show last result using reusable component
-        if st.session_state.last_result:
-            render_practice_results(st.session_state.last_result, key_prefix="quick")
+        if st.session_state.get('quick_last_result'):
+            render_practice_results(st.session_state.quick_last_result, key_prefix="quick")
             
             # Optional: Hear eSpeak phoneme pronunciation (local development only)
-            if IS_LOCAL_DEV and st.session_state.last_result and not st.session_state.last_result["exact_match"]:
+            if IS_LOCAL_DEV and st.session_state.quick_last_result and not st.session_state.quick_last_result["exact_match"]:
                 st.markdown("---")
                 st.subheader("Compare Phoneme Sounds (eSpeak)")
                 st.caption("🔧 Development feature - requires local audio device")
                 col1, col2 = st.columns(2)
                 with col1:
                     if st.button("🔊 Correct Phonemes", key="phoneme_correct"):
-                        speak_text(st.session_state.last_result['target'], 
+                        speak_text(st.session_state.quick_last_result['target'], 
                                  voice=st.session_state.settings['voice'],
                                  speed=st.session_state.settings['speed'],
                                  pitch=st.session_state.settings['pitch'])
                 with col2:
                     if st.button("🔊 Your Phonemes", key="phoneme_yours"):
-                        speak_text(st.session_state.last_result['recognized'],
+                        speak_text(st.session_state.quick_last_result['recognized'],
                                  voice=st.session_state.settings['voice'],
                                  speed=st.session_state.settings['speed'],
                                  pitch=st.session_state.settings['pitch'])
     
     # Tab 2: Story Reader
-    with tab2:
+    elif selected_tab_index == 1:
         render_story_reader()
     
     # Tab 3: Statistics
-    with tab3:
+    elif selected_tab_index == 2:
         st.header("📊 Practice Statistics")
         
         # Current session stats
@@ -2635,7 +2697,7 @@ def main():
             st.info("No practice history yet. Start practicing!")
     
     # Tab 4: History
-    with tab4:
+    elif selected_tab_index == 3:
         st.header("📜 Session History")
         
         # Reload history from database when viewing this tab
