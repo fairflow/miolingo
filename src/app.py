@@ -1842,9 +1842,15 @@ def render_story_reader():
         if has_scenes:
             available_modes.extend(["🎬 Scene by Scene", "🎙️ Practice Mode"])
         
-        # Default index for radio button (Scene by Scene if available)
+        # Preserve story_mode across tab switches
+        # Check if we have a saved preference
+        saved_mode = st.session_state.get('_story_mode_preference')
+        
+        # Calculate index: use saved mode if it's still available, otherwise default to Scene by Scene
         default_idx = 0
-        if "🎬 Scene by Scene" in available_modes:
+        if saved_mode and saved_mode in available_modes:
+            default_idx = available_modes.index(saved_mode)
+        elif "🎬 Scene by Scene" in available_modes:
             default_idx = available_modes.index("🎬 Scene by Scene")
         
         story_mode = st.radio(
@@ -1855,6 +1861,9 @@ def render_story_reader():
             key='story_mode',
             help="Read the complete story, explore individual scenes, or practice pronunciation"
         )
+        
+        # Save preference for next time
+        st.session_state._story_mode_preference = story_mode
         
         if story_mode == "📄 Full Story":
             render_full_story(story_md_path)
@@ -2002,24 +2011,19 @@ def main():
     
     changes = []
     for key, val in current_snapshot.items():
-        if key not in st.session_state.last_state_snapshot or st.session_state.last_state_snapshot[key] != val:
-            changes.append(f"{key}: {st.session_state.last_state_snapshot.get(key)} → {val}")
+        old_val = st.session_state.last_state_snapshot.get(key)
+        # Only report actual changes (not None → None, not missing → False)
+        if key in st.session_state.last_state_snapshot and old_val != val:
+            changes.append(f"{key}: {old_val} → {val}")
     
     if changes:
         st.warning(f"🔍 State changed: {', '.join(changes)}")
     
     st.session_state.last_state_snapshot = current_snapshot.copy()
     
-    # Header - Dynamic title based on selected language
-    lang_config = LANGUAGE_CONFIG[st.session_state.language]
-    
-    # Add flag emoji for each language
     # Initialize language state BEFORE rendering title
     # Material Language selection
     from app_language_materials import get_available_languages, format_language_name
-    
-    # Material language is managed by the selectbox widget with key="material_language"
-    # First time: widget initializes it based on index parameter
     
     # Map material language to training language
     material_to_training = {
@@ -2030,6 +2034,22 @@ def main():
         'nl': 'Dutch',
         'pt': 'Portuguese'
     }
+    
+    # Initialize material_language from saved settings if not already set
+    # Do this BEFORE rendering title so the correct language is displayed
+    if 'material_language' not in st.session_state and 'material_language' in st.session_state.settings:
+        saved_lang = st.session_state.settings['material_language']
+        st.session_state.material_language = saved_lang
+        # Also update training language to match
+        if saved_lang in material_to_training:
+            st.session_state.language = material_to_training[saved_lang]
+            # Validate voice is appropriate for this language
+            lang_cfg = LANGUAGE_CONFIG[st.session_state.language]
+            tts_eng = st.session_state.settings.get('tts_engine', 'google_cloud')
+            available_vcs = lang_cfg['voices'][tts_eng]
+            current_vce = st.session_state.settings.get('voice')
+            if current_vce not in available_vcs:
+                st.session_state.settings['voice'] = available_vcs[0]
     
     # Ensure session_state.language is set from material_language
     # This runs after the selectbox has set material_language
@@ -2052,6 +2072,8 @@ def main():
         "Spanish": "🇪🇸"
     }
     
+    # Get language config AFTER material_language is initialized
+    lang_config = LANGUAGE_CONFIG[st.session_state.language]
     flag = flag_emojis.get(st.session_state.language, "🌍")
     st.title(f"{flag} {lang_config['display_name']}")
     
@@ -2070,7 +2092,7 @@ def main():
         
         available_materials = get_available_languages()
         if available_materials:
-            # Find current index
+            # Find current index (material_language already initialized earlier)
             # Determine index without manually setting st.session_state
             current_idx = 0
             if 'material_language' in st.session_state:
@@ -2232,7 +2254,10 @@ def main():
             st.info("WAV audio setting saved")
         
         if st.button("💾 Save Settings"):
-            save_settings(st.session_state.settings)
+            # Include material_language in settings to persist it
+            settings_to_save = st.session_state.settings.copy()
+            settings_to_save['material_language'] = st.session_state.get('material_language', 'fr')
+            save_settings(settings_to_save)
             st.success("Settings saved!")
         
         st.markdown("---")
