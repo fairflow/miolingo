@@ -17,6 +17,7 @@ import pandas as pd
 from collections import defaultdict
 import time
 import app_mysql
+from contextlib import contextmanager
 
 # Page config
 st.set_page_config(
@@ -32,34 +33,81 @@ st.caption("Local monitoring and management interface • v1.4.1")
 with st.sidebar:
     st.subheader("🔧 Quick Actions")
     if st.button("🔄 Clear Cache & Reconnect", use_container_width=True):
+        # Clear all caches
         st.cache_resource.clear()
         st.cache_data.clear()
-        st.success("Cache cleared! Page will reload...")
+        
+        # Clear connection pool from session state (forces fresh connections)
+        if 'mysql_pool' in st.session_state:
+            del st.session_state.mysql_pool
+        
+        st.success("✅ Cache cleared! Database connections will be recreated on next use.")
+        st.info("💡 If you still see errors, refresh your browser (Cmd+R or Ctrl+R)")
+        time.sleep(1)
         st.rerun()
     st.caption("💡 Use this if you see connection errors")
 
-# Database connection helper
-@st.cache_resource(ttl=300)
-def get_db_connection():
-    """Get database connection using app_mysql module."""
+# Database connection helper with automatic cleanup
+@contextmanager
+def get_db_connection_context():
+    """
+    Context manager for database connections with automatic cleanup.
+    
+    Usage:
+        with get_db_connection_context() as conn:
+            if conn:
+                cursor = conn.cursor()
+                # ... use connection ...
+                cursor.close()
+    
+    Ensures connection is always returned to pool, even if error occurs.
+    """
+    conn = None
     try:
-        # Import the app's MySQL module which handles SSH tunnel properly
-        import sys
-        from pathlib import Path
-        
-        # Add app directory to path if needed
-        app_dir = Path(__file__).parent
-        if str(app_dir) not in sys.path:
-            sys.path.insert(0, str(app_dir))
-        
         from app_mysql import get_connection
-        
-        # Test connection
         conn = get_connection()
-        return conn, None  # No separate tunnel object needed
-        
+        yield conn
     except Exception as e:
-        st.warning(f"Database connection error: {e}")
+        error_msg = str(e)
+        
+        # Provide user-friendly error message with fix suggestion
+        if "2013" in error_msg or "Lost connection" in error_msg:
+            st.error(f"⚠️ **Database Connection Lost**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser.")
+        elif "Can not reconnect" in error_msg:
+            st.error(f"⚠️ **Cannot Reconnect to Database**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser. If the problem persists, check if the database server is running.")
+        else:
+            st.error(f"⚠️ **Database Connection Error**\n\n{error_msg}\n\n💡 **Try:** Refresh your browser. If the error persists, click '🔄 Clear Cache & Reconnect' in the sidebar.")
+        
+        yield None
+    finally:
+        # Always return connection to pool
+        if conn is not None:
+            try:
+                conn.close()
+            except:
+                pass
+
+
+# Legacy function for backward compatibility (DEPRECATED - use context manager instead)
+def get_db_connection():
+    """
+    DEPRECATED: Get database connection without automatic cleanup.
+    Use get_db_connection_context() instead for proper resource management.
+    
+    Returns connection and None (for backward compatibility with old tunnel return).
+    """
+    try:
+        from app_mysql import get_connection
+        conn = get_connection()
+        return conn, None
+    except Exception as e:
+        error_msg = str(e)
+        if "2013" in error_msg or "Lost connection" in error_msg:
+            st.error(f"⚠️ **Database Connection Lost**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser.")
+        elif "Can not reconnect" in error_msg:
+            st.error(f"⚠️ **Cannot Reconnect to Database**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser. If the problem persists, check if the database server is running.")
+        else:
+            st.error(f"⚠️ **Database Connection Error**\n\n{error_msg}\n\n💡 **Try:** Refresh your browser. If the error persists, click '🔄 Clear Cache & Reconnect' in the sidebar.")
         return None, None
 
 # Tab layout
