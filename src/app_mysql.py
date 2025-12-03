@@ -176,7 +176,7 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
             st.session_state.mysql_pool = pooling.MySQLConnectionPool(
                 pool_name="miolingo_pool",
                 pool_size=10,  # Increased for Emerald plan resources
-                pool_reset_session=True,
+                pool_reset_session=True,  # Reset session variables on get
                 host='127.0.0.1',  # Connect via SSH tunnel
                 port=tunnel.local_bind_port,  # Tunnel's local port
                 database=st.secrets["mysql"]["database"],
@@ -186,7 +186,6 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
                 connection_timeout=10,
                 # Connection health parameters
                 use_pure=True,  # Use pure Python implementation (more stable)
-                pool_reset_session=True,  # Reset session variables on get
                 # MySQL session variables to prevent timeout
                 init_command="SET SESSION wait_timeout=28800, interactive_timeout=28800"  # 8 hours
             )
