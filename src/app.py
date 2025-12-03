@@ -397,6 +397,9 @@ def check_authentication():
     """
     Check if user is authenticated. If not, show login page and stop.
     This runs at the start of every app load.
+    
+    Session validation is done periodically (every 5 minutes) rather than on every
+    rerun to prevent logout due to temporary database connection issues.
     """
     # Initialize session state
     if 'authenticated' not in st.session_state:
@@ -407,14 +410,30 @@ def check_authentication():
         show_login_page()
         st.stop()
     
-    # Validate session (optional security check)
+    # Validate session periodically (not on every rerun)
     if 'session_id' in st.session_state:
-        user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
-        if not user:
-            # Session expired or invalid
-            st.warning("⚠️ Your session has expired. Please login again.")
-            st.session_state['authenticated'] = False
-            st.rerun()
+        import time
+        
+        # Only validate every 5 minutes to reduce DB load and avoid logout on connection issues
+        last_check = st.session_state.get('last_session_check', 0)
+        now = time.time()
+        
+        if now - last_check > 300:  # 5 minutes = 300 seconds
+            try:
+                user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
+                if not user:
+                    # Session actually expired in database (not just a connection error)
+                    st.warning("⚠️ Your session has expired. Please login again.")
+                    st.session_state['authenticated'] = False
+                    st.rerun()
+                else:
+                    # Session valid - update check timestamp
+                    st.session_state['last_session_check'] = now
+            except Exception as e:
+                # Database connection error - DON'T logout user
+                # Just show warning and they stay logged in
+                st.warning(f"⚠️ Temporary connection issue during session validation. You remain logged in.")
+                # Don't update last_session_check so we retry sooner (next rerun)
 
 
 # ========================================
