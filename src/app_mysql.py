@@ -183,7 +183,12 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
                 user=st.secrets["mysql"]["user"],
                 password=st.secrets["mysql"]["password"],
                 autocommit=False,  # Explicit transaction control
-                connection_timeout=10
+                connection_timeout=10,
+                # Connection health parameters
+                use_pure=True,  # Use pure Python implementation (more stable)
+                pool_reset_session=True,  # Reset session variables on get
+                # MySQL session variables to prevent timeout
+                init_command="SET SESSION wait_timeout=28800, interactive_timeout=28800"  # 8 hours
             )
         except Error as e:
             st.error(f"❌ Database connection pool failed: {e}")
@@ -194,11 +199,30 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
 
 def get_connection() -> mysql.connector.MySQLConnection:
     """
-    Get a connection from the pool.
+    Get a connection from the pool with health validation.
     Always use with try/finally to ensure connection is returned to pool.
+    
+    Implements connection validation to detect and recover from:
+    - Stale connections that timed out
+    - Lost SSH tunnel connections
+    - MySQL server restarts
     """
     pool = get_connection_pool()
-    return pool.get_connection()
+    conn = pool.get_connection()
+    
+    # Validate connection is alive before returning it
+    try:
+        conn.ping(reconnect=True, attempts=3, delay=1)
+    except Error as e:
+        # Connection is dead, try to get a fresh one
+        conn.close()
+        # Clear the pool to force recreation with new tunnel
+        if "mysql_pool" in st.session_state:
+            del st.session_state.mysql_pool
+        # Recursively get a new connection (will recreate pool)
+        return get_connection()
+    
+    return conn
 
 
 def cleanup_ssh_tunnel():
