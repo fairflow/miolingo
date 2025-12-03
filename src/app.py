@@ -586,16 +586,23 @@ def get_espeak_path():
     """
     Get espeak path (local build or system-wide)
     
-    CRITICAL: The binary is called "espeak" NOT "espeak-ng"!
-    - espeak-ng is the PROJECT/REPO name
-    - espeak is the BINARY name
-    DO NOT CHANGE THIS BACK TO "espeak-ng" - it will break phoneme analysis!
+    Platform differences:
+    - macOS (MacPorts): Binary is "espeak" at /opt/local/bin/espeak
+    - Debian/Ubuntu (Streamlit Cloud): Binary is "espeak-ng" from espeak-ng package
     """
+    # Try macOS MacPorts path first
     local_path = "/opt/local/bin/espeak"
     if Path(local_path).exists():
         return local_path
-    # System-wide binary (macOS/Linux with eSpeak NG installed)
-    # The binary is called "espeak" even though the project is "espeak-ng"
+    
+    # Try espeak-ng (Streamlit Cloud / Ubuntu)
+    try:
+        subprocess.run(["espeak-ng", "--version"], capture_output=True, check=True)
+        return "espeak-ng"
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    
+    # Fallback to espeak (if available)
     return "espeak"
 
 
