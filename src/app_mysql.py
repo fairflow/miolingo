@@ -531,8 +531,8 @@ def create_session(user_id: int, ip_address: str = "unknown") -> Optional[str]:
         # Generate cryptographically secure session ID
         session_id = secrets.token_urlsafe(32)
         
-        # Session expires in 24 hours
-        expires_at = datetime.now() + timedelta(hours=24)
+        # Session expires in 7 days
+        expires_at = datetime.now() + timedelta(days=7)
         
         conn = get_connection()
         cursor = conn.cursor()
@@ -589,10 +589,23 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
         cursor.close()
         
         if not session:
+            # Log session validation failure
+            write_debug_log(
+                event_type='session_validation_failed',
+                message=f'Session not found or expired in database',
+                session_id=session_id
+            )
             return None
         
         # Check if user is active
         if not session['is_active']:
+            write_debug_log(
+                event_type='session_validation_failed',
+                message=f'User account is inactive',
+                username=session.get('username'),
+                user_id=session.get('user_id'),
+                session_id=session_id
+            )
             return None
         
         # IP address validation (detect session hijacking)
@@ -612,6 +625,11 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
         }
         
     except Error as e:
+        write_debug_log(
+            event_type='session_validation_error',
+            message=f'Database error during validation: {str(e)}',
+            session_id=session_id
+        )
         st.error(f"❌ Session validation error: {e}")
         return None
     
@@ -791,6 +809,155 @@ def delete_user_setting(user_id: int, key: str) -> bool:
     finally:
         if conn:
             conn.close()
+
+
+# ============================================================================
+# DEBUG LOGGING (Admin troubleshooting)
+# ============================================================================
+
+def write_debug_log(
+    event_type: str,
+    message: str,
+    username: str = None,
+    user_id: int = None,
+    user_agent: str = None,
+    session_id: str = None
+):
+    """
+    Write a debug log entry for admin troubleshooting.
+    Automatically maintains last 20,000 entries.
+    
+    Args:
+        event_type: Type of event (e.g., 'session_validation_failed', 'audio_error')
+        message: Detailed message about the event
+        username: Current username (if available)
+        user_id: Current user ID (if available)
+        user_agent: Browser/device user agent string
+        session_id: Session ID (first 8 chars will be stored)
+    """
+    conn = None
+    try:
+        # Detect environment
+        try:
+            # Check if running on Streamlit Cloud
+            import socket
+            hostname = socket.gethostname()
+            environment = 'deployed' if 'streamlit' in hostname.lower() else 'local'
+        except:
+            environment = 'unknown'
+        
+        # Extract partial session ID for correlation (privacy)
+        session_id_partial = session_id[:8] if session_id else None
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Insert log entry
+        query = """
+            INSERT INTO debug_logs 
+            (timestamp, environment, username, user_id, event_type, message, user_agent, session_id_partial)
+            VALUES (NOW(), %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (
+            environment,
+            username,
+            user_id,
+            event_type,
+            message,
+            user_agent,
+            session_id_partial
+        ))
+        conn.commit()
+        
+        # Cleanup: Keep only last 20,000 entries
+        cursor.execute("SELECT COUNT(*) FROM debug_logs")
+        count = cursor.fetchone()[0]
+        
+        if count > 20000:
+            cursor.execute("""
+                DELETE FROM debug_logs 
+                WHERE id < (
+                    SELECT id FROM (
+                        SELECT id FROM debug_logs 
+                        ORDER BY id DESC 
+                        LIMIT 1 OFFSET 20000
+                    ) AS t
+                )
+            """)
+            conn.commit()
+        
+        cursor.close()
+        
+    except Exception as e:
+        # Don't let logging errors break the app
+        logging.error(f"Failed to write debug log: {e}")
+    
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+
+
+def get_debug_logs(
+    limit: int = 100,
+    event_type: str = None,
+    username: str = None,
+    environment: str = None
+) -> List[Dict]:
+    """
+    Retrieve debug logs with optional filtering.
+    
+    Args:
+        limit: Maximum number of logs to return
+        event_type: Filter by event type
+        username: Filter by username
+        environment: Filter by environment (local/deployed)
+    
+    Returns:
+        List of log entries (newest first)
+    """
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Build query with filters
+        query = "SELECT * FROM debug_logs WHERE 1=1"
+        params = []
+        
+        if event_type:
+            query += " AND event_type = %s"
+            params.append(event_type)
+        
+        if username:
+            query += " AND username = %s"
+            params.append(username)
+        
+        if environment:
+            query += " AND environment = %s"
+            params.append(environment)
+        
+        query += " ORDER BY id DESC LIMIT %s"
+        params.append(limit)
+        
+        cursor.execute(query, tuple(params))
+        logs = cursor.fetchall()
+        cursor.close()
+        
+        return logs
+        
+    except Exception as e:
+        logging.error(f"Failed to retrieve debug logs: {e}")
+        return []
+    
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
 
 
 # ============================================================================
