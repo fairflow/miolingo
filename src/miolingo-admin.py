@@ -256,9 +256,31 @@ with tab2:
             cursor.execute("SELECT COUNT(*) as count FROM users")
             user_count = cursor.fetchone()['count']
             
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st.metric("Total Users", user_count)
+            
+            # Get guest user counts
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM users 
+                WHERE username LIKE 'guest_%' 
+                AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+            """)
+            active_guests = cursor.fetchone()['count']
+            
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM users 
+                WHERE username LIKE 'guest_%'
+            """)
+            total_guests = cursor.fetchone()['count']
+            
+            with col2:
+                st.metric("Active Guests (24h)", active_guests, 
+                         delta="⚠️ At limit" if active_guests >= 3 else None)
+            
+            with col3:
+                st.metric("Total Guest Accounts", total_guests,
+                         delta="⚠️ Cleanup needed" if total_guests > 10 else None)
             
             # Get currently logged-in users (active sessions)
             cursor.execute("""
@@ -271,7 +293,7 @@ with tab2:
             """)
             active_sessions = cursor.fetchall()
             
-            with col2:
+            with col4:
                 st.metric("Currently Logged In", len(active_sessions))
             
             # Show expired sessions count
@@ -282,8 +304,9 @@ with tab2:
             """)
             expired_count = int(cursor.fetchone()['count'] or 0)
             
-            with col3:
-                st.metric("Expired Sessions", expired_count, delta="⚠️" if expired_count > 0 else None)
+            # Display in a new row if needed
+            if expired_count > 0:
+                st.warning(f"⚠️ {expired_count} expired sessions need cleanup")
             
             # Cleanup buttons
             col_btn1, col_btn2 = st.columns(2)
@@ -796,7 +819,7 @@ with tab6:
     
     st.subheader("🔄 Quick Actions")
     
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         if st.button("🗑️ Clear Cache"):
@@ -808,6 +831,16 @@ with tab6:
     with col2:
         if st.button("📊 Reload Data"):
             st.rerun()
+    
+    with col3:
+        if st.button("🧹 Clean Old Guests"):
+            try:
+                from app_mysql import cleanup_old_guest_users
+                deleted = cleanup_old_guest_users(days_old=7)
+                st.success(f"✅ Removed {deleted} old guest accounts (>7 days)")
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Guest cleanup failed: {e}")
 
 # Footer
 st.divider()

@@ -299,11 +299,24 @@ def create_guest_user() -> Optional[tuple]:
     Create a temporary guest user for this session.
     Guest users have unique usernames and don't persist across sessions.
     
+    Enforces concurrent guest limit to prevent resource exhaustion:
+    - Max 3 concurrent guests (MySQL Emerald: 25 connections, 10 per pool)
+    - This prevents DoS from unlimited guest accounts
+    
     Returns:
         Tuple of (user_id, username, session_id) if successful, None if failed
     """
     import secrets
     import time
+    
+    # Check concurrent guest limit (CRITICAL: prevents connection pool exhaustion)
+    MAX_CONCURRENT_GUESTS = 3
+    active_guests = count_active_guests()
+    
+    if active_guests >= MAX_CONCURRENT_GUESTS:
+        st.warning(f"⚠️ Maximum guest users ({MAX_CONCURRENT_GUESTS}) currently active. Please try again later or create a free account for unlimited access.")
+        logging.warning(f"Guest limit reached: {active_guests} active guests")
+        return None
     
     conn = None
     cursor = None
@@ -365,6 +378,86 @@ def create_guest_user() -> Optional[tuple]:
                 conn.close()
             except:
                 pass
+
+
+def count_active_guests() -> int:
+    """
+    Count active guest users in the last 24 hours.
+    Used to enforce concurrent guest limits and prevent resource exhaustion.
+    
+    Returns:
+        Number of active guest users (created in last 24 hours)
+    """
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Count guests created in last 24 hours (considers them "active")
+        query = """
+            SELECT COUNT(*) FROM users 
+            WHERE username LIKE 'guest_%' 
+            AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+            AND is_active = TRUE
+        """
+        cursor.execute(query)
+        count = cursor.fetchone()[0]
+        cursor.close()
+        
+        return count
+        
+    except Error as e:
+        logging.error(f"Error counting active guests: {e}")
+        return 0
+    
+    finally:
+        if conn:
+            conn.close()
+
+
+def cleanup_old_guest_users(days_old: int = 7) -> int:
+    """
+    Delete guest users older than specified number of days.
+    This prevents database bloat from accumulating guest accounts.
+    
+    Args:
+        days_old: Delete guests older than this many days (default: 7)
+    
+    Returns:
+        Number of guest accounts deleted
+    """
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Delete old guest users and their associated data
+        # Sessions will be cleaned up by cleanup_expired_sessions()
+        # Progress/settings should cascade delete if foreign keys are set up
+        query = """
+            DELETE FROM users 
+            WHERE username LIKE 'guest_%' 
+            AND created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
+        """
+        cursor.execute(query, (days_old,))
+        deleted_count = cursor.rowcount
+        conn.commit()
+        cursor.close()
+        
+        if deleted_count > 0:
+            logging.info(f"Deleted {deleted_count} old guest accounts (>{days_old} days)")
+        
+        return deleted_count
+        
+    except Error as e:
+        if conn:
+            conn.rollback()
+        logging.error(f"Error cleaning up guest users: {e}")
+        return 0
+    
+    finally:
+        if conn:
+            conn.close()
 
 
 def create_user(username: str, email: str, password: str) -> Optional[int]:
@@ -1440,18 +1533,21 @@ def clear_announcement(ann_type: str) -> bool:
 # ============================================================================
 
 def test_connection() -> bool:
-    """Test database connection."""
+    """Test database connection with proper resource cleanup."""
+    conn = None
     try:
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT 1")
         cursor.fetchone()
         cursor.close()
-        conn.close()
         return True
     except Error as e:
         st.error(f"❌ Database connection test failed: {e}")
         return False
+    finally:
+        if conn:
+            conn.close()
 
 
 if __name__ == "__main__":
