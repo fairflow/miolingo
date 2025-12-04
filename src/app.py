@@ -272,6 +272,24 @@ def show_announcements(location: str):
 # ============================================================================
 # AUTHENTICATION (Test Implementation for v1.3.0)
 # ============================================================================
+#
+# LOGOUT LOCATIONS IN CODE:
+# 
+# 1. VOLUNTARY LOGOUT (line ~480): User clicks "🚪 Logout" button
+#    - No forced_logout_reason set
+#    - Clean logout, deletes session from DB
+# 
+# 2. FORCED LOGOUT - Session Expired (line ~442): Session validation fails
+#    - Sets forced_logout_reason = "session_expired"
+#    - Shows red error banner on login page with reason code
+#    - User can report if unexpected
+# 
+# To add new forced logout scenarios, always:
+#   1. Set st.session_state['forced_logout_reason'] = "code_name"
+#   2. Set st.session_state['forced_logout_message'] = "User-friendly message"
+#   3. Then set authenticated = False and st.rerun()
+# 
+# ============================================================================
 
 def show_login_page():
     """Display login/registration page."""
@@ -280,6 +298,19 @@ def show_login_page():
     # Get language list from config
     languages = ", ".join(LANGUAGE_CONFIG.keys())
     st.markdown(f"Pronunciation trainer - practice {languages}")
+    
+    # CRITICAL: Show forced logout reason if present (prominent display)
+    if 'forced_logout_reason' in st.session_state:
+        reason = st.session_state['forced_logout_reason']
+        message = st.session_state.get('forced_logout_message', 'You have been logged out.')
+        
+        # Show as error (red banner) so it's highly visible
+        st.error(f"🚨 **FORCED LOGOUT**\n\n{message}\n\n📋 *Reason code: `{reason}` - Please report if unexpected*")
+        
+        # Clear the forced logout markers after showing (so refresh doesn't show again)
+        del st.session_state['forced_logout_reason']
+        if 'forced_logout_message' in st.session_state:
+            del st.session_state['forced_logout_message']
     
     # Show announcements for login page
     show_announcements('login')
@@ -423,7 +454,9 @@ def check_authentication():
                 user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
                 if not user:
                     # Session actually expired in database (not just a connection error)
-                    st.warning("⚠️ Your session has expired. Please login again.")
+                    # FORCED LOGOUT: Set persistent message before logout
+                    st.session_state['forced_logout_reason'] = "session_expired"
+                    st.session_state['forced_logout_message'] = "⚠️ **Session Expired**: Your session has expired after 7 days. Please login again."
                     st.session_state['authenticated'] = False
                     st.rerun()
                 else:
@@ -462,6 +495,7 @@ with st.sidebar:
     
     # Logout button at bottom of this section
     if st.button("🚪 Logout"):
+        # VOLUNTARY LOGOUT: User clicked the button
         # Delete session from database
         if 'session_id' in st.session_state:
             app_mysql.delete_session(st.session_state['session_id'])
@@ -469,7 +503,7 @@ with st.sidebar:
         # Cleanup session resources (connections, etc)
         app_mysql.cleanup_session_resources()
         
-        # Clear session state
+        # Clear session state (no forced_logout_reason - this is voluntary)
         st.session_state.clear()
         st.rerun()
 
