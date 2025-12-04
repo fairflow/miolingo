@@ -63,6 +63,13 @@ pwd_hasher = PasswordHasher(
 # This prevents creating multiple tunnels and hitting server connection limits
 _global_ssh_tunnel = None
 
+# Guest user resource limits
+# MySQL Emerald plan: 25 concurrent connections, 10 connections per pool
+# Limiting guests prevents connection pool exhaustion
+MAX_CONCURRENT_GUESTS = 3  # Max concurrent guest users (active in last 24h)
+GUEST_CLEANUP_DAYS = 7     # Delete guest accounts older than this
+GUEST_CLEANUP_WARNING_THRESHOLD = 10  # Warn in admin if more guests than this
+
 
 def get_ssh_tunnel() -> SSHTunnelForwarder:
     """
@@ -310,12 +317,13 @@ def create_guest_user() -> Optional[tuple]:
     import time
     
     # Check concurrent guest limit (CRITICAL: prevents connection pool exhaustion)
-    MAX_CONCURRENT_GUESTS = 3
     active_guests = count_active_guests()
     
     if active_guests >= MAX_CONCURRENT_GUESTS:
+        # Log the limit event
+        logging.warning(f"Guest limit reached: {active_guests} active guests (limit: {MAX_CONCURRENT_GUESTS})")
+        # Show user-friendly message (UI responsibility, but acceptable here as this is user-facing function)
         st.warning(f"⚠️ Maximum guest users ({MAX_CONCURRENT_GUESTS}) currently active. Please try again later or create a free account for unlimited access.")
-        logging.warning(f"Guest limit reached: {active_guests} active guests")
         return None
     
     conn = None
@@ -415,17 +423,19 @@ def count_active_guests() -> int:
             conn.close()
 
 
-def cleanup_old_guest_users(days_old: int = 7) -> int:
+def cleanup_old_guest_users(days_old: int = None) -> int:
     """
     Delete guest users older than specified number of days.
     This prevents database bloat from accumulating guest accounts.
     
     Args:
-        days_old: Delete guests older than this many days (default: 7)
+        days_old: Delete guests older than this many days (default: GUEST_CLEANUP_DAYS constant)
     
     Returns:
         Number of guest accounts deleted
     """
+    if days_old is None:
+        days_old = GUEST_CLEANUP_DAYS
     conn = None
     try:
         conn = get_connection()

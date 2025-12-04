@@ -274,13 +274,16 @@ with tab2:
             """)
             total_guests = cursor.fetchone()['count']
             
+            # Import guest constants for consistency
+            from app_mysql import MAX_CONCURRENT_GUESTS, GUEST_CLEANUP_WARNING_THRESHOLD
+            
             with col2:
                 st.metric("Active Guests (24h)", active_guests, 
-                         delta="⚠️ At limit" if active_guests >= 3 else None)
+                         delta="⚠️ At limit" if active_guests >= MAX_CONCURRENT_GUESTS else None)
             
             with col3:
                 st.metric("Total Guest Accounts", total_guests,
-                         delta="⚠️ Cleanup needed" if total_guests > 10 else None)
+                         delta="⚠️ Cleanup needed" if total_guests > GUEST_CLEANUP_WARNING_THRESHOLD else None)
             
             # Get currently logged-in users (active sessions)
             cursor.execute("""
@@ -835,9 +838,9 @@ with tab6:
     with col3:
         if st.button("🧹 Clean Old Guests"):
             try:
-                from app_mysql import cleanup_old_guest_users
-                deleted = cleanup_old_guest_users(days_old=7)
-                st.success(f"✅ Removed {deleted} old guest accounts (>7 days)")
+                from app_mysql import cleanup_old_guest_users, GUEST_CLEANUP_DAYS
+                deleted = cleanup_old_guest_users()  # Uses default GUEST_CLEANUP_DAYS
+                st.success(f"✅ Removed {deleted} old guest accounts (>{GUEST_CLEANUP_DAYS} days)")
                 st.rerun()
             except Exception as e:
                 st.error(f"❌ Guest cleanup failed: {e}")
