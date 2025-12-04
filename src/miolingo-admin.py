@@ -496,9 +496,10 @@ with tab3:
         st.info("No local practice history file found")
     
     # Database activity logs
-    if conn:
+    conn_logs, tunnel_logs = get_db_connection()
+    if conn_logs:
         try:
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn_logs.cursor(dictionary=True)
             
             # Try to get recent sessions if table exists
             try:
@@ -521,7 +522,7 @@ with tab3:
             st.warning(f"Could not fetch logs: {e}")
         finally:
             try:
-                conn.close()
+                conn_logs.close()
             except:
                 pass
 
