@@ -300,7 +300,12 @@ def show_login_page():
     st.markdown(f"Pronunciation trainer - practice {languages}")
     
     # CRITICAL: Show forced logout reason if present (prominent display)
-    if 'forced_logout_reason' in st.session_state:
+    # BUT: Don't show if this was a voluntary logout (user clicked logout button)
+    if 'voluntary_logout' in st.session_state:
+        # User clicked logout button - this is expected, don't show warning
+        del st.session_state['voluntary_logout']
+    elif 'forced_logout_reason' in st.session_state:
+        # This was an unexpected/forced logout - show warning
         reason = st.session_state['forced_logout_reason']
         message = st.session_state.get('forced_logout_message', 'You have been logged out.')
         
@@ -496,6 +501,9 @@ with st.sidebar:
     # Logout button at bottom of this section
     if st.button("🚪 Logout"):
         # VOLUNTARY LOGOUT: User clicked the button
+        # Mark as voluntary BEFORE clearing, so login page doesn't show forced logout warning
+        voluntary_logout = True
+        
         # Delete session from database
         if 'session_id' in st.session_state:
             app_mysql.delete_session(st.session_state['session_id'])
@@ -503,8 +511,9 @@ with st.sidebar:
         # Cleanup session resources (connections, etc)
         app_mysql.cleanup_session_resources()
         
-        # Clear session state (no forced_logout_reason - this is voluntary)
+        # Clear session state, but preserve voluntary logout marker
         st.session_state.clear()
+        st.session_state['voluntary_logout'] = True  # Set AFTER clear
         st.rerun()
 
 # ============================================================================
