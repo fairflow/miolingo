@@ -27,7 +27,7 @@ st.set_page_config(
 )
 
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface • v1.4.1")
+st.caption("Local monitoring and management interface • v1.4.2")
 
 # Quick reconnect button in sidebar
 with st.sidebar:
@@ -810,4 +810,4 @@ with tab6:
 
 # Footer
 st.divider()
-st.caption("Miolingo Admin Dashboard v1.7.0 | Local monitoring interface")
+st.caption("Miolingo Admin Dashboard v1.4.2 | Local monitoring interface")
