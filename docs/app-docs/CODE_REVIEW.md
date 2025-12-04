@@ -12,12 +12,14 @@
 Miolingo is a multi-language pronunciation trainer built with Streamlit, featuring real-time speech recognition, TTS feedback, and multi-user authentication via MySQL over SSH. The codebase demonstrates sophisticated understanding of some Streamlit patterns while exhibiting critical anti-patterns in others, particularly around widget state management and global resource handling.
 
 **Strengths:**
+
 - Clever global SSH tunnel solution avoiding per-user resource leaks
 - Comprehensive connection health validation and auto-recovery
 - Well-structured multi-language configuration
 - Good separation of concerns (app.py, app_mysql.py, app_language_materials.py)
 
 **Critical Issues:**
+
 - Widget state anti-patterns causing race conditions and bugs
 - Radio button "tabs" creating poor UX (tab bouncing)
 - Mixed state initialization patterns leading to confusion
@@ -35,6 +37,7 @@ Miolingo is a multi-language pronunciation trainer built with Streamlit, featuri
 Streamlit apps execute **top-to-bottom on every interaction**. This is fundamental to understanding the codebase's behavior and bugs.
 
 **When reruns occur:**
+
 - User clicks a button
 - User changes a widget value
 - `st.rerun()` is called explicitly
@@ -42,11 +45,13 @@ Streamlit apps execute **top-to-bottom on every interaction**. This is fundament
 - User changes selectbox/radio button
 
 **What persists across reruns:**
+
 - `st.session_state` dictionary (per-user session)
 - Cached data (`@st.cache_data`, `@st.cache_resource`)
 - Global module-level variables (shared across ALL users!)
 
 **What resets:**
+
 - Local variables in functions
 - Widget objects (recreated each rerun)
 - Temporary file handles
@@ -56,6 +61,7 @@ Streamlit apps execute **top-to-bottom on every interaction**. This is fundament
 This is where Miolingo has **critical misunderstandings**.
 
 **Correct pattern:**
+
 ```python
 # Let widget manage its own state
 language = st.selectbox("Language", options=["French", "German"], key="material_language")
@@ -63,6 +69,7 @@ language = st.selectbox("Language", options=["French", "German"], key="material_
 ```
 
 **Anti-pattern in app.py (LINES 472-476):**
+
 ```python
 # ❌ BAD: Manual initialization conflicts with widget key
 if 'material_language' not in st.session_state:
@@ -73,12 +80,14 @@ material_language = st.selectbox(..., key="material_language")  # ❌ CONFLICT!
 ```
 
 **Why this is broken:**
+
 1. Manual init sets `st.session_state.material_language = 'French'`
 2. Widget with `key="material_language"` tries to read/write same key
 3. Race condition: who wins? Manual init or widget default?
 4. Result: Unpredictable behavior, values don't persist correctly
 
 **Correct approach:**
+
 ```python
 # ✅ GOOD: Let widget manage state entirely
 material_language = st.selectbox(
@@ -92,6 +101,7 @@ material_language = st.selectbox(
 ### 1.3 State Initialization Patterns
 
 **Current code (app.py lines 439-473):**
+
 ```python
 def initialize_session_state():
     if 'settings' not in st.session_state:
@@ -107,12 +117,14 @@ def initialize_session_state():
 ```
 
 **Issues:**
+
 1. Comment correctly identifies the anti-pattern
 2. Code immediately violates the principle for `language`
 3. Inconsistent: why is `material_language` special but `language` isn't?
 4. `language` gets overwritten in `main()` anyway, so this is dead code
 
 **Recommendation:**
+
 ```python
 def initialize_session_state():
     """Initialize session state for NON-WIDGET values only."""
@@ -143,6 +155,7 @@ def initialize_session_state():
 **Location:** app.py lines 2048-2300+
 
 **Current flow:**
+
 ```python
 def main():
     initialize_session_state()
@@ -159,12 +172,14 @@ def main():
 ```
 
 **Issues:**
+
 1. Order-dependent: assumes `material_language` exists before widget creates it
 2. Works by accident: Streamlit initializes widget keys before main() runs
 3. Fragile: any refactor could break this assumption
 4. Confusing: reader can't tell what initializes `material_language`
 
 **Better architecture:**
+
 ```python
 def main():
     initialize_session_state()
@@ -193,6 +208,7 @@ def render_language_selector():
 ```
 
 **Benefits:**
+
 1. Clear initialization order
 2. Self-documenting flow
 3. Easy to test
@@ -203,6 +219,7 @@ def render_language_selector():
 **Location:** app.py lines 2137-2155
 
 **Current implementation:**
+
 ```python
 active_tab = st.radio(
     "Choose a section:",
@@ -240,6 +257,7 @@ elif active_tab == "📊 Progress":
    - Visual feedback is delayed
 
 **Why real tabs are better:**
+
 ```python
 # ✅ Native Streamlit tabs - NO RERUN on switch
 tab1, tab2, tab3 = st.tabs(["🎯 Quick Practice", "📖 Story Reader", "📊 Progress"])
@@ -255,6 +273,7 @@ with tab3:
 ```
 
 **Advantages of st.tabs:**
+
 - No rerun when switching tabs (client-side only)
 - Widget state preserved within tabs
 - Instant visual feedback
@@ -266,11 +285,13 @@ From comments in code:
 > "Fixed tab bouncing (st.tabs → radio buttons)"
 
 This is **backwards logic**! The fix for tab bouncing is NOT to use radio buttons. The issue was likely:
+
 - Improper state management within tabs
 - Calling `st.rerun()` unnecessarily
 - Not preserving tab-specific state
 
 **Actual fix needed:**
+
 ```python
 # Initialize tab-specific state
 if 'quick_practice_phrase' not in st.session_state:
@@ -289,6 +310,7 @@ with tab1:
 **Location:** app_mysql.py lines 72-180
 
 **Current implementation:**
+
 ```python
 # Global variable shared across ALL Streamlit sessions
 _global_ssh_tunnel = None
@@ -326,6 +348,7 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
 ```
 
 **Brilliant aspects:**
+
 1. Prevents 125+ stale tunnels (old bug)
 2. One tunnel serves unlimited users efficiently
 3. Health checking with auto-recovery
@@ -343,6 +366,7 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
    - Result: Connection failures, orphaned tunnels
 
    **Proof of vulnerability:**
+
    ```python
    # User A thread:
    if _global_ssh_tunnel is not None:  # False
@@ -378,6 +402,7 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
    - **All users locked out**
 
 **Production-grade fix:**
+
 ```python
 import threading
 
@@ -419,6 +444,7 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
 ```
 
 **Alternative: Session-level tunnels with limit:**
+
 ```python
 # Compromise: 3 tunnels max (not 1, not unlimited)
 _tunnel_pool = []
@@ -453,6 +479,7 @@ def get_ssh_tunnel():
 **Location:** app_mysql.py lines 182-215
 
 **Current implementation:**
+
 ```python
 def get_connection_pool() -> pooling.MySQLConnectionPool:
     """Get or create MySQL connection pool via SSH tunnel."""
@@ -478,6 +505,7 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
    - Collisions cause unpredictable behavior
 
    **Fix:**
+
    ```python
    pool_name=f"miolingo_pool_{id(st.session_state)}"  # ✅ Unique per session
    ```
@@ -488,6 +516,7 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
    - Result: "Connection refused" errors
 
    **Fix:**
+
    ```python
    if "mysql_pool" not in st.session_state or \
       st.session_state.mysql_pool_port != tunnel.local_bind_port:
@@ -497,6 +526,7 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
    ```
 
 3. **Connection Validation (GOOD):**
+
    ```python
    def get_connection():
        conn = pool.get_connection()
@@ -517,6 +547,7 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
 **Connection limits:**
 
 Current setup:
+
 - 10 connections per user
 - If Krystal allows 100 max connections → **10 concurrent users max**
 - 11th user gets: `Too many connections (Error 1040)`

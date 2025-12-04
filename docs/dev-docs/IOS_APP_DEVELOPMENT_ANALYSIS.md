@@ -1,4 +1,5 @@
 # iOS App Development Analysis for Miolingo
+
 **Date:** December 3, 2025  
 **Purpose:** Evaluate options for creating a native iOS app for Miolingo pronunciation trainer
 
@@ -7,6 +8,7 @@
 ## Executive Summary
 
 **TL;DR:** Three viable paths exist for iOS deployment:
+
 1. **Progressive Web App (PWA)** - Fastest, no App Store needed, 80% native feel
 2. **React Native/Expo** - True native app, can bypass App Store with TestFlight/Enterprise
 3. **Swift Native** - Full control, requires App Store or jailbreak
@@ -18,6 +20,7 @@
 ## Current Miolingo Architecture
 
 ### Technology Stack
+
 - **Frontend:** Streamlit (Python-based web framework)
 - **Backend:** Python 3.10+
 - **Database:** MySQL via SSH tunnel
@@ -28,6 +31,7 @@
 - **Deployment:** Streamlit Cloud (Ubuntu container)
 
 ### Key Challenges for iOS
+
 1. **Streamlit is web-based** - Not designed for native mobile compilation
 2. **Python runtime** - iOS doesn't support Python natively
 3. **Audio I/O** - Requires native iOS APIs (AVFoundation)
@@ -39,9 +43,11 @@
 ## Option 1: Progressive Web App (PWA) ⭐ RECOMMENDED
 
 ### What is a PWA?
+
 A web app that behaves like a native app when added to iOS home screen.
 
 ### Advantages ✅
+
 - **No App Store required** - Users add via Safari "Add to Home Screen"
 - **No Apple Developer Account** ($99/year saved)
 - **Fast development** - Enhance existing Streamlit app (1-2 weeks)

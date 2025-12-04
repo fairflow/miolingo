@@ -17,15 +17,12 @@ assignees: ''
 
 
 ## What device are you using?
+
 - Device: (iPhone, MacBook, Android, etc.)
 - Internet connection: (WiFi, mobile data, etc.)
-
 
 ## Error messages
 <!-- Did you see any error messages? Paste them here -->
 
-
-
 ## Additional details
 <!-- Anything else that might help us understand the issue? -->
-
