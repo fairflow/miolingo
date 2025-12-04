@@ -206,6 +206,8 @@ def get_connection() -> mysql.connector.MySQLConnection:
     - Lost SSH tunnel connections
     - MySQL server restarts
     """
+    global _global_ssh_tunnel
+    
     pool = get_connection_pool()
     conn = pool.get_connection()
     
@@ -213,12 +215,28 @@ def get_connection() -> mysql.connector.MySQLConnection:
     try:
         conn.ping(reconnect=True, attempts=3, delay=1)
     except Error as e:
-        # Connection is dead, try to get a fresh one
+        # Connection is dead - could be stale connection OR dead tunnel
         conn.close()
-        # Clear the pool to force recreation with new tunnel
+        
+        # Check if error indicates tunnel/network failure (not just stale connection)
+        error_str = str(e)
+        if "2003" in error_str or "Connection refused" in error_str or "Can't connect" in error_str:
+            # Tunnel is likely dead - force full recreation
+            logging.warning(f"Tunnel appears dead (error: {e}), recreating tunnel and pool")
+            
+            # Clear the global tunnel to force recreation
+            if _global_ssh_tunnel is not None:
+                try:
+                    _global_ssh_tunnel.stop()
+                except:
+                    pass
+                _global_ssh_tunnel = None
+        
+        # Clear the pool to force recreation (with new tunnel if needed)
         if "mysql_pool" in st.session_state:
             del st.session_state.mysql_pool
-        # Recursively get a new connection (will recreate pool)
+        
+        # Recursively get a new connection (will recreate tunnel + pool)
         return get_connection()
     
     return conn
@@ -805,35 +823,59 @@ def save_practice(
         True if successful, False otherwise
     """
     conn = None
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        query = """
-            INSERT INTO user_progress (
-                user_id, language_code, practice_date,
-                target_phrase, recognized_phrase, similarity_score, perfect_match,
-                target_phonemes, user_phonemes
-            ) VALUES (%s, %s, NOW(), %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(query, (
-            user_id, language_code, target_phrase, recognized_phrase,
-            similarity_score, perfect_match, target_phonemes, user_phonemes
-        ))
-        conn.commit()
-        cursor.close()
-        
-        return True
-        
-    except Error as e:
-        if conn:
-            conn.rollback()
-        st.error(f"❌ Failed to save practice: {e}")
-        return False
+    max_retries = 2  # Try twice if connection fails
     
-    finally:
-        if conn:
-            conn.close()
+    for attempt in range(max_retries):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            
+            query = """
+                INSERT INTO user_progress (
+                    user_id, language_code, practice_date,
+                    target_phrase, recognized_phrase, similarity_score, perfect_match,
+                    target_phonemes, user_phonemes
+                ) VALUES (%s, %s, NOW(), %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (
+                user_id, language_code, target_phrase, recognized_phrase,
+                similarity_score, perfect_match, target_phonemes, user_phonemes
+            ))
+            conn.commit()
+            cursor.close()
+            
+            return True
+            
+        except Error as e:
+            if conn:
+                try:
+                    conn.rollback()
+                    conn.close()
+                except:
+                    pass
+                conn = None
+            
+            # If this is not the last attempt and looks like connection issue, retry
+            if attempt < max_retries - 1:
+                error_str = str(e)
+                if "2003" in error_str or "Connection refused" in error_str or "Lost connection" in error_str:
+                    logging.warning(f"Connection error on attempt {attempt + 1}, retrying: {e}")
+                    time.sleep(0.5)  # Brief delay before retry
+                    continue
+            
+            # Last attempt or non-connection error - show error to user
+            st.error(f"⚠️ Could not save practice result to database (connection issue). Your progress for this session is stored locally.")
+            logging.error(f"Failed to save practice after {attempt + 1} attempts: {e}")
+            return False
+        
+        finally:
+            if conn:
+                try:
+                    conn.close()
+                except:
+                    pass
+    
+    return False
 
 
 def get_user_progress(user_id: int, language_code: str, limit: int = 50) -> List[Dict]:
