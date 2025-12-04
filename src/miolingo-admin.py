@@ -175,6 +175,8 @@ with tab1:
                     except Exception as e:
                         st.warning(f"Could not fetch usage: {e}")
                         st.info("**Estimated capacity:** ~20,000 phrases/month (free tier)")
+                    finally:
+                        conn.close()
                 else:
                     st.info("**Average phrase:** ~50 characters\n**Estimated capacity:** ~20,000 phrases/month (free tier)")
             else:
@@ -233,8 +235,10 @@ with tab1:
         st.write("**Database:**")
         conn, tunnel = get_db_connection()
         if conn:
-            st.success("✓ Database connected")
-            # Connection returned to pool automatically
+            try:
+                st.success("✓ Database connected")
+            finally:
+                conn.close()
         else:
             st.warning("✗ Database not connected")
 
@@ -300,6 +304,7 @@ with tab2:
                     with st.popover("⚠️ Force Logout All Users"):
                         st.warning("This will immediately log out ALL users (including you on production)!")
                         if st.button("⚠️ Confirm Force Logout All", type="primary"):
+                            conn_del = None
                             try:
                                 conn_del = get_db_connection()[0]
                                 cursor_del = conn_del.cursor()
@@ -311,6 +316,12 @@ with tab2:
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"❌ Force logout failed: {e}")
+                            finally:
+                                if conn_del:
+                                    try:
+                                        conn_del.close()
+                                    except:
+                                        pass
             
             if active_sessions:
                 st.subheader("🟢 Currently Logged In Users")
@@ -340,6 +351,7 @@ with tab2:
                         st.warning(f"⚠️ This will log out {len(selected_users)} user(s): {', '.join(selected_users)}")
                     with col_btn:
                         if st.button("🚪 Force Logout Selected", type="primary"):
+                            conn_logout = None
                             try:
                                 conn_logout = get_db_connection()[0]
                                 cursor_logout = conn_logout.cursor()
@@ -360,6 +372,12 @@ with tab2:
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"❌ Force logout failed: {e}")
+                            finally:
+                                if conn_logout:
+                                    try:
+                                        conn_logout.close()
+                                    except:
+                                        pass
             else:
                 st.info("No users currently logged in")
             
@@ -420,7 +438,6 @@ with tab2:
                 st.warning(f"Could not load activity stats: {e}")
             
             cursor.close()
-            # Connection returned to pool automatically
                 
         except Exception as e:
             st.error(f"Database error: {e}")
@@ -433,7 +450,11 @@ with tab2:
             with col2:
                 if st.button("📊 Reload Page"):
                     st.rerun()
-            # Connection returned to pool automatically
+        finally:
+            try:
+                conn.close()
+            except:
+                pass
     else:
         st.warning("Database connection not available. User data not accessible.")
         if st.button("🔄 Retry Connection", key="retry_no_conn"):
@@ -498,6 +519,11 @@ with tab3:
             cursor.close()
         except Exception as e:
             st.warning(f"Could not fetch logs: {e}")
+        finally:
+            try:
+                conn.close()
+            except:
+                pass
 
 # TAB 4: Email Monitor
 with tab4:
