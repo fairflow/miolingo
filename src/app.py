@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "3.1.6"
+__version__ = "3.1.7"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -2328,6 +2328,7 @@ def main():
             settings_to_save['material_language'] = st.session_state.get('material_language', 'fr')
             save_settings(settings_to_save)
             st.success("Settings saved!")
+            st.rerun()
         
         st.markdown("---")
         
