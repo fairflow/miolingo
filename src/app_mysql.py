@@ -206,41 +206,70 @@ def get_connection() -> mysql.connector.MySQLConnection:
     - Stale connections that timed out
     - Lost SSH tunnel connections
     - MySQL server restarts
+    
+    CRITICAL: Aggressively recreates tunnel on any connection failure to handle
+    Streamlit Cloud hibernation and network issues.
     """
     global _global_ssh_tunnel
     
-    pool = get_connection_pool()
-    conn = pool.get_connection()
+    # Maximum retry attempts to prevent infinite recursion
+    max_retries = 2
     
-    # Validate connection is alive before returning it
-    try:
-        conn.ping(reconnect=True, attempts=3, delay=1)
-    except Error as e:
-        # Connection is dead - could be stale connection OR dead tunnel
-        conn.close()
+    for attempt in range(max_retries):
+        pool = get_connection_pool()
+        conn = pool.get_connection()
         
-        # Check if error indicates tunnel/network failure (not just stale connection)
-        error_str = str(e)
-        if "2003" in error_str or "Connection refused" in error_str or "Can't connect" in error_str:
-            # Tunnel is likely dead - force full recreation
-            logging.warning(f"Tunnel appears dead (error: {e}), recreating tunnel and pool")
+        # Validate connection is alive before returning it
+        try:
+            conn.ping(reconnect=False, attempts=1, delay=0)
+            # Connection is good, return it
+            return conn
+        except Error as e:
+            # Connection is dead - could be stale connection OR dead tunnel
+            try:
+                conn.close()
+            except:
+                pass
             
-            # Clear the global tunnel to force recreation
-            if _global_ssh_tunnel is not None:
-                try:
-                    _global_ssh_tunnel.stop()
-                except:
-                    pass
-                _global_ssh_tunnel = None
-        
-        # Clear the pool to force recreation (with new tunnel if needed)
-        if "mysql_pool" in st.session_state:
-            del st.session_state.mysql_pool
-        
-        # Recursively get a new connection (will recreate tunnel + pool)
-        return get_connection()
+            # Check if error indicates tunnel/network failure (not just stale connection)
+            error_str = str(e)
+            if "2003" in error_str or "Connection refused" in error_str or "Can't connect" in error_str:
+                # Tunnel is dead - force full recreation
+                logging.warning(f"Tunnel dead (attempt {attempt + 1}/{max_retries}): {e}")
+                
+                # AGGRESSIVELY clear everything
+                # 1. Stop and clear global tunnel
+                if _global_ssh_tunnel is not None:
+                    try:
+                        _global_ssh_tunnel.stop()
+                        logging.info("Stopped dead SSH tunnel")
+                    except Exception as stop_err:
+                        logging.warning(f"Error stopping tunnel: {stop_err}")
+                    _global_ssh_tunnel = None
+                
+                # 2. Clear connection pool from session state
+                if "mysql_pool" in st.session_state:
+                    try:
+                        # Try to close all connections in pool
+                        old_pool = st.session_state.mysql_pool
+                        # Pool doesn't have a close_all method, just delete it
+                        del st.session_state.mysql_pool
+                        logging.info("Cleared dead connection pool")
+                    except Exception as pool_err:
+                        logging.warning(f"Error clearing pool: {pool_err}")
+                
+                # 3. Brief delay to let OS clean up ports
+                time.sleep(0.5)
+                
+                # 4. Continue loop to retry with fresh tunnel+pool
+                continue
+            else:
+                # Non-tunnel error (stale connection) - just retry with new connection
+                logging.warning(f"Stale connection (attempt {attempt + 1}/{max_retries}): {e}")
+                continue
     
-    return conn
+    # If we get here, all retries failed
+    raise Error("Failed to establish database connection after all retries")
 
 
 def cleanup_ssh_tunnel():
