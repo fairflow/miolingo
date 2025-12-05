@@ -334,6 +334,10 @@ def get_direct_connection():
     # Get or create a tunnel with capacity
     tunnel_id, tunnel_obj = get_or_create_tunnel()
     
+    # Verify we got a tunnel object, not TunnelInfo
+    if not isinstance(tunnel_obj, SSHTunnelForwarder):
+        raise TypeError(f"Expected SSHTunnelForwarder, got {type(tunnel_obj)}")
+    
     # Create connection through the tunnel
     conn = mysql.connector.connect(
         host='127.0.0.1',
@@ -367,11 +371,11 @@ def get_direct_connection():
         TUNNEL_POOL[tunnel_id].connection_count += 1
         TUNNEL_POOL[tunnel_id].last_used = datetime.now()
     
-    # Log to database
-    try:
-        log_connection_to_db(conn_info, tunnel_id)
-    except:
-        pass  # Don't fail if logging fails
+    # Log to database (skip for now to avoid recursion issues during initial setup)
+    # try:
+    #     log_connection_to_db(conn_info, tunnel_id)
+    # except:
+    #     pass  # Don't fail if logging fails
     
     return conn
 
@@ -420,11 +424,11 @@ def get_or_create_tunnel() -> Tuple[str, SSHTunnelForwarder]:
     
     TUNNEL_POOL[tunnel_id] = tunnel_info
     
-    # Log to database
-    try:
-        log_tunnel_to_db(tunnel_info)
-    except:
-        pass  # Don't fail if logging fails
+    # Log to database (skip for now to avoid recursion issues)
+    # try:
+    #     log_tunnel_to_db(tunnel_info)
+    # except Exception as e:
+    #     print(f"Failed to log tunnel: {e}")
     
     return tunnel_id, tunnel_obj
 
