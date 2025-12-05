@@ -336,7 +336,12 @@ def get_direct_connection():
     
     # Verify we got a tunnel object, not TunnelInfo
     if not isinstance(tunnel_obj, SSHTunnelForwarder):
-        raise TypeError(f"Expected SSHTunnelForwarder, got {type(tunnel_obj)}")
+        # Clear bad pool state and retry once
+        TUNNEL_POOL.clear()
+        CONNECTION_REGISTRY.clear()
+        tunnel_id, tunnel_obj = get_or_create_tunnel()
+        if not isinstance(tunnel_obj, SSHTunnelForwarder):
+            raise TypeError(f"Expected SSHTunnelForwarder, got {type(tunnel_obj)}")
     
     # Create connection through the tunnel
     conn = mysql.connector.connect(
@@ -396,8 +401,10 @@ def get_or_create_tunnel() -> Tuple[str, SSHTunnelForwarder]:
     # Need to create a new tunnel
     if len(TUNNEL_POOL) >= MAX_TUNNELS:
         # Pool is full - reuse least recently used
-        lru_tunnel_id = min(TUNNEL_POOL.items(), key=lambda x: x[1].last_used)[0]
-        return lru_tunnel_id, TUNNEL_POOL[lru_tunnel_id].tunnel_obj
+        lru_item = min(TUNNEL_POOL.items(), key=lambda x: x[1].last_used)
+        lru_tunnel_id = lru_item[0]
+        lru_tunnel_info = lru_item[1]
+        return lru_tunnel_id, lru_tunnel_info.tunnel_obj
     
     # Create new tunnel
     tunnel_obj = create_ssh_tunnel()
@@ -1171,6 +1178,13 @@ def main():
     """Main application entry point"""
     # Check authentication first
     check_authentication()
+    
+    # Clear pools on first load to prevent stale state
+    if 'pools_initialized' not in st.session_state:
+        TUNNEL_POOL.clear()
+        CONNECTION_REGISTRY.clear()
+        SESSION_REGISTRY.clear()
+        st.session_state.pools_initialized = True
     
     # Ensure tables exist on startup
     if 'tables_created' not in st.session_state:
