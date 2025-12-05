@@ -111,37 +111,52 @@ def check_authentication():
             submitted = st.form_submit_button("Login")
             
             if submitted:
-                # Check capacity BEFORE allowing login
-                try:
-                    temp_tunnel = create_ssh_tunnel()
-                    temp_conn = mysql.connector.connect(
-                        host='127.0.0.1',
-                        port=temp_tunnel.local_bind_port,
-                        database=st.secrets["mysql"]["database"],
-                        user=st.secrets["mysql"]["user"],
-                        password=st.secrets["mysql"]["password"]
-                    )
-                    cursor = temp_conn.cursor()
-                    cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
-                    active_count = cursor.fetchone()[0]
-                    cursor.close()
-                    temp_conn.close()
-                    temp_tunnel.stop()
-                    
-                    if active_count >= HARD_LIMIT_CONNECTIONS:
-                        st.error(f"🚫 **System at Maximum Capacity ({active_count}/{HARD_LIMIT_CONNECTIONS} connections)**")
-                        st.info("Please wait and try again later.")
-                        st.stop()
-                except Exception as cap_err:
-                    st.warning(f"Could not verify capacity: {cap_err}")
-                
-                # Use the same authentication as main app
+                # First, authenticate to check if user is admin
+                # Use bootstrap connection for auth check (doesn't count toward pool)
                 try:
                     from app_mysql import authenticate_user
                     user = authenticate_user(username, password)
-                    if user:
+                    
+                    if not user:
+                        st.error("Invalid credentials")
+                        st.stop()
+                    
+                    # Check if user is admin by querying their role
+                    is_admin = False
+                    try:
+                        temp_tunnel = create_ssh_tunnel()
+                        temp_conn = mysql.connector.connect(
+                            host='127.0.0.1',
+                            port=temp_tunnel.local_bind_port,
+                            database=st.secrets["mysql"]["database"],
+                            user=st.secrets["mysql"]["user"],
+                            password=st.secrets["mysql"]["password"]
+                        )
+                        cursor = temp_conn.cursor()
+                        cursor.execute("SELECT is_admin FROM users WHERE username = %s", (username,))
+                        result = cursor.fetchone()
+                        if result:
+                            is_admin = bool(result[0])
+                        
+                        # Also get capacity while we're here
+                        cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+                        active_count = cursor.fetchone()[0]
+                        cursor.close()
+                        temp_conn.close()
+                        temp_tunnel.stop()
+                    except Exception as check_err:
+                        st.warning(f"Could not verify admin status: {check_err}")
+                        active_count = 0
+                    
+                    # ADMIN BYPASS: Admins can always login (use bootstrap, not tracked)
+                    if is_admin:
                         st.session_state.authenticated = True
                         st.session_state.monitor_username = username
+                        st.session_state.is_admin = True
+                        st.session_state.uses_bootstrap = True  # Flag to use bootstrap connections
+                        
+                        if active_count >= HARD_LIMIT_CONNECTIONS:
+                            st.success(f"✅ **Admin Emergency Access** - Logged in via bootstrap (bypassing {active_count}/{HARD_LIMIT_CONNECTIONS} pool limit)")
                         
                         # Log this login to session_monitor
                         try:
@@ -150,8 +165,27 @@ def check_authentication():
                             st.warning(f"Login successful but session logging failed: {log_err}")
                         
                         st.rerun()
-                    else:
-                        st.error("Invalid credentials")
+                    
+                    # NON-ADMIN: Check capacity
+                    if active_count >= HARD_LIMIT_CONNECTIONS:
+                        st.error(f"🚫 **System at Maximum Capacity ({active_count}/{HARD_LIMIT_CONNECTIONS} connections)**")
+                        st.info("Please wait and try again later. (Admins can still login)")
+                        st.stop()
+                    
+                    # Regular user login - within capacity
+                    st.session_state.authenticated = True
+                    st.session_state.monitor_username = username
+                    st.session_state.is_admin = False
+                    st.session_state.uses_bootstrap = False
+                    
+                    # Log this login to session_monitor
+                    try:
+                        log_monitor_session(username)
+                    except Exception as log_err:
+                        st.warning(f"Login successful but session logging failed: {log_err}")
+                    
+                    st.rerun()
+                    
                 except Exception as e:
                     st.error(f"Authentication error: {e}")
         
@@ -1347,6 +1381,15 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
     closed_count = 0
     
     try:
+        # First, get list of alive MySQL connections
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor(dictionary=True)
+        cursor.execute("SHOW PROCESSLIST")
+        processlist = cursor.fetchall()
+        alive_mysql_ids = {row['Id'] for row in processlist}
+        cursor.close()
+        bootstrap.close()
+        
         # Get all active connections from DB that are past threshold
         bootstrap = get_bootstrap_connection()
         cursor = bootstrap.cursor(dictionary=True)
@@ -1367,16 +1410,21 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
             conn_id = conn_data['connection_id']
             mysql_conn_id = conn_data['mysql_connection_id']
             
-            # Try to kill the MySQL connection
-            try:
-                kill_conn = get_bootstrap_connection()
-                kill_cursor = kill_conn.cursor()
-                kill_cursor.execute(f"KILL {mysql_conn_id}")
-                kill_cursor.close()
-                kill_conn.close()
-                print(f"✅ Killed idle MySQL connection {mysql_conn_id}")
-            except Exception as e:
-                print(f"⚠️  Could not kill MySQL conn {mysql_conn_id}: {e}")
+            # Only try to kill if connection still exists in MySQL
+            if mysql_conn_id in alive_mysql_ids:
+                try:
+                    kill_conn = get_bootstrap_connection()
+                    kill_cursor = kill_conn.cursor()
+                    kill_cursor.execute(f"KILL {mysql_conn_id}")
+                    kill_cursor.close()
+                    kill_conn.close()
+                    print(f"✅ Killed idle MySQL connection {mysql_conn_id}")
+                except Exception as e:
+                    # Silently ignore if already dead (race condition)
+                    if "Unknown thread id" not in str(e):
+                        print(f"⚠️  Could not kill MySQL conn {mysql_conn_id}: {e}")
+            else:
+                print(f"ℹ️  MySQL connection {mysql_conn_id} already closed by server")
             
             # Update status in DB
             try:
@@ -1538,6 +1586,10 @@ def get_session_stats() -> Dict[str, Any]:
 def show_dashboard():
     """Overview dashboard"""
     st.header("System Overview")
+    
+    # Admin bypass notice
+    if st.session_state.get('uses_bootstrap', False):
+        st.info("🔓 **Admin Emergency Access Active** - You're using a bootstrap connection (not counted in pool limits)")
     
     # Show table existence status
     with st.expander("📋 Database Tables Status", expanded=False):
