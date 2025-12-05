@@ -179,26 +179,37 @@ def log_monitor_session(username: str):
         # Generate session ID
         session_id = f"monitor_{username}_{uuid.uuid4().hex[:8]}"
         
+        # Store session ID FIRST before any DB operations
+        st.session_state.monitor_session_id = session_id
+        
         # Calculate expiry (7 days like main app)
         expires_at = datetime.now() + timedelta(days=7)
         
-        # Insert into session_monitor table
-        conn = get_direct_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            INSERT INTO session_monitor 
-            (session_id, username, user_ip, user_agent, device_type, browser, 
-             login_time, expires_at, last_activity, status)
-            VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, NOW(), 'active')
-        """, (session_id, username, user_ip, user_agent, device_type, browser, expires_at))
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
-        # Store session ID in streamlit state for later updates
-        st.session_state.monitor_session_id = session_id
+        # Insert into session_monitor table using raw connection
+        tunnel = create_ssh_tunnel()
+        try:
+            conn = mysql.connector.connect(
+                host='127.0.0.1',
+                port=tunnel.local_bind_port,
+                database=st.secrets["mysql"]["database"],
+                user=st.secrets["mysql"]["user"],
+                password=st.secrets["mysql"]["password"],
+                connect_timeout=10
+            )
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                INSERT INTO session_monitor 
+                (session_id, username, user_ip, user_agent, device_type, browser, 
+                 login_time, expires_at, last_activity, status)
+                VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, NOW(), 'active')
+            """, (session_id, username, user_ip, user_agent, device_type, browser, expires_at))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+        finally:
+            tunnel.stop()
         
     except Exception as e:
         # Don't fail login if logging fails
@@ -209,18 +220,30 @@ def log_monitor_session(username: str):
 def update_session_activity(session_id: str):
     """Update last_activity timestamp for a session"""
     try:
-        conn = get_direct_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            UPDATE session_monitor 
-            SET last_activity = NOW()
-            WHERE session_id = %s
-        """, (session_id,))
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
+        # Use raw connection to avoid pool complexity
+        tunnel = create_ssh_tunnel()
+        try:
+            conn = mysql.connector.connect(
+                host='127.0.0.1',
+                port=tunnel.local_bind_port,
+                database=st.secrets["mysql"]["database"],
+                user=st.secrets["mysql"]["user"],
+                password=st.secrets["mysql"]["password"],
+                connect_timeout=10
+            )
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                UPDATE session_monitor 
+                SET last_activity = NOW()
+                WHERE session_id = %s
+            """, (session_id,))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+        finally:
+            tunnel.stop()
     except Exception as e:
         # Silent fail - don't disrupt user experience
         pass
@@ -229,11 +252,14 @@ def update_session_activity(session_id: str):
 # GLOBAL STATE
 # ============================================================================
 
-# Pool of 10 tunnels
+# Simple global tunnel (like app_mysql.py)
+_global_tunnel: Optional[SSHTunnelForwarder] = None
+
+# Pool of 10 tunnels (for display/monitoring only - not actually used yet)
 TUNNEL_POOL: Dict[str, TunnelInfo] = {}
 MAX_TUNNELS = 10
 
-# Registry of all connections (up to 250)
+# Registry of all connections (for display/monitoring only - not actually used yet)
 CONNECTION_REGISTRY: Dict[str, ConnectionInfo] = {}
 MAX_CONNECTIONS_PER_TUNNEL = 25
 MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL
@@ -255,9 +281,18 @@ def init_monitoring_tables():
     - session_monitor: User session tracking with IP, device, browser
     """
     try:
-        # Get a direct connection (bypass the pool for setup)
-        conn = get_direct_connection()
-        cursor = conn.cursor()
+        # Use raw connection for initialization (avoid pool complexity)
+        tunnel = create_ssh_tunnel()
+        try:
+            conn = mysql.connector.connect(
+                host='127.0.0.1',
+                port=tunnel.local_bind_port,
+                database=st.secrets["mysql"]["database"],
+                user=st.secrets["mysql"]["user"],
+                password=st.secrets["mysql"]["password"],
+                connect_timeout=10
+            )
+            cursor = conn.cursor()
         
         # Tunnel monitoring table
         cursor.execute("""
@@ -316,9 +351,11 @@ def init_monitoring_tables():
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         """)
         
-        conn.commit()
-        cursor.close()
-        conn.close()
+            conn.commit()
+            cursor.close()
+            conn.close()
+        finally:
+            tunnel.stop()
         
         return True, "Monitoring tables initialized successfully"
         
@@ -328,59 +365,24 @@ def init_monitoring_tables():
 
 def get_direct_connection():
     """
-    Get a MySQL connection from the managed pool.
-    This registers the tunnel and connection for monitoring.
+    Get a MySQL connection using the simple global tunnel approach.
+    Just like app_mysql.py - KISS principle.
     """
-    # Get or create a tunnel with capacity
-    tunnel_id, tunnel_obj = get_or_create_tunnel()
+    global _global_tunnel
     
-    # Verify we got a tunnel object, not TunnelInfo
-    if not isinstance(tunnel_obj, SSHTunnelForwarder):
-        # Clear bad pool state and retry once
-        TUNNEL_POOL.clear()
-        CONNECTION_REGISTRY.clear()
-        tunnel_id, tunnel_obj = get_or_create_tunnel()
-        if not isinstance(tunnel_obj, SSHTunnelForwarder):
-            raise TypeError(f"Expected SSHTunnelForwarder, got {type(tunnel_obj)}")
+    # Ensure we have a global tunnel
+    if _global_tunnel is None or not _global_tunnel.is_active:
+        _global_tunnel = create_ssh_tunnel()
     
     # Create connection through the tunnel
     conn = mysql.connector.connect(
         host='127.0.0.1',
-        port=tunnel_obj.local_bind_port,
+        port=_global_tunnel.local_bind_port,
         database=st.secrets["mysql"]["database"],
         user=st.secrets["mysql"]["user"],
         password=st.secrets["mysql"]["password"],
         connect_timeout=10
     )
-    
-    # Register this connection
-    connection_id = f"conn_{uuid.uuid4().hex[:8]}"
-    mysql_conn_id = conn.connection_id if hasattr(conn, 'connection_id') else None
-    
-    conn_info = ConnectionInfo(
-        connection_id=connection_id,
-        conn_obj=conn,
-        mysql_conn_id=mysql_conn_id,
-        tunnel_id=tunnel_id,
-        session_id=st.session_state.get('monitor_session_id'),
-        username=st.session_state.get('monitor_username'),
-        created_at=datetime.now(),
-        last_activity=datetime.now(),
-        status='active'
-    )
-    
-    CONNECTION_REGISTRY[connection_id] = conn_info
-    
-    # Update tunnel connection count
-    if tunnel_id in TUNNEL_POOL:
-        TUNNEL_POOL[tunnel_id].connection_count += 1
-        TUNNEL_POOL[tunnel_id].last_used = datetime.now()
-    
-    # Log to database (skip for now to avoid recursion issues during initial setup)
-    # try:
-    #     log_connection_to_db(conn_info, tunnel_id)
-    # except:
-    #     pass  # Don't fail if logging fails
     
     return conn
 
@@ -542,6 +544,17 @@ def create_ssh_tunnel() -> SSHTunnelForwarder:
         set_keepalive=30.0
     )
     tunnel.start()
+    
+    # Wait for tunnel to be ready
+    max_wait = 5  # seconds
+    waited = 0
+    while not tunnel.is_active and waited < max_wait:
+        time.sleep(0.1)
+        waited += 0.1
+    
+    if not tunnel.is_active:
+        tunnel.stop()
+        raise ConnectionError("SSH tunnel failed to become active")
     
     return tunnel
 
@@ -1176,15 +1189,8 @@ def show_controls():
 
 def main():
     """Main application entry point"""
-    # Check authentication first
+    # Check authentication
     check_authentication()
-    
-    # Clear pools on first load to prevent stale state
-    if 'pools_initialized' not in st.session_state:
-        TUNNEL_POOL.clear()
-        CONNECTION_REGISTRY.clear()
-        SESSION_REGISTRY.clear()
-        st.session_state.pools_initialized = True
     
     # Ensure tables exist on startup
     if 'tables_created' not in st.session_state:
