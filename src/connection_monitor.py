@@ -252,20 +252,23 @@ def update_session_activity(session_id: str):
 # GLOBAL STATE
 # ============================================================================
 
-# Simple global tunnel (like app_mysql.py)
-_global_tunnel: Optional[SSHTunnelForwarder] = None
+# Bootstrap tunnel - single untracked tunnel for logging/setup (avoids recursion)
+_bootstrap_tunnel: Optional[SSHTunnelForwarder] = None
 
-# Pool of 10 tunnels (for display/monitoring only - not actually used yet)
+# Pool of 10 tracked tunnels for user connections
 TUNNEL_POOL: Dict[str, TunnelInfo] = {}
 MAX_TUNNELS = 10
 
-# Registry of all connections (for display/monitoring only - not actually used yet)
+# Registry of all tracked connections
 CONNECTION_REGISTRY: Dict[str, ConnectionInfo] = {}
 MAX_CONNECTIONS_PER_TUNNEL = 25
 MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL
 
 # Session tracking
 SESSION_REGISTRY: Dict[str, SessionInfo] = {}
+
+# Round-robin tunnel assignment
+_next_tunnel_index = 0
 
 
 # ============================================================================
@@ -363,21 +366,21 @@ def init_monitoring_tables():
         return False, f"Failed to initialize tables: {e}"
 
 
-def get_direct_connection():
+def get_bootstrap_connection():
     """
-    Get a MySQL connection using the simple global tunnel approach.
-    Just like app_mysql.py - KISS principle.
+    Get a MySQL connection using the bootstrap tunnel.
+    This is ONLY for logging and setup - not tracked, avoids recursion.
     """
-    global _global_tunnel
+    global _bootstrap_tunnel
     
-    # Ensure we have a global tunnel
-    if _global_tunnel is None or not _global_tunnel.is_active:
-        _global_tunnel = create_ssh_tunnel()
+    # Ensure we have bootstrap tunnel
+    if _bootstrap_tunnel is None or not _bootstrap_tunnel.is_active:
+        _bootstrap_tunnel = create_ssh_tunnel()
     
     # Create connection through the tunnel
     conn = mysql.connector.connect(
         host='127.0.0.1',
-        port=_global_tunnel.local_bind_port,
+        port=_bootstrap_tunnel.local_bind_port,
         database=st.secrets["mysql"]["database"],
         user=st.secrets["mysql"]["user"],
         password=st.secrets["mysql"]["password"],
@@ -385,6 +388,114 @@ def get_direct_connection():
     )
     
     return conn
+
+
+def get_tracked_connection(session_id: Optional[str] = None, username: Optional[str] = None):
+    """
+    Get a tracked MySQL connection from the pool.
+    Creates/assigns tunnel, tracks connection, logs to database.
+    """
+    global _next_tunnel_index
+    
+    # Get or create a tunnel with capacity
+    tunnel_id, tunnel_info = get_or_create_tracked_tunnel()
+    
+    # Create connection through the tunnel
+    conn = mysql.connector.connect(
+        host='127.0.0.1',
+        port=tunnel_info.tunnel_obj.local_bind_port,
+        database=st.secrets["mysql"]["database"],
+        user=st.secrets["mysql"]["user"],
+        password=st.secrets["mysql"]["password"],
+        connect_timeout=10
+    )
+    
+    # Track this connection
+    connection_id = f"conn_{uuid.uuid4().hex[:8]}"
+    mysql_conn_id = conn.connection_id if hasattr(conn, 'connection_id') else None
+    
+    conn_info = ConnectionInfo(
+        connection_id=connection_id,
+        conn_obj=conn,
+        mysql_conn_id=mysql_conn_id,
+        tunnel_id=tunnel_id,
+        session_id=session_id or st.session_state.get('monitor_session_id'),
+        username=username or st.session_state.get('monitor_username'),
+        created_at=datetime.now(),
+        last_activity=datetime.now(),
+        status='active'
+    )
+    
+    CONNECTION_REGISTRY[connection_id] = conn_info
+    
+    # Update tunnel stats
+    tunnel_info.connection_count += 1
+    tunnel_info.last_used = datetime.now()
+    
+    # Log to database using bootstrap connection
+    try:
+        log_connection_to_db(conn_info)
+        log_tunnel_to_db(tunnel_info)
+    except Exception as e:
+        print(f"Failed to log connection: {e}")
+    
+    return conn
+
+
+def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
+    """
+    Get an existing tunnel with capacity or create a new one.
+    Uses round-robin assignment.
+    """
+    global _next_tunnel_index
+    
+    # Check if we have any tunnels with capacity
+    for tunnel_id, tunnel_info in TUNNEL_POOL.items():
+        if (tunnel_info.status == 'active' and
+            tunnel_info.connection_count < MAX_CONNECTIONS_PER_TUNNEL and
+            tunnel_info.tunnel_obj and
+            tunnel_info.tunnel_obj.is_active):
+            return tunnel_id, tunnel_info
+    
+    # Create new tunnel if under limit
+    if len(TUNNEL_POOL) < MAX_TUNNELS:
+        tunnel_obj = create_ssh_tunnel()
+        tunnel_id = f"tunnel_{len(TUNNEL_POOL)}"
+        
+        # Get PID
+        pid = None
+        try:
+            if hasattr(tunnel_obj, '_transport') and tunnel_obj._transport:
+                pid = tunnel_obj._transport.get_pid()
+        except:
+            pass
+        
+        tunnel_info = TunnelInfo(
+            tunnel_id=tunnel_id,
+            tunnel_obj=tunnel_obj,
+            pid=pid,
+            local_port=tunnel_obj.local_bind_port,
+            created_at=datetime.now(),
+            last_used=datetime.now(),
+            status='active',
+            connection_count=0
+        )
+        
+        TUNNEL_POOL[tunnel_id] = tunnel_info
+        return tunnel_id, tunnel_info
+    
+    # Pool full - use round robin
+    tunnel_ids = list(TUNNEL_POOL.keys())
+    tunnel_id = tunnel_ids[_next_tunnel_index % len(tunnel_ids)]
+    _next_tunnel_index += 1
+    
+    return tunnel_id, TUNNEL_POOL[tunnel_id]
+
+
+# Alias for compatibility with existing code
+def get_direct_connection():
+    """Alias for get_bootstrap_connection for compatibility"""
+    return get_bootstrap_connection()
 
 
 def get_or_create_tunnel() -> Tuple[str, SSHTunnelForwarder]:
@@ -443,67 +554,53 @@ def get_or_create_tunnel() -> Tuple[str, SSHTunnelForwarder]:
 
 
 def log_tunnel_to_db(tunnel_info: TunnelInfo):
-    """Log tunnel creation to database"""
-    # Use a raw connection for logging (avoid recursion)
-    temp_tunnel = create_ssh_tunnel()
-    conn = mysql.connector.connect(
-        host='127.0.0.1',
-        port=temp_tunnel.local_bind_port,
-        database=st.secrets["mysql"]["database"],
-        user=st.secrets["mysql"]["user"],
-        password=st.secrets["mysql"]["password"],
-        connect_timeout=10
-    )
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        INSERT INTO tunnel_monitor 
-        (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            last_used = VALUES(last_used),
-            connection_count = VALUES(connection_count),
-            status = VALUES(status)
-    """, (tunnel_info.tunnel_id, tunnel_info.pid, tunnel_info.local_port,
-          tunnel_info.created_at, tunnel_info.last_used, tunnel_info.status,
-          tunnel_info.connection_count))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    temp_tunnel.stop()
+    """Log tunnel to database using bootstrap connection"""
+    try:
+        conn = get_bootstrap_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            INSERT INTO tunnel_monitor 
+            (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                last_used = VALUES(last_used),
+                connection_count = VALUES(connection_count),
+                status = VALUES(status)
+        """, (tunnel_info.tunnel_id, tunnel_info.pid, tunnel_info.local_port,
+              tunnel_info.created_at, tunnel_info.last_used, tunnel_info.status,
+              tunnel_info.connection_count))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Failed to log tunnel: {e}")
 
 
-def log_connection_to_db(conn_info: ConnectionInfo, tunnel_id: str):
-    """Log connection creation to database"""
-    # Use a raw connection for logging
-    temp_tunnel = create_ssh_tunnel()
-    conn = mysql.connector.connect(
-        host='127.0.0.1',
-        port=temp_tunnel.local_bind_port,
-        database=st.secrets["mysql"]["database"],
-        user=st.secrets["mysql"]["user"],
-        password=st.secrets["mysql"]["password"],
-        connect_timeout=10
-    )
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        INSERT INTO connection_monitor
-        (connection_id, mysql_connection_id, tunnel_id, session_id, username,
-         created_at, last_activity, status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            last_activity = VALUES(last_activity),
-            status = VALUES(status)
-    """, (conn_info.connection_id, conn_info.mysql_conn_id, tunnel_id,
-          conn_info.session_id, conn_info.username, conn_info.created_at,
-          conn_info.last_activity, conn_info.status))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    temp_tunnel.stop()
+def log_connection_to_db(conn_info: ConnectionInfo):
+    """Log connection to database using bootstrap connection"""
+    try:
+        conn = get_bootstrap_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            INSERT INTO connection_monitor
+            (connection_id, mysql_connection_id, tunnel_id, session_id, username,
+             created_at, last_activity, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                last_activity = VALUES(last_activity),
+                status = VALUES(status)
+        """, (conn_info.connection_id, conn_info.mysql_conn_id, conn_info.tunnel_id,
+              conn_info.session_id, conn_info.username, conn_info.created_at,
+              conn_info.last_activity, conn_info.status))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Failed to log connection: {e}")
 
 
 def create_ssh_tunnel() -> SSHTunnelForwarder:
@@ -984,6 +1081,28 @@ def show_dashboard():
     
     # Show logged-in monitor users
     st.subheader("👥 Connection Monitor Users (Logged In Now)")
+    
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        if st.button("🧹 Clean Stale Sessions"):
+            try:
+                conn = get_direct_connection()
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE session_monitor 
+                    SET status = 'expired'
+                    WHERE status = 'active' 
+                      AND last_activity < DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+                """)
+                cleaned = cursor.rowcount
+                conn.commit()
+                cursor.close()
+                conn.close()
+                st.success(f"Marked {cleaned} stale sessions as expired")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error cleaning sessions: {e}")
+    
     try:
         conn = get_direct_connection()
         cursor = conn.cursor(dictionary=True)
@@ -991,9 +1110,12 @@ def show_dashboard():
             SELECT session_id, username, user_ip, device_type, browser,
                    login_time, expires_at, last_activity,
                    TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining,
-                   TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in
+                   TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in,
+                   TIMESTAMPDIFF(MINUTE, last_activity, NOW()) as minutes_idle
             FROM session_monitor
-            WHERE status = 'active' AND expires_at > NOW()
+            WHERE status = 'active' 
+              AND expires_at > NOW()
+              AND last_activity > DATE_SUB(NOW(), INTERVAL 10 MINUTE)
             ORDER BY last_activity DESC
         """)
         monitor_sessions = cursor.fetchall()
@@ -1021,7 +1143,7 @@ def show_dashboard():
                         st.write(f"**Logged In:** {hours_in}h {minutes_in}m ago")
                     with col2:
                         st.write(f"**Login Time:** {session['login_time']}")
-                        st.write(f"**Last Activity:** {session['last_activity']}")
+                        st.write(f"**Last Activity:** {session['last_activity']} ({session['minutes_idle']} min ago)")
                         st.write(f"**Time Remaining:** {hours_left}h {minutes_left}m {seconds_left}s")
                         st.write(f"**Session ID:** `{session['session_id']}`")
         else:
@@ -1035,39 +1157,114 @@ def show_tunnels():
     """Tunnel management page"""
     st.header("SSH Tunnel Pool")
     
+    # Show in-memory pool
+    st.subheader("In-Memory Pool")
     if not TUNNEL_POOL:
-        st.info("No tunnels created yet. Tunnels are created on-demand when connections are requested.")
-        return
+        st.info("No tunnels in memory yet. Tunnels are created on-demand when connections are requested.")
+    else:
+        for tunnel_id, tunnel_info in TUNNEL_POOL.items():
+            with st.expander(f"🔌 {tunnel_id} - {tunnel_info.status.upper()}", expanded=False):
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.write(f"**PID:** {tunnel_info.pid}")
+                    st.write(f"**Local Port:** {tunnel_info.local_port}")
+                
+                with col2:
+                    st.write(f"**Created:** {tunnel_info.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+                    st.write(f"**Last Used:** {tunnel_info.last_used.strftime('%Y-%m-%d %H:%M:%S')}")
+                
+                with col3:
+                    st.write(f"**Connections:** {tunnel_info.connection_count}/{MAX_CONNECTIONS_PER_TUNNEL}")
+                    st.write(f"**Status:** {tunnel_info.status}")
     
-    for tunnel_id, tunnel_info in TUNNEL_POOL.items():
-        with st.expander(f"🔌 {tunnel_id} - {tunnel_info.status.upper()}", expanded=True):
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                st.write(f"**PID:** {tunnel_info.pid}")
-                st.write(f"**Local Port:** {tunnel_info.local_port}")
-            
-            with col2:
-                st.write(f"**Created:** {tunnel_info.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
-                st.write(f"**Last Used:** {tunnel_info.last_used.strftime('%Y-%m-%d %H:%M:%S')}")
-            
-            with col3:
-                st.write(f"**Connections:** {tunnel_info.connection_count}/{MAX_CONNECTIONS_PER_TUNNEL}")
-                st.write(f"**Status:** {tunnel_info.status}")
-            
-            if st.button(f"Close {tunnel_id}", key=f"close_{tunnel_id}"):
-                if close_tunnel(tunnel_id):
-                    st.success(f"Closed {tunnel_id}")
-                    st.rerun()
+    # Show database-logged tunnels
+    st.subheader("Database-Logged Tunnels")
+    try:
+        conn = get_bootstrap_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT tunnel_id, pid, local_port, created_at, last_used, status, connection_count
+            FROM tunnel_monitor
+            ORDER BY last_used DESC
+        """)
+        tunnels = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        if tunnels:
+            for tunnel in tunnels:
+                with st.expander(f"📊 {tunnel['tunnel_id']} - {tunnel['status'].upper()}", expanded=False):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.write(f"**PID:** {tunnel['pid']}")
+                        st.write(f"**Port:** {tunnel['local_port']}")
+                        st.write(f"**Connections:** {tunnel['connection_count']}")
+                    with col2:
+                        st.write(f"**Created:** {tunnel['created_at']}")
+                        st.write(f"**Last Used:** {tunnel['last_used']}")
+                        st.write(f"**Status:** {tunnel['status']}")
+        else:
+            st.info("No tunnels logged to database yet")
+    except Exception as e:
+        st.error(f"Error loading database tunnels: {e}")
 
 
 def show_connections():
     """Connection management page"""
     st.header("Database Connections")
     
+    # Show in-memory registry
+    st.subheader("In-Memory Registry")
     if not CONNECTION_REGISTRY:
-        st.info("No active connections.")
-        return
+        st.info("No connections in memory registry yet.")
+    else:
+        for conn_id, conn_info in CONNECTION_REGISTRY.items():
+            with st.expander(f"🔗 {conn_id} - {conn_info.status.upper()}", expanded=False):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write(f"**MySQL Conn ID:** {conn_info.mysql_conn_id}")
+                    st.write(f"**Tunnel:** {conn_info.tunnel_id}")
+                    st.write(f"**Session:** {conn_info.session_id}")
+                with col2:
+                    st.write(f"**Username:** {conn_info.username}")
+                    st.write(f"**Created:** {conn_info.created_at}")
+                    st.write(f"**Last Activity:** {conn_info.last_activity}")
+    
+    # Show database-logged connections
+    st.subheader("Database-Logged Connections")
+    try:
+        conn = get_bootstrap_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT connection_id, mysql_connection_id, tunnel_id, session_id, username,
+                   created_at, last_activity, status
+            FROM connection_monitor
+            WHERE status = 'active'
+            ORDER BY last_activity DESC
+        """)
+        connections = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        if connections:
+            for conn_data in connections:
+                with st.expander(f"📊 {conn_data['connection_id']} - {conn_data['status'].upper()}", expanded=False):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.write(f"**MySQL Conn ID:** {conn_data['mysql_connection_id']}")
+                        st.write(f"**Tunnel:** {conn_data['tunnel_id']}")
+                        st.write(f"**Username:** {conn_data['username']}")
+                    with col2:
+                        st.write(f"**Session:** {conn_data['session_id']}")
+                        st.write(f"**Created:** {conn_data['created_at']}")
+                        st.write(f"**Last Activity:** {conn_data['last_activity']}")
+        else:
+            st.info("No connections logged to database yet")
+    except Exception as e:
+        st.error(f"Error loading database connections: {e}")
+    
+    return
     
     for conn_id, conn_info in CONNECTION_REGISTRY.items():
         with st.expander(f"🔗 {conn_id} - {conn_info.status.upper()}"):
