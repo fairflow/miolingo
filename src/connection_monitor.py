@@ -1228,13 +1228,17 @@ def cleanup_dead_tunnels():
             tunnel_id = tunnel_data['tunnel_id']
             pid = tunnel_data['pid']
             
+            # Skip if PID is None or 0
+            if not pid:
+                continue
+            
             # Check if process is still alive
             try:
                 import os
                 import signal
                 os.kill(pid, 0)  # Signal 0 just checks if process exists
                 # Process exists, continue
-            except (OSError, ProcessLookupError):
+            except (OSError, ProcessLookupError, TypeError):
                 # Process doesn't exist, mark tunnel as closed
                 try:
                     update_conn = get_bootstrap_connection()
