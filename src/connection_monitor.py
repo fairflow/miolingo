@@ -328,22 +328,169 @@ def init_monitoring_tables():
 
 def get_direct_connection():
     """
-    Get a direct MySQL connection for setup/admin tasks.
-    Creates a temporary SSH tunnel if needed.
+    Get a MySQL connection from the managed pool.
+    This registers the tunnel and connection for monitoring.
     """
-    # Create temporary tunnel for this connection
-    tunnel = create_ssh_tunnel()
+    # Get or create a tunnel with capacity
+    tunnel_id, tunnel_obj = get_or_create_tunnel()
     
+    # Create connection through the tunnel
     conn = mysql.connector.connect(
         host='127.0.0.1',
-        port=tunnel.local_bind_port,
+        port=tunnel_obj.local_bind_port,
         database=st.secrets["mysql"]["database"],
         user=st.secrets["mysql"]["user"],
         password=st.secrets["mysql"]["password"],
         connect_timeout=10
     )
     
+    # Register this connection
+    connection_id = f"conn_{uuid.uuid4().hex[:8]}"
+    mysql_conn_id = conn.connection_id if hasattr(conn, 'connection_id') else None
+    
+    conn_info = ConnectionInfo(
+        connection_id=connection_id,
+        conn_obj=conn,
+        mysql_conn_id=mysql_conn_id,
+        tunnel_id=tunnel_id,
+        session_id=st.session_state.get('monitor_session_id'),
+        username=st.session_state.get('monitor_username'),
+        created_at=datetime.now(),
+        last_activity=datetime.now(),
+        status='active'
+    )
+    
+    CONNECTION_REGISTRY[connection_id] = conn_info
+    
+    # Update tunnel connection count
+    if tunnel_id in TUNNEL_POOL:
+        TUNNEL_POOL[tunnel_id].connection_count += 1
+        TUNNEL_POOL[tunnel_id].last_used = datetime.now()
+    
+    # Log to database
+    try:
+        log_connection_to_db(conn_info, tunnel_id)
+    except:
+        pass  # Don't fail if logging fails
+    
     return conn
+
+
+def get_or_create_tunnel() -> Tuple[str, SSHTunnelForwarder]:
+    """
+    Get an existing tunnel with capacity or create a new one.
+    Returns (tunnel_id, tunnel_object)
+    """
+    # Find a tunnel with capacity
+    for tunnel_id, tunnel_info in TUNNEL_POOL.items():
+        if (tunnel_info.status == 'active' and 
+            tunnel_info.connection_count < MAX_CONNECTIONS_PER_TUNNEL and
+            tunnel_info.tunnel_obj and
+            tunnel_info.tunnel_obj.is_active):
+            return tunnel_id, tunnel_info.tunnel_obj
+    
+    # Need to create a new tunnel
+    if len(TUNNEL_POOL) >= MAX_TUNNELS:
+        # Pool is full - reuse least recently used
+        lru_tunnel_id = min(TUNNEL_POOL.items(), key=lambda x: x[1].last_used)[0]
+        return lru_tunnel_id, TUNNEL_POOL[lru_tunnel_id].tunnel_obj
+    
+    # Create new tunnel
+    tunnel_obj = create_ssh_tunnel()
+    tunnel_id = f"tunnel_{len(TUNNEL_POOL)}"
+    
+    # Get PID from tunnel process
+    pid = None
+    try:
+        if hasattr(tunnel_obj, '_transport') and tunnel_obj._transport:
+            pid = tunnel_obj._transport.get_pid()
+    except:
+        pass
+    
+    tunnel_info = TunnelInfo(
+        tunnel_id=tunnel_id,
+        tunnel_obj=tunnel_obj,
+        pid=pid,
+        local_port=tunnel_obj.local_bind_port,
+        created_at=datetime.now(),
+        last_used=datetime.now(),
+        status='active',
+        connection_count=0
+    )
+    
+    TUNNEL_POOL[tunnel_id] = tunnel_info
+    
+    # Log to database
+    try:
+        log_tunnel_to_db(tunnel_info)
+    except:
+        pass  # Don't fail if logging fails
+    
+    return tunnel_id, tunnel_obj
+
+
+def log_tunnel_to_db(tunnel_info: TunnelInfo):
+    """Log tunnel creation to database"""
+    # Use a raw connection for logging (avoid recursion)
+    temp_tunnel = create_ssh_tunnel()
+    conn = mysql.connector.connect(
+        host='127.0.0.1',
+        port=temp_tunnel.local_bind_port,
+        database=st.secrets["mysql"]["database"],
+        user=st.secrets["mysql"]["user"],
+        password=st.secrets["mysql"]["password"],
+        connect_timeout=10
+    )
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO tunnel_monitor 
+        (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            last_used = VALUES(last_used),
+            connection_count = VALUES(connection_count),
+            status = VALUES(status)
+    """, (tunnel_info.tunnel_id, tunnel_info.pid, tunnel_info.local_port,
+          tunnel_info.created_at, tunnel_info.last_used, tunnel_info.status,
+          tunnel_info.connection_count))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    temp_tunnel.stop()
+
+
+def log_connection_to_db(conn_info: ConnectionInfo, tunnel_id: str):
+    """Log connection creation to database"""
+    # Use a raw connection for logging
+    temp_tunnel = create_ssh_tunnel()
+    conn = mysql.connector.connect(
+        host='127.0.0.1',
+        port=temp_tunnel.local_bind_port,
+        database=st.secrets["mysql"]["database"],
+        user=st.secrets["mysql"]["user"],
+        password=st.secrets["mysql"]["password"],
+        connect_timeout=10
+    )
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO connection_monitor
+        (connection_id, mysql_connection_id, tunnel_id, session_id, username,
+         created_at, last_activity, status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            last_activity = VALUES(last_activity),
+            status = VALUES(status)
+    """, (conn_info.connection_id, conn_info.mysql_conn_id, tunnel_id,
+          conn_info.session_id, conn_info.username, conn_info.created_at,
+          conn_info.last_activity, conn_info.status))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    temp_tunnel.stop()
 
 
 def create_ssh_tunnel() -> SSHTunnelForwarder:
