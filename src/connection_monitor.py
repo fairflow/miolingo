@@ -250,28 +250,33 @@ def update_session_activity(session_id: str):
         pass
 
 # ============================================================================
-# GLOBAL STATE
+# GLOBAL STATE - Using Streamlit session state to persist across reruns
 # ============================================================================
 
-# Bootstrap tunnel - single untracked tunnel for logging/setup (avoids recursion)
-_bootstrap_tunnel: Optional[SSHTunnelForwarder] = None
-
-# Pool of tracked tunnels for user connections
-# REDUCED: SSH servers typically limit channels per connection
-# Using fewer tunnels with proper connection reuse is more reliable
-TUNNEL_POOL: Dict[str, TunnelInfo] = {}
-MAX_TUNNELS = 3  # Reduced from 10 to avoid SSH channel limits
-
-# Registry of all tracked connections
-CONNECTION_REGISTRY: Dict[str, ConnectionInfo] = {}
-MAX_CONNECTIONS_PER_TUNNEL = 10  # Reduced from 25 - be conservative with channels
+MAX_TUNNELS = 3  # Pool size
+MAX_CONNECTIONS_PER_TUNNEL = 10  # Connections per tunnel
 MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL  # 30 total
 
-# Session tracking
-SESSION_REGISTRY: Dict[str, SessionInfo] = {}
+# Initialize session state for persistent storage
+if 'TUNNEL_POOL' not in st.session_state:
+    st.session_state.TUNNEL_POOL = {}
+    
+if 'CONNECTION_REGISTRY' not in st.session_state:
+    st.session_state.CONNECTION_REGISTRY = {}
+    
+if 'SESSION_REGISTRY' not in st.session_state:
+    st.session_state.SESSION_REGISTRY = {}
+    
+if '_next_tunnel_index' not in st.session_state:
+    st.session_state._next_tunnel_index = 0
+    
+if '_bootstrap_tunnel' not in st.session_state:
+    st.session_state._bootstrap_tunnel = None
 
-# Round-robin tunnel assignment
-_next_tunnel_index = 0
+# Shortcuts for easier access (maintain compatibility)
+TUNNEL_POOL = st.session_state.TUNNEL_POOL
+CONNECTION_REGISTRY = st.session_state.CONNECTION_REGISTRY
+SESSION_REGISTRY = st.session_state.SESSION_REGISTRY
 
 
 # ============================================================================
@@ -374,16 +379,14 @@ def get_bootstrap_connection():
     Get a MySQL connection using the bootstrap tunnel.
     This is ONLY for logging and setup - not tracked, avoids recursion.
     """
-    global _bootstrap_tunnel
-    
     # Ensure we have bootstrap tunnel
-    if _bootstrap_tunnel is None or not _bootstrap_tunnel.is_active:
-        _bootstrap_tunnel = create_ssh_tunnel()
+    if st.session_state._bootstrap_tunnel is None or not st.session_state._bootstrap_tunnel.is_active:
+        st.session_state._bootstrap_tunnel = create_ssh_tunnel()
     
     # Create connection through the tunnel
     conn = mysql.connector.connect(
         host='127.0.0.1',
-        port=_bootstrap_tunnel.local_bind_port,
+        port=st.session_state._bootstrap_tunnel.local_bind_port,
         database=st.secrets["mysql"]["database"],
         user=st.secrets["mysql"]["user"],
         password=st.secrets["mysql"]["password"],
@@ -414,8 +417,6 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
     Returns:
         MySQL connection object with details stored in DB
     """
-    global _next_tunnel_index
-    
     # STEP 1: Open bootstrap connection to access DB
     bootstrap_conn = None
     try:
@@ -533,8 +534,6 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
     Get an existing tunnel with capacity or create a new one.
     Checks DATABASE for actual connection counts (not in-memory).
     """
-    global _next_tunnel_index
-    
     # Query database for actual connection counts per tunnel
     tunnel_conn_counts = {}
     try:
@@ -596,8 +595,8 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
     # Pool full - use round robin (WARNING: exceeding capacity)
     print(f"⚠️  WARNING: All {MAX_TUNNELS} tunnels at capacity, using round-robin (may exceed {MAX_CONNECTIONS_PER_TUNNEL} per tunnel)")
     tunnel_ids = list(TUNNEL_POOL.keys())
-    tunnel_id = tunnel_ids[_next_tunnel_index % len(tunnel_ids)]
-    _next_tunnel_index += 1
+    tunnel_id = tunnel_ids[st.session_state._next_tunnel_index % len(tunnel_ids)]
+    st.session_state._next_tunnel_index += 1
     
     db_count = tunnel_conn_counts.get(tunnel_id, 0)
     print(f"⚠️  Assigning to {tunnel_id} (currently {db_count} connections - OVER CAPACITY)")
