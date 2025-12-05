@@ -1269,25 +1269,43 @@ def show_dashboard():
     
     col1, col2, col3, col4 = st.columns(4)
     
+    # Query database for actual counts
+    try:
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor()
+        
+        cursor.execute("SELECT COUNT(*) FROM tunnel_monitor WHERE status = 'active'")
+        db_tunnels = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+        db_conns = cursor.fetchone()[0]
+        
+        cursor.close()
+        bootstrap.close()
+    except Exception as e:
+        print(f"Dashboard query error: {e}")
+        db_tunnels = 0
+        db_conns = 0
+    
     with col1:
-        active_tunnels = sum(1 for t in TUNNEL_POOL.values() if t.status == 'active')
-        st.metric("Active Tunnels", f"{active_tunnels}/{MAX_TUNNELS}")
+        mem_tunnels = sum(1 for t in TUNNEL_POOL.values() if t.status == 'active')
+        st.metric("Active Tunnels", f"{db_tunnels}/{MAX_TUNNELS}", help=f"In DB: {db_tunnels}, In memory: {mem_tunnels}")
     
     with col2:
-        active_conns = sum(1 for c in CONNECTION_REGISTRY.values() if c.status == 'active')
-        st.metric("Active Connections", f"{active_conns}/{MAX_TOTAL_CONNECTIONS}")
+        mem_conns = sum(1 for c in CONNECTION_REGISTRY.values() if c.status == 'active')
+        st.metric("Active Connections", f"{db_conns}/{MAX_TOTAL_CONNECTIONS}", help=f"In DB: {db_conns}, In memory: {mem_conns}")
     
     with col3:
         session_stats = get_session_stats()
         st.metric("Active Sessions", session_stats.get('active_sessions', 0))
     
     with col4:
-        capacity = (active_conns / MAX_TOTAL_CONNECTIONS) * 100 if MAX_TOTAL_CONNECTIONS > 0 else 0
+        capacity = (db_conns / MAX_TOTAL_CONNECTIONS) * 100 if MAX_TOTAL_CONNECTIONS > 0 else 0
         st.metric("Pool Capacity", f"{capacity:.1f}%")
     
     # Resource usage chart
     st.subheader("Resource Usage")
-    st.info("Pool architecture: 10 tunnels × 25 connections = 250 total capacity")
+    st.info(f"Pool architecture: {MAX_TUNNELS} tunnels × {MAX_CONNECTIONS_PER_TUNNEL} connections = {MAX_TOTAL_CONNECTIONS} total capacity")
     
     # Show logged-in monitor users
     st.subheader("👥 Connection Monitor Users (Logged In Now)")
