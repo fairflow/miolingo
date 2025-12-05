@@ -293,9 +293,9 @@ def init_monitoring_tables():
                 connect_timeout=10
             )
             cursor = conn.cursor()
-        
-        # Tunnel monitoring table
-        cursor.execute("""
+            
+            # Tunnel monitoring table
+            cursor.execute("""
             CREATE TABLE IF NOT EXISTS tunnel_monitor (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 tunnel_id VARCHAR(50) UNIQUE NOT NULL,
@@ -309,47 +309,47 @@ def init_monitoring_tables():
                 INDEX idx_status (status)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         """)
-        
-        # Connection monitoring table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS connection_monitor (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                connection_id VARCHAR(100) UNIQUE NOT NULL,
-                mysql_connection_id INT,
-                tunnel_id VARCHAR(50),
-                session_id VARCHAR(100),
-                username VARCHAR(100),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                status ENUM('active', 'idle', 'closed') DEFAULT 'active',
-                INDEX idx_connection_id (connection_id),
-                INDEX idx_tunnel_id (tunnel_id),
-                INDEX idx_session_id (session_id),
-                INDEX idx_status (status),
-                FOREIGN KEY (tunnel_id) REFERENCES tunnel_monitor(tunnel_id) ON DELETE SET NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        """)
-        
-        # Session monitoring table (comprehensive user tracking)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS session_monitor (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                session_id VARCHAR(100) UNIQUE NOT NULL,
-                username VARCHAR(100) NOT NULL,
-                user_ip VARCHAR(45),
-                user_agent TEXT,
-                device_type VARCHAR(50),
-                browser VARCHAR(50),
-                login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                expires_at TIMESTAMP,
-                last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                status ENUM('active', 'expired', 'forced_logout') DEFAULT 'active',
-                INDEX idx_session_id (session_id),
-                INDEX idx_username (username),
-                INDEX idx_status (status),
-                INDEX idx_expires_at (expires_at)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        """)
+            
+            # Connection monitoring table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS connection_monitor (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    connection_id VARCHAR(100) UNIQUE NOT NULL,
+                    mysql_connection_id INT,
+                    tunnel_id VARCHAR(50),
+                    session_id VARCHAR(100),
+                    username VARCHAR(100),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    status ENUM('active', 'idle', 'closed') DEFAULT 'active',
+                    INDEX idx_connection_id (connection_id),
+                    INDEX idx_tunnel_id (tunnel_id),
+                    INDEX idx_session_id (session_id),
+                    INDEX idx_status (status),
+                    FOREIGN KEY (tunnel_id) REFERENCES tunnel_monitor(tunnel_id) ON DELETE SET NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
+            
+            # Session monitoring table (comprehensive user tracking)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS session_monitor (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    session_id VARCHAR(100) UNIQUE NOT NULL,
+                    username VARCHAR(100) NOT NULL,
+                    user_ip VARCHAR(45),
+                    user_agent TEXT,
+                    device_type VARCHAR(50),
+                    browser VARCHAR(50),
+                    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    expires_at TIMESTAMP,
+                    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    status ENUM('active', 'expired', 'forced_logout') DEFAULT 'active',
+                    INDEX idx_session_id (session_id),
+                    INDEX idx_username (username),
+                    INDEX idx_status (status),
+                    INDEX idx_expires_at (expires_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
         
             conn.commit()
             cursor.close()
