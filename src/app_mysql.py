@@ -625,13 +625,14 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
         }
         
     except Error as e:
+        # Log the error
         write_debug_log(
             event_type='session_validation_error',
             message=f'Database error during validation: {str(e)}',
             session_id=session_id
         )
-        st.error(f"❌ Session validation error: {e}")
-        return None
+        # Re-raise the exception so caller knows this is an ERROR, not expiry
+        raise
     
     finally:
         if conn:

@@ -465,8 +465,74 @@ with tab2:
 with tab3:
     st.header("📝 Recent Logs")
     
+    # Debug Logs from Database
+    st.subheader("🔧 Debug Logs (Database)")
+    st.caption("Session validation, forced logouts, and errors")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        log_limit = st.number_input("Limit", min_value=10, max_value=1000, value=100, step=10, key="log_limit")
+        event_filter = st.selectbox(
+            "Event Type",
+            ['All', 'forced_logout', 'session_validation_failed', 'session_validation_error', 'audio_error', 'database_error'],
+            index=0,
+            key="event_filter"
+        )
+    with col2:
+        env_filter = st.selectbox("Environment", ['All', 'local', 'deployed'], index=0, key="env_filter")
+        username_filter = st.text_input("Username (optional)", key="username_filter")
+    
+    if st.button("🔄 Refresh Logs", key="refresh_debug_logs"):
+        st.rerun()
+    
+    # Fetch logs from database
+    try:
+        logs = app_mysql.get_debug_logs(
+            limit=int(log_limit),
+            event_type=None if event_filter == 'All' else event_filter,
+            username=username_filter if username_filter else None,
+            environment=None if env_filter == 'All' else env_filter
+        )
+        
+        if logs:
+            st.markdown(f"**Showing {len(logs)} logs (newest first)**")
+            
+            for log in logs:
+                timestamp = log['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
+                event_type = log['event_type']
+                username = log['username'] or 'anonymous'
+                env = log['environment']
+                message = log['message']
+                user_agent = log['user_agent'] or 'N/A'
+                session_partial = log['session_id_partial'] or 'N/A'
+                
+                # Color code by event type
+                if 'error' in event_type:
+                    emoji = "❌"
+                elif 'logout' in event_type:
+                    emoji = "🚪"
+                elif 'failed' in event_type:
+                    emoji = "⚠️"
+                else:
+                    emoji = "ℹ️"
+                
+                with st.expander(f"{emoji} {timestamp} | {env} | {event_type} | {username}", expanded=False):
+                    st.markdown(f"**Message:** {message}")
+                    if 'iPhone' in user_agent or 'iOS' in user_agent:
+                        st.markdown(f"📱 **iPhone/iOS detected**: `{user_agent[:100]}...`")
+                    elif user_agent != 'N/A':
+                        st.markdown(f"**User Agent:** `{user_agent[:100]}...`")
+                    st.markdown(f"**Session ID:** `{session_partial}`")
+        else:
+            st.info("No logs found matching filters")
+    
+    except Exception as e:
+        st.error(f"Failed to load debug logs: {e}")
+    
+    st.markdown("---")
+    
     # Check for Streamlit Cloud logs
-    st.info("For production logs, check Streamlit Cloud dashboard: https://share.streamlit.io/")
+    st.info("For production deployment logs, check Streamlit Cloud dashboard: https://share.streamlit.io/")
     
     # Local log viewer
     st.subheader("Local Application Events")

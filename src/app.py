@@ -465,12 +465,15 @@ def check_authentication():
                     user_agent = 'unknown'
                 
                 user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
+                
+                # validate_session returns None ONLY if session expired (not found or past expires_at)
+                # It raises exceptions for database errors (which we catch below)
                 if not user:
-                    # Session actually expired in database (not just a connection error)
+                    # Session actually expired in database - legitimate logout
                     # Log the forced logout
                     app_mysql.write_debug_log(
                         event_type='forced_logout',
-                        message='Session validation failed - forcing logout',
+                        message='Session expired (not found or past expires_at) - forcing logout',
                         username=st.session_state.get('user', {}).get('username'),
                         user_id=st.session_state.get('user', {}).get('user_id'),
                         user_agent=user_agent,
@@ -484,20 +487,11 @@ def check_authentication():
                 else:
                     # Session valid - update check timestamp
                     st.session_state['last_session_check'] = now
+            
             except Exception as e:
-                # Database connection error - DON'T logout user
-                # Log the connection error
-                try:
-                    app_mysql.write_debug_log(
-                        event_type='session_validation_error',
-                        message=f'Connection error during validation: {str(e)}',
-                        username=st.session_state.get('user', {}).get('username'),
-                        user_id=st.session_state.get('user', {}).get('user_id'),
-                        session_id=st.session_state.get('session_id')
-                    )
-                except:
-                    pass  # Don't let logging errors break the app
-                # Just show warning and they stay logged in
+                # Database connection error or other exception - DON'T logout user
+                # This is the key fix: exceptions mean errors, not expiry
+                # Just show warning and keep user logged in
                 st.warning(f"⚠️ Temporary connection issue during session validation. You remain logged in.")
                 # Don't update last_session_check so we retry sooner (next rerun)
 
@@ -2357,70 +2351,6 @@ def main():
             save_settings(settings_to_save)
             st.success("Settings saved!")
             st.rerun()
-        
-        st.markdown("---")
-        
-        # Admin Debug Logs (only for fairflow)
-        if st.session_state.get('user', {}).get('username') == 'fairflow':
-            with st.expander("🔧 Debug Logs (Admin)"):
-                st.markdown("**Filter Logs**")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    log_limit = st.number_input("Limit", min_value=10, max_value=1000, value=50, step=10)
-                    event_filter = st.selectbox(
-                        "Event Type",
-                        ['All', 'forced_logout', 'session_validation_failed', 'session_validation_error', 'audio_error', 'database_error'],
-                        index=0
-                    )
-                with col2:
-                    env_filter = st.selectbox("Environment", ['All', 'local', 'deployed'], index=0)
-                    username_filter = st.text_input("Username (optional)")
-                
-                if st.button("🔄 Refresh Logs"):
-                    st.rerun()
-                
-                # Fetch logs
-                try:
-                    logs = app_mysql.get_debug_logs(
-                        limit=int(log_limit),
-                        event_type=None if event_filter == 'All' else event_filter,
-                        username=username_filter if username_filter else None,
-                        environment=None if env_filter == 'All' else env_filter
-                    )
-                    
-                    if logs:
-                        st.markdown(f"**Showing {len(logs)} logs (newest first)**")
-                        for log in logs:
-                            timestamp = log['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
-                            event_type = log['event_type']
-                            username = log['username'] or 'anonymous'
-                            env = log['environment']
-                            message = log['message']
-                            user_agent = log['user_agent'] or 'N/A'
-                            session_partial = log['session_id_partial'] or 'N/A'
-                            
-                            # Color code by event type
-                            if 'error' in event_type:
-                                emoji = "❌"
-                            elif 'logout' in event_type:
-                                emoji = "🚪"
-                            elif 'failed' in event_type:
-                                emoji = "⚠️"
-                            else:
-                                emoji = "ℹ️"
-                            
-                            with st.container():
-                                st.markdown(f"{emoji} **{timestamp}** | `{env}` | `{event_type}` | User: **{username}**")
-                                st.markdown(f"📝 {message}")
-                                if 'iPhone' in user_agent or 'iOS' in user_agent:
-                                    st.markdown(f"📱 **iPhone/iOS detected**: {user_agent[:100]}...")
-                                st.markdown(f"🔑 Session: `{session_partial}`")
-                                st.markdown("---")
-                    else:
-                        st.info("No logs found matching filters")
-                except Exception as e:
-                    st.error(f"Failed to load logs: {e}")
         
         st.markdown("---")
         
