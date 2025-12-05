@@ -531,20 +531,42 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
 def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
     """
     Get an existing tunnel with capacity or create a new one.
-    Uses round-robin assignment.
+    Checks DATABASE for actual connection counts (not in-memory).
     """
     global _next_tunnel_index
     
-    # Check if we have any tunnels with capacity
+    # Query database for actual connection counts per tunnel
+    tunnel_conn_counts = {}
+    try:
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT tunnel_id, COUNT(*) as conn_count
+            FROM connection_monitor
+            WHERE status = 'active'
+            GROUP BY tunnel_id
+        """)
+        rows = cursor.fetchall()
+        for row in rows:
+            tunnel_conn_counts[row['tunnel_id']] = row['conn_count']
+        cursor.close()
+        bootstrap.close()
+    except Exception as e:
+        print(f"Warning: Could not query DB for tunnel counts: {e}")
+    
+    # Check in-memory tunnels for one with capacity (using DB counts)
     for tunnel_id, tunnel_info in TUNNEL_POOL.items():
+        db_count = tunnel_conn_counts.get(tunnel_id, 0)
         if (tunnel_info.status == 'active' and
-            tunnel_info.connection_count < MAX_CONNECTIONS_PER_TUNNEL and
+            db_count < MAX_CONNECTIONS_PER_TUNNEL and
             tunnel_info.tunnel_obj and
             tunnel_info.tunnel_obj.is_active):
+            print(f"✅ Reusing {tunnel_id} ({db_count}/{MAX_CONNECTIONS_PER_TUNNEL} connections)")
             return tunnel_id, tunnel_info
     
     # Create new tunnel if under limit
     if len(TUNNEL_POOL) < MAX_TUNNELS:
+        print(f"📊 Creating new tunnel (currently have {len(TUNNEL_POOL)}/{MAX_TUNNELS})")
         tunnel_obj = create_ssh_tunnel()
         tunnel_id = f"tunnel_{len(TUNNEL_POOL)}"
         
@@ -568,12 +590,17 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
         )
         
         TUNNEL_POOL[tunnel_id] = tunnel_info
+        print(f"✅ Created {tunnel_id} (port {tunnel_info.local_port})")
         return tunnel_id, tunnel_info
     
-    # Pool full - use round robin
+    # Pool full - use round robin (WARNING: exceeding capacity)
+    print(f"⚠️  WARNING: All {MAX_TUNNELS} tunnels at capacity, using round-robin (may exceed {MAX_CONNECTIONS_PER_TUNNEL} per tunnel)")
     tunnel_ids = list(TUNNEL_POOL.keys())
     tunnel_id = tunnel_ids[_next_tunnel_index % len(tunnel_ids)]
     _next_tunnel_index += 1
+    
+    db_count = tunnel_conn_counts.get(tunnel_id, 0)
+    print(f"⚠️  Assigning to {tunnel_id} (currently {db_count} connections - OVER CAPACITY)")
     
     return tunnel_id, TUNNEL_POOL[tunnel_id]
 
