@@ -667,6 +667,28 @@ def show_dashboard():
     """Overview dashboard"""
     st.header("System Overview")
     
+    # Show table existence status
+    with st.expander("📋 Database Tables Status", expanded=False):
+        try:
+            conn = get_direct_connection()
+            cursor = conn.cursor()
+            
+            tables = ['tunnel_monitor', 'connection_monitor', 'session_monitor']
+            for table in tables:
+                cursor.execute(f"SHOW TABLES LIKE '{table}'")
+                exists = cursor.fetchone() is not None
+                if exists:
+                    cursor.execute(f"SELECT COUNT(*) FROM {table}")
+                    count = cursor.fetchone()[0]
+                    st.success(f"✅ `{table}` exists ({count} rows)")
+                else:
+                    st.error(f"❌ `{table}` does not exist")
+            
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            st.error(f"Error checking tables: {e}")
+    
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -866,9 +888,17 @@ def main():
     st.title("🔌 Miolingo Connection Monitor")
     st.caption(f"Logged in as: {st.session_state.get('monitor_username', 'unknown')}")
     
-    # Sidebar navigation
+    # Sidebar with logout
+    st.sidebar.title("Navigation")
+    if st.sidebar.button("🚪 Logout", type="primary"):
+        st.session_state.authenticated = False
+        st.session_state.monitor_username = None
+        st.rerun()
+    
+    st.sidebar.markdown("---")
+    
     page = st.sidebar.radio(
-        "Navigation",
+        "Go to page:",
         ["Dashboard", "Tunnels", "Connections", "Sessions", "Controls"]
     )
     
