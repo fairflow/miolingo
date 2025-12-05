@@ -1140,19 +1140,193 @@ def close_connection(connection_id: str) -> bool:
     return True
 
 
+def cleanup_dead_connections():
+    """
+    Clean connections from DB that no longer exist in MySQL.
+    Uses SHOW PROCESSLIST to verify connections are actually alive.
+    """
+    cleaned = 0
+    
+    try:
+        # Get all MySQL connection IDs from SHOW PROCESSLIST
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor(dictionary=True)
+        cursor.execute("SHOW PROCESSLIST")
+        processlist = cursor.fetchall()
+        alive_mysql_ids = {row['Id'] for row in processlist}
+        cursor.close()
+        bootstrap.close()
+        
+        print(f"Found {len(alive_mysql_ids)} live MySQL connections")
+        
+        # Get all active connections from our DB
+        check_conn = get_bootstrap_connection()
+        cursor = check_conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT connection_id, mysql_connection_id
+            FROM connection_monitor
+            WHERE status = 'active'
+        """)
+        db_conns = cursor.fetchall()
+        cursor.close()
+        check_conn.close()
+        
+        # Mark as closed any that don't exist in MySQL anymore
+        for conn_data in db_conns:
+            mysql_id = conn_data['mysql_connection_id']
+            conn_id = conn_data['connection_id']
+            
+            if mysql_id not in alive_mysql_ids:
+                # Connection is dead in MySQL but still marked active in our DB
+                try:
+                    update_conn = get_bootstrap_connection()
+                    cursor = update_conn.cursor()
+                    cursor.execute("""
+                        UPDATE connection_monitor
+                        SET status = 'closed', last_activity = NOW()
+                        WHERE connection_id = %s
+                    """, (conn_id,))
+                    update_conn.commit()
+                    cursor.close()
+                    update_conn.close()
+                    cleaned += 1
+                    print(f"🧹 Cleaned dead connection {conn_id} (MySQL ID {mysql_id})")
+                except Exception as e:
+                    print(f"Failed to clean {conn_id}: {e}")
+                
+                # Remove from memory
+                if conn_id in st.session_state.CONNECTION_REGISTRY:
+                    del st.session_state.CONNECTION_REGISTRY[conn_id]
+        
+        return cleaned
+        
+    except Exception as e:
+        print(f"Error in cleanup_dead_connections: {e}")
+        return 0
+
+
+def cleanup_dead_tunnels():
+    """
+    Clean tunnels from DB whose SSH process no longer exists.
+    """
+    cleaned = 0
+    
+    try:
+        # Get all active tunnels from DB
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT tunnel_id, pid
+            FROM tunnel_monitor
+            WHERE status = 'active'
+        """)
+        db_tunnels = cursor.fetchall()
+        cursor.close()
+        bootstrap.close()
+        
+        for tunnel_data in db_tunnels:
+            tunnel_id = tunnel_data['tunnel_id']
+            pid = tunnel_data['pid']
+            
+            # Check if process is still alive
+            try:
+                import os
+                import signal
+                os.kill(pid, 0)  # Signal 0 just checks if process exists
+                # Process exists, continue
+            except (OSError, ProcessLookupError):
+                # Process doesn't exist, mark tunnel as closed
+                try:
+                    update_conn = get_bootstrap_connection()
+                    cursor = update_conn.cursor()
+                    cursor.execute("""
+                        UPDATE tunnel_monitor
+                        SET status = 'closed', last_used = NOW()
+                        WHERE tunnel_id = %s
+                    """, (tunnel_id,))
+                    update_conn.commit()
+                    cursor.close()
+                    update_conn.close()
+                    cleaned += 1
+                    print(f"🧹 Cleaned dead tunnel {tunnel_id} (PID {pid})")
+                except Exception as e:
+                    print(f"Failed to clean tunnel {tunnel_id}: {e}")
+                
+                # Remove from memory
+                if tunnel_id in st.session_state.TUNNEL_POOL:
+                    del st.session_state.TUNNEL_POOL[tunnel_id]
+        
+        return cleaned
+        
+    except Exception as e:
+        print(f"Error in cleanup_dead_tunnels: {e}")
+        return 0
+
+
 def cleanup_idle_connections(idle_threshold_minutes: int = 10):
     """
     Close connections that have been idle for longer than threshold.
+    Works on DATABASE records, not just in-memory registry.
     """
-    threshold = datetime.now() - timedelta(minutes=idle_threshold_minutes)
-    
     closed_count = 0
-    for conn_id, conn_info in list(CONNECTION_REGISTRY.items()):
-        if conn_info.last_activity < threshold:
-            if close_connection(conn_id):
-                closed_count += 1
     
-    return closed_count
+    try:
+        # Get all active connections from DB that are past threshold
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT connection_id, mysql_connection_id, tunnel_id, session_id, username
+            FROM connection_monitor
+            WHERE status = 'active'
+              AND last_activity < DATE_SUB(NOW(), INTERVAL %s MINUTE)
+        """, (idle_threshold_minutes,))
+        stale_conns = cursor.fetchall()
+        cursor.close()
+        bootstrap.close()
+        
+        print(f"Found {len(stale_conns)} idle connections (>{idle_threshold_minutes}m)")
+        
+        # Close each stale connection
+        for conn_data in stale_conns:
+            conn_id = conn_data['connection_id']
+            mysql_conn_id = conn_data['mysql_connection_id']
+            
+            # Try to kill the MySQL connection
+            try:
+                kill_conn = get_bootstrap_connection()
+                kill_cursor = kill_conn.cursor()
+                kill_cursor.execute(f"KILL {mysql_conn_id}")
+                kill_cursor.close()
+                kill_conn.close()
+                print(f"✅ Killed idle MySQL connection {mysql_conn_id}")
+            except Exception as e:
+                print(f"⚠️  Could not kill MySQL conn {mysql_conn_id}: {e}")
+            
+            # Update status in DB
+            try:
+                update_conn = get_bootstrap_connection()
+                cursor = update_conn.cursor()
+                cursor.execute("""
+                    UPDATE connection_monitor
+                    SET status = 'closed', last_activity = NOW()
+                    WHERE connection_id = %s
+                """, (conn_id,))
+                update_conn.commit()
+                cursor.close()
+                update_conn.close()
+                closed_count += 1
+            except Exception as e:
+                print(f"Failed to update DB for {conn_id}: {e}")
+            
+            # Remove from memory if present
+            if conn_id in st.session_state.CONNECTION_REGISTRY:
+                del st.session_state.CONNECTION_REGISTRY[conn_id]
+        
+        return closed_count
+        
+    except Exception as e:
+        print(f"Error in cleanup_idle_connections: {e}")
+        return 0
 
 
 # ============================================================================
@@ -1351,6 +1525,43 @@ def show_dashboard():
     st.subheader("Resource Usage")
     st.info(f"Pool architecture: {MAX_TUNNELS} tunnels × {MAX_CONNECTIONS_PER_TUNNEL} connections = {MAX_TOTAL_CONNECTIONS} total capacity")
     
+    # Architecture explanation
+    with st.expander("ℹ️  How Memory vs Database Tracking Works", expanded=False):
+        st.markdown("""
+        ### Dual Tracking System
+        
+        **Memory (Session State):**
+        - Fast access for active operations
+        - `TUNNEL_POOL`: SSH tunnel objects (connection info, ports, PIDs)
+        - `CONNECTION_REGISTRY`: MySQL connection objects (for queries)
+        - Persists during Streamlit session (stored in `st.session_state`)
+        
+        **Database (Persistent):**
+        - `tunnel_monitor`: Tunnel metadata (tunnel_id, PID, port, status)
+        - `connection_monitor`: Connection metadata (connection_id, MySQL ID, tunnel_id, user, timestamps)
+        - `session_monitor`: User sessions (login times, device info, activity)
+        - Survives app restarts
+        - **Source of truth** for counts and allocation
+        
+        ### Why Both?
+        1. **Memory**: Need actual connection objects to execute queries
+        2. **Database**: Track across app restarts, multiple admin users, audit history
+        3. **Verification**: Compare DB vs memory to find leaks/stale records
+        
+        ### Cleanup Operations
+        - **Clean Dead Connections**: Queries MySQL `SHOW PROCESSLIST` to verify connections actually exist
+        - **Clean Dead Tunnels**: Checks if SSH tunnel process (PID) is still running
+        - **Clean Idle**: Closes connections inactive for N minutes
+        - **Database is always updated** when connections/tunnels are closed
+        
+        ### Important Notes
+        - Dashboard shows **database counts** (accurate across app sessions)
+        - Memory counts may differ if connections died without cleanup
+        - Admin can forcibly close any resource and DB will be updated
+        - Bootstrap connection (for logging) is NOT tracked in database
+        - This monitor connects to **same database** as main Miolingo app
+        """)
+    
     # Show logged-in monitor users
     st.subheader("👥 Connection Monitor Users (Logged In Now)")
     
@@ -1371,7 +1582,7 @@ def show_dashboard():
                 st.error(f"Error: {e}")
     
     with col3:
-        if st.button("🧹 Clean Stale"):
+        if st.button("🧹 Clean Stale Sessions"):
             try:
                 conn = get_bootstrap_connection()
                 cursor = conn.cursor()
@@ -1389,6 +1600,34 @@ def show_dashboard():
                 st.rerun()
             except Exception as e:
                 st.error(f"Error cleaning sessions: {e}")
+    
+    # Add comprehensive cleanup button
+    st.subheader("🛠️ System Cleanup")
+    st.write("**Verify database matches reality** - removes stale records for dead connections/tunnels")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🧹 Clean Dead Connections", help="Remove connections that no longer exist in MySQL"):
+            with st.spinner("Checking MySQL SHOW PROCESSLIST..."):
+                cleaned = cleanup_dead_connections()
+                st.success(f"Cleaned {cleaned} dead connections from database")
+                st.rerun()
+    
+    with col2:
+        if st.button("🧹 Clean Dead Tunnels", help="Remove tunnels whose SSH process died"):
+            with st.spinner("Checking SSH process list..."):
+                cleaned = cleanup_dead_tunnels()
+                st.success(f"Cleaned {cleaned} dead tunnels from database")
+                st.rerun()
+    
+    with col3:
+        if st.button("🧹 Clean All Stale", type="primary", help="Run all cleanup operations"):
+            with st.spinner("Running comprehensive cleanup..."):
+                dead_conns = cleanup_dead_connections()
+                dead_tunnels = cleanup_dead_tunnels()
+                idle_conns = cleanup_idle_connections(10)
+                st.success(f"Cleaned {dead_conns} dead connections, {dead_tunnels} dead tunnels, {idle_conns} idle connections")
+                st.rerun()
     
     try:
         conn = get_direct_connection()
@@ -1422,7 +1661,7 @@ def show_dashboard():
                 minutes_left, seconds_left = divmod(remainder, 60)
                 
                 with st.expander(f"👤 {session['username']} - {session['device_type']}/{session['browser']}", expanded=True):
-                    col1, col2 = st.columns(2)
+                    col1, col2, col3 = st.columns([3, 3, 1])
                     with col1:
                         st.write(f"**IP Address:** {session['user_ip']}")
                         st.write(f"**Device:** {session['device_type']}")
@@ -1433,6 +1672,29 @@ def show_dashboard():
                         st.write(f"**Last Activity:** {session['last_activity']} ({session['minutes_idle']} min ago)")
                         st.write(f"**Time Remaining:** {hours_left}h {minutes_left}m {seconds_left}s")
                         st.write(f"**Session ID:** `{session['session_id']}`")
+                    with col3:
+                        if st.button("🚫 Force Logout", key=f"logout_{session['session_id']}", help="Expire session and close all connections"):
+                            try:
+                                # Mark session as expired
+                                logout_conn = get_bootstrap_connection()
+                                cursor = logout_conn.cursor()
+                                cursor.execute("""
+                                    UPDATE session_monitor
+                                    SET status = 'forced_logout', last_activity = NOW()
+                                    WHERE session_id = %s
+                                """, (session['session_id'],))
+                                logout_conn.commit()
+                                cursor.close()
+                                logout_conn.close()
+                                
+                                # Close all connections for this session
+                                close_session_connection(session['session_id'])
+                                
+                                st.success(f"Logged out {session['username']}")
+                                time.sleep(1)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Error: {e}")
         else:
             st.info("No active connection monitor sessions")
             
