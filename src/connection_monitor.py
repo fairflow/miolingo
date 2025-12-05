@@ -117,6 +117,13 @@ def check_authentication():
                     if user:
                         st.session_state.authenticated = True
                         st.session_state.monitor_username = username
+                        
+                        # Log this login to session_monitor
+                        try:
+                            log_monitor_session(username)
+                        except Exception as log_err:
+                            st.warning(f"Login successful but session logging failed: {log_err}")
+                        
                         st.rerun()
                     else:
                         st.error("Invalid credentials")
@@ -124,6 +131,99 @@ def check_authentication():
                     st.error(f"Authentication error: {e}")
         
         st.stop()
+
+
+def log_monitor_session(username: str):
+    """Log a connection monitor login session to the database"""
+    import streamlit.web.server.server as server
+    
+    # Get user info from Streamlit context
+    try:
+        # Get client IP (approximation)
+        user_ip = "127.0.0.1"  # Default for local
+        
+        # Get user agent
+        try:
+            # Try to get from headers if available
+            import streamlit as st
+            ctx = st.runtime.scriptrunner.get_script_run_ctx()
+            if ctx and hasattr(ctx, 'user_info'):
+                user_agent = getattr(ctx.user_info, 'user_agent', 'Unknown')
+            else:
+                user_agent = "Unknown"
+        except:
+            user_agent = "Unknown"
+        
+        # Parse device and browser from user agent
+        device_type = "Desktop"
+        browser = "Unknown"
+        
+        if user_agent != "Unknown":
+            ua_lower = user_agent.lower()
+            # Device detection
+            if 'mobile' in ua_lower or 'iphone' in ua_lower or 'android' in ua_lower:
+                device_type = "Mobile"
+            elif 'tablet' in ua_lower or 'ipad' in ua_lower:
+                device_type = "Tablet"
+            
+            # Browser detection
+            if 'chrome' in ua_lower:
+                browser = "Chrome"
+            elif 'safari' in ua_lower:
+                browser = "Safari"
+            elif 'firefox' in ua_lower:
+                browser = "Firefox"
+            elif 'edge' in ua_lower:
+                browser = "Edge"
+        
+        # Generate session ID
+        session_id = f"monitor_{username}_{uuid.uuid4().hex[:8]}"
+        
+        # Calculate expiry (7 days like main app)
+        expires_at = datetime.now() + timedelta(days=7)
+        
+        # Insert into session_monitor table
+        conn = get_direct_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            INSERT INTO session_monitor 
+            (session_id, username, user_ip, user_agent, device_type, browser, 
+             login_time, expires_at, last_activity, status)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, NOW(), 'active')
+        """, (session_id, username, user_ip, user_agent, device_type, browser, expires_at))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        # Store session ID in streamlit state for later updates
+        st.session_state.monitor_session_id = session_id
+        
+    except Exception as e:
+        # Don't fail login if logging fails
+        print(f"Failed to log monitor session: {e}")
+        raise
+
+
+def update_session_activity(session_id: str):
+    """Update last_activity timestamp for a session"""
+    try:
+        conn = get_direct_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            UPDATE session_monitor 
+            SET last_activity = NOW()
+            WHERE session_id = %s
+        """, (session_id,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        # Silent fail - don't disrupt user experience
+        pass
 
 # ============================================================================
 # GLOBAL STATE
@@ -710,6 +810,54 @@ def show_dashboard():
     # Resource usage chart
     st.subheader("Resource Usage")
     st.info("Pool architecture: 10 tunnels × 25 connections = 250 total capacity")
+    
+    # Show logged-in monitor users
+    st.subheader("👥 Connection Monitor Users (Logged In Now)")
+    try:
+        conn = get_direct_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT session_id, username, user_ip, device_type, browser,
+                   login_time, expires_at, last_activity,
+                   TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining,
+                   TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in
+            FROM session_monitor
+            WHERE status = 'active' AND expires_at > NOW()
+            ORDER BY last_activity DESC
+        """)
+        monitor_sessions = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        if monitor_sessions:
+            for session in monitor_sessions:
+                # Calculate time logged in
+                logged_in_seconds = session['seconds_logged_in']
+                hours_in = logged_in_seconds // 3600
+                minutes_in = (logged_in_seconds % 3600) // 60
+                
+                # Calculate time remaining
+                time_remaining = timedelta(seconds=session['seconds_remaining'])
+                hours_left, remainder = divmod(int(time_remaining.total_seconds()), 3600)
+                minutes_left, seconds_left = divmod(remainder, 60)
+                
+                with st.expander(f"👤 {session['username']} - {session['device_type']}/{session['browser']}", expanded=True):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.write(f"**IP Address:** {session['user_ip']}")
+                        st.write(f"**Device:** {session['device_type']}")
+                        st.write(f"**Browser:** {session['browser']}")
+                        st.write(f"**Logged In:** {hours_in}h {minutes_in}m ago")
+                    with col2:
+                        st.write(f"**Login Time:** {session['login_time']}")
+                        st.write(f"**Last Activity:** {session['last_activity']}")
+                        st.write(f"**Time Remaining:** {hours_left}h {minutes_left}m {seconds_left}s")
+                        st.write(f"**Session ID:** `{session['session_id']}`")
+        else:
+            st.info("No active connection monitor sessions")
+            
+    except Exception as e:
+        st.error(f"Error loading monitor sessions: {e}")
 
 
 def show_tunnels():
@@ -883,6 +1031,14 @@ def main():
             else:
                 st.error(f"Failed to create monitoring tables: {message}")
                 st.stop()
+    
+    # Update session activity on each page load
+    if 'monitor_session_id' in st.session_state:
+        try:
+            update_session_activity(st.session_state.monitor_session_id)
+        except Exception as e:
+            # Don't fail the app if activity update fails
+            pass
     
     # Show the app
     st.title("🔌 Miolingo Connection Monitor")
