@@ -92,6 +92,40 @@ class SessionInfo:
 
 
 # ============================================================================
+# AUTHENTICATION
+# ============================================================================
+
+def check_authentication():
+    """Simple authentication for connection monitor (reuses miolingo auth)"""
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+    
+    if not st.session_state.authenticated:
+        st.title("🔌 Miolingo Connection Monitor")
+        st.subheader("Authentication Required")
+        
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submitted = st.form_submit_button("Login")
+            
+            if submitted:
+                # Use the same authentication as main app
+                try:
+                    from app_mysql import authenticate_user
+                    user = authenticate_user(username, password)
+                    if user:
+                        st.session_state.authenticated = True
+                        st.session_state.monitor_username = username
+                        st.rerun()
+                    else:
+                        st.error("Invalid credentials")
+                except Exception as e:
+                    st.error(f"Authentication error: {e}")
+        
+        st.stop()
+
+# ============================================================================
 # GLOBAL STATE
 # ============================================================================
 
@@ -626,41 +660,7 @@ def get_session_stats() -> Dict[str, Any]:
 # STREAMLIT UI
 # ============================================================================
 
-def main():
-    st.title("🔌 Miolingo Connection Monitor")
-    st.caption("Experimental connection pool architecture - v0.1.0")
-    
-    # Initialize tables on first run
-    if 'tables_initialized' not in st.session_state:
-        with st.spinner("Initializing monitoring tables..."):
-            success, message = init_monitoring_tables()
-            if success:
-                st.success(message)
-                st.session_state.tables_initialized = True
-            else:
-                st.error(message)
-                st.stop()
-    
-    # Sidebar navigation
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", [
-        "📊 Dashboard",
-        "🔌 Tunnels",
-        "🔗 Connections",
-        "👥 Sessions",
-        "⚙️ Controls"
-    ])
-    
-    if page == "📊 Dashboard":
-        show_dashboard()
-    elif page == "🔌 Tunnels":
-        show_tunnels()
-    elif page == "🔗 Connections":
-        show_connections()
-    elif page == "👥 Sessions":
-        show_sessions()
-    elif page == "⚙️ Controls":
-        show_controls()
+# Main function moved to end of file (after all UI functions defined)
 
 
 def show_dashboard():
@@ -840,6 +840,46 @@ def show_controls():
     st.write(f"**Max Tunnels:** {MAX_TUNNELS}")
     st.write(f"**Connections per Tunnel:** {MAX_CONNECTIONS_PER_TUNNEL}")
     st.write(f"**Total Capacity:** {MAX_TOTAL_CONNECTIONS}")
+
+
+# ============================================================================
+# MAIN
+# ============================================================================
+
+def main():
+    """Main application entry point"""
+    # Check authentication first
+    check_authentication()
+    
+    # Ensure tables exist on startup
+    if 'tables_created' not in st.session_state:
+        try:
+            create_monitoring_tables()
+            st.session_state.tables_created = True
+        except Exception as e:
+            st.error(f"Failed to create monitoring tables: {e}")
+            st.stop()
+    
+    # Show the app
+    st.title("🔌 Miolingo Connection Monitor")
+    st.caption(f"Logged in as: {st.session_state.get('monitor_username', 'unknown')}")
+    
+    # Sidebar navigation
+    page = st.sidebar.radio(
+        "Navigation",
+        ["Dashboard", "Tunnels", "Connections", "Sessions", "Controls"]
+    )
+    
+    if page == "Dashboard":
+        show_dashboard()
+    elif page == "Tunnels":
+        show_tunnels()
+    elif page == "Connections":
+        show_connections()
+    elif page == "Sessions":
+        show_sessions()
+    elif page == "Controls":
+        show_controls()
 
 
 if __name__ == "__main__":
