@@ -111,6 +111,30 @@ def check_authentication():
             submitted = st.form_submit_button("Login")
             
             if submitted:
+                # Check capacity BEFORE allowing login
+                try:
+                    temp_tunnel = create_ssh_tunnel()
+                    temp_conn = mysql.connector.connect(
+                        host='127.0.0.1',
+                        port=temp_tunnel.local_bind_port,
+                        database=st.secrets["mysql"]["database"],
+                        user=st.secrets["mysql"]["user"],
+                        password=st.secrets["mysql"]["password"]
+                    )
+                    cursor = temp_conn.cursor()
+                    cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+                    active_count = cursor.fetchone()[0]
+                    cursor.close()
+                    temp_conn.close()
+                    temp_tunnel.stop()
+                    
+                    if active_count >= HARD_LIMIT_CONNECTIONS:
+                        st.error(f"🚫 **System at Maximum Capacity ({active_count}/{HARD_LIMIT_CONNECTIONS} connections)**")
+                        st.info("Please wait and try again later.")
+                        st.stop()
+                except Exception as cap_err:
+                    st.warning(f"Could not verify capacity: {cap_err}")
+                
                 # Use the same authentication as main app
                 try:
                     from app_mysql import authenticate_user
@@ -256,6 +280,8 @@ def update_session_activity(session_id: str):
 MAX_TUNNELS = 3  # Pool size
 MAX_CONNECTIONS_PER_TUNNEL = 10  # Connections per tunnel
 MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL  # 30 total
+SOFT_LIMIT_CONNECTIONS = int(MAX_TOTAL_CONNECTIONS * 0.9)  # 27 - allow reconnects
+HARD_LIMIT_CONNECTIONS = MAX_TOTAL_CONNECTIONS  # 30 - block all new logins
 
 # Initialize session state for persistent storage
 if 'TUNNEL_POOL' not in st.session_state:
@@ -396,28 +422,74 @@ def get_bootstrap_connection():
     return conn
 
 
-def get_tracked_connection(session_id: Optional[str] = None, username: Optional[str] = None):
+def check_connection_capacity(is_existing_user: bool = False) -> Tuple[bool, str, int]:
+    """
+    Check if new connection can be created based on soft/hard limits.
+    
+    Args:
+        is_existing_user: True if user is reconnecting (logged in before)
+    
+    Returns:
+        (can_connect, message, current_count)
+    """
+    try:
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor()
+        cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+        active_count = cursor.fetchone()[0]
+        cursor.close()
+        bootstrap.close()
+        
+        # Hard limit - block everyone
+        if active_count >= HARD_LIMIT_CONNECTIONS:
+            return False, f"System at maximum capacity ({active_count}/{HARD_LIMIT_CONNECTIONS} connections). Please try again later.", active_count
+        
+        # Soft limit - only allow existing users to reconnect
+        if active_count >= SOFT_LIMIT_CONNECTIONS:
+            if not is_existing_user:
+                return False, f"System near capacity ({active_count}/{HARD_LIMIT_CONNECTIONS} connections). New logins temporarily paused. Please try again later.", active_count
+        
+        # Under soft limit - allow all
+        return True, f"Capacity OK ({active_count}/{HARD_LIMIT_CONNECTIONS})", active_count
+        
+    except Exception as e:
+        print(f"Error checking capacity: {e}")
+        # On error, be conservative and reject
+        return False, "Unable to verify system capacity. Please try again.", 0
+
+
+def get_tracked_connection(session_id: Optional[str] = None, username: Optional[str] = None, is_existing_user: bool = False):
     """
     Get a tracked MySQL connection from the pool with proper handoff.
     
     Sequence (CRITICAL):
-    1. Open bootstrap connection to read tunnel/connection pools from DB
-    2. Find available tunnel (one with < MAX_CONNECTIONS_PER_TUNNEL)
-    3. Create NEW MySQL connection through that tunnel
-    4. Get its MySQL CONNECTION_ID and store in DB
-    5. CLOSE bootstrap connection (handoff complete)
-    6. Return the new tracked connection
+    1. Check capacity limits (soft/hard)
+    2. Open bootstrap connection to read tunnel/connection pools from DB
+    3. Find available tunnel (one with < MAX_CONNECTIONS_PER_TUNNEL)
+    4. Create NEW MySQL connection through that tunnel
+    5. Get its MySQL CONNECTION_ID and store in DB
+    6. CLOSE bootstrap connection (handoff complete)
+    7. Return the new tracked connection
     
     This ensures we never accumulate connections - always close bootstrap after handoff.
     
     Args:
         session_id: User session ID
         username: Username
+        is_existing_user: True if user is reconnecting (allows above soft limit)
     
     Returns:
-        MySQL connection object with details stored in DB
+        MySQL connection object with details stored in DB, or None if capacity reached
     """
-    # STEP 1: Open bootstrap connection to access DB
+    # STEP 1: Check capacity before proceeding
+    can_connect, capacity_msg, active_count = check_connection_capacity(is_existing_user)
+    if not can_connect:
+        print(f"🚫 Connection rejected: {capacity_msg}")
+        return None
+    
+    print(f"✓ {capacity_msg}")
+    
+    # STEP 2: Open bootstrap connection to access DB
     bootstrap_conn = None
     try:
         bootstrap_conn = get_bootstrap_connection()
@@ -1736,8 +1808,24 @@ def show_tunnels():
     with btn_col2:
         reuse_existing = st.button("🔄 Reuse Existing Connection", key="reuse_conn_btn")
     
+    # Check capacity first and show status
+    can_connect, capacity_msg, active_count = check_connection_capacity(is_existing_user=False)
+    if not can_connect:
+        st.error(f"🚫 **{capacity_msg}**")
+        st.info("💡 Try logging out an existing session or wait for connections to free up.")
+    else:
+        st.success(f"✅ {capacity_msg}")
+    
     if create_new:
         result_placeholder = st.empty()
+        
+        # Check capacity again before attempting
+        can_connect, capacity_msg, active_count = check_connection_capacity(is_existing_user=False)
+        if not can_connect:
+            st.error(f"🚫 **Connection Limit Reached**")
+            st.warning(capacity_msg)
+            st.info("**Next steps:**\n1. Wait for existing connections to close\n2. Admin can force-logout idle sessions\n3. Admin can clean stale connections")
+            return
         
         try:
             with result_placeholder.container():
@@ -1745,10 +1833,11 @@ def show_tunnels():
                 
                 # Get tracked connection - proper handoff sequence
                 with st.spinner("Step 2: Allocating tunnel from pool (round-robin)..."):
-                    conn = get_tracked_connection(test_session, test_username)
+                    conn = get_tracked_connection(test_session, test_username, is_existing_user=False)
                     
                     if not conn:
-                        st.error("❌ Failed to create tracked connection")
+                        st.error("❌ Connection limit reached or allocation failed")
+                        st.info("System at capacity. Please try again later.")
                         return
                     
                     # Find which tunnel was allocated
