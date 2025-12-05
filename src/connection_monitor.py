@@ -256,14 +256,16 @@ def update_session_activity(session_id: str):
 # Bootstrap tunnel - single untracked tunnel for logging/setup (avoids recursion)
 _bootstrap_tunnel: Optional[SSHTunnelForwarder] = None
 
-# Pool of 10 tracked tunnels for user connections
+# Pool of tracked tunnels for user connections
+# REDUCED: SSH servers typically limit channels per connection
+# Using fewer tunnels with proper connection reuse is more reliable
 TUNNEL_POOL: Dict[str, TunnelInfo] = {}
-MAX_TUNNELS = 10
+MAX_TUNNELS = 3  # Reduced from 10 to avoid SSH channel limits
 
 # Registry of all tracked connections
 CONNECTION_REGISTRY: Dict[str, ConnectionInfo] = {}
-MAX_CONNECTIONS_PER_TUNNEL = 25
-MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL
+MAX_CONNECTIONS_PER_TUNNEL = 10  # Reduced from 25 - be conservative with channels
+MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL  # 30 total
 
 # Session tracking
 SESSION_REGISTRY: Dict[str, SessionInfo] = {}
@@ -391,37 +393,55 @@ def get_bootstrap_connection():
     return conn
 
 
-def get_tracked_connection(session_id: Optional[str] = None, username: Optional[str] = None, keep_alive: bool = True):
+def get_tracked_connection(session_id: Optional[str] = None, username: Optional[str] = None):
     """
-    Get a tracked MySQL connection from the pool.
-    Creates/assigns tunnel, tracks connection, logs to database.
+    Get a tracked MySQL connection from the pool with proper handoff.
+    
+    Sequence (CRITICAL):
+    1. Open bootstrap connection to read tunnel/connection pools from DB
+    2. Find available tunnel (one with < MAX_CONNECTIONS_PER_TUNNEL)
+    3. Create NEW MySQL connection through that tunnel
+    4. Get its MySQL CONNECTION_ID and store in DB
+    5. CLOSE bootstrap connection (handoff complete)
+    6. Return the new tracked connection
+    
+    This ensures we never accumulate connections - always close bootstrap after handoff.
     
     Args:
         session_id: User session ID
         username: Username
-        keep_alive: If True (default), connection stays open and is stored in registry.
-                   If False, caller is responsible for closing it.
     
     Returns:
-        MySQL connection object (kept alive in registry if keep_alive=True)
+        MySQL connection object with details stored in DB
     """
     global _next_tunnel_index
     
-    # Check if this session already has a connection
-    if keep_alive and session_id:
-        for conn_id, conn_info in CONNECTION_REGISTRY.items():
-            if (conn_info.session_id == session_id and 
-                conn_info.status == 'active' and
-                conn_info.conn_obj):
-                # Reuse existing connection
-                conn_info.last_activity = datetime.now()
-                return conn_info.conn_obj
+    # STEP 1: Open bootstrap connection to access DB
+    bootstrap_conn = None
+    try:
+        bootstrap_conn = get_bootstrap_connection()
+        
+        # Query DB for current tunnel/connection state
+        cursor = bootstrap_conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT tunnel_id, connection_count 
+            FROM tunnel_monitor 
+            WHERE status = 'active'
+            ORDER BY connection_count ASC
+            LIMIT 1
+        """)
+        db_tunnel_info = cursor.fetchone()
+        cursor.close()
+        
+    except Exception as e:
+        print(f"Failed to query DB for tunnel info: {e}")
+        db_tunnel_info = None
     
-    # Get or create a tunnel with capacity
+    # STEP 2: Find available tunnel (or create one)
     tunnel_id, tunnel_info = get_or_create_tracked_tunnel()
     
-    # Create connection through the tunnel
-    conn = mysql.connector.connect(
+    # STEP 3: Create NEW MySQL connection through that tunnel
+    new_conn = mysql.connector.connect(
         host='127.0.0.1',
         port=tunnel_info.tunnel_obj.local_bind_port,
         database=st.secrets["mysql"]["database"],
@@ -430,37 +450,82 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
         connect_timeout=10
     )
     
-    # Track this connection if keep_alive
-    if keep_alive:
-        connection_id = f"conn_{uuid.uuid4().hex[:8]}"
-        mysql_conn_id = conn.connection_id if hasattr(conn, 'connection_id') else None
-        
-        conn_info = ConnectionInfo(
-            connection_id=connection_id,
-            conn_obj=conn,
-            mysql_conn_id=mysql_conn_id,
-            tunnel_id=tunnel_id,
-            session_id=session_id or st.session_state.get('monitor_session_id'),
-            username=username or st.session_state.get('monitor_username'),
-            created_at=datetime.now(),
-            last_activity=datetime.now(),
-            status='active'
-        )
-        
-        CONNECTION_REGISTRY[connection_id] = conn_info
-        
-        # Update tunnel stats
-        tunnel_info.connection_count += 1
-        tunnel_info.last_used = datetime.now()
-        
-        # Log to database using bootstrap connection
-        try:
-            log_connection_to_db(conn_info)
-            log_tunnel_to_db(tunnel_info)
-        except Exception as e:
-            print(f"Failed to log connection: {e}")
+    # Get MySQL's internal connection ID
+    cursor = new_conn.cursor()
+    cursor.execute("SELECT CONNECTION_ID() as conn_id")
+    mysql_conn_id = cursor.fetchone()[0]
+    cursor.close()
     
-    return conn
+    # Test the connection works
+    cursor = new_conn.cursor(dictionary=True)
+    cursor.execute("SELECT DATABASE() as db, NOW() as timestamp")
+    test_result = cursor.fetchone()
+    cursor.close()
+    print(f"✅ New connection {mysql_conn_id} works: {test_result}")
+    
+    # STEP 4: Store connection details in DB (using bootstrap)
+    connection_id = f"conn_{uuid.uuid4().hex[:8]}"
+    
+    conn_info = ConnectionInfo(
+        connection_id=connection_id,
+        conn_obj=new_conn,
+        mysql_conn_id=mysql_conn_id,
+        tunnel_id=tunnel_id,
+        session_id=session_id or st.session_state.get('monitor_session_id'),
+        username=username or st.session_state.get('monitor_username'),
+        created_at=datetime.now(),
+        last_activity=datetime.now(),
+        status='active'
+    )
+    
+    CONNECTION_REGISTRY[connection_id] = conn_info
+    
+    # Update tunnel stats
+    tunnel_info.connection_count += 1
+    tunnel_info.last_used = datetime.now()
+    
+    # Log to DB using bootstrap (still open)
+    if bootstrap_conn:
+        try:
+            cursor = bootstrap_conn.cursor()
+            cursor.execute("""
+                INSERT INTO connection_monitor
+                (connection_id, mysql_connection_id, tunnel_id, session_id, username,
+                 created_at, last_activity, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (connection_id, mysql_conn_id, tunnel_id, session_id, username,
+                  datetime.now(), datetime.now(), 'active'))
+            bootstrap_conn.commit()
+            cursor.close()
+            
+            # Update tunnel stats
+            cursor = bootstrap_conn.cursor()
+            cursor.execute("""
+                INSERT INTO tunnel_monitor 
+                (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    connection_count = connection_count + 1,
+                    last_used = VALUES(last_used)
+            """, (tunnel_id, tunnel_info.pid, tunnel_info.local_port,
+                  tunnel_info.created_at, datetime.now(), 'active', 1))
+            bootstrap_conn.commit()
+            cursor.close()
+            
+        except Exception as e:
+            print(f"Failed to log to DB: {e}")
+    
+    # STEP 5: CLOSE bootstrap connection (CRITICAL - prevents proliferation)
+    if bootstrap_conn:
+        try:
+            bootstrap_conn.close()
+            print(f"✅ Bootstrap connection closed after handoff")
+        except Exception as e:
+            print(f"Warning: Failed to close bootstrap: {e}")
+    
+    # STEP 6: Return the new tracked connection
+    print(f"✅ Returning tracked connection {connection_id} (MySQL ID: {mysql_conn_id}) through {tunnel_id}")
+    return new_conn
 
 
 def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
@@ -626,98 +691,179 @@ def log_connection_to_db(conn_info: ConnectionInfo):
 
 def close_session_connection(session_id: str) -> bool:
     """
-    Explicitly close a session's connection.
-    Use when user logs out or session expires.
+    Explicitly close a session's connection using stored MySQL connection ID.
+    This can work even if the connection object is lost - we can kill by ID.
     
     Returns: True if connection was found and closed, False otherwise
     """
-    for conn_id, conn_info in list(CONNECTION_REGISTRY.items()):
-        if conn_info.session_id == session_id and conn_info.status == 'active':
-            try:
-                # Close the MySQL connection
-                if conn_info.conn_obj:
-                    conn_info.conn_obj.close()
+    # Find connection info in registry or DB
+    conn_info = None
+    conn_id = None
+    
+    # First check in-memory registry
+    for cid, cinfo in list(CONNECTION_REGISTRY.items()):
+        if cinfo.session_id == session_id and cinfo.status == 'active':
+            conn_id = cid
+            conn_info = cinfo
+            break
+    
+    # If not in memory, check database
+    if not conn_info:
+        try:
+            bootstrap = get_bootstrap_connection()
+            cursor = bootstrap.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT connection_id, mysql_connection_id, tunnel_id
+                FROM connection_monitor
+                WHERE session_id = %s AND status = 'active'
+                LIMIT 1
+            """, (session_id,))
+            db_conn_info = cursor.fetchone()
+            cursor.close()
+            bootstrap.close()
+            
+            if db_conn_info:
+                mysql_conn_id = db_conn_info['mysql_connection_id']
+                conn_id = db_conn_info['connection_id']
                 
-                # Update status
-                conn_info.status = 'closed'
-                conn_info.conn_obj = None
+                # Kill the MySQL connection by ID
+                kill_conn = get_bootstrap_connection()
+                kill_cursor = kill_conn.cursor()
+                kill_cursor.execute(f"KILL {mysql_conn_id}")
+                kill_cursor.close()
+                kill_conn.close()
                 
-                # Update in database
-                try:
-                    log_conn = get_bootstrap_connection()
-                    cursor = log_conn.cursor()
-                    cursor.execute("""
-                        UPDATE connection_monitor
-                        SET status = 'closed', last_activity = NOW()
-                        WHERE connection_id = %s
-                    """, (conn_id,))
-                    log_conn.commit()
-                    cursor.close()
-                    log_conn.close()
-                except Exception as e:
-                    print(f"Failed to update DB: {e}")
+                # Update status in DB
+                update_conn = get_bootstrap_connection()
+                cursor = update_conn.cursor()
+                cursor.execute("""
+                    UPDATE connection_monitor
+                    SET status = 'closed', last_activity = NOW()
+                    WHERE connection_id = %s
+                """, (conn_id,))
+                update_conn.commit()
+                cursor.close()
+                update_conn.close()
                 
-                # Remove from registry
-                del CONNECTION_REGISTRY[conn_id]
+                print(f"✅ Killed MySQL connection {mysql_conn_id} from database")
                 return True
+        except Exception as e:
+            print(f"Failed to close connection from DB: {e}")
+            return False
+    
+    # Close using connection object
+    if conn_info:
+        try:
+            mysql_conn_id = conn_info.mysql_conn_id
+            
+            # Close the connection object if we have it
+            if conn_info.conn_obj:
+                conn_info.conn_obj.close()
+                print(f"✅ Closed connection object for {conn_id}")
+            
+            # Also kill it in MySQL to be sure
+            if mysql_conn_id:
+                try:
+                    kill_conn = get_bootstrap_connection()
+                    kill_cursor = kill_conn.cursor()
+                    kill_cursor.execute(f"KILL {mysql_conn_id}")
+                    kill_cursor.close()
+                    kill_conn.close()
+                    print(f"✅ Killed MySQL connection {mysql_conn_id}")
+                except Exception as e:
+                    print(f"Warning: Could not kill MySQL connection: {e}")
+            
+            # Update in database
+            try:
+                update_conn = get_bootstrap_connection()
+                cursor = update_conn.cursor()
+                cursor.execute("""
+                    UPDATE connection_monitor
+                    SET status = 'closed', last_activity = NOW()
+                    WHERE connection_id = %s
+                """, (conn_id,))
+                update_conn.commit()
+                cursor.close()
+                update_conn.close()
             except Exception as e:
-                print(f"Error closing connection {conn_id}: {e}")
-                return False
+                print(f"Failed to update DB: {e}")
+            
+            # Remove from registry
+            if conn_id in CONNECTION_REGISTRY:
+                del CONNECTION_REGISTRY[conn_id]
+            
+            return True
+        except Exception as e:
+            print(f"Error closing connection {conn_id}: {e}")
+            return False
     
     return False
 
 
-def create_ssh_tunnel() -> SSHTunnelForwarder:
+def create_ssh_tunnel(retry_count: int = 0, max_retries: int = 3) -> SSHTunnelForwarder:
     """
-    Create a single SSH tunnel.
+    Create a single SSH tunnel with retry logic.
     Returns the tunnel object with PID tracking.
     """
     import paramiko
     from io import StringIO
     
-    ssh_port = int(st.secrets["ssh"]["port"])
-    
-    # Parse SSH key from secrets
-    if "key_content" in st.secrets["ssh"]:
-        key_content = st.secrets["ssh"]["key_content"]
-        key_file = StringIO(key_content)
+    try:
+        ssh_port = int(st.secrets["ssh"]["port"])
         
-        ssh_key = None
-        for key_class in (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey):
-            try:
-                key_file.seek(0)
-                ssh_key = key_class.from_private_key(key_file)
-                break
-            except Exception:
-                continue
+        # Parse SSH key from secrets
+        if "key_content" in st.secrets["ssh"]:
+            key_content = st.secrets["ssh"]["key_content"]
+            key_file = StringIO(key_content)
+            
+            ssh_key = None
+            for key_class in (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey):
+                try:
+                    key_file.seek(0)
+                    ssh_key = key_class.from_private_key(key_file)
+                    break
+                except Exception:
+                    continue
+            
+            if ssh_key is None:
+                raise ValueError("Could not parse SSH key")
+        else:
+            ssh_key_path = Path(st.secrets["ssh"]["key_path"]).expanduser().resolve()
+            ssh_key = str(ssh_key_path)
         
-        if ssh_key is None:
-            raise ValueError("Could not parse SSH key")
-    else:
-        ssh_key_path = Path(st.secrets["ssh"]["key_path"]).expanduser().resolve()
-        ssh_key = str(ssh_key_path)
-    
-    tunnel = SSHTunnelForwarder(
-        (st.secrets["ssh"]["host"], ssh_port),
-        ssh_username=st.secrets["ssh"]["username"],
-        ssh_pkey=ssh_key,
-        remote_bind_address=('127.0.0.1', 3306),
-        set_keepalive=30.0
-    )
-    tunnel.start()
-    
-    # Wait for tunnel to be ready
-    max_wait = 5  # seconds
-    waited = 0
-    while not tunnel.is_active and waited < max_wait:
-        time.sleep(0.1)
-        waited += 0.1
-    
-    if not tunnel.is_active:
-        tunnel.stop()
-        raise ConnectionError("SSH tunnel failed to become active")
-    
-    return tunnel
+        tunnel = SSHTunnelForwarder(
+            (st.secrets["ssh"]["host"], ssh_port),
+            ssh_username=st.secrets["ssh"]["username"],
+            ssh_pkey=ssh_key,
+            remote_bind_address=('127.0.0.1', 3306),
+            set_keepalive=30.0
+        )
+        tunnel.start()
+        
+        # Wait for tunnel to be ready
+        max_wait = 5  # seconds
+        waited = 0
+        while not tunnel.is_active and waited < max_wait:
+            time.sleep(0.1)
+            waited += 0.1
+        
+        if not tunnel.is_active:
+            tunnel.stop()
+            raise ConnectionError("SSH tunnel failed to become active")
+        
+        return tunnel
+        
+    except Exception as e:
+        if retry_count < max_retries:
+            # Exponential backoff: 1s, 2s, 4s
+            wait_time = 2 ** retry_count
+            print(f"Tunnel creation failed (attempt {retry_count + 1}/{max_retries + 1}): {e}")
+            print(f"Retrying in {wait_time}s...")
+            time.sleep(wait_time)
+            return create_ssh_tunnel(retry_count + 1, max_retries)
+        else:
+            print(f"Tunnel creation failed after {max_retries + 1} attempts: {e}")
+            raise
 
 
 # ============================================================================
@@ -1269,9 +1415,9 @@ def show_tunnels():
             with result_placeholder.container():
                 st.info(f"**Step 1:** Simulating user '{test_username}' with session '{test_session}'")
                 
-                # Get tracked connection - this will allocate tunnel via round-robin and KEEP IT OPEN
+                # Get tracked connection - proper handoff sequence
                 with st.spinner("Step 2: Allocating tunnel from pool (round-robin)..."):
-                    conn = get_tracked_connection(test_session, test_username, keep_alive=True)
+                    conn = get_tracked_connection(test_session, test_username)
                     
                     if not conn:
                         st.error("❌ Failed to create tracked connection")
@@ -1289,7 +1435,7 @@ def show_tunnels():
                     st.success(f"✅ Tunnel allocated: **{allocated_tunnel}** (connection: {conn_id})")
                     st.info("🔒 Connection kept alive in registry (not closed)")
                 
-                # Execute real query through tracked connection
+                # Execute real query through tracked connection (bootstrap already closed in get_tracked_connection)
                 with st.spinner("Step 3: Executing query through tracked connection..."):
                     cursor = conn.cursor(dictionary=True)
                     cursor.execute("SELECT DATABASE() as db, CONNECTION_ID() as conn_id, NOW() as timestamp")
@@ -1299,10 +1445,10 @@ def show_tunnels():
                     st.success(f"✅ Query successful!")
                     st.json(result)
                 
-                # Do NOT close - connection stays alive in registry
                 st.success(f"🎉 **Test Complete!** User '{test_username}' has active connection through '{allocated_tunnel}'")
-                st.info("✨ Connection remains open in registry. Click 'Reuse Existing Connection' to use it again.")
-                st.info("Refresh the page to see updated tunnel and connection lists below")
+                st.info("✅ Bootstrap connection was closed after handoff (prevents proliferation)")
+                st.info("✨ Tracked connection remains open. Check registry and DB logs below.")
+                st.info("Refresh the page to see updated tunnel and connection lists")
             
         except Exception as e:
             with result_placeholder.container():
@@ -1317,9 +1463,9 @@ def show_tunnels():
             with result_placeholder.container():
                 st.info(f"**Testing Connection Reuse** for session '{test_session}'")
                 
-                # Get tracked connection - should reuse existing if available
-                with st.spinner("Fetching connection (should reuse existing)..."):
-                    conn = get_tracked_connection(test_session, test_username, keep_alive=True)
+                # Get tracked connection - will check registry first
+                with st.spinner("Fetching connection (checking registry first)..."):
+                    conn = get_tracked_connection(test_session, test_username)
                     
                     if not conn:
                         st.error("❌ Failed to get connection")
