@@ -853,12 +853,14 @@ def main():
     
     # Ensure tables exist on startup
     if 'tables_created' not in st.session_state:
-        try:
-            create_monitoring_tables()
-            st.session_state.tables_created = True
-        except Exception as e:
-            st.error(f"Failed to create monitoring tables: {e}")
-            st.stop()
+        with st.spinner("Initializing monitoring tables..."):
+            success, message = init_monitoring_tables()
+            if success:
+                st.success(message)
+                st.session_state.tables_created = True
+            else:
+                st.error(f"Failed to create monitoring tables: {message}")
+                st.stop()
     
     # Show the app
     st.title("🔌 Miolingo Connection Monitor")
