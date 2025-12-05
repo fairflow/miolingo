@@ -590,6 +590,24 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
         
         TUNNEL_POOL[tunnel_id] = tunnel_info
         print(f"✅ Created {tunnel_id} (port {tunnel_info.local_port})")
+        
+        # Log the new tunnel to DB immediately (so foreign key works for connections)
+        try:
+            log_bootstrap = get_bootstrap_connection()
+            cursor = log_bootstrap.cursor()
+            cursor.execute("""
+                INSERT INTO tunnel_monitor 
+                (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (tunnel_id, tunnel_info.pid, tunnel_info.local_port,
+                  tunnel_info.created_at, datetime.now(), 'active', 0))
+            log_bootstrap.commit()
+            cursor.close()
+            log_bootstrap.close()
+            print(f"📝 Logged {tunnel_id} to database")
+        except Exception as e:
+            print(f"⚠️  Failed to log {tunnel_id} to DB: {e}")
+        
         return tunnel_id, tunnel_info
     
     # Pool full - use round robin (WARNING: exceeding capacity)
