@@ -1082,11 +1082,26 @@ def show_dashboard():
     # Show logged-in monitor users
     st.subheader("👥 Connection Monitor Users (Logged In Now)")
     
-    col1, col2 = st.columns([3, 1])
+    col1, col2, col3 = st.columns([2, 1, 1])
     with col2:
-        if st.button("🧹 Clean Stale Sessions"):
+        if st.button("🧪 Test Tracked"):
             try:
-                conn = get_direct_connection()
+                # Use tracked connection to populate pool
+                conn = get_tracked_connection()
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM session_monitor")
+                count = cursor.fetchone()[0]
+                cursor.close()
+                conn.close()
+                st.success(f"Tracked query: {count} sessions")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error: {e}")
+    
+    with col3:
+        if st.button("🧹 Clean Stale"):
+            try:
+                conn = get_bootstrap_connection()
                 cursor = conn.cursor()
                 cursor.execute("""
                     UPDATE session_monitor 
@@ -1156,6 +1171,21 @@ def show_dashboard():
 def show_tunnels():
     """Tunnel management page"""
     st.header("SSH Tunnel Pool")
+    
+    # Test controls
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        if st.button("🧪 Create Test Connection"):
+            try:
+                conn = get_tracked_connection(
+                    session_id=st.session_state.get('monitor_session_id'),
+                    username=st.session_state.get('monitor_username')
+                )
+                conn.close()
+                st.success("Created and logged test connection!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Failed to create test connection: {e}")
     
     # Show in-memory pool
     st.subheader("In-Memory Pool")
