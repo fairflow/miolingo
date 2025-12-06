@@ -12,8 +12,10 @@ Features:
 - Health monitoring and cleanup
 
 Author: Miolingo Team
-Version: 0.1.0 (Experimental)
+Version: 1.0.0
 """
+
+__version__ = "1.0.0"
 
 import streamlit as st
 import mysql.connector
@@ -317,6 +319,10 @@ MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL  # 30 total
 SOFT_LIMIT_CONNECTIONS = int(MAX_TOTAL_CONNECTIONS * 0.9)  # 27 - allow reconnects
 HARD_LIMIT_CONNECTIONS = MAX_TOTAL_CONNECTIONS  # 30 - block all new logins
 
+# Automatic cleanup configuration
+AUTO_CLEANUP_INTERVAL_MINUTES = 10  # How often to run background cleanup
+IDLE_CONNECTION_THRESHOLD_MINUTES = 10  # Close connections idle longer than this
+
 # Initialize session state for persistent storage
 if 'TUNNEL_POOL' not in st.session_state:
     st.session_state.TUNNEL_POOL = {}
@@ -332,6 +338,13 @@ if '_next_tunnel_index' not in st.session_state:
     
 if '_bootstrap_tunnel' not in st.session_state:
     st.session_state._bootstrap_tunnel = None
+
+# Background cleanup tracking
+if '_last_cleanup_time' not in st.session_state:
+    st.session_state._last_cleanup_time = None
+
+if '_cleanup_interval_minutes' not in st.session_state:
+    st.session_state._cleanup_interval_minutes = AUTO_CLEANUP_INTERVAL_MINUTES
 
 # Shortcuts for easier access (maintain compatibility)
 TUNNEL_POOL = st.session_state.TUNNEL_POOL
@@ -523,28 +536,8 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
     
     print(f"✓ {capacity_msg}")
     
-    # STEP 2: Open bootstrap connection to access DB
-    bootstrap_conn = None
-    try:
-        bootstrap_conn = get_bootstrap_connection()
-        
-        # Query DB for current tunnel/connection state
-        cursor = bootstrap_conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT tunnel_id, connection_count 
-            FROM tunnel_monitor 
-            WHERE status = 'active'
-            ORDER BY connection_count ASC
-            LIMIT 1
-        """)
-        db_tunnel_info = cursor.fetchone()
-        cursor.close()
-        
-    except Exception as e:
-        print(f"Failed to query DB for tunnel info: {e}")
-        db_tunnel_info = None
-    
     # STEP 2: Find available tunnel (or create one)
+    bootstrap_conn = None
     tunnel_id, tunnel_info = get_or_create_tracked_tunnel()
     
     # STEP 3: Create NEW MySQL connection through that tunnel
@@ -886,11 +879,24 @@ def close_session_connection(session_id: str) -> bool:
                 # Update status in DB
                 update_conn = get_bootstrap_connection()
                 cursor = update_conn.cursor()
+                
+                # Get tunnel_id from db_conn_info
+                tunnel_id = db_conn_info['tunnel_id']
+                
                 cursor.execute("""
                     UPDATE connection_monitor
                     SET status = 'closed', last_activity = NOW()
                     WHERE connection_id = %s
                 """, (conn_id,))
+                
+                # Decrement tunnel connection count
+                if tunnel_id:
+                    cursor.execute("""
+                        UPDATE tunnel_monitor
+                        SET connection_count = GREATEST(connection_count - 1, 0)
+                        WHERE tunnel_id = %s
+                    """, (tunnel_id,))
+                
                 update_conn.commit()
                 cursor.close()
                 update_conn.close()
@@ -927,11 +933,24 @@ def close_session_connection(session_id: str) -> bool:
             try:
                 update_conn = get_bootstrap_connection()
                 cursor = update_conn.cursor()
+                
+                # Get tunnel_id before updating
+                tunnel_id = conn_info.tunnel_id
+                
                 cursor.execute("""
                     UPDATE connection_monitor
                     SET status = 'closed', last_activity = NOW()
                     WHERE connection_id = %s
                 """, (conn_id,))
+                
+                # Decrement tunnel connection count
+                if tunnel_id:
+                    cursor.execute("""
+                        UPDATE tunnel_monitor
+                        SET connection_count = GREATEST(connection_count - 1, 0)
+                        WHERE tunnel_id = %s
+                    """, (tunnel_id,))
+                
                 update_conn.commit()
                 cursor.close()
                 update_conn.close()
@@ -1287,11 +1306,26 @@ def cleanup_dead_connections():
                 try:
                     update_conn = get_bootstrap_connection()
                     cursor = update_conn.cursor()
+                    
+                    # Get tunnel_id before updating
+                    cursor.execute("SELECT tunnel_id FROM connection_monitor WHERE connection_id = %s", (conn_id,))
+                    tunnel_row = cursor.fetchone()
+                    tunnel_id = tunnel_row[0] if tunnel_row else None
+                    
                     cursor.execute("""
                         UPDATE connection_monitor
                         SET status = 'closed', last_activity = NOW()
                         WHERE connection_id = %s
                     """, (conn_id,))
+                    
+                    # Decrement tunnel connection count
+                    if tunnel_id:
+                        cursor.execute("""
+                            UPDATE tunnel_monitor
+                            SET connection_count = GREATEST(connection_count - 1, 0)
+                            WHERE tunnel_id = %s
+                        """, (tunnel_id,))
+                    
                     update_conn.commit()
                     cursor.close()
                     update_conn.close()
@@ -1430,11 +1464,24 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
             try:
                 update_conn = get_bootstrap_connection()
                 cursor = update_conn.cursor()
+                
+                # Get tunnel_id from connection data
+                tunnel_id = conn_data['tunnel_id']
+                
                 cursor.execute("""
                     UPDATE connection_monitor
                     SET status = 'closed', last_activity = NOW()
                     WHERE connection_id = %s
                 """, (conn_id,))
+                
+                # Decrement tunnel connection count
+                if tunnel_id:
+                    cursor.execute("""
+                        UPDATE tunnel_monitor
+                        SET connection_count = GREATEST(connection_count - 1, 0)
+                        WHERE tunnel_id = %s
+                    """, (tunnel_id,))
+                
                 update_conn.commit()
                 cursor.close()
                 update_conn.close()
@@ -1451,6 +1498,91 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
     except Exception as e:
         print(f"Error in cleanup_idle_connections: {e}")
         return 0
+
+
+def run_background_cleanup(interval_minutes: int = None):
+    """
+    Automatic background cleanup that runs periodically.
+    Checks if enough time has passed since last cleanup and runs all cleanup tasks.
+    
+    This is CRITICAL for production apps - prevents connection leaks without admin intervention.
+    
+    Args:
+        interval_minutes: Override default cleanup interval (default: AUTO_CLEANUP_INTERVAL_MINUTES)
+    """
+    # Initialize session state if not present (for standalone use)
+    if '_last_cleanup_time' not in st.session_state:
+        st.session_state._last_cleanup_time = None
+    if '_cleanup_interval_minutes' not in st.session_state:
+        st.session_state._cleanup_interval_minutes = AUTO_CLEANUP_INTERVAL_MINUTES
+    
+    # Use provided interval or default
+    if interval_minutes is not None:
+        st.session_state._cleanup_interval_minutes = interval_minutes
+    
+    now = datetime.now()
+    last_cleanup = st.session_state._last_cleanup_time
+    interval_minutes = st.session_state._cleanup_interval_minutes
+    
+    # Check if we need to run cleanup
+    should_cleanup = False
+    if last_cleanup is None:
+        should_cleanup = True
+        reason = "first run"
+    else:
+        time_since_last = now - last_cleanup
+        if time_since_last.total_seconds() >= (interval_minutes * 60):
+            should_cleanup = True
+            reason = f"{interval_minutes}+ minutes elapsed"
+    
+    if should_cleanup:
+        print(f"\n{'='*60}")
+        print(f"🤖 BACKGROUND CLEANUP TRIGGERED ({reason})")
+        print(f"{'='*60}")
+        
+        try:
+            # Run all cleanup tasks
+            dead_conns = cleanup_dead_connections()
+            dead_tunnels = cleanup_dead_tunnels()
+            idle_conns = cleanup_idle_connections(idle_threshold_minutes=IDLE_CONNECTION_THRESHOLD_MINUTES)
+            
+            # Update last cleanup time
+            st.session_state._last_cleanup_time = now
+            
+            # Log results
+            total_cleaned = dead_conns + dead_tunnels + idle_conns
+            print(f"✅ Background cleanup complete:")
+            print(f"   - Dead connections: {dead_conns}")
+            print(f"   - Dead tunnels: {dead_tunnels}")
+            print(f"   - Idle connections: {idle_conns}")
+            print(f"   - Total cleaned: {total_cleaned}")
+            print(f"   - Next cleanup: {(now + timedelta(minutes=interval_minutes)).strftime('%H:%M:%S')}")
+            print(f"{'='*60}\n")
+            
+            return total_cleaned
+            
+        except Exception as e:
+            print(f"❌ Background cleanup failed: {e}")
+            # Don't update last_cleanup_time so we retry sooner
+            return 0
+    
+    return 0
+
+
+def enable_auto_cleanup_for_app(cleanup_interval_minutes: int = None):
+    """
+    Enable automatic connection cleanup for main app.py or miolingo-admin.py.
+    
+    Add this ONE LINE at the top of your main() function (after authentication):
+        enable_auto_cleanup_for_app()
+    
+    This will automatically clean dead connections/tunnels every N minutes.
+    No admin intervention needed - runs silently in the background.
+    
+    Args:
+        cleanup_interval_minutes: How often to run cleanup (default: AUTO_CLEANUP_INTERVAL_MINUTES)
+    """
+    return run_background_cleanup(cleanup_interval_minutes or AUTO_CLEANUP_INTERVAL_MINUTES)
 
 
 # ============================================================================
@@ -1648,6 +1780,32 @@ def show_dashboard():
     with col4:
         capacity = (db_conns / MAX_TOTAL_CONNECTIONS) * 100 if MAX_TOTAL_CONNECTIONS > 0 else 0
         st.metric("Pool Capacity", f"{capacity:.1f}%")
+    
+    # Background cleanup status
+    st.markdown("---")
+    col_cleanup1, col_cleanup2, col_cleanup3 = st.columns(3)
+    
+    with col_cleanup1:
+        last_cleanup = st.session_state._last_cleanup_time
+        if last_cleanup:
+            time_ago = datetime.now() - last_cleanup
+            minutes_ago = int(time_ago.total_seconds() / 60)
+            st.metric("🤖 Last Auto-Cleanup", f"{minutes_ago}m ago" if minutes_ago < 60 else f"{minutes_ago//60}h {minutes_ago%60}m ago")
+        else:
+            st.metric("🤖 Last Auto-Cleanup", "Not yet run")
+    
+    with col_cleanup2:
+        interval = st.session_state._cleanup_interval_minutes
+        if last_cleanup:
+            next_cleanup = last_cleanup + timedelta(minutes=interval)
+            time_until = next_cleanup - datetime.now()
+            minutes_until = max(0, int(time_until.total_seconds() / 60))
+            st.metric("⏰ Next Auto-Cleanup", f"in {minutes_until}m")
+        else:
+            st.metric("⏰ Next Auto-Cleanup", f"Every {interval}m")
+    
+    with col_cleanup3:
+        st.metric("🔄 Cleanup Interval", f"{interval} minutes")
     
     # Resource usage chart
     st.subheader("Resource Usage")
@@ -2019,7 +2177,7 @@ def show_tunnels():
                         with col1:
                             st.write(f"**PID:** {tunnel['pid']}")
                             st.write(f"**Port:** {tunnel['local_port']}")
-                            st.write(f"**Connections:** {tunnel['connection_count']}")
+                            st.write(f"**Connections:** {tunnel['connection_count']}/{MAX_CONNECTIONS_PER_TUNNEL}")
                         with col2:
                             st.write(f"**Created:** {tunnel['created_at']}")
                             st.write(f"**Last Used:** {tunnel['last_used']}")
@@ -2225,6 +2383,14 @@ def main():
                 st.error(f"Failed to create monitoring tables: {message}")
                 st.stop()
     
+    # Run automatic background cleanup (every 10 minutes)
+    # This is CRITICAL - prevents connection leaks without admin intervention
+    try:
+        run_background_cleanup()
+    except Exception as e:
+        # Don't fail the app if cleanup fails, but log it
+        print(f"Warning: Background cleanup failed: {e}")
+    
     # Update session activity on each page load
     if 'monitor_session_id' in st.session_state:
         try:
@@ -2244,6 +2410,7 @@ def main():
         st.session_state.monitor_username = None
         st.rerun()
     
+    st.sidebar.caption(f"c_m v{__version__}")
     st.sidebar.markdown("---")
     
     page = st.sidebar.radio(
