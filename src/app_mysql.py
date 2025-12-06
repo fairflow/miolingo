@@ -30,6 +30,9 @@ import warnings
 import logging
 import time
 
+# Import new connection pool module
+from connection_pool import ConnectionPool
+
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='paramiko')
 
@@ -62,6 +65,35 @@ pwd_hasher = PasswordHasher(
 # Global SSH tunnel shared across ALL Streamlit sessions
 # This prevents creating multiple tunnels and hitting server connection limits
 _global_ssh_tunnel = None
+
+# Global connection pool instance (NEW POOLING ARCHITECTURE)
+# Manages 10 tunnels × 10 connections = 100 total capacity
+_global_connection_pool: Optional[ConnectionPool] = None
+
+
+def get_connection_pool_instance() -> ConnectionPool:
+    """
+    Get or create the global ConnectionPool instance.
+    This replaces the old single-tunnel architecture with proper pooling.
+    """
+    global _global_connection_pool
+    
+    if _global_connection_pool is None:
+        # Build secrets config for ConnectionPool
+        secrets_config = {
+            'ssh': dict(st.secrets["ssh"]),
+            'mysql': dict(st.secrets["mysql"])
+        }
+        
+        # Create pool instance
+        _global_connection_pool = ConnectionPool(secrets_config)
+        
+        # Initialize monitoring tables
+        success, message = _global_connection_pool.init_monitoring_tables()
+        if not success:
+            logging.warning(f"Could not initialize monitoring tables: {message}")
+    
+    return _global_connection_pool
 
 
 def get_ssh_tunnel() -> SSHTunnelForwarder:
@@ -164,10 +196,10 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
 
 def get_connection_pool() -> pooling.MySQLConnectionPool:
     """
-    Get or create MySQL connection pool via SSH tunnel.
-    Connection pooling improves performance by reusing database connections.
-    Emerald plan resources allow for higher concurrency.
-    Uses st.session_state to prevent duplicate pools across Streamlit reruns.
+    DEPRECATED: Old connection pool function (single tunnel architecture).
+    Kept for backward compatibility during transition.
+    
+    NEW CODE SHOULD USE: get_connection() which now uses ConnectionPool internally.
     """
     if "mysql_pool" not in st.session_state:
         try:
@@ -199,46 +231,37 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
 
 def get_connection() -> mysql.connector.MySQLConnection:
     """
-    Get a connection from the pool with health validation.
-    Always use with try/finally to ensure connection is returned to pool.
+    Get a tracked database connection from the NEW connection pool.
     
-    Implements connection validation to detect and recover from:
-    - Stale connections that timed out
-    - Lost SSH tunnel connections
-    - MySQL server restarts
+    NEW ARCHITECTURE (v2.0):
+    - Uses ConnectionPool with 10 tunnels × 10 connections = 100 capacity
+    - Connections are tracked in database (connection_monitor table)
+    - Session-aware connection management
+    - Proper resource cleanup and monitoring
+    
+    Usage:
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            # use connection
+        finally:
+            conn.close()  # Returns to pool
+    
+    Returns:
+        MySQL connection from the pool
     """
-    global _global_ssh_tunnel
+    pool = get_connection_pool_instance()
     
-    pool = get_connection_pool()
-    conn = pool.get_connection()
+    # Get session info for tracking
+    session_id = st.session_state.get('session_id', f'app_{secrets.token_hex(8)}')
+    username = st.session_state.get('username', 'anonymous')
     
-    # Validate connection is alive before returning it
-    try:
-        conn.ping(reconnect=True, attempts=3, delay=1)
-    except Error as e:
-        # Connection is dead - could be stale connection OR dead tunnel
-        conn.close()
-        
-        # Check if error indicates tunnel/network failure (not just stale connection)
-        error_str = str(e)
-        if "2003" in error_str or "Connection refused" in error_str or "Can't connect" in error_str:
-            # Tunnel is likely dead - force full recreation
-            logging.warning(f"Tunnel appears dead (error: {e}), recreating tunnel and pool")
-            
-            # Clear the global tunnel to force recreation
-            if _global_ssh_tunnel is not None:
-                try:
-                    _global_ssh_tunnel.stop()
-                except:
-                    pass
-                _global_ssh_tunnel = None
-        
-        # Clear the pool to force recreation (with new tunnel if needed)
-        if "mysql_pool" in st.session_state:
-            del st.session_state.mysql_pool
-        
-        # Recursively get a new connection (will recreate tunnel + pool)
-        return get_connection()
+    # Store session_id if not already set
+    if 'session_id' not in st.session_state:
+        st.session_state.session_id = session_id
+    
+    # Get tracked connection from pool
+    conn = pool.get_tracked_connection(session_id, username)
     
     return conn
 
