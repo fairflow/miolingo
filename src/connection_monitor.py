@@ -12,10 +12,10 @@ Features:
 - Health monitoring and cleanup
 
 Author: Miolingo Team
-Version: 1.0.0
+Version: 1.0.1
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import streamlit as st
 import mysql.connector
@@ -1500,6 +1500,54 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
         return 0
 
 
+def sync_tunnel_connection_counts():
+    """
+    Recalculate and sync tunnel connection_count in database with actual active connections.
+    This fixes discrepancies caused by increment-only tracking before decrement logic was added.
+    """
+    try:
+        bootstrap = get_bootstrap_connection()
+        cursor = bootstrap.cursor(dictionary=True)
+        
+        # Get actual connection counts per tunnel
+        cursor.execute("""
+            SELECT tunnel_id, COUNT(*) as actual_count
+            FROM connection_monitor
+            WHERE status = 'active'
+            GROUP BY tunnel_id
+        """)
+        actual_counts = {row['tunnel_id']: row['actual_count'] for row in cursor.fetchall()}
+        
+        # Get all tunnels from tunnel_monitor
+        cursor.execute("SELECT tunnel_id, connection_count FROM tunnel_monitor")
+        tunnels = cursor.fetchall()
+        
+        synced = 0
+        for tunnel in tunnels:
+            tunnel_id = tunnel['tunnel_id']
+            db_count = tunnel['connection_count']
+            actual_count = actual_counts.get(tunnel_id, 0)
+            
+            if db_count != actual_count:
+                cursor.execute("""
+                    UPDATE tunnel_monitor
+                    SET connection_count = %s
+                    WHERE tunnel_id = %s
+                """, (actual_count, tunnel_id))
+                print(f"🔄 Synced {tunnel_id}: {db_count} → {actual_count}")
+                synced += 1
+        
+        bootstrap.commit()
+        cursor.close()
+        bootstrap.close()
+        
+        return synced
+        
+    except Exception as e:
+        print(f"Error syncing tunnel counts: {e}")
+        return 0
+
+
 def run_background_cleanup(interval_minutes: int = None):
     """
     Automatic background cleanup that runs periodically.
@@ -1546,6 +1594,9 @@ def run_background_cleanup(interval_minutes: int = None):
             dead_tunnels = cleanup_dead_tunnels()
             idle_conns = cleanup_idle_connections(idle_threshold_minutes=IDLE_CONNECTION_THRESHOLD_MINUTES)
             
+            # Sync tunnel connection counts with reality
+            synced = sync_tunnel_connection_counts()
+            
             # Update last cleanup time
             st.session_state._last_cleanup_time = now
             
@@ -1555,6 +1606,7 @@ def run_background_cleanup(interval_minutes: int = None):
             print(f"   - Dead connections: {dead_conns}")
             print(f"   - Dead tunnels: {dead_tunnels}")
             print(f"   - Idle connections: {idle_conns}")
+            print(f"   - Tunnel counts synced: {synced}")
             print(f"   - Total cleaned: {total_cleaned}")
             print(f"   - Next cleanup: {(now + timedelta(minutes=interval_minutes)).strftime('%H:%M:%S')}")
             print(f"{'='*60}\n")
@@ -2139,18 +2191,16 @@ def show_tunnels():
     else:
         for tunnel_id, tunnel_info in TUNNEL_POOL.items():
             with st.expander(f"🔌 {tunnel_id} - {tunnel_info.status.upper()}", expanded=False):
-                col1, col2, col3 = st.columns(3)
+                col1, col2 = st.columns(2)
                 
                 with col1:
                     st.write(f"**PID:** {tunnel_info.pid}")
-                    st.write(f"**Local Port:** {tunnel_info.local_port}")
+                    st.write(f"**Port:** {tunnel_info.local_port}")
+                    st.write(f"**Connections:** {tunnel_info.connection_count}/{MAX_CONNECTIONS_PER_TUNNEL}")
                 
                 with col2:
                     st.write(f"**Created:** {tunnel_info.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
                     st.write(f"**Last Used:** {tunnel_info.last_used.strftime('%Y-%m-%d %H:%M:%S')}")
-                
-                with col3:
-                    st.write(f"**Connections:** {tunnel_info.connection_count}/{MAX_CONNECTIONS_PER_TUNNEL}")
                     st.write(f"**Status:** {tunnel_info.status}")
     
     # Show database-logged tunnels
@@ -2357,6 +2407,34 @@ def show_controls():
             st.success("Closed all tunnels")
             st.rerun()
     
+    st.markdown("---")
+    st.subheader("Database Sync")
+    
+    col3, col4 = st.columns(2)
+    
+    with col3:
+        st.write("**Sync Tunnel Connection Counts**")
+        st.info("Recalculates connection counts from actual active connections")
+        if st.button("Sync Counts Now"):
+            synced = sync_tunnel_connection_counts()
+            if synced > 0:
+                st.success(f"Synced {synced} tunnel(s)")
+            else:
+                st.info("All counts already in sync")
+            st.rerun()
+    
+    with col4:
+        st.write("**Run Full Cleanup**")
+        st.info("Cleans dead connections, dead tunnels, idle connections, and syncs counts")
+        if st.button("Run Cleanup Now"):
+            dead_conns = cleanup_dead_connections()
+            dead_tunnels = cleanup_dead_tunnels()
+            idle_conns = cleanup_idle_connections(IDLE_CONNECTION_THRESHOLD_MINUTES)
+            synced = sync_tunnel_connection_counts()
+            st.success(f"Cleaned: {dead_conns} dead conns, {dead_tunnels} dead tunnels, {idle_conns} idle conns. Synced: {synced} tunnels")
+            st.rerun()
+    
+    st.markdown("---")
     st.subheader("Configuration")
     st.write(f"**Max Tunnels:** {MAX_TUNNELS}")
     st.write(f"**Connections per Tunnel:** {MAX_CONNECTIONS_PER_TUNNEL}")
