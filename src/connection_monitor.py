@@ -1821,6 +1821,52 @@ def show_dashboard():
         capacity = (db_conns / MAX_TOTAL_CONNECTIONS) * 100 if MAX_TOTAL_CONNECTIONS > 0 else 0
         st.metric("Pool Capacity", f"{capacity:.1f}%")
     
+    # Debug: Show sync status
+    if db_conns == 0 and mem_conns > 0:
+        st.warning(f"⚠️ **Sync Issue Detected**: {mem_conns} connections in memory but 0 in database. Run cleanup or check logs.")
+    elif db_tunnels == 0 and mem_tunnels > 0:
+        st.warning(f"⚠️ **Sync Issue Detected**: {mem_tunnels} tunnels in memory but 0 in database. Run cleanup or check logs.")
+    elif abs(db_conns - mem_conns) > 2:
+        st.info(f"ℹ️ **Sync Drift**: Database has {db_conns} connections, memory has {mem_conns}. This can happen across sessions.")
+    
+    # Database details
+    with st.expander("🔍 Database State Details", expanded=False):
+        try:
+            with get_bootstrap_connection() as debug_conn:
+                cursor = debug_conn.cursor(dictionary=True)
+                
+                # Show all connections in DB
+                cursor.execute("""
+                    SELECT connection_id, mysql_connection_id, tunnel_id, session_id, 
+                           username, status, created_at, last_activity
+                    FROM connection_monitor
+                    ORDER BY created_at DESC
+                    LIMIT 20
+                """)
+                all_conns = cursor.fetchall()
+                
+                st.write("**All Connections in Database (last 20):**")
+                if all_conns:
+                    for conn in all_conns:
+                        status_icon = "✅" if conn['status'] == 'active' else "❌"
+                        st.text(f"{status_icon} {conn['connection_id']}: MySQL #{conn['mysql_connection_id']} via {conn['tunnel_id']} | {conn['username']} | {conn['status']} | {conn['last_activity']}")
+                else:
+                    st.info("No connections in database")
+                
+                st.write("**Connections by Status:**")
+                cursor.execute("""
+                    SELECT status, COUNT(*) as count
+                    FROM connection_monitor
+                    GROUP BY status
+                """)
+                status_counts = cursor.fetchall()
+                for row in status_counts:
+                    st.text(f"  {row['status']}: {row['count']}")
+                
+                cursor.close()
+        except Exception as e:
+            st.error(f"Error loading database details: {e}")
+    
     # Background cleanup status
     st.markdown("---")
     col_cleanup1, col_cleanup2, col_cleanup3 = st.columns(3)
