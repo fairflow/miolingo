@@ -124,6 +124,10 @@ def check_authentication():
                         st.error("Invalid credentials")
                         st.stop()
                     
+                    # Check if user is admin (hardcoded list or check username pattern)
+                    # Admin usernames: admin, matthew, or any username starting with 'admin_'
+                    is_admin = username.lower() in ['admin', 'matthew'] or username.lower().startswith('admin_')
+                    
                     # Check current capacity
                     active_count = 0
                     try:
@@ -135,7 +139,25 @@ def check_authentication():
                     except Exception as check_err:
                         st.warning(f"Could not check capacity: {check_err}")
                     
-                    # Check capacity before allowing login
+                    # ADMIN BYPASS: Admins can always login (use bootstrap, not tracked)
+                    if is_admin:
+                        st.session_state.authenticated = True
+                        st.session_state.monitor_username = username
+                        st.session_state.is_admin = True
+                        st.session_state.uses_bootstrap = True  # Flag to use bootstrap connections
+                        
+                        if active_count >= HARD_LIMIT_CONNECTIONS:
+                            st.success(f"✅ **Admin Emergency Access** - Logged in via bootstrap (bypassing {active_count}/{HARD_LIMIT_CONNECTIONS} pool limit)")
+                        
+                        # Log this login to session_monitor
+                        try:
+                            log_monitor_session(username)
+                        except Exception as log_err:
+                            st.warning(f"Login successful but session logging failed: {log_err}")
+                        
+                        st.rerun()
+                    
+                    # NON-ADMIN: Check capacity before allowing login
                     if active_count >= HARD_LIMIT_CONNECTIONS:
                         st.error(f"🚫 **System at Maximum Capacity ({active_count}/{HARD_LIMIT_CONNECTIONS} connections)**")
                         st.info("Please wait and try again later. (Admins can still login)")
