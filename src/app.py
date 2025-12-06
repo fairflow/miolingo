@@ -506,6 +506,29 @@ def check_authentication():
 # Check authentication BEFORE loading the app
 check_authentication()
 
+# ========================================
+# RECOMMENDATION 3: User-Visible Capacity Warning
+# ========================================
+# Show capacity warning to users if system is under high load
+try:
+    pool = app_mysql.get_connection_pool_instance()
+    with pool.get_bootstrap_connection() as capacity_conn:
+        cursor = capacity_conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+        active_count = cursor.fetchone()[0]
+        cursor.close()
+        
+        MAX_TOTAL_CONNECTIONS = 100
+        capacity_pct = (active_count / MAX_TOTAL_CONNECTIONS) * 100
+        
+        if capacity_pct > 85:
+            st.warning(f"⚠️ **High System Load**: Miolingo is currently at {capacity_pct:.0f}% capacity. You may experience slower response times. Please be patient!")
+        elif capacity_pct > 75:
+            st.info(f"ℹ️ **Busy Period**: System is at {capacity_pct:.0f}% capacity. Service is running normally but may be slower during peak usage.")
+except Exception:
+    # Don't break the app if capacity check fails
+    pass
+
 # If we get here, user is authenticated! Show logout button in sidebar
 with st.sidebar:
     # Version at very top

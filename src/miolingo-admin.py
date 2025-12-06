@@ -287,6 +287,115 @@ with tab2:
             with col3:
                 st.metric("Expired Sessions", expired_count, delta="⚠️" if expired_count > 0 else None)
             
+            # ========================================
+            # RECOMMENDATION 2: Connection Pool Metrics
+            # ========================================
+            st.markdown("---")
+            st.subheader("🔌 Connection Pool Status")
+            
+            # Query connection pool utilization
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as active_connections,
+                    COUNT(DISTINCT tunnel_id) as active_tunnels,
+                    COUNT(DISTINCT session_id) as sessions_with_connections
+                FROM connection_monitor
+                WHERE status = 'active'
+            """)
+            pool_stats = cursor.fetchone()
+            active_connections = int(pool_stats['active_connections'] or 0)
+            active_tunnels = int(pool_stats['active_tunnels'] or 0)
+            sessions_with_connections = int(pool_stats['sessions_with_connections'] or 0)
+            
+            # Calculate utilization
+            MAX_TOTAL_CONNECTIONS = 100  # 10 tunnels × 10 connections
+            SOFT_LIMIT = 90
+            capacity_pct = (active_connections / MAX_TOTAL_CONNECTIONS) * 100
+            soft_limit_warning = active_connections >= SOFT_LIMIT
+            
+            # Display metrics
+            pool_col1, pool_col2, pool_col3, pool_col4 = st.columns(4)
+            
+            with pool_col1:
+                st.metric(
+                    "Active Connections", 
+                    f"{active_connections}/{MAX_TOTAL_CONNECTIONS}",
+                    delta=f"{capacity_pct:.0f}% capacity",
+                    delta_color="off" if capacity_pct < 75 else "normal"
+                )
+            
+            with pool_col2:
+                st.metric(
+                    "Active Tunnels",
+                    f"{active_tunnels}/10",
+                    help="SSH tunnels in use"
+                )
+            
+            with pool_col3:
+                st.metric(
+                    "Sessions with Connections",
+                    sessions_with_connections,
+                    help="Unique sessions holding connections"
+                )
+            
+            with pool_col4:
+                if soft_limit_warning:
+                    st.metric(
+                        "Status",
+                        "⚠️ HIGH",
+                        delta=f"{MAX_TOTAL_CONNECTIONS - active_connections} available",
+                        delta_color="inverse"
+                    )
+                elif capacity_pct > 75:
+                    st.metric(
+                        "Status",
+                        "⚡ BUSY",
+                        delta=f"{MAX_TOTAL_CONNECTIONS - active_connections} available",
+                        delta_color="normal"
+                    )
+                else:
+                    st.metric(
+                        "Status",
+                        "✅ OK",
+                        delta=f"{MAX_TOTAL_CONNECTIONS - active_connections} available",
+                        delta_color="off"
+                    )
+            
+            # Capacity warning banner
+            if capacity_pct >= 85:
+                st.warning(f"⚠️ **High Capacity**: System at {capacity_pct:.0f}% capacity ({active_connections}/{MAX_TOTAL_CONNECTIONS} connections). New users may experience slower service or be temporarily blocked above 90%.")
+            elif soft_limit_warning:
+                st.info(f"ℹ️ **Approaching Soft Limit**: {active_connections}/{MAX_TOTAL_CONNECTIONS} connections active. New user logins will be restricted above 90 connections.")
+            
+            # Per-tunnel breakdown
+            with st.expander("📊 Per-Tunnel Connection Distribution"):
+                cursor.execute("""
+                    SELECT 
+                        tunnel_id,
+                        COUNT(*) as conn_count,
+                        COUNT(DISTINCT session_id) as session_count,
+                        COUNT(DISTINCT username) as user_count
+                    FROM connection_monitor
+                    WHERE status = 'active'
+                    GROUP BY tunnel_id
+                    ORDER BY conn_count DESC
+                """)
+                tunnel_breakdown = cursor.fetchall()
+                
+                if tunnel_breakdown:
+                    df_tunnels = pd.DataFrame(tunnel_breakdown)
+                    st.dataframe(df_tunnels, hide_index=True, use_container_width=True)
+                    
+                    # Show warning if any tunnel over capacity
+                    max_per_tunnel = 10
+                    overloaded = [t for t in tunnel_breakdown if t['conn_count'] > max_per_tunnel]
+                    if overloaded:
+                        st.warning(f"⚠️ {len(overloaded)} tunnel(s) over capacity limit of {max_per_tunnel} connections")
+                else:
+                    st.info("No active connections")
+            
+            st.markdown("---")
+            
             # Cleanup buttons
             col_btn1, col_btn2 = st.columns(2)
             

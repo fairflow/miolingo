@@ -369,6 +369,12 @@ class ConnectionPool:
         # Update tunnel connection count
         tunnel_info.connection_count += 1
         
+        # ========================================
+        # RECOMMENDATION 4: Log First Connection Per Session
+        # ========================================
+        # Check if this is the first connection for this session
+        is_first_connection = session_id not in self.session_registry
+        
         # Log to database
         try:
             with self.get_bootstrap_connection() as admin_conn:
@@ -381,6 +387,31 @@ class ConnectionPool:
                 """, (connection_id, mysql_conn_id, tunnel_id, session_id, username,
                       conn_info.created_at, conn_info.last_activity, 'active'))
                 admin_conn.commit()
+                
+                # Log first connection event for debugging/analytics
+                if is_first_connection:
+                    print(f"[FIRST_CONNECTION] session_id={session_id}, username={username}, tunnel={tunnel_id}, mysql_conn={mysql_conn_id}")
+                    # Track in session registry
+                    from dataclasses import dataclass
+                    from datetime import datetime
+                    session_info = SessionInfo(
+                        session_id=session_id,
+                        username=username,
+                        user_ip='unknown',  # Will be updated by session_monitor
+                        user_agent='unknown',
+                        device_type='unknown',
+                        browser='unknown',
+                        login_time=datetime.now(),
+                        expires_at=datetime.now(),
+                        last_activity=datetime.now(),
+                        connection_ids=[connection_id]
+                    )
+                    self.session_registry[session_id] = session_info
+                else:
+                    # Add to existing session's connection list
+                    if session_id in self.session_registry:
+                        self.session_registry[session_id].connection_ids.append(connection_id)
+                
                 cursor.close()
         except Exception as e:
             print(f"Warning: Could not log connection: {e}")
