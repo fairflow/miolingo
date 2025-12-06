@@ -336,9 +336,6 @@ if 'SESSION_REGISTRY' not in st.session_state:
     
 if '_next_tunnel_index' not in st.session_state:
     st.session_state._next_tunnel_index = 0
-    
-if '_bootstrap_tunnel' not in st.session_state:
-    st.session_state._bootstrap_tunnel = None
 
 # Background cleanup tracking
 if '_last_cleanup_time' not in st.session_state:
