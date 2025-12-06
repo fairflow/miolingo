@@ -10,6 +10,15 @@ Security features:
 - Rate limiting support
 - Audit logging
 
+Connection Management Pattern:
+- Session connections: ONE persistent connection per Streamlit session, stored in 
+  st.session_state.db_connection and reused for all queries. NEVER close these.
+- Bootstrap connections: Ephemeral admin connections using context managers.
+  These DO get closed automatically by the context manager.
+  
+IMPORTANT: Do NOT call conn.close() on session connections returned by get_connection().
+The connection is stored in session_state and will be reused for the session lifetime.
+
 Author: Miolingo Team
 Version: 1.3.0
 """
@@ -231,25 +240,50 @@ def get_connection_pool() -> pooling.MySQLConnectionPool:
 
 def get_connection() -> mysql.connector.MySQLConnection:
     """
-    Get a tracked database connection from the NEW connection pool.
+    Get THE session-persistent database connection (creates once, reuses for entire session).
     
-    NEW ARCHITECTURE (v2.0):
-    - Uses ConnectionPool with 10 tunnels × 10 connections = 100 capacity
-    - Connections are tracked in database (connection_monitor table)
-    - Session-aware connection management
-    - Proper resource cleanup and monitoring
+    REFACTORED ARCHITECTURE (v2.1):
+    - ONE connection per session (stored in st.session_state)
+    - Reused for ALL database operations (no create/close on every query)
+    - Auto-reconnect if connection dies (health check)
+    - Connection tracked in pool and database
+    - Properly implements connection pooling concept
     
     Usage:
-        conn = get_connection()
-        try:
-            cursor = conn.cursor()
-            # use connection
-        finally:
-            conn.close()  # Returns to pool
+        conn = get_connection()  # Always returns same connection for this session
+        cursor = conn.cursor()
+        # use connection (DON'T close it - it's persistent)
     
     Returns:
-        MySQL connection from the pool
+        MySQL connection (persistent for session)
     """
+    # Check if we already have a session connection
+    if 'db_connection' in st.session_state:
+        conn = st.session_state.db_connection
+        
+        # Health check: verify connection is still alive
+        try:
+            if conn.is_connected():
+                cursor = conn.cursor()
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+                cursor.close()
+                # Connection is healthy, return it
+                return conn
+            else:
+                # Connection died, remove it
+                print("⚠️ Session connection died, creating new one")
+                del st.session_state.db_connection
+        except Exception as e:
+            # Connection check failed, remove it
+            print(f"⚠️ Session connection check failed: {e}, creating new one")
+            try:
+                conn.close()
+            except:
+                pass
+            del st.session_state.db_connection
+    
+    # No existing connection or it died - create new one
     pool = get_connection_pool_instance()
     
     # Get session info for tracking
@@ -266,9 +300,12 @@ def get_connection() -> mysql.connector.MySQLConnection:
     # Get tracked connection from pool
     conn = pool.get_tracked_connection(session_id, username)
     
-    # Store last connection info in session state for display
+    # Store in session state for reuse
+    st.session_state.db_connection = conn
+    
+    # Store connection info for display panel
     if hasattr(pool, 'connection_registry'):
-        # Find the most recent connection for this session
+        # Find this connection in registry
         session_conns = [c for c in pool.connection_registry.values() if c.session_id == session_id]
         if session_conns:
             last_conn = max(session_conns, key=lambda c: c.created_at)
@@ -279,17 +316,12 @@ def get_connection() -> mysql.connector.MySQLConnection:
                 'created_at': last_conn.created_at,
                 'status': last_conn.status
             }
-            # Get tunnel info
-            if last_conn.tunnel_id in pool.tunnel_pool:
-                tunnel = pool.tunnel_pool[last_conn.tunnel_id]
-                st.session_state['_last_tunnel_info'] = {
-                    'tunnel_id': tunnel.tunnel_id,
-                    'pid': tunnel.pid,
-                    'local_port': tunnel.local_port,
-                    'created_at': tunnel.created_at,
-                    'connection_count': tunnel.connection_count
-                }
+            # Get tunnel info from database (single source of truth)
+            db_tunnel = pool.get_tunnel_info_from_db(last_conn.tunnel_id)
+            if db_tunnel:
+                st.session_state['_last_tunnel_info'] = db_tunnel
     
+    print(f"✓ Created new session connection: {session_id[:20]}...")
     return conn
 
 
@@ -466,11 +498,7 @@ def create_guest_user() -> Optional[tuple]:
                 cursor.close()
             except:
                 pass
-        if conn and conn.is_connected():
-            try:
-                conn.close()
-            except:
-                pass
+        # Don't close conn - it's a persistent session connection
 
 
 def create_user(username: str, email: str, password: str) -> Optional[int]:
@@ -524,8 +552,7 @@ def create_user(username: str, email: str, password: str) -> Optional[int]:
         return None
     
     finally:
-        if conn:
-            conn.close()
+        pass  # Don't close conn - it's a persistent session connection
 
 
 def authenticate_user(username: str, password: str) -> Optional[Dict]:
@@ -590,8 +617,7 @@ def authenticate_user(username: str, password: str) -> Optional[Dict]:
         return None
     
     finally:
-        if conn:
-            conn.close()
+        pass  # Don't close conn - it's a persistent session connection
 
 
 def get_user_by_id(user_id: int) -> Optional[Dict]:
@@ -613,8 +639,7 @@ def get_user_by_id(user_id: int) -> Optional[Dict]:
         return None
     
     finally:
-        if conn:
-            conn.close()
+        pass  # Don't close conn - it's a persistent session connection
 
 
 # ============================================================================
@@ -662,8 +687,7 @@ def create_session(user_id: int, ip_address: str = "unknown") -> Optional[str]:
         return None
     
     finally:
-        if conn:
-            conn.close()
+        pass  # Don't close conn - it's a persistent session connection
 
 
 def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[Dict]:
@@ -741,8 +765,7 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
         raise
     
     finally:
-        if conn:
-            conn.close()
+        pass  # Don't close conn - it's a persistent session connection
 
 
 def delete_session(session_id: str) -> bool:
@@ -773,8 +796,7 @@ def delete_session(session_id: str) -> bool:
         return False
     
     finally:
-        if conn:
-            conn.close()
+        pass  # Don't close conn - it's a persistent session connection
 
 
 def cleanup_expired_sessions() -> int:
@@ -803,8 +825,7 @@ def cleanup_expired_sessions() -> int:
         return 0
     
     finally:
-        if conn:
-            conn.close()
+        pass  # Don't close conn - it's a persistent session connection
 
 
 # ============================================================================
@@ -845,10 +866,6 @@ def get_user_settings(user_id: int) -> Dict[str, Any]:
         st.error(f"❌ Error fetching settings: {e}")
         return {}
     
-    finally:
-        if conn:
-            conn.close()
-
 
 def save_user_setting(user_id: int, key: str, value: Any) -> bool:
     """
@@ -888,10 +905,6 @@ def save_user_setting(user_id: int, key: str, value: Any) -> bool:
         st.error(f"❌ Failed to save setting: {e}")
         return False
     
-    finally:
-        if conn:
-            conn.close()
-
 
 def delete_user_setting(user_id: int, key: str) -> bool:
     """Delete a specific setting for a user."""
@@ -913,10 +926,6 @@ def delete_user_setting(user_id: int, key: str) -> bool:
         st.error(f"❌ Failed to delete setting: {e}")
         return False
     
-    finally:
-        if conn:
-            conn.close()
-
 
 # ============================================================================
 # DEBUG LOGGING (Admin troubleshooting)
@@ -998,13 +1007,6 @@ def write_debug_log(
     except Exception as e:
         # Don't let logging errors break the app
         logging.error(f"Failed to write debug log: {e}")
-    
-    finally:
-        if conn:
-            try:
-                conn.close()
-            except:
-                pass
 
 
 def get_debug_logs(
@@ -1058,13 +1060,6 @@ def get_debug_logs(
     except Exception as e:
         logging.error(f"Failed to retrieve debug logs: {e}")
         return []
-    
-    finally:
-        if conn:
-            try:
-                conn.close()
-            except:
-                pass
 
 
 # ============================================================================
@@ -1125,8 +1120,7 @@ def save_practice(
             if conn:
                 try:
                     conn.rollback()
-                    conn.close()
-                except:
+                except Exception:
                     pass
                 conn = None
             
@@ -1142,14 +1136,6 @@ def save_practice(
             st.error(f"⚠️ Could not save practice result to database (connection issue). Your progress for this session is stored locally.")
             logging.error(f"Failed to save practice after {attempt + 1} attempts: {e}")
             return False
-        
-        finally:
-            if conn:
-                try:
-                    conn.close()
-                except:
-                    pass
-    
     return False
 
 
@@ -1189,10 +1175,6 @@ def get_user_progress(user_id: int, language_code: str, limit: int = 50) -> List
         st.error(f"❌ Error fetching progress: {e}")
         return []
     
-    finally:
-        if conn:
-            conn.close()
-
 
 def get_user_stats(user_id: int, language_code: str) -> Dict:
     """
@@ -1248,10 +1230,6 @@ def get_user_stats(user_id: int, language_code: str) -> Dict:
         st.error(f"❌ Error fetching stats: {e}")
         return {'total': 0, 'perfect_count': 0, 'avg_score': 0, 'recent_avg': 0}
     
-    finally:
-        if conn:
-            conn.close()
-
 
 # ============================================================================
 # RATE LIMITING
@@ -1312,10 +1290,6 @@ def check_rate_limit(
         # On error, allow the action (fail open)
         return True
     
-    finally:
-        if conn:
-            conn.close()
-
 
 # ============================================================================
 # ACTIVITY LOGGING (Audit Trail)
@@ -1360,10 +1334,6 @@ def log_activity(
         # Don't show error to user for logging failures
         return False
     
-    finally:
-        if conn:
-            conn.close()
-
 
 def get_user_activity_log(user_id: int, limit: int = 100) -> List[Dict]:
     """Get recent activity log for a user."""
@@ -1389,10 +1359,6 @@ def get_user_activity_log(user_id: int, limit: int = 100) -> List[Dict]:
         st.error(f"❌ Error fetching activity log: {e}")
         return []
     
-    finally:
-        if conn:
-            conn.close()
-
 
 # ============================================================================
 # ANNOUNCEMENTS
@@ -1450,10 +1416,6 @@ def get_active_announcements(location: str = 'both') -> Dict[str, Optional[str]]
         # Silently fail - don't disrupt app if announcements fail
         return {'system': None, 'feature': None}
     
-    finally:
-        if conn:
-            conn.close()
-
 
 def create_announcement(ann_type: str, message: str, display_on: str = 'both', 
                        expires_at: Optional[datetime] = None) -> bool:
@@ -1500,10 +1462,6 @@ def create_announcement(ann_type: str, message: str, display_on: str = 'both',
             conn.rollback()
         return False
     
-    finally:
-        if conn:
-            conn.close()
-
 
 def clear_announcement(ann_type: str) -> bool:
     """
@@ -1537,10 +1495,6 @@ def clear_announcement(ann_type: str) -> bool:
             conn.rollback()
         return False
     
-    finally:
-        if conn:
-            conn.close()
-
 
 # ============================================================================
 # UTILITY FUNCTIONS
@@ -1554,7 +1508,6 @@ def test_connection() -> bool:
         cursor.execute("SELECT 1")
         cursor.fetchone()
         cursor.close()
-        conn.close()
         return True
     except Error as e:
         st.error(f"❌ Database connection test failed: {e}")
