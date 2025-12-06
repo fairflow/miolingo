@@ -435,6 +435,14 @@ class ConnectionPool:
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """, (connection_id, mysql_conn_id, tunnel_id, session_id, username,
                       conn_info.created_at, conn_info.last_activity, 'active'))
+                
+                # Increment connection count for this tunnel
+                cursor.execute("""
+                    UPDATE tunnel_monitor 
+                    SET connection_count = connection_count + 1
+                    WHERE tunnel_id = %s
+                """, (tunnel_id,))
+                
                 admin_conn.commit()
                 
                 # Log first connection event for debugging/analytics
@@ -500,6 +508,14 @@ class ConnectionPool:
                 cursor.execute("""
                     UPDATE connection_monitor SET status = 'closed' WHERE connection_id = %s
                 """, (connection_id,))
+                
+                # Decrement connection count for this tunnel
+                cursor.execute("""
+                    UPDATE tunnel_monitor 
+                    SET connection_count = GREATEST(0, connection_count - 1)
+                    WHERE tunnel_id = %s
+                """, (conn_info.tunnel_id,))
+                
                 admin_conn.commit()
                 cursor.close()
         except:
