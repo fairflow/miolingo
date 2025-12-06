@@ -2025,6 +2025,50 @@ def show_dashboard():
     # Add comprehensive cleanup button
     st.subheader("🛠️ System Cleanup")
     st.write("**Verify database matches reality** - removes stale records for dead connections/tunnels")
+    
+    # DANGER ZONE: Clear all monitoring data
+    with st.expander("⚠️ DANGER ZONE: Clear All Monitoring Data", expanded=False):
+        st.error("**WARNING**: This will delete ALL records from monitoring tables!")
+        st.write("Tables affected: `tunnel_monitor`, `connection_monitor`, `session_monitor`")
+        st.write("Use this to start fresh before integrating into main app and admin.")
+        
+        col_danger1, col_danger2 = st.columns(2)
+        with col_danger1:
+            confirm_text = st.text_input("Type 'DELETE ALL' to confirm:", key="clear_confirm")
+        with col_danger2:
+            st.write("")  # spacing
+            st.write("")  # spacing
+            if st.button("🗑️ DELETE ALL MONITORING DATA", type="secondary", disabled=(confirm_text != "DELETE ALL")):
+                try:
+                    with get_bootstrap_connection() as conn:
+                        cursor = conn.cursor()
+                        
+                        # Delete in order to respect foreign keys
+                        cursor.execute("DELETE FROM connection_monitor")
+                        conn_deleted = cursor.rowcount
+                        
+                        cursor.execute("DELETE FROM tunnel_monitor")
+                        tunnel_deleted = cursor.rowcount
+                        
+                        cursor.execute("DELETE FROM session_monitor")
+                        session_deleted = cursor.rowcount
+                        
+                        conn.commit()
+                        cursor.close()
+                        
+                        st.success(f"✅ Deleted: {conn_deleted} connections, {tunnel_deleted} tunnels, {session_deleted} sessions")
+                        st.info("All monitoring tables cleared. Ready for fresh integration.")
+                        
+                        # Also clear memory
+                        st.session_state.TUNNEL_POOL = {}
+                        st.session_state.CONNECTION_REGISTRY = {}
+                        st.session_state._next_tunnel_index = 0
+                        
+                        time.sleep(2)
+                        st.rerun()
+                except Exception as e:
+                    st.error(f"Error clearing data: {e}")
+    
     col1, col2, col3 = st.columns(3)
     
     with col1:
