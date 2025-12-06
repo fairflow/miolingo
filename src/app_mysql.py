@@ -260,28 +260,13 @@ def get_connection() -> mysql.connector.MySQLConnection:
     # Check if we already have a session connection
     if 'db_connection' in st.session_state:
         conn = st.session_state.db_connection
+        session_id = st.session_state.get('session_id', 'unknown')
         
-        # Health check: verify connection is still alive
-        try:
-            if conn.is_connected():
-                cursor = conn.cursor()
-                cursor.execute("SELECT 1")
-                cursor.fetchone()
-                cursor.close()
-                # Connection is healthy, return it
-                return conn
-            else:
-                # Connection died, remove it
-                print("⚠️ Session connection died, creating new one")
-                del st.session_state.db_connection
-        except Exception as e:
-            # Connection check failed, remove it
-            print(f"⚠️ Session connection check failed: {e}, creating new one")
-            try:
-                conn.close()
-            except:
-                pass
-            del st.session_state.db_connection
+        # CRITICAL: Don't do health check on every call - connections don't die that fast
+        # Just trust that the connection stored in session_state is good
+        # If it fails during actual use, THEN we'll know and recreate
+        print(f"✓ Reusing session connection for {session_id[:20]}...")
+        return conn
     
     # No existing connection or it died - create new one
     pool = get_connection_pool_instance()
