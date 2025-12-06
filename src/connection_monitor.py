@@ -302,11 +302,11 @@ def update_session_activity(session_id: str):
 # GLOBAL STATE - Using Streamlit session state to persist across reruns
 # ============================================================================
 
-MAX_TUNNELS = 3  # Pool size
+MAX_TUNNELS = 10  # Pool size (8 normal + 2 spare capacity)
 MAX_CONNECTIONS_PER_TUNNEL = 10  # Connections per tunnel
-MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL  # 30 total
-SOFT_LIMIT_CONNECTIONS = int(MAX_TOTAL_CONNECTIONS * 0.9)  # 27 - allow reconnects
-HARD_LIMIT_CONNECTIONS = MAX_TOTAL_CONNECTIONS  # 30 - block all new logins
+MAX_TOTAL_CONNECTIONS = MAX_TUNNELS * MAX_CONNECTIONS_PER_TUNNEL  # 100 total
+SOFT_LIMIT_CONNECTIONS = int(MAX_TOTAL_CONNECTIONS * 0.9)  # 90 - allow reconnects
+HARD_LIMIT_CONNECTIONS = MAX_TOTAL_CONNECTIONS  # 100 - block all new logins
 
 # Automatic cleanup configuration
 AUTO_CLEANUP_INTERVAL_MINUTES = 10  # How often to run background cleanup
@@ -1285,6 +1285,27 @@ def close_connection(connection_id: str) -> bool:
     del CONNECTION_REGISTRY[connection_id]
     
     return True
+
+
+def close_session_connection(session_id: str) -> int:
+    """
+    Close all connections for a specific session.
+    Returns the number of connections closed.
+    """
+    closed_count = 0
+    
+    # Find all connections for this session
+    connections_to_close = [
+        conn_id for conn_id, conn_info in CONNECTION_REGISTRY.items()
+        if conn_info.session_id == session_id
+    ]
+    
+    # Close each connection
+    for conn_id in connections_to_close:
+        if close_connection(conn_id):
+            closed_count += 1
+    
+    return closed_count
 
 
 def cleanup_dead_connections():
@@ -2545,40 +2566,124 @@ def show_sessions():
         for browser, count in session_stats.get('by_browser', {}).items():
             st.write(f"- {browser}: {count}")
     
-    # Detailed session list
-    st.subheader("Active Sessions")
+    # Enhanced admin session management
+    st.subheader("🔧 Admin Session Management")
+    st.write("**Manage user sessions** - View all sessions per user and force logout individual sessions or all user sessions")
+    
     try:
         with get_bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
+            
+            # Get list of users with active sessions
             cursor.execute("""
-                SELECT session_id, username, user_ip, device_type, browser,
-                       login_time, expires_at, last_activity,
-                       TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining
+                SELECT username, COUNT(*) as session_count
                 FROM session_monitor
                 WHERE status = 'active' AND expires_at > NOW()
-                ORDER BY last_activity DESC
+                GROUP BY username
+                ORDER BY session_count DESC, username ASC
             """)
-            sessions = cursor.fetchall()
+            users_with_sessions = cursor.fetchall()
             cursor.close()
         
-        if sessions:
-            for session in sessions:
-                time_remaining = timedelta(seconds=session['seconds_remaining'])
-                hours, remainder = divmod(int(time_remaining.total_seconds()), 3600)
-                minutes, seconds = divmod(remainder, 60)
-                
-                with st.expander(f"👤 {session['username']} - {session['device_type']}/{session['browser']}"):
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.write(f"**IP:** {session['user_ip']}")
-                        st.write(f"**Login:** {session['login_time']}")
-                        st.write(f"**Last Activity:** {session['last_activity']}")
-                    with col2:
-                        st.write(f"**Device:** {session['device_type']}")
-                        st.write(f"**Browser:** {session['browser']}")
-                        st.write(f"**Time Remaining:** {hours}h {minutes}m {seconds}s")
-        else:
+        if not users_with_sessions:
             st.info("No active sessions")
+            return
+        
+        # For each user, show their sessions
+        for user_data in users_with_sessions:
+            username = user_data['username']
+            session_count = user_data['session_count']
+            
+            with st.expander(f"👤 **{username}** ({session_count} session{'s' if session_count > 1 else ''})", expanded=False):
+                # Get all sessions for this user first
+                with get_bootstrap_connection() as conn:
+                    cursor = conn.cursor(dictionary=True)
+                    cursor.execute("""
+                        SELECT session_id, user_ip, device_type, browser,
+                               login_time, expires_at, last_activity,
+                               TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining,
+                               TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in,
+                               TIMESTAMPDIFF(MINUTE, last_activity, NOW()) as minutes_idle
+                        FROM session_monitor
+                        WHERE username = %s AND status = 'active' AND expires_at > NOW()
+                        ORDER BY login_time DESC
+                    """, (username,))
+                    user_sessions = cursor.fetchall()
+                    cursor.close()
+                
+                # Button to logout ALL user sessions
+                col_header1, col_header2 = st.columns([3, 1])
+                with col_header2:
+                    if st.button(f"🚫 Logout All {username} Sessions", key=f"logout_all_{username}", type="secondary"):
+                        try:
+                            # Close all connections for this user
+                            for session in user_sessions:
+                                close_session_connection(session['session_id'])
+                            
+                            with get_bootstrap_connection() as logout_conn:
+                                cursor = logout_conn.cursor()
+                                cursor.execute("""
+                                    UPDATE session_monitor
+                                    SET status = 'forced_logout', last_activity = NOW()
+                                    WHERE username = %s AND status = 'active'
+                                """, (username,))
+                                affected = cursor.rowcount
+                                logout_conn.commit()
+                                cursor.close()
+                                
+                                st.success(f"✅ Logged out all {affected} session(s) for {username}")
+                                time.sleep(1)
+                                st.rerun()
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                
+                # Display each session
+                for idx, session in enumerate(user_sessions, 1):
+                    # Calculate time displays
+                    logged_in_seconds = session['seconds_logged_in']
+                    hours_in = logged_in_seconds // 3600
+                    minutes_in = (logged_in_seconds % 3600) // 60
+                    
+                    time_remaining = timedelta(seconds=session['seconds_remaining'])
+                    hours_left, remainder = divmod(int(time_remaining.total_seconds()), 3600)
+                    minutes_left, seconds_left = divmod(remainder, 60)
+                    
+                    st.markdown(f"**Session {idx}** - `{session['session_id']}`")
+                    col1, col2, col3 = st.columns([3, 3, 1])
+                    
+                    with col1:
+                        st.write(f"🌐 **IP:** {session['user_ip']}")
+                        st.write(f"💻 **Device:** {session['device_type']}")
+                        st.write(f"🌍 **Browser:** {session['browser']}")
+                    
+                    with col2:
+                        st.write(f"🔓 **Logged in:** {hours_in}h {minutes_in}m ago")
+                        st.write(f"⏱️ **Last active:** {session['minutes_idle']} min ago")
+                        st.write(f"⏰ **Expires in:** {hours_left}h {minutes_left}m {seconds_left}s")
+                    
+                    with col3:
+                        st.write("")  # spacing
+                        if st.button("🚫", key=f"logout_{session['session_id']}", help="Force logout this session"):
+                            try:
+                                with get_bootstrap_connection() as logout_conn:
+                                    cursor = logout_conn.cursor()
+                                    cursor.execute("""
+                                        UPDATE session_monitor
+                                        SET status = 'forced_logout', last_activity = NOW()
+                                        WHERE session_id = %s
+                                    """, (session['session_id'],))
+                                    logout_conn.commit()
+                                    cursor.close()
+                                
+                                close_session_connection(session['session_id'])
+                                st.success(f"✅ Logged out session {idx}")
+                                time.sleep(1)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Error: {e}")
+                    
+                    if idx < len(user_sessions):
+                        st.markdown("---")
             
     except Exception as e:
         st.error(f"Error loading sessions: {e}")
