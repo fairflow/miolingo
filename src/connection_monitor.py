@@ -12,10 +12,10 @@ Features:
 - Health monitoring and cleanup
 
 Author: Miolingo Team
-Version: 1.0.1
+Version: 1.0.3
 """
 
-__version__ = "1.0.1"
+__version__ = "1.0.3"
 
 import streamlit as st
 import mysql.connector
@@ -507,18 +507,22 @@ def check_connection_capacity(is_existing_user: bool = False) -> Tuple[bool, str
 
 def get_tracked_connection(session_id: Optional[str] = None, username: Optional[str] = None, is_existing_user: bool = False):
     """
-    Get a tracked MySQL connection from the pool with proper handoff.
+    Get a tracked MySQL connection from the pool.
     
-    Sequence (CRITICAL):
-    1. Check capacity limits (soft/hard)
-    2. Open bootstrap connection to read tunnel/connection pools from DB
-    3. Find available tunnel (one with < MAX_CONNECTIONS_PER_TUNNEL)
-    4. Create NEW MySQL connection through that tunnel
-    5. Get its MySQL CONNECTION_ID and store in DB
-    6. CLOSE bootstrap connection (handoff complete)
-    7. Return the new tracked connection
+    Sequence:
+    1. Check capacity limits (soft/hard) - uses bootstrap internally
+    2. Find available tunnel (one with < MAX_CONNECTIONS_PER_TUNNEL) - uses bootstrap internally
+    3. Create NEW MySQL connection through that tunnel
+    4. New connection logs ITSELF to database (no bootstrap needed here)
+    5. Return the new tracked connection
     
-    This ensures we never accumulate connections - always close bootstrap after handoff.
+    Bootstrap is only used for:
+    - Initial DB setup (init_monitoring_tables)
+    - Capacity queries (check_connection_capacity)
+    - Tunnel allocation queries (get_or_create_tracked_tunnel)
+    - Admin/cleanup operations
+    
+    Pool connections log themselves - this prevents bootstrap proliferation.
     
     Args:
         session_id: User session ID
@@ -537,7 +541,6 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
     print(f"✓ {capacity_msg}")
     
     # STEP 2: Find available tunnel (or create one)
-    bootstrap_conn = None
     tunnel_id, tunnel_info = get_or_create_tracked_tunnel()
     
     # STEP 3: Create NEW MySQL connection through that tunnel
@@ -584,44 +587,39 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
     tunnel_info.connection_count += 1
     tunnel_info.last_used = datetime.now()
     
-    # Log to DB using bootstrap (still open) - DB IS SOURCE OF TRUTH
-    if bootstrap_conn:
-        try:
-            cursor = bootstrap_conn.cursor()
-            cursor.execute("""
-                INSERT INTO connection_monitor
-                (connection_id, mysql_connection_id, tunnel_id, session_id, username,
-                 created_at, last_activity, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (connection_id, mysql_conn_id, tunnel_id, session_id, username,
-                  datetime.now(), datetime.now(), 'active'))
-            bootstrap_conn.commit()
-            cursor.close()
-            
-            # Update tunnel stats
-            cursor = bootstrap_conn.cursor()
-            cursor.execute("""
-                INSERT INTO tunnel_monitor 
-                (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                    connection_count = connection_count + 1,
-                    last_used = VALUES(last_used)
-            """, (tunnel_id, tunnel_info.pid, tunnel_info.local_port,
-                  tunnel_info.created_at, datetime.now(), 'active', 1))
-            bootstrap_conn.commit()
-            cursor.close()
-            
-        except Exception as e:
-            print(f"Failed to log to DB: {e}")
-    
-    # STEP 5: CLOSE bootstrap connection (CRITICAL - prevents proliferation)
-    if bootstrap_conn:
-        try:
-            bootstrap_conn.close()
-            print(f"✅ Bootstrap connection closed after handoff")
-        except Exception as e:
-            print(f"Warning: Failed to close bootstrap: {e}")
+    # STEP 5: Log new connection to DB using itself (DB IS SOURCE OF TRUTH)
+    # This connection logs itself - no bootstrap needed for regular pool connections
+    try:
+        cursor = new_conn.cursor()
+        cursor.execute("""
+            INSERT INTO connection_monitor
+            (connection_id, mysql_connection_id, tunnel_id, session_id, username,
+             created_at, last_activity, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (connection_id, mysql_conn_id, tunnel_id, session_id, username,
+              datetime.now(), datetime.now(), 'active'))
+        new_conn.commit()
+        cursor.close()
+        print(f"✅ Logged connection {mysql_conn_id} to database")
+        
+        # Update tunnel stats in DB
+        cursor = new_conn.cursor()
+        cursor.execute("""
+            INSERT INTO tunnel_monitor 
+            (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                connection_count = connection_count + 1,
+                last_used = VALUES(last_used)
+        """, (tunnel_id, tunnel_info.pid, tunnel_info.local_port,
+              tunnel_info.created_at, datetime.now(), 'active', 1))
+        new_conn.commit()
+        cursor.close()
+        print(f"✅ Incremented connection_count for tunnel {tunnel_id}")
+        
+    except Exception as e:
+        print(f"⚠️ Failed to log connection to DB: {e}")
+        # Connection still works, just not tracked in DB
     
     # STEP 6: Return the new tracked connection
     print(f"✅ Returning tracked connection {connection_id} (MySQL ID: {mysql_conn_id}) through {tunnel_id}")
@@ -2073,11 +2071,13 @@ def show_tunnels():
             else:
                 st.warning("No active connection found for this session")
     
-    btn_col1, btn_col2 = st.columns(2)
+    btn_col1, btn_col2, btn_col3 = st.columns(3)
     with btn_col1:
         create_new = st.button("🚀 Create New Connection", key="simulate_user_btn", type="primary")
     with btn_col2:
         reuse_existing = st.button("🔄 Reuse Existing Connection", key="reuse_conn_btn")
+    with btn_col3:
+        logout_test = st.button("🚪 Logout Test User", key="logout_test_btn")
     
     # Check capacity first and show status
     can_connect, capacity_msg, active_count = check_connection_capacity(is_existing_user=False)
@@ -2188,6 +2188,93 @@ def show_tunnels():
         except Exception as e:
             with result_placeholder.container():
                 st.error(f"❌ Reuse test failed: {e}")
+                import traceback
+                st.code(traceback.format_exc())
+    
+    if logout_test:
+        result_placeholder = st.empty()
+        
+        try:
+            with result_placeholder.container():
+                st.info(f"**Logging out test user:** '{test_username}' (session: {test_session})")
+                
+                # Find the connection for this session
+                conn_to_close = None
+                conn_id_to_remove = None
+                tunnel_id_to_update = None
+                mysql_conn_id = None
+                
+                for cid, cinfo in CONNECTION_REGISTRY.items():
+                    if cinfo.session_id == test_session:
+                        conn_to_close = cinfo.conn_obj
+                        conn_id_to_remove = cid
+                        tunnel_id_to_update = cinfo.tunnel_id
+                        mysql_conn_id = cinfo.mysql_conn_id
+                        break
+                
+                if not conn_to_close:
+                    st.warning(f"⚠️ No active connection found for session '{test_session}'")
+                    return
+                
+                st.info(f"🔍 Found connection: {conn_id_to_remove} (MySQL ID: {mysql_conn_id}) on {tunnel_id_to_update}")
+                
+                # Close the MySQL connection
+                with st.spinner("Closing connection..."):
+                    try:
+                        conn_to_close.close()
+                        st.success(f"✅ Closed MySQL connection {mysql_conn_id}")
+                    except Exception as e:
+                        st.warning(f"⚠️ Error closing connection: {e}")
+                
+                # Remove from in-memory registry
+                if conn_id_to_remove in CONNECTION_REGISTRY:
+                    del CONNECTION_REGISTRY[conn_id_to_remove]
+                    st.success(f"✅ Removed {conn_id_to_remove} from CONNECTION_REGISTRY")
+                
+                # Update tunnel connection count in memory
+                if tunnel_id_to_update and tunnel_id_to_update in TUNNEL_POOL:
+                    TUNNEL_POOL[tunnel_id_to_update].connection_count -= 1
+                    st.success(f"✅ Decremented connection count for {tunnel_id_to_update}")
+                
+                # Update database using bootstrap
+                with st.spinner("Updating database..."):
+                    try:
+                        bootstrap = get_bootstrap_connection()
+                        
+                        # Mark connection as closed in database
+                        cursor = bootstrap.cursor()
+                        cursor.execute("""
+                            UPDATE connection_monitor
+                            SET status = 'closed', last_activity = NOW()
+                            WHERE connection_id = %s
+                        """, (conn_id_to_remove,))
+                        bootstrap.commit()
+                        cursor.close()
+                        st.success(f"✅ Marked connection as 'closed' in database")
+                        
+                        # Decrement tunnel connection count in database
+                        cursor = bootstrap.cursor()
+                        cursor.execute("""
+                            UPDATE tunnel_monitor
+                            SET connection_count = GREATEST(0, connection_count - 1),
+                                last_used = NOW()
+                            WHERE tunnel_id = %s
+                        """, (tunnel_id_to_update,))
+                        bootstrap.commit()
+                        cursor.close()
+                        st.success(f"✅ Decremented connection count in database for {tunnel_id_to_update}")
+                        
+                        bootstrap.close()
+                    except Exception as e:
+                        st.error(f"❌ Database update failed: {e}")
+                
+                st.success(f"🎉 **Logout Complete!** User '{test_username}' has been logged out.")
+                st.info("✨ Connection closed, removed from registry, and database updated.")
+                st.info("🔄 Refresh the page to see updated counts.")
+            
+        except Exception as e:
+            with result_placeholder.container():
+                st.error(f"❌ Logout failed: {e}")
                 import traceback
                 st.code(traceback.format_exc())
     
