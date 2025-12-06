@@ -672,13 +672,33 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
         tunnel_obj = create_ssh_tunnel()
         tunnel_id = f"tunnel_{len(TUNNEL_POOL)}"
         
-        # Get PID
+        # Get PID - try multiple methods
         pid = None
         try:
+            # Method 1: via _transport
             if hasattr(tunnel_obj, '_transport') and tunnel_obj._transport:
                 pid = tunnel_obj._transport.get_pid()
         except:
             pass
+        
+        if not pid:
+            try:
+                # Method 2: via _server_process
+                if hasattr(tunnel_obj, '_server_process') and tunnel_obj._server_process:
+                    pid = tunnel_obj._server_process.pid
+            except:
+                pass
+        
+        if not pid:
+            try:
+                # Method 3: search for SSH process on this port
+                import subprocess
+                result = subprocess.run(['lsof', '-ti', f':{tunnel_obj.local_bind_port}'], 
+                                      capture_output=True, text=True)
+                if result.stdout.strip():
+                    pid = int(result.stdout.strip().split('\n')[0])
+            except:
+                pass
         
         tunnel_info = TunnelInfo(
             tunnel_id=tunnel_id,
@@ -1937,7 +1957,37 @@ def show_dashboard():
     # Show logged-in monitor users
     st.subheader("👥 Connection Monitor Users (Logged In Now)")
     
-    col1, col2, col3 = st.columns([2, 1, 1])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+    
+    with col1:
+        if st.button("🗑️ Clear Memory", help="Clear TUNNEL_POOL and CONNECTION_REGISTRY from session state (DB unaffected)"):
+            try:
+                # Close all tunnel objects
+                for tunnel_id, tunnel_info in list(TUNNEL_POOL.items()):
+                    try:
+                        if tunnel_info.tunnel_obj:
+                            tunnel_info.tunnel_obj.stop()
+                    except:
+                        pass
+                
+                # Close all connection objects
+                for conn_id, conn_info in list(CONNECTION_REGISTRY.items()):
+                    try:
+                        if conn_info.conn_obj:
+                            conn_info.conn_obj.close()
+                    except:
+                        pass
+                
+                # Clear memory pools
+                st.session_state.TUNNEL_POOL = {}
+                st.session_state.CONNECTION_REGISTRY = {}
+                st.session_state._next_tunnel_index = 0
+                
+                st.success("✅ Memory cleared! Database unchanged. Bootstrap connections still work.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error clearing memory: {e}")
+    
     with col2:
         if st.button("🧪 Test Tracked"):
             try:
