@@ -266,7 +266,87 @@ def get_connection() -> mysql.connector.MySQLConnection:
     # Get tracked connection from pool
     conn = pool.get_tracked_connection(session_id, username)
     
+    # Store last connection info in session state for display
+    if hasattr(pool, 'connection_registry'):
+        # Find the most recent connection for this session
+        session_conns = [c for c in pool.connection_registry.values() if c.session_id == session_id]
+        if session_conns:
+            last_conn = max(session_conns, key=lambda c: c.created_at)
+            st.session_state['_last_connection_info'] = {
+                'connection_id': last_conn.connection_id,
+                'mysql_conn_id': last_conn.mysql_conn_id,
+                'tunnel_id': last_conn.tunnel_id,
+                'created_at': last_conn.created_at,
+                'status': last_conn.status
+            }
+            # Get tunnel info
+            if last_conn.tunnel_id in pool.tunnel_pool:
+                tunnel = pool.tunnel_pool[last_conn.tunnel_id]
+                st.session_state['_last_tunnel_info'] = {
+                    'tunnel_id': tunnel.tunnel_id,
+                    'pid': tunnel.pid,
+                    'local_port': tunnel.local_port,
+                    'created_at': tunnel.created_at,
+                    'connection_count': tunnel.connection_count
+                }
+    
     return conn
+
+
+def get_current_connection_info() -> dict:
+    """
+    Get information about the current connection and tunnel for display.
+    CRITICAL: Reads from DATABASE, not memory - single source of truth.
+    Returns a dict with connection and tunnel details, or empty dict if not available.
+    """
+    conn_info = st.session_state.get('_last_connection_info', {})
+    
+    if not conn_info:
+        return {}
+    
+    from datetime import datetime
+    now = datetime.now()
+    
+    # Get tunnel info from DATABASE (not memory)
+    tunnel_id = conn_info.get('tunnel_id')
+    tunnel_info = {}
+    
+    if tunnel_id:
+        pool = get_connection_pool_instance()
+        db_tunnel = pool.get_tunnel_info_from_db(tunnel_id)
+        if db_tunnel:
+            tunnel_info = db_tunnel
+    
+    # Calculate connection age
+    created_at = conn_info.get('created_at')
+    if created_at:
+        age = now - created_at
+        age_str = f"{age.seconds // 60}m {age.seconds % 60}s"
+    else:
+        age_str = "unknown"
+    
+    # Get session expiry
+    session_expires = st.session_state.get('session_expires')
+    if session_expires:
+        ttl = session_expires - now
+        ttl_str = f"{ttl.seconds // 60}m"
+    else:
+        ttl_str = "unknown"
+    
+    return {
+        'tunnel_id': tunnel_info.get('tunnel_id', 'unknown'),
+        'tunnel_pid': tunnel_info.get('pid', 'unknown'),
+        'tunnel_port': tunnel_info.get('local_port', 'unknown'),
+        'tunnel_created': tunnel_info.get('created_at', 'unknown'),
+        'tunnel_conn_count': tunnel_info.get('connection_count', 'unknown'),
+        'connection_id': conn_info.get('connection_id', 'unknown'),
+        'mysql_conn_id': conn_info.get('mysql_conn_id', 'unknown'),
+        'connection_created': created_at,
+        'connection_age': age_str,
+        'connection_status': conn_info.get('status', 'unknown'),
+        'session_ttl': ttl_str,
+        'current_time': now
+    }
 
 
 def cleanup_ssh_tunnel():

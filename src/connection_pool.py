@@ -229,46 +229,53 @@ class ConnectionPool:
     def get_tunnel_pid(self, tunnel: SSHTunnelForwarder) -> Optional[int]:
         """
         Get the process ID of an SSH tunnel using multiple detection methods.
+        CRITICAL: This is called ONCE at tunnel creation and stored in database.
+        Always read from database thereafter - single source of truth.
         """
-        # Method 1: Try _transport attribute
+        import subprocess
+        
+        pid = None
+        
+        # Method 1: Try _transport.get_pid() (if available)
         try:
             if hasattr(tunnel, '_transport') and tunnel._transport:
-                sock = tunnel._transport.sock
-                if sock and hasattr(sock, 'fileno'):
-                    import subprocess
-                    fd = sock.fileno()
-                    result = subprocess.run(
-                        ['lsof', '-F', 'p', '-a', f'-d{fd}'],
-                        capture_output=True,
-                        text=True
-                    )
-                    for line in result.stdout.split('\n'):
-                        if line.startswith('p'):
-                            return int(line[1:])
-        except:
-            pass
+                if hasattr(tunnel._transport, 'get_pid'):
+                    pid = tunnel._transport.get_pid()
+                if pid:
+                    print(f"✓ PID {pid} detected via _transport.get_pid()")
+                    return pid
+        except Exception as e:
+            print(f"Method 1 (_transport.get_pid) failed: {e}")
         
-        # Method 2: Try _server_process attribute
+        # Method 2: Try _server_process.pid
         try:
             if hasattr(tunnel, '_server_process') and tunnel._server_process:
-                return tunnel._server_process.pid
-        except:
-            pass
+                pid = tunnel._server_process.pid
+                if pid:
+                    print(f"✓ PID {pid} detected via _server_process.pid")
+                    return pid
+        except Exception as e:
+            print(f"Method 2 (_server_process.pid) failed: {e}")
         
-        # Method 3: Use lsof with local port
+        # Method 3: Use lsof with local port (most reliable for macOS/Linux)
         try:
             if tunnel.local_bind_port:
-                import subprocess
                 result = subprocess.run(
                     ['lsof', '-ti', f':{tunnel.local_bind_port}'],
                     capture_output=True,
-                    text=True
+                    text=True,
+                    timeout=2
                 )
                 if result.returncode == 0 and result.stdout.strip():
-                    return int(result.stdout.strip().split()[0])
-        except:
-            pass
+                    # Get first PID from output (may have multiple lines)
+                    pid = int(result.stdout.strip().split('\n')[0])
+                    if pid:
+                        print(f"✓ PID {pid} detected via lsof on port {tunnel.local_bind_port}")
+                        return pid
+        except Exception as e:
+            print(f"Method 3 (lsof) failed: {e}")
         
+        print(f"⚠️  Could not determine PID for tunnel on port {getattr(tunnel, 'local_bind_port', 'unknown')}")
         return None
     
     def get_or_create_tracked_tunnel(self) -> str:
@@ -677,3 +684,27 @@ class ConnectionPool:
             
         except Error as e:
             return False, f"Failed to initialize tables: {e}"
+    
+    def get_tunnel_info_from_db(self, tunnel_id: str) -> Optional[dict]:
+        """
+        Get tunnel information from database (single source of truth).
+        Always use this instead of in-memory tunnel_pool for display/monitoring.
+        
+        Returns:
+            Dict with tunnel info from database, or None if not found
+        """
+        try:
+            with self.get_bootstrap_connection() as conn:
+                cursor = conn.cursor(dictionary=True)
+                cursor.execute("""
+                    SELECT tunnel_id, pid, local_port, created_at, last_used, 
+                           status, connection_count
+                    FROM tunnel_monitor
+                    WHERE tunnel_id = %s
+                """, (tunnel_id,))
+                result = cursor.fetchone()
+                cursor.close()
+                return result
+        except Exception as e:
+            print(f"Could not read tunnel info from database: {e}")
+            return None

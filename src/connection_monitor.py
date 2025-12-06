@@ -51,6 +51,19 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Auto-refresh feature - queries database every N seconds
+# This ensures connection_monitor shows current data without manual refresh
+if 'auto_refresh_enabled' not in st.session_state:
+    st.session_state.auto_refresh_enabled = True  # Default on
+
+if st.session_state.auto_refresh_enabled:
+    # Refresh every 5 seconds to show live connection data
+    st_autorefresh = st.empty()
+    with st_autorefresh:
+        import time as _time
+        _time.sleep(5)
+        st.rerun()
+
 # ============================================================================
 # DATA STRUCTURES
 # ============================================================================
@@ -2796,6 +2809,15 @@ def main():
         st.rerun()
     
     st.sidebar.caption(f"c_m v{__version__}")
+    st.sidebar.markdown("---")
+    
+    # Auto-refresh toggle
+    auto_refresh = st.sidebar.checkbox("🔄 Auto-refresh (5s)", value=st.session_state.auto_refresh_enabled,
+                                       help="Automatically refresh data from database every 5 seconds")
+    if auto_refresh != st.session_state.auto_refresh_enabled:
+        st.session_state.auto_refresh_enabled = auto_refresh
+        st.rerun()
+    
     st.sidebar.markdown("---")
     
     page = st.sidebar.radio(

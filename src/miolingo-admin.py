@@ -28,12 +28,29 @@ st.set_page_config(
     layout="wide"
 )
 
+# Auto-refresh feature - queries database every N seconds
+if 'auto_refresh_enabled' not in st.session_state:
+    st.session_state.auto_refresh_enabled = True  # Default on
+
+if st.session_state.auto_refresh_enabled:
+    import time as _time
+    _time.sleep(5)
+    st.rerun()
+
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface • v1.4.2")
+st.caption("Local monitoring and management interface • v2.0.0")
 
 # Quick reconnect button in sidebar
 with st.sidebar:
     st.subheader("🔧 Quick Actions")
+    
+    # Auto-refresh toggle
+    auto_refresh = st.checkbox("🔄 Auto-refresh (5s)", value=st.session_state.auto_refresh_enabled, 
+                               help="Automatically refresh data from database every 5 seconds")
+    if auto_refresh != st.session_state.auto_refresh_enabled:
+        st.session_state.auto_refresh_enabled = auto_refresh
+        st.rerun()
+    
     if st.button("🔄 Clear Cache & Reconnect", use_container_width=True):
         # Clear all caches
         st.cache_resource.clear()

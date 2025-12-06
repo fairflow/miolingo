@@ -533,6 +533,42 @@ except Exception:
 with st.sidebar:
     # Version at very top
     st.markdown(f"### 🎯 Miolingo v{__version__}")
+    
+    # Connection info panel (thin, below version)
+    conn_info = app_mysql.get_current_connection_info()
+    if conn_info:
+        with st.expander("🔌 Connection Info", expanded=False):
+            st.caption(f"**Tunnel:** `{conn_info['tunnel_id']}` (PID: {conn_info['tunnel_pid']}, Port: {conn_info['tunnel_port']})")
+            st.caption(f"**Created:** {conn_info['tunnel_created']}")
+            st.caption(f"**Connections:** {conn_info['tunnel_conn_count']} on this tunnel")
+            st.caption("---")
+            st.caption(f"**SQL Conn:** `{conn_info['connection_id'][:30]}...`")
+            st.caption(f"**MySQL ID:** {conn_info['mysql_conn_id']} ({conn_info['connection_status']})")
+            st.caption(f"**Age:** {conn_info['connection_age']} | **TTL:** {conn_info['session_ttl']}")
+            st.caption(f"**Now:** {conn_info['current_time'].strftime('%H:%M:%S')}")
+            
+            # Reconnect button
+            if st.button("🔄 Reconnect", help="Close current connection, next DB operation will create fresh one"):
+                old_conn_id = conn_info.get('connection_id')
+                try:
+                    # Close old connection in database
+                    if old_conn_id:
+                        pool = app_mysql.get_connection_pool_instance()
+                        closed = pool.close_connection(old_conn_id)
+                        if closed:
+                            st.info(f"✓ Closed old connection")
+                        
+                        # Clear cached connection info so next get_connection() creates new one
+                        if '_last_connection_info' in st.session_state:
+                            del st.session_state['_last_connection_info']
+                        if '_last_tunnel_info' in st.session_state:
+                            del st.session_state['_last_tunnel_info']
+                    
+                    st.success("✓ Connection closed. Next database operation will create fresh connection.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Reconnect failed: {e}")
+    
     st.markdown("---")
     
     # User info below divider
