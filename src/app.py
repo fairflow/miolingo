@@ -551,24 +551,35 @@ with st.sidebar:
             st.caption("⚠️ No connection info available")
         
         # Reconnect button - OUTSIDE conn_info check so always visible
-        if st.button("🔄 Reconnect", help="Close current connection, next DB operation will create fresh one"):
+        if st.button("🔄 Reconnect", help="Get new connection from pool and swap it in"):
             try:
-                # Close the session-persistent connection
+                # Get old connection details for cleanup
+                old_conn_id = conn_info.get('connection_id') if conn_info else None
+                old_conn = st.session_state.get('db_connection')
+                
+                # Clear the session connection so get_connection() creates a new one
                 if 'db_connection' in st.session_state:
-                    old_conn = st.session_state.db_connection
+                    del st.session_state.db_connection
+                
+                # Get new connection from pool (this creates new tracked connection)
+                new_conn = app_mysql.get_connection()
+                
+                # Now close the old connection (after new one is established)
+                if old_conn_id and old_conn:
+                    pool = app_mysql.get_connection_pool_instance()
+                    pool.close_connection(old_conn_id)
                     try:
                         old_conn.close()
                     except:
                         pass
-                    del st.session_state.db_connection
                 
-                # Clear cached connection info
+                # Clear cached display info so it refreshes
                 if '_last_connection_info' in st.session_state:
                     del st.session_state['_last_connection_info']
                 if '_last_tunnel_info' in st.session_state:
                     del st.session_state['_last_tunnel_info']
                 
-                st.success("✓ Connection closed. Next database operation will create fresh connection.")
+                st.success("✓ Switched to fresh connection from pool.")
                 st.rerun()
             except Exception as e:
                 st.error(f"Reconnect failed: {e}")
