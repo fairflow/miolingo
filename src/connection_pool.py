@@ -664,7 +664,6 @@ class ConnectionPool:
                         tunnel_id VARCHAR(50),
                         session_id VARCHAR(100),
                         username VARCHAR(100),
-                        app_name VARCHAR(100),
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         status ENUM('active', 'idle', 'closed') DEFAULT 'active',
@@ -672,10 +671,22 @@ class ConnectionPool:
                         INDEX idx_tunnel_id (tunnel_id),
                         INDEX idx_session_id (session_id),
                         INDEX idx_status (status),
-                        INDEX idx_app_name (app_name),
                         FOREIGN KEY (tunnel_id) REFERENCES tunnel_monitor(tunnel_id) ON DELETE SET NULL
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 """)
+                
+                # Add app_name column if it doesn't exist (migration for existing tables)
+                try:
+                    cursor.execute("""
+                        ALTER TABLE connection_monitor 
+                        ADD COLUMN app_name VARCHAR(100) AFTER username,
+                        ADD INDEX idx_app_name (app_name)
+                    """)
+                except mysql.connector.Error as e:
+                    # Column already exists or other error - that's okay
+                    if e.errno != 1060:  # 1060 = Duplicate column name
+                        pass  # Ignore duplicate column errors, raise others if needed
+                
                 
                 # Session monitoring table (comprehensive user tracking)
                 cursor.execute("""
