@@ -28,14 +28,15 @@ st.set_page_config(
     layout="wide"
 )
 
+# Set app name for connection tracking
+if 'app_name' not in st.session_state:
+    st.session_state.app_name = 'miolingo-admin'
+
 # Auto-refresh feature - queries database every N seconds
 if 'auto_refresh_enabled' not in st.session_state:
     st.session_state.auto_refresh_enabled = True  # Default on
 
-if st.session_state.auto_refresh_enabled:
-    import time as _time
-    _time.sleep(5)
-    st.rerun()
+# NOTE: Auto-refresh sleep happens at END of page, not here
 
 st.title("🔧 Miolingo Admin Dashboard")
 st.caption("Local monitoring and management interface • v2.0.0")
@@ -45,8 +46,8 @@ with st.sidebar:
     st.subheader("🔧 Quick Actions")
     
     # Auto-refresh toggle
-    auto_refresh = st.checkbox("🔄 Auto-refresh (5s)", value=st.session_state.auto_refresh_enabled, 
-                               help="Automatically refresh data from database every 5 seconds")
+    auto_refresh = st.checkbox("🔄 Auto-refresh (30s)", value=st.session_state.auto_refresh_enabled, 
+                               help="Automatically refresh data from database every 30 seconds")
     if auto_refresh != st.session_state.auto_refresh_enabled:
         st.session_state.auto_refresh_enabled = auto_refresh
         st.rerun()
@@ -65,69 +66,6 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
     st.caption("💡 Use this if you see connection errors")
-
-# Database connection helper with automatic cleanup
-@contextmanager
-def get_db_connection_context():
-    """
-    Context manager for database connections with automatic cleanup.
-    
-    Usage:
-        with get_db_connection_context() as conn:
-            if conn:
-                cursor = conn.cursor()
-                # ... use connection ...
-                cursor.close()
-    
-    Ensures connection is always returned to pool, even if error occurs.
-    """
-    conn = None
-    try:
-        from app_mysql import get_connection
-        conn = get_connection()
-        yield conn
-    except Exception as e:
-        error_msg = str(e)
-        
-        # Provide user-friendly error message with fix suggestion
-        if "2013" in error_msg or "Lost connection" in error_msg:
-            st.error(f"⚠️ **Database Connection Lost**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser.")
-        elif "Can not reconnect" in error_msg:
-            st.error(f"⚠️ **Cannot Reconnect to Database**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser. If the problem persists, check if the database server is running.")
-        else:
-            st.error(f"⚠️ **Database Connection Error**\n\n{error_msg}\n\n💡 **Try:** Refresh your browser. If the error persists, click '🔄 Clear Cache & Reconnect' in the sidebar.")
-        
-        yield None
-    finally:
-        # Always return connection to pool
-        if conn is not None:
-            try:
-                conn.close()
-            except:
-                pass
-
-
-# Legacy function for backward compatibility (DEPRECATED - use context manager instead)
-def get_db_connection():
-    """
-    DEPRECATED: Get database connection without automatic cleanup.
-    Use get_db_connection_context() instead for proper resource management.
-    
-    Returns connection and None (for backward compatibility with old tunnel return).
-    """
-    try:
-        from app_mysql import get_connection
-        conn = get_connection()
-        return conn, None
-    except Exception as e:
-        error_msg = str(e)
-        if "2013" in error_msg or "Lost connection" in error_msg:
-            st.error(f"⚠️ **Database Connection Lost**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser.")
-        elif "Can not reconnect" in error_msg:
-            st.error(f"⚠️ **Cannot Reconnect to Database**\n\n{error_msg}\n\n💡 **Fix:** Click '🔄 Clear Cache & Reconnect' in the sidebar, then refresh your browser. If the problem persists, check if the database server is running.")
-        else:
-            st.error(f"⚠️ **Database Connection Error**\n\n{error_msg}\n\n💡 **Try:** Refresh your browser. If the error persists, click '🔄 Clear Cache & Reconnect' in the sidebar.")
-        return None, None
 
 # Tab layout
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"])
@@ -150,7 +88,7 @@ with tab1:
                 st.success("✓ Google Cloud TTS configured")
                 
                 # Calculate actual usage from database
-                conn, tunnel = get_db_connection()
+                conn = app_mysql.get_connection()
                 if conn:
                     try:
                         cursor = conn.cursor(dictionary=True)
@@ -194,8 +132,6 @@ with tab1:
                     except Exception as e:
                         st.warning(f"Could not fetch usage: {e}")
                         st.info("**Estimated capacity:** ~20,000 phrases/month (free tier)")
-                    finally:
-                        conn.close()
                 else:
                     st.info("**Average phrase:** ~50 characters\n**Estimated capacity:** ~20,000 phrases/month (free tier)")
             else:
@@ -252,12 +188,12 @@ with tab1:
         
         # Check database
         st.write("**Database:**")
-        conn, tunnel = get_db_connection()
-        if conn:
-            try:
+        try:
+            conn = app_mysql.get_connection()
+            if conn:
                 st.success("✓ Database connected")
-            finally:
-                conn.close()
+        except:
+            pass
         else:
             st.warning("✗ Database not connected")
 
@@ -265,7 +201,10 @@ with tab1:
 with tab2:
     st.header("👥 Current Users")
     
-    conn, tunnel = get_db_connection()
+    try:
+        conn = app_mysql.get_connection()
+    except:
+        conn = None
     
     if conn:
         try:
@@ -432,9 +371,8 @@ with tab2:
                     with st.popover("⚠️ Force Logout All Users"):
                         st.warning("This will immediately log out ALL users (including you on production)!")
                         if st.button("⚠️ Confirm Force Logout All", type="primary"):
-                            conn_del = None
                             try:
-                                conn_del = get_db_connection()[0]
+                                conn_del = app_mysql.get_connection()
                                 cursor_del = conn_del.cursor()
                                 cursor_del.execute("DELETE FROM sessions")
                                 deleted = cursor_del.rowcount
@@ -479,9 +417,8 @@ with tab2:
                         st.warning(f"⚠️ This will log out {len(selected_users)} user(s): {', '.join(selected_users)}")
                     with col_btn:
                         if st.button("🚪 Force Logout Selected", type="primary"):
-                            conn_logout = None
                             try:
-                                conn_logout = get_db_connection()[0]
+                                conn_logout = app_mysql.get_connection()
                                 cursor_logout = conn_logout.cursor()
                                 
                                 # Delete sessions for selected users
@@ -579,10 +516,7 @@ with tab2:
                 if st.button("📊 Reload Page"):
                     st.rerun()
         finally:
-            try:
-                conn.close()
-            except:
-                pass
+            pass  # Don't close - session-persistent connection
     else:
         st.warning("Database connection not available. User data not accessible.")
         if st.button("🔄 Retry Connection", key="retry_no_conn"):
@@ -690,7 +624,7 @@ with tab3:
         st.info("No local practice history file found")
     
     # Database activity logs
-    conn_logs, tunnel_logs = get_db_connection()
+    conn_logs = app_mysql.get_connection()
     if conn_logs:
         try:
             cursor = conn_logs.cursor(dictionary=True)
@@ -1006,3 +940,9 @@ with tab6:
 # Footer
 st.divider()
 st.caption("Miolingo Admin Dashboard v1.4.2 | Local monitoring interface")
+
+# Auto-refresh sleep AFTER page renders
+if st.session_state.get('auto_refresh_enabled', False):
+    import time
+    time.sleep(30)  # 30 seconds gives time to read the data
+    st.rerun()

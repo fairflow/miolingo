@@ -671,6 +671,10 @@ def save_history(history: List[Dict]):
 
 def initialize_session_state():
     """Initialize Streamlit session state"""
+    # Set app name for connection tracking
+    if 'app_name' not in st.session_state:
+        st.session_state.app_name = 'miolingo-app'
+    
     if 'settings' not in st.session_state:
         st.session_state.settings = load_settings()
     

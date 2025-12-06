@@ -297,8 +297,9 @@ def get_connection() -> mysql.connector.MySQLConnection:
     if 'session_id' not in st.session_state:
         st.session_state.session_id = session_id
     
-    # Get tracked connection from pool
-    conn = pool.get_tracked_connection(session_id, username)
+    # Get tracked connection from pool with app name
+    app_name = st.session_state.get('app_name', 'miolingo-app')
+    conn = pool.get_tracked_connection(session_id, username, app_name)
     
     # Store in session state for reuse
     st.session_state.db_connection = conn

@@ -62,6 +62,7 @@ class ConnectionInfo:
     tunnel_id: str
     session_id: Optional[str]
     username: Optional[str]
+    app_name: Optional[str]  # Which app created this connection
     created_at: datetime
     last_activity: datetime
     status: str  # 'active', 'idle', 'closed'
@@ -365,7 +366,7 @@ class ConnectionPool:
         
         raise RuntimeError("No tunnels available and cannot create new one")
     
-    def get_tracked_connection(self, session_id: str, username: str) -> mysql.connector.MySQLConnection:
+    def get_tracked_connection(self, session_id: str, username: str, app_name: str = 'unknown') -> mysql.connector.MySQLConnection:
         """
         Create and track a database connection through the pool.
         Connection is logged to the database and added to the registry.
@@ -373,6 +374,7 @@ class ConnectionPool:
         Args:
             session_id: User session identifier
             username: Username for tracking
+            app_name: Name of the app creating the connection (e.g., 'app', 'connection_monitor', 'miolingo-admin')
             
         Returns:
             MySQL connection object
@@ -407,6 +409,7 @@ class ConnectionPool:
             tunnel_id=tunnel_id,
             session_id=session_id,
             username=username,
+            app_name=app_name,
             created_at=datetime.now(),
             last_activity=datetime.now(),
             status='active'
@@ -430,10 +433,10 @@ class ConnectionPool:
                 cursor = admin_conn.cursor()
                 cursor.execute("""
                     INSERT INTO connection_monitor 
-                    (connection_id, mysql_connection_id, tunnel_id, session_id, username, 
+                    (connection_id, mysql_connection_id, tunnel_id, session_id, username, app_name,
                      created_at, last_activity, status)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                """, (connection_id, mysql_conn_id, tunnel_id, session_id, username,
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (connection_id, mysql_conn_id, tunnel_id, session_id, username, app_name,
                       conn_info.created_at, conn_info.last_activity, 'active'))
                 
                 # Increment connection count for this tunnel
@@ -661,6 +664,7 @@ class ConnectionPool:
                         tunnel_id VARCHAR(50),
                         session_id VARCHAR(100),
                         username VARCHAR(100),
+                        app_name VARCHAR(100),
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         status ENUM('active', 'idle', 'closed') DEFAULT 'active',
@@ -668,6 +672,7 @@ class ConnectionPool:
                         INDEX idx_tunnel_id (tunnel_id),
                         INDEX idx_session_id (session_id),
                         INDEX idx_status (status),
+                        INDEX idx_app_name (app_name),
                         FOREIGN KEY (tunnel_id) REFERENCES tunnel_monitor(tunnel_id) ON DELETE SET NULL
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 """)

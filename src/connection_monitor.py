@@ -56,13 +56,7 @@ st.set_page_config(
 if 'auto_refresh_enabled' not in st.session_state:
     st.session_state.auto_refresh_enabled = True  # Default on
 
-if st.session_state.auto_refresh_enabled:
-    # Refresh every 5 seconds to show live connection data
-    st_autorefresh = st.empty()
-    with st_autorefresh:
-        import time as _time
-        _time.sleep(5)
-        st.rerun()
+# NOTE: Auto-refresh sleep happens at END of page, not here
 
 # ============================================================================
 # DATA STRUCTURES
@@ -594,6 +588,7 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
         tunnel_id=tunnel_id,
         session_id=session_id or st.session_state.get('monitor_session_id'),
         username=username or st.session_state.get('monitor_username'),
+        app_name='connection_monitor',
         created_at=datetime.now(),
         last_activity=datetime.now(),
         status='active'
@@ -611,10 +606,10 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
         cursor = new_conn.cursor()
         cursor.execute("""
             INSERT INTO connection_monitor
-            (connection_id, mysql_connection_id, tunnel_id, session_id, username,
+            (connection_id, mysql_connection_id, tunnel_id, session_id, username, app_name,
              created_at, last_activity, status)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (connection_id, mysql_conn_id, tunnel_id, session_id, username,
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (connection_id, mysql_conn_id, tunnel_id, session_id, username, 'connection_monitor',
               datetime.now(), datetime.now(), 'active'))
         new_conn.commit()
         cursor.close()
@@ -2812,8 +2807,8 @@ def main():
     st.sidebar.markdown("---")
     
     # Auto-refresh toggle
-    auto_refresh = st.sidebar.checkbox("🔄 Auto-refresh (5s)", value=st.session_state.auto_refresh_enabled,
-                                       help="Automatically refresh data from database every 5 seconds")
+    auto_refresh = st.sidebar.checkbox("🔄 Auto-refresh (30s)", value=st.session_state.auto_refresh_enabled,
+                                       help="Automatically refresh data from database every 30 seconds")
     if auto_refresh != st.session_state.auto_refresh_enabled:
         st.session_state.auto_refresh_enabled = auto_refresh
         st.rerun()
@@ -2839,3 +2834,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    # Auto-refresh sleep AFTER page renders
+    if st.session_state.get('auto_refresh_enabled', False):
+        import time
+        time.sleep(30)  # 30 seconds gives time to read the data
+        st.rerun()
