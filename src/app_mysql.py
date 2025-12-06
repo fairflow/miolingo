@@ -254,7 +254,10 @@ def get_connection() -> mysql.connector.MySQLConnection:
     
     # Get session info for tracking
     session_id = st.session_state.get('session_id', f'app_{secrets.token_hex(8)}')
-    username = st.session_state.get('username', 'anonymous')
+    
+    # CRITICAL: Extract username from nested user dict
+    user = st.session_state.get('user', {})
+    username = user.get('username', 'anonymous')
     
     # Store session_id if not already set
     if 'session_id' not in st.session_state:
