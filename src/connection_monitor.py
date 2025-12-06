@@ -745,7 +745,10 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
 
 # Alias for compatibility with existing code
 def get_direct_connection():
-    """Alias for get_bootstrap_connection for compatibility - returns (conn, tunnel)"""
+    """
+    DEPRECATED: Use 'with get_bootstrap_connection() as conn:' instead.
+    This is a context manager, not a regular function.
+    """
     return get_bootstrap_connection()
 
 
@@ -1101,15 +1104,14 @@ def get_or_create_tunnel() -> Tuple[str, TunnelInfo]:
         
         # Record in database
         try:
-            conn = get_direct_connection()
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO tunnel_monitor (tunnel_id, pid, local_port, status)
-                VALUES (%s, %s, %s, %s)
-            """, (tunnel_id, pid, tunnel_info.local_port, 'active'))
-            conn.commit()
-            cursor.close()
-            conn.close()
+            with get_bootstrap_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO tunnel_monitor (tunnel_id, pid, local_port, status)
+                    VALUES (%s, %s, %s, %s)
+                """, (tunnel_id, pid, tunnel_info.local_port, 'active'))
+                conn.commit()
+                cursor.close()
         except:
             pass
         
@@ -1146,14 +1148,13 @@ def close_tunnel(tunnel_id: str) -> bool:
     
     # Update database
     try:
-        conn = get_direct_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE tunnel_monitor SET status = 'dead' WHERE tunnel_id = %s
-        """, (tunnel_id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE tunnel_monitor SET status = 'dead' WHERE tunnel_id = %s
+            """, (tunnel_id,))
+            conn.commit()
+            cursor.close()
     except:
         pass
     
@@ -1218,16 +1219,15 @@ def get_connection(session_id: Optional[str] = None, username: Optional[str] = N
         
         # Record in database
         try:
-            admin_conn = get_direct_connection()
-            cursor = admin_conn.cursor()
-            cursor.execute("""
-                INSERT INTO connection_monitor 
-                (connection_id, mysql_connection_id, tunnel_id, session_id, username, status)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (connection_id, mysql_conn_id, tunnel_id, session_id, username, 'active'))
-            admin_conn.commit()
-            cursor.close()
-            admin_conn.close()
+            with get_bootstrap_connection() as admin_conn:
+                cursor = admin_conn.cursor()
+                cursor.execute("""
+                    INSERT INTO connection_monitor 
+                    (connection_id, mysql_connection_id, tunnel_id, session_id, username, status)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (connection_id, mysql_conn_id, tunnel_id, session_id, username, 'active'))
+                admin_conn.commit()
+                cursor.close()
         except:
             pass
         
@@ -1263,14 +1263,13 @@ def close_connection(connection_id: str) -> bool:
     
     # Update database
     try:
-        admin_conn = get_direct_connection()
-        cursor = admin_conn.cursor()
-        cursor.execute("""
-            UPDATE connection_monitor SET status = 'closed' WHERE connection_id = %s
-        """, (connection_id,))
-        admin_conn.commit()
-        cursor.close()
-        admin_conn.close()
+        with get_bootstrap_connection() as admin_conn:
+            cursor = admin_conn.cursor()
+            cursor.execute("""
+                UPDATE connection_monitor SET status = 'closed' WHERE connection_id = %s
+            """, (connection_id,))
+            admin_conn.commit()
+            cursor.close()
     except:
         pass
     
@@ -1705,16 +1704,15 @@ def register_session(username: str, session_id: str, user_ip: str, user_agent: s
     
     # Record in database
     try:
-        conn = get_direct_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO session_monitor 
-            (session_id, username, user_ip, user_agent, device_type, browser, expires_at, status)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (session_id, username, user_ip, user_agent, device, browser, expires_at, 'active'))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO session_monitor 
+                (session_id, username, user_ip, user_agent, device_type, browser, expires_at, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (session_id, username, user_ip, user_agent, device, browser, expires_at, 'active'))
+            conn.commit()
+            cursor.close()
     except Exception as e:
         st.error(f"Failed to register session: {e}")
 
@@ -1724,42 +1722,41 @@ def get_session_stats() -> Dict[str, Any]:
     Get comprehensive session statistics from database.
     """
     try:
-        conn = get_direct_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        # Active sessions
-        cursor.execute("""
-            SELECT COUNT(*) as count FROM session_monitor 
-            WHERE status = 'active' AND expires_at > NOW()
-        """)
-        active_sessions = cursor.fetchone()['count']
-        
-        # Sessions by device
-        cursor.execute("""
-            SELECT device_type, COUNT(*) as count 
-            FROM session_monitor 
-            WHERE status = 'active' AND expires_at > NOW()
-            GROUP BY device_type
-        """)
-        by_device = {row['device_type']: row['count'] for row in cursor.fetchall()}
-        
-        # Sessions by browser
-        cursor.execute("""
-            SELECT browser, COUNT(*) as count 
-            FROM session_monitor 
-            WHERE status = 'active' AND expires_at > NOW()
-            GROUP BY browser
-        """)
-        by_browser = {row['browser']: row['count'] for row in cursor.fetchall()}
-        
-        cursor.close()
-        conn.close()
-        
-        return {
-            'active_sessions': active_sessions,
-            'by_device': by_device,
-            'by_browser': by_browser
-        }
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            
+            # Active sessions
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM session_monitor 
+                WHERE status = 'active' AND expires_at > NOW()
+            """)
+            active_sessions = cursor.fetchone()['count']
+            
+            # Sessions by device
+            cursor.execute("""
+                SELECT device_type, COUNT(*) as count 
+                FROM session_monitor 
+                WHERE status = 'active' AND expires_at > NOW()
+                GROUP BY device_type
+            """)
+            by_device = {row['device_type']: row['count'] for row in cursor.fetchall()}
+            
+            # Sessions by browser
+            cursor.execute("""
+                SELECT browser, COUNT(*) as count 
+                FROM session_monitor 
+                WHERE status = 'active' AND expires_at > NOW()
+                GROUP BY browser
+            """)
+            by_browser = {row['browser']: row['count'] for row in cursor.fetchall()}
+            
+            cursor.close()
+            
+            return {
+                'active_sessions': active_sessions,
+                'by_device': by_device,
+                'by_browser': by_browser
+            }
         
     except Exception as e:
         return {'error': str(e)}
@@ -1783,22 +1780,21 @@ def show_dashboard():
     # Show table existence status
     with st.expander("📋 Database Tables Status", expanded=False):
         try:
-            conn = get_direct_connection()
-            cursor = conn.cursor()
-            
-            tables = ['tunnel_monitor', 'connection_monitor', 'session_monitor']
-            for table in tables:
-                cursor.execute(f"SHOW TABLES LIKE '{table}'")
-                exists = cursor.fetchone() is not None
-                if exists:
-                    cursor.execute(f"SELECT COUNT(*) FROM {table}")
-                    count = cursor.fetchone()[0]
-                    st.success(f"✅ `{table}` exists ({count} rows)")
-                else:
-                    st.error(f"❌ `{table}` does not exist")
-            
-            cursor.close()
-            conn.close()
+            with get_bootstrap_connection() as conn:
+                cursor = conn.cursor()
+                
+                tables = ['tunnel_monitor', 'connection_monitor', 'session_monitor']
+                for table in tables:
+                    cursor.execute(f"SHOW TABLES LIKE '{table}'")
+                    exists = cursor.fetchone() is not None
+                    if exists:
+                        cursor.execute(f"SELECT COUNT(*) FROM {table}")
+                        count = cursor.fetchone()[0]
+                        st.success(f"✅ `{table}` exists ({count} rows)")
+                    else:
+                        st.error(f"❌ `{table}` does not exist")
+                
+                cursor.close()
         except Exception as e:
             st.error(f"Error checking tables: {e}")
     
@@ -1971,23 +1967,22 @@ def show_dashboard():
                 st.rerun()
     
     try:
-        conn = get_direct_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT session_id, username, user_ip, device_type, browser,
-                   login_time, expires_at, last_activity,
-                   TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining,
-                   TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in,
-                   TIMESTAMPDIFF(MINUTE, last_activity, NOW()) as minutes_idle
-            FROM session_monitor
-            WHERE status = 'active' 
-              AND expires_at > NOW()
-              AND last_activity > DATE_SUB(NOW(), INTERVAL 10 MINUTE)
-            ORDER BY last_activity DESC
-        """)
-        monitor_sessions = cursor.fetchall()
-        cursor.close()
-        conn.close()
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT session_id, username, user_ip, device_type, browser,
+                       login_time, expires_at, last_activity,
+                       TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining,
+                       TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in,
+                       TIMESTAMPDIFF(MINUTE, last_activity, NOW()) as minutes_idle
+                FROM session_monitor
+                WHERE status = 'active' 
+                  AND expires_at > NOW()
+                  AND last_activity > DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+                ORDER BY last_activity DESC
+            """)
+            monitor_sessions = cursor.fetchall()
+            cursor.close()
         
         if monitor_sessions:
             for session in monitor_sessions:
@@ -2425,19 +2420,18 @@ def show_sessions():
     # Detailed session list
     st.subheader("Active Sessions")
     try:
-        conn = get_direct_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT session_id, username, user_ip, device_type, browser,
-                   login_time, expires_at, last_activity,
-                   TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining
-            FROM session_monitor
-            WHERE status = 'active' AND expires_at > NOW()
-            ORDER BY last_activity DESC
-        """)
-        sessions = cursor.fetchall()
-        cursor.close()
-        conn.close()
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT session_id, username, user_ip, device_type, browser,
+                       login_time, expires_at, last_activity,
+                       TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining
+                FROM session_monitor
+                WHERE status = 'active' AND expires_at > NOW()
+                ORDER BY last_activity DESC
+            """)
+            sessions = cursor.fetchall()
+            cursor.close()
         
         if sessions:
             for session in sessions:
