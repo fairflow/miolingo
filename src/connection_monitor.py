@@ -12,10 +12,10 @@ Features:
 - Health monitoring and cleanup
 
 Author: Miolingo Team
-Version: 1.0.3
+Version: 1.1.0
 """
 
-__version__ = "1.0.3"
+__version__ = "1.1.0"
 
 import streamlit as st
 import mysql.connector
