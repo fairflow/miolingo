@@ -1368,16 +1368,15 @@ def cleanup_dead_tunnels():
     
     try:
         # Get all active tunnels from DB
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT tunnel_id, pid
-            FROM tunnel_monitor
-            WHERE status = 'active'
-        """)
-        db_tunnels = cursor.fetchall()
-        cursor.close()
-        bootstrap.close()
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT tunnel_id, pid
+                FROM tunnel_monitor
+                WHERE status = 'active'
+            """)
+            db_tunnels = cursor.fetchall()
+            cursor.close()
         
         for tunnel_data in db_tunnels:
             tunnel_id = tunnel_data['tunnel_id']
@@ -1396,16 +1395,15 @@ def cleanup_dead_tunnels():
             except (OSError, ProcessLookupError, TypeError):
                 # Process doesn't exist, mark tunnel as closed
                 try:
-                    update_conn = get_bootstrap_connection()
-                    cursor = update_conn.cursor()
-                    cursor.execute("""
-                        UPDATE tunnel_monitor
-                        SET status = 'closed', last_used = NOW()
-                        WHERE tunnel_id = %s
-                    """, (tunnel_id,))
-                    update_conn.commit()
-                    cursor.close()
-                    update_conn.close()
+                    with get_bootstrap_connection() as update_conn:
+                        cursor = update_conn.cursor()
+                        cursor.execute("""
+                            UPDATE tunnel_monitor
+                            SET status = 'closed', last_used = NOW()
+                            WHERE tunnel_id = %s
+                        """, (tunnel_id,))
+                        update_conn.commit()
+                        cursor.close()
                     cleaned += 1
                     print(f"🧹 Cleaned dead tunnel {tunnel_id} (PID {pid})")
                 except Exception as e:
@@ -1431,26 +1429,24 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
     
     try:
         # First, get list of alive MySQL connections
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor(dictionary=True)
-        cursor.execute("SHOW PROCESSLIST")
-        processlist = cursor.fetchall()
-        alive_mysql_ids = {row['Id'] for row in processlist}
-        cursor.close()
-        bootstrap.close()
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor(dictionary=True)
+            cursor.execute("SHOW PROCESSLIST")
+            processlist = cursor.fetchall()
+            alive_mysql_ids = {row['Id'] for row in processlist}
+            cursor.close()
         
         # Get all active connections from DB that are past threshold
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT connection_id, mysql_connection_id, tunnel_id, session_id, username
-            FROM connection_monitor
-            WHERE status = 'active'
-              AND last_activity < DATE_SUB(NOW(), INTERVAL %s MINUTE)
-        """, (idle_threshold_minutes,))
-        stale_conns = cursor.fetchall()
-        cursor.close()
-        bootstrap.close()
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT connection_id, mysql_connection_id, tunnel_id, session_id, username
+                FROM connection_monitor
+                WHERE status = 'active'
+                  AND last_activity < DATE_SUB(NOW(), INTERVAL %s MINUTE)
+            """, (idle_threshold_minutes,))
+            stale_conns = cursor.fetchall()
+            cursor.close()
         
         print(f"Found {len(stale_conns)} idle connections (>{idle_threshold_minutes}m)")
         
@@ -1462,11 +1458,10 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
             # Only try to kill if connection still exists in MySQL
             if mysql_conn_id in alive_mysql_ids:
                 try:
-                    kill_conn = get_bootstrap_connection()
-                    kill_cursor = kill_conn.cursor()
-                    kill_cursor.execute(f"KILL {mysql_conn_id}")
-                    kill_cursor.close()
-                    kill_conn.close()
+                    with get_bootstrap_connection() as kill_conn:
+                        kill_cursor = kill_conn.cursor()
+                        kill_cursor.execute(f"KILL {mysql_conn_id}")
+                        kill_cursor.close()
                     print(f"✅ Killed idle MySQL connection {mysql_conn_id}")
                 except Exception as e:
                     # Silently ignore if already dead (race condition)
@@ -1477,29 +1472,28 @@ def cleanup_idle_connections(idle_threshold_minutes: int = 10):
             
             # Update status in DB
             try:
-                update_conn = get_bootstrap_connection()
-                cursor = update_conn.cursor()
-                
-                # Get tunnel_id from connection data
-                tunnel_id = conn_data['tunnel_id']
-                
-                cursor.execute("""
-                    UPDATE connection_monitor
-                    SET status = 'closed', last_activity = NOW()
-                    WHERE connection_id = %s
-                """, (conn_id,))
-                
-                # Decrement tunnel connection count
-                if tunnel_id:
+                with get_bootstrap_connection() as update_conn:
+                    cursor = update_conn.cursor()
+                    
+                    # Get tunnel_id from connection data
+                    tunnel_id = conn_data['tunnel_id']
+                    
                     cursor.execute("""
-                        UPDATE tunnel_monitor
-                        SET connection_count = GREATEST(connection_count - 1, 0)
-                        WHERE tunnel_id = %s
-                    """, (tunnel_id,))
-                
-                update_conn.commit()
-                cursor.close()
-                update_conn.close()
+                        UPDATE connection_monitor
+                        SET status = 'closed', last_activity = NOW()
+                        WHERE connection_id = %s
+                    """, (conn_id,))
+                    
+                    # Decrement tunnel connection count
+                    if tunnel_id:
+                        cursor.execute("""
+                            UPDATE tunnel_monitor
+                            SET connection_count = GREATEST(connection_count - 1, 0)
+                            WHERE tunnel_id = %s
+                        """, (tunnel_id,))
+                    
+                    update_conn.commit()
+                    cursor.close()
                 closed_count += 1
             except Exception as e:
                 print(f"Failed to update DB for {conn_id}: {e}")
@@ -1521,40 +1515,39 @@ def sync_tunnel_connection_counts():
     This fixes discrepancies caused by increment-only tracking before decrement logic was added.
     """
     try:
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor(dictionary=True)
-        
-        # Get actual connection counts per tunnel
-        cursor.execute("""
-            SELECT tunnel_id, COUNT(*) as actual_count
-            FROM connection_monitor
-            WHERE status = 'active'
-            GROUP BY tunnel_id
-        """)
-        actual_counts = {row['tunnel_id']: row['actual_count'] for row in cursor.fetchall()}
-        
-        # Get all tunnels from tunnel_monitor
-        cursor.execute("SELECT tunnel_id, connection_count FROM tunnel_monitor")
-        tunnels = cursor.fetchall()
-        
-        synced = 0
-        for tunnel in tunnels:
-            tunnel_id = tunnel['tunnel_id']
-            db_count = tunnel['connection_count']
-            actual_count = actual_counts.get(tunnel_id, 0)
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor(dictionary=True)
             
-            if db_count != actual_count:
-                cursor.execute("""
-                    UPDATE tunnel_monitor
-                    SET connection_count = %s
-                    WHERE tunnel_id = %s
-                """, (actual_count, tunnel_id))
-                print(f"🔄 Synced {tunnel_id}: {db_count} → {actual_count}")
-                synced += 1
-        
-        bootstrap.commit()
-        cursor.close()
-        bootstrap.close()
+            # Get actual connection counts per tunnel
+            cursor.execute("""
+                SELECT tunnel_id, COUNT(*) as actual_count
+                FROM connection_monitor
+                WHERE status = 'active'
+                GROUP BY tunnel_id
+            """)
+            actual_counts = {row['tunnel_id']: row['actual_count'] for row in cursor.fetchall()}
+            
+            # Get all tunnels from tunnel_monitor
+            cursor.execute("SELECT tunnel_id, connection_count FROM tunnel_monitor")
+            tunnels = cursor.fetchall()
+            
+            synced = 0
+            for tunnel in tunnels:
+                tunnel_id = tunnel['tunnel_id']
+                db_count = tunnel['connection_count']
+                actual_count = actual_counts.get(tunnel_id, 0)
+                
+                if db_count != actual_count:
+                    cursor.execute("""
+                        UPDATE tunnel_monitor
+                        SET connection_count = %s
+                        WHERE tunnel_id = %s
+                    """, (actual_count, tunnel_id))
+                    print(f"🔄 Synced {tunnel_id}: {db_count} → {actual_count}")
+                    synced += 1
+            
+            bootstrap.commit()
+            cursor.close()
         
         return synced
         
@@ -1816,17 +1809,16 @@ def show_dashboard():
     
     # Query database for actual counts
     try:
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor()
-        
-        cursor.execute("SELECT COUNT(*) FROM tunnel_monitor WHERE status = 'active'")
-        db_tunnels = cursor.fetchone()[0]
-        
-        cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
-        db_conns = cursor.fetchone()[0]
-        
-        cursor.close()
-        bootstrap.close()
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor()
+            
+            cursor.execute("SELECT COUNT(*) FROM tunnel_monitor WHERE status = 'active'")
+            db_tunnels = cursor.fetchone()[0]
+            
+            cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+            db_conns = cursor.fetchone()[0]
+            
+            cursor.close()
     except Exception as e:
         print(f"Dashboard query error: {e}")
         db_tunnels = 0
@@ -1937,20 +1929,19 @@ def show_dashboard():
     with col3:
         if st.button("🧹 Clean Stale Sessions"):
             try:
-                conn = get_bootstrap_connection()
-                cursor = conn.cursor()
-                cursor.execute("""
-                    UPDATE session_monitor 
-                    SET status = 'expired'
-                    WHERE status = 'active' 
-                      AND last_activity < DATE_SUB(NOW(), INTERVAL 10 MINUTE)
-                """)
-                cleaned = cursor.rowcount
-                conn.commit()
-                cursor.close()
-                conn.close()
-                st.success(f"Marked {cleaned} stale sessions as expired")
-                st.rerun()
+                with get_bootstrap_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        UPDATE session_monitor 
+                        SET status = 'expired'
+                        WHERE status = 'active' 
+                          AND last_activity < DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+                    """)
+                    cleaned = cursor.rowcount
+                    conn.commit()
+                    cursor.close()
+                    st.success(f"Marked {cleaned} stale sessions as expired")
+                    st.rerun()
             except Exception as e:
                 st.error(f"Error cleaning sessions: {e}")
     
@@ -2029,16 +2020,15 @@ def show_dashboard():
                         if st.button("🚫 Force Logout", key=f"logout_{session['session_id']}", help="Expire session and close all connections"):
                             try:
                                 # Mark session as expired
-                                logout_conn = get_bootstrap_connection()
-                                cursor = logout_conn.cursor()
-                                cursor.execute("""
-                                    UPDATE session_monitor
-                                    SET status = 'forced_logout', last_activity = NOW()
-                                    WHERE session_id = %s
-                                """, (session['session_id'],))
-                                logout_conn.commit()
-                                cursor.close()
-                                logout_conn.close()
+                                with get_bootstrap_connection() as logout_conn:
+                                    cursor = logout_conn.cursor()
+                                    cursor.execute("""
+                                        UPDATE session_monitor
+                                        SET status = 'forced_logout', last_activity = NOW()
+                                        WHERE session_id = %s
+                                    """, (session['session_id'],))
+                                    logout_conn.commit()
+                                    cursor.close()
                                 
                                 # Close all connections for this session
                                 close_session_connection(session['session_id'])
@@ -2247,32 +2237,29 @@ def show_tunnels():
                 # Update database using bootstrap
                 with st.spinner("Updating database..."):
                     try:
-                        bootstrap = get_bootstrap_connection()
-                        
-                        # Mark connection as closed in database
-                        cursor = bootstrap.cursor()
-                        cursor.execute("""
-                            UPDATE connection_monitor
-                            SET status = 'closed', last_activity = NOW()
-                            WHERE connection_id = %s
-                        """, (conn_id_to_remove,))
-                        bootstrap.commit()
-                        cursor.close()
-                        st.success(f"✅ Marked connection as 'closed' in database")
-                        
-                        # Decrement tunnel connection count in database
-                        cursor = bootstrap.cursor()
-                        cursor.execute("""
-                            UPDATE tunnel_monitor
-                            SET connection_count = GREATEST(0, connection_count - 1),
-                                last_used = NOW()
-                            WHERE tunnel_id = %s
-                        """, (tunnel_id_to_update,))
-                        bootstrap.commit()
-                        cursor.close()
-                        st.success(f"✅ Decremented connection count in database for {tunnel_id_to_update}")
-                        
-                        bootstrap.close()
+                        with get_bootstrap_connection() as bootstrap:
+                            # Mark connection as closed in database
+                            cursor = bootstrap.cursor()
+                            cursor.execute("""
+                                UPDATE connection_monitor
+                                SET status = 'closed', last_activity = NOW()
+                                WHERE connection_id = %s
+                            """, (conn_id_to_remove,))
+                            bootstrap.commit()
+                            cursor.close()
+                            st.success(f"✅ Marked connection as 'closed' in database")
+                            
+                            # Decrement tunnel connection count in database
+                            cursor = bootstrap.cursor()
+                            cursor.execute("""
+                                UPDATE tunnel_monitor
+                                SET connection_count = GREATEST(0, connection_count - 1),
+                                    last_used = NOW()
+                                WHERE tunnel_id = %s
+                            """, (tunnel_id_to_update,))
+                            bootstrap.commit()
+                            cursor.close()
+                            st.success(f"✅ Decremented connection count in database for {tunnel_id_to_update}")
                     except Exception as e:
                         st.error(f"❌ Database update failed: {e}")
                 
@@ -2310,10 +2297,7 @@ def show_tunnels():
     # Show database-logged tunnels
     st.subheader("Database-Logged Tunnels")
     try:
-        conn = get_bootstrap_connection()
-        if not conn:
-            st.warning("Could not establish bootstrap connection to query database")
-        else:
+        with get_bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             cursor.execute("""
                 SELECT tunnel_id, pid, local_port, created_at, last_used, status, connection_count
@@ -2322,7 +2306,6 @@ def show_tunnels():
             """)
             tunnels = cursor.fetchall()
             cursor.close()
-            conn.close()
             
             if tunnels:
                 for tunnel in tunnels:
@@ -2367,10 +2350,7 @@ def show_connections():
     # Show database-logged connections
     st.subheader("Database-Logged Connections")
     try:
-        conn = get_bootstrap_connection()
-        if not conn:
-            st.warning("Could not establish bootstrap connection to query database")
-        else:
+        with get_bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             cursor.execute("""
                 SELECT connection_id, mysql_connection_id, tunnel_id, session_id, username,
@@ -2381,7 +2361,6 @@ def show_connections():
             """)
             connections = cursor.fetchall()
             cursor.close()
-            conn.close()
             
             if connections:
                 for conn_data in connections:
