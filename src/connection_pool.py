@@ -455,7 +455,10 @@ class ConnectionPool:
                 
                 cursor.close()
         except Exception as e:
-            print(f"Warning: Could not log connection: {e}")
+            import logging
+            logging.error(f"❌ FAILED to log connection to database '{self.secrets['mysql']['database']}': {e}")
+            logging.error(f"   Connection details: session_id={session_id}, username={username}, tunnel={tunnel_id}")
+            raise  # Don't hide the error - let it surface for debugging
         
         return conn
     
