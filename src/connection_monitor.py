@@ -654,19 +654,18 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
     # Query database for actual connection counts per tunnel
     tunnel_conn_counts = {}
     try:
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT tunnel_id, COUNT(*) as conn_count
-            FROM connection_monitor
-            WHERE status = 'active'
-            GROUP BY tunnel_id
-        """)
-        rows = cursor.fetchall()
-        for row in rows:
-            tunnel_conn_counts[row['tunnel_id']] = row['conn_count']
-        cursor.close()
-        bootstrap.close()
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT tunnel_id, COUNT(*) as conn_count
+                FROM connection_monitor
+                WHERE status = 'active'
+                GROUP BY tunnel_id
+            """)
+            rows = cursor.fetchall()
+            for row in rows:
+                tunnel_conn_counts[row['tunnel_id']] = row['conn_count']
+            cursor.close()
     except Exception as e:
         print(f"Warning: Could not query DB for tunnel counts: {e}")
     
@@ -712,24 +711,23 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
         
         # Log the new tunnel to DB immediately (so foreign key works for connections)
         try:
-            log_bootstrap = get_bootstrap_connection()
-            cursor = log_bootstrap.cursor()
-            cursor.execute("""
-                INSERT INTO tunnel_monitor 
-                (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                    pid = VALUES(pid),
-                    local_port = VALUES(local_port),
-                    created_at = VALUES(created_at),
-                    last_used = VALUES(last_used),
-                    status = 'active',
-                    connection_count = 0
-            """, (tunnel_id, tunnel_info.pid, tunnel_info.local_port,
-                  tunnel_info.created_at, datetime.now(), 'active', 0))
-            log_bootstrap.commit()
-            cursor.close()
-            log_bootstrap.close()
+            with get_bootstrap_connection() as log_bootstrap:
+                cursor = log_bootstrap.cursor()
+                cursor.execute("""
+                    INSERT INTO tunnel_monitor 
+                    (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        pid = VALUES(pid),
+                        local_port = VALUES(local_port),
+                        created_at = VALUES(created_at),
+                        last_used = VALUES(last_used),
+                        status = 'active',
+                        connection_count = 0
+                """, (tunnel_id, tunnel_info.pid, tunnel_info.local_port,
+                      tunnel_info.created_at, datetime.now(), 'active', 0))
+                log_bootstrap.commit()
+                cursor.close()
             print(f"📝 Logged {tunnel_id} to database (updated if existed)")
         except Exception as e:
             print(f"⚠️  Failed to log {tunnel_id} to DB: {e}")
@@ -810,51 +808,49 @@ def get_or_create_tunnel() -> Tuple[str, SSHTunnelForwarder]:
 
 
 def log_tunnel_to_db(tunnel_info: TunnelInfo):
-    """Log tunnel to database using bootstrap connection"""
+    """Log tunnel to database using bootstrap shell (ephemeral)"""
     try:
-        conn = get_bootstrap_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            INSERT INTO tunnel_monitor 
-            (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                last_used = VALUES(last_used),
-                connection_count = VALUES(connection_count),
-                status = VALUES(status)
-        """, (tunnel_info.tunnel_id, tunnel_info.pid, tunnel_info.local_port,
-              tunnel_info.created_at, tunnel_info.last_used, tunnel_info.status,
-              tunnel_info.connection_count))
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                INSERT INTO tunnel_monitor 
+                (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    last_used = VALUES(last_used),
+                    connection_count = VALUES(connection_count),
+                    status = VALUES(status)
+            """, (tunnel_info.tunnel_id, tunnel_info.pid, tunnel_info.local_port,
+                  tunnel_info.created_at, tunnel_info.last_used, tunnel_info.status,
+                  tunnel_info.connection_count))
+            
+            conn.commit()
+            cursor.close()
     except Exception as e:
         print(f"Failed to log tunnel: {e}")
 
 
 def log_connection_to_db(conn_info: ConnectionInfo):
-    """Log connection to database using bootstrap connection"""
+    """Log connection to database using bootstrap shell (ephemeral)"""
     try:
-        conn = get_bootstrap_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            INSERT INTO connection_monitor
-            (connection_id, mysql_connection_id, tunnel_id, session_id, username,
-             created_at, last_activity, status)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                last_activity = VALUES(last_activity),
-                status = VALUES(status)
-        """, (conn_info.connection_id, conn_info.mysql_conn_id, conn_info.tunnel_id,
-              conn_info.session_id, conn_info.username, conn_info.created_at,
-              conn_info.last_activity, conn_info.status))
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                INSERT INTO connection_monitor
+                (connection_id, mysql_connection_id, tunnel_id, session_id, username,
+                 created_at, last_activity, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    last_activity = VALUES(last_activity),
+                    status = VALUES(status)
+            """, (conn_info.connection_id, conn_info.mysql_conn_id, conn_info.tunnel_id,
+                  conn_info.session_id, conn_info.username, conn_info.created_at,
+                  conn_info.last_activity, conn_info.status))
+            
+            conn.commit()
+            cursor.close()
     except Exception as e:
         print(f"Failed to log connection: {e}")
 
@@ -880,53 +876,50 @@ def close_session_connection(session_id: str) -> bool:
     # If not in memory, check database
     if not conn_info:
         try:
-            bootstrap = get_bootstrap_connection()
-            cursor = bootstrap.cursor(dictionary=True)
-            cursor.execute("""
-                SELECT connection_id, mysql_connection_id, tunnel_id
-                FROM connection_monitor
-                WHERE session_id = %s AND status = 'active'
-                LIMIT 1
-            """, (session_id,))
-            db_conn_info = cursor.fetchone()
-            cursor.close()
-            bootstrap.close()
+            with get_bootstrap_connection() as bootstrap:
+                cursor = bootstrap.cursor(dictionary=True)
+                cursor.execute("""
+                    SELECT connection_id, mysql_connection_id, tunnel_id
+                    FROM connection_monitor
+                    WHERE session_id = %s AND status = 'active'
+                    LIMIT 1
+                """, (session_id,))
+                db_conn_info = cursor.fetchone()
+                cursor.close()
             
             if db_conn_info:
                 mysql_conn_id = db_conn_info['mysql_connection_id']
                 conn_id = db_conn_info['connection_id']
                 
                 # Kill the MySQL connection by ID
-                kill_conn = get_bootstrap_connection()
-                kill_cursor = kill_conn.cursor()
-                kill_cursor.execute(f"KILL {mysql_conn_id}")
-                kill_cursor.close()
-                kill_conn.close()
+                with get_bootstrap_connection() as kill_conn:
+                    kill_cursor = kill_conn.cursor()
+                    kill_cursor.execute(f"KILL {mysql_conn_id}")
+                    kill_cursor.close()
                 
                 # Update status in DB
-                update_conn = get_bootstrap_connection()
-                cursor = update_conn.cursor()
-                
-                # Get tunnel_id from db_conn_info
-                tunnel_id = db_conn_info['tunnel_id']
-                
-                cursor.execute("""
-                    UPDATE connection_monitor
-                    SET status = 'closed', last_activity = NOW()
-                    WHERE connection_id = %s
-                """, (conn_id,))
-                
-                # Decrement tunnel connection count
-                if tunnel_id:
+                with get_bootstrap_connection() as update_conn:
+                    cursor = update_conn.cursor()
+                    
+                    # Get tunnel_id from db_conn_info
+                    tunnel_id = db_conn_info['tunnel_id']
+                    
                     cursor.execute("""
-                        UPDATE tunnel_monitor
-                        SET connection_count = GREATEST(connection_count - 1, 0)
-                        WHERE tunnel_id = %s
-                    """, (tunnel_id,))
-                
-                update_conn.commit()
-                cursor.close()
-                update_conn.close()
+                        UPDATE connection_monitor
+                        SET status = 'closed', last_activity = NOW()
+                        WHERE connection_id = %s
+                    """, (conn_id,))
+                    
+                    # Decrement tunnel connection count
+                    if tunnel_id:
+                        cursor.execute("""
+                            UPDATE tunnel_monitor
+                            SET connection_count = GREATEST(connection_count - 1, 0)
+                            WHERE tunnel_id = %s
+                        """, (tunnel_id,))
+                    
+                    update_conn.commit()
+                    cursor.close()
                 
                 print(f"✅ Killed MySQL connection {mysql_conn_id} from database")
                 return True
@@ -947,40 +940,38 @@ def close_session_connection(session_id: str) -> bool:
             # Also kill it in MySQL to be sure
             if mysql_conn_id:
                 try:
-                    kill_conn = get_bootstrap_connection()
-                    kill_cursor = kill_conn.cursor()
-                    kill_cursor.execute(f"KILL {mysql_conn_id}")
-                    kill_cursor.close()
-                    kill_conn.close()
+                    with get_bootstrap_connection() as kill_conn:
+                        kill_cursor = kill_conn.cursor()
+                        kill_cursor.execute(f"KILL {mysql_conn_id}")
+                        kill_cursor.close()
                     print(f"✅ Killed MySQL connection {mysql_conn_id}")
                 except Exception as e:
                     print(f"Warning: Could not kill MySQL connection: {e}")
             
             # Update in database
             try:
-                update_conn = get_bootstrap_connection()
-                cursor = update_conn.cursor()
-                
-                # Get tunnel_id before updating
-                tunnel_id = conn_info.tunnel_id
-                
-                cursor.execute("""
-                    UPDATE connection_monitor
-                    SET status = 'closed', last_activity = NOW()
-                    WHERE connection_id = %s
-                """, (conn_id,))
-                
-                # Decrement tunnel connection count
-                if tunnel_id:
+                with get_bootstrap_connection() as update_conn:
+                    cursor = update_conn.cursor()
+                    
+                    # Get tunnel_id before updating
+                    tunnel_id = conn_info.tunnel_id
+                    
                     cursor.execute("""
-                        UPDATE tunnel_monitor
-                        SET connection_count = GREATEST(connection_count - 1, 0)
-                        WHERE tunnel_id = %s
-                    """, (tunnel_id,))
-                
-                update_conn.commit()
-                cursor.close()
-                update_conn.close()
+                        UPDATE connection_monitor
+                        SET status = 'closed', last_activity = NOW()
+                        WHERE connection_id = %s
+                    """, (conn_id,))
+                    
+                    # Decrement tunnel connection count
+                    if tunnel_id:
+                        cursor.execute("""
+                            UPDATE tunnel_monitor
+                            SET connection_count = GREATEST(connection_count - 1, 0)
+                            WHERE tunnel_id = %s
+                        """, (tunnel_id,))
+                    
+                    update_conn.commit()
+                    cursor.close()
             except Exception as e:
                 print(f"Failed to update DB: {e}")
             
@@ -1301,27 +1292,25 @@ def cleanup_dead_connections():
     
     try:
         # Get all MySQL connection IDs from SHOW PROCESSLIST
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor(dictionary=True)
-        cursor.execute("SHOW PROCESSLIST")
-        processlist = cursor.fetchall()
-        alive_mysql_ids = {row['Id'] for row in processlist}
-        cursor.close()
-        bootstrap.close()
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor(dictionary=True)
+            cursor.execute("SHOW PROCESSLIST")
+            processlist = cursor.fetchall()
+            alive_mysql_ids = {row['Id'] for row in processlist}
+            cursor.close()
         
         print(f"Found {len(alive_mysql_ids)} live MySQL connections")
         
         # Get all active connections from our DB
-        check_conn = get_bootstrap_connection()
-        cursor = check_conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT connection_id, mysql_connection_id
-            FROM connection_monitor
-            WHERE status = 'active'
-        """)
-        db_conns = cursor.fetchall()
-        cursor.close()
-        check_conn.close()
+        with get_bootstrap_connection() as check_conn:
+            cursor = check_conn.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT connection_id, mysql_connection_id
+                FROM connection_monitor
+                WHERE status = 'active'
+            """)
+            db_conns = cursor.fetchall()
+            cursor.close()
         
         # Mark as closed any that don't exist in MySQL anymore
         for conn_data in db_conns:
@@ -1331,31 +1320,30 @@ def cleanup_dead_connections():
             if mysql_id not in alive_mysql_ids:
                 # Connection is dead in MySQL but still marked active in our DB
                 try:
-                    update_conn = get_bootstrap_connection()
-                    cursor = update_conn.cursor()
-                    
-                    # Get tunnel_id before updating
-                    cursor.execute("SELECT tunnel_id FROM connection_monitor WHERE connection_id = %s", (conn_id,))
-                    tunnel_row = cursor.fetchone()
-                    tunnel_id = tunnel_row[0] if tunnel_row else None
-                    
-                    cursor.execute("""
-                        UPDATE connection_monitor
-                        SET status = 'closed', last_activity = NOW()
-                        WHERE connection_id = %s
-                    """, (conn_id,))
-                    
-                    # Decrement tunnel connection count
-                    if tunnel_id:
+                    with get_bootstrap_connection() as update_conn:
+                        cursor = update_conn.cursor()
+                        
+                        # Get tunnel_id before updating
+                        cursor.execute("SELECT tunnel_id FROM connection_monitor WHERE connection_id = %s", (conn_id,))
+                        tunnel_row = cursor.fetchone()
+                        tunnel_id = tunnel_row[0] if tunnel_row else None
+                        
                         cursor.execute("""
-                            UPDATE tunnel_monitor
-                            SET connection_count = GREATEST(connection_count - 1, 0)
-                            WHERE tunnel_id = %s
-                        """, (tunnel_id,))
-                    
-                    update_conn.commit()
-                    cursor.close()
-                    update_conn.close()
+                            UPDATE connection_monitor
+                            SET status = 'closed', last_activity = NOW()
+                            WHERE connection_id = %s
+                        """, (conn_id,))
+                        
+                        # Decrement tunnel connection count
+                        if tunnel_id:
+                            cursor.execute("""
+                                UPDATE tunnel_monitor
+                                SET connection_count = GREATEST(connection_count - 1, 0)
+                                WHERE tunnel_id = %s
+                            """, (tunnel_id,))
+                        
+                        update_conn.commit()
+                        cursor.close()
                     cleaned += 1
                     print(f"🧹 Cleaned dead connection {conn_id} (MySQL ID {mysql_id})")
                 except Exception as e:
