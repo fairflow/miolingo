@@ -580,11 +580,11 @@ def get_tracked_connection(session_id: Optional[str] = None, username: Optional[
     
     CONNECTION_REGISTRY[connection_id] = conn_info
     
-    # Update tunnel stats
+    # Update tunnel stats in memory (for display only - DB is source of truth for decisions)
     tunnel_info.connection_count += 1
     tunnel_info.last_used = datetime.now()
     
-    # Log to DB using bootstrap (still open)
+    # Log to DB using bootstrap (still open) - DB IS SOURCE OF TRUTH
     if bootstrap_conn:
         try:
             cursor = bootstrap_conn.cursor()
@@ -652,14 +652,16 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
     except Exception as e:
         print(f"Warning: Could not query DB for tunnel counts: {e}")
     
-    # Check in-memory tunnels for one with capacity (using DB counts)
+    # Check in-memory tunnels for one with capacity
+    # DATABASE is the source of truth (cross-session visibility)
     for tunnel_id, tunnel_info in TUNNEL_POOL.items():
         db_count = tunnel_conn_counts.get(tunnel_id, 0)
+        
         if (tunnel_info.status == 'active' and
             db_count < MAX_CONNECTIONS_PER_TUNNEL and
             tunnel_info.tunnel_obj and
             tunnel_info.tunnel_obj.is_active):
-            print(f"✅ Reusing {tunnel_id} ({db_count}/{MAX_CONNECTIONS_PER_TUNNEL} connections)")
+            print(f"✅ Reusing {tunnel_id} ({db_count}/{MAX_CONNECTIONS_PER_TUNNEL} connections in DB)")
             return tunnel_id, tunnel_info
     
     # Create new tunnel if under limit
@@ -698,12 +700,19 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
                 INSERT INTO tunnel_monitor 
                 (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    pid = VALUES(pid),
+                    local_port = VALUES(local_port),
+                    created_at = VALUES(created_at),
+                    last_used = VALUES(last_used),
+                    status = 'active',
+                    connection_count = 0
             """, (tunnel_id, tunnel_info.pid, tunnel_info.local_port,
                   tunnel_info.created_at, datetime.now(), 'active', 0))
             log_bootstrap.commit()
             cursor.close()
             log_bootstrap.close()
-            print(f"📝 Logged {tunnel_id} to database")
+            print(f"📝 Logged {tunnel_id} to database (updated if existed)")
         except Exception as e:
             print(f"⚠️  Failed to log {tunnel_id} to DB: {e}")
         
