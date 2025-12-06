@@ -24,6 +24,7 @@ from sshtunnel import SSHTunnelForwarder
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any, Tuple
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import atexit
@@ -447,26 +448,46 @@ def init_monitoring_tables():
         return False, f"Failed to initialize tables: {e}"
 
 
+@contextmanager
 def get_bootstrap_connection():
     """
-    Get a MySQL connection using the bootstrap tunnel.
-    This is ONLY for logging and setup - not tracked, avoids recursion.
+    Context manager for TRULY EPHEMERAL MySQL connection.
+    Creates temporary tunnel → connection → automatically closes both.
+    
+    CRITICAL: Prevents tunnel proliferation (125 SSH tunnel limit was hit before).
+    
+    Usage:
+        with get_bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            # use conn
+            # tunnel and connection automatically closed on exit
     """
-    # Ensure we have bootstrap tunnel
-    if st.session_state._bootstrap_tunnel is None or not st.session_state._bootstrap_tunnel.is_active:
-        st.session_state._bootstrap_tunnel = create_ssh_tunnel()
+    # Create ephemeral tunnel (NOT stored in session state)
+    tunnel = create_ssh_tunnel()
+    conn = None
     
-    # Create connection through the tunnel
-    conn = mysql.connector.connect(
-        host='127.0.0.1',
-        port=st.session_state._bootstrap_tunnel.local_bind_port,
-        database=st.secrets["mysql"]["database"],
-        user=st.secrets["mysql"]["user"],
-        password=st.secrets["mysql"]["password"],
-        connect_timeout=10
-    )
-    
-    return conn
+    try:
+        # Create connection through the ephemeral tunnel
+        conn = mysql.connector.connect(
+            host='127.0.0.1',
+            port=tunnel.local_bind_port,
+            database=st.secrets["mysql"]["database"],
+            user=st.secrets["mysql"]["user"],
+            password=st.secrets["mysql"]["password"],
+            connect_timeout=10
+        )
+        yield conn
+    finally:
+        # Always clean up - CRITICAL to prevent tunnel leak
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+        try:
+            tunnel.stop()
+        except:
+            pass
 
 
 def check_connection_capacity(is_existing_user: bool = False) -> Tuple[bool, str, int]:
@@ -480,12 +501,11 @@ def check_connection_capacity(is_existing_user: bool = False) -> Tuple[bool, str
         (can_connect, message, current_count)
     """
     try:
-        bootstrap = get_bootstrap_connection()
-        cursor = bootstrap.cursor()
-        cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
-        active_count = cursor.fetchone()[0]
-        cursor.close()
-        bootstrap.close()
+        with get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor()
+            cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+            active_count = cursor.fetchone()[0]
+            cursor.close()
         
         # Hard limit - block everyone
         if active_count >= HARD_LIMIT_CONNECTIONS:
@@ -730,7 +750,7 @@ def get_or_create_tracked_tunnel() -> Tuple[str, TunnelInfo]:
 
 # Alias for compatibility with existing code
 def get_direct_connection():
-    """Alias for get_bootstrap_connection for compatibility"""
+    """Alias for get_bootstrap_connection for compatibility - returns (conn, tunnel)"""
     return get_bootstrap_connection()
 
 
