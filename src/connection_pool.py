@@ -126,19 +126,61 @@ class ConnectionPool:
         self._last_cleanup_time = None
     
     def create_ssh_tunnel(self) -> SSHTunnelForwarder:
-        """Create a new SSH tunnel to the database server"""
+        """
+        Create a new SSH tunnel to the database server.
+        Supports two modes for SSH key:
+        1. Local development: key_path in secrets (file path)
+        2. Streamlit Cloud: key_content in secrets (paste private key directly)
+        """
+        from io import StringIO
+        
         ssh_config = self.secrets['ssh']
         mysql_config = self.secrets['mysql']
         
-        # Load private key
-        pkey = paramiko.RSAKey.from_private_key_file(
-            os.path.expanduser(ssh_config['pkey_path'])
-        )
+        # Handle SSH key - either from file path or direct content
+        if "key_content" in ssh_config:
+            # Streamlit Cloud: parse key content into paramiko key object
+            key_content = ssh_config["key_content"]
+            key_file = StringIO(key_content)
+            
+            # Try different key types
+            ssh_key = None
+            for key_class in (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey):
+                try:
+                    key_file.seek(0)
+                    ssh_key = key_class.from_private_key(key_file)
+                    break
+                except Exception:
+                    continue
+            
+            if ssh_key is None:
+                raise ValueError("Could not parse SSH key - unsupported key type")
+        else:
+            # Local development: use key file path
+            from pathlib import Path
+            ssh_key_path = Path(ssh_config["key_path"]).expanduser().resolve()
+            
+            # Load the key file
+            with open(ssh_key_path, 'r') as f:
+                key_file = StringIO(f.read())
+            
+            # Try different key types
+            ssh_key = None
+            for key_class in (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey):
+                try:
+                    key_file.seek(0)
+                    ssh_key = key_class.from_private_key(key_file)
+                    break
+                except Exception:
+                    continue
+            
+            if ssh_key is None:
+                raise ValueError(f"Could not parse SSH key from {ssh_key_path}")
         
         tunnel = SSHTunnelForwarder(
-            (ssh_config['host'], ssh_config['port']),
+            (ssh_config['host'], int(ssh_config['port'])),
             ssh_username=ssh_config['username'],
-            ssh_pkey=pkey,
+            ssh_pkey=ssh_key,
             remote_bind_address=(mysql_config['host'], mysql_config['port']),
             set_keepalive=30
         )
@@ -392,8 +434,7 @@ class ConnectionPool:
                 if is_first_connection:
                     print(f"[FIRST_CONNECTION] session_id={session_id}, username={username}, tunnel={tunnel_id}, mysql_conn={mysql_conn_id}")
                     # Track in session registry
-                    from dataclasses import dataclass
-                    from datetime import datetime
+                    now = datetime.now()
                     session_info = SessionInfo(
                         session_id=session_id,
                         username=username,
@@ -401,9 +442,9 @@ class ConnectionPool:
                         user_agent='unknown',
                         device_type='unknown',
                         browser='unknown',
-                        login_time=datetime.now(),
-                        expires_at=datetime.now(),
-                        last_activity=datetime.now(),
+                        login_time=now,
+                        expires_at=now,
+                        last_activity=now,
                         connection_ids=[connection_id]
                     )
                     self.session_registry[session_id] = session_info
