@@ -124,52 +124,18 @@ def check_authentication():
                         st.error("Invalid credentials")
                         st.stop()
                     
-                    # Check if user is admin by querying their role
-                    is_admin = False
+                    # Check current capacity
+                    active_count = 0
                     try:
-                        temp_tunnel = create_ssh_tunnel()
-                        temp_conn = mysql.connector.connect(
-                            host='127.0.0.1',
-                            port=temp_tunnel.local_bind_port,
-                            database=st.secrets["mysql"]["database"],
-                            user=st.secrets["mysql"]["user"],
-                            password=st.secrets["mysql"]["password"]
-                        )
-                        cursor = temp_conn.cursor()
-                        cursor.execute("SELECT is_admin FROM users WHERE username = %s", (username,))
-                        result = cursor.fetchone()
-                        if result:
-                            is_admin = bool(result[0])
-                        
-                        # Also get capacity while we're here
-                        cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
-                        active_count = cursor.fetchone()[0]
-                        cursor.close()
-                        temp_conn.close()
-                        temp_tunnel.stop()
+                        with get_bootstrap_connection() as temp_conn:
+                            cursor = temp_conn.cursor()
+                            cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
+                            active_count = cursor.fetchone()[0]
+                            cursor.close()
                     except Exception as check_err:
-                        st.warning(f"Could not verify admin status: {check_err}")
-                        active_count = 0
+                        st.warning(f"Could not check capacity: {check_err}")
                     
-                    # ADMIN BYPASS: Admins can always login (use bootstrap, not tracked)
-                    if is_admin:
-                        st.session_state.authenticated = True
-                        st.session_state.monitor_username = username
-                        st.session_state.is_admin = True
-                        st.session_state.uses_bootstrap = True  # Flag to use bootstrap connections
-                        
-                        if active_count >= HARD_LIMIT_CONNECTIONS:
-                            st.success(f"✅ **Admin Emergency Access** - Logged in via bootstrap (bypassing {active_count}/{HARD_LIMIT_CONNECTIONS} pool limit)")
-                        
-                        # Log this login to session_monitor
-                        try:
-                            log_monitor_session(username)
-                        except Exception as log_err:
-                            st.warning(f"Login successful but session logging failed: {log_err}")
-                        
-                        st.rerun()
-                    
-                    # NON-ADMIN: Check capacity
+                    # Check capacity before allowing login
                     if active_count >= HARD_LIMIT_CONNECTIONS:
                         st.error(f"🚫 **System at Maximum Capacity ({active_count}/{HARD_LIMIT_CONNECTIONS} connections)**")
                         st.info("Please wait and try again later. (Admins can still login)")
