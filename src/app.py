@@ -561,10 +561,24 @@ with st.sidebar:
                 if 'db_connection' in st.session_state:
                     del st.session_state.db_connection
                 
-                # Get new connection from pool (this creates new tracked connection)
+                # Clear cached display info BEFORE getting new connection
+                # This ensures get_connection() will update the cache with fresh data
+                if '_last_connection_info' in st.session_state:
+                    del st.session_state['_last_connection_info']
+                if '_last_tunnel_info' in st.session_state:
+                    del st.session_state['_last_tunnel_info']
+                
+                # Get new connection from pool (this creates new tracked connection AND updates cache)
                 new_conn = app_mysql.get_connection()
                 
-                # Now close the old connection (after new one is established)
+                # Verify new connection is tracked by doing a simple query
+                # This ensures the connection info is fully populated in the database
+                cursor = new_conn.cursor()
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+                cursor.close()
+                
+                # Now close the old connection (after new one is established and verified)
                 if old_conn_id and old_conn:
                     pool = app_mysql.get_connection_pool_instance()
                     pool.close_connection(old_conn_id)
@@ -572,12 +586,6 @@ with st.sidebar:
                         old_conn.close()
                     except:
                         pass
-                
-                # Clear cached display info so it refreshes
-                if '_last_connection_info' in st.session_state:
-                    del st.session_state['_last_connection_info']
-                if '_last_tunnel_info' in st.session_state:
-                    del st.session_state['_last_tunnel_info']
                 
                 st.success("✓ Switched to fresh connection from pool.")
                 st.rerun()
