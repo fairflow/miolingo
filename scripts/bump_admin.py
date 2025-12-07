@@ -22,12 +22,13 @@ from typing import List, Tuple
 from datetime import datetime
 
 # Configuration files
-PROGRAM_FILES_LIST = "bump_admin_program_files.txt"
-DOC_FILES_LIST = "bump_admin_doc_files.txt"
+SCRIPT_DIR = Path(__file__).parent
+PROGRAM_FILES_LIST = SCRIPT_DIR / "bump_admin_program_files.txt"
+DOC_FILES_LIST = SCRIPT_DIR / "bump_admin_doc_files.txt"
 
-def read_file_list(filename: str) -> List[str]:
+def read_file_list(filename: Path) -> List[str]:
     """Read list of files from config file, ignoring comments and blank lines."""
-    config_file = Path(filename)
+    config_file = filename
     if not config_file.exists():
         print(f"Warning: {filename} not found, skipping")
         return []

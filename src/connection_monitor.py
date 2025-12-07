@@ -56,6 +56,10 @@ st.set_page_config(
 if 'auto_refresh_enabled' not in st.session_state:
     st.session_state.auto_refresh_enabled = True  # Default on
 
+# Set app name for connection tracking
+if 'app_name' not in st.session_state:
+    st.session_state.app_name = 'connection_monitor'
+
 # NOTE: Auto-refresh sleep happens at END of page, not here
 
 # ============================================================================
@@ -2433,10 +2437,23 @@ def show_tunnels():
             with st.expander(f"🔌 {tunnel_id} - {tunnel_info.status.upper()}", expanded=False):
                 col1, col2 = st.columns(2)
                 
+                # Query database for actual connection count
+                try:
+                    with get_bootstrap_connection() as count_conn:
+                        cursor = count_conn.cursor()
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM connection_monitor 
+                            WHERE tunnel_id = %s AND status = 'active'
+                        """, (tunnel_id,))
+                        live_conn_count = cursor.fetchone()[0]
+                        cursor.close()
+                except:
+                    live_conn_count = 0
+                
                 with col1:
                     st.write(f"**PID:** {tunnel_info.pid}")
                     st.write(f"**Port:** {tunnel_info.local_port}")
-                    st.write(f"**Connections:** {tunnel_info.connection_count}/{MAX_CONNECTIONS_PER_TUNNEL}")
+                    st.write(f"**Connections:** {live_conn_count}/{MAX_CONNECTIONS_PER_TUNNEL}")
                 
                 with col2:
                     st.write(f"**Created:** {tunnel_info.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -2460,10 +2477,21 @@ def show_tunnels():
                 for tunnel in tunnels:
                     with st.expander(f"📊 {tunnel['tunnel_id']} - {tunnel['status'].upper()}", expanded=False):
                         col1, col2 = st.columns(2)
+                        
+                        # Query database for actual connection count
+                        try:
+                            cursor.execute("""
+                                SELECT COUNT(*) FROM connection_monitor 
+                                WHERE tunnel_id = %s AND status = 'active'
+                            """, (tunnel['tunnel_id'],))
+                            live_conn_count = cursor.fetchone()[0]
+                        except:
+                            live_conn_count = 0
+                        
                         with col1:
                             st.write(f"**PID:** {tunnel['pid']}")
                             st.write(f"**Port:** {tunnel['local_port']}")
-                            st.write(f"**Connections:** {tunnel['connection_count']}/{MAX_CONNECTIONS_PER_TUNNEL}")
+                            st.write(f"**Connections:** {live_conn_count}/{MAX_CONNECTIONS_PER_TUNNEL}")
                         with col2:
                             st.write(f"**Created:** {tunnel['created_at']}")
                             st.write(f"**Last Used:** {tunnel['last_used']}")
@@ -2607,14 +2635,16 @@ def show_sessions():
                 with get_bootstrap_connection() as conn:
                     cursor = conn.cursor(dictionary=True)
                     cursor.execute("""
-                        SELECT session_id, user_ip, device_type, browser,
-                               login_time, expires_at, last_activity,
-                               TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining,
-                               TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in,
-                               TIMESTAMPDIFF(MINUTE, last_activity, NOW()) as minutes_idle
-                        FROM session_monitor
-                        WHERE username = %s AND status = 'active' AND expires_at > NOW()
-                        ORDER BY login_time DESC
+                        SELECT s.session_id, s.user_ip, s.device_type, s.browser,
+                               s.login_time, s.expires_at, s.last_activity,
+                               TIMESTAMPDIFF(SECOND, NOW(), s.expires_at) as seconds_remaining,
+                               TIMESTAMPDIFF(SECOND, s.login_time, NOW()) as seconds_logged_in,
+                               TIMESTAMPDIFF(MINUTE, s.last_activity, NOW()) as minutes_idle,
+                               c.app_name
+                        FROM session_monitor s
+                        LEFT JOIN connection_monitor c ON s.session_id = c.session_id
+                        WHERE s.username = %s AND s.status = 'active' AND s.expires_at > NOW()
+                        ORDER BY s.login_time DESC
                     """, (username,))
                     user_sessions = cursor.fetchall()
                     cursor.close()
@@ -2663,6 +2693,8 @@ def show_sessions():
                         st.write(f"🌐 **IP:** {session['user_ip']}")
                         st.write(f"💻 **Device:** {session['device_type']}")
                         st.write(f"🌍 **Browser:** {session['browser']}")
+                        app_display = session.get('app_name', 'unknown') or 'unknown'
+                        st.write(f"📱 **Using:** {app_display}")
                     
                     with col2:
                         st.write(f"🔓 **Logged in:** {hours_in}h {minutes_in}m ago")

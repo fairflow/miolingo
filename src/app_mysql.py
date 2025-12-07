@@ -262,11 +262,41 @@ def get_connection() -> mysql.connector.MySQLConnection:
         conn = st.session_state.db_connection
         session_id = st.session_state.get('session_id', 'unknown')
         
-        # CRITICAL: Don't do health check on every call - connections don't die that fast
-        # Just trust that the connection stored in session_state is good
-        # If it fails during actual use, THEN we'll know and recreate
-        print(f"✓ Reusing session connection for {session_id[:20]}...")
-        return conn
+        # Quick health check - if it fails, use bootstrap to get fresh one
+        try:
+            cursor = conn.cursor(buffered=True)
+            cursor.execute("SELECT 1")
+            cursor.fetchall()  # Consume results
+            cursor.close()
+            print(f"✓ Reusing session connection for {session_id[:20]}...")
+            return conn
+        except Exception as e:
+            print(f"⚠️ Session connection failed ({e}), getting fresh connection via bootstrap...")
+            
+            # Clear the dead connection from session state
+            del st.session_state.db_connection
+            
+            # Use bootstrap connection to get a fresh tracked connection
+            pool = get_connection_pool_instance()
+            
+            # Get session info for tracking - use existing session_id from state
+            fresh_session_id = st.session_state.get('session_id', f'app_{secrets.token_hex(8)}')
+            user = st.session_state.get('user', {})
+            username = user.get('username', 'anonymous')
+            app_name = st.session_state.get('app_name', 'miolingo-app')
+            
+            # Store session_id if not set
+            if 'session_id' not in st.session_state:
+                st.session_state.session_id = fresh_session_id
+            
+            # Get fresh connection from pool
+            fresh_conn = pool.get_tracked_connection(fresh_session_id, username, app_name)
+            
+            # Store in session state
+            st.session_state.db_connection = fresh_conn
+            
+            print(f"✓ Replaced dead connection with fresh one for {session_id[:20]}...")
+            return fresh_conn
     
     # No existing connection or it died - create new one
     pool = get_connection_pool_instance()

@@ -39,7 +39,7 @@ if 'auto_refresh_enabled' not in st.session_state:
 # NOTE: Auto-refresh sleep happens at END of page, not here
 
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface • v2.0.0")
+st.caption("Local monitoring and management interface • v2.0.1")
 
 # Quick reconnect button in sidebar
 with st.sidebar:
