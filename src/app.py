@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "4.3.0"
+__version__ = "6.0.0"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -573,9 +573,9 @@ with st.sidebar:
                 
                 # Verify new connection is tracked by doing a simple query
                 # This ensures the connection info is fully populated in the database
-                cursor = new_conn.cursor()
+                cursor = new_conn.cursor(buffered=True)
                 cursor.execute("SELECT 1")
-                cursor.fetchone()
+                cursor.fetchall()  # Consume all results
                 cursor.close()
                 
                 # Now close the old connection (after new one is established and verified)
