@@ -1,0 +1,13 @@
+# Portuguese Phrasebook - Test file for enrichment
+# Level distribution: A
+# Format: portuguese | english | [ipa]
+
+Bom dia
+Boa noite
+Muito obrigado
+De nada
+Por favor
+Com licença
+Desculpe
+Até logo
+Tchau

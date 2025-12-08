@@ -2934,15 +2934,12 @@ def main():
                                                     for error in stats['errors'][:10]:  # Show first 10
                                                         st.text(error)
                                             
-                                            st.info("📝 Original file backed up to .bak. Reload to see changes.")
-                                            
-                                            # Clear cache to show updated metadata
-                                            from app_language_materials import CACHE_VERSION
-                                            if 'material_cache' in st.session_state:
-                                                del st.session_state.material_cache
+                                            st.info("📝 Original file backed up to .bak. Click reload to see updated checkmarks.")
                                             
                                             # Suggest reloading
                                             if st.button("🔄 Reload Metadata", key=f"reload_meta_{selected_file}"):
+                                                # Clear all cached data to force reload of file metadata
+                                                st.cache_data.clear()
                                                 st.rerun()
                                         else:
                                             st.error(f"❌ Enrichment failed: {result['message']}")
