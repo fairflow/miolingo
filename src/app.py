@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "6.0.0"
+__version__ = "6.1.0"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -244,6 +244,259 @@ def save_settings(settings: Dict):
             json.dump(settings, f, indent=2)
     except Exception as e:
         st.error(f"Could not save settings: {e}")
+
+
+# ============================================================================
+# MATERIAL ENRICHMENT (LLM Translations + IPA Generation)
+# ============================================================================
+
+def get_ipa_from_espeak(text: str, lang_code: str) -> str:
+    """
+    Generate IPA transcription using espeak-ng.
+    
+    Args:
+        text: Text to transcribe
+        lang_code: Language code (pt, fr, nl, de, it, es)
+    
+    Returns:
+        IPA transcription or '[error]' on failure
+    """
+    # Map language codes to espeak voices
+    ESPEAK_LANG_MAP = {
+        'pt': 'pt-br',
+        'fr': 'fr-fr',
+        'nl': 'nl',
+        'de': 'de',
+        'it': 'it',
+        'es': 'es'
+    }
+    
+    espeak_lang = ESPEAK_LANG_MAP.get(lang_code, lang_code)
+    espeak_cmd = get_espeak_path()
+    
+    try:
+        result = subprocess.run(
+            [espeak_cmd, '-v', espeak_lang, '-q', '--ipa', text],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            ipa = result.stdout.strip()
+            # Clean up spacing
+            ipa = ' '.join(ipa.split())
+            return ipa
+        return '[error]'
+    except subprocess.TimeoutExpired:
+        return '[timeout]'
+    except Exception as e:
+        return f'[error: {str(e)}]'
+
+
+def get_translation_from_llm(text: str, source_lang: str, target_lang: str = "English") -> str:
+    """
+    Get translation using OpenAI API.
+    
+    Args:
+        text: Text to translate
+        source_lang: Source language name (e.g., "Portuguese", "French")
+        target_lang: Target language (default: "English")
+    
+    Returns:
+        Translation or error message
+    """
+    try:
+        # Get API key from secrets
+        api_key = st.secrets.get("openai_api_key")
+        if not api_key or api_key == "your-openai-api-key-here":
+            return "[error: Valid API key required in secrets.toml]"
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key)
+        
+        # Simple, direct prompt for translation
+        prompt = f"Translate this {source_lang} text to {target_lang}. Only return the translation, nothing else:\n\n{text}"
+        
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # Cost-effective model
+            messages=[
+                {"role": "system", "content": f"You are a professional translator. Translate {source_lang} to {target_lang} accurately and naturally."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,  # Low temperature for consistent translations
+            max_tokens=200
+        )
+        
+        translation = response.choices[0].message.content.strip()
+        
+        # Log API usage for cost tracking
+        try:
+            log_api_call(
+                api_name='openai',
+                model='gpt-4o-mini',
+                operation='translation',
+                input_tokens=response.usage.prompt_tokens,
+                output_tokens=response.usage.completion_tokens,
+                metadata={'source_lang': source_lang, 'target_lang': target_lang}
+            )
+        except Exception:
+            pass  # Don't fail if logging fails
+        
+        return translation
+        
+    except Exception as e:
+        return f"[error: {str(e)}]"
+
+
+def enrich_material_file(
+    file_path: Path,
+    lang_code: str,
+    add_translations: bool = True,
+    add_ipa: bool = True,
+    progress_callback=None
+) -> Dict:
+    """
+    Enrich a material file by adding missing translations and/or IPA.
+    
+    Args:
+        file_path: Path to the material file
+        lang_code: Language code (pt, fr, nl, etc.)
+        add_translations: Whether to add missing translations
+        add_ipa: Whether to add missing IPA
+        progress_callback: Optional callback function(current, total, message)
+    
+    Returns:
+        Dict with keys: success (bool), message (str), stats (dict)
+    """
+    if add_translations:
+        # Check if API key is available in secrets
+        api_key = st.secrets.get("openai_api_key")
+        if not api_key or api_key == "your-openai-api-key-here":
+            return {
+                'success': False,
+                'message': 'Valid OpenAI API key required for translations. Please configure in secrets.toml.',
+                'stats': {}
+            }
+    
+    # Map language codes to full names for LLM
+    LANG_NAMES = {
+        'pt': 'Portuguese',
+        'fr': 'French',
+        'nl': 'Dutch',
+        'de': 'German',
+        'it': 'Italian',
+        'es': 'Spanish'
+    }
+    source_lang_name = LANG_NAMES.get(lang_code, lang_code.upper())
+    
+    # Read file
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f'Could not read file: {e}',
+            'stats': {}
+        }
+    
+    # Create backup
+    backup_path = file_path.with_suffix('.bak')
+    try:
+        with open(backup_path, 'w', encoding='utf-8') as f:
+            f.writelines(lines)
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f'Could not create backup: {e}',
+            'stats': {}
+        }
+    
+    # Process lines
+    import re
+    pattern = re.compile(r'^([^|#]+)\s*\|\s*([^|]*)\s*\|\s*(.*)$')
+    
+    enriched_lines = []
+    stats = {
+        'total_lines': 0,
+        'translations_added': 0,
+        'ipa_added': 0,
+        'errors': []
+    }
+    
+    for i, line in enumerate(lines):
+        # Skip comments and empty lines
+        if line.strip().startswith('#') or not line.strip():
+            enriched_lines.append(line)
+            continue
+        
+        # Try to parse as phrase | translation | ipa
+        match = pattern.match(line.strip())
+        
+        if match:
+            # Pipe-delimited format
+            phrase = match.group(1).strip()
+            translation = match.group(2).strip()
+            ipa = match.group(3).strip()
+        else:
+            # Plain text format (no pipes) - treat entire line as phrase
+            phrase = line.strip()
+            translation = ''
+            ipa = ''
+        
+        stats['total_lines'] += 1
+        
+        # Update progress
+        if progress_callback:
+            progress_callback(i + 1, len(lines), f"Processing: {phrase[:30]}...")
+        
+        # Add translation if missing
+        if add_translations and (not translation or translation == ''):
+            new_translation = get_translation_from_llm(phrase, source_lang_name)
+            if not new_translation.startswith('[error'):
+                translation = new_translation
+                stats['translations_added'] += 1
+            else:
+                stats['errors'].append(f"Translation error for '{phrase}': {new_translation}")
+        
+        # Add IPA if missing
+        if add_ipa and (not ipa or ipa == '' or ipa == '[ipa]'):
+            new_ipa = get_ipa_from_espeak(phrase, lang_code)
+            if not new_ipa.startswith('[error') and not new_ipa.startswith('[timeout'):
+                ipa = f"[{new_ipa}]"  # Wrap in brackets
+                stats['ipa_added'] += 1
+            else:
+                stats['errors'].append(f"IPA error for '{phrase}': {new_ipa}")
+        
+        # Reconstruct line
+        enriched_line = f"{phrase} | {translation} | {ipa}\n"
+        enriched_lines.append(enriched_line)
+    
+    # Write enriched content
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.writelines(enriched_lines)
+    except Exception as e:
+        # Restore from backup
+        try:
+            with open(backup_path, 'r', encoding='utf-8') as f:
+                backup_content = f.read()
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(backup_content)
+        except Exception:
+            pass
+        
+        return {
+            'success': False,
+            'message': f'Could not write enriched file: {e}',
+            'stats': stats
+        }
+    
+    return {
+        'success': True,
+        'message': 'File enriched successfully',
+        'stats': stats
+    }
 
 
 # ============================================================================
@@ -2537,7 +2790,14 @@ def main():
             st.info("👋 **New here?** Check the [User Guide](https://github.com/fairflow/espeak-ng-pt-br/blob/main/app-docs/USER_GUIDE.md) in the sidebar for step-by-step instructions!")
         
         # Phrase/Word list loading - Built-in Library + User Upload
-        with st.expander("📚 Load Practice Materials"):
+        # Keep expander open during interactions
+        if 'qp_materials_expanded' not in st.session_state:
+            st.session_state.qp_materials_expanded = False
+        
+        with st.expander("📚 Load Practice Materials", expanded=st.session_state.qp_materials_expanded):
+            # Set to expanded when user opens it
+            st.session_state.qp_materials_expanded = True
+            
             from app_language_materials import (
                 get_available_languages,
                 get_language_structure,
@@ -2601,6 +2861,97 @@ def main():
                                 with st.expander("Preview first 3 items"):
                                     for line in metadata['preview']:
                                         st.text(line)
+                            
+                            # Material Enrichment UI
+                            missing_translations = not metadata.get('has_translations')
+                            missing_ipa = not metadata.get('has_ipa')
+                            
+                            if missing_translations or missing_ipa:
+                                st.markdown("---")
+                                st.markdown("**✨ Enrich This Material**")
+                                
+                                # Enrichment options
+                                enrich_col1, enrich_col2 = st.columns(2)
+                                with enrich_col1:
+                                    add_trans = st.checkbox(
+                                        "Add translations",
+                                        value=missing_translations,
+                                        disabled=not missing_translations,
+                                        key=f"enrich_trans_{selected_file}"
+                                    )
+                                with enrich_col2:
+                                    add_ipa_check = st.checkbox(
+                                        "Add IPA",
+                                        value=missing_ipa,
+                                        disabled=not missing_ipa,
+                                        key=f"enrich_ipa_{selected_file}"
+                                    )
+                                
+                                if st.button(
+                                    "✨ Enrich Material",
+                                    type="secondary",
+                                    disabled=not (add_trans or add_ipa_check),
+                                    key=f"enrich_btn_{selected_file}"
+                                ):
+                                    with st.spinner("Enriching material... This may take a minute for translations."):
+                                        # Progress bar
+                                        progress_bar = st.progress(0)
+                                        status_text = st.empty()
+                                        
+                                        def progress_callback(current, total, message):
+                                            progress = current / total if total > 0 else 0
+                                            progress_bar.progress(min(progress, 1.0))
+                                            status_text.text(message)
+                                        
+                                        # Perform enrichment
+                                        result = enrich_material_file(
+                                            file_path=metadata['path'],
+                                            lang_code=material_lang,
+                                            add_translations=add_trans,
+                                            add_ipa=add_ipa_check,
+                                            progress_callback=progress_callback
+                                        )
+                                        
+                                        progress_bar.empty()
+                                        status_text.empty()
+                                        
+                                        if result['success']:
+                                            stats = result['stats']
+                                            st.success(f"✅ Material enriched successfully!")
+                                            
+                                            # Show stats
+                                            stat_col1, stat_col2, stat_col3 = st.columns(3)
+                                            with stat_col1:
+                                                st.metric("Lines processed", stats.get('total_lines', 0))
+                                            with stat_col2:
+                                                st.metric("Translations added", stats.get('translations_added', 0))
+                                            with stat_col3:
+                                                st.metric("IPA added", stats.get('ipa_added', 0))
+                                            
+                                            # Show errors if any
+                                            if stats.get('errors'):
+                                                with st.expander(f"⚠️ {len(stats['errors'])} error(s) occurred"):
+                                                    for error in stats['errors'][:10]:  # Show first 10
+                                                        st.text(error)
+                                            
+                                            st.info("📝 Original file backed up to .bak. Reload to see changes.")
+                                            
+                                            # Clear cache to show updated metadata
+                                            from app_language_materials import CACHE_VERSION
+                                            if 'material_cache' in st.session_state:
+                                                del st.session_state.material_cache
+                                            
+                                            # Suggest reloading
+                                            if st.button("🔄 Reload Metadata", key=f"reload_meta_{selected_file}"):
+                                                st.rerun()
+                                        else:
+                                            st.error(f"❌ Enrichment failed: {result['message']}")
+                                            if result.get('stats', {}).get('errors'):
+                                                with st.expander("Error details"):
+                                                    for error in result['stats']['errors']:
+                                                        st.text(error)
+                                
+                                st.markdown("---")
                             
                             # Load button
                             if st.button("📂 Load This File", type="primary", key="load_builtin"):

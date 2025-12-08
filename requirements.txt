@@ -6,6 +6,9 @@ openai-whisper>=20231117
 soundfile>=0.13.1
 numpy>=2.0.2
 
+# OpenAI API for LLM-powered translations
+openai>=1.0.0
+
 # Text-to-Speech
 gtts>=2.5.4
 google-cloud-texttospeech>=2.14.0
