@@ -335,10 +335,17 @@ class ConnectionPool:
             
             self.tunnel_pool[tunnel_id] = tunnel_info
             
+            # Give tunnel time to stabilize before first connection
+            time.sleep(0.3)
+            
             # Log to database immediately (prevents foreign key errors)
+            # Use transaction to ensure atomicity
             try:
                 with self.get_bootstrap_connection() as conn:
                     cursor = conn.cursor()
+                    # Start transaction (implicitly started, make it explicit)
+                    cursor.execute("START TRANSACTION")
+                    
                     cursor.execute("""
                         INSERT INTO tunnel_monitor 
                         (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
@@ -351,6 +358,7 @@ class ConnectionPool:
                     """, (tunnel_id, pid, tunnel_obj.local_bind_port,
                           tunnel_info.created_at, tunnel_info.last_used,
                           'active', 0))
+                    
                     conn.commit()
                     cursor.close()
             except Exception as e:
@@ -382,15 +390,33 @@ class ConnectionPool:
         tunnel_id = self.get_or_create_tracked_tunnel()
         tunnel_info = self.tunnel_pool[tunnel_id]
         
-        # Create connection through the selected tunnel
-        conn = mysql.connector.connect(
-            host='127.0.0.1',
-            port=tunnel_info.local_port,
-            database=self.secrets['mysql']['database'],
-            user=self.secrets['mysql']['user'],
-            password=self.secrets['mysql']['password'],
-            connect_timeout=10
-        )
+        # Create connection through the selected tunnel with retry
+        max_retries = 2
+        retry_delay = 0.2
+        conn = None
+        last_error = None
+        
+        for attempt in range(max_retries):
+            try:
+                conn = mysql.connector.connect(
+                    host='127.0.0.1',
+                    port=tunnel_info.local_port,
+                    database=self.secrets['mysql']['database'],
+                    user=self.secrets['mysql']['user'],
+                    password=self.secrets['mysql']['password'],
+                    connect_timeout=10
+                )
+                break  # Success
+            except Exception as e:
+                last_error = e
+                if attempt < max_retries - 1:
+                    # Only retry on "reading initial communication packet" errors
+                    if "reading initial communication packet" in str(e):
+                        time.sleep(retry_delay)
+                    else:
+                        raise  # Don't retry other errors
+                else:
+                    raise last_error
         
         # Get MySQL connection ID
         cursor = conn.cursor()
@@ -427,10 +453,23 @@ class ConnectionPool:
         # Check if this is the first connection for this session
         is_first_connection = session_id not in self.session_registry
         
-        # Log to database
+        # Log to database with pessimistic locking
         try:
             with self.get_bootstrap_connection() as admin_conn:
                 cursor = admin_conn.cursor()
+                
+                # Start transaction
+                cursor.execute("START TRANSACTION")
+                
+                # Lock the tunnel row for update
+                cursor.execute("""
+                    SELECT connection_count FROM tunnel_monitor
+                    WHERE tunnel_id = %s
+                    FOR UPDATE
+                """, (tunnel_id,))
+                cursor.fetchall()  # Consume the SELECT result
+                
+                # Insert connection record
                 cursor.execute("""
                     INSERT INTO connection_monitor 
                     (connection_id, mysql_connection_id, tunnel_id, session_id, username, app_name,
@@ -439,12 +478,13 @@ class ConnectionPool:
                 """, (connection_id, mysql_conn_id, tunnel_id, session_id, username, app_name,
                       conn_info.created_at, conn_info.last_activity, 'active'))
                 
-                # Increment connection count for this tunnel
+                # Atomically increment connection count
                 cursor.execute("""
                     UPDATE tunnel_monitor 
-                    SET connection_count = connection_count + 1
+                    SET connection_count = connection_count + 1,
+                        last_used = %s
                     WHERE tunnel_id = %s
-                """, (tunnel_id,))
+                """, (datetime.now(), tunnel_id))
                 
                 admin_conn.commit()
                 
@@ -504,15 +544,28 @@ class ConnectionPool:
         # Update status
         conn_info.status = 'closed'
         
-        # Update database
+        # Update database with pessimistic locking
         try:
             with self.get_bootstrap_connection() as admin_conn:
                 cursor = admin_conn.cursor()
+                
+                # Start transaction
+                cursor.execute("START TRANSACTION")
+                
+                # Lock the tunnel row for update
+                cursor.execute("""
+                    SELECT connection_count FROM tunnel_monitor
+                    WHERE tunnel_id = %s
+                    FOR UPDATE
+                """, (conn_info.tunnel_id,))
+                cursor.fetchall()  # Consume the SELECT result
+                
+                # Update connection status
                 cursor.execute("""
                     UPDATE connection_monitor SET status = 'closed' WHERE connection_id = %s
                 """, (connection_id,))
                 
-                # Decrement connection count for this tunnel
+                # Atomically decrement connection count
                 cursor.execute("""
                     UPDATE tunnel_monitor 
                     SET connection_count = GREATEST(0, connection_count - 1)

@@ -13,7 +13,7 @@ import json
 DATA_DIR = Path(__file__).parent.parent / "language_materials"
 
 # Cache version - increment when language list or structure changes
-CACHE_VERSION = "1.8.1"
+CACHE_VERSION = "1.8.2"
 
 
 @st.cache_data
