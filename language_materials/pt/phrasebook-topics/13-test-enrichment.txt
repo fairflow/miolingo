@@ -2,12 +2,12 @@
 # Level distribution: A
 # Format: portuguese | english | [ipa]
 
-Bom dia
-Boa noite
-Muito obrigado
-De nada
-Por favor
-Com licença
-Desculpe
-Até logo
-Tchau
+Bom dia | Good morning | [bˈoŋ dʒˈiæ]
+Boa noite | Good evening | [bˈoæ nˈoɪtʃy]
+Muito obrigado | Thank you very much. | [mwˈiŋtw ˌobriɡˈadʊ]
+De nada | You're welcome. | [dʒy nˈadæ]
+Por favor | Please | [por favˈor]
+Com licença | Excuse me | [koŋ lˌisˈeɪŋsæ]
+Desculpe | Sorry | [dˌeskˈuwpy]
+Até logo | See you later. | [atˌɛ lˈɔɡʊ]
+Tchau | Goodbye | [tʃˈaʊ]
