@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "6.1.1"
+__version__ = "6.2.0"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -599,11 +599,26 @@ def show_login_page():
                         session_id = app_mysql.create_session(user['user_id'], "127.0.0.1")
                         
                         if session_id:
+                            # HANDOVER: Close any bootstrap connection, get tracked connection
+                            old_bootstrap = st.session_state.get('db_connection')
+                            if old_bootstrap:
+                                try:
+                                    old_bootstrap.close()
+                                    print("✓ Closed bootstrap connection before login")
+                                except:
+                                    pass
+                                del st.session_state.db_connection
+                            
                             # Store in session state
                             st.session_state['authenticated'] = True
                             st.session_state['user'] = user
                             st.session_state['session_id'] = session_id
-                            # Reload settings from database
+                            
+                            # Get tracked connection from pool (replaces bootstrap)
+                            tracked_conn = app_mysql.get_connection()
+                            print(f"✓ Established tracked connection for {username}")
+                            
+                            # Reload settings from database (using new tracked connection)
                             st.session_state.settings = load_settings()
                             st.success(f"✅ Welcome back, {user['username']}!")
                             st.rerun()
@@ -637,6 +652,8 @@ def show_login_page():
                     user_id = app_mysql.create_user(new_username, new_email, new_password)
                     
                     if user_id:
+                        # Note: Registration doesn't auto-login, so no handover needed here
+                        # User will do handover when they click Login tab
                         st.success(f"✅ Account created! Welcome, {new_username}!")
                         st.info("👆 Please login with your new account in the Login tab")
                     # Errors are handled in app_mysql.create_user()
@@ -662,6 +679,16 @@ def show_login_page():
             if result:
                 user_id, username, session_id = result
                 
+                # HANDOVER: Close any bootstrap connection, get tracked connection
+                old_bootstrap = st.session_state.get('db_connection')
+                if old_bootstrap:
+                    try:
+                        old_bootstrap.close()
+                        print("✓ Closed bootstrap connection before guest login")
+                    except:
+                        pass
+                    del st.session_state.db_connection
+                
                 # Create user dict (matching regular auth format)
                 guest_user = {
                     'user_id': user_id,
@@ -674,6 +701,11 @@ def show_login_page():
                 st.session_state['authenticated'] = True
                 st.session_state['user'] = guest_user
                 st.session_state['session_id'] = session_id
+                
+                # Get tracked connection from pool (replaces bootstrap)
+                tracked_conn = app_mysql.get_connection()
+                print(f"✓ Established tracked connection for guest {username}")
+                
                 # Reload settings from database (will have defaults for new guest)
                 st.session_state.settings = load_settings()
                 st.success(f"✅ Welcome, Guest! Enjoy exploring Miolingo!")
@@ -711,30 +743,29 @@ def check_authentication():
             try:
                 # Get user agent for logging
                 try:
-                    from streamlit.web.server.websocket_headers import _get_websocket_headers
-                    headers = _get_websocket_headers()
+                    headers = st.context.headers
                     user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
                 except:
                     user_agent = 'unknown'
                 
                 user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
                 
-                # validate_session returns None ONLY if session expired (not found or past expires_at)
+                # validate_session returns None if session not valid
                 # It raises exceptions for database errors (which we catch below)
                 if not user:
-                    # Session actually expired in database - legitimate logout
+                    # Session validation failed - could be expired or invalid
                     # Log the forced logout
                     app_mysql.write_debug_log(
                         event_type='forced_logout',
-                        message='Session expired (not found or past expires_at) - forcing logout',
+                        message='Session validation failed - forcing logout',
                         username=st.session_state.get('user', {}).get('username'),
                         user_id=st.session_state.get('user', {}).get('user_id'),
                         user_agent=user_agent,
                         session_id=st.session_state['session_id']
                     )
-                    # FORCED LOGOUT: Set persistent message before logout
-                    st.session_state['forced_logout_reason'] = "session_expired"
-                    st.session_state['forced_logout_message'] = "⚠️ **Session Expired**: Your session has expired after 7 days. Please login again."
+                    # FORCED LOGOUT: Set generic message (don't assume 7-day expiry)
+                    st.session_state['forced_logout_reason'] = "session_invalid"
+                    st.session_state['forced_logout_message'] = "⚠️ **Session Ended**: Your session is no longer valid. Please login again."
                     st.session_state['authenticated'] = False
                     st.rerun()
                 else:
@@ -1046,7 +1077,12 @@ def get_phonemes(text: str, voice: str = "pt-br") -> str:
 
 
 def get_ipa(text: str, voice: str = "pt-br") -> str:
-    """Get IPA transcription for text"""
+    """
+    Get IPA transcription for text
+    
+    Note: eSpeak converts punctuation (commas, periods, etc.) into newlines
+    in the IPA output. We normalize these to spaces for consistent comparison.
+    """
     try:
         espeak_cmd = get_espeak_path()
         result = subprocess.run(
@@ -1055,7 +1091,11 @@ def get_ipa(text: str, voice: str = "pt-br") -> str:
             text=True,
             check=True
         )
-        return result.stdout.strip()
+        # Strip leading/trailing whitespace and normalize internal newlines to spaces
+        # eSpeak inserts newlines at punctuation (commas, periods, etc.)
+        ipa = result.stdout.strip()
+        ipa = ' '.join(ipa.split())  # Replace all whitespace (including \n) with single space
+        return ipa
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         st.warning(f"eSpeak IPA error: {e} (cmd: {get_espeak_path()})")
         return "[IPA unavailable]"
@@ -1990,7 +2030,6 @@ def render_practice_results(result, key_prefix="practice"):
     with col1:
         st.subheader("Target")
         st.write(f"**Text:** {result['target']}")
-        st.write(f"**eIPA:** {result['correct_phonemes']}")
         if result.get('correct_ipa'):
             st.markdown(f"**IPA:** {format_ipa(result['correct_ipa'])}", unsafe_allow_html=True)
         
@@ -2003,7 +2042,6 @@ def render_practice_results(result, key_prefix="practice"):
     with col2:
         st.subheader("Your Pronunciation")
         st.write(f"**Recognized:** {result['recognized']}")
-        st.write(f"**eIPA:** {result['user_phonemes']}")
         if result.get('user_ipa'):
             st.markdown(f"**IPA:** {format_ipa(result['user_ipa'])}", unsafe_allow_html=True)
         
@@ -2041,52 +2079,155 @@ def render_practice_results(result, key_prefix="practice"):
         if result.get('edit_distance') is not None:
             st.write(f"**Edit Distance:** {result['edit_distance']} edit(s) needed")
         
-        st.write("**Normalised phonemes (spaces removed for comparison):**")
+        # Show phonemes WITH spacing preserved for readability
+        st.write("**Phonemes with word spacing:**")
         col_a, col_b = st.columns(2)
         with col_a:
-            # Use IPA (not eIPA) for user-friendly display
-            correct_ipa_normalized = result.get('correct_ipa', '').replace(" ", "")
-            st.markdown(format_ipa(correct_ipa_normalized, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
-            st.caption(f"Target ({len(correct_ipa_normalized)} chars)")
+            # Use IPA with spaces preserved
+            correct_ipa_with_spaces = result.get('correct_ipa', '')
+            st.markdown(format_ipa(correct_ipa_with_spaces, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
+            st.caption(f"Target")
         with col_b:
-            user_ipa_normalized = result.get('user_ipa', '').replace(" ", "")
-            st.markdown(format_ipa(user_ipa_normalized, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
-            st.caption(f"Your Pronunciation ({len(user_ipa_normalized)} chars)")
+            user_ipa_with_spaces = result.get('user_ipa', '')
+            
+            # Space difference highlighting - only mark missing/extra spaces with [ ]
+            # Compare character-by-character to identify exactly which spaces are wrong
+            from difflib import SequenceMatcher
+            matcher = SequenceMatcher(None, correct_ipa_with_spaces, user_ipa_with_spaces)
+            
+            highlighted_chars = []
+            has_space_differences = False
+            
+            for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+                if tag == 'equal':
+                    # Characters match - keep as is
+                    highlighted_chars.append(user_ipa_with_spaces[j1:j2])
+                elif tag == 'replace':
+                    # Characters differ (substitution)
+                    target_segment = correct_ipa_with_spaces[i1:i2]
+                    user_segment = user_ipa_with_spaces[j1:j2]
+                    
+                    # Check if this is a space-related substitution
+                    if ' ' in target_segment or ' ' in user_segment:
+                        has_space_differences = True
+                        # Show bracketed spaces for space substitutions
+                        user_display = user_segment.replace(' ', '[ ]')
+                        highlighted_chars.append(user_display)
+                    else:
+                        # Non-space phoneme differences - don't highlight here (shown in detailed comparison below)
+                        highlighted_chars.append(user_segment)
+                elif tag == 'insert':
+                    # Extra characters in user pronunciation (insertion)
+                    inserted = user_ipa_with_spaces[j1:j2]
+                    if ' ' in inserted:
+                        has_space_differences = True
+                        # Show bracketed spaces for extra spaces
+                        inserted_display = inserted.replace(' ', '[ ]')
+                        highlighted_chars.append(inserted_display)
+                    else:
+                        # Non-space insertions - don't highlight here
+                        highlighted_chars.append(inserted)
+                elif tag == 'delete':
+                    # Missing characters (deletion)
+                    deleted = correct_ipa_with_spaces[i1:i2]
+                    if ' ' in deleted:
+                        has_space_differences = True
+                        # Missing space - show bracket marker
+                        highlighted_chars.append('[ ]')
+                    else:
+                        # Missing phoneme - don't show here (will be in detailed comparison below)
+                        pass
+            
+            highlighted_user = ''.join(highlighted_chars)
+            
+            # Show user pronunciation with space differences marked
+            if has_space_differences:
+                st.markdown(format_ipa(highlighted_user, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
+                st.caption(f"Your Pronunciation ([ ] marks space differences)")
+            else:
+                st.markdown(format_ipa(user_ipa_with_spaces, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
+                st.caption(f"Your Pronunciation ✓")
         
         # Visual comparison - full width for better readability
-        target_norm = result.get('correct_phonemes_normalized', correct_phonemes_no_space)
-        user_norm = result.get('user_phonemes_normalized', user_phonemes_no_space)
+        # Use IPA for comparison, not eIPA
+        # Remove spaces for scoring (Whisper is poor at word boundaries)
+        target_ipa_no_space = result.get('correct_ipa', '').replace(" ", "")
+        user_ipa_no_space = result.get('user_ipa', '').replace(" ", "")
         
-        if target_norm == user_norm:
+        st.write("**Phoneme comparison (spaces ignored for scoring):**")
+        
+        if target_ipa_no_space == user_ipa_no_space:
             st.success("🎯 Phonemes are identical!")
         else:
-            # Use edit distance operations for accurate difference analysis
-            operations = get_edit_operations(target_norm, user_norm)
+            # Use SequenceMatcher for better visual alignment
+            from difflib import SequenceMatcher
+            matcher = SequenceMatcher(None, target_ipa_no_space, user_ipa_no_space)
             
-            # Count operation types
-            matches = sum(1 for op in operations if op[0] == 'match')
-            substitutions = [op for op in operations if op[0] == 'substitute']
-            insertions = [op for op in operations if op[0] == 'insert']
-            deletions = [op for op in operations if op[0] == 'delete']
+            # Build aligned visual representations
+            target_aligned = []
+            user_aligned = []
+            
+            for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+                target_segment = target_ipa_no_space[i1:i2]
+                user_segment = user_ipa_no_space[j1:j2]
+                
+                if tag == 'equal':
+                    # Perfect match - no highlighting
+                    target_aligned.append(target_segment)
+                    user_aligned.append(user_segment)
+                elif tag == 'replace':
+                    # Substitution - highlight in light blue
+                    target_aligned.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{target_segment}</span>')
+                    user_aligned.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{user_segment}</span>')
+                elif tag == 'insert':
+                    # Insertion - extra in user pronunciation
+                    target_aligned.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{"·" * len(user_segment)}</span>')
+                    user_aligned.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{user_segment}</span>')
+                elif tag == 'delete':
+                    # Deletion - missing in user pronunciation
+                    target_aligned.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{target_segment}</span>')
+                    user_aligned.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{"·" * len(target_segment)}</span>')
+            
+            target_html = ''.join(target_aligned)
+            user_html = ''.join(user_aligned)
+            
+            # Count operations for summary
+            operations = matcher.get_opcodes()
+            matches = sum(i2 - i1 for tag, i1, i2, j1, j2 in operations if tag == 'equal')
+            substitutions = [(tag, i1, i2, j1, j2) for tag, i1, i2, j1, j2 in operations if tag == 'replace']
+            insertions = [(tag, i1, i2, j1, j2) for tag, i1, i2, j1, j2 in operations if tag == 'insert']
+            deletions = [(tag, i1, i2, j1, j2) for tag, i1, i2, j1, j2 in operations if tag == 'delete']
             
             st.write(f"**Operations:** {matches} matches, {len(substitutions)} substitutions, {len(insertions)} insertions, {len(deletions)} deletions")
             
-            # Show specific differences using IPA font
-            # Note: get_edit_operations returns (operation, position, char1, char2)
+            # Show aligned strings
+            col_t, col_u = st.columns(2)
+            with col_t:
+                st.markdown(format_ipa(target_html, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
+                st.caption("Target")
+            with col_u:
+                st.markdown(format_ipa(user_html, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
+                st.caption("Your Pronunciation")
+            
+            # Show specific differences with proper segments
             if substitutions:
                 st.write("**Substitutions:**")
-                for op, pos, t_char, u_char in substitutions[:5]:  # Limit to first 5
-                    st.markdown(f"  Position {pos}: {format_ipa(t_char, size='1.05em', weight=400, brackets=False)} → {format_ipa(u_char, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
+                for tag, i1, i2, j1, j2 in substitutions[:5]:  # Limit to first 5
+                    t_segment = target_ipa_no_space[i1:i2]
+                    u_segment = user_ipa_no_space[j1:j2]
+                    st.markdown(f"  Position {i1}–{i2}: {format_ipa(t_segment, size='1.05em', weight=400, brackets=False)} → {format_ipa(u_segment, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
             
             if insertions:
                 st.write("**Insertions (extra phonemes in your pronunciation):**")
-                for op, pos, _, u_char in insertions[:5]:
-                    st.markdown(f"  Position {pos}: {format_ipa(u_char, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
+                for tag, i1, i2, j1, j2 in insertions[:5]:
+                    u_segment = user_ipa_no_space[j1:j2]
+                    st.markdown(f"  After position {i1}: {format_ipa(u_segment, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
             
             if deletions:
                 st.write("**Deletions (missing phonemes):**")
-                for op, pos, t_char, _ in deletions[:5]:
-                    st.markdown(f"  Position {pos}: {format_ipa(t_char, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
+                for tag, i1, i2, j1, j2 in deletions[:5]:
+                    t_segment = target_ipa_no_space[i1:i2]
+                    st.markdown(f"  Position {i1}–{i2}: {format_ipa(t_segment, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
 
 
 def render_scene_practice_mode(scenes_dir):
@@ -2467,10 +2608,11 @@ def main():
     
     # Initialize material_language from saved settings if not already set
     # Do this BEFORE rendering title so the correct language is displayed
+    # NOTE: We use a temporary variable to avoid conflict with the selectbox widget
     if 'material_language' not in st.session_state and 'material_language' in st.session_state.settings:
         saved_lang = st.session_state.settings['material_language']
-        st.session_state.material_language = saved_lang
-        # Also update training language to match
+        # Don't set material_language directly - it will be set by the selectbox widget
+        # Instead, just update training language to match
         if saved_lang in material_to_training:
             st.session_state.language = material_to_training[saved_lang]
             # Validate voice is appropriate for this language
@@ -2522,12 +2664,17 @@ def main():
         
         available_materials = get_available_languages()
         if available_materials:
-            # Find current index (material_language already initialized earlier)
-            # Determine index without manually setting st.session_state
+            # Find current index from saved settings or existing session state
             current_idx = 0
             if 'material_language' in st.session_state:
                 try:
                     current_idx = available_materials.index(st.session_state.material_language)
+                except ValueError:
+                    pass  # Invalid value, use default
+            elif 'material_language' in st.session_state.settings:
+                # First time - use saved language as default
+                try:
+                    current_idx = available_materials.index(st.session_state.settings['material_language'])
                 except ValueError:
                     pass  # Invalid value, use default
             
@@ -3271,13 +3418,9 @@ def main():
                         
                         with col1:
                             st.write("Target:", practice.get('target', 'N/A'))
-                            if "correct_phonemes" in practice:
-                                st.write("Correct eIPA:", practice['correct_phonemes'])
                         
                         with col2:
                             st.write("Recognized:", practice.get('recognized', 'N/A'))
-                            if "user_phonemes" in practice:
-                                st.write("Your eIPA:", practice['user_phonemes'])
                         
                         st.markdown("---")
     

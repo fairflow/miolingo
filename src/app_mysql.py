@@ -301,6 +301,36 @@ def get_connection() -> mysql.connector.MySQLConnection:
     # No existing connection or it died - create new one
     pool = get_connection_pool_instance()
     
+    # CRITICAL: Untracked → Tracked handover architecture
+    # Pre-auth: Use single bootstrap connection (untracked, temporary)
+    # Post-auth: Switch to tracked connection from pool (permanent until logout)
+    if not st.session_state.get('authenticated', False):
+        # Not authenticated - use bootstrap connection (unlimited, not tracked)
+        # Store it for reuse until login, then it will be closed during handover
+        if 'db_connection' not in st.session_state:
+            print("⚠️ Creating bootstrap connection for unauthenticated user (temporary, not tracked)")
+            conn = pool.get_bootstrap_connection()
+            st.session_state.db_connection = conn
+        else:
+            conn = st.session_state.db_connection
+            # Health check
+            try:
+                cursor = conn.cursor(buffered=True)
+                cursor.execute("SELECT 1")
+                cursor.fetchall()
+                cursor.close()
+                print("✓ Reusing bootstrap connection")
+            except Exception as e:
+                print(f"⚠️ Bootstrap connection died, getting fresh one")
+                try:
+                    conn.close()
+                except:
+                    pass
+                conn = pool.get_bootstrap_connection()
+                st.session_state.db_connection = conn
+        return conn
+    
+    # Authenticated user - create tracked connection
     # Get session info for tracking
     session_id = st.session_state.get('session_id', f'app_{secrets.token_hex(8)}')
     
@@ -574,6 +604,7 @@ def create_user(username: str, email: str, password: str) -> Optional[int]:
 def authenticate_user(username: str, password: str) -> Optional[Dict]:
     """
     Authenticate user with username and password.
+    Uses bootstrap connection to prevent creating tracked connections for failed logins.
     
     Args:
         username: Username
@@ -582,58 +613,58 @@ def authenticate_user(username: str, password: str) -> Optional[Dict]:
     Returns:
         User dict {user_id, username, email} if successful, None if failed
     """
-    conn = None
+    # CRITICAL: Use bootstrap connection for authentication
+    # This prevents creating tracked connections for failed login attempts
+    pool = get_connection_pool_instance()
+    
     try:
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        query = """
-            SELECT user_id, username, email, password_hash, is_active
-            FROM users
-            WHERE username = %s
-        """
-        cursor.execute(query, (username,))
-        user = cursor.fetchone()
-        cursor.close()
-        
-        if not user:
-            log_activity(None, "LOGIN_FAILED", f"Username not found: {username}", "system")
-            return None
-        
-        if not user['is_active']:
-            log_activity(user['user_id'], "LOGIN_FAILED", "Account inactive", "system")
-            st.error("❌ Account is inactive. Please contact support.")
-            return None
-        
-        # Verify password with Argon2id
-        try:
-            pwd_hasher.verify(user['password_hash'], password)
+        with pool.get_bootstrap_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
             
-            # Update last login
-            cursor = conn.cursor()
-            cursor.execute("UPDATE users SET last_login = NOW() WHERE user_id = %s", (user['user_id'],))
-            conn.commit()
+            query = """
+                SELECT user_id, username, email, password_hash, is_active
+                FROM users
+                WHERE username = %s
+            """
+            cursor.execute(query, (username,))
+            user = cursor.fetchone()
             cursor.close()
             
-            # Log successful login
-            log_activity(user['user_id'], "LOGIN_SUCCESS", f"Username: {username}", "system")
+            if not user:
+                log_activity(None, "LOGIN_FAILED", f"Username not found: {username}", "system", use_bootstrap=True)
+                return None
             
-            return {
-                'user_id': user['user_id'],
-                'username': user['username'],
-                'email': user['email']
-            }
+            if not user['is_active']:
+                log_activity(user['user_id'], "LOGIN_FAILED", "Account inactive", "system", use_bootstrap=True)
+                st.error("❌ Account is inactive. Please contact support.")
+                return None
             
-        except VerifyMismatchError:
-            log_activity(user['user_id'], "LOGIN_FAILED", "Invalid password", "system")
-            return None
+            # Verify password with Argon2id
+            try:
+                pwd_hasher.verify(user['password_hash'], password)
+                
+                # Update last login
+                cursor = conn.cursor()
+                cursor.execute("UPDATE users SET last_login = NOW() WHERE user_id = %s", (user['user_id'],))
+                conn.commit()
+                cursor.close()
+                
+                # Log successful login
+                log_activity(user['user_id'], "LOGIN_SUCCESS", f"Username: {username}", "system", use_bootstrap=True)
+                
+                return {
+                    'user_id': user['user_id'],
+                    'username': user['username'],
+                    'email': user['email']
+                }
+                
+            except VerifyMismatchError:
+                log_activity(user['user_id'], "LOGIN_FAILED", "Invalid password", "system", use_bootstrap=True)
+                return None
     
     except Error as e:
         st.error(f"❌ Authentication error: {e}")
         return None
-    
-    finally:
-        pass  # Don't close conn - it's a persistent session connection
 
 
 def get_user_by_id(user_id: int) -> Optional[Dict]:
@@ -665,6 +696,7 @@ def get_user_by_id(user_id: int) -> Optional[Dict]:
 def create_session(user_id: int, ip_address: str = "unknown") -> Optional[str]:
     """
     Create a new session for authenticated user.
+    Uses bootstrap connection before user's tracked connection is established.
     
     Args:
         user_id: User ID
@@ -673,7 +705,10 @@ def create_session(user_id: int, ip_address: str = "unknown") -> Optional[str]:
     Returns:
         session_id (32-byte secure token) if successful, None if failed
     """
-    conn = None
+    # CRITICAL: Use bootstrap connection for session creation
+    # User doesn't have a tracked connection yet at this point
+    pool = get_connection_pool_instance()
+    
     try:
         # Generate cryptographically secure session ID
         session_id = secrets.token_urlsafe(32)
@@ -681,34 +716,30 @@ def create_session(user_id: int, ip_address: str = "unknown") -> Optional[str]:
         # Session expires in 7 days
         expires_at = datetime.now() + timedelta(days=7)
         
-        conn = get_connection()
-        cursor = conn.cursor()
+        with pool.get_bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            
+            query = """
+                INSERT INTO sessions (session_id, user_id, created_at, expires_at, ip_address)
+                VALUES (%s, %s, NOW(), %s, %s)
+            """
+            cursor.execute(query, (session_id, user_id, expires_at, ip_address))
+            conn.commit()
+            cursor.close()
         
-        query = """
-            INSERT INTO sessions (session_id, user_id, created_at, expires_at, ip_address)
-            VALUES (%s, %s, NOW(), %s, %s)
-        """
-        cursor.execute(query, (session_id, user_id, expires_at, ip_address))
-        conn.commit()
-        cursor.close()
-        
-        log_activity(user_id, "SESSION_CREATED", f"IP: {ip_address}", ip_address)
+        log_activity(user_id, "SESSION_CREATED", f"IP: {ip_address}", ip_address, use_bootstrap=True)
         
         return session_id
         
     except Error as e:
-        if conn:
-            conn.rollback()
         st.error(f"❌ Failed to create session: {e}")
         return None
-    
-    finally:
-        pass  # Don't close conn - it's a persistent session connection
 
 
 def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[Dict]:
     """
     Validate session and return user info.
+    Uses bootstrap connection to avoid creating tracked connection before validation.
     Also checks IP address for session hijacking detection.
     
     Args:
@@ -718,57 +749,61 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
     Returns:
         User dict if session valid, None if invalid/expired
     """
-    conn = None
+    # CRITICAL: Use bootstrap connection for session validation
+    # We don't want to create a tracked connection if session is invalid
+    pool = get_connection_pool_instance()
+    
     try:
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        query = """
-            SELECT s.session_id, s.user_id, s.ip_address, s.expires_at,
-                   u.username, u.email, u.is_active
-            FROM sessions s
-            JOIN users u ON s.user_id = u.user_id
-            WHERE s.session_id = %s AND s.expires_at > NOW()
-        """
-        cursor.execute(query, (session_id,))
-        session = cursor.fetchone()
-        cursor.close()
-        
-        if not session:
-            # Log session validation failure
-            write_debug_log(
-                event_type='session_validation_failed',
-                message=f'Session not found or expired in database',
-                session_id=session_id
-            )
-            return None
-        
-        # Check if user is active
-        if not session['is_active']:
-            write_debug_log(
-                event_type='session_validation_failed',
-                message=f'User account is inactive',
-                username=session.get('username'),
-                user_id=session.get('user_id'),
-                session_id=session_id
-            )
-            return None
-        
-        # IP address validation (detect session hijacking)
-        if session['ip_address'] != ip_address and session['ip_address'] != "unknown":
-            log_activity(
-                session['user_id'],
-                "SESSION_IP_MISMATCH",
-                f"Expected: {session['ip_address']}, Got: {ip_address}",
-                ip_address
-            )
-            # Still allow (IPs can change legitimately), but log for security monitoring
-        
-        return {
-            'user_id': session['user_id'],
-            'username': session['username'],
-            'email': session['email']
-        }
+        with pool.get_bootstrap_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            
+            query = """
+                SELECT s.session_id, s.user_id, s.ip_address, s.expires_at,
+                       u.username, u.email, u.is_active
+                FROM sessions s
+                JOIN users u ON s.user_id = u.user_id
+                WHERE s.session_id = %s AND s.expires_at > NOW()
+            """
+            cursor.execute(query, (session_id,))
+            session = cursor.fetchone()
+            cursor.close()
+            
+            if not session:
+                # Log session validation failure
+                write_debug_log(
+                    event_type='session_validation_failed',
+                    message=f'Session not found or expired in database',
+                    session_id=session_id
+                )
+                return None
+            
+            # Check if user is active
+            if not session['is_active']:
+                write_debug_log(
+                    event_type='session_validation_failed',
+                    message=f'User account is inactive',
+                    username=session.get('username'),
+                    user_id=session.get('user_id'),
+                    session_id=session_id
+                )
+                return None
+            
+            # IP address validation (detect session hijacking)
+            if session['ip_address'] != ip_address and session['ip_address'] != "unknown":
+                log_activity(
+                    session['user_id'],
+                    "SESSION_IP_MISMATCH",
+                    f"Expected: {session['ip_address']}, Got: {ip_address}",
+                    ip_address,
+                    use_bootstrap=True
+                )
+                # Still allow (IPs can change legitimately), but log for security monitoring
+            
+            return {
+                'user_id': session['user_id'],
+                'username': session['username'],
+                'email': session['email']
+            }
         
     except Error as e:
         # Log the error
@@ -779,40 +814,48 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
         )
         # Re-raise the exception so caller knows this is an ERROR, not expiry
         raise
-    
-    finally:
-        pass  # Don't close conn - it's a persistent session connection
 
 
 def delete_session(session_id: str) -> bool:
-    """Delete a session (logout)."""
-    conn = None
+    """
+    Delete a session (logout) and properly close the connection.
+    This is the ONLY time we close a connection (user explicitly logs out).
+    """
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        # Get user_id before deleting
-        cursor.execute("SELECT user_id FROM sessions WHERE session_id = %s", (session_id,))
-        result = cursor.fetchone()
-        user_id = result[0] if result else None
-        
-        cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
-        conn.commit()
-        cursor.close()
-        
-        if user_id:
-            log_activity(user_id, "SESSION_DELETED", "User logged out", "system")
+        # Use the session's existing connection for the delete operation
+        conn = st.session_state.get('db_connection')
+        if conn:
+            cursor = conn.cursor()
+            
+            # Get user_id before deleting
+            cursor.execute("SELECT user_id FROM sessions WHERE session_id = %s", (session_id,))
+            result = cursor.fetchone()
+            user_id = result[0] if result else None
+            
+            cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
+            conn.commit()
+            cursor.close()
+            
+            if user_id:
+                log_activity(user_id, "SESSION_DELETED", "User logged out", "system")
+            
+            # CRITICAL: Now properly close the connection after cleanup
+            # This is the ONLY place we close connections (explicit logout)
+            try:
+                pool = get_connection_pool_instance()
+                pool.close_connection(conn, session_id)
+            except Exception as close_err:
+                print(f"Warning: Error closing connection on logout: {close_err}")
+            
+            # Clear from session state
+            if 'db_connection' in st.session_state:
+                del st.session_state.db_connection
         
         return True
         
     except Error as e:
-        if conn:
-            conn.rollback()
         st.error(f"❌ Failed to delete session: {e}")
         return False
-    
-    finally:
-        pass  # Don't close conn - it's a persistent session connection
 
 
 def cleanup_expired_sessions() -> int:
@@ -1315,7 +1358,8 @@ def log_activity(
     user_id: Optional[int],
     action: str,
     details: str,
-    ip_address: str = "system"
+    ip_address: str = "system",
+    use_bootstrap: bool = False
 ) -> bool:
     """
     Log user activity for audit trail.
@@ -1325,28 +1369,39 @@ def log_activity(
         action: Action type (e.g., "LOGIN_SUCCESS", "SETTING_CHANGED")
         details: Additional details
         ip_address: Client IP address
+        use_bootstrap: If True, use bootstrap connection (for pre-auth logging)
     
     Returns:
         True if logged successfully
     """
-    conn = None
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        query = """
-            INSERT INTO activity_log (user_id, action, details, ip_address, timestamp)
-            VALUES (%s, %s, %s, %s, NOW())
-        """
-        cursor.execute(query, (user_id, action, details, ip_address))
-        conn.commit()
-        cursor.close()
+        if use_bootstrap:
+            # Use bootstrap connection for authentication-related logging
+            pool = get_connection_pool_instance()
+            with pool.get_bootstrap_connection() as conn:
+                cursor = conn.cursor()
+                query = """
+                    INSERT INTO activity_log (user_id, action, details, ip_address, timestamp)
+                    VALUES (%s, %s, %s, %s, NOW())
+                """
+                cursor.execute(query, (user_id, action, details, ip_address))
+                conn.commit()
+                cursor.close()
+        else:
+            # Use normal session connection
+            conn = get_connection()
+            cursor = conn.cursor()
+            query = """
+                INSERT INTO activity_log (user_id, action, details, ip_address, timestamp)
+                VALUES (%s, %s, %s, %s, NOW())
+            """
+            cursor.execute(query, (user_id, action, details, ip_address))
+            conn.commit()
+            cursor.close()
         
         return True
         
     except Error as e:
-        if conn:
-            conn.rollback()
         # Don't show error to user for logging failures
         return False
     
