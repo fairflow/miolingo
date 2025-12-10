@@ -6,10 +6,10 @@ Local admin interface for monitoring resource usage, users, and logs.
 Run with: streamlit run miolingo-admin.py --server.port 8505 --server.headless=true
 Then open: http://localhost:8505
 
-Version: 2.0.0
+Version: 2.1.0
 """
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 
 import streamlit as st
 import json
