@@ -196,46 +196,16 @@ def check_authentication():
 
 def log_monitor_session(username: str):
     """Log a connection monitor login session to the database"""
-    import streamlit.web.server.server as server
-    
-    # Get user info from Streamlit context
     try:
-        # Get client IP (approximation)
+        # Get client IP
         user_ip = "127.0.0.1"  # Default for local
         
         # Get user agent
         try:
-            # Try to get from headers if available
-            import streamlit as st
-            ctx = st.runtime.scriptrunner.get_script_run_ctx()
-            if ctx and hasattr(ctx, 'user_info'):
-                user_agent = getattr(ctx.user_info, 'user_agent', 'Unknown')
-            else:
-                user_agent = "Unknown"
+            headers = st.context.headers
+            user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
         except:
-            user_agent = "Unknown"
-        
-        # Parse device and browser from user agent
-        device_type = "Desktop"
-        browser = "Unknown"
-        
-        if user_agent != "Unknown":
-            ua_lower = user_agent.lower()
-            # Device detection
-            if 'mobile' in ua_lower or 'iphone' in ua_lower or 'android' in ua_lower:
-                device_type = "Mobile"
-            elif 'tablet' in ua_lower or 'ipad' in ua_lower:
-                device_type = "Tablet"
-            
-            # Browser detection
-            if 'chrome' in ua_lower:
-                browser = "Chrome"
-            elif 'safari' in ua_lower:
-                browser = "Safari"
-            elif 'firefox' in ua_lower:
-                browser = "Firefox"
-            elif 'edge' in ua_lower:
-                browser = "Edge"
+            user_agent = "unknown"
         
         # Generate session ID
         session_id = f"monitor_{username}_{uuid.uuid4().hex[:8]}"
@@ -243,34 +213,15 @@ def log_monitor_session(username: str):
         # Store session ID FIRST before any DB operations
         st.session_state.monitor_session_id = session_id
         
-        # Calculate expiry (7 days like main app)
-        expires_at = datetime.now() + timedelta(days=7)
-        
-        # Insert into session_monitor table using raw connection
-        tunnel = create_ssh_tunnel()
-        try:
-            conn = mysql.connector.connect(
-                host='127.0.0.1',
-                port=tunnel.local_bind_port,
-                database=st.secrets["mysql"]["database"],
-                user=st.secrets["mysql"]["user"],
-                password=st.secrets["mysql"]["password"],
-                connect_timeout=10
-            )
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                INSERT INTO session_monitor 
-                (session_id, username, user_ip, user_agent, device_type, browser, 
-                 login_time, expires_at, last_activity, status)
-                VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, NOW(), 'active')
-            """, (session_id, username, user_ip, user_agent, device_type, browser, expires_at))
-            
-            conn.commit()
-            cursor.close()
-            conn.close()
-        finally:
-            tunnel.stop()
+        # Use shared logging function from app_mysql
+        from app_mysql import log_session_to_monitor
+        log_session_to_monitor(
+            session_id=session_id,
+            username=username,
+            user_ip=user_ip,
+            user_agent=user_agent,
+            app_name='connection_monitor'
+        )
         
     except Exception as e:
         # Don't fail login if logging fails
@@ -421,6 +372,7 @@ def init_monitoring_tables():
                     user_agent TEXT,
                     device_type VARCHAR(50),
                     browser VARCHAR(50),
+                    app_name VARCHAR(50),
                     login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     expires_at TIMESTAMP,
                     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -428,7 +380,8 @@ def init_monitoring_tables():
                     INDEX idx_session_id (session_id),
                     INDEX idx_username (username),
                     INDEX idx_status (status),
-                    INDEX idx_expires_at (expires_at)
+                    INDEX idx_expires_at (expires_at),
+                    INDEX idx_app_name (app_name)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
         

@@ -741,29 +741,31 @@ class ConnectionPool:
                         pass  # Ignore duplicate column errors, raise others if needed
                 
                 
-                # Session monitoring table (comprehensive user tracking)
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS session_monitor (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        session_id VARCHAR(100) UNIQUE NOT NULL,
-                        username VARCHAR(100) NOT NULL,
-                        user_ip VARCHAR(45),
-                        user_agent TEXT,
-                        device_type VARCHAR(50),
-                        browser VARCHAR(50),
-                        login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        expires_at TIMESTAMP,
-                        last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        status ENUM('active', 'expired', 'forced_logout') DEFAULT 'active',
-                        INDEX idx_session_id (session_id),
-                        INDEX idx_username (username),
-                        INDEX idx_status (status),
-                        INDEX idx_expires_at (expires_at)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """)
+            # Session monitoring table (comprehensive user tracking)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS session_monitor (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    session_id VARCHAR(100) UNIQUE NOT NULL,
+                    username VARCHAR(100) NOT NULL,
+                    user_ip VARCHAR(45),
+                    user_agent TEXT,
+                    device_type VARCHAR(50),
+                    browser VARCHAR(50),
+                    app_name VARCHAR(50),
+                    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    expires_at TIMESTAMP,
+                    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    status ENUM('active', 'expired', 'forced_logout') DEFAULT 'active',
+                    INDEX idx_session_id (session_id),
+                    INDEX idx_username (username),
+                    INDEX idx_status (status),
+                    INDEX idx_expires_at (expires_at),
+                    INDEX idx_app_name (app_name)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
             
-                conn.commit()
-                cursor.close()
+            conn.commit()
+            cursor.close()
             
             return True, "Monitoring tables initialized successfully"
             

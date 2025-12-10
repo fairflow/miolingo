@@ -38,6 +38,81 @@ if 'auto_refresh_enabled' not in st.session_state:
 
 # NOTE: Auto-refresh sleep happens at END of page, not here
 
+
+# ============================================================================
+# AUTHENTICATION
+# ============================================================================
+
+def check_authentication():
+    """Simple authentication for admin dashboard (reuses miolingo auth)"""
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+    
+    if not st.session_state.authenticated:
+        st.title("🔧 Miolingo Admin Dashboard")
+        st.subheader("Authentication Required")
+        
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submitted = st.form_submit_button("Login")
+            
+            if submitted:
+                # Authenticate using bootstrap connection (doesn't count toward pool)
+                try:
+                    user = app_mysql.authenticate_user(username, password)
+                    
+                    if not user:
+                        st.error("Invalid credentials")
+                        st.stop()
+                    
+                    # Check if user is admin
+                    is_admin = username.lower() in ['admin', 'matthew'] or username.lower().startswith('admin_')
+                    
+                    if not is_admin:
+                        st.error("Access denied. Admin privileges required.")
+                        st.stop()
+                    
+                    # Admin authentication successful
+                    st.session_state.authenticated = True
+                    st.session_state.admin_username = username
+                    st.session_state.admin_user_id = user['user_id']
+                    st.session_state.uses_bootstrap = True  # Flag to use bootstrap connections
+                    
+                    # Get user agent for logging
+                    try:
+                        headers = st.context.headers
+                        user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
+                    except:
+                        user_agent = 'unknown'
+                    
+                    # Log this admin login
+                    try:
+                        session_id = app_mysql.create_session(user['user_id'], "127.0.0.1")
+                        if session_id:
+                            st.session_state.admin_session_id = session_id
+                            # Log to session_monitor table
+                            app_mysql.log_session_to_monitor(
+                                session_id=session_id,
+                                username=username,
+                                user_ip="127.0.0.1",
+                                user_agent=user_agent,
+                                app_name='miolingo-admin'
+                            )
+                    except Exception as log_err:
+                        st.warning(f"Login successful but session logging failed: {log_err}")
+                    
+                    st.success("✅ Admin access granted")
+                    st.rerun()
+                    
+                except Exception as e:
+                    st.error(f"Authentication error: {e}")
+        
+        st.stop()
+
+# Check authentication before showing dashboard
+check_authentication()
+
 st.title("🔧 Miolingo Admin Dashboard")
 st.caption("Local monitoring and management interface • v2.0.1")
 
@@ -218,12 +293,14 @@ with tab2:
             with col1:
                 st.metric("Total Users", user_count)
             
-            # Get currently logged-in users (active sessions)
+            # Get currently logged-in users (active sessions with device/browser info)
             cursor.execute("""
                 SELECT u.username, u.email, s.created_at as login_time, s.expires_at, s.ip_address,
-                       TIMESTAMPDIFF(HOUR, NOW(), s.expires_at) as hours_until_expire
+                       TIMESTAMPDIFF(HOUR, NOW(), s.expires_at) as hours_until_expire,
+                       sm.device_type, sm.browser, sm.app_name
                 FROM sessions s
                 JOIN users u ON s.user_id = u.user_id
+                LEFT JOIN session_monitor sm ON s.session_id = sm.session_id
                 WHERE s.expires_at > NOW()
                 ORDER BY s.created_at DESC
             """)
@@ -396,8 +473,13 @@ with tab2:
                 df_active['expires_at'] = pd.to_datetime(df_active['expires_at'])
                 # Convert hours to int
                 df_active['hours_until_expire'] = df_active['hours_until_expire'].astype(int)
-                st.dataframe(df_active, width='stretch', hide_index=True)
-                st.caption("💡 Active sessions expire 24 hours after login. Sessions are removed on logout or cleanup.")
+                # Reorder columns for better display
+                column_order = ['username', 'email', 'app_name', 'device_type', 'browser', 
+                               'login_time', 'hours_until_expire', 'ip_address']
+                # Only include columns that exist
+                display_cols = [col for col in column_order if col in df_active.columns]
+                st.dataframe(df_active[display_cols], width='stretch', hide_index=True)
+                st.caption("💡 Active sessions expire 7 days after login. Sessions are removed on logout or cleanup.")
                 
                 # Force logout specific users
                 st.subheader("🚪 Force Logout Selected Users")

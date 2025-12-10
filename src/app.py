@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "6.2.0"
+__version__ = "6.2.1"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -618,6 +618,22 @@ def show_login_page():
                             tracked_conn = app_mysql.get_connection()
                             print(f"✓ Established tracked connection for {username}")
                             
+                            # Get user agent for session logging
+                            try:
+                                headers = st.context.headers
+                                user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
+                            except:
+                                user_agent = 'unknown'
+                            
+                            # Log session to session_monitor table
+                            app_mysql.log_session_to_monitor(
+                                session_id=session_id,
+                                username=username,
+                                user_ip="127.0.0.1",
+                                user_agent=user_agent,
+                                app_name='app'
+                            )
+                            
                             # Reload settings from database (using new tracked connection)
                             st.session_state.settings = load_settings()
                             st.success(f"✅ Welcome back, {user['username']}!")
@@ -705,6 +721,22 @@ def show_login_page():
                 # Get tracked connection from pool (replaces bootstrap)
                 tracked_conn = app_mysql.get_connection()
                 print(f"✓ Established tracked connection for guest {username}")
+                
+                # Get user agent for session logging
+                try:
+                    headers = st.context.headers
+                    user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
+                except:
+                    user_agent = 'unknown'
+                
+                # Log session to session_monitor table
+                app_mysql.log_session_to_monitor(
+                    session_id=session_id,
+                    username=username,
+                    user_ip="127.0.0.1",
+                    user_agent=user_agent,
+                    app_name='app'
+                )
                 
                 # Reload settings from database (will have defaults for new guest)
                 st.session_state.settings = load_settings()

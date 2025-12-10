@@ -858,6 +858,82 @@ def delete_session(session_id: str) -> bool:
         return False
 
 
+def log_session_to_monitor(session_id: str, username: str, user_ip: str, user_agent: str, app_name: str) -> bool:
+    """
+    Log session details to session_monitor table for comprehensive tracking.
+    This is the single source of truth for session metadata (device, browser, app).
+    
+    Args:
+        session_id: Session ID from sessions table
+        username: Username
+        user_ip: Client IP address
+        user_agent: Browser user agent string
+        app_name: Which app created the session ('app', 'connection_monitor', 'miolingo-admin')
+    
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        # Parse device type and browser from user agent
+        device_type = "Desktop"
+        browser = "Unknown"
+        
+        if user_agent and user_agent != "unknown":
+            ua_lower = user_agent.lower()
+            
+            # Device detection
+            if 'mobile' in ua_lower or 'iphone' in ua_lower or 'android' in ua_lower:
+                device_type = "Mobile"
+            elif 'tablet' in ua_lower or 'ipad' in ua_lower:
+                device_type = "Tablet"
+            
+            # Browser detection
+            if 'edg/' in ua_lower or 'edge' in ua_lower:
+                browser = "Edge"
+            elif 'chrome' in ua_lower and 'edg' not in ua_lower:
+                browser = "Chrome"
+            elif 'safari' in ua_lower and 'chrome' not in ua_lower:
+                browser = "Safari"
+            elif 'firefox' in ua_lower:
+                browser = "Firefox"
+            elif 'opera' in ua_lower or 'opr/' in ua_lower:
+                browser = "Opera"
+        
+        # Calculate expiry (7 days like main session)
+        expires_at = datetime.now() + timedelta(days=7)
+        
+        # Use bootstrap connection for logging
+        pool = get_connection_pool_instance()
+        
+        with pool.get_bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Insert or update session_monitor
+            query = """
+                INSERT INTO session_monitor 
+                (session_id, username, user_ip, user_agent, device_type, browser, app_name, 
+                 login_time, expires_at, last_activity, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), %s, NOW(), 'active')
+                ON DUPLICATE KEY UPDATE
+                    user_ip = VALUES(user_ip),
+                    user_agent = VALUES(user_agent),
+                    device_type = VALUES(device_type),
+                    browser = VALUES(browser),
+                    app_name = VALUES(app_name),
+                    last_activity = NOW(),
+                    status = 'active'
+            """
+            cursor.execute(query, (session_id, username, user_ip, user_agent, device_type, browser, app_name, expires_at))
+            conn.commit()
+            cursor.close()
+        
+        return True
+        
+    except Error as e:
+        print(f"Warning: Failed to log session to monitor: {e}")
+        return False
+
+
 def cleanup_expired_sessions() -> int:
     """
     Remove expired sessions from database.
@@ -1438,6 +1514,7 @@ def get_user_activity_log(user_id: int, limit: int = 100) -> List[Dict]:
 def get_active_announcements(location: str = 'both') -> Dict[str, Optional[str]]:
     """
     Get active announcements for a specific location.
+    Called from login page (pre-auth), so uses bootstrap connection.
     
     Args:
         location: 'login', 'app', or 'both'
@@ -1445,43 +1522,44 @@ def get_active_announcements(location: str = 'both') -> Dict[str, Optional[str]]
     Returns:
         Dict with 'system' and 'feature' keys containing message strings or None
     """
-    conn = None
     try:
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        # Query for system announcement
-        system_query = """
-            SELECT message FROM announcements
-            WHERE type = 'system' 
-            AND active = TRUE
-            AND (display_on = %s OR display_on = 'both')
-            AND (expires_at IS NULL OR expires_at > NOW())
-            ORDER BY created_at DESC
-            LIMIT 1
-        """
-        cursor.execute(system_query, (location,))
-        system_result = cursor.fetchone()
-        
-        # Query for feature announcement
-        feature_query = """
-            SELECT message FROM announcements
-            WHERE type = 'feature'
-            AND active = TRUE
-            AND (display_on = %s OR display_on = 'both')
-            AND (expires_at IS NULL OR expires_at > NOW())
-            ORDER BY created_at DESC
-            LIMIT 1
-        """
-        cursor.execute(feature_query, (location,))
-        feature_result = cursor.fetchone()
-        
-        cursor.close()
-        
-        return {
-            'system': system_result['message'] if system_result else None,
-            'feature': feature_result['message'] if feature_result else None
-        }
+        # Use bootstrap connection - this is called from login page before authentication
+        pool = get_connection_pool_instance()
+        with pool.get_bootstrap_connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            
+            # Query for system announcement
+            system_query = """
+                SELECT message FROM announcements
+                WHERE type = 'system' 
+                AND active = TRUE
+                AND (display_on = %s OR display_on = 'both')
+                AND (expires_at IS NULL OR expires_at > NOW())
+                ORDER BY created_at DESC
+                LIMIT 1
+            """
+            cursor.execute(system_query, (location,))
+            system_result = cursor.fetchone()
+            
+            # Query for feature announcement
+            feature_query = """
+                SELECT message FROM announcements
+                WHERE type = 'feature'
+                AND active = TRUE
+                AND (display_on = %s OR display_on = 'both')
+                AND (expires_at IS NULL OR expires_at > NOW())
+                ORDER BY created_at DESC
+                LIMIT 1
+            """
+            cursor.execute(feature_query, (location,))
+            feature_result = cursor.fetchone()
+            
+            cursor.close()
+            
+            return {
+                'system': system_result['message'] if system_result else None,
+                'feature': feature_result['message'] if feature_result else None
+            }
         
     except Error as e:
         # Silently fail - don't disrupt app if announcements fail
