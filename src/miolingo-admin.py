@@ -9,7 +9,7 @@ Then open: http://localhost:8505
 Version: 2.1.0
 """
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 # Auto-refresh interval in minutes
 REFRESH_INTERVAL_MINUTES = 5
@@ -118,7 +118,7 @@ def check_authentication():
 check_authentication()
 
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface • v2.0.1")
+st.caption("Local monitoring and management interface • v2.0.3")
 
 # Quick reconnect button in sidebar
 with st.sidebar:

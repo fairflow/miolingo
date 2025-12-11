@@ -15,7 +15,7 @@ Author: Miolingo Team
 Version: 2.1.0
 """
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 # Auto-refresh interval in minutes
 REFRESH_INTERVAL_MINUTES = 5
