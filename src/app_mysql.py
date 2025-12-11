@@ -622,7 +622,7 @@ def authenticate_user(username: str, password: str) -> Optional[Dict]:
             cursor = conn.cursor(dictionary=True)
             
             query = """
-                SELECT user_id, username, email, password_hash, is_active
+                SELECT user_id, username, email, password_hash, is_active, role
                 FROM users
                 WHERE username = %s
             """
@@ -655,7 +655,8 @@ def authenticate_user(username: str, password: str) -> Optional[Dict]:
                 return {
                     'user_id': user['user_id'],
                     'username': user['username'],
-                    'email': user['email']
+                    'email': user['email'],
+                    'role': user['role']
                 }
                 
             except VerifyMismatchError:

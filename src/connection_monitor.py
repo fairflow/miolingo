@@ -135,9 +135,8 @@ def check_authentication():
                         st.error("Invalid credentials")
                         st.stop()
                     
-                    # Check if user is admin (hardcoded list or check username pattern)
-                    # Admin usernames: admin, matthew, or any username starting with 'admin_'
-                    is_admin = username.lower() in ['admin', 'matthew'] or username.lower().startswith('admin_')
+                    # Check if user is admin based on role from database
+                    is_admin = user.get('role') == 'admin'
                     
                     # Check current capacity
                     active_count = 0

@@ -23,7 +23,7 @@ Features:
 Author: Miolingo Team
 """
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 import sys
 import os
@@ -107,10 +107,18 @@ def read_sql_file(filepath: str) -> List[str]:
     # Split by semicolons, filter out empty statements and comments
     statements = []
     for stmt in content.split(';'):
-        stmt = stmt.strip()
-        # Skip empty lines and comment-only statements
-        if stmt and not stmt.startswith('--') and not stmt.startswith('#'):
-            statements.append(stmt)
+        # Remove comment lines but preserve SQL
+        lines = []
+        for line in stmt.split('\n'):
+            line = line.strip()
+            # Skip comment-only lines
+            if line and not line.startswith('--') and not line.startswith('#'):
+                lines.append(line)
+        
+        # Join remaining lines and check if there's actual SQL
+        cleaned_stmt = ' '.join(lines).strip()
+        if cleaned_stmt:
+            statements.append(cleaned_stmt)
     
     print(f"📝 Found {len(statements)} SQL statement(s)")
     return statements
@@ -130,15 +138,26 @@ def is_ddl_query(query: str) -> bool:
     return any(query_upper.startswith(keyword) for keyword in ddl_keywords)
 
 
-def confirm_execution(queries: List[str], auto_commit: bool) -> bool:
+def confirm_execution(queries: List[str], auto_commit: bool, skip_confirm: bool = False) -> bool:
     """
     Check for dangerous queries and ask for confirmation
+    
+    Args:
+        skip_confirm: If True, skip all confirmations (for non-interactive use)
     
     Returns:
         True if user confirms, False to abort
     """
     has_ddl = any(is_ddl_query(q) for q in queries)
     has_modifications = any(not is_read_only_query(q) for q in queries)
+    
+    # Skip confirmations if requested
+    if skip_confirm:
+        if has_ddl:
+            print("⚠️  DDL statements will execute immediately (--yes flag)")
+        elif has_modifications and not auto_commit:
+            print("ℹ️  Dry-run mode: modifications will be rolled back (--yes flag)")
+        return True
     
     if has_ddl:
         print("\n" + "="*60)
@@ -338,6 +357,10 @@ Examples:
                        action='store_true',
                        help='Do not display query results')
     
+    parser.add_argument('--yes', '-y',
+                       action='store_true',
+                       help='Skip confirmation prompts (non-interactive mode)')
+    
     parser.add_argument('--version', '-v',
                        action='version',
                        version=f'amend_db.py v{__version__}')
@@ -359,7 +382,7 @@ Examples:
     print()
     
     # Confirm execution (especially for DDL statements)
-    if not confirm_execution(queries, args.commit):
+    if not confirm_execution(queries, args.commit, skip_confirm=args.yes):
         sys.exit(1)
     
     # Execute

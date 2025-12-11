@@ -66,11 +66,12 @@ def check_authentication():
                         st.error("Invalid credentials")
                         st.stop()
                     
-                    # Check if user is admin
-                    is_admin = username.lower() in ['admin', 'matthew'] or username.lower().startswith('admin_')
+                    # Check if user has admin role
+                    is_admin = user.get('role') == 'admin'
                     
                     if not is_admin:
                         st.error("Access denied. Admin privileges required.")
+                        st.info(f"Your role: {user.get('role', 'unknown')}")
                         st.stop()
                     
                     # Admin authentication successful
@@ -300,7 +301,7 @@ with tab2:
                        sm.device_type, sm.browser, sm.app_name
                 FROM sessions s
                 JOIN users u ON s.user_id = u.user_id
-                LEFT JOIN session_monitor sm ON s.session_id = sm.session_id
+                LEFT JOIN session_monitor sm ON s.session_id COLLATE utf8mb4_unicode_ci = sm.session_id
                 WHERE s.expires_at > NOW()
                 ORDER BY s.created_at DESC
             """)
