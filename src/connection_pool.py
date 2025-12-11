@@ -94,7 +94,7 @@ HARD_LIMIT_CONNECTIONS = MAX_TOTAL_CONNECTIONS  # 100 - block all new logins
 
 # Automatic cleanup configuration
 AUTO_CLEANUP_INTERVAL_MINUTES = 10  # How often to run background cleanup
-IDLE_CONNECTION_THRESHOLD_MINUTES = 10  # Close connections idle longer than this
+IDLE_CONNECTION_THRESHOLD_MINUTES = 60 * 24 * 7  # Close connections idle longer than this
 
 
 # ============================================================================

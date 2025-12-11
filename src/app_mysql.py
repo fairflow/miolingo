@@ -840,11 +840,12 @@ def delete_session(session_id: str) -> bool:
             if user_id:
                 log_activity(user_id, "SESSION_DELETED", "User logged out", "system")
             
-            # CRITICAL: Now properly close the connection after cleanup
-            # This is the ONLY place we close connections (explicit logout)
+            # CRITICAL: Close all connections for this session (explicit logout)
+            # This is the ONLY place we close connections (user logs out)
             try:
                 pool = get_connection_pool_instance()
-                pool.close_connection(conn, session_id)
+                closed_count = pool.close_session_connection(session_id)
+                print(f"✓ Closed {closed_count} connection(s) for session {session_id[:20]}...")
             except Exception as close_err:
                 print(f"Warning: Error closing connection on logout: {close_err}")
             
