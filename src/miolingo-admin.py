@@ -53,8 +53,8 @@ def check_authentication():
         st.subheader("Authentication Required")
         
         with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
+            username = st.text_input("Username", key="admin_username_input", autocomplete="username")
+            password = st.text_input("Password", type="password", key="admin_password_input", autocomplete="current-password")
             submitted = st.form_submit_button("Login")
             
             if submitted:
@@ -121,6 +121,10 @@ st.caption("Local monitoring and management interface • v2.0.1")
 with st.sidebar:
     st.subheader("🔧 Quick Actions")
     
+    # Show logged in user
+    if 'admin_username' in st.session_state:
+        st.info(f"👤 Logged in as: **{st.session_state.admin_username}**")
+    
     # Auto-refresh toggle
     auto_refresh = st.checkbox("🔄 Auto-refresh (30s)", value=st.session_state.auto_refresh_enabled, 
                                help="Automatically refresh data from database every 30 seconds")
@@ -142,6 +146,21 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
     st.caption("💡 Use this if you see connection errors")
+    
+    # Logout button
+    st.divider()
+    if st.button("🚪 Logout", use_container_width=True, type="primary"):
+        # Delete admin session from database
+        if 'admin_session_id' in st.session_state:
+            try:
+                app_mysql.delete_session(st.session_state['admin_session_id'])
+            except Exception as e:
+                st.warning(f"Session cleanup warning: {e}")
+        
+        # Clear session state
+        st.session_state.clear()
+        st.session_state['voluntary_logout'] = True
+        st.rerun()
 
 # Tab layout
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"])

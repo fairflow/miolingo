@@ -583,8 +583,8 @@ def show_login_page():
         st.subheader("Login to Your Account")
         
         with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
+            username = st.text_input("Username", key="login_username", autocomplete="username")
+            password = st.text_input("Password", type="password", key="login_password", autocomplete="current-password")
             submit = st.form_submit_button("Login")
             
             if submit:
@@ -647,10 +647,10 @@ def show_login_page():
         st.subheader("Create New Account")
         
         with st.form("register_form"):
-            new_username = st.text_input("Choose Username", help="3-20 characters, letters/numbers only")
-            new_email = st.text_input("Email Address")
-            new_password = st.text_input("Choose Password", type="password", help="Min 8 characters")
-            new_password_confirm = st.text_input("Confirm Password", type="password")
+            new_username = st.text_input("Choose Username", key="register_username", autocomplete="username", help="3-20 characters, letters/numbers only")
+            new_email = st.text_input("Email Address", key="register_email", autocomplete="email")
+            new_password = st.text_input("Choose Password", type="password", key="register_password", autocomplete="new-password", help="Min 8 characters")
+            new_password_confirm = st.text_input("Confirm Password", type="password", key="register_password_confirm", autocomplete="new-password")
             submit_register = st.form_submit_button("Create Account")
             
             if submit_register:

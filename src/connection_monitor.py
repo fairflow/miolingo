@@ -120,8 +120,8 @@ def check_authentication():
         st.subheader("Authentication Required")
         
         with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
+            username = st.text_input("Username", key="monitor_username", autocomplete="username")
+            password = st.text_input("Password", type="password", key="monitor_password", autocomplete="current-password")
             submitted = st.form_submit_button("Login")
             
             if submitted:
