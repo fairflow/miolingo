@@ -276,3 +276,5 @@ language_materials/fr/.DS_Store
 
 miolingo-development-sonnet-45.md
 *.bak
+scripts/clean_restart.py.broken
+
