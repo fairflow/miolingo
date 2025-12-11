@@ -9,15 +9,18 @@
 ## Executive Summary
 
 Two admin apps have evolved separately to solve overlapping problems:
+
 - **miolingo-admin.py** (1,056 lines, v2.2.0): User/session management, logs, announcements
 - **connection_monitor.py** (2,832 lines, v2.2.0): Connection pool monitoring, tunnel/connection/session tracking
 
 **Core Problem:** Database schema has duplicated functionality:
+
 - `sessions` table (used by app.py + miolingo-admin)
 - `session_monitor` table (created by connection_monitor)
 - Both track sessions but with different structures and purposes
 
 **Anti-patterns Identified:**
+
 1. Bootstrap connections used throughout both apps (should only be for initial auth)
 2. Cursor opened/closed repeatedly (should be start + logout only)
 3. Duplicate session tracking across two tables
@@ -52,13 +55,13 @@ Two admin apps have evolved separately to solve overlapping problems:
 
 1. **tunnel_monitor** - Read/Write/CREATE (SSH tunnel tracking)
    - Columns: tunnel_id, pid, local_port, status, created_at, last_activity, connection_count
-   
+
 2. **connection_monitor** - Read/Write/CREATE (DB connection tracking)
    - Columns: connection_id, mysql_connection_id, tunnel_id, session_id, username, created_at, last_activity, status
-   
+
 3. **session_monitor** - Read/Write/CREATE (User session tracking)
    - Columns: session_id, username, user_ip, user_agent, device_type, browser, app_name, login_time, expires_at, last_activity, status
-   
+
 4. **users** - Read (authentication check)
 
 **Key Observation:** connection_monitor creates its own monitoring tables (tunnel/connection/session_monitor)
@@ -111,7 +114,7 @@ Two admin apps have evolved separately to solve overlapping problems:
    - Database practice_sessions table
 
 3. **📧 Email Tab**
-   - Email monitor integration (io@miolingo.io)
+   - Email monitor integration (<io@miolingo.io>)
    - Checks for feedback emails
 
 4. **📢 Announcements Tab**
@@ -162,6 +165,7 @@ Two admin apps have evolved separately to solve overlapping problems:
 ### miolingo-admin.py
 
 **Structure:**
+
 - Single file with tabs layout
 - Inline SQL queries throughout
 - Uses `get_db_connection()` legacy function (deprecated in comments)
@@ -169,6 +173,7 @@ Two admin apps have evolved separately to solve overlapping problems:
 - Bootstrap connections via `app_mysql.get_connection()`
 
 **Database Pattern:**
+
 ```python
 conn = app_mysql.get_connection()
 cursor = conn.cursor(dictionary=True)
@@ -179,6 +184,7 @@ conn.close()
 ```
 
 **Issues:**
+
 - Cursor/connection opened repeatedly in each tab
 - No connection pooling (uses app_mysql connections)
 - Bootstrap connections used everywhere
@@ -186,6 +192,7 @@ conn.close()
 ### connection_monitor.py
 
 **Structure:**
+
 - Single file with sidebar navigation to pages
 - Dedicated functions: `show_dashboard()`, `show_tunnels()`, etc.
 - Custom connection pool implementation (`ConnectionPool` class)
@@ -193,6 +200,7 @@ conn.close()
 - Bootstrap connection pattern: `get_bootstrap_connection()` context manager
 
 **Database Pattern:**
+
 ```python
 with get_bootstrap_connection() as conn:
     cursor = conn.cursor(dictionary=True)
@@ -202,6 +210,7 @@ with get_bootstrap_connection() as conn:
 ```
 
 **Issues:**
+
 - Entire ConnectionPool class duplicates `connection_pool.py` functionality
 - Bootstrap connections used for all queries
 - Heavy use of dataclasses for in-memory state
@@ -213,6 +222,7 @@ with get_bootstrap_connection() as conn:
 **Current State:** Both apps use bootstrap connections for every database operation
 
 **Intended Pattern (per your design):**
+
 1. On login: Use bootstrap to authenticate
 2. Immediately: Get pool connection, log session details
 3. Optional: Close bootstrap after session logged (or after verifying pool connection works)
@@ -220,6 +230,7 @@ with get_bootstrap_connection() as conn:
 5. On logout: Close pool connection
 
 **Current Reality:**
+
 - Bootstrap used for every query in both apps
 - No pool connections held by admin apps
 - app.py uses pool connections properly
@@ -232,6 +243,7 @@ with get_bootstrap_connection() as conn:
 ### Problem: Two Session Tables
 
 **sessions table** (used by app.py + miolingo-admin):
+
 - session_id (PK)
 - user_id (FK to users)
 - created_at
@@ -239,6 +251,7 @@ with get_bootstrap_connection() as conn:
 - ip_address
 
 **session_monitor table** (created by connection_monitor):
+
 - id (PK, AUTO_INCREMENT)
 - session_id (UNIQUE KEY) ← Same as sessions.session_id!
 - username
@@ -253,12 +266,14 @@ with get_bootstrap_connection() as conn:
 - status (active/expired/forced_logout)
 
 **Why Two Tables?**
+
 - `sessions` = authentication/authorization (minimal data)
 - `session_monitor` = tracking/analytics (rich metadata)
 - Created at different times for different purposes
 - Now they're JOINed, causing duplication bugs
 
 **Better Design (Future):**
+
 - Merge into single `sessions` table with all columns
 - OR: Keep separate but make `session_monitor` truly supplemental (1:1 FK relationship, not duplicating session_id as key)
 
@@ -267,6 +282,7 @@ with get_bootstrap_connection() as conn:
 ## Module Dependencies
 
 ### miolingo-admin.py imports:
+
 ```python
 import streamlit as st
 import json
@@ -280,6 +296,7 @@ from contextlib import contextmanager
 ```
 
 ### connection_monitor.py imports:
+
 ```python
 import streamlit as st
 import mysql.connector
@@ -305,10 +322,12 @@ import paramiko
 ```
 
 **Key Difference:**
+
 - miolingo-admin: Uses `app_mysql` module (shared with app.py)
 - connection_monitor: Reimplements connection logic (does NOT import app_mysql)
 
 **Implication for Fusion:**
+
 - Can duplicate app_mysql for admin use (keeps app.py isolated)
 - Or: Extract common admin functions to new `admin_mysql.py` module
 
@@ -317,24 +336,28 @@ import paramiko
 ## Proposed Fusion Strategy
 
 ### Phase 1: Analysis (CURRENT)
+
 ✅ Document both apps' functionality  
 ✅ Identify overlaps and unique features  
 ✅ Map database table usage  
 ✅ Identify anti-patterns  
 
 ### Phase 2: Design Unified Admin App
+
 - Single streamlit app with sidebar navigation
 - Consolidate duplicate functionality
 - Fix bootstrap connection pattern
 - Decide on session table strategy
 
 ### Phase 3: Implementation
+
 - Create `admin_mysql.py` module (copy from app_mysql, customize for admin)
 - Merge UI components
 - Implement proper connection lifecycle
 - Single cursor open (login) → close (logout)
 
 ### Phase 4: Testing & Migration
+
 - Test on feature/admin-fusion branch
 - Ensure app.py v6.2.4 remains untouched
 - Merge back to main if successful
