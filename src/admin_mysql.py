@@ -267,7 +267,7 @@ def get_connection() -> mysql.connector.MySQLConnection:
             cursor = conn.cursor(buffered=True)
             cursor.execute("SELECT 1")
             cursor.fetchall()  # Consume results
-            cursor.close()
+            # Keep cursor open - it's part of persistent connection
             print(f"✓ Reusing session connection for {session_id[:20]}...")
             return conn
         except Exception as e:
@@ -318,7 +318,6 @@ def get_connection() -> mysql.connector.MySQLConnection:
                 cursor = conn.cursor(buffered=True)
                 cursor.execute("SELECT 1")
                 cursor.fetchall()
-                cursor.close()
                 print("✓ Reusing bootstrap connection")
             except Exception as e:
                 print(f"⚠️ Bootstrap connection died, getting fresh one")
@@ -539,13 +538,8 @@ def create_guest_user() -> Optional[tuple]:
         return None
     
     finally:
-        if cursor:
-            try:
-                cursor.close()
-            except:
-                pass
-        # Don't close conn - it's a persistent session connection
-
+        # Don't close cursor or conn - they're persistent for the session
+        pass
 
 def create_user(username: str, email: str, password: str) -> Optional[int]:
     """
@@ -575,7 +569,6 @@ def create_user(username: str, email: str, password: str) -> Optional[int]:
         conn.commit()
         
         user_id = cursor.lastrowid
-        cursor.close()
         
         # Log account creation
         log_activity(user_id, "USER_CREATED", f"Username: {username}, Email: {email}", "system")
@@ -678,7 +671,6 @@ def get_user_by_id(user_id: int) -> Optional[Dict]:
         query = "SELECT user_id, username, email, created_at, last_login FROM users WHERE user_id = %s"
         cursor.execute(query, (user_id,))
         user = cursor.fetchone()
-        cursor.close()
         
         return user
     
@@ -875,7 +867,6 @@ def delete_session(session_id: str) -> bool:
             
             cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
             conn.commit()
-            cursor.close()
             
             if user_id:
                 log_activity(user_id, "SESSION_DELETED", "User logged out", "system")
@@ -937,7 +928,6 @@ def cleanup_expired_sessions() -> int:
         cursor.execute("DELETE FROM sessions WHERE expires_at < NOW()")
         deleted_count = cursor.rowcount
         conn.commit()
-        cursor.close()
         
         return deleted_count
         
@@ -972,7 +962,6 @@ def get_user_settings(user_id: int) -> Dict[str, Any]:
         query = "SELECT setting_key, setting_value FROM user_settings WHERE user_id = %s"
         cursor.execute(query, (user_id,))
         rows = cursor.fetchall()
-        cursor.close()
         
         # Convert to dict and deserialize JSON values
         settings = {}
@@ -1017,7 +1006,6 @@ def save_user_setting(user_id: int, key: str, value: Any) -> bool:
         """
         cursor.execute(query, (user_id, key, value_json, value_json))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1038,7 +1026,6 @@ def delete_user_setting(user_id: int, key: str) -> bool:
         query = "DELETE FROM user_settings WHERE user_id = %s AND setting_key = %s"
         cursor.execute(query, (user_id, key))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1124,8 +1111,6 @@ def write_debug_log(
             """)
             conn.commit()
         
-        cursor.close()
-        
     except Exception as e:
         # Don't let logging errors break the app
         logging.error(f"Failed to write debug log: {e}")
@@ -1175,7 +1160,6 @@ def get_debug_logs(
         
         cursor.execute(query, tuple(params))
         logs = cursor.fetchall()
-        cursor.close()
         
         return logs
         
@@ -1234,7 +1218,6 @@ def save_practice(
                 similarity_score, perfect_match, target_phonemes, user_phonemes
             ))
             conn.commit()
-            cursor.close()
             
             return True
             
@@ -1289,7 +1272,6 @@ def get_user_progress(user_id: int, language_code: str, limit: int = 50) -> List
         """
         cursor.execute(query, (user_id, language_code, limit))
         progress = cursor.fetchall()
-        cursor.close()
         
         return progress
         
@@ -1338,8 +1320,6 @@ def get_user_stats(user_id: int, language_code: str) -> Dict:
         """
         cursor.execute(query_recent, (user_id, language_code))
         recent = cursor.fetchone()
-        
-        cursor.close()
         
         return {
             'total': stats['total'] or 0,
@@ -1392,7 +1372,6 @@ def check_rate_limit(
         result = cursor.fetchone()
         
         if result['attempt_count'] >= max_attempts:
-            cursor.close()
             return False
         
         # Log this attempt
@@ -1402,7 +1381,6 @@ def check_rate_limit(
         """
         cursor.execute(insert_query, (identifier, action))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1460,7 +1438,6 @@ def log_activity(
             """
             cursor.execute(query, (user_id, action, details, ip_address))
             conn.commit()
-            cursor.close()
         
         return True
         
@@ -1485,7 +1462,6 @@ def get_user_activity_log(user_id: int, limit: int = 100) -> List[Dict]:
         """
         cursor.execute(query, (user_id, limit))
         logs = cursor.fetchall()
-        cursor.close()
         
         return logs
         
@@ -1588,7 +1564,6 @@ def create_announcement(ann_type: str, message: str, display_on: str = 'both',
         cursor.execute(insert_query, (ann_type, message, display_on, expires_at))
         
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1621,7 +1596,6 @@ def clear_announcement(ann_type: str) -> bool:
         """
         cursor.execute(query, (ann_type,))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1643,7 +1617,6 @@ def test_connection() -> bool:
         cursor = conn.cursor()
         cursor.execute("SELECT 1")
         cursor.fetchone()
-        cursor.close()
         return True
     except Error as e:
         st.error(f"❌ Database connection test failed: {e}")
