@@ -11,6 +11,9 @@ Version: 2.1.0
 
 __version__ = "2.1.0"
 
+# Auto-refresh interval in minutes
+REFRESH_INTERVAL_MINUTES = 5
+
 import streamlit as st
 import json
 from pathlib import Path
@@ -126,8 +129,8 @@ with st.sidebar:
         st.info(f"👤 Logged in as: **{st.session_state.admin_username}**")
     
     # Auto-refresh toggle
-    auto_refresh = st.checkbox("🔄 Auto-refresh (30s)", value=st.session_state.auto_refresh_enabled, 
-                               help="Automatically refresh data from database every 30 seconds")
+    auto_refresh = st.checkbox(f"🔄 Auto-refresh ({REFRESH_INTERVAL_MINUTES}m)", value=st.session_state.auto_refresh_enabled, 
+                               help=f"Automatically refresh data from database every {REFRESH_INTERVAL_MINUTES} minutes")
     if auto_refresh != st.session_state.auto_refresh_enabled:
         st.session_state.auto_refresh_enabled = auto_refresh
         st.rerun()
@@ -314,14 +317,18 @@ with tab2:
                 st.metric("Total Users", user_count)
             
             # Get currently logged-in users (active sessions with device/browser info)
+            # Use GROUP BY to avoid duplicates when session_monitor has multiple entries per session
             cursor.execute("""
                 SELECT u.username, u.email, s.created_at as login_time, s.expires_at, s.ip_address,
                        TIMESTAMPDIFF(HOUR, NOW(), s.expires_at) as hours_until_expire,
-                       sm.device_type, sm.browser, sm.app_name
+                       MAX(sm.device_type) as device_type, 
+                       MAX(sm.browser) as browser, 
+                       MAX(sm.app_name) as app_name
                 FROM sessions s
                 JOIN users u ON s.user_id = u.user_id
                 LEFT JOIN session_monitor sm ON s.session_id COLLATE utf8mb4_unicode_ci = sm.session_id
                 WHERE s.expires_at > NOW()
+                GROUP BY s.session_id, u.username, u.email, s.created_at, s.expires_at, s.ip_address
                 ORDER BY s.created_at DESC
             """)
             active_sessions = cursor.fetchall()
@@ -1046,5 +1053,5 @@ st.caption("Miolingo Admin Dashboard v1.4.2 | Local monitoring interface")
 # Auto-refresh sleep AFTER page renders
 if st.session_state.get('auto_refresh_enabled', False):
     import time
-    time.sleep(30)  # 30 seconds gives time to read the data
+    time.sleep(REFRESH_INTERVAL_MINUTES * 60)  # Convert minutes to seconds
     st.rerun()

@@ -17,6 +17,9 @@ Version: 2.1.0
 
 __version__ = "2.1.0"
 
+# Auto-refresh interval in minutes
+REFRESH_INTERVAL_MINUTES = 5
+
 import streamlit as st
 import mysql.connector
 from mysql.connector import Error
@@ -2584,6 +2587,7 @@ def show_sessions():
             
             with st.expander(f"👤 **{username}** ({session_count} session{'s' if session_count > 1 else ''})", expanded=False):
                 # Get all sessions for this user first
+                # Use GROUP BY to avoid duplicates when connection_monitor has multiple entries per session
                 with get_bootstrap_connection() as conn:
                     cursor = conn.cursor(dictionary=True)
                     cursor.execute("""
@@ -2592,10 +2596,12 @@ def show_sessions():
                                TIMESTAMPDIFF(SECOND, NOW(), s.expires_at) as seconds_remaining,
                                TIMESTAMPDIFF(SECOND, s.login_time, NOW()) as seconds_logged_in,
                                TIMESTAMPDIFF(MINUTE, s.last_activity, NOW()) as minutes_idle,
-                               c.app_name
+                               MAX(c.app_name) as app_name
                         FROM session_monitor s
                         LEFT JOIN connection_monitor c ON s.session_id = c.session_id
                         WHERE s.username = %s AND s.status = 'active' AND s.expires_at > NOW()
+                        GROUP BY s.session_id, s.user_ip, s.device_type, s.browser, 
+                                 s.login_time, s.expires_at, s.last_activity
                         ORDER BY s.login_time DESC
                     """, (username,))
                     user_sessions = cursor.fetchall()
@@ -2791,8 +2797,8 @@ def main():
     st.sidebar.markdown("---")
     
     # Auto-refresh toggle
-    auto_refresh = st.sidebar.checkbox("🔄 Auto-refresh (30s)", value=st.session_state.auto_refresh_enabled,
-                                       help="Automatically refresh data from database every 30 seconds")
+    auto_refresh = st.sidebar.checkbox(f"🔄 Auto-refresh ({REFRESH_INTERVAL_MINUTES}m)", value=st.session_state.auto_refresh_enabled,
+                                       help=f"Automatically refresh data from database every {REFRESH_INTERVAL_MINUTES} minutes")
     if auto_refresh != st.session_state.auto_refresh_enabled:
         st.session_state.auto_refresh_enabled = auto_refresh
         st.rerun()
@@ -2822,5 +2828,5 @@ if __name__ == "__main__":
     # Auto-refresh sleep AFTER page renders
     if st.session_state.get('auto_refresh_enabled', False):
         import time
-        time.sleep(30)  # 30 seconds gives time to read the data
+        time.sleep(REFRESH_INTERVAL_MINUTES * 60)  # Convert minutes to seconds
         st.rerun()
