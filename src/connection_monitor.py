@@ -42,17 +42,21 @@ from dataclasses import dataclass, asdict
 from io import StringIO
 import paramiko
 
+
+HOSTED_BY_UNIFIED_ADMIN = st.session_state.get('_unified_admin_host', False)
+
 # Suppress noise
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='paramiko')
 logging.getLogger('paramiko').setLevel(logging.WARNING)
 
-# Configure Streamlit
-st.set_page_config(
-    page_title="Miolingo Connection Monitor",
-    page_icon="🔌",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+ # Configure Streamlit (only if not hosted by unified entrypoint)
+if not HOSTED_BY_UNIFIED_ADMIN:
+    st.set_page_config(
+        page_title="Miolingo Connection Monitor",
+        page_icon="🔌",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
 
 # Auto-refresh feature - queries database every N seconds
 # This ensures connection_monitor shows current data without manual refresh
@@ -61,7 +65,7 @@ if 'auto_refresh_enabled' not in st.session_state:
 
 # Set app name for connection tracking
 if 'app_name' not in st.session_state:
-    st.session_state.app_name = 'connection_monitor'
+    st.session_state.app_name = 'miolingo'
 
 # NOTE: Auto-refresh sleep happens at END of page, not here
 
@@ -115,6 +119,13 @@ class SessionInfo:
 
 def check_authentication():
     """Simple authentication for connection monitor (reuses miolingo auth)"""
+    # When hosted, `unified_admin.py` owns authentication + session creation.
+    if HOSTED_BY_UNIFIED_ADMIN:
+        if not st.session_state.get('authenticated', False):
+            st.error("This page is hosted by Unified Admin. Please authenticate there.")
+            st.stop()
+        return
+
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     
@@ -162,9 +173,9 @@ def check_authentication():
                         if active_count >= HARD_LIMIT_CONNECTIONS:
                             st.success(f"✅ **Admin Emergency Access** - Logged in via bootstrap (bypassing {active_count}/{HARD_LIMIT_CONNECTIONS} pool limit)")
                         
-                        # Log this login to session_monitor
+                        # Log this login to unified `sessions`
                         try:
-                            log_monitor_session(username)
+                            log_monitor_session(user)
                         except Exception as log_err:
                             st.warning(f"Login successful but session logging failed: {log_err}")
                         
@@ -182,9 +193,9 @@ def check_authentication():
                     st.session_state.is_admin = False
                     st.session_state.uses_bootstrap = False
                     
-                    # Log this login to session_monitor
+                    # Log this login to unified `sessions`
                     try:
-                        log_monitor_session(username)
+                        log_monitor_session(user)
                     except Exception as log_err:
                         st.warning(f"Login successful but session logging failed: {log_err}")
                     
@@ -196,9 +207,14 @@ def check_authentication():
         st.stop()
 
 
-def log_monitor_session(username: str):
-    """Log a connection monitor login session to the database"""
+def log_monitor_session(user: dict):
+    """Log a connection monitor login session to the unified `sessions` table."""
     try:
+        username = user.get('username') or st.session_state.get('monitor_username') or 'unknown'
+        user_id = user.get('user_id')
+        if not user_id:
+            raise ValueError("Missing user_id for session creation")
+
         # Get client IP
         user_ip = "127.0.0.1"  # Default for local
         
@@ -209,21 +225,18 @@ def log_monitor_session(username: str):
         except:
             user_agent = "unknown"
         
-        # Generate session ID
-        session_id = f"monitor_{username}_{uuid.uuid4().hex[:8]}"
-        
-        # Store session ID FIRST before any DB operations
-        st.session_state.monitor_session_id = session_id
-        
-        # Use shared logging function from app_mysql
-        from app_mysql import log_session_to_monitor
-        log_session_to_monitor(
-            session_id=session_id,
+        from app_mysql import create_session
+        session_id = create_session(
+            user_id=user_id,
+            ip_address=user_ip,
             username=username,
-            user_ip=user_ip,
             user_agent=user_agent,
-            app_name='connection_monitor'
+                app_name='miolingo',
         )
+        if not session_id:
+            raise RuntimeError("create_session returned None")
+
+        st.session_state.monitor_session_id = session_id
         
     except Exception as e:
         # Don't fail login if logging fails
@@ -234,6 +247,12 @@ def log_monitor_session(username: str):
 def update_session_activity(session_id: str):
     """Update last_activity timestamp for a session"""
     try:
+        try:
+            from app_mysql import get_session_inactivity_days
+            inactivity_days = get_session_inactivity_days()
+        except Exception:
+            inactivity_days = 7
+
         # Use raw connection to avoid pool complexity
         tunnel = create_ssh_tunnel()
         try:
@@ -248,10 +267,11 @@ def update_session_activity(session_id: str):
             cursor = conn.cursor()
             
             cursor.execute("""
-                UPDATE session_monitor 
-                SET last_activity = NOW()
+                UPDATE sessions
+                SET last_activity = NOW(),
+                    expires_at = DATE_ADD(NOW(), INTERVAL %s DAY)
                 WHERE session_id = %s
-            """, (session_id,))
+            """, (inactivity_days, session_id))
             
             conn.commit()
             cursor.close()
@@ -312,7 +332,7 @@ def init_monitoring_tables():
     Tables:
     - tunnel_monitor: SSH tunnel tracking
     - connection_monitor: DB connection tracking
-    - session_monitor: User session tracking with IP, device, browser
+    - sessions: User session tracking is handled by the unified `sessions` table
     """
     try:
         # Use raw connection for initialization (avoid pool complexity)
@@ -364,29 +384,6 @@ def init_monitoring_tables():
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
             
-            # Session monitoring table (comprehensive user tracking)
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS session_monitor (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    session_id VARCHAR(100) UNIQUE NOT NULL,
-                    username VARCHAR(100) NOT NULL,
-                    user_ip VARCHAR(45),
-                    user_agent TEXT,
-                    device_type VARCHAR(50),
-                    browser VARCHAR(50),
-                    app_name VARCHAR(50),
-                    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    expires_at TIMESTAMP,
-                    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    status ENUM('active', 'expired', 'forced_logout') DEFAULT 'active',
-                    INDEX idx_session_id (session_id),
-                    INDEX idx_username (username),
-                    INDEX idx_status (status),
-                    INDEX idx_expires_at (expires_at),
-                    INDEX idx_app_name (app_name)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """)
-        
             conn.commit()
             cursor.close()
             conn.close()
@@ -1697,20 +1694,8 @@ def register_session(username: str, session_id: str, user_ip: str, user_agent: s
     )
     
     SESSION_REGISTRY[session_id] = session_info
-    
-    # Record in database
-    try:
-        with get_bootstrap_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO session_monitor 
-                (session_id, username, user_ip, user_agent, device_type, browser, expires_at, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (session_id, username, user_ip, user_agent, device, browser, expires_at, 'active'))
-            conn.commit()
-            cursor.close()
-    except Exception as e:
-        st.error(f"Failed to register session: {e}")
+
+    # Session metadata is stored in unified `sessions` table (created via app_mysql.create_session)
 
 
 def get_session_stats() -> Dict[str, Any]:
@@ -1723,7 +1708,7 @@ def get_session_stats() -> Dict[str, Any]:
             
             # Active sessions
             cursor.execute("""
-                SELECT COUNT(*) as count FROM session_monitor 
+                SELECT COUNT(*) as count FROM sessions
                 WHERE status = 'active' AND expires_at > NOW()
             """)
             active_sessions = cursor.fetchone()['count']
@@ -1731,7 +1716,7 @@ def get_session_stats() -> Dict[str, Any]:
             # Sessions by device
             cursor.execute("""
                 SELECT device_type, COUNT(*) as count 
-                FROM session_monitor 
+                FROM sessions
                 WHERE status = 'active' AND expires_at > NOW()
                 GROUP BY device_type
             """)
@@ -1740,7 +1725,7 @@ def get_session_stats() -> Dict[str, Any]:
             # Sessions by browser
             cursor.execute("""
                 SELECT browser, COUNT(*) as count 
-                FROM session_monitor 
+                FROM sessions
                 WHERE status = 'active' AND expires_at > NOW()
                 GROUP BY browser
             """)
@@ -1779,7 +1764,7 @@ def show_dashboard():
             with get_bootstrap_connection() as conn:
                 cursor = conn.cursor()
                 
-                tables = ['tunnel_monitor', 'connection_monitor', 'session_monitor']
+                tables = ['tunnel_monitor', 'connection_monitor', 'sessions']
                 for table in tables:
                     cursor.execute(f"SHOW TABLES LIKE '{table}'")
                     exists = cursor.fetchone() is not None
@@ -1919,7 +1904,7 @@ def show_dashboard():
         **Database (Persistent):**
         - `tunnel_monitor`: Tunnel metadata (tunnel_id, PID, port, status)
         - `connection_monitor`: Connection metadata (connection_id, MySQL ID, tunnel_id, user, timestamps)
-        - `session_monitor`: User sessions (login times, device info, activity)
+        - `sessions`: User sessions (login times, device info, activity)
         - Survives app restarts
         - **Source of truth** for counts and allocation
         
@@ -1982,7 +1967,7 @@ def show_dashboard():
                 # Use tracked connection to populate pool
                 conn = get_tracked_connection()
                 cursor = conn.cursor()
-                cursor.execute("SELECT COUNT(*) FROM session_monitor")
+                cursor.execute("SELECT COUNT(*) FROM sessions")
                 count = cursor.fetchone()[0]
                 cursor.close()
                 conn.close()
@@ -1997,8 +1982,8 @@ def show_dashboard():
                 with get_bootstrap_connection() as conn:
                     cursor = conn.cursor()
                     cursor.execute("""
-                        UPDATE session_monitor 
-                        SET status = 'expired'
+                        UPDATE sessions
+                        SET status = 'expired', expires_at = NOW(), last_activity = NOW()
                         WHERE status = 'active' 
                           AND last_activity < DATE_SUB(NOW(), INTERVAL 10 MINUTE)
                     """)
@@ -2017,7 +2002,7 @@ def show_dashboard():
     # DANGER ZONE: Clear all monitoring data
     with st.expander("⚠️ DANGER ZONE: Clear All Monitoring Data", expanded=False):
         st.error("**WARNING**: This will delete ALL records from monitoring tables!")
-        st.write("Tables affected: `tunnel_monitor`, `connection_monitor`, `session_monitor`")
+        st.write("Tables affected: `tunnel_monitor`, `connection_monitor`")
         st.write("Use this to start fresh before integrating into main app and admin.")
         
         col_danger1, col_danger2 = st.columns(2)
@@ -2038,13 +2023,10 @@ def show_dashboard():
                         cursor.execute("DELETE FROM tunnel_monitor")
                         tunnel_deleted = cursor.rowcount
                         
-                        cursor.execute("DELETE FROM session_monitor")
-                        session_deleted = cursor.rowcount
-                        
                         conn.commit()
                         cursor.close()
-                        
-                        st.success(f"✅ Deleted: {conn_deleted} connections, {tunnel_deleted} tunnels, {session_deleted} sessions")
+
+                        st.success(f"✅ Deleted: {conn_deleted} connections, {tunnel_deleted} tunnels")
                         st.info("All monitoring tables cleared. Ready for fresh integration.")
                         
                         # Also clear memory
@@ -2086,12 +2068,12 @@ def show_dashboard():
         with get_bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             cursor.execute("""
-                SELECT session_id, username, user_ip, device_type, browser,
-                       login_time, expires_at, last_activity,
+                                SELECT session_id, username, ip_address as user_ip, device_type, browser, app_name,
+                                             created_at as login_time, expires_at, last_activity,
                        TIMESTAMPDIFF(SECOND, NOW(), expires_at) as seconds_remaining,
-                       TIMESTAMPDIFF(SECOND, login_time, NOW()) as seconds_logged_in,
+                                             TIMESTAMPDIFF(SECOND, created_at, NOW()) as seconds_logged_in,
                        TIMESTAMPDIFF(MINUTE, last_activity, NOW()) as minutes_idle
-                FROM session_monitor
+                                FROM sessions
                 WHERE status = 'active' 
                   AND expires_at > NOW()
                   AND last_activity > DATE_SUB(NOW(), INTERVAL 10 MINUTE)
@@ -2131,8 +2113,8 @@ def show_dashboard():
                                 with get_bootstrap_connection() as logout_conn:
                                     cursor = logout_conn.cursor()
                                     cursor.execute("""
-                                        UPDATE session_monitor
-                                        SET status = 'forced_logout', last_activity = NOW()
+                                        UPDATE sessions
+                                        SET status = 'forced_logout', expires_at = NOW(), last_activity = NOW()
                                         WHERE session_id = %s
                                     """, (session['session_id'],))
                                     logout_conn.commit()
@@ -2568,7 +2550,7 @@ def show_sessions():
             # Get list of users with active sessions
             cursor.execute("""
                 SELECT username, COUNT(*) as session_count
-                FROM session_monitor
+                FROM sessions
                 WHERE status = 'active' AND expires_at > NOW()
                 GROUP BY username
                 ORDER BY session_count DESC, username ASC
@@ -2591,18 +2573,15 @@ def show_sessions():
                 with get_bootstrap_connection() as conn:
                     cursor = conn.cursor(dictionary=True)
                     cursor.execute("""
-                        SELECT s.session_id, s.user_ip, s.device_type, s.browser,
-                               s.login_time, s.expires_at, s.last_activity,
+                           SELECT s.session_id, s.ip_address as user_ip, s.device_type, s.browser,
+                               s.created_at as login_time, s.expires_at, s.last_activity,
                                TIMESTAMPDIFF(SECOND, NOW(), s.expires_at) as seconds_remaining,
-                               TIMESTAMPDIFF(SECOND, s.login_time, NOW()) as seconds_logged_in,
+                               TIMESTAMPDIFF(SECOND, s.created_at, NOW()) as seconds_logged_in,
                                TIMESTAMPDIFF(MINUTE, s.last_activity, NOW()) as minutes_idle,
-                               MAX(c.app_name) as app_name
-                        FROM session_monitor s
-                        LEFT JOIN connection_monitor c ON s.session_id = c.session_id
+                               s.app_name as app_name
+                           FROM sessions s
                         WHERE s.username = %s AND s.status = 'active' AND s.expires_at > NOW()
-                        GROUP BY s.session_id, s.user_ip, s.device_type, s.browser, 
-                                 s.login_time, s.expires_at, s.last_activity
-                        ORDER BY s.login_time DESC
+                           ORDER BY s.created_at DESC
                     """, (username,))
                     user_sessions = cursor.fetchall()
                     cursor.close()
@@ -2619,8 +2598,8 @@ def show_sessions():
                             with get_bootstrap_connection() as logout_conn:
                                 cursor = logout_conn.cursor()
                                 cursor.execute("""
-                                    UPDATE session_monitor
-                                    SET status = 'forced_logout', last_activity = NOW()
+                                    UPDATE sessions
+                                    SET status = 'forced_logout', expires_at = NOW(), last_activity = NOW()
                                     WHERE username = %s AND status = 'active'
                                 """, (username,))
                                 affected = cursor.rowcount
@@ -2666,8 +2645,8 @@ def show_sessions():
                                 with get_bootstrap_connection() as logout_conn:
                                     cursor = logout_conn.cursor()
                                     cursor.execute("""
-                                        UPDATE session_monitor
-                                        SET status = 'forced_logout', last_activity = NOW()
+                                        UPDATE sessions
+                                        SET status = 'forced_logout', expires_at = NOW(), last_activity = NOW()
                                         WHERE session_id = %s
                                     """, (session['session_id'],))
                                     logout_conn.commit()
@@ -2788,27 +2767,37 @@ def main():
     
     # Sidebar with logout
     st.sidebar.title("Navigation")
-    if st.sidebar.button("🚪 Logout", type="primary"):
-        st.session_state.authenticated = False
-        st.session_state.monitor_username = None
-        st.rerun()
+    # Logout is owned by `unified_admin.py` when hosted.
+    if not HOSTED_BY_UNIFIED_ADMIN:
+        if st.sidebar.button("🚪 Logout", type="primary"):
+            st.session_state.authenticated = False
+            st.session_state.monitor_username = None
+            st.rerun()
     
     st.sidebar.caption(f"c_m v{__version__}")
     st.sidebar.markdown("---")
-    
-    # Auto-refresh toggle
-    auto_refresh = st.sidebar.checkbox(f"🔄 Auto-refresh ({REFRESH_INTERVAL_MINUTES}m)", value=st.session_state.auto_refresh_enabled,
-                                       help=f"Automatically refresh data from database every {REFRESH_INTERVAL_MINUTES} minutes")
-    if auto_refresh != st.session_state.auto_refresh_enabled:
-        st.session_state.auto_refresh_enabled = auto_refresh
-        st.rerun()
-    
-    st.sidebar.markdown("---")
-    
-    page = st.sidebar.radio(
-        "Go to page:",
-        ["Dashboard", "Tunnels", "Connections", "Sessions", "Controls"]
-    )
+
+    if not HOSTED_BY_UNIFIED_ADMIN:
+        # Auto-refresh toggle (standalone mode)
+        auto_refresh = st.sidebar.checkbox(
+            f"🔄 Auto-refresh ({REFRESH_INTERVAL_MINUTES}m)",
+            value=st.session_state.auto_refresh_enabled,
+            help=f"Automatically refresh data from database every {REFRESH_INTERVAL_MINUTES} minutes",
+        )
+        if auto_refresh != st.session_state.auto_refresh_enabled:
+            st.session_state.auto_refresh_enabled = auto_refresh
+            st.rerun()
+
+        st.sidebar.markdown("---")
+
+        page = st.sidebar.radio(
+            "Go to page:",
+            ["Dashboard", "Tunnels", "Connections", "Sessions", "Controls"],
+        )
+    else:
+        page = st.session_state.get('ua_monitor_page', 'Dashboard')
+        if page not in ["Dashboard", "Tunnels", "Connections", "Sessions", "Controls"]:
+            page = "Dashboard"
     
     if page == "Dashboard":
         show_dashboard()

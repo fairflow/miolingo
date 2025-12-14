@@ -38,6 +38,7 @@ import atexit
 import warnings
 import logging
 import time
+import os
 
 # Import new connection pool module
 from connection_pool import ConnectionPool
@@ -267,7 +268,7 @@ def get_connection() -> mysql.connector.MySQLConnection:
             cursor = conn.cursor(buffered=True)
             cursor.execute("SELECT 1")
             cursor.fetchall()  # Consume results
-            cursor.close()
+            # Keep cursor open - session connection is persistent
             print(f"✓ Reusing session connection for {session_id[:20]}...")
             return conn
         except Exception as e:
@@ -318,7 +319,6 @@ def get_connection() -> mysql.connector.MySQLConnection:
                 cursor = conn.cursor(buffered=True)
                 cursor.execute("SELECT 1")
                 cursor.fetchall()
-                cursor.close()
                 print("✓ Reusing bootstrap connection")
             except Exception as e:
                 print(f"⚠️ Bootstrap connection died, getting fresh one")
@@ -478,7 +478,11 @@ atexit.register(cleanup_ssh_tunnel)
 # USER MANAGEMENT
 # ============================================================================
 
-def create_guest_user() -> Optional[tuple]:
+def create_guest_user(
+    ip_address: str = "unknown",
+    user_agent: str = "unknown",
+    app_name: str = "miolingo",
+) -> Optional[tuple]:
     """
     Create a temporary guest user for this session.
     Guest users have unique usernames and don't persist across sessions.
@@ -521,8 +525,14 @@ def create_guest_user() -> Optional[tuple]:
         except:
             pass  # Don't fail guest creation if logging fails
         
-        # Create session immediately
-        session_id = create_session(user_id, "127.0.0.1")
+        # Create session immediately (stores metadata directly in `sessions`)
+        session_id = create_session(
+            user_id,
+            ip_address,
+            username=username,
+            user_agent=user_agent,
+            app_name=app_name,
+        )
         
         if session_id:
             return (user_id, username, session_id)
@@ -539,12 +549,8 @@ def create_guest_user() -> Optional[tuple]:
         return None
     
     finally:
-        if cursor:
-            try:
-                cursor.close()
-            except:
-                pass
-        # Don't close conn - it's a persistent session connection
+        # Don't close cursor/conn here - session connection is persistent
+        pass
 
 
 def create_user(username: str, email: str, password: str) -> Optional[int]:
@@ -575,7 +581,6 @@ def create_user(username: str, email: str, password: str) -> Optional[int]:
         conn.commit()
         
         user_id = cursor.lastrowid
-        cursor.close()
         
         # Log account creation
         log_activity(user_id, "USER_CREATED", f"Username: {username}, Email: {email}", "system")
@@ -678,7 +683,6 @@ def get_user_by_id(user_id: int) -> Optional[Dict]:
         query = "SELECT user_id, username, email, created_at, last_login FROM users WHERE user_id = %s"
         cursor.execute(query, (user_id,))
         user = cursor.fetchone()
-        cursor.close()
         
         return user
     
@@ -694,7 +698,90 @@ def get_user_by_id(user_id: int) -> Optional[Dict]:
 # SESSION MANAGEMENT
 # ============================================================================
 
-def create_session(user_id: int, ip_address: str = "unknown") -> Optional[str]:
+def get_session_inactivity_days() -> int:
+    """Session inactivity window in days (sliding expiration).
+
+    A user is considered "logged in" while:
+    - `sessions.status = 'active'`
+    - `sessions.expires_at > NOW()`
+
+    `expires_at` is refreshed on activity.
+
+    Config sources (first match wins):
+    - Env var `MIOLINGO_SESSION_INACTIVITY_DAYS`
+    - Streamlit secrets `session_inactivity_days`
+    - Streamlit secrets `session.inactivity_days`
+    """
+    default_days = 7
+
+    raw = os.environ.get('MIOLINGO_SESSION_INACTIVITY_DAYS')
+    if raw is None:
+        raw = st.secrets.get('session_inactivity_days')
+    if raw is None:
+        raw = st.secrets.get('session', {}).get('inactivity_days')
+
+    try:
+        days = int(raw) if raw is not None else default_days
+    except (TypeError, ValueError):
+        days = default_days
+
+    if days < 1:
+        return 1
+    if days > 365:
+        return 365
+    return days
+
+
+def touch_session(session_id: str) -> bool:
+    """Update `last_activity` and extend `expires_at` for an active session."""
+    if not session_id:
+        return False
+
+    inactivity_days = get_session_inactivity_days()
+    new_expires_at = datetime.now() + timedelta(days=inactivity_days)
+
+    try:
+        # Prefer the session's tracked connection if present.
+        conn = st.session_state.get('db_connection')
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                UPDATE sessions
+                SET last_activity = NOW(), expires_at = %s
+                WHERE session_id = %s AND status = 'active'
+                """,
+                (new_expires_at, session_id),
+            )
+            conn.commit()
+            cursor.close()
+            return True
+
+        # Otherwise use a bootstrap connection.
+        pool = get_connection_pool_instance()
+        with pool.get_bootstrap_connection() as bootstrap:
+            cursor = bootstrap.cursor()
+            cursor.execute(
+                """
+                UPDATE sessions
+                SET last_activity = NOW(), expires_at = %s
+                WHERE session_id = %s AND status = 'active'
+                """,
+                (new_expires_at, session_id),
+            )
+            bootstrap.commit()
+            cursor.close()
+            return True
+    except Exception:
+        return False
+
+def create_session(
+    user_id: int,
+    ip_address: str = "unknown",
+    username: str = None,
+    user_agent: str = "unknown",
+    app_name: str = "miolingo",
+) -> Optional[str]:
     """
     Create a new session for authenticated user.
     Uses bootstrap connection before user's tracked connection is established.
@@ -714,17 +801,53 @@ def create_session(user_id: int, ip_address: str = "unknown") -> Optional[str]:
         # Generate cryptographically secure session ID
         session_id = secrets.token_urlsafe(32)
         
-        # Session expires in 7 days
-        expires_at = datetime.now() + timedelta(days=7)
+        # Sliding expiration (inactivity window)
+        expires_at = datetime.now() + timedelta(days=get_session_inactivity_days())
         
         with pool.get_bootstrap_connection() as conn:
-            cursor = conn.cursor()
-            
+            cursor = conn.cursor(dictionary=True)
+
+            # Get username if not provided
+            if not username:
+                cursor.execute("SELECT username FROM users WHERE user_id = %s", (user_id,))
+                user = cursor.fetchone()
+                username = user['username'] if user else f"user_{user_id}"
+
+            # Parse device type and browser from user agent
+            device_type = "Desktop"
+            browser = "Unknown"
+
+            if user_agent and user_agent != "unknown":
+                ua_lower = user_agent.lower()
+
+                # Device detection
+                if 'mobile' in ua_lower or 'iphone' in ua_lower or 'android' in ua_lower:
+                    device_type = "Mobile"
+                elif 'tablet' in ua_lower or 'ipad' in ua_lower:
+                    device_type = "Tablet"
+
+                # Browser detection
+                if 'edg/' in ua_lower or 'edge' in ua_lower:
+                    browser = "Edge"
+                elif 'chrome' in ua_lower and 'edg' not in ua_lower:
+                    browser = "Chrome"
+                elif 'safari' in ua_lower and 'chrome' not in ua_lower:
+                    browser = "Safari"
+                elif 'firefox' in ua_lower:
+                    browser = "Firefox"
+                elif 'opera' in ua_lower or 'opr/' in ua_lower:
+                    browser = "Opera"
+
             query = """
-                INSERT INTO sessions (session_id, user_id, created_at, expires_at, ip_address)
-                VALUES (%s, %s, NOW(), %s, %s)
+                INSERT INTO sessions
+                (session_id, user_id, username, created_at, expires_at, ip_address,
+                 user_agent, device_type, browser, app_name, last_activity, status)
+                VALUES (%s, %s, %s, NOW(), %s, %s, %s, %s, %s, %s, NOW(), 'active')
             """
-            cursor.execute(query, (session_id, user_id, expires_at, ip_address))
+            cursor.execute(
+                query,
+                (session_id, user_id, username, expires_at, ip_address, user_agent, device_type, browser, app_name),
+            )
             conn.commit()
             cursor.close()
         
@@ -763,13 +886,13 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
                        u.username, u.email, u.is_active
                 FROM sessions s
                 JOIN users u ON s.user_id = u.user_id
-                WHERE s.session_id = %s AND s.expires_at > NOW()
+                  WHERE s.session_id = %s AND s.expires_at > NOW() AND s.status = 'active'
             """
             cursor.execute(query, (session_id,))
             session = cursor.fetchone()
-            cursor.close()
             
             if not session:
+                cursor.close()
                 # Log session validation failure
                 write_debug_log(
                     event_type='session_validation_failed',
@@ -780,6 +903,7 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
             
             # Check if user is active
             if not session['is_active']:
+                cursor.close()
                 write_debug_log(
                     event_type='session_validation_failed',
                     message=f'User account is inactive',
@@ -799,6 +923,24 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
                     use_bootstrap=True
                 )
                 # Still allow (IPs can change legitimately), but log for security monitoring
+
+            # Session is valid: refresh activity + sliding expiry
+            try:
+                new_expires_at = datetime.now() + timedelta(days=get_session_inactivity_days())
+                cursor.execute(
+                    """
+                    UPDATE sessions
+                    SET last_activity = NOW(), expires_at = %s
+                    WHERE session_id = %s AND status = 'active'
+                    """,
+                    (new_expires_at, session_id),
+                )
+                conn.commit()
+            except Exception:
+                # Don't fail validation if activity refresh fails.
+                pass
+
+            cursor.close()
             
             return {
                 'user_id': session['user_id'],
@@ -833,9 +975,16 @@ def delete_session(session_id: str) -> bool:
             result = cursor.fetchone()
             user_id = result[0] if result else None
             
-            cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
+            # Preserve session row; invalidate it.
+            cursor.execute(
+                """
+                UPDATE sessions
+                SET status = 'expired', expires_at = NOW(), last_activity = NOW()
+                WHERE session_id = %s
+                """,
+                (session_id,),
+            )
             conn.commit()
-            cursor.close()
             
             if user_id:
                 log_activity(user_id, "SESSION_DELETED", "User logged out", "system")
@@ -862,78 +1011,10 @@ def delete_session(session_id: str) -> bool:
 
 def log_session_to_monitor(session_id: str, username: str, user_ip: str, user_agent: str, app_name: str) -> bool:
     """
-    Log session details to session_monitor table for comprehensive tracking.
-    This is the single source of truth for session metadata (device, browser, app).
-    
-    Args:
-        session_id: Session ID from sessions table
-        username: Username
-        user_ip: Client IP address
-        user_agent: Browser user agent string
-        app_name: Which app created the session ('app', 'connection_monitor', 'miolingo-admin')
-    
-    Returns:
-        True if successful, False otherwise
+    DEPRECATED: Session metadata is stored directly in the unified `sessions` table.
+    This function is kept for backward compatibility but does nothing.
     """
-    try:
-        # Parse device type and browser from user agent
-        device_type = "Desktop"
-        browser = "Unknown"
-        
-        if user_agent and user_agent != "unknown":
-            ua_lower = user_agent.lower()
-            
-            # Device detection
-            if 'mobile' in ua_lower or 'iphone' in ua_lower or 'android' in ua_lower:
-                device_type = "Mobile"
-            elif 'tablet' in ua_lower or 'ipad' in ua_lower:
-                device_type = "Tablet"
-            
-            # Browser detection
-            if 'edg/' in ua_lower or 'edge' in ua_lower:
-                browser = "Edge"
-            elif 'chrome' in ua_lower and 'edg' not in ua_lower:
-                browser = "Chrome"
-            elif 'safari' in ua_lower and 'chrome' not in ua_lower:
-                browser = "Safari"
-            elif 'firefox' in ua_lower:
-                browser = "Firefox"
-            elif 'opera' in ua_lower or 'opr/' in ua_lower:
-                browser = "Opera"
-        
-        # Calculate expiry (7 days like main session)
-        expires_at = datetime.now() + timedelta(days=7)
-        
-        # Use bootstrap connection for logging
-        pool = get_connection_pool_instance()
-        
-        with pool.get_bootstrap_connection() as conn:
-            cursor = conn.cursor()
-            
-            # Insert or update session_monitor
-            query = """
-                INSERT INTO session_monitor 
-                (session_id, username, user_ip, user_agent, device_type, browser, app_name, 
-                 login_time, expires_at, last_activity, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), %s, NOW(), 'active')
-                ON DUPLICATE KEY UPDATE
-                    user_ip = VALUES(user_ip),
-                    user_agent = VALUES(user_agent),
-                    device_type = VALUES(device_type),
-                    browser = VALUES(browser),
-                    app_name = VALUES(app_name),
-                    last_activity = NOW(),
-                    status = 'active'
-            """
-            cursor.execute(query, (session_id, username, user_ip, user_agent, device_type, browser, app_name, expires_at))
-            conn.commit()
-            cursor.close()
-        
-        return True
-        
-    except Error as e:
-        print(f"Warning: Failed to log session to monitor: {e}")
-        return False
+    return True
 
 
 def cleanup_expired_sessions() -> int:
@@ -949,10 +1030,16 @@ def cleanup_expired_sessions() -> int:
         conn = get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("DELETE FROM sessions WHERE expires_at < NOW()")
+        # Preserve session rows; mark them expired.
+        cursor.execute(
+            """
+            UPDATE sessions
+            SET status = 'expired'
+            WHERE status = 'active' AND expires_at < NOW()
+            """
+        )
         deleted_count = cursor.rowcount
         conn.commit()
-        cursor.close()
         
         return deleted_count
         
@@ -987,7 +1074,6 @@ def get_user_settings(user_id: int) -> Dict[str, Any]:
         query = "SELECT setting_key, setting_value FROM user_settings WHERE user_id = %s"
         cursor.execute(query, (user_id,))
         rows = cursor.fetchall()
-        cursor.close()
         
         # Convert to dict and deserialize JSON values
         settings = {}
@@ -1032,7 +1118,6 @@ def save_user_setting(user_id: int, key: str, value: Any) -> bool:
         """
         cursor.execute(query, (user_id, key, value_json, value_json))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1053,7 +1138,6 @@ def delete_user_setting(user_id: int, key: str) -> bool:
         query = "DELETE FROM user_settings WHERE user_id = %s AND setting_key = %s"
         cursor.execute(query, (user_id, key))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1139,8 +1223,6 @@ def write_debug_log(
             """)
             conn.commit()
         
-        cursor.close()
-        
     except Exception as e:
         # Don't let logging errors break the app
         logging.error(f"Failed to write debug log: {e}")
@@ -1190,7 +1272,6 @@ def get_debug_logs(
         
         cursor.execute(query, tuple(params))
         logs = cursor.fetchall()
-        cursor.close()
         
         return logs
         
@@ -1249,7 +1330,6 @@ def save_practice(
                 similarity_score, perfect_match, target_phonemes, user_phonemes
             ))
             conn.commit()
-            cursor.close()
             
             return True
             
@@ -1304,7 +1384,6 @@ def get_user_progress(user_id: int, language_code: str, limit: int = 50) -> List
         """
         cursor.execute(query, (user_id, language_code, limit))
         progress = cursor.fetchall()
-        cursor.close()
         
         return progress
         
@@ -1353,8 +1432,6 @@ def get_user_stats(user_id: int, language_code: str) -> Dict:
         """
         cursor.execute(query_recent, (user_id, language_code))
         recent = cursor.fetchone()
-        
-        cursor.close()
         
         return {
             'total': stats['total'] or 0,
@@ -1407,7 +1484,6 @@ def check_rate_limit(
         result = cursor.fetchone()
         
         if result['attempt_count'] >= max_attempts:
-            cursor.close()
             return False
         
         # Log this attempt
@@ -1417,7 +1493,6 @@ def check_rate_limit(
         """
         cursor.execute(insert_query, (identifier, action))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1475,7 +1550,6 @@ def log_activity(
             """
             cursor.execute(query, (user_id, action, details, ip_address))
             conn.commit()
-            cursor.close()
         
         return True
         
@@ -1500,7 +1574,6 @@ def get_user_activity_log(user_id: int, limit: int = 100) -> List[Dict]:
         """
         cursor.execute(query, (user_id, limit))
         logs = cursor.fetchall()
-        cursor.close()
         
         return logs
         
@@ -1603,7 +1676,6 @@ def create_announcement(ann_type: str, message: str, display_on: str = 'both',
         cursor.execute(insert_query, (ann_type, message, display_on, expires_at))
         
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1636,7 +1708,6 @@ def clear_announcement(ann_type: str) -> bool:
         """
         cursor.execute(query, (ann_type,))
         conn.commit()
-        cursor.close()
         
         return True
         
@@ -1658,7 +1729,6 @@ def test_connection() -> bool:
         cursor = conn.cursor()
         cursor.execute("SELECT 1")
         cursor.fetchone()
-        cursor.close()
         return True
     except Error as e:
         st.error(f"❌ Database connection test failed: {e}")

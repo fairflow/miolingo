@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "6.2.4"
+__version__ = "6.2.5"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -595,8 +595,21 @@ def show_login_page():
                     user = app_mysql.authenticate_user(username, password)
                     
                     if user:
-                        # Create session
-                        session_id = app_mysql.create_session(user['user_id'], "127.0.0.1")
+                        # Get user agent for session metadata
+                        try:
+                            headers = st.context.headers
+                            user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
+                        except Exception:
+                            user_agent = 'unknown'
+
+                        # Create session (stores metadata directly in `sessions`)
+                        session_id = app_mysql.create_session(
+                            user['user_id'],
+                            "127.0.0.1",
+                            username=username,
+                            user_agent=user_agent,
+                            app_name='miolingo',
+                        )
                         
                         if session_id:
                             # HANDOVER: Close any bootstrap connection, get tracked connection
@@ -618,21 +631,7 @@ def show_login_page():
                             tracked_conn = app_mysql.get_connection()
                             print(f"✓ Established tracked connection for {username}")
                             
-                            # Get user agent for session logging
-                            try:
-                                headers = st.context.headers
-                                user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-                            except:
-                                user_agent = 'unknown'
-                            
-                            # Log session to session_monitor table
-                            app_mysql.log_session_to_monitor(
-                                session_id=session_id,
-                                username=username,
-                                user_ip="127.0.0.1",
-                                user_agent=user_agent,
-                                app_name='app'
-                            )
+                            # Session metadata was stored at create_session()
                             
                             # Reload settings from database (using new tracked connection)
                             st.session_state.settings = load_settings()
@@ -690,7 +689,18 @@ def show_login_page():
         
         if st.button("🚀 Start as Guest", type="primary", use_container_width=True):
             # Create guest user
-            result = app_mysql.create_guest_user()
+            # Get user agent for session metadata
+            try:
+                headers = st.context.headers
+                user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
+            except Exception:
+                user_agent = 'unknown'
+
+            result = app_mysql.create_guest_user(
+                ip_address="127.0.0.1",
+                user_agent=user_agent,
+                app_name='miolingo',
+            )
             
             if result:
                 user_id, username, session_id = result
@@ -722,21 +732,7 @@ def show_login_page():
                 tracked_conn = app_mysql.get_connection()
                 print(f"✓ Established tracked connection for guest {username}")
                 
-                # Get user agent for session logging
-                try:
-                    headers = st.context.headers
-                    user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-                except:
-                    user_agent = 'unknown'
-                
-                # Log session to session_monitor table
-                app_mysql.log_session_to_monitor(
-                    session_id=session_id,
-                    username=username,
-                    user_ip="127.0.0.1",
-                    user_agent=user_agent,
-                    app_name='app'
-                )
+                # Session metadata was stored at create_guest_user()/create_session()
                 
                 # Reload settings from database (will have defaults for new guest)
                 st.session_state.settings = load_settings()
@@ -989,7 +985,7 @@ def initialize_session_state():
     """Initialize Streamlit session state"""
     # Set app name for connection tracking
     if 'app_name' not in st.session_state:
-        st.session_state.app_name = 'miolingo-app'
+        st.session_state.app_name = 'miolingo'
     
     if 'settings' not in st.session_state:
         st.session_state.settings = load_settings()

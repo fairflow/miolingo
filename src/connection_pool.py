@@ -125,6 +125,134 @@ class ConnectionPool:
         self.session_registry: Dict[str, SessionInfo] = {}
         self._next_tunnel_index = 0
         self._last_cleanup_time = None
+
+    def _is_tunnel_healthy(self, tunnel_info: TunnelInfo) -> bool:
+        """Best-effort health check for an in-memory SSHTunnelForwarder."""
+        tunnel = tunnel_info.tunnel_obj
+        if tunnel is None:
+            return False
+        try:
+            if not getattr(tunnel, "is_active", False):
+                return False
+        except Exception:
+            return False
+
+        # If sshtunnel exposes per-bind status, use it.
+        try:
+            tunnel_is_up = getattr(tunnel, "tunnel_is_up", None)
+            if isinstance(tunnel_is_up, dict) and tunnel_is_up:
+                if not any(bool(v) for v in tunnel_is_up.values()):
+                    return False
+        except Exception:
+            # Don't fail hard on introspection issues.
+            pass
+
+        return bool(tunnel_info.local_port)
+
+    def _looks_like_dead_tunnel_error(self, err: Exception) -> bool:
+        msg = str(err)
+        needles = (
+            "SSH session not active",
+            "open new channel",
+            "Socket is closed",
+            "Broken pipe",
+            "Connection reset by peer",
+            "Error reading SSH protocol banner",
+            "EOFError",
+            "Unable to connect",
+            "Can't connect to MySQL server",
+            "Connection refused",
+        )
+        return any(n in msg for n in needles)
+
+    def _stop_tunnel_safely(self, tunnel: Optional[SSHTunnelForwarder]) -> None:
+        if tunnel is None:
+            return
+        try:
+            tunnel.stop()
+        except Exception:
+            pass
+
+    def _recreate_tracked_tunnel(self, tunnel_id: str) -> None:
+        """Stop and recreate an existing tracked tunnel in-memory and in DB.
+
+        Also marks any DB connections for that tunnel as closed, since a tunnel
+        restart invalidates those forwarded connections.
+        """
+        old_info = self.tunnel_pool.get(tunnel_id)
+        if old_info and old_info.tunnel_obj:
+            self._stop_tunnel_safely(old_info.tunnel_obj)
+
+        tunnel_obj = self.create_ssh_tunnel()
+        pid = self.get_tunnel_pid(tunnel_obj)
+        now = datetime.now()
+
+        if old_info:
+            old_info.tunnel_obj = tunnel_obj
+            old_info.pid = pid
+            old_info.local_port = tunnel_obj.local_bind_port
+            old_info.created_at = now
+            old_info.last_used = now
+            old_info.status = 'active'
+            old_info.connection_count = 0
+        else:
+            self.tunnel_pool[tunnel_id] = TunnelInfo(
+                tunnel_id=tunnel_id,
+                tunnel_obj=tunnel_obj,
+                pid=pid,
+                local_port=tunnel_obj.local_bind_port,
+                created_at=now,
+                last_used=now,
+                status='active',
+                connection_count=0,
+            )
+
+        # Give tunnel time to stabilize
+        time.sleep(0.3)
+
+        # Persist updates and clear stale connection rows.
+        try:
+            with self.get_bootstrap_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("START TRANSACTION")
+
+                cursor.execute(
+                    """
+                    UPDATE connection_monitor
+                    SET status = 'closed'
+                    WHERE tunnel_id = %s AND status = 'active'
+                    """,
+                    (tunnel_id,),
+                )
+
+                cursor.execute(
+                    """
+                    INSERT INTO tunnel_monitor
+                    (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        pid = VALUES(pid),
+                        local_port = VALUES(local_port),
+                        last_used = VALUES(last_used),
+                        status = VALUES(status),
+                        connection_count = VALUES(connection_count)
+                    """,
+                    (tunnel_id, pid, tunnel_obj.local_bind_port, now, now, 'active', 0),
+                )
+
+                conn.commit()
+                cursor.close()
+        except Exception as e:
+            logging.warning(f"Warning: could not persist recreated tunnel {tunnel_id}: {e}")
+
+    def _ensure_tracked_tunnel_alive(self, tunnel_id: str) -> None:
+        tunnel_info = self.tunnel_pool.get(tunnel_id)
+        if tunnel_info is None:
+            return
+        if self._is_tunnel_healthy(tunnel_info):
+            return
+        logging.warning(f"Tracked tunnel {tunnel_id} unhealthy; recreating")
+        self._recreate_tracked_tunnel(tunnel_id)
     
     def create_ssh_tunnel(self) -> SSHTunnelForwarder:
         """
@@ -308,8 +436,15 @@ class ConnectionPool:
         # Try to find existing tunnel with capacity
         for tunnel_id, tunnel_info in self.tunnel_pool.items():
             actual_count = tunnel_conn_counts.get(tunnel_id, 0)
-            
+
             if tunnel_info.status == 'active' and actual_count < MAX_CONNECTIONS_PER_TUNNEL:
+                # Avoid reusing stale tunnels after long idle periods.
+                try:
+                    self._ensure_tracked_tunnel_alive(tunnel_id)
+                except Exception as e:
+                    logging.warning(f"Tunnel {tunnel_id} failed health/recreate check: {e}")
+                    tunnel_info.status = 'dead'
+                    continue
                 tunnel_info.last_used = datetime.now()
                 tunnel_info.connection_count = actual_count
                 return tunnel_id
@@ -388,11 +523,13 @@ class ConnectionPool:
             MySQL connection object
         """
         tunnel_id = self.get_or_create_tracked_tunnel()
+        # Ensure tunnel is alive before using it.
+        self._ensure_tracked_tunnel_alive(tunnel_id)
         tunnel_info = self.tunnel_pool[tunnel_id]
         
-        # Create connection through the selected tunnel with retry
-        max_retries = 2
-        retry_delay = 0.2
+        # Create connection through the selected tunnel with retry + tunnel recreate.
+        max_retries = 3
+        retry_delay = 0.25
         conn = None
         last_error = None
         
@@ -409,14 +546,26 @@ class ConnectionPool:
                 break  # Success
             except Exception as e:
                 last_error = e
-                if attempt < max_retries - 1:
-                    # Only retry on "reading initial communication packet" errors
-                    if "reading initial communication packet" in str(e):
-                        time.sleep(retry_delay)
-                    else:
-                        raise  # Don't retry other errors
-                else:
+
+                if attempt >= max_retries - 1:
                     raise last_error
+
+                # If the tunnel died (common overnight), recreate and retry.
+                if self._looks_like_dead_tunnel_error(e):
+                    try:
+                        self._recreate_tracked_tunnel(tunnel_id)
+                        tunnel_info = self.tunnel_pool[tunnel_id]
+                    except Exception as recreate_err:
+                        raise last_error from recreate_err
+                    time.sleep(retry_delay)
+                    continue
+
+                # Transient MySQL handshake hiccup.
+                if "reading initial communication packet" in str(e):
+                    time.sleep(retry_delay)
+                    continue
+
+                raise  # Don't retry other errors
         
         # Get MySQL connection ID
         cursor = conn.cursor()
@@ -496,7 +645,7 @@ class ConnectionPool:
                     session_info = SessionInfo(
                         session_id=session_id,
                         username=username,
-                        user_ip='unknown',  # Will be updated by session_monitor
+                        user_ip='unknown',  # Updated via unified `sessions` table
                         user_agent='unknown',
                         device_type='unknown',
                         browser='unknown',
@@ -686,7 +835,7 @@ class ConnectionPool:
         Tables:
         - tunnel_monitor: SSH tunnel tracking
         - connection_monitor: DB connection tracking
-        - session_monitor: User session tracking with IP, device, browser
+        - sessions: User session tracking is handled by the unified `sessions` table
         """
         try:
             with self.get_bootstrap_connection() as conn:
@@ -739,33 +888,9 @@ class ConnectionPool:
                     # Column already exists or other error - that's okay
                     if e.errno != 1060:  # 1060 = Duplicate column name
                         pass  # Ignore duplicate column errors, raise others if needed
-                
-                
-            # Session monitoring table (comprehensive user tracking)
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS session_monitor (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    session_id VARCHAR(100) UNIQUE NOT NULL,
-                    username VARCHAR(100) NOT NULL,
-                    user_ip VARCHAR(45),
-                    user_agent TEXT,
-                    device_type VARCHAR(50),
-                    browser VARCHAR(50),
-                    app_name VARCHAR(50),
-                    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    expires_at TIMESTAMP,
-                    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    status ENUM('active', 'expired', 'forced_logout') DEFAULT 'active',
-                    INDEX idx_session_id (session_id),
-                    INDEX idx_username (username),
-                    INDEX idx_status (status),
-                    INDEX idx_expires_at (expires_at),
-                    INDEX idx_app_name (app_name)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """)
-            
-            conn.commit()
-            cursor.close()
+
+                conn.commit()
+                cursor.close()
             
             return True, "Monitoring tables initialized successfully"
             

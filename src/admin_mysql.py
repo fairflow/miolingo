@@ -795,7 +795,7 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
                        u.username, u.email, u.is_active
                 FROM sessions s
                 JOIN users u ON s.user_id = u.user_id
-                WHERE s.session_id = %s AND s.expires_at > NOW()
+                  WHERE s.session_id = %s AND s.expires_at > NOW() AND s.status = 'active'
             """
             cursor.execute(query, (session_id,))
             session = cursor.fetchone()
@@ -865,7 +865,15 @@ def delete_session(session_id: str) -> bool:
             result = cursor.fetchone()
             user_id = result[0] if result else None
             
-            cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
+            # Preserve session row; invalidate it.
+            cursor.execute(
+                """
+                UPDATE sessions
+                SET status = 'expired', expires_at = NOW(), last_activity = NOW()
+                WHERE session_id = %s
+                """,
+                (session_id,),
+            )
             conn.commit()
             
             if user_id:
@@ -925,7 +933,14 @@ def cleanup_expired_sessions() -> int:
         conn = get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("DELETE FROM sessions WHERE expires_at < NOW()")
+        # Preserve session rows; mark them expired.
+        cursor.execute(
+            """
+            UPDATE sessions
+            SET status = 'expired'
+            WHERE status = 'active' AND expires_at < NOW()
+            """
+        )
         deleted_count = cursor.rowcount
         conn.commit()
         

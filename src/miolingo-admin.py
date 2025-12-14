@@ -24,16 +24,20 @@ import time
 import app_mysql
 from contextlib import contextmanager
 
-# Page config
-st.set_page_config(
-    page_title="Miolingo Admin",
-    page_icon="🔧",
-    layout="wide"
-)
+
+HOSTED_BY_UNIFIED_ADMIN = st.session_state.get('_unified_admin_host', False)
+
+# Page config (only if not hosted by unified entrypoint)
+if not HOSTED_BY_UNIFIED_ADMIN:
+    st.set_page_config(
+        page_title="Miolingo Admin",
+        page_icon="🔧",
+        layout="wide"
+    )
 
 # Set app name for connection tracking
 if 'app_name' not in st.session_state:
-    st.session_state.app_name = 'miolingo-admin'
+    st.session_state.app_name = 'miolingo'
 
 # Auto-refresh feature - queries database every N seconds
 if 'auto_refresh_enabled' not in st.session_state:
@@ -48,6 +52,13 @@ if 'auto_refresh_enabled' not in st.session_state:
 
 def check_authentication():
     """Simple authentication for admin dashboard (reuses miolingo auth)"""
+    # When hosted, `unified_admin.py` owns authentication + session creation.
+    if HOSTED_BY_UNIFIED_ADMIN:
+        if not st.session_state.get('authenticated', False):
+            st.error("This page is hosted by Unified Admin. Please authenticate there.")
+            st.stop()
+        return
+
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     
@@ -92,17 +103,15 @@ def check_authentication():
                     
                     # Log this admin login
                     try:
-                        session_id = app_mysql.create_session(user['user_id'], "127.0.0.1")
+                        session_id = app_mysql.create_session(
+                            user['user_id'],
+                            "127.0.0.1",
+                            username=username,
+                            user_agent=user_agent,
+                            app_name='miolingo',
+                        )
                         if session_id:
                             st.session_state.admin_session_id = session_id
-                            # Log to session_monitor table
-                            app_mysql.log_session_to_monitor(
-                                session_id=session_id,
-                                username=username,
-                                user_ip="127.0.0.1",
-                                user_agent=user_agent,
-                                app_name='miolingo-admin'
-                            )
                     except Exception as log_err:
                         st.warning(f"Login successful but session logging failed: {log_err}")
                     
@@ -118,58 +127,68 @@ def check_authentication():
 check_authentication()
 
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface • v2.0.3")
+st.caption("Local monitoring and management interface • v2.0.4")
 
-# Quick reconnect button in sidebar
-with st.sidebar:
-    st.subheader("🔧 Quick Actions")
-    
-    # Show logged in user
-    if 'admin_username' in st.session_state:
-        st.info(f"👤 Logged in as: **{st.session_state.admin_username}**")
-    
-    # Auto-refresh toggle
-    auto_refresh = st.checkbox(f"🔄 Auto-refresh ({REFRESH_INTERVAL_MINUTES}m)", value=st.session_state.auto_refresh_enabled, 
-                               help=f"Automatically refresh data from database every {REFRESH_INTERVAL_MINUTES} minutes")
-    if auto_refresh != st.session_state.auto_refresh_enabled:
-        st.session_state.auto_refresh_enabled = auto_refresh
-        st.rerun()
-    
-    if st.button("🔄 Clear Cache & Reconnect", use_container_width=True):
-        # Clear all caches
-        st.cache_resource.clear()
-        st.cache_data.clear()
-        
-        # Clear connection pool from session state (forces fresh connections)
-        if 'mysql_pool' in st.session_state:
-            del st.session_state.mysql_pool
-        
-        st.success("✅ Cache cleared! Database connections will be recreated on next use.")
-        st.info("💡 If you still see errors, refresh your browser (Cmd+R or Ctrl+R)")
-        time.sleep(1)
-        st.rerun()
-    st.caption("💡 Use this if you see connection errors")
-    
-    # Logout button
-    st.divider()
-    if st.button("🚪 Logout", use_container_width=True, type="primary"):
-        # Delete admin session from database
-        if 'admin_session_id' in st.session_state:
-            try:
-                app_mysql.delete_session(st.session_state['admin_session_id'])
-            except Exception as e:
-                st.warning(f"Session cleanup warning: {e}")
-        
-        # Clear session state
-        st.session_state.clear()
-        st.session_state['voluntary_logout'] = True
-        st.rerun()
+if not HOSTED_BY_UNIFIED_ADMIN:
+    # Quick reconnect button in sidebar (standalone mode)
+    with st.sidebar:
+        st.subheader("🔧 Quick Actions")
 
-# Tab layout
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"])
+        # Show logged in user
+        if 'admin_username' in st.session_state:
+            st.info(f"👤 Logged in as: **{st.session_state.admin_username}**")
+
+        # Auto-refresh toggle
+        auto_refresh = st.checkbox(
+            f"🔄 Auto-refresh ({REFRESH_INTERVAL_MINUTES}m)",
+            value=st.session_state.auto_refresh_enabled,
+            help=f"Automatically refresh data from database every {REFRESH_INTERVAL_MINUTES} minutes",
+        )
+        if auto_refresh != st.session_state.auto_refresh_enabled:
+            st.session_state.auto_refresh_enabled = auto_refresh
+            st.rerun()
+
+        if st.button("🔄 Clear Cache & Reconnect", use_container_width=True):
+            # Clear all caches
+            st.cache_resource.clear()
+            st.cache_data.clear()
+
+            # Clear connection pool from session state (forces fresh connections)
+            if 'mysql_pool' in st.session_state:
+                del st.session_state.mysql_pool
+
+            st.success("✅ Cache cleared! Database connections will be recreated on next use.")
+            st.info("💡 If you still see errors, refresh your browser (Cmd+R or Ctrl+R)")
+            time.sleep(1)
+            st.rerun()
+        st.caption("💡 Use this if you see connection errors")
+
+        # Logout button (standalone mode)
+        st.divider()
+        if st.button("🚪 Logout", use_container_width=True, type="primary"):
+            # Delete admin session from database
+            if 'admin_session_id' in st.session_state:
+                try:
+                    app_mysql.delete_session(st.session_state['admin_session_id'])
+                except Exception as e:
+                    st.warning(f"Session cleanup warning: {e}")
+
+            # Clear session state
+            st.session_state.clear()
+            st.session_state['voluntary_logout'] = True
+            st.rerun()
+
+# Navigation (tabs deprecated)
+_admin_pages = ["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
+if HOSTED_BY_UNIFIED_ADMIN:
+    selected_page = st.session_state.get('ua_admin_page', _admin_pages[0])
+    if selected_page not in _admin_pages:
+        selected_page = _admin_pages[0]
+else:
+    selected_page = st.sidebar.radio("Admin Pages", _admin_pages, index=0)
 
 # TAB 1: Resource Usage
-with tab1:
+if selected_page == "📊 Resource Usage":
     st.header("📊 Resource Usage")
     
     col1, col2, col3 = st.columns(3)
@@ -296,7 +315,7 @@ with tab1:
             st.warning("✗ Database not connected")
 
 # TAB 2: Users
-with tab2:
+if selected_page == "👥 Users":
     st.header("👥 Current Users")
     
     try:
@@ -317,30 +336,28 @@ with tab2:
                 st.metric("Total Users", user_count)
             
             # Get currently logged-in users (active sessions with device/browser info)
-            # Use GROUP BY to avoid duplicates when session_monitor has multiple entries per session
             cursor.execute("""
-                SELECT u.username, u.email, s.created_at as login_time, s.expires_at, s.ip_address,
+                  SELECT u.username, u.email, s.created_at as login_time, s.expires_at, s.ip_address,
                        TIMESTAMPDIFF(HOUR, NOW(), s.expires_at) as hours_until_expire,
-                       MAX(sm.device_type) as device_type, 
-                       MAX(sm.browser) as browser, 
-                       MAX(sm.app_name) as app_name
+                      s.device_type as device_type,
+                      s.browser as browser,
+                      s.app_name as app_name
                 FROM sessions s
                 JOIN users u ON s.user_id = u.user_id
-                LEFT JOIN session_monitor sm ON s.session_id COLLATE utf8mb4_unicode_ci = sm.session_id
-                WHERE s.expires_at > NOW()
-                GROUP BY s.session_id, u.username, u.email, s.created_at, s.expires_at, s.ip_address
+                WHERE s.status = 'active' AND s.expires_at > NOW()
                 ORDER BY s.created_at DESC
             """)
             active_sessions = cursor.fetchall()
             
             with col2:
-                st.metric("Currently Logged In", len(active_sessions))
+                active_usernames = {row.get('username') for row in active_sessions if row.get('username')}
+                st.metric("Currently Logged In", len(active_usernames))
             
             # Show expired sessions count
             cursor.execute("""
                 SELECT COUNT(*) as count
                 FROM sessions
-                WHERE expires_at <= NOW()
+                WHERE status != 'active' OR expires_at <= NOW()
             """)
             expired_count = int(cursor.fetchone()['count'] or 0)
             
@@ -464,8 +481,8 @@ with tab2:
                     if st.button("🧹 Clean Up Expired Sessions", type="secondary"):
                         try:
                             from app_mysql import cleanup_expired_sessions
-                            deleted = cleanup_expired_sessions()
-                            st.success(f"✅ Removed {deleted} expired sessions")
+                            expired = cleanup_expired_sessions()
+                            st.success(f"✅ Marked {expired} session(s) expired")
                             st.rerun()
                         except Exception as e:
                             st.error(f"❌ Cleanup failed: {e}")
@@ -478,20 +495,18 @@ with tab2:
                             try:
                                 conn_del = app_mysql.get_connection()
                                 cursor_del = conn_del.cursor()
-                                cursor_del.execute("DELETE FROM sessions")
-                                deleted = cursor_del.rowcount
+                                cursor_del.execute("""
+                                    UPDATE sessions
+                                    SET status = 'forced_logout', expires_at = NOW(), last_activity = NOW()
+                                    WHERE status = 'active'
+                                """)
+                                updated = cursor_del.rowcount
                                 conn_del.commit()
                                 cursor_del.close()
-                                st.success(f"✅ Logged out all users ({deleted} sessions removed)")
+                                st.success(f"✅ Forced logout for all users ({updated} session(s) invalidated)")
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"❌ Force logout failed: {e}")
-                            finally:
-                                if conn_del:
-                                    try:
-                                        conn_del.close()
-                                    except:
-                                        pass
             
             if active_sessions:
                 st.subheader("🟢 Currently Logged In Users")
@@ -506,13 +521,13 @@ with tab2:
                 # Only include columns that exist
                 display_cols = [col for col in column_order if col in df_active.columns]
                 st.dataframe(df_active[display_cols], width='stretch', hide_index=True)
-                st.caption("💡 Active sessions expire 7 days after login. Sessions are removed on logout or cleanup.")
+                st.caption("💡 Active sessions expire after 7 days of inactivity (sliding). Sessions are invalidated on logout/force-logout/expiry.")
                 
                 # Force logout specific users
                 st.subheader("🚪 Force Logout Selected Users")
                 
                 # Create list of usernames for selection
-                usernames = [session['username'] for session in active_sessions]
+                usernames = sorted({session.get('username') for session in active_sessions if session.get('username')})
                 
                 selected_users = st.multiselect(
                     "Select users to force logout:",
@@ -530,28 +545,23 @@ with tab2:
                                 conn_logout = app_mysql.get_connection()
                                 cursor_logout = conn_logout.cursor()
                                 
-                                # Delete sessions for selected users
+                                # Invalidate sessions for selected users (preserve history)
                                 placeholders = ', '.join(['%s'] * len(selected_users))
                                 query = f"""
-                                    DELETE s FROM sessions s
+                                    UPDATE sessions s
                                     JOIN users u ON s.user_id = u.user_id
-                                    WHERE u.username IN ({placeholders})
+                                    SET s.status = 'forced_logout', s.expires_at = NOW(), s.last_activity = NOW()
+                                    WHERE s.status = 'active' AND u.username IN ({placeholders})
                                 """
                                 cursor_logout.execute(query, tuple(selected_users))
-                                deleted = cursor_logout.rowcount
+                                updated = cursor_logout.rowcount
                                 conn_logout.commit()
                                 cursor_logout.close()
                                 
-                                st.success(f"✅ Logged out {len(selected_users)} user(s), removed {deleted} session(s)")
+                                st.success(f"✅ Forced logout {len(selected_users)} user(s), invalidated {updated} session(s)")
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"❌ Force logout failed: {e}")
-                            finally:
-                                if conn_logout:
-                                    try:
-                                        conn_logout.close()
-                                    except:
-                                        pass
             else:
                 st.info("No users currently logged in")
             
@@ -562,7 +572,7 @@ with tab2:
                         SELECT u.username, u.email, s.created_at as login_time, s.expires_at
                         FROM sessions s
                         JOIN users u ON s.user_id = u.user_id
-                        WHERE s.expires_at <= NOW()
+                        WHERE s.status != 'active' OR s.expires_at <= NOW()
                         ORDER BY s.expires_at DESC
                     """)
                     expired_sessions = cursor.fetchall()
@@ -633,7 +643,7 @@ with tab2:
             st.rerun()
 
 # TAB 3: Logs
-with tab3:
+if selected_page == "📝 Logs":
     st.header("📝 Recent Logs")
     
     # Debug Logs from Database
@@ -764,7 +774,7 @@ with tab3:
                 pass
 
 # TAB 4: Email Monitor
-with tab4:
+if selected_page == "📧 Email":
     st.header("📧 Email Monitor")
     st.caption("Read-only monitoring of io@miolingo.io")
     
@@ -865,7 +875,7 @@ with tab4:
         st.caption("Make sure email_monitor.py is in the admin-sources directory")
 
 # TAB 5: Announcements
-with tab5:
+if selected_page == "📢 Announcements":
     st.header("📢 Announcements")
     st.caption("Manage system and feature announcements for users")
     
@@ -988,7 +998,7 @@ with tab5:
     st.info("💡 Announcements are cached for 60 seconds. Users will see updates within 1 minute.")
 
 # TAB 6: Settings
-with tab6:
+if selected_page == "⚙️ Settings":
     st.header("⚙️ Settings & Configuration")
     
     st.subheader("🔑 Secrets Status")
