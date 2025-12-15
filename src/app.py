@@ -615,7 +615,7 @@ def show_login_page():
     show_announcements('login')
     
     # About section with links
-    st.markdown("📖 [About & Features](https://github.com/fairflow/miolingo/blob/main/README.md) • 📚 [Development Story](https://github.com/fairflow/miolingo/blob/main/articles/development_detailed.md)")
+    st.markdown("📖 [About & Features](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/README.md) • 📚 [Development Story](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/articles/development_detailed.md)")
     st.markdown("---")
     
     tab1, tab2, tab3 = st.tabs(["Login", "Register", "Guest Mode"])
@@ -2929,9 +2929,9 @@ def main():
         st.header("📚 Help & Docs")
         st.markdown("""
         **📖 Guides:**
-        - [User Guide](https://github.com/fairflow/miolingo/blob/main/docs/app-docs/USER_GUIDE.md) - How to use the app
-        - [Testing Guide](https://github.com/fairflow/miolingo/blob/main/docs/app-docs/TESTING_GUIDE.md) - Report bugs & test
-        - [All Documentation](https://github.com/fairflow/miolingo/tree/main/docs/app-docs)
+        - [User Guide](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/USER_GUIDE.md) - How to use the app
+        - [Testing Guide](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/TESTING_GUIDE.md) - Report bugs & test
+        - [All Documentation](https://github.com/fairflow/miolingo/tree/feature/admin-fusion/docs/app-docs)
         
         **📚 Stories:**
         """)
@@ -2940,17 +2940,17 @@ def main():
         lang_code = st.session_state.get('material_language', 'fr')
         
         if lang_code == 'pt':
-            st.markdown("- [Sophie & Lucas: Uma Jornada aos Alpes](https://github.com/fairflow/miolingo/blob/main/language_materials/pt/story.md) (Portuguese)")
+            st.markdown("- [Sophie & Lucas: Uma Jornada aos Alpes](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/pt/story.md) (Portuguese)")
         elif lang_code == 'fr':
-            st.markdown("- [Sophie & Lucas: A Journey to the Alps](https://github.com/fairflow/miolingo/blob/main/language_materials/fr/story.md) (French)")
+            st.markdown("- [Sophie & Lucas: A Journey to the Alps](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/fr/story.md) (French)")
         elif lang_code == 'nl':
-            st.markdown("- [Sophie & Lucas: Een Reis naar de Alpen](https://github.com/fairflow/miolingo/blob/main/language_materials/nl/story.md) (Dutch)")
+            st.markdown("- [Sophie & Lucas: Een Reis naar de Alpen](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/nl/story.md) (Dutch)")
         elif lang_code == 'de':
-            st.markdown("- [Sophie & Lucas: Eine Reise in die Alpen](https://github.com/fairflow/miolingo/blob/main/language_materials/de/story.md) (German)")
+            st.markdown("- [Sophie & Lucas: Eine Reise in die Alpen](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/de/story.md) (German)")
         elif lang_code == 'it':
-            st.markdown("- [Sophie & Lucas: Un Viaggio sulle Alpi](https://github.com/fairflow/miolingo/blob/main/language_materials/it/story.md) (Italian)")
+            st.markdown("- [Sophie & Lucas: Un Viaggio sulle Alpi](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/it/story.md) (Italian)")
         elif lang_code == 'es':
-            st.markdown("- [Sophie & Lucas: Un Viaje a Sierra Nevada](https://github.com/fairflow/miolingo/blob/main/language_materials/es/story.md) (Spanish)")
+            st.markdown("- [Sophie & Lucas: Un Viaje a Sierra Nevada](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/es/story.md) (Spanish)")
         
         st.markdown("""
         **💬 Support:**
@@ -3003,7 +3003,7 @@ def main():
         # Help info for new users
         current_session = st.session_state.current_sessions[st.session_state.language]
         if len(current_session["practices"]) == 0:
-            st.info("👋 **New here?** Check the [User Guide](https://github.com/fairflow/miolingo/blob/main/docs/app-docs/USER_GUIDE.md) for step-by-step instructions!")
+            st.info("👋 **New here?** Check the [User Guide](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/USER_GUIDE.md) for step-by-step instructions!")
         
         # Phrase/Word list loading - Built-in Library + User Upload
         # Keep expander open during interactions
