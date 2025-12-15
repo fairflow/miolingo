@@ -1,8 +1,8 @@
 # Miolingo - Multi-Language Pronunciation Trainer - User Guide
 
-**Version 3.1.0** | Last Updated: 28 November 2025
+**Version 6.3.0** | Last Updated: 15 December 2025
 
-Welcome! This guide will help you practice pronunciation in multiple languages (Portuguese, French, Dutch/Flemish) using speech recognition and instant AI feedback.
+Welcome! This guide will help you practice pronunciation in multiple languages (Portuguese, French, Dutch/Flemish, German, Spanish and Italian) using speech recognition and instant AI feedback.
 
 ---
 
@@ -13,21 +13,38 @@ Welcome! This guide will help you practice pronunciation in multiple languages (
 **Online (Recommended):**
 
 - Open your web browser (Safari, Chrome, Firefox, etc.)
-- Visit: **https://miolingo.io/**
-- Backup URL (if primary fails): **https://miolingo.streamlit.app/**
+- Visit: **<https://miolingo.io/>**
+- Backup URL (if primary fails): **<https://miolingo.streamlit.app/>**
 - 💡 **Tip:** Bookmark this page or add to home screen!
 
 **Running Locally:**
 
 - Open terminal in the project directory
-- Run: `streamlit run app.py`
+- Run: `streamlit run src/app.py`
 - Opens at `http://localhost:8501`
+
+---
+
+## Login, register or use as a guest
+
+---
+
+## Sidebar navigation
+
+- Provides control features for setting app parameters and saving your settings and practices
+- Most important for mobile use
+- If the sidebar is hidden, ensure you are at the top of the main window
+
+  - Click the >> arrows and the sidebar appears
+  - Click the << arrows and the sidebar slides away
+
+## Select language
 
 ---
 
 ## 🎯 How to Practice
 
-The app has **three main tabs**: Quick Practice, Statistics, and History.
+The app has **four main tabs**: Quick Practice, Story Reader, Statistics, and History.
 
 ### Tab 1: 🎯 Quick Practice
 
@@ -35,13 +52,13 @@ This is where you practice! The app supports two modes with two material sources
 
 #### Material Sources (Tabbed Interface)
 
-Starting with v1.2.0, you can choose between two sources for practice materials:
+You can choose between two sources for practice materials:
 
-**📚 Built-in Library (New in v1.2.0):**
+**📚 Built-in Library:**
 
 - Pre-curated practice materials organized by language and level
-- Browse available materials by expanding "Browse Available Materials"
-- See available languages, difficulty levels (A-D), and categories (phrases/words)
+- Browse available materials by expanding "Load Practice Materials"
+- See available languages and categories (phrases/words/story)
 - Each material file shows:
   - Number of items
   - Description
@@ -56,6 +73,12 @@ Starting with v1.2.0, you can choose between two sources for practice materials:
 - Same functionality as before, now in a dedicated tab
 
 Both sources work with the same practice modes (Free Practice and Guided Practice) detailed below.
+
+**✨ Enrich This Material (Optional):**
+
+- Your materials can be enriched to fill in missing **English translations** and/or **IPA**
+- Enrichment may use external services (e.g., OpenAI for translations) depending on your configuration
+- When enrichment runs, you'll see a spinner/progress indicator while the file is updated
 
 ---
 
@@ -110,7 +133,7 @@ Structured practice with a prepared list of phrases. Perfect for systematic lear
 Want to get started quickly? Use the built-in library:
 
 - Go to **"📚 Built-in Library"** tab
-- Expand **"Browse Available Materials"**
+- Expand **"Load Practice Materials"**
 - See available materials organized by:
   - **Language** (Portuguese, French, etc.)
   - **Difficulty Level** (A = Beginner, B = Intermediate, C = Advanced, D = Expert)
@@ -122,9 +145,10 @@ Want to get started quickly? Use the built-in library:
 
 For users familiar with the previous version, you can still download this sample file:
 
-- **[practice_phrases_with_translations.txt](https://github.com/fairflow/espeak-ng-pt-br/raw/main/practice_phrases_with_translations.txt)** (21 phrases with English translations and IPA)
+- **[practice_phrases_with_translations.txt](https://github.com/fairflow/miolingo/raw/main/data/practice-sets/practice_phrases_with_translations.txt)** (sample phrases with English translations and IPA)
 - Right-click → Save As, then import via the Upload File tab
 - *Note: This file has some unusual phrases—the built-in library has better beginner content!* 😊
+
 **Practicing with Guided Mode:**
 
 Once a phrase list is loaded (from either Built-in Library or Upload File), the interface changes:
@@ -159,7 +183,21 @@ Once a phrase list is loaded (from either Built-in Library or Upload File), the 
 
 ---
 
-### Tab 2: 📊 Statistics
+### Tab 2: 📖 Story Reader
+
+Read stories in your selected material language, with optional practice mode.
+
+**Modes (depending on available materials):**
+
+- **📄 Full Story** - Read the full story as a single page
+- **🎬 Scene by Scene** - Choose a scene and read phrase-by-phrase (optionally show English translations)
+- **🎙️ Practice Mode** - Practice pronunciation phrase-by-phrase within a scene
+
+In **Practice Mode**, you'll see a progress bar and Next/Previous navigation, plus an optional expander for **English** and **Reference IPA**.
+
+---
+
+### Tab 3: 📊 Statistics
 
 View your practice performance and track progress.
 
@@ -178,7 +216,7 @@ View your practice performance and track progress.
 
 ---
 
-### Tab 3: 📜 History
+### Tab 4: 📜 History
 
 Review your past practice sessions (last 10 sessions shown).
 
@@ -189,7 +227,7 @@ Each session shows:
 - Number of perfect matches
 - Expand to see details of each practice:
   - Target phrase vs what you said
-  - Target phonemes (eIPA) vs your phonemes
+  - Target phonemes (IPA) vs your phonemes
   - Score percentage
 
 ---
@@ -200,31 +238,33 @@ All settings are in the left sidebar.
 
 ### Voice Settings
 
-**Speed (wpm):** 80-450
+**TTS Engine:**
 
-- Lower = slower speech (easier for beginners)
-- Higher = faster, natural speech
-- Default: 140
+- `google_cloud` - Best quality (requires API key on the server)
+- `gtts` - Works without an API key but may be rate-limited
+- `espeak` - Robotic but very configurable (recommended for speed/pitch control)
 
-**Pitch:** 0-99
+**Speed (wpm)** and **Pitch** (eSpeak only):
 
-- Adjusts voice pitch
-- Default: 35
+- Available when `espeak` is selected
+- Speed default: 140
+- Pitch default: 35
+
+**Slow speech** (Google voices only):
+
+- When using Google voices, you can toggle slow speech (Google supports normal/slow)
 
 
-**Language & Voice/Dialect Selection:**
+**Material Language** and **Voice:**
 
-- Select your practice language from the sidebar (Portuguese, French, Dutch/Flemish).
-- For each language, choose a voice/dialect (e.g., Brazilian Portuguese, European Portuguese, French (France), French (Belgium), Dutch, Flemish).
+- Select the language of materials/stories you want to use (Portuguese, French, Dutch, German, Italian, Spanish).
+- Choose a voice for that language (available options depend on the selected TTS engine).
 - The available voices/dialects update automatically based on your selected language.
 - All practice features work identically for every supported language.
 
 ### 🎙️ Speech Recognition
 
-**ASR Engine:**
-
-- **Whisper** (default) - Multilingual model, supports 99 languages
-- **wav2vec2** - Language-specific model (Portuguese only), may be more accurate for Portuguese
+Miolingo currently uses **Whisper** for speech recognition across supported languages.
 
 **Whisper Model Size** (only visible when Whisper is selected):
 
@@ -283,11 +323,14 @@ For keen users who want to help test the app:
 
 ## 🌍 Multi-Language Support
 
-Version 1.0.0 adds support for multiple languages:
+Miolingo supports multiple languages:
 
-- **Portuguese** (Brazilian, European)
-- **French** (France, Belgium)
-- **Dutch/Flemish**
+- **Portuguese**
+- **French**
+- **Dutch**
+- **German**
+- **Italian**
+- **Spanish**
 
 You can select your language and voice/dialect in the sidebar. All practice modes, scoring, and feedback work for every language.
 
@@ -408,13 +451,13 @@ Below the results, you can:
 - Reduce background noise
 - Try different microphone (earbuds often work better)
 - Increase silence threshold if words are being cut off
-- Try wav2vec2 engine for improved Portuguese recognition (Portuguese only)
+- Try a larger Whisper model size (slower but often more accurate)
 
 **App is slow:**
 
 - Use smaller Whisper model (tiny or base)
 - Close other browser tabs
-- Wait for model to load on first use (can take 30 seconds)
+- Wait for the first load (models can take 30–90 seconds to warm up/download)
 
 **Different words recognized:**
 
@@ -427,10 +470,9 @@ Below the results, you can:
 
 ## 🔒 Privacy & Data
 
-- **All processing happens locally** when using Whisper (default)
-- Recordings are not saved or uploaded anywhere
-- Practice history is stored locally in your browser
-- wav2vec2 engine may use HuggingFace servers for model inference
+- Audio is processed on the machine where the app is running (your computer if you run locally, or the server if you use the hosted site)
+- Whisper models (and optional additional models, if enabled) may be downloaded on first use, but inference runs locally on the app machine
+- If you are logged in, your practice results and settings are saved to the Miolingo database; **Guest Mode** does not persist progress after logout
 
 ---
 

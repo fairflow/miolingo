@@ -3,6 +3,7 @@
 Version Bump Script for Miolingo App
 
 Usage:
+    bump_app.py sync           # Sync doc/program version markers to match src/app.py (no increment)
     bump_app.py major          # Bump major version (1.2.3 -> 2.0.0)
     bump_app.py minor          # Bump minor version (1.2.3 -> 1.3.0)
     bump_app.py patch          # Bump patch version (1.2.3 -> 1.2.4)
@@ -34,6 +35,9 @@ DOC_FILES_LIST = SCRIPT_DIR / "bump_doc_files.txt"
 # Project root (parent of scripts directory)
 PROJECT_ROOT = SCRIPT_DIR.parent
 
+# Canonical single-version file (relative to project root)
+VERSION_FILE = PROJECT_ROOT / "VERSION"
+
 def read_file_list(filename: Path) -> List[str]:
     """Read list of files from config file, ignoring comments and blank lines."""
     config_file = filename
@@ -61,19 +65,23 @@ def find_version_in_file(filepath: str) -> Tuple[str, str]:
     if not file_path.exists():
         return None, None
     content = file_path.read_text()
+    # For markdown-style version markers, only consider the header to avoid
+    # accidentally updating examples elsewhere in the document.
+    header = "\n".join(content.splitlines()[:40])
     
-    # Pattern 1: Python __version__ = "1.2.3"
-    match = re.search(r'__version__\s*=\s*["\'](\d+\.\d+\.\d+)["\']', content)
-    if match:
-        return match.group(1), 'python'
+    # Pattern 1: Python __version__ = "1.2.3" (Python files only)
+    if file_path.suffix == '.py':
+        match = re.search(r'__version__\s*=\s*["\'](\d+\.\d+\.\d+)["\']', content)
+        if match:
+            return match.group(1), 'python'
     
     # Pattern 2: **Version 1.2.3**
-    match = re.search(r'\*\*Version\s+(\d+\.\d+\.\d+)\*\*', content)
+    match = re.search(r'\*\*Version\s+(\d+\.\d+\.\d+)\*\*', header)
     if match:
         return match.group(1), 'markdown_bold'
     
-    # Pattern 3: Current Version: 1.2.3
-    match = re.search(r'Current Version:\*\*\s+(\d+\.\d+\.\d+)', content)
+    # Pattern 3: **Current Version:** 1.2.3
+    match = re.search(r'\*\*Current Version:\*\*\s*(\d+\.\d+\.\d+)', header)
     if match:
         return match.group(1), 'current_version'
     
@@ -121,7 +129,7 @@ def update_version_in_file(filepath: str, old_version: str, new_version: str, pa
         )
     elif pattern_type == 'current_version':
         content = re.sub(
-            r'(Current Version:\*\*\s+)' + re.escape(old_version),
+            r'(\*\*Current Version:\*\*\s*)' + re.escape(old_version),
             r'\g<1>' + new_version,
             content
         )
@@ -144,6 +152,11 @@ def update_version_in_file(filepath: str, old_version: str, new_version: str, pa
         return True
     return False
 
+
+def write_version_file(version: str) -> None:
+    """Write the canonical VERSION file."""
+    VERSION_FILE.write_text(f"{version}\n")
+
 def get_current_version(files: List[str]) -> str:
     """Get current version from first file that has it."""
     for filepath in files:
@@ -152,29 +165,77 @@ def get_current_version(files: List[str]) -> str:
             return version
     return None
 
+
+def get_canonical_version(program_files: List[str], doc_files: List[str]) -> str:
+    """Use src/app.py as the source-of-truth when available."""
+    # Prefer src/app.py if present in the program files list
+    for filepath in program_files:
+        if Path(filepath).as_posix().endswith('/src/app.py') or Path(filepath).name == 'app.py':
+            version, _ = find_version_in_file(filepath)
+            if version:
+                return version
+
+    # Fallback to first discovered version
+    all_files = program_files + doc_files
+    return get_current_version(all_files)
+
+
+def sync_all_files_to_version(program_files: List[str], doc_files: List[str], target_version: str) -> List[str]:
+    """Set every version marker found in files to target_version (no increment)."""
+    updated_files: List[str] = []
+    all_files = program_files + doc_files
+
+    # Ensure canonical VERSION file is kept in sync
+    try:
+        existing = VERSION_FILE.read_text().strip() if VERSION_FILE.exists() else None
+    except Exception:
+        existing = None
+    if existing != target_version:
+        write_version_file(target_version)
+        updated_files.append(str(VERSION_FILE))
+
+    for filepath in all_files:
+        version, pattern_type = find_version_in_file(filepath)
+        if not version:
+            continue
+        if update_version_in_file(filepath, version, target_version, pattern_type):
+            updated_files.append(filepath)
+
+    return updated_files
+
 def update_all_files(program_files: List[str], doc_files: List[str], bump_type: str) -> Tuple[str, str]:
     """Update version in all files. Returns (old_version, new_version)."""
     all_files = program_files + doc_files
     
-    # Get current version
-    current_version = get_current_version(all_files)
+    # Get canonical current version
+    current_version = get_canonical_version(program_files, doc_files)
     if not current_version:
         print("❌ Could not find current version in any file")
         sys.exit(1)
     
     new_version = bump_version(current_version, bump_type)
+
+    # Keep canonical VERSION file updated
+    try:
+        write_version_file(new_version)
+    except Exception as e:
+        print(f"  ⚠️  Could not write VERSION file: {e}")
     
     print(f"📦 Bumping version: {current_version} → {new_version}")
     print()
     
     updated_files = []
+
+    # Track VERSION file if written
+    if VERSION_FILE.exists():
+        updated_files.append(str(VERSION_FILE))
     
     # Update program files
     print("🔧 Program files:")
     for filepath in program_files:
         version, pattern_type = find_version_in_file(filepath)
         if version:
-            if update_version_in_file(filepath, current_version, new_version, pattern_type):
+            if update_version_in_file(filepath, version, new_version, pattern_type):
                 print(f"  ✅ {filepath}")
                 updated_files.append(filepath)
             else:
@@ -187,7 +248,7 @@ def update_all_files(program_files: List[str], doc_files: List[str], bump_type: 
     for filepath in doc_files:
         version, pattern_type = find_version_in_file(filepath)
         if version:
-            if update_version_in_file(filepath, current_version, new_version, pattern_type):
+            if update_version_in_file(filepath, version, new_version, pattern_type):
                 print(f"  ✅ {filepath}")
                 updated_files.append(filepath)
             else:
@@ -229,11 +290,7 @@ def main():
         print(__doc__)
         sys.exit(1)
     
-    bump_type = sys.argv[1].lower()
-    if bump_type not in ['major', 'minor', 'patch']:
-        print(f"❌ Invalid bump type: {bump_type}")
-        print("   Use: major, minor, or patch")
-        sys.exit(1)
+    command = sys.argv[1].lower()
     
     do_tag = 'tag' in sys.argv
     do_push = 'push' in sys.argv
@@ -246,6 +303,34 @@ def main():
         print("❌ No files to update. Create bump_program_files.txt and/or bump_doc_files.txt")
         sys.exit(1)
     
+    if command == 'sync':
+        # Sync all version markers to match canonical app version without incrementing
+        canonical_version = get_canonical_version(program_files, doc_files)
+        if not canonical_version:
+            print("❌ Could not determine canonical version")
+            sys.exit(1)
+
+        print(f"🔄 Syncing version markers to {canonical_version}")
+        updated_files = sync_all_files_to_version(program_files, doc_files, canonical_version)
+        if not updated_files:
+            print("✅ Everything already in sync")
+            return
+
+        print(f"✅ Updated {len(updated_files)} file(s)")
+        if do_tag or do_push:
+            git_commit(canonical_version, updated_files)
+        if do_tag:
+            git_tag(canonical_version)
+        if do_push:
+            git_push()
+        return
+
+    bump_type = command
+    if bump_type not in ['major', 'minor', 'patch']:
+        print(f"❌ Invalid command: {command}")
+        print("   Use: sync, major, minor, or patch")
+        sys.exit(1)
+
     # Update versions
     old_version, new_version, updated_files = update_all_files(program_files, doc_files, bump_type)
     

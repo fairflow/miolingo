@@ -1,6 +1,6 @@
 # Version Number Update Checklist
 
-**CURRENT VERSION: 2.1.0** <!-- UPDATE THIS MARKER -->
+## CURRENT VERSION: 2.1.0 <!-- UPDATE THIS MARKER -->
 
 This document lists all files that contain version numbers and must be updated when releasing a new version.
 
@@ -24,52 +24,56 @@ Run the script to automatically update these files:
 
 2. **`README.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z**`
-   - Example: `**Version 2.0.2** | Web-based...`
+   - Example: `**Version 6.3.0** | Web-based...`
 
 3. **`app-docs/README.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z** | Last Updated: DD Month YYYY`
-   - Example: `**Version 2.0.2** | Last Updated: 22 November 2025`
+   - Example: `**Version 6.3.0** | Last Updated: 22 November 2025`
 
 4. **`app-docs/DEVELOPER_GUIDE.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z** | Last Updated: DD Month YYYY`
-   - Example: `**Version 2.0.2** | Last Updated: 22 November 2025`
+   - Example: `**Version 6.3.0** | Last Updated: 22 November 2025`
 
 5. **`app-docs/TESTING_GUIDE.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z**`
-   - Example: `**Version 2.0.2** | For App Users & Testers`
+   - Example: `**Version 6.3.0** | For App Users & Testers`
 
 6. **`app-docs/USER_GUIDE.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z** | Last Updated: DD Month YYYY`
-   - Example: `**Version 2.0.2** | Last Updated: 22 November 2025`
+   - Example: `**Version 6.3.0** | Last Updated: 22 November 2025`
 
 ---
 
 ## ✍️ Manual Updates Required
 
 ### 1. **`APP_CHANGELOG.md`** (Line ~9)
-   - **Action:** Add new version section at the top
-   - **Format:**
-     ```markdown
-     ## [X.Y.Z] - YYYY-MM-DD
 
-     ### Added
-     - New feature description
+- **Action:** Add new version section at the top
+- **Format:**
 
-     ### Fixed
-     - Bug fix description
+  ```markdown
+  ## [X.Y.Z] - YYYY-MM-DD
 
-     ### Changed
-     - Change description
-     ```
+  ### Added
+  - New feature description
+
+  ### Fixed
+  - Bug fix description
+
+  ### Changed
+  - Change description
+  ```
 
 ### 2. **`VERSION_WORKFLOW.md`** (Line ~5)
-   - **Action:** Update current version reference
-   - **Pattern:** `**Current Version:** X.Y.Z`
-   - **Example:** `**Current Version:** 2.0.2`
+
+- **Action:** Update current version reference
+- **Pattern:** `**Current Version:** X.Y.Z`
+- **Example:** `**Current Version:** 2.0.2`
 
 ### 3. **Git Operations**
-   - **Commit message:** `vX.Y.Z: Brief description`
-   - **Tag creation:** `git tag -a vX.Y.Z -m "Version X.Y.Z: Description"`
+
+- **Commit message:** `vX.Y.Z: Brief description`
+- **Tag creation:** `git tag -a vX.Y.Z -m "Version X.Y.Z: Description"`
 
 ---
 
@@ -83,9 +87,11 @@ Before creating a new version:
 - [ ] Review and update version history comment in `app.py` (if needed)
 - [ ] Test the app: `streamlit run app.py`
 - [ ] Verify all version numbers are consistent:
+
   ```bash
   grep -r "Version [0-9]\.[0-9]\.[0-9]" app.py README.md app-docs/ | grep -v ".git"
   ```
+
 - [ ] Commit changes: `git add -A && git commit -m "vX.Y.Z: Description"`
 - [ ] Create tag: `git tag -a vX.Y.Z -m "Version X.Y.Z: Description"`
 - [ ] Push to remote: `git push myfork main && git push myfork --tags`

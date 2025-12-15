@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "6.2.5"
+__version__ = "6.3.0"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -126,6 +126,22 @@ LANGUAGE_CONFIG = {
 #   - Add version management system
 
 import streamlit as st
+
+
+# Page configuration (must be the first Streamlit command)
+st.set_page_config(
+    page_title="Miolingo - Multi-language Pronunciation Practice",
+    page_icon="🌍",
+    layout="wide",
+)
+
+
+_startup_notice = st.empty()
+_startup_notice.info(
+    "Starting up… first load can take a bit while models and libraries warm up."
+)
+
+
 import json
 import warnings
 from pathlib import Path
@@ -154,14 +170,17 @@ warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")  # Whi
 warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL")  # LibreSSL compatibility
 
 try:
-    import whisper
-    import soundfile as sf
-    import numpy as np
-    from gtts import gTTS
+    with st.spinner("Loading speech + audio libraries (first load may take a minute)…"):
+        import whisper
+        import soundfile as sf
+        import numpy as np
+        from gtts import gTTS
 except ImportError as e:
     st.error(f"Error: {e}")
     st.error("Please activate the virtual environment and install dependencies")
     st.stop()
+finally:
+    _startup_notice.empty()
 
 # CCS Testing Framework (optional)
 try:
@@ -169,14 +188,6 @@ try:
     CCS_AVAILABLE = True
 except ImportError:
     CCS_AVAILABLE = False
-
-
-# Page configuration
-st.set_page_config(
-    page_title="Portuguese Pronunciation Practice",
-    page_icon="🇧🇷",
-    layout="wide",
-)
 
 
 # ============================================================================
@@ -511,7 +522,14 @@ def get_announcements(location: str) -> Dict[str, Optional[str]]:
 
 def show_announcements(location: str):
     """Display active announcements for the specified location."""
-    announcements = get_announcements(location)
+    loading = st.empty()
+    loading.info("Loading updates…")
+    try:
+        announcements = get_announcements(location)
+    except Exception:
+        loading.warning("⚠️ Unable to load updates right now.")
+        return
+    loading.empty()
     
     # System announcement (orange, priority)
     if announcements.get('system'):
@@ -551,6 +569,29 @@ def show_login_page():
     # Get language list from config
     languages = ", ".join(LANGUAGE_CONFIG.keys())
     st.markdown(f"Pronunciation trainer - practice {languages}")
+
+    # Choose the initial practice language before login/guest
+    # (keeps the main app language selection aligned on first load)
+    language_names = list(LANGUAGE_CONFIG.keys())
+    default_language_name = st.session_state.get('login_practice_language', 'Portuguese')
+    if default_language_name not in language_names:
+        default_language_name = language_names[0] if language_names else 'Portuguese'
+
+    selected_language_name = st.selectbox(
+        "Practice language",
+        language_names,
+        index=language_names.index(default_language_name) if default_language_name in language_names else 0,
+        key='login_practice_language',
+        help="Select the language you want to practice first. You can change this later in Settings."
+    )
+
+    # Persist as the canonical material language code (used by the main app selector)
+    try:
+        selected_code = LANGUAGE_CONFIG[selected_language_name]['code']
+        if st.session_state.get('material_language') != selected_code:
+            st.session_state.material_language = selected_code
+    except Exception:
+        pass
     
     # CRITICAL: Show forced logout reason if present (prominent display)
     # BUT: Don't show if this was a voluntary logout (user clicked logout button)
@@ -682,7 +723,7 @@ def show_login_page():
         st.markdown("""
         **What you get as a guest:**
         - ✅ Full access to all practice features
-        - ✅ All 6 languages (Portuguese, French, Dutch, Flemish, German, Spanish)
+        - ✅ All supported languages
         - ✅ AI pronunciation feedback
         - ❌ Progress not saved after session ends
         """)
@@ -2675,7 +2716,7 @@ def main():
     # Get language config AFTER material_language is initialized
     lang_config = LANGUAGE_CONFIG[st.session_state.language]
     flag = flag_emojis.get(st.session_state.language, "🌍")
-    st.title(f"{flag} {lang_config['display_name']}")
+    st.title(f"Miolingo · Multi-language · Practicing: {flag} {st.session_state.language}")
     
     # Show announcements for main app
     show_announcements('app')

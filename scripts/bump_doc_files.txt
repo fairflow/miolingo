@@ -6,3 +6,4 @@ docs/app-docs/DEVELOPER_GUIDE.md
 docs/app-docs/VERSION_UPDATE.md
 docs/app-docs/README.md
 VERSION_CHECKLIST.md
+README.md
