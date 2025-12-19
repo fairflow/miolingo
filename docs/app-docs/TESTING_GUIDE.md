@@ -1,6 +1,6 @@
 # Testing Guide for Miolingo Multi-Language Pronunciation Trainer
 
-**Version 6.3.0** | For App Users & Testers
+**Version 6.4.0** | For App Users & Testers
 
 Thank you for helping us improve Miolingo! This guide explains how you can help test the app and report any problems you find.
 
@@ -26,6 +26,7 @@ You don't need to be a programmer to help test! As a language learner, you're th
 Please try these and let us know if anything goes wrong:
 
 #### 1. Audio Playback
+
 - [ ] Click the 🔊 Speak button - does audio play?
 - [ ] **iPhone users**: Try with WAV toggle ON and OFF
 - [ ] Can you hear the pronunciation clearly?

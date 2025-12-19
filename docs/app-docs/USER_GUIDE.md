@@ -1,6 +1,6 @@
 # Miolingo - Multi-Language Pronunciation Trainer - User Guide
 
-**Version 6.3.0** | Last Updated: 15 December 2025
+**Version 6.4.0** | Last Updated: 15 December 2025
 
 Welcome! This guide will help you practice pronunciation in multiple languages (Portuguese, French, Dutch/Flemish, German, Spanish and Italian) using speech recognition and instant AI feedback.
 
@@ -246,14 +246,13 @@ All settings are in the left sidebar.
 
 **Speed (wpm)** and **Pitch** (eSpeak only):
 
-- Available when `espeak` is selected
+- Available only when `espeak` is selected
 - Speed default: 140
 - Pitch default: 35
 
 **Slow speech** (Google voices only):
 
 - When using Google voices, you can toggle slow speech (Google supports normal/slow)
-
 
 **Material Language** and **Voice:**
 
@@ -292,7 +291,7 @@ Miolingo currently uses **Whisper** for speech recognition across supported lang
 **Use WAV audio format:**
 
 - Check this if audio doesn't play on your device
-- Specifically needed for iOS Safari compatibility
+- Specifically needed for iOS compatibility
 - Converts MP3 to WAV (slightly larger files, better compatibility)
 - Setting is auto-saved when you toggle the checkbox
 
@@ -319,8 +318,6 @@ For keen users who want to help test the app:
 - See [Testing Guide](TESTING_GUIDE.md) for details
 - No coding required!
 
-
-
 ## 🌍 Multi-Language Support
 
 Miolingo supports multiple languages:
@@ -339,8 +336,8 @@ You can select your language and voice/dialect in the sidebar. All practice mode
 The built-in library includes curated practice materials for supported languages:
 
 - **Portuguese (pt):**
-  - Phrases: A-D levels (greetings, basics, travel, food, culture)
-  - Words: A-D levels (nouns, verbs, adjectives, adverbs, expressions)
+  - Phrases: greetings, basics, travel, food, culture
+  - Words: nouns, verbs, adjectives, adverbs, expressions
   - Total: 255 items with translations and IPA
 
 - **French (fr):**
