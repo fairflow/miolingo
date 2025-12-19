@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+ccs_test_logs/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test files
+.pytest_cache/
+tests/
+*.test.py
+
+# Documentation drafts
+ideas/
+
+# Local config (users should mount secrets)
+.streamlit/secrets.toml
+practice_config.json
+practice_history.json
+
+# Temporary files
+temp_*
+*.wav
+*.mp3
+
+# Database dumps
+*.sql
+
+# Scripts (not needed in container)
+scripts/
+configure
+Makefile
