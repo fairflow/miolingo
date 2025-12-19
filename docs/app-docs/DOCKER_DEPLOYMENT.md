@@ -39,13 +39,13 @@ EOF
 # 3. Run the container
 docker run -d \
   --name miolingo \
-  -p 8501:8501 \
+  -p 8601:8601 \
   -v $(pwd)/.streamlit/secrets.toml:/app/.streamlit/secrets.toml:ro \
   -v $(pwd)/data/user-data:/app/data/user-data \
   --restart unless-stopped \
   ghcr.io/fairflow/miolingo:latest
 
-# 4. Access at http://localhost:8501
+# 4. Access at http://localhost:8601
 ```
 
 ---
@@ -100,7 +100,7 @@ docker build -t miolingo:local .
 # Run your local build
 docker run -d \
   --name miolingo \
-  -p 8501:8501 \
+  -p 8601:8601 \
   -v $(pwd)/.streamlit/secrets.toml:/app/.streamlit/secrets.toml:ro \
   miolingo:local
 ```
@@ -175,7 +175,7 @@ docker run -d \
    docker pull ghcr.io/fairflow/miolingo:latest
    docker run -d \
      --name miolingo \
-     -p 80:8501 \
+     -p 80:8601 \
      -v $(pwd)/.streamlit/secrets.toml:/app/.streamlit/secrets.toml:ro \
      -v $(pwd)/data:/app/data \
      --restart unless-stopped \
@@ -197,7 +197,7 @@ docker run -d \
    **Caddyfile:**
    ```
    miolingo.yourdomain.com {
-       reverse_proxy localhost:8501
+       reverse_proxy localhost:8601
    }
    ```
 

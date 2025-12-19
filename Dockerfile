@@ -62,11 +62,11 @@ RUN mkdir -p /app/data/user-data && \
     chmod 777 /app/data/user-data
 
 # Expose Streamlit port
-EXPOSE 8501
+EXPOSE 8601
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8501/_stcore/health || exit 1
+  CMD curl -f http://localhost:8601/_stcore/health || exit 1
 
 # Run as non-root user for security
 RUN useradd -m -u 1000 miolingo && \
@@ -74,10 +74,10 @@ RUN useradd -m -u 1000 miolingo && \
 USER miolingo
 
 # Set environment variables
-ENV STREAMLIT_SERVER_PORT=8501 \
+ENV STREAMLIT_SERVER_PORT=8601 \
     STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
     STREAMLIT_SERVER_HEADLESS=true \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 # Start Streamlit
-CMD ["streamlit", "run", "src/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "src/app.py", "--server.port=8601", "--server.address=0.0.0.0"]
