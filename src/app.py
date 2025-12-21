@@ -3231,13 +3231,45 @@ def main():
                             sample_texts = [p['text'] for p in phrases[:3]]
                             st.write(f"**Sample:** {', '.join(sample_texts)}, ...")
                         
-                        # Use button
-                        if st.button("✅ Use This File", type="primary", key="use_upload"):
-                            st.session_state.phrase_list = phrases
-                            st.session_state.current_phrase_index = 0
-                            st.session_state.quick_last_result = None
-                            st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
-                            st.rerun()
+                        # Buttons row
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            if st.button("✅ Use This File", type="primary", key="use_upload"):
+                                st.session_state.phrase_list = phrases
+                                st.session_state.current_phrase_index = 0
+                                st.session_state.quick_last_result = None
+                                st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
+                                st.rerun()
+                        
+                        with col2:
+                            # Save to server button (only for authenticated users)
+                            if st.session_state.get('authenticated'):
+                                if st.button("💾 Save to Server", key="save_upload"):
+                                    with st.spinner("Uploading to server..."):
+                                        import remote_storage
+                                        
+                                        username = st.session_state.get('username', 'anonymous')
+                                        current_lang = st.session_state.get('language', 'fr')
+                                        
+                                        result = remote_storage.save_user_material(
+                                            content=content,
+                                            filename=uploaded_file.name,
+                                            language=current_lang,
+                                            username=username
+                                        )
+                                        
+                                        if result['success']:
+                                            st.success(f"✅ Saved to server: {result['path']}")
+                                            st.caption(f"📊 {result['verification']}")
+                                            
+                                            # Show quota info
+                                            quota = remote_storage.get_user_quota(username)
+                                            st.info(f"📦 Your storage: {quota['used_mb']}/{quota['quota_mb']} MB used")
+                                        else:
+                                            st.error(f"❌ Upload failed: {result['error']}")
+                            else:
+                                st.caption("💡 Login to save files to server")
                             
                     except Exception as e:
                         st.error(f"Error reading file: {e}")
