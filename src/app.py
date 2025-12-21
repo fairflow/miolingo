@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "6.4.0"
+__version__ = "7.0.0"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"

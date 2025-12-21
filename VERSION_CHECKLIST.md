@@ -24,23 +24,23 @@ Run the script to automatically update these files:
 
 2. **`README.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z**`
-   - Example: `**Version 6.4.0** | Web-based...`
+   - Example: `**Version 7.0.0** | Web-based...`
 
 3. **`app-docs/README.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z** | Last Updated: DD Month YYYY`
-   - Example: `**Version 6.4.0** | Last Updated: 22 November 2025`
+   - Example: `**Version 7.0.0** | Last Updated: 22 November 2025`
 
 4. **`app-docs/DEVELOPER_GUIDE.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z** | Last Updated: DD Month YYYY`
-   - Example: `**Version 6.4.0** | Last Updated: 22 November 2025`
+   - Example: `**Version 7.0.0** | Last Updated: 22 November 2025`
 
 5. **`app-docs/TESTING_GUIDE.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z**`
-   - Example: `**Version 6.4.0** | For App Users & Testers`
+   - Example: `**Version 7.0.0** | For App Users & Testers`
 
 6. **`app-docs/USER_GUIDE.md`** (Line ~3)
    - Pattern: `**Version X.Y.Z** | Last Updated: DD Month YYYY`
-   - Example: `**Version 6.4.0** | Last Updated: 22 November 2025`
+   - Example: `**Version 7.0.0** | Last Updated: 22 November 2025`
 
 ---
 
