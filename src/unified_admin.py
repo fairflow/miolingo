@@ -110,9 +110,30 @@ if st.session_state.get('session_id'):
         pass
 
 with st.sidebar:
+    st.caption("Miolingo Admin Dashboard v2.0.5")
+    st.caption("Local monitoring interface")
+    st.divider()
+    
     st.subheader("Admin")
     if 'admin_username' in st.session_state:
         st.info(f"👤 {st.session_state.admin_username}")
+    
+    # Connection info dropdown
+    conn_info = app_mysql.get_current_connection_info()
+    with st.expander("🔌 Connection Info", expanded=False):
+        if conn_info:
+            st.caption(f"**Tunnel:** `{conn_info['tunnel_id']}` (PID: {conn_info['tunnel_pid']}, Port: {conn_info['tunnel_port']})")
+            st.caption(f"**Created:** {conn_info['tunnel_created']}")
+            st.caption(f"**Connections:** {conn_info['tunnel_conn_count']} on this tunnel")
+            st.caption("---")
+            st.caption(f"**SQL Conn:** `{conn_info['connection_id'][:30]}...`")
+            st.caption(f"**MySQL ID:** {conn_info['mysql_conn_id']} ({conn_info['connection_status']})")
+            st.caption(f"**Age:** {conn_info['connection_age']} | **TTL:** {conn_info['session_ttl']}")
+            st.caption(f"**Now:** {conn_info['current_time'].strftime('%H:%M:%S')}")
+        else:
+            st.caption("⚠️ No connection info available")
+    
+    st.divider()
 
     # Global quick actions (used by hosted tools)
     auto_refresh = st.checkbox(

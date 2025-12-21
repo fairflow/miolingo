@@ -270,6 +270,18 @@ def get_connection() -> mysql.connector.MySQLConnection:
             cursor.fetchall()  # Consume results
             # Keep cursor open - session connection is persistent
             print(f"✓ Reusing session connection for {session_id[:20]}...")
+            
+            # CRITICAL: Ensure tunnel is stored in session state even when reusing connection
+            # This is needed for SSH commands without database access
+            if 'ssh_tunnel' not in st.session_state:
+                pool = get_connection_pool_instance()
+                conn_info = st.session_state.get('_last_connection_info', {})
+                tunnel_id = conn_info.get('tunnel_id')
+                if tunnel_id:
+                    tunnel_info = pool.tunnel_pool.get(tunnel_id)
+                    if tunnel_info and tunnel_info.tunnel_obj:
+                        st.session_state['ssh_tunnel'] = tunnel_info.tunnel_obj
+            
             return conn
         except Exception as e:
             print(f"⚠️ Session connection failed ({e}), getting fresh connection via bootstrap...")
@@ -362,7 +374,22 @@ def get_connection() -> mysql.connector.MySQLConnection:
                 'created_at': last_conn.created_at,
                 'status': last_conn.status
             }
-            # Get tunnel info from database (single source of truth)
+            # CRITICAL: Store the actual tunnel object in session state
+            # This is needed for SSH commands without requiring database access
+            tunnel_info = pool.tunnel_pool.get(last_conn.tunnel_id)
+            if tunnel_info and tunnel_info.tunnel_obj:
+                st.session_state['ssh_tunnel'] = tunnel_info.tunnel_obj
+                print(f"✓ Stored tunnel {last_conn.tunnel_id} in session state")
+            else:
+                print(f"⚠️ Tunnel {last_conn.tunnel_id} not found in pool.tunnel_pool")
+                print(f"   Available tunnels: {list(pool.tunnel_pool.keys())}")
+                # Fallback: grab any available tunnel from pool
+                if pool.tunnel_pool:
+                    any_tunnel = next(iter(pool.tunnel_pool.values()))
+                    st.session_state['ssh_tunnel'] = any_tunnel.tunnel_obj
+                    print(f"✓ Stored fallback tunnel in session state")
+            
+            # Get tunnel info from database (single source of truth) for display only
             db_tunnel = pool.get_tunnel_info_from_db(last_conn.tunnel_id)
             if db_tunnel:
                 st.session_state['_last_tunnel_info'] = db_tunnel
@@ -425,6 +452,24 @@ def get_current_connection_info() -> dict:
         'session_ttl': ttl_str,
         'current_time': now
     }
+
+
+def get_tunnel() -> Optional[SSHTunnelForwarder]:
+    """
+    Get the SSH tunnel object for the current session.
+    Returns the actual tunnel object from session state.
+    
+    Similar to get_connection() which returns the connection object from
+    st.session_state.db_connection, this returns the tunnel object from
+    st.session_state.ssh_tunnel.
+    
+    This avoids circular dependency: we can't access pool/database to get
+    the tunnel, because we need the tunnel to access the database!
+    
+    Returns:
+        SSHTunnelForwarder object if available, None otherwise
+    """
+    return st.session_state.get('ssh_tunnel')
 
 
 def cleanup_ssh_tunnel():

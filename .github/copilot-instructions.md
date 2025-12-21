@@ -5,6 +5,39 @@
 - Core tech: Python (Streamlit), eSpeak NG (TTS), OpenAI Whisper (ASR), ffmpeg (audio), soundfile/numpy (processing).
 - App logic is in `app.py`. Documentation and guides are in `app-docs/`.
 
+## CRITICAL: Database Connection & Tunnel Management
+
+**⚠️ NEVER CREATE NEW TUNNELS OR CONNECTIONS ⚠️**
+
+This is the most critical rule in the codebase:
+
+1. **ONE connection per session**: Each user session has exactly ONE database connection stored in `st.session_state.db_connection`
+2. **ONE tunnel per session**: The SSH tunnel is managed by ConnectionPool and reused for the entire session
+3. **ALWAYS use `app_mysql.get_connection()`**: This returns the cached connection - never create your own
+4. **SSH commands must reuse the tunnel**: If you need to execute SSH commands, reuse credentials but do NOT create new paramiko tunnels
+5. **Check session state first**: Before any database operation, ensure the session connection exists
+
+**Why this matters:**
+- Creating multiple tunnels exhausts server resources
+- Orphaned tunnels don't close properly
+- This was a critical bug that caused production outages
+- Each tunnel uses a port; running out of ports crashes the app
+
+**Correct patterns:**
+```python
+# ✅ CORRECT: Reuse session connection
+conn = app_mysql.get_connection()
+cursor = conn.cursor()
+
+# ✅ CORRECT: Check session state
+if st.session_state.get('db_connection'):
+    conn = st.session_state.db_connection
+
+# ❌ WRONG: Never do this
+new_conn = mysql.connector.connect(...)  # NO!
+new_tunnel = SSHTunnelForwarder(...)     # NO!
+```
+
 ## Architecture & Data Flow
 - User interacts via Streamlit UI (`app.py`).
 - Practice session state: current phrase, user recordings, settings (language, voice/dialect).

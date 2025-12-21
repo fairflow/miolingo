@@ -1,54 +1,98 @@
 """Remote storage utilities for user-uploaded materials.
 
 Handles SSH-based file uploads to the server for user-contributed content.
-Uses existing SSH tunnel credentials from session state.
+CRITICAL: Reuses existing SSH tunnel's transport - does NOT create new connections.
 """
 
-import paramiko
-from io import StringIO
 import streamlit as st
-from pathlib import Path
 import logging
 
 
-def get_ssh_client():
-    """Create SSH client using credentials from st.secrets."""
-    ssh_config = st.secrets['ssh']
+def execute_ssh_command(command: str) -> tuple:
+    """Execute SSH command using the session's tunnel transport.
     
-    # Parse SSH key from content
-    key_content = ssh_config['key_content']
-    key_file = StringIO(key_content)
+    Args:
+        command: Shell command to execute
+        
+    Returns:
+        tuple: (stdout, stderr, success)
+    """
+    import streamlit as st
     
-    # Try to load the key
-    ssh_key = None
-    for key_class in (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey):
-        try:
-            key_file.seek(0)
-            ssh_key = key_class.from_private_key(key_file)
-            break
-        except:
-            continue
-    
-    if not ssh_key:
-        raise ValueError("Failed to load SSH key")
-    
-    # Connect via SSH
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    
-    client.connect(
-        hostname=ssh_config['host'],
-        port=ssh_config['port'],
-        username=ssh_config['username'],
-        pkey=ssh_key,
-        timeout=10
-    )
-    
-    return client
+    try:
+        # Ensure tunnel exists in session state (copied from test_tunnel_ls.py)
+        if 'ssh_tunnel' not in st.session_state:
+            # Create tunnel directly
+            from connection_pool import ConnectionPool
+            secrets_config = {
+                'ssh': dict(st.secrets["ssh"]),
+                'mysql': dict(st.secrets["mysql"])
+            }
+            pool = ConnectionPool(secrets_config)
+            tunnel = pool.create_ssh_tunnel()
+            st.session_state['ssh_tunnel'] = tunnel
+            logging.info(f"Created tunnel and stored in session state: port {tunnel.local_bind_port}")
+        
+        # Get the tunnel directly from session state
+        tunnel = st.session_state.get('ssh_tunnel')
+        
+        if not tunnel:
+            raise ValueError("No tunnel available for this session")
+        
+        # Use the tunnel's existing SSH transport
+        if not hasattr(tunnel, '_transport') or not tunnel._transport:
+            raise ValueError("Tunnel transport not available")
+        
+        transport = tunnel._transport
+        
+        # Verify transport is active
+        if not transport.is_active():
+            raise ValueError("SSH transport is not active")
+        
+        # Open a new channel on the existing transport for command execution
+        channel = transport.open_session()
+        channel.set_combine_stderr(True)  # Combine stderr with stdout
+        channel.exec_command(command)
+        
+        # Read output with timeout
+        channel.settimeout(30.0)
+        stdout_text = ""
+        while True:
+            if channel.recv_ready():
+                chunk = channel.recv(4096).decode('utf-8', errors='replace')
+                if not chunk:
+                    break
+                stdout_text += chunk
+            if channel.exit_status_ready():
+                break
+        
+        stderr_text = ""
+        if channel.recv_stderr_ready():
+            stderr_text = channel.recv_stderr(4096).decode('utf-8', errors='replace')
+        
+        exit_status = channel.recv_exit_status()
+        channel.close()
+        
+        success = exit_status == 0
+        
+        if not success:
+            logging.error(f"SSH command failed (exit={exit_status}): {command[:100]}")
+            logging.error(f"stdout: {stdout_text[:500]}")
+            logging.error(f"stderr: {stderr_text[:500]}")
+        
+        return stdout_text, stderr_text, success
+        
+    except Exception as e:
+        logging.error(f"SSH command exception: {e}")
+        import traceback
+        logging.error(traceback.format_exc())
+        return "", str(e), False
 
 
 def save_user_material(content: str, filename: str, language: str, username: str) -> dict:
     """Save user-uploaded material to remote server.
+    
+    IMPORTANT: Uses existing session tunnel - does not create new connections.
     
     Args:
         content: File content as string
@@ -64,41 +108,47 @@ def save_user_material(content: str, filename: str, language: str, username: str
     if not safe_filename.endswith('.txt'):
         safe_filename += '.txt'
     
-    # Construct remote path
-    remote_dir = f"~/miolingo.io/public_ftp/incoming/{language}/{username}"
+    # Construct remote path: incoming/{username}/{language_code}/
+    remote_dir = f"~/miolingo.io/public_ftp/incoming/{username}/{language}"
     remote_path = f"{remote_dir}/{safe_filename}"
     
     try:
-        client = get_ssh_client()
-        
-        # Create directory structure
-        stdin, stdout, stderr = client.exec_command(f'mkdir -p {remote_dir}')
-        stdout.read()  # Wait for completion
-        err = stderr.read().decode()
-        if err and 'exists' not in err.lower():
-            raise Exception(f"Failed to create directory: {err}")
-        
         # Check file size (limit to 1MB for now)
         content_bytes = content.encode('utf-8')
         if len(content_bytes) > 1_000_000:
-            client.close()
             return {
                 'success': False,
                 'path': None,
                 'error': 'File too large (max 1MB)'
             }
         
-        # Use SFTP to write file
-        sftp = client.open_sftp()
-        with sftp.open(remote_path, 'w') as f:
-            f.write(content)
-        sftp.close()
+        # Test SSH connection first
+        test_stdout, test_stderr, test_success = execute_ssh_command('pwd')
+        if not test_success:
+            raise Exception(f"SSH test failed - pwd command: {test_stderr}")
+        logging.info(f"SSH test passed - pwd returned: {test_stdout.strip()}")
+        
+        # Create directory structure using existing tunnel
+        stdout, stderr, success = execute_ssh_command(f'mkdir -p {remote_dir}')
+        if not success and 'exists' not in stderr.lower():
+            raise Exception(f"Failed to create directory: {stderr}")
+        
+        logging.info(f"Directory created/verified: {remote_dir}")
+        
+        # Write file using SSH command (alternative to SFTP)
+        # Escape content for safe shell transmission
+        escaped_content = content.replace("'", "'\\''")
+        cmd = f"cat > {remote_path} << 'MIOLINGO_EOF'\n{escaped_content}\nMIOLINGO_EOF"
+        stdout, stderr, success = execute_ssh_command(cmd)
+        
+        if not success:
+            raise Exception(f"Failed to write file: {stderr}")
+        
+        logging.info(f"File written to: {remote_path}")
         
         # Verify upload
-        stdin, stdout, stderr = client.exec_command(f'ls -lh {remote_path}')
-        verification = stdout.read().decode().strip()
-        
-        client.close()
+        stdout, stderr, success = execute_ssh_command(f'ls -lh {remote_path}')
+        verification = stdout.strip()
         
         logging.info(f"User material uploaded: {remote_path}")
         
@@ -123,6 +173,10 @@ def get_user_quota(username: str) -> dict:
     
     Args:
         username: User's username
+    Uses existing session tunnel - does not create new connections.
+    
+    Args:
+        username: User's username
         
     Returns:
         dict with 'used_bytes', 'file_count', 'quota_bytes'
@@ -130,20 +184,18 @@ def get_user_quota(username: str) -> dict:
     # For now, simple implementation - just count files
     # TODO: Implement proper quota tracking in database
     try:
-        client = get_ssh_client()
-        
         # Count files and total size for this user across all languages
         cmd = f'find ~/miolingo.io/public_ftp/incoming/*/"{username}" -type f -exec wc -c {{}} + 2>/dev/null | tail -1'
-        stdin, stdout, stderr = client.exec_command(cmd)
-        output = stdout.read().decode().strip()
+        stdout, stderr, success = execute_ssh_command(cmd)
         
-        client.close()
-        
-        if output:
-            parts = output.split()
-            total_bytes = int(parts[0]) if parts else 0
-        else:
-            total_bytes = 0
+        total_bytes = 0
+        if success and stdout.strip():
+            parts = stdout.strip().split()
+            if parts:
+                try:
+                    total_bytes = int(parts[0])
+                except (ValueError, IndexError):
+                    total_bytes = 0
         
         # Default quota: 10MB per user
         quota_bytes = 10_000_000
