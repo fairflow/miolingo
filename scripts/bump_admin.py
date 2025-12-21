@@ -6,9 +6,11 @@ Usage:
     bump_admin.py major          # Bump major version (1.2.3 -> 2.0.0)
     bump_admin.py minor          # Bump minor version (1.2.3 -> 1.3.0)
     bump_admin.py patch          # Bump patch version (1.2.3 -> 1.2.4)
+    bump_admin.py major push     # Bump major + commit + push (no tag)
+    bump_admin.py minor push     # Bump minor + commit + push (no tag)
+    bump_admin.py patch push     # Bump patch + commit + push (no tag)
     bump_admin.py major tag      # Bump major + commit + tag
     bump_admin.py minor tag      # Bump minor + commit + tag
-    bump_admin.py patch tag      # Bump patch + commit + tag
     bump_admin.py patch tag push # Bump patch + commit + tag + push
 
 Note: Activate virtual environment first: source venv/bin/activate
@@ -186,6 +188,19 @@ def update_all_files(program_files: List[str], doc_files: List[str], bump_type: 
     
     return current_version, new_version, updated_files
 
+def git_commit(version: str, files: List[str]):
+    """Commit changes without tagging."""
+    print(f"\n📝 Committing changes...")
+    
+    # Add files
+    subprocess.run(['git', 'add'] + files, check=True)
+    
+    # Commit
+    commit_msg = f"admin-v{version}: Admin dashboard version bump"
+    subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
+    
+    print(f"✅ Committed version {version}")
+
 def git_commit_and_tag(version: str, files: List[str]):
     """Commit changes and create git tag."""
     print(f"\n📝 Committing changes...")
@@ -249,9 +264,14 @@ def main():
         # Push if requested
         if do_push:
             git_push()
+    elif do_push:
+        # Push without tagging
+        git_commit(new_version, updated_files)
+        git_push()
     else:
-        print("\n💡 Run with 'tag' to commit and tag: bump_admin.py", bump_type, "tag")
-        print("💡 Run with 'tag push' to also push: bump_admin.py", bump_type, "tag push")
+        print("\n💡 Run with 'push' to commit and push: bump_admin.py", bump_type, "push")
+        print("💡 Run with 'tag' to commit and tag: bump_admin.py", bump_type, "tag")
+        print("💡 Run with 'tag push' to tag and push: bump_admin.py", bump_type, "tag push")
 
 if __name__ == '__main__':
     main()
