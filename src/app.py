@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "6.4.0"
+__version__ = "7.0.1"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -424,9 +424,6 @@ def enrich_material_file(
         }
     
     # Process lines
-    import re
-    pattern = re.compile(r'^([^|#]+)\s*\|\s*([^|]*)\s*\|\s*(.*)$')
-    
     enriched_lines = []
     stats = {
         'total_lines': 0,
@@ -441,19 +438,27 @@ def enrich_material_file(
             enriched_lines.append(line)
             continue
         
-        # Try to parse as phrase | translation | ipa
-        match = pattern.match(line.strip())
+        # Normalize: strip trailing pipes and whitespace
+        normalized_line = line.strip()
+        while normalized_line.endswith('|'):
+            normalized_line = normalized_line[:-1].strip()
         
-        if match:
-            # Pipe-delimited format
-            phrase = match.group(1).strip()
-            translation = match.group(2).strip()
-            ipa = match.group(3).strip()
+        # Parse the line by splitting on pipes
+        if '|' in normalized_line:
+            parts = [p.strip() for p in normalized_line.split('|')]
+            phrase = parts[0] if len(parts) > 0 else ''
+            translation = parts[1] if len(parts) > 1 else ''
+            ipa = parts[2] if len(parts) > 2 else ''
         else:
             # Plain text format (no pipes) - treat entire line as phrase
-            phrase = line.strip()
+            phrase = normalized_line
             translation = ''
             ipa = ''
+        
+        # Skip if no phrase
+        if not phrase:
+            enriched_lines.append(line)
+            continue
         
         stats['total_lines'] += 1
         
@@ -462,24 +467,37 @@ def enrich_material_file(
             progress_callback(i + 1, len(lines), f"Processing: {phrase[:30]}...")
         
         # Add translation if missing
-        if add_translations and (not translation or translation == ''):
+        if add_translations and not translation:
+            # Debug: log what we're sending to LLM
+            if progress_callback:
+                progress_callback(i + 1, len(lines), f"Translating: {phrase[:30]}...")
+            
             new_translation = get_translation_from_llm(phrase, source_lang_name)
-            if not new_translation.startswith('[error'):
+            
+            # Debug: check if LLM returned IPA instead of translation
+            if new_translation.startswith('[') and not new_translation.startswith('[error'):
+                stats['errors'].append(f"LLM returned IPA instead of translation for '{phrase}': {new_translation}")
+            elif not new_translation.startswith('[error'):
                 translation = new_translation
                 stats['translations_added'] += 1
             else:
                 stats['errors'].append(f"Translation error for '{phrase}': {new_translation}")
         
         # Add IPA if missing
-        if add_ipa and (not ipa or ipa == '' or ipa == '[ipa]'):
+        # Consider IPA missing if empty or just placeholder markers
+        ipa_empty = not ipa or ipa in ['[ipa]', '[]']
+        if add_ipa and ipa_empty:
             new_ipa = get_ipa_from_espeak(phrase, lang_code)
-            if not new_ipa.startswith('[error') and not new_ipa.startswith('[timeout'):
+            if not new_ipa.startswith('[error') and not new_ipa.startswith('[timeout') and new_ipa.strip():
                 ipa = f"[{new_ipa}]"  # Wrap in brackets
                 stats['ipa_added'] += 1
             else:
-                stats['errors'].append(f"IPA error for '{phrase}': {new_ipa}")
+                if new_ipa.strip():
+                    stats['errors'].append(f"IPA error for '{phrase}': {new_ipa}")
+                else:
+                    stats['errors'].append(f"IPA empty for '{phrase}'")
         
-        # Reconstruct line
+        # Reconstruct line with consistent format: always 3 fields
         enriched_line = f"{phrase} | {translation} | {ipa}\n"
         enriched_lines.append(enriched_line)
     
@@ -1139,10 +1157,21 @@ def get_phonemes(text: str, voice: str = "pt-br") -> str:
             text=True,
             check=True
         )
-        return result.stdout.strip()
+        # eSpeak may insert newlines around punctuation; normalize to single spaces
+        phonemes = result.stdout.strip()
+        phonemes = ' '.join(phonemes.split())
+        return phonemes
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         st.warning(f"eSpeak phoneme error: {e} (cmd: {get_espeak_path()})")
         return "[phonemes unavailable]"
+
+
+def normalize_for_phoneme_scoring(s: str) -> str:
+    """Normalize phoneme/IPA strings for scoring by removing all whitespace."""
+    import re
+    if not s:
+        return ""
+    return re.sub(r"\s+", "", s.strip())
 
 
 def get_ipa(text: str, voice: str = "pt-br") -> str:
@@ -1858,10 +1887,10 @@ def practice_word_from_audio(text: str, audio_bytes: bytes, settings: Dict):
         user_phonemes = get_phonemes(recognized_text, settings['voice'])
         user_ipa = get_ipa(recognized_text, settings['voice'])
         
-        # For comparison: normalize by removing spaces from PHONEMES, not text
-        # This allows flexible matching while preserving word boundaries in display
-        correct_phonemes_normalized = correct_phonemes.replace(" ", "")
-        user_phonemes_normalized = user_phonemes.replace(" ", "")
+        # For comparison: normalize by removing ALL whitespace from phoneme codes.
+        # (eSpeak can emit newlines; remove them too to avoid phantom edit-distance penalties.)
+        correct_phonemes_normalized = normalize_for_phoneme_scoring(correct_phonemes)
+        user_phonemes_normalized = normalize_for_phoneme_scoring(user_phonemes)
         
         # Compare normalized phonemes (without spaces) using edit distance
         # Get algorithm from settings (default: edit_distance)
@@ -2045,47 +2074,95 @@ def render_practice_results(result, key_prefix="practice"):
         # Play perfect match bell sound (C major triad)
         if should_play_sound:
             st.session_state.last_sound_played = result_id
-            components.html("""
-        <script>
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        // Perfect match: clear bell-like tone (C5-E5-G5)
-        [523.25, 659.25, 783.99].forEach((freq, i) => {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.frequency.value = freq;
-            oscillator.type = 'sine';
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + i * 0.15);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.15 + 0.6);
-            oscillator.start(audioContext.currentTime + i * 0.15);
-            oscillator.stop(audioContext.currentTime + i * 0.15 + 0.6);
-        });
-        </script>
-        """, height=0)
+            components.html(
+                """
+                <script>
+                (function () {
+                    try {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        if (!AudioContext) return;
+                        const ctx = new AudioContext();
+                        const now = ctx.currentTime;
+                        const freqs = [523.25, 659.25, 783.99]; // C5-E5-G5
+                        const baseGain = 0.3;
+                        const step = 0.15;
+                        const dur = 0.6;
+
+                        const play = () => {
+                            freqs.forEach((freq, i) => {
+                                const oscillator = ctx.createOscillator();
+                                const gainNode = ctx.createGain();
+                                oscillator.connect(gainNode);
+                                gainNode.connect(ctx.destination);
+                                oscillator.frequency.value = freq;
+                                oscillator.type = 'sine';
+                                gainNode.gain.setValueAtTime(baseGain, now + i * step);
+                                gainNode.gain.exponentialRampToValueAtTime(0.01, now + i * step + dur);
+                                oscillator.start(now + i * step);
+                                oscillator.stop(now + i * step + dur);
+                            });
+                        };
+
+                        if (ctx.resume) {
+                            Promise.resolve(ctx.resume()).then(play).catch(() => {});
+                        } else {
+                            play();
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                })();
+                </script>
+                """,
+                height=0,
+            )
     elif result['similarity'] >= 0.90:
         # High score but not perfect: gentle encouraging sound
         st.success(f"✨ Excellent! {result['similarity']:.1%} - Almost perfect!")
         if should_play_sound:
             st.session_state.last_sound_played = result_id
-            components.html("""
-        <script>
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        // Gentle "well done" sound: soft ascending notes (A4-C5)
-        [440, 493.88, 523.25].forEach((freq, i) => {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.frequency.value = freq;
-            oscillator.type = 'sine';
-            gainNode.gain.setValueAtTime(0.15, audioContext.currentTime + i * 0.12);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.12 + 0.4);
-            oscillator.start(audioContext.currentTime + i * 0.12);
-            oscillator.stop(audioContext.currentTime + i * 0.12 + 0.4);
-        });
-        </script>
-        """, height=0)
+            components.html(
+                """
+                <script>
+                (function () {
+                    try {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        if (!AudioContext) return;
+                        const ctx = new AudioContext();
+                        const now = ctx.currentTime;
+                        const freqs = [440, 493.88, 523.25]; // A4-B4-C5
+                        const baseGain = 0.15;
+                        const step = 0.12;
+                        const dur = 0.4;
+
+                        const play = () => {
+                            freqs.forEach((freq, i) => {
+                                const oscillator = ctx.createOscillator();
+                                const gainNode = ctx.createGain();
+                                oscillator.connect(gainNode);
+                                gainNode.connect(ctx.destination);
+                                oscillator.frequency.value = freq;
+                                oscillator.type = 'sine';
+                                gainNode.gain.setValueAtTime(baseGain, now + i * step);
+                                gainNode.gain.exponentialRampToValueAtTime(0.01, now + i * step + dur);
+                                oscillator.start(now + i * step);
+                                oscillator.stop(now + i * step + dur);
+                            });
+                        };
+
+                        if (ctx.resume) {
+                            Promise.resolve(ctx.resume()).then(play).catch(() => {});
+                        } else {
+                            play();
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                })();
+                </script>
+                """,
+                height=0,
+            )
     else:
         score_col1, score_col2 = st.columns([2, 1])
         with score_col1:
@@ -2120,8 +2197,8 @@ def render_practice_results(result, key_prefix="practice"):
         target_clean = result['target'].lower().translate(str.maketrans('', '', string.punctuation))
         recognized_clean = result['recognized'].translate(str.maketrans('', '', string.punctuation))
         
-        correct_phonemes_no_space = result['correct_phonemes'].replace(" ", "")
-        user_phonemes_no_space = result['user_phonemes'].replace(" ", "")
+        correct_phonemes_no_space = result.get('correct_phonemes_normalized') or normalize_for_phoneme_scoring(result.get('correct_phonemes', ''))
+        user_phonemes_no_space = result.get('user_phonemes_normalized') or normalize_for_phoneme_scoring(result.get('user_phonemes', ''))
         
         # Only show messages if there are meaningful differences
         phonemes_match = correct_phonemes_no_space == user_phonemes_no_space
@@ -2148,155 +2225,75 @@ def render_practice_results(result, key_prefix="practice"):
         if result.get('edit_distance') is not None:
             st.write(f"**Edit Distance:** {result['edit_distance']} edit(s) needed")
         
-        # Show phonemes WITH spacing preserved for readability
-        st.write("**Phonemes with word spacing:**")
+        # Show phonemes WITH spacing preserved (these are what drive score/edit distance)
+        st.write("**Phoneme codes (eSpeak -x) with word spacing:**")
         col_a, col_b = st.columns(2)
         with col_a:
-            # Use IPA with spaces preserved
-            correct_ipa_with_spaces = result.get('correct_ipa', '')
-            st.markdown(format_ipa(correct_ipa_with_spaces, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
-            st.caption(f"Target")
+            st.code(result.get('correct_phonemes', ''), language=None)
+            st.caption("Target")
         with col_b:
-            user_ipa_with_spaces = result.get('user_ipa', '')
-            
-            # Space difference highlighting - only mark missing/extra spaces with [ ]
-            # Compare character-by-character to identify exactly which spaces are wrong
-            from difflib import SequenceMatcher
-            matcher = SequenceMatcher(None, correct_ipa_with_spaces, user_ipa_with_spaces)
-            
-            highlighted_chars = []
-            has_space_differences = False
-            
-            for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-                if tag == 'equal':
-                    # Characters match - keep as is
-                    highlighted_chars.append(user_ipa_with_spaces[j1:j2])
-                elif tag == 'replace':
-                    # Characters differ (substitution)
-                    target_segment = correct_ipa_with_spaces[i1:i2]
-                    user_segment = user_ipa_with_spaces[j1:j2]
-                    
-                    # Check if this is a space-related substitution
-                    if ' ' in target_segment or ' ' in user_segment:
-                        has_space_differences = True
-                        # Show bracketed spaces for space substitutions
-                        user_display = user_segment.replace(' ', '[ ]')
-                        highlighted_chars.append(user_display)
-                    else:
-                        # Non-space phoneme differences - don't highlight here (shown in detailed comparison below)
-                        highlighted_chars.append(user_segment)
-                elif tag == 'insert':
-                    # Extra characters in user pronunciation (insertion)
-                    inserted = user_ipa_with_spaces[j1:j2]
-                    if ' ' in inserted:
-                        has_space_differences = True
-                        # Show bracketed spaces for extra spaces
-                        inserted_display = inserted.replace(' ', '[ ]')
-                        highlighted_chars.append(inserted_display)
-                    else:
-                        # Non-space insertions - don't highlight here
-                        highlighted_chars.append(inserted)
-                elif tag == 'delete':
-                    # Missing characters (deletion)
-                    deleted = correct_ipa_with_spaces[i1:i2]
-                    if ' ' in deleted:
-                        has_space_differences = True
-                        # Missing space - show bracket marker
-                        highlighted_chars.append('[ ]')
-                    else:
-                        # Missing phoneme - don't show here (will be in detailed comparison below)
-                        pass
-            
-            highlighted_user = ''.join(highlighted_chars)
-            
-            # Show user pronunciation with space differences marked
-            if has_space_differences:
-                st.markdown(format_ipa(highlighted_user, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
-                st.caption(f"Your Pronunciation ([ ] marks space differences)")
-            else:
-                st.markdown(format_ipa(user_ipa_with_spaces, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
-                st.caption(f"Your Pronunciation ✓")
-        
-        # Visual comparison - full width for better readability
-        # Use IPA for comparison, not eIPA
-        # Remove spaces for scoring (Whisper is poor at word boundaries)
-        target_ipa_no_space = result.get('correct_ipa', '').replace(" ", "")
-        user_ipa_no_space = result.get('user_ipa', '').replace(" ", "")
-        
-        st.write("**Phoneme comparison (spaces ignored for scoring):**")
-        
-        if target_ipa_no_space == user_ipa_no_space:
-            st.success("🎯 Phonemes are identical!")
+            st.code(result.get('user_phonemes', ''), language=None)
+            st.caption("Your Pronunciation")
+
+        # Comparison used for scoring (whitespace removed)
+        target_phonemes_no_space = result.get('correct_phonemes_normalized', '')
+        user_phonemes_no_space = result.get('user_phonemes_normalized', '')
+
+        st.write("**Phoneme comparison (whitespace ignored for scoring):**")
+        if target_phonemes_no_space == user_phonemes_no_space:
+            st.success("🎯 Phoneme codes are identical!")
         else:
-            # Use SequenceMatcher for better visual alignment
             from difflib import SequenceMatcher
-            matcher = SequenceMatcher(None, target_ipa_no_space, user_ipa_no_space)
-            
-            # Build aligned visual representations
-            target_aligned = []
-            user_aligned = []
-            
-            for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-                target_segment = target_ipa_no_space[i1:i2]
-                user_segment = user_ipa_no_space[j1:j2]
-                
-                if tag == 'equal':
-                    # Perfect match - no highlighting
-                    target_aligned.append(target_segment)
-                    user_aligned.append(user_segment)
-                elif tag == 'replace':
-                    # Substitution - highlight in light blue
-                    target_aligned.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{target_segment}</span>')
-                    user_aligned.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{user_segment}</span>')
-                elif tag == 'insert':
-                    # Insertion - extra in user pronunciation
-                    target_aligned.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{"·" * len(user_segment)}</span>')
-                    user_aligned.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{user_segment}</span>')
-                elif tag == 'delete':
-                    # Deletion - missing in user pronunciation
-                    target_aligned.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{target_segment}</span>')
-                    user_aligned.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{"·" * len(target_segment)}</span>')
-            
-            target_html = ''.join(target_aligned)
-            user_html = ''.join(user_aligned)
-            
-            # Count operations for summary
+            import html as _html
+
+            def _colorize_diff(target: str, user: str) -> tuple[str, str]:
+                # Use the previously used colors for continuity.
+                # replace: light blue, insert: light green, delete: light pink.
+                matcher_local = SequenceMatcher(None, target, user)
+                target_chunks: list[str] = []
+                user_chunks: list[str] = []
+
+                for tag, i1, i2, j1, j2 in matcher_local.get_opcodes():
+                    t_seg = target[i1:i2]
+                    u_seg = user[j1:j2]
+
+                    if tag == 'equal':
+                        target_chunks.append(_html.escape(t_seg))
+                        user_chunks.append(_html.escape(u_seg))
+                    elif tag == 'replace':
+                        target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
+                        user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(u_seg)}</span>')
+                    elif tag == 'insert':
+                        # Placeholder in target for inserted chars in user
+                        target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape("·" * len(u_seg))}</span>')
+                        user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape(u_seg)}</span>')
+                    elif tag == 'delete':
+                        target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
+                        user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape("·" * len(t_seg))}</span>')
+
+                target_html_local = ''.join(target_chunks)
+                user_html_local = ''.join(user_chunks)
+                return target_html_local, user_html_local
+
+            matcher = SequenceMatcher(None, target_phonemes_no_space, user_phonemes_no_space)
             operations = matcher.get_opcodes()
+            substitutions = [op for op in operations if op[0] == 'replace']
+            insertions = [op for op in operations if op[0] == 'insert']
+            deletions = [op for op in operations if op[0] == 'delete']
             matches = sum(i2 - i1 for tag, i1, i2, j1, j2 in operations if tag == 'equal')
-            substitutions = [(tag, i1, i2, j1, j2) for tag, i1, i2, j1, j2 in operations if tag == 'replace']
-            insertions = [(tag, i1, i2, j1, j2) for tag, i1, i2, j1, j2 in operations if tag == 'insert']
-            deletions = [(tag, i1, i2, j1, j2) for tag, i1, i2, j1, j2 in operations if tag == 'delete']
-            
             st.write(f"**Operations:** {matches} matches, {len(substitutions)} substitutions, {len(insertions)} insertions, {len(deletions)} deletions")
-            
-            # Show aligned strings
+
+            target_html, user_html = _colorize_diff(target_phonemes_no_space, user_phonemes_no_space)
+            mono_wrap_start = '<div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \'Liberation Mono\', \'Courier New\', monospace; white-space: pre-wrap;">'
+            mono_wrap_end = '</div>'
+
             col_t, col_u = st.columns(2)
             with col_t:
-                st.markdown(format_ipa(target_html, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
-                st.caption("Target")
+                st.markdown(mono_wrap_start + target_html + mono_wrap_end, unsafe_allow_html=True)
+                st.caption("Target (normalized) — substitutions/insertions/deletions highlighted")
             with col_u:
-                st.markdown(format_ipa(user_html, size="1.05em", weight=400, brackets=False), unsafe_allow_html=True)
-                st.caption("Your Pronunciation")
-            
-            # Show specific differences with proper segments
-            if substitutions:
-                st.write("**Substitutions:**")
-                for tag, i1, i2, j1, j2 in substitutions[:5]:  # Limit to first 5
-                    t_segment = target_ipa_no_space[i1:i2]
-                    u_segment = user_ipa_no_space[j1:j2]
-                    st.markdown(f"  Position {i1}–{i2}: {format_ipa(t_segment, size='1.05em', weight=400, brackets=False)} → {format_ipa(u_segment, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
-            
-            if insertions:
-                st.write("**Insertions (extra phonemes in your pronunciation):**")
-                for tag, i1, i2, j1, j2 in insertions[:5]:
-                    u_segment = user_ipa_no_space[j1:j2]
-                    st.markdown(f"  After position {i1}: {format_ipa(u_segment, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
-            
-            if deletions:
-                st.write("**Deletions (missing phonemes):**")
-                for tag, i1, i2, j1, j2 in deletions[:5]:
-                    t_segment = target_ipa_no_space[i1:i2]
-                    st.markdown(f"  Position {i1}–{i2}: {format_ipa(t_segment, size='1.05em', weight=400, brackets=False)}", unsafe_allow_html=True)
+                st.markdown(mono_wrap_start + user_html + mono_wrap_end, unsafe_allow_html=True)
+                st.caption("Your Pronunciation (normalized) — substitutions/insertions/deletions highlighted")
 
 
 def render_scene_practice_mode(scenes_dir):
@@ -3023,10 +3020,20 @@ def main():
                 format_language_name
             )
             
-            source_tab1, source_tab2 = st.tabs(["📦 Built-in Library", "📁 Upload File"])
+            # Use radio buttons for material source to preserve state across reruns
+            material_source_names = ["📦 Built-in Library", "📁 Upload File"]
+            material_source_index = st.radio(
+                "Material Source",
+                range(len(material_source_names)),
+                format_func=lambda i: material_source_names[i],
+                key='material_source_tab',
+                horizontal=True,
+                label_visibility='collapsed'
+            )
             
-            # TAB 1: Built-in materials
-            with source_tab1:
+            # Show content based on selection
+            if material_source_index == 0:
+                # Built-in materials
                 st.write("Browse curated phrase and word lists by language and level.")
                 
                 languages = get_available_languages()
@@ -3156,6 +3163,7 @@ def main():
                                             if st.button("🔄 Reload Metadata", key=f"reload_meta_{selected_file}"):
                                                 # Clear all cached data to force reload of file metadata
                                                 st.cache_data.clear()
+                                                # active_tab already preserved by radio key
                                                 st.rerun()
                                         else:
                                             st.error(f"❌ Enrichment failed: {result['message']}")
@@ -3174,8 +3182,9 @@ def main():
                                     st.session_state.current_phrase_index = 0
                                     st.session_state.quick_last_result = None
                                     st.session_state.material_source = f"{format_language_name(material_lang)} - {format_category_name(category)} - {selected_file}"
-                                    st.success(f"✓ Loaded {len(phrases)} items from built-in library")
-                                    st.rerun()
+                                    st.session_state.qp_materials_expanded = False  # Close expander
+                                    st.success(f"✓ Loaded {len(phrases)} items - scroll down to practice section")
+                                    # NO rerun - let Streamlit update naturally to preserve tab
                                 except Exception as e:
                                     st.error(f"Error loading file: {e}")
                         else:
@@ -3183,10 +3192,15 @@ def main():
                     else:
                         st.info(f"No materials found for {format_language_name(material_lang)}")
             
-            # TAB 2: User upload
-            with source_tab2:
+            elif material_source_index == 1:
+                # User upload
                 st.write("Upload your own phrase or word list.")
                 st.caption("**Format:** One phrase per line, or `phrase | translation | [ipa]`")
+                st.caption("**Limits:** Max 200 lines, 200 chars per line")
+                
+                # File upload size limits
+                MAX_UPLOAD_LINES = 200
+                MAX_LINE_LENGTH = 200
                 
                 uploaded_file = st.file_uploader(
                     "Choose a text file",
@@ -3196,12 +3210,36 @@ def main():
                 
                 if uploaded_file is not None:
                     try:
-                        # Read and parse the file
+                        # Read content
                         content = uploaded_file.read().decode('utf-8')
-                        raw_lines = [line.strip() for line in content.split('\n') if line.strip()]
+                        
+                        # Store in session state (original or enriched version)
+                        upload_key = f"upload_{uploaded_file.name}_{uploaded_file.size}"
+                        if upload_key not in st.session_state:
+                            st.session_state[upload_key] = content
+                        else:
+                            # Use stored version (may be enriched)
+                            content = st.session_state[upload_key]
+                        
+                        # Validate size limits (parse from current content, not original)
+                        raw_lines = [line.strip() for line in content.split('\n') if line.strip() and not line.strip().startswith('#')]
+                        
+                        if len(raw_lines) > MAX_UPLOAD_LINES:
+                            st.error(f"❌ File too large: {len(raw_lines)} lines (max {MAX_UPLOAD_LINES})")
+                            st.stop()
+                        
+                        for i, line in enumerate(raw_lines, 1):
+                            # Check the original phrase part only (before first |)
+                            phrase_part = line.split('|')[0].strip()
+                            if len(phrase_part) > MAX_LINE_LENGTH:
+                                st.error(f"❌ Line {i} too long: {len(phrase_part)} chars (max {MAX_LINE_LENGTH})")
+                                st.stop()
                         
                         # Parse phrases - support both simple and enhanced format
                         phrases = []
+                        has_translations = False
+                        has_ipa = False
+                        
                         for line in raw_lines:
                             # Skip comments
                             if line.startswith('#'):
@@ -3212,9 +3250,13 @@ def main():
                                 parts = [p.strip() for p in line.split('|')]
                                 phrase_dict = {
                                     'text': parts[0],
-                                    'translation': parts[1] if len(parts) > 1 else None,
-                                    'ipa': parts[2] if len(parts) > 2 else None
+                                    'translation': parts[1] if len(parts) > 1 and parts[1] else None,
+                                    'ipa': parts[2] if len(parts) > 2 and parts[2] else None
                                 }
+                                if phrase_dict['translation']:
+                                    has_translations = True
+                                if phrase_dict['ipa']:
+                                    has_ipa = True
                                 phrases.append(phrase_dict)
                             else:
                                 # Simple format - just the text
@@ -3222,22 +3264,215 @@ def main():
                         
                         st.success(f"✓ Loaded {len(phrases)} items from upload")
                         
-                        # Show sample
-                        if len(phrases) <= 5:
-                            st.write("**Items:**")
-                            for p in phrases:
-                                st.write(f"• {p['text']}")
-                        else:
-                            sample_texts = [p['text'] for p in phrases[:3]]
-                            st.write(f"**Sample:** {', '.join(sample_texts)}, ...")
+                        # Show metadata and preview
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Phrases", len(phrases))
+                        with col2:
+                            st.metric("Translations", "✓" if has_translations else "✗")
+                        with col3:
+                            st.metric("IPA", "✓" if has_ipa else "✗")
                         
-                        # Use button
-                        if st.button("✅ Use This File", type="primary", key="use_upload"):
-                            st.session_state.phrase_list = phrases
-                            st.session_state.current_phrase_index = 0
-                            st.session_state.quick_last_result = None
-                            st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
-                            st.rerun()
+                        # Show saved status
+                        if st.session_state.get(f"{upload_key}_saved"):
+                            st.success("💾 Saved to server - showing saved version")
+                        
+                        # Preview
+                        with st.expander("📋 Preview", expanded=True):
+                            preview_count = min(5, len(phrases))
+                            for i, p in enumerate(phrases[:preview_count]):
+                                if p.get('translation') or p.get('ipa'):
+                                    # Always show all 3 fields to match file format
+                                    translation = p.get('translation') or ''
+                                    ipa = p.get('ipa') or ''
+                                    st.text(f"{p['text']} | {translation} | {ipa}")
+                                else:
+                                    st.text(p['text'])
+                            if len(phrases) > preview_count:
+                                st.caption(f"...and {len(phrases) - preview_count} more")
+                        
+                        # Raw content view for debugging
+                        with st.expander("🔍 Raw File Content (first 5 lines)", expanded=False):
+                            st.caption("This shows the actual file content in session state:")
+                            raw_lines = [line for line in content.split('\n')[:5] if line.strip() and not line.strip().startswith('#')]
+                            for line in raw_lines:
+                                st.code(line, language=None)
+                        
+                        # Enrichment UI for uploaded files
+                        missing_translations = not has_translations
+                        missing_ipa = not has_ipa
+                        
+                        if missing_translations or missing_ipa:
+                            st.markdown("---")
+                            st.markdown("**✨ Enrich This Material**")
+                            st.caption("💡 Add translations and/or IPA pronunciation to your uploaded file using AI")
+                            
+                            enrich_col1, enrich_col2 = st.columns(2)
+                            with enrich_col1:
+                                add_trans_upload = st.checkbox(
+                                    "Add translations",
+                                    value=missing_translations,
+                                    disabled=not missing_translations,
+                                    key="enrich_trans_upload"
+                                )
+                            with enrich_col2:
+                                add_ipa_upload = st.checkbox(
+                                    "Add IPA",
+                                    value=missing_ipa,
+                                    disabled=not missing_ipa,
+                                    key="enrich_ipa_upload"
+                                )
+                            
+                            if st.button("✨ Enrich Now", type="secondary", key="enrich_upload_btn"):
+                                if add_trans_upload or add_ipa_upload:
+                                    with st.spinner("Enriching material... This may take a minute."):
+                                        # Enrich the phrases in memory
+                                        import tempfile
+                                        import os
+                                        from pathlib import Path
+                                        
+                                        # Save to temp file for enrichment
+                                        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as tf:
+                                            for p in phrases:
+                                                parts = [p['text']]
+                                                if p.get('translation'):
+                                                    parts.append(p['translation'])
+                                                if p.get('ipa'):
+                                                    parts.append(p['ipa'])
+                                                tf.write(' | '.join(parts) + '\n')
+                                            temp_path = Path(tf.name)
+                                        
+                                        try:
+                                            progress_bar = st.progress(0)
+                                            status_text = st.empty()
+                                            
+                                            def progress_callback(current, total, message):
+                                                progress = current / total if total > 0 else 0
+                                                progress_bar.progress(min(progress, 1.0))
+                                                status_text.text(message)
+                                            
+                                            # Enrich the temp file
+                                            # Use material_language (short code like 'pt', 'fr') not language (full name)
+                                            current_lang = st.session_state.get('material_language', 'fr')
+                                            result = enrich_material_file(
+                                                file_path=temp_path,
+                                                lang_code=current_lang,
+                                                add_translations=add_trans_upload,
+                                                add_ipa=add_ipa_upload,
+                                                progress_callback=progress_callback
+                                            )
+                                            
+                                            progress_bar.empty()
+                                            status_text.empty()
+                                            
+                                            if result['success']:
+                                                # Read enriched content and update session state
+                                                with open(temp_path, 'r', encoding='utf-8') as f:
+                                                    enriched_content = f.read()
+                                                
+                                                # Update session state with enriched version
+                                                st.session_state[upload_key] = enriched_content
+                                                
+                                                # Show enrichment stats
+                                                stats = result.get('stats', {})
+                                                success_msg = st.success(f"✅ Enriched: {stats.get('translations_added', 0)} translations, {stats.get('ipa_added', 0)} IPA")
+                                                
+                                                # Show any errors
+                                                errors = stats.get('errors', [])
+                                                if errors:
+                                                    with st.expander(f"⚠️ {len(errors)} errors occurred", expanded=True):
+                                                        for err in errors[:20]:  # Show first 20
+                                                            st.caption(err)
+                                                        if len(errors) > 20:
+                                                            st.caption(f"...and {len(errors) - 20} more")
+                                                
+                                                # Show preview of first enriched lines for debugging
+                                                first_lines = [line for line in enriched_content.split('\n')[:5] if line.strip() and not line.startswith('#')]
+                                                with st.expander("🔍 First enriched lines (actual file content)", expanded=True):
+                                                    st.caption("This shows what was actually written to the file:")
+                                                    for line in first_lines:
+                                                        st.code(line, language=None)
+                                                
+                                                # Wait a moment so user can see the stats
+                                                import time
+                                                time.sleep(2)
+                                                
+                                                st.info("🔄 Reloading with enriched content...")
+                                                st.rerun()
+                                            else:
+                                                st.error(f"❌ Enrichment failed: {result.get('error', 'Unknown error')}")
+                                                st.warning("💡 You can still save the original file")
+                                        finally:
+                                            # Clean up temp file
+                                            try:
+                                                os.unlink(temp_path)
+                                            except:
+                                                pass
+                        
+                        # Buttons row
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            if st.button("✅ Use This File", type="primary", key="use_upload"):
+                                st.session_state.phrase_list = phrases
+                                st.session_state.current_phrase_index = 0
+                                st.session_state.quick_last_result = None
+                                st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
+                                st.session_state.qp_materials_expanded = False  # Close expander
+                                st.success("✅ File loaded! Scroll down to practice section.")
+                                # NO rerun - let Streamlit update naturally to preserve tab
+                        
+                        with col2:
+                            # Save to server button (only for authenticated users)
+                            if st.session_state.get('authenticated'):
+                                if st.button("💾 Save to Server", key="save_upload"):
+                                    import remote_storage
+                                    
+                                    # Get username from user dict (not 'anonymous' fallback - only authenticated users see this button)
+                                    user = st.session_state.get('user', {})
+                                    username = user.get('username', 'unknown')
+                                    # Use material_language (short code like 'pt', 'fr') not language (full name)
+                                    current_lang = st.session_state.get('material_language', 'fr')
+                                    
+                                    # Use current content from session state (may be enriched)
+                                    upload_key = f"upload_{uploaded_file.name}_{uploaded_file.size}"
+                                    content_to_save = st.session_state.get(upload_key, content)
+                                    
+                                    with st.spinner("Uploading to server..."):
+                                        # Show debug info
+                                        st.caption(f"📤 Uploading as user: {username}, language: {current_lang}")
+                                        st.caption(f"📁 Target: ~/miolingo.io/public_ftp/incoming/{username}/{current_lang}/")
+                                        
+                                        result = remote_storage.save_user_material(
+                                            content=content_to_save,
+                                            filename=uploaded_file.name,
+                                            language=current_lang,
+                                            username=username
+                                        )
+                                    
+                                    if result['success']:
+                                        st.success(f"✅ Saved to server: {result['path']}")
+                                        st.caption(f"📊 {result['verification']}")
+                                        
+                                        # Show quota info
+                                        try:
+                                            quota = remote_storage.get_user_quota(username)
+                                            st.info(f"📦 Your storage: {quota['used_mb']}/{quota['quota_mb']} MB used")
+                                        except Exception as e:
+                                            st.caption(f"⚠️ Could not check quota: {str(e)}")
+                                        
+                                        # Mark that this file has been saved (so preview shows saved version)
+                                        st.session_state[f"{upload_key}_saved"] = True
+                                        st.success("🔄 File saved! Preview now shows server version.")
+                                        st.rerun()
+                                    else:
+                                        st.error(f"❌ Upload failed: {result.get('error', 'Unknown error')}")
+                                        # Show full error details in expander for debugging
+                                        if result.get('error'):
+                                            with st.expander("🔍 Error Details"):
+                                                st.code(result['error'])
+                            else:
+                                st.caption("💡 Login to save files to server")
                             
                     except Exception as e:
                         st.error(f"Error reading file: {e}")

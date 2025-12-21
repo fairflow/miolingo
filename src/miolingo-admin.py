@@ -132,6 +132,10 @@ st.caption("Local monitoring and management interface • v2.0.5")
 if not HOSTED_BY_UNIFIED_ADMIN:
     # Quick reconnect button in sidebar (standalone mode)
     with st.sidebar:
+        st.caption("Miolingo Admin Dashboard v2.0.5")
+        st.caption("Local monitoring interface")
+        st.divider()
+        
         st.subheader("🔧 Quick Actions")
 
         # Show logged in user
@@ -1055,10 +1059,6 @@ if selected_page == "⚙️ Settings":
     with col2:
         if st.button("📊 Reload Data"):
             st.rerun()
-
-# Footer
-st.divider()
-st.caption("Miolingo Admin Dashboard v1.4.2 | Local monitoring interface")
 
 # Auto-refresh sleep AFTER page renders
 if st.session_state.get('auto_refresh_enabled', False):

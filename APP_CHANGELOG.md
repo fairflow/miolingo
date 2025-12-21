@@ -8,6 +8,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.0.1] - 2025-12-21
+
+### Changed
+
+- Version bump
+
+
+
+## [7.0.0] - 2025-12-21
+
+### Added
+
+- User-uploaded practice materials workflow: upload → preview → enrich → save
+- Remote saving to server into `incoming/{username}/{language_code}/`
+- WYSIWYG editing for uploaded/enriched materials (what you see is what gets saved)
+
+### Changed
+
+- Session architecture for saving: reuse the in-memory SSH tunnel/connection for the whole Streamlit session (no tunnel reconstruction)
+- Parsing/normalisation of pipe-delimited lines to consistently handle `phrase | translation | ipa`
+
+### Fixed
+
+- Upload UX/state stability (source selection and loaded content persist across reruns)
+- Practice-mode display regressions caused by ordering/parsing of enriched content
+- Pronunciation scoring and “identical phonemes” messaging use consistent normalisation
+- Restored phoneme diff colour-highlighting and improved iOS/Safari reward sound triggering
+
+
+
 ## [6.4.0] - 2025-12-19
 
 ### Changed
