@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "7.0.1"
+__version__ = "7.0.2"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -2224,30 +2224,38 @@ def render_practice_results(result, key_prefix="practice"):
         
         if result.get('edit_distance') is not None:
             st.write(f"**Edit Distance:** {result['edit_distance']} edit(s) needed")
-        
-        # Show phonemes WITH spacing preserved (these are what drive score/edit distance)
-        st.write("**Phoneme codes (eSpeak -x) with word spacing:**")
+
+        # Primary display: IPA (user-friendly)
+        correct_ipa = result.get('correct_ipa', '') or ''
+        user_ipa = result.get('user_ipa', '') or ''
+
+        st.write("**IPA (from eSpeak, for readability):**")
         col_a, col_b = st.columns(2)
         with col_a:
-            st.code(result.get('correct_phonemes', ''), language=None)
+            if correct_ipa:
+                st.markdown(format_ipa(correct_ipa), unsafe_allow_html=True)
+            else:
+                st.write("(no IPA available)")
             st.caption("Target")
         with col_b:
-            st.code(result.get('user_phonemes', ''), language=None)
+            if user_ipa:
+                st.markdown(format_ipa(user_ipa), unsafe_allow_html=True)
+            else:
+                st.write("(no IPA available)")
             st.caption("Your Pronunciation")
 
-        # Comparison used for scoring (whitespace removed)
-        target_phonemes_no_space = result.get('correct_phonemes_normalized', '')
-        user_phonemes_no_space = result.get('user_phonemes_normalized', '')
+        # Comparison for display (whitespace ignored)
+        target_ipa_no_space = "".join(correct_ipa.split())
+        user_ipa_no_space = "".join(user_ipa.split())
 
-        st.write("**Phoneme comparison (whitespace ignored for scoring):**")
-        if target_phonemes_no_space == user_phonemes_no_space:
-            st.success("🎯 Phoneme codes are identical!")
-        else:
+        st.write("**Detailed IPA comparison (whitespace ignored):**")
+        if target_ipa_no_space and target_ipa_no_space == user_ipa_no_space:
+            st.success("🎯 IPA is identical!")
+        elif target_ipa_no_space or user_ipa_no_space:
             from difflib import SequenceMatcher
             import html as _html
 
             def _colorize_diff(target: str, user: str) -> tuple[str, str]:
-                # Use the previously used colors for continuity.
                 # replace: light blue, insert: light green, delete: light pink.
                 matcher_local = SequenceMatcher(None, target, user)
                 target_chunks: list[str] = []
@@ -2264,18 +2272,15 @@ def render_practice_results(result, key_prefix="practice"):
                         target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
                         user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(u_seg)}</span>')
                     elif tag == 'insert':
-                        # Placeholder in target for inserted chars in user
                         target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape("·" * len(u_seg))}</span>')
                         user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape(u_seg)}</span>')
                     elif tag == 'delete':
                         target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
                         user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape("·" * len(t_seg))}</span>')
 
-                target_html_local = ''.join(target_chunks)
-                user_html_local = ''.join(user_chunks)
-                return target_html_local, user_html_local
+                return ''.join(target_chunks), ''.join(user_chunks)
 
-            matcher = SequenceMatcher(None, target_phonemes_no_space, user_phonemes_no_space)
+            matcher = SequenceMatcher(None, target_ipa_no_space, user_ipa_no_space)
             operations = matcher.get_opcodes()
             substitutions = [op for op in operations if op[0] == 'replace']
             insertions = [op for op in operations if op[0] == 'insert']
@@ -2283,7 +2288,7 @@ def render_practice_results(result, key_prefix="practice"):
             matches = sum(i2 - i1 for tag, i1, i2, j1, j2 in operations if tag == 'equal')
             st.write(f"**Operations:** {matches} matches, {len(substitutions)} substitutions, {len(insertions)} insertions, {len(deletions)} deletions")
 
-            target_html, user_html = _colorize_diff(target_phonemes_no_space, user_phonemes_no_space)
+            target_html, user_html = _colorize_diff(target_ipa_no_space, user_ipa_no_space)
             mono_wrap_start = '<div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \'Liberation Mono\', \'Courier New\', monospace; white-space: pre-wrap;">'
             mono_wrap_end = '</div>'
 
@@ -2294,6 +2299,30 @@ def render_practice_results(result, key_prefix="practice"):
             with col_u:
                 st.markdown(mono_wrap_start + user_html + mono_wrap_end, unsafe_allow_html=True)
                 st.caption("Your Pronunciation (normalized) — substitutions/insertions/deletions highlighted")
+        else:
+            st.info("No IPA available for detailed comparison.")
+
+        # Technical: show the eSpeak phoneme codes used for scoring
+        with st.expander("Technical: eSpeak phoneme codes used for scoring", expanded=False):
+            st.write("**eIPA (eSpeak -x) with word spacing:**")
+            col_xa, col_xb = st.columns(2)
+            with col_xa:
+                st.code(result.get('correct_phonemes', ''), language=None)
+                st.caption("Target")
+            with col_xb:
+                st.code(result.get('user_phonemes', ''), language=None)
+                st.caption("Your Pronunciation")
+
+            target_phonemes_no_space = result.get('correct_phonemes_normalized', '')
+            user_phonemes_no_space = result.get('user_phonemes_normalized', '')
+            st.write("**eIPA used for scoring (whitespace removed):**")
+            col_n1, col_n2 = st.columns(2)
+            with col_n1:
+                st.code(target_phonemes_no_space, language=None)
+                st.caption("Target (normalized)")
+            with col_n2:
+                st.code(user_phonemes_no_space, language=None)
+                st.caption("Your Pronunciation (normalized)")
 
 
 def render_scene_practice_mode(scenes_dir):
