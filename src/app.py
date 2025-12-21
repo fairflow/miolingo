@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "7.0.0"
+__version__ = "7.0.1"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew & Contributors"
 __license__ = "GPL-3.0"
@@ -2061,99 +2061,6 @@ def render_practice_results(result, key_prefix="practice"):
     
     # Play celebration sounds based on score (only once per result)
     import streamlit.components.v1 as components
-
-    components.html(
-        """
-                <script>
-                (function () {
-                    // Prevent double-init across reruns
-                    if (window.__miolingoAudioControllerInitialized) return;
-                    window.__miolingoAudioControllerInitialized = true;
-
-                    let audioContext = null;
-                    let unlocked = false;
-                    let pendingSound = null;
-
-                    function ensureContext() {
-                        const AudioContext = window.AudioContext || window.webkitAudioContext;
-                        if (!AudioContext) return null;
-                        if (!audioContext) audioContext = new AudioContext();
-                        return audioContext;
-                    }
-
-                    function unlockIfNeeded() {
-                        if (unlocked) return;
-                        const ctx = ensureContext();
-                        if (!ctx) return;
-                        Promise.resolve(ctx.resume && ctx.resume()).then(() => {
-                            unlocked = true;
-                            if (pendingSound) {
-                                const s = pendingSound;
-                                pendingSound = null;
-                                playSound(s);
-                            }
-                        }).catch(() => {
-                            // Still locked; will try again on next gesture
-                        });
-                    }
-
-                    function playTriad(ctx, freqs, baseGain, step, dur) {
-                        const now = ctx.currentTime;
-                        freqs.forEach((freq, i) => {
-                            const oscillator = ctx.createOscillator();
-                            const gainNode = ctx.createGain();
-                            oscillator.connect(gainNode);
-                            gainNode.connect(ctx.destination);
-                            oscillator.frequency.value = freq;
-                            oscillator.type = 'sine';
-                            gainNode.gain.setValueAtTime(baseGain, now + i * step);
-                            gainNode.gain.exponentialRampToValueAtTime(0.01, now + i * step + dur);
-                            oscillator.start(now + i * step);
-                            oscillator.stop(now + i * step + dur);
-                        });
-                    }
-
-                    function playSound(kind) {
-                        const ctx = ensureContext();
-                        if (!ctx) return;
-
-                        if (!unlocked || (ctx.state && ctx.state !== 'running')) {
-                            pendingSound = kind;
-                            return;
-                        }
-
-                        if (kind === 'perfect') {
-                            playTriad(ctx, [523.25, 659.25, 783.99], 0.3, 0.15, 0.6);
-                        } else if (kind === 'excellent') {
-                            playTriad(ctx, [440, 493.88, 523.25], 0.15, 0.12, 0.4);
-                        }
-                    }
-
-                    try {
-                        const parentWin = window.parent || window;
-                        parentWin.addEventListener('miolingo_play_sound', (e) => {
-                            const kind = (e && e.detail && e.detail.kind) || null;
-                            if (!kind) return;
-                            playSound(kind);
-                        });
-
-                        const doc = parentWin.document;
-                        if (doc && doc.addEventListener) {
-                            doc.addEventListener('touchend', unlockIfNeeded, { passive: true });
-                            doc.addEventListener('click', unlockIfNeeded, { passive: true });
-                            doc.addEventListener('pointerup', unlockIfNeeded, { passive: true });
-                        }
-                    } catch (e) {
-                        window.addEventListener('touchend', unlockIfNeeded, { passive: true });
-                        window.addEventListener('click', unlockIfNeeded, { passive: true });
-                        window.addEventListener('pointerup', unlockIfNeeded, { passive: true });
-                    }
-                })();
-                </script>
-            """,
-            height=0,
-            key="miolingo_audio_controller",
-            )
     
     # Track if sound has been played for this result
     result_id = f"{result.get('target', '')}_{result.get('recognized', '')}_{result.get('similarity', 0)}"
@@ -2172,9 +2079,38 @@ def render_practice_results(result, key_prefix="practice"):
                 <script>
                 (function () {
                     try {
-                        const parentWin = window.parent || window;
-                        parentWin.dispatchEvent(new CustomEvent('miolingo_play_sound', { detail: { kind: 'perfect' } }));
-                    } catch (e) {}
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        if (!AudioContext) return;
+                        const ctx = new AudioContext();
+                        const now = ctx.currentTime;
+                        const freqs = [523.25, 659.25, 783.99]; // C5-E5-G5
+                        const baseGain = 0.3;
+                        const step = 0.15;
+                        const dur = 0.6;
+
+                        const play = () => {
+                            freqs.forEach((freq, i) => {
+                                const oscillator = ctx.createOscillator();
+                                const gainNode = ctx.createGain();
+                                oscillator.connect(gainNode);
+                                gainNode.connect(ctx.destination);
+                                oscillator.frequency.value = freq;
+                                oscillator.type = 'sine';
+                                gainNode.gain.setValueAtTime(baseGain, now + i * step);
+                                gainNode.gain.exponentialRampToValueAtTime(0.01, now + i * step + dur);
+                                oscillator.start(now + i * step);
+                                oscillator.stop(now + i * step + dur);
+                            });
+                        };
+
+                        if (ctx.resume) {
+                            Promise.resolve(ctx.resume()).then(play).catch(() => {});
+                        } else {
+                            play();
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
                 })();
                 </script>
                 """,
@@ -2190,9 +2126,38 @@ def render_practice_results(result, key_prefix="practice"):
                 <script>
                 (function () {
                     try {
-                        const parentWin = window.parent || window;
-                        parentWin.dispatchEvent(new CustomEvent('miolingo_play_sound', { detail: { kind: 'excellent' } }));
-                    } catch (e) {}
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        if (!AudioContext) return;
+                        const ctx = new AudioContext();
+                        const now = ctx.currentTime;
+                        const freqs = [440, 493.88, 523.25]; // A4-B4-C5
+                        const baseGain = 0.15;
+                        const step = 0.12;
+                        const dur = 0.4;
+
+                        const play = () => {
+                            freqs.forEach((freq, i) => {
+                                const oscillator = ctx.createOscillator();
+                                const gainNode = ctx.createGain();
+                                oscillator.connect(gainNode);
+                                gainNode.connect(ctx.destination);
+                                oscillator.frequency.value = freq;
+                                oscillator.type = 'sine';
+                                gainNode.gain.setValueAtTime(baseGain, now + i * step);
+                                gainNode.gain.exponentialRampToValueAtTime(0.01, now + i * step + dur);
+                                oscillator.start(now + i * step);
+                                oscillator.stop(now + i * step + dur);
+                            });
+                        };
+
+                        if (ctx.resume) {
+                            Promise.resolve(ctx.resume()).then(play).catch(() => {});
+                        } else {
+                            play();
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
                 })();
                 </script>
                 """,
