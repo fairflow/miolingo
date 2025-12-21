@@ -117,7 +117,7 @@ with st.sidebar:
     # Global quick actions (used by hosted tools)
     auto_refresh = st.checkbox(
         f"🔄 Auto-refresh ({REFRESH_INTERVAL_MINUTES}m)",
-        value=st.session_state.get('auto_refresh_enabled', True),
+        value=st.session_state.get('auto_refresh_enabled', False),
         help=f"Automatically refresh data every {REFRESH_INTERVAL_MINUTES} minutes",
         key="ua_auto_refresh",
     )

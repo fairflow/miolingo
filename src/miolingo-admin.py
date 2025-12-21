@@ -127,7 +127,7 @@ def check_authentication():
 check_authentication()
 
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface • v2.0.4")
+st.caption("Local monitoring and management interface • v2.0.5")
 
 if not HOSTED_BY_UNIFIED_ADMIN:
     # Quick reconnect button in sidebar (standalone mode)
@@ -309,10 +309,10 @@ if selected_page == "📊 Resource Usage":
             conn = app_mysql.get_connection()
             if conn:
                 st.success("✓ Database connected")
-        except:
-            pass
-        else:
-            st.warning("✗ Database not connected")
+            else:
+                st.warning("✗ Database not connected")
+        except Exception as e:
+            st.warning(f"✗ Database not connected: {str(e)}")
 
 # TAB 2: Users
 if selected_page == "👥 Users":
