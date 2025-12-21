@@ -2062,12 +2062,8 @@ def render_practice_results(result, key_prefix="practice"):
     # Play celebration sounds based on score (only once per result)
     import streamlit.components.v1 as components
 
-        # iOS/Safari requires WebAudio to be "unlocked" by a user gesture.
-        # We install a tiny controller iframe that listens to normal page gestures
-        # (record/check/click/tap) to unlock audio, and then plays sounds on demand
-        # via a CustomEvent dispatched on the parent window.
-        components.html(
-                """
+    components.html(
+        """
                 <script>
                 (function () {
                     // Prevent double-init across reruns
@@ -2089,7 +2085,6 @@ def render_practice_results(result, key_prefix="practice"):
                         if (unlocked) return;
                         const ctx = ensureContext();
                         if (!ctx) return;
-                        // resume() must be called from a user gesture on iOS
                         Promise.resolve(ctx.resume && ctx.resume()).then(() => {
                             unlocked = true;
                             if (pendingSound) {
@@ -2122,23 +2117,18 @@ def render_practice_results(result, key_prefix="practice"):
                         const ctx = ensureContext();
                         if (!ctx) return;
 
-                        // If still locked, remember what to play once unlocked.
                         if (!unlocked || (ctx.state && ctx.state !== 'running')) {
                             pendingSound = kind;
                             return;
                         }
 
                         if (kind === 'perfect') {
-                            // C major triad (C5-E5-G5)
                             playTriad(ctx, [523.25, 659.25, 783.99], 0.3, 0.15, 0.6);
                         } else if (kind === 'excellent') {
-                            // Soft ascending notes (A4-B4-C5)
                             playTriad(ctx, [440, 493.88, 523.25], 0.15, 0.12, 0.4);
                         }
                     }
 
-                    // Listen for play requests dispatched on the parent window.
-                    // This lets Python-rendered "trigger" iframes request a sound.
                     try {
                         const parentWin = window.parent || window;
                         parentWin.addEventListener('miolingo_play_sound', (e) => {
@@ -2147,7 +2137,6 @@ def render_practice_results(result, key_prefix="practice"):
                             playSound(kind);
                         });
 
-                        // Unlock audio on normal page gestures (no extra "reward" button).
                         const doc = parentWin.document;
                         if (doc && doc.addEventListener) {
                             doc.addEventListener('touchend', unlockIfNeeded, { passive: true });
@@ -2155,17 +2144,16 @@ def render_practice_results(result, key_prefix="practice"):
                             doc.addEventListener('pointerup', unlockIfNeeded, { passive: true });
                         }
                     } catch (e) {
-                        // If parent access fails for any reason, fallback to local listeners.
                         window.addEventListener('touchend', unlockIfNeeded, { passive: true });
                         window.addEventListener('click', unlockIfNeeded, { passive: true });
                         window.addEventListener('pointerup', unlockIfNeeded, { passive: true });
                     }
                 })();
                 </script>
-                """,
-                height=0,
-                key="miolingo_audio_controller",
-        )
+            """,
+            height=0,
+            key="miolingo_audio_controller",
+            )
     
     # Track if sound has been played for this result
     result_id = f"{result.get('target', '')}_{result.get('recognized', '')}_{result.get('similarity', 0)}"
@@ -2179,37 +2167,37 @@ def render_practice_results(result, key_prefix="practice"):
         # Play perfect match bell sound (C major triad)
         if should_play_sound:
             st.session_state.last_sound_played = result_id
-                        components.html(
-                                """
-                                <script>
-                                (function () {
-                                    try {
-                                        const parentWin = window.parent || window;
-                                        parentWin.dispatchEvent(new CustomEvent('miolingo_play_sound', { detail: { kind: 'perfect' } }));
-                                    } catch (e) {}
-                                })();
-                                </script>
-                                """,
-                                height=0,
-                        )
+            components.html(
+                """
+                <script>
+                (function () {
+                    try {
+                        const parentWin = window.parent || window;
+                        parentWin.dispatchEvent(new CustomEvent('miolingo_play_sound', { detail: { kind: 'perfect' } }));
+                    } catch (e) {}
+                })();
+                </script>
+                """,
+                height=0,
+            )
     elif result['similarity'] >= 0.90:
         # High score but not perfect: gentle encouraging sound
         st.success(f"✨ Excellent! {result['similarity']:.1%} - Almost perfect!")
         if should_play_sound:
             st.session_state.last_sound_played = result_id
-                        components.html(
-                                """
-                                <script>
-                                (function () {
-                                    try {
-                                        const parentWin = window.parent || window;
-                                        parentWin.dispatchEvent(new CustomEvent('miolingo_play_sound', { detail: { kind: 'excellent' } }));
-                                    } catch (e) {}
-                                })();
-                                </script>
-                                """,
-                                height=0,
-                        )
+            components.html(
+                """
+                <script>
+                (function () {
+                    try {
+                        const parentWin = window.parent || window;
+                        parentWin.dispatchEvent(new CustomEvent('miolingo_play_sound', { detail: { kind: 'excellent' } }));
+                    } catch (e) {}
+                })();
+                </script>
+                """,
+                height=0,
+            )
     else:
         score_col1, score_col2 = st.columns([2, 1])
         with score_col1:
