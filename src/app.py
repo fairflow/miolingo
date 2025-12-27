@@ -3529,6 +3529,13 @@ def main():
             # Progress and navigation
             total_phrases = len(st.session_state.phrase_list)
             current_idx = st.session_state.current_phrase_index
+            # Keep index in bounds (e.g., if phrase list changes)
+            if current_idx < 0:
+                current_idx = 0
+                st.session_state.current_phrase_index = 0
+            elif current_idx >= total_phrases:
+                current_idx = total_phrases - 1
+                st.session_state.current_phrase_index = current_idx
             current_phrase_obj = st.session_state.phrase_list[current_idx]
             # Handle both dict and string formats for backward compatibility
             if isinstance(current_phrase_obj, dict):
@@ -3574,32 +3581,24 @@ def main():
                     # Keep result when navigating
                     st.rerun()
             with col3:
-                # Dropdown DISABLED - causes state management issues with recordings
-                # Users reported that dropdown changes during recording workflow cause:
-                # - Target phrase to revert unexpectedly
-                # - Check Recording button to disappear
-                # - Remove Recording button to disappear
-                # Use Previous/Next buttons for navigation instead
-                st.caption("🚧 Phrase dropdown temporarily disabled - use ⬅️ Previous / Next ➡️ buttons")
-                # Keep this for reference when we fix state management:
-                # def format_phrase(i):
-                #     phrase_obj = st.session_state.phrase_list[i]
-                #     phrase_text = phrase_obj['text'] if isinstance(phrase_obj, dict) else phrase_obj
-                #     preview = f"{i+1}. {phrase_text[:40]}{'...' if len(phrase_text) > 40 else ''}"
-                #     return preview
-                # 
-                # jump_to = st.selectbox(
-                #     "Jump to phrase:",
-                #     options=range(total_phrases),
-                #     index=current_idx,
-                #     format_func=format_phrase,
-                #     key="phrase_jump_select",
-                #     disabled=in_edit_mode,
-                #     help="Phrase navigation disabled in edit mode" if in_edit_mode else "Jump directly to any phrase"
-                # )
-                # if jump_to != current_idx and not in_edit_mode:
-                #     st.session_state.current_phrase_index = jump_to
-                #     st.rerun()
+                def format_phrase(i):
+                    phrase_obj = st.session_state.phrase_list[i]
+                    phrase_text = phrase_obj['text'] if isinstance(phrase_obj, dict) else phrase_obj
+                    preview = f"{i+1}. {phrase_text[:40]}{'...' if len(phrase_text) > 40 else ''}"
+                    return preview
+
+                # IMPORTANT: bind directly to current_phrase_index.
+                # This prevents the dropdown's widget state from overwriting Next/Previous
+                # navigation state on reruns.
+                st.selectbox(
+                    "Jump to phrase:",
+                    options=range(total_phrases),
+                    index=current_idx,
+                    format_func=format_phrase,
+                    key="current_phrase_index",
+                    disabled=in_edit_mode,
+                    help="Phrase navigation disabled in edit mode" if in_edit_mode else "Jump directly to any phrase"
+                )
             with col4:
                 # Edit button - disabled when in edit mode
                 if 'edit_mode' not in st.session_state:
