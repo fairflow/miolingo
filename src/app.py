@@ -3523,6 +3523,10 @@ def main():
             st.markdown("---")
             st.subheader("📚 Guided Practice Mode")
             
+            # Initialize current_phrase_index if not exists
+            if 'current_phrase_index' not in st.session_state:
+                st.session_state.current_phrase_index = 0
+            
             # Progress and navigation
             total_phrases = len(st.session_state.phrase_list)
             current_idx = st.session_state.current_phrase_index
