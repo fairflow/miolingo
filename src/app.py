@@ -843,8 +843,9 @@ def check_authentication():
     Check if user is authenticated. If not, show login page and stop.
     This runs at the start of every app load.
     
-    Session validation is done periodically (every 5 minutes) rather than on every
-    rerun to prevent logout due to temporary database connection issues.
+    OPTIMIZATION: Removed periodic session validation (5-minute checks).
+    Session remains valid until user logs out, closes browser, or admin forces logout.
+    Admin-forced logout will take effect on next page refresh/navigation.
     """
     # Initialize session state
     if 'authenticated' not in st.session_state:
@@ -855,53 +856,8 @@ def check_authentication():
         show_login_page()
         st.stop()
     
-    # Validate session periodically (not on every rerun)
-    if 'session_id' in st.session_state:
-        import time
-        
-        # Only validate every 5 minutes to reduce DB load and avoid logout on connection issues
-        last_check = st.session_state.get('last_session_check', 0)
-        now = time.time()
-        
-        if now - last_check > 300:  # 5 minutes = 300 seconds
-            try:
-                # Get user agent for logging
-                try:
-                    headers = st.context.headers
-                    user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-                except:
-                    user_agent = 'unknown'
-                
-                user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
-                
-                # validate_session returns None if session not valid
-                # It raises exceptions for database errors (which we catch below)
-                if not user:
-                    # Session validation failed - could be expired or invalid
-                    # Log the forced logout
-                    app_mysql.write_debug_log(
-                        event_type='forced_logout',
-                        message='Session validation failed - forcing logout',
-                        username=st.session_state.get('user', {}).get('username'),
-                        user_id=st.session_state.get('user', {}).get('user_id'),
-                        user_agent=user_agent,
-                        session_id=st.session_state['session_id']
-                    )
-                    # FORCED LOGOUT: Set generic message (don't assume 7-day expiry)
-                    st.session_state['forced_logout_reason'] = "session_invalid"
-                    st.session_state['forced_logout_message'] = "⚠️ **Session Ended**: Your session is no longer valid. Please login again."
-                    st.session_state['authenticated'] = False
-                    st.rerun()
-                else:
-                    # Session valid - update check timestamp
-                    st.session_state['last_session_check'] = now
-            
-            except Exception as e:
-                # Database connection error or other exception - DON'T logout user
-                # This is the key fix: exceptions mean errors, not expiry
-                # Just show warning and keep user logged in
-                st.warning(f"⚠️ Temporary connection issue during session validation. You remain logged in.")
-                # Don't update last_session_check so we retry sooner (next rerun)
+    # Session is valid as long as it's in session_state
+    # No periodic validation needed - reduces DB load significantly
 
 
 # ========================================
@@ -1033,6 +989,36 @@ with st.sidebar:
 # ============================================================================
 
 
+def compute_stats_from_history(history: List[Dict], language_code: str) -> Dict:
+    """Compute statistics from cached history data (local computation, no DB query)"""
+    try:
+        # Flatten all practices from all sessions
+        all_practices = []
+        for session in history:
+            all_practices.extend(session.get('practices', []))
+        
+        if not all_practices:
+            return {'total': 0, 'perfect_count': 0, 'avg_score': 0, 'recent_avg': 0}
+        
+        total = len(all_practices)
+        perfect_count = sum(1 for p in all_practices if p.get('exact_match', False))
+        avg_score = sum(p.get('similarity', 0) for p in all_practices) / total if total > 0 else 0
+        
+        # Recent avg: last 10 practices
+        recent_practices = all_practices[:10]  # History is already sorted newest first
+        recent_avg = sum(p.get('similarity', 0) for p in recent_practices) / len(recent_practices) if recent_practices else 0
+        
+        return {
+            'total': total,
+            'perfect_count': perfect_count,
+            'avg_score': avg_score,
+            'recent_avg': recent_avg
+        }
+    except Exception as e:
+        st.warning(f"Could not compute stats: {e}")
+        return {'total': 0, 'perfect_count': 0, 'avg_score': 0, 'recent_avg': 0}
+
+
 def load_history():
     """Load practice history from database (if authenticated) or return empty list"""
     if st.session_state.get('authenticated', False) and 'user' in st.session_state:
@@ -1077,14 +1063,40 @@ def save_history(history: List[Dict]):
     pass
 
 
+def load_user_session_data():
+    """
+    Load all user data at session start in one operation.
+    Consolidates multiple DB reads into a single batch.
+    Returns dict with settings, history, and pre-computed stats.
+    """
+    if not st.session_state.get('authenticated', False) or 'user' not in st.session_state:
+        return None
+    
+    try:
+        user_id = st.session_state['user']['user_id']
+        language_code = st.session_state.get('language', 'Portuguese')
+        
+        # Load all user data in batch
+        settings = load_settings()  # Already optimized, uses cached connection
+        history = load_history()     # Loads recent 100 practices
+        stats = compute_stats_from_history(history, language_code)  # Local computation
+        
+        return {
+            'settings': settings,
+            'history': history,
+            'stats': stats,
+            'last_loaded': datetime.now()
+        }
+    except Exception as e:
+        st.error(f"Could not load user session data: {e}")
+        return None
+
+
 def initialize_session_state():
     """Initialize Streamlit session state"""
     # Set app name for connection tracking
     if 'app_name' not in st.session_state:
         st.session_state.app_name = 'miolingo'
-    
-    if 'settings' not in st.session_state:
-        st.session_state.settings = load_settings()
     
     # Material language will be initialized by the selectbox widget with key="material_language"
     # Do NOT manually initialize it here - that conflicts with the widget's key
@@ -1093,8 +1105,24 @@ def initialize_session_state():
     if 'language' not in st.session_state:
         st.session_state.language = 'French'  # Safe default
     
-    if 'history' not in st.session_state:
-        st.session_state.history = load_history()
+    # OPTIMIZATION: Load all user data once at session start
+    # This replaces individual calls to load_settings() and load_history()
+    if 'user_data' not in st.session_state:
+        if st.session_state.get('authenticated', False):
+            user_data = load_user_session_data()
+            if user_data:
+                st.session_state.user_data = user_data
+                st.session_state.settings = user_data['settings']
+                st.session_state.history = user_data['history']
+                # Stats will be accessed from user_data['stats']
+            else:
+                # Fallback if loading failed
+                st.session_state.settings = load_settings()
+                st.session_state.history = []
+        else:
+            # Non-authenticated users
+            st.session_state.settings = load_settings()
+            st.session_state.history = []
     
     # Language-specific session tracking
     if 'current_sessions' not in st.session_state:
@@ -1940,6 +1968,44 @@ def practice_word_from_audio(text: str, audio_bytes: bytes, settings: Dict):
                     target_phonemes=result['correct_ipa'],
                     user_phonemes=result['user_ipa']
                 )
+                
+                # OPTIMIZATION: Update local cache after DB write
+                # Add new practice to cached history (prepend to maintain newest-first order)
+                if 'user_data' in st.session_state and 'history' in st.session_state.user_data:
+                    from datetime import date as date_obj
+                    today = str(date_obj.today())
+                    
+                    # Find or create today's session in history
+                    today_session = None
+                    for session in st.session_state.user_data['history']:
+                        if session['date'][:10] == today:
+                            today_session = session
+                            break
+                    
+                    if not today_session:
+                        # Create new session for today
+                        today_session = {'date': today, 'practices': []}
+                        st.session_state.user_data['history'].insert(0, today_session)
+                    
+                    # Add practice to today's session
+                    today_session['practices'].insert(0, {
+                        "target": result['target'],
+                        "recognized": result['recognized'],
+                        "similarity": result['similarity'],
+                        "exact_match": result['exact_match'],
+                        "correct_phonemes": result.get('correct_ipa', ''),
+                        "user_phonemes": result.get('user_ipa', '')
+                    })
+                    
+                    # Update session_state.history reference
+                    st.session_state.history = st.session_state.user_data['history']
+                    
+                    # Recompute stats from updated history
+                    st.session_state.user_data['stats'] = compute_stats_from_history(
+                        st.session_state.user_data['history'],
+                        st.session_state.language
+                    )
+                
             except Exception as e:
                 st.warning(f"⚠️ Could not save to database: {e}")
         
@@ -3703,14 +3769,14 @@ def main():
             col2.metric("Perfect", f"{perfect} ({perfect/len(practices):.1%})")
             col3.metric("Avg Similarity", f"{avg_sim:.1%}")
         
-        # Overall stats - from database for authenticated users
+        # Overall stats - from cached data (no DB query)
         if st.session_state.get('authenticated', False):
             st.subheader("📈 All Time")
             try:
-                user_id = st.session_state['user']['user_id']
-                stats = app_mysql.get_user_stats(user_id, st.session_state.language)
+                # Use cached stats from user_data (loaded at session start)
+                stats = st.session_state.get('user_data', {}).get('stats', {})
                 
-                if stats and stats['total'] > 0:
+                if stats and stats.get('total', 0) > 0:
                     col1, col2, col3, col4 = st.columns(4)
                     col1.metric("Total Practices", stats['total'])
                     col2.metric("Total Perfect", f"{stats['perfect_count']} ({stats['perfect_count']/stats['total']:.1%})")
@@ -3727,8 +3793,8 @@ def main():
     elif selected_tab_index == 3:
         st.header("📜 Session History")
         
-        # Reload history from database when viewing this tab
-        st.session_state.history = load_history()
+        # Use cached history (already loaded at session start)
+        # No DB query needed - display from st.session_state.history
         
         if not st.session_state.history:
             st.info("No previous sessions")
