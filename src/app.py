@@ -9,16 +9,15 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "7.0.1"
+__version__ = "7.1.0"
 __app_name__ = "Pronunciation Trainer"
-__author__ = "Matthew & Contributors"
+__author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"
 
 # Language configuration
 LANGUAGE_CONFIG = {
     "Portuguese": {
         "code": "pt",
-        "whisper_code": "pt",
         "display_name": "Portuguese Pronunciation Trainer",
         "voices": {
             "google_cloud": ["pt-br", "pt"],
@@ -28,7 +27,6 @@ LANGUAGE_CONFIG = {
     },
     "Dutch": {
         "code": "nl",
-        "whisper_code": "nl",
         "display_name": "Dutch/Flemish Pronunciation Trainer",
         "voices": {
             "google_cloud": ["nl", "nl-be"],
@@ -38,7 +36,6 @@ LANGUAGE_CONFIG = {
     },
     "French": {
         "code": "fr",
-        "whisper_code": "fr",
         "display_name": "French Pronunciation Trainer",
         "voices": {
             "google_cloud": ["fr", "fr-fr"],
@@ -48,7 +45,6 @@ LANGUAGE_CONFIG = {
     },
     "German": {
         "code": "de",
-        "whisper_code": "de",
         "display_name": "German Pronunciation Trainer",
         "voices": {
             "google_cloud": ["de", "de-de"],
@@ -58,7 +54,6 @@ LANGUAGE_CONFIG = {
     },
     "Italian": {
         "code": "it",
-        "whisper_code": "it",
         "display_name": "Italian Pronunciation Trainer",
         "voices": {
             "google_cloud": ["it", "it-it"],
@@ -68,7 +63,6 @@ LANGUAGE_CONFIG = {
     },
     "Spanish": {
         "code": "es",
-        "whisper_code": "es",
         "display_name": "Spanish Pronunciation Trainer",
         "voices": {
             "google_cloud": ["es", "es-es"],
@@ -76,6 +70,34 @@ LANGUAGE_CONFIG = {
             "espeak": ["es"]
         }
     }
+}
+
+# Voice locale normalization: lowercase codes → BCP 47 format
+VOICE_LOCALE_NORMALIZATION = {
+    'pt-br': 'pt-BR',
+    'pt': 'pt-PT',
+    'fr': 'fr-FR',
+    'fr-fr': 'fr-FR',
+    'nl': 'nl-NL',
+    'nl-be': 'nl-BE',
+    'de': 'de-DE',
+    'de-de': 'de-DE',
+    'it': 'it-IT',
+    'it-it': 'it-IT',
+    'es': 'es-ES',
+    'es-es': 'es-ES'
+}
+
+# Google Cloud TTS voice names per locale
+GOOGLE_CLOUD_VOICES = {
+    "pt-BR": "pt-BR-Standard-A",  # Female Brazilian Portuguese
+    "pt-PT": "pt-PT-Standard-A",  # Female European Portuguese
+    "fr-FR": "fr-FR-Standard-A",  # Female French
+    "nl-NL": "nl-NL-Standard-A",  # Female Dutch
+    "nl-BE": "nl-BE-Standard-A",  # Female Flemish
+    "de-DE": "de-DE-Standard-A",  # Female German
+    "it-IT": "it-IT-Standard-A",  # Female Italian
+    "es-ES": "es-ES-Standard-A",  # Female Spanish
 }
 
 # Version History:
@@ -261,6 +283,21 @@ def save_settings(settings: Dict):
 # MATERIAL ENRICHMENT (LLM Translations + IPA Generation)
 # ============================================================================
 
+def validate_openai_api_key() -> tuple[bool, str]:
+    """
+    Validate OpenAI API key from Streamlit secrets.
+    
+    Returns:
+        Tuple of (is_valid, api_key_or_error_message)
+        - If valid: (True, actual_api_key)
+        - If invalid: (False, error_message)
+    """
+    api_key = st.secrets.get("openai_api_key")
+    if not api_key or api_key == "your-openai-api-key-here":
+        return False, "Valid OpenAI API key required for translations. Please configure in secrets.toml."
+    return True, api_key
+
+
 def get_ipa_from_espeak(text: str, lang_code: str) -> str:
     """
     Generate IPA transcription using espeak-ng.
@@ -317,13 +354,13 @@ def get_translation_from_llm(text: str, source_lang: str, target_lang: str = "En
         Translation or error message
     """
     try:
-        # Get API key from secrets
-        api_key = st.secrets.get("openai_api_key")
-        if not api_key or api_key == "your-openai-api-key-here":
-            return "[error: Valid API key required in secrets.toml]"
+        # Validate API key
+        is_valid, api_key_or_error = validate_openai_api_key()
+        if not is_valid:
+            return f"[error: {api_key_or_error}]"
         
         from openai import OpenAI
-        client = OpenAI(api_key=api_key)
+        client = OpenAI(api_key=api_key_or_error)
         
         # Simple, direct prompt for translation
         prompt = f"Translate this {source_lang} text to {target_lang}. Only return the translation, nothing else:\n\n{text}"
@@ -380,12 +417,12 @@ def enrich_material_file(
         Dict with keys: success (bool), message (str), stats (dict)
     """
     if add_translations:
-        # Check if API key is available in secrets
-        api_key = st.secrets.get("openai_api_key")
-        if not api_key or api_key == "your-openai-api-key-here":
+        # Validate API key before proceeding
+        is_valid, error_message = validate_openai_api_key()
+        if not is_valid:
             return {
                 'success': False,
-                'message': 'Valid OpenAI API key required for translations. Please configure in secrets.toml.',
+                'message': error_message,
                 'stats': {}
             }
     
@@ -1297,19 +1334,7 @@ def speak_text_google_cloud(text: str, lang: str = "pt-BR", use_wav: bool = Fals
     except KeyError:
         raise ValueError("google_cloud_tts_api_key not found in secrets")
     
-    # Map language codes to voice names
-    voice_map = {
-        "pt-BR": "pt-BR-Standard-A",  # Female Brazilian Portuguese
-        "pt-PT": "pt-PT-Standard-A",  # Female European Portuguese
-        "fr-FR": "fr-FR-Standard-A",  # Female French
-        "nl-NL": "nl-NL-Standard-A",  # Female Dutch
-        "nl-BE": "nl-BE-Standard-A",  # Female Flemish
-        "de-DE": "de-DE-Standard-A",  # Female German
-        "it-IT": "it-IT-Standard-A",  # Female Italian
-        "es-ES": "es-ES-Standard-A",  # Female Spanish
-    }
-    
-    voice_name = voice_map.get(lang, "pt-BR-Standard-A")
+    voice_name = GOOGLE_CLOUD_VOICES.get(lang, "pt-BR-Standard-A")
     audio_encoding = "LINEAR16" if use_wav else "MP3"
     
     # Build the REST API request
@@ -1462,21 +1487,7 @@ def generate_target_audio(text: str, settings: Dict) -> tuple[bytes, str]:
     elif tts_engine == 'google_cloud':
         # Try Google Cloud TTS first (best quality)
         try:
-            voice_map = {
-                'pt-br': 'pt-BR',
-                'pt': 'pt-PT',
-                'fr': 'fr-FR',
-                'fr-fr': 'fr-FR',
-                'nl': 'nl-NL',
-                'nl-be': 'nl-BE',
-                'de': 'de-DE',
-                'de-de': 'de-DE',
-                'it': 'it-IT',
-                'it-it': 'it-IT',
-                'es': 'es-ES',
-                'es-es': 'es-ES'
-            }
-            cloud_lang = voice_map.get(settings.get('voice', 'pt-br'), 'pt-BR')
+            cloud_lang = VOICE_LOCALE_NORMALIZATION.get(settings.get('voice', 'pt-br'), 'pt-BR')
             
             return speak_text_google_cloud(
                 text_no_punct,
@@ -1508,21 +1519,7 @@ def generate_target_audio(text: str, settings: Dict) -> tuple[bytes, str]:
         # Priority: Google Cloud → gTTS → eSpeak
         try:
             # Try Google Cloud first even if user selected gTTS (best quality)
-            voice_map = {
-                'pt-br': 'pt-BR',
-                'pt': 'pt-PT',
-                'fr': 'fr-FR',
-                'fr-fr': 'fr-FR',
-                'nl': 'nl-NL',
-                'nl-be': 'nl-BE',
-                'de': 'de-DE',
-                'de-de': 'de-DE',
-                'it': 'it-IT',
-                'it-it': 'it-IT',
-                'es': 'es-ES',
-                'es-es': 'es-ES'
-            }
-            cloud_lang = voice_map.get(settings.get('voice', 'pt-br'), 'pt-BR')
+            cloud_lang = VOICE_LOCALE_NORMALIZATION.get(settings.get('voice', 'pt-br'), 'pt-BR')
             
             return speak_text_google_cloud(
                 text_no_punct,
@@ -1656,11 +1653,11 @@ def transcribe_audio(audio_file: str, settings: Dict, language: str = "Portugues
     
     # Get language configuration
     lang_config = LANGUAGE_CONFIG[language]
-    whisper_code = lang_config['whisper_code']
+    lang_code = lang_config['code']
     
     if asr_engine == 'wav2vec2':
         # wav2vec2 is Portuguese-only
-        if whisper_code != 'pt':
+        if lang_code != 'pt':
             st.warning("wav2vec2 only supports Portuguese, falling back to Whisper")
             asr_engine = 'whisper'
         else:
@@ -1674,7 +1671,7 @@ def transcribe_audio(audio_file: str, settings: Dict, language: str = "Portugues
     # Default to Whisper
     model_size = settings.get('whisper_model_size', 'base')
     model = get_whisper_model(model_size)
-    return transcribe_audio_whisper(audio_file, model, whisper_code)
+    return transcribe_audio_whisper(audio_file, model, lang_code)
 
 
 def levenshtein_distance(s1: str, s2: str) -> int:
@@ -2224,30 +2221,38 @@ def render_practice_results(result, key_prefix="practice"):
         
         if result.get('edit_distance') is not None:
             st.write(f"**Edit Distance:** {result['edit_distance']} edit(s) needed")
-        
-        # Show phonemes WITH spacing preserved (these are what drive score/edit distance)
-        st.write("**Phoneme codes (eSpeak -x) with word spacing:**")
+
+        # Primary display: IPA (user-friendly)
+        correct_ipa = result.get('correct_ipa', '') or ''
+        user_ipa = result.get('user_ipa', '') or ''
+
+        st.write("**IPA (from eSpeak, for readability):**")
         col_a, col_b = st.columns(2)
         with col_a:
-            st.code(result.get('correct_phonemes', ''), language=None)
+            if correct_ipa:
+                st.markdown(format_ipa(correct_ipa), unsafe_allow_html=True)
+            else:
+                st.write("(no IPA available)")
             st.caption("Target")
         with col_b:
-            st.code(result.get('user_phonemes', ''), language=None)
+            if user_ipa:
+                st.markdown(format_ipa(user_ipa), unsafe_allow_html=True)
+            else:
+                st.write("(no IPA available)")
             st.caption("Your Pronunciation")
 
-        # Comparison used for scoring (whitespace removed)
-        target_phonemes_no_space = result.get('correct_phonemes_normalized', '')
-        user_phonemes_no_space = result.get('user_phonemes_normalized', '')
+        # Comparison for display (whitespace ignored)
+        target_ipa_no_space = "".join(correct_ipa.split())
+        user_ipa_no_space = "".join(user_ipa.split())
 
-        st.write("**Phoneme comparison (whitespace ignored for scoring):**")
-        if target_phonemes_no_space == user_phonemes_no_space:
-            st.success("🎯 Phoneme codes are identical!")
-        else:
+        st.write("**Detailed IPA comparison (whitespace ignored):**")
+        if target_ipa_no_space and target_ipa_no_space == user_ipa_no_space:
+            st.success("🎯 IPA is identical!")
+        elif target_ipa_no_space or user_ipa_no_space:
             from difflib import SequenceMatcher
             import html as _html
 
             def _colorize_diff(target: str, user: str) -> tuple[str, str]:
-                # Use the previously used colors for continuity.
                 # replace: light blue, insert: light green, delete: light pink.
                 matcher_local = SequenceMatcher(None, target, user)
                 target_chunks: list[str] = []
@@ -2264,18 +2269,15 @@ def render_practice_results(result, key_prefix="practice"):
                         target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
                         user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(u_seg)}</span>')
                     elif tag == 'insert':
-                        # Placeholder in target for inserted chars in user
                         target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape("·" * len(u_seg))}</span>')
                         user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape(u_seg)}</span>')
                     elif tag == 'delete':
                         target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
                         user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape("·" * len(t_seg))}</span>')
 
-                target_html_local = ''.join(target_chunks)
-                user_html_local = ''.join(user_chunks)
-                return target_html_local, user_html_local
+                return ''.join(target_chunks), ''.join(user_chunks)
 
-            matcher = SequenceMatcher(None, target_phonemes_no_space, user_phonemes_no_space)
+            matcher = SequenceMatcher(None, target_ipa_no_space, user_ipa_no_space)
             operations = matcher.get_opcodes()
             substitutions = [op for op in operations if op[0] == 'replace']
             insertions = [op for op in operations if op[0] == 'insert']
@@ -2283,7 +2285,7 @@ def render_practice_results(result, key_prefix="practice"):
             matches = sum(i2 - i1 for tag, i1, i2, j1, j2 in operations if tag == 'equal')
             st.write(f"**Operations:** {matches} matches, {len(substitutions)} substitutions, {len(insertions)} insertions, {len(deletions)} deletions")
 
-            target_html, user_html = _colorize_diff(target_phonemes_no_space, user_phonemes_no_space)
+            target_html, user_html = _colorize_diff(target_ipa_no_space, user_ipa_no_space)
             mono_wrap_start = '<div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \'Liberation Mono\', \'Courier New\', monospace; white-space: pre-wrap;">'
             mono_wrap_end = '</div>'
 
@@ -2294,6 +2296,30 @@ def render_practice_results(result, key_prefix="practice"):
             with col_u:
                 st.markdown(mono_wrap_start + user_html + mono_wrap_end, unsafe_allow_html=True)
                 st.caption("Your Pronunciation (normalized) — substitutions/insertions/deletions highlighted")
+        else:
+            st.info("No IPA available for detailed comparison.")
+
+        # Technical: show the eSpeak phoneme codes used for scoring
+        with st.expander("Technical: eSpeak phoneme codes used for scoring", expanded=False):
+            st.write("**eIPA (eSpeak -x) with word spacing:**")
+            col_xa, col_xb = st.columns(2)
+            with col_xa:
+                st.code(result.get('correct_phonemes', ''), language=None)
+                st.caption("Target")
+            with col_xb:
+                st.code(result.get('user_phonemes', ''), language=None)
+                st.caption("Your Pronunciation")
+
+            target_phonemes_no_space = result.get('correct_phonemes_normalized', '')
+            user_phonemes_no_space = result.get('user_phonemes_normalized', '')
+            st.write("**eIPA used for scoring (whitespace removed):**")
+            col_n1, col_n2 = st.columns(2)
+            with col_n1:
+                st.code(target_phonemes_no_space, language=None)
+                st.caption("Target (normalized)")
+            with col_n2:
+                st.code(user_phonemes_no_space, language=None)
+                st.caption("Your Pronunciation (normalized)")
 
 
 def render_scene_practice_mode(scenes_dir):
@@ -3500,6 +3526,13 @@ def main():
             # Progress and navigation
             total_phrases = len(st.session_state.phrase_list)
             current_idx = st.session_state.current_phrase_index
+            # Keep index in bounds (e.g., if phrase list changes)
+            if current_idx < 0:
+                current_idx = 0
+                st.session_state.current_phrase_index = 0
+            elif current_idx >= total_phrases:
+                current_idx = total_phrases - 1
+                st.session_state.current_phrase_index = current_idx
             current_phrase_obj = st.session_state.phrase_list[current_idx]
             # Handle both dict and string formats for backward compatibility
             if isinstance(current_phrase_obj, dict):
@@ -3545,32 +3578,24 @@ def main():
                     # Keep result when navigating
                     st.rerun()
             with col3:
-                # Dropdown DISABLED - causes state management issues with recordings
-                # Users reported that dropdown changes during recording workflow cause:
-                # - Target phrase to revert unexpectedly
-                # - Check Recording button to disappear
-                # - Remove Recording button to disappear
-                # Use Previous/Next buttons for navigation instead
-                st.caption("🚧 Phrase dropdown temporarily disabled - use ⬅️ Previous / Next ➡️ buttons")
-                # Keep this for reference when we fix state management:
-                # def format_phrase(i):
-                #     phrase_obj = st.session_state.phrase_list[i]
-                #     phrase_text = phrase_obj['text'] if isinstance(phrase_obj, dict) else phrase_obj
-                #     preview = f"{i+1}. {phrase_text[:40]}{'...' if len(phrase_text) > 40 else ''}"
-                #     return preview
-                # 
-                # jump_to = st.selectbox(
-                #     "Jump to phrase:",
-                #     options=range(total_phrases),
-                #     index=current_idx,
-                #     format_func=format_phrase,
-                #     key="phrase_jump_select",
-                #     disabled=in_edit_mode,
-                #     help="Phrase navigation disabled in edit mode" if in_edit_mode else "Jump directly to any phrase"
-                # )
-                # if jump_to != current_idx and not in_edit_mode:
-                #     st.session_state.current_phrase_index = jump_to
-                #     st.rerun()
+                def format_phrase(i):
+                    phrase_obj = st.session_state.phrase_list[i]
+                    phrase_text = phrase_obj['text'] if isinstance(phrase_obj, dict) else phrase_obj
+                    preview = f"{i+1}. {phrase_text[:40]}{'...' if len(phrase_text) > 40 else ''}"
+                    return preview
+
+                # IMPORTANT: bind directly to current_phrase_index.
+                # This prevents the dropdown's widget state from overwriting Next/Previous
+                # navigation state on reruns.
+                st.selectbox(
+                    "Jump to phrase:",
+                    options=range(total_phrases),
+                    index=current_idx,
+                    format_func=format_phrase,
+                    key="current_phrase_index",
+                    disabled=in_edit_mode,
+                    help="Phrase navigation disabled in edit mode" if in_edit_mode else "Jump directly to any phrase"
+                )
             with col4:
                 # Edit button - disabled when in edit mode
                 if 'edit_mode' not in st.session_state:
