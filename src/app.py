@@ -1204,11 +1204,25 @@ def get_phonemes(text: str, voice: str = "pt-br") -> str:
 
 
 def normalize_for_phoneme_scoring(s: str) -> str:
-    """Normalize phoneme/IPA strings for scoring by removing all whitespace."""
+    """
+    Normalize eSpeak phoneme strings for pronunciation scoring.
+    
+    Removes:
+    - All whitespace (word boundaries, spaces)
+    - Pause phonemes (_: _! _| _:: etc.) - inserted by eSpeak for punctuation
+    
+    This ensures scoring is based purely on pronunciation phonemes,
+    not on text formatting artifacts like quotes, commas, periods.
+    """
     import re
     if not s:
         return ""
-    return re.sub(r"\s+", "", s.strip())
+    # Remove all whitespace
+    s = re.sub(r"\s+", "", s.strip())
+    # Remove eSpeak pause phonemes: _: _! _| _:: and combinations like _:_:
+    # These are inserted for punctuation and should not affect pronunciation scoring
+    s = re.sub(r'_[:!|]+', '', s)
+    return s
 
 
 def get_ipa(text: str, voice: str = "pt-br") -> str:
@@ -2194,22 +2208,28 @@ def render_practice_results(result, key_prefix="practice"):
         target_clean = result['target'].lower().translate(str.maketrans('', '', string.punctuation))
         recognized_clean = result['recognized'].translate(str.maketrans('', '', string.punctuation))
         
+        # Get normalized phonemes for comparison (the source of truth for pronunciation)
         correct_phonemes_no_space = result.get('correct_phonemes_normalized') or normalize_for_phoneme_scoring(result.get('correct_phonemes', ''))
         user_phonemes_no_space = result.get('user_phonemes_normalized') or normalize_for_phoneme_scoring(result.get('user_phonemes', ''))
         
-        # Only show messages if there are meaningful differences
+        # Check if phonemes match (pronunciation is correct)
         phonemes_match = correct_phonemes_no_space == user_phonemes_no_space
         text_matches = target_clean == recognized_clean
         score_is_high = result['similarity'] >= 0.95
         
-        if phonemes_match and result['correct_phonemes'] != result['user_phonemes']:
-            st.success("✅ Phonemes match perfectly (spacing differences ignored)")
-        elif not text_matches and not score_is_high:
-            # Only warn if BOTH text differs AND score is low
-            st.warning("⚠️ Different words recognized - try speaking more clearly")
+        # Display appropriate message based on phoneme match (source of truth)
+        if phonemes_match:
+            # Phonemes match perfectly - pronunciation is correct
+            if not text_matches:
+                st.success("✅ Perfect pronunciation! (Text punctuation/formatting differs)")
+            else:
+                st.success("✅ Phonemes match perfectly")
         elif score_is_high and not text_matches:
-            # High score but text differs (e.g., punctuation) - show positive message
-            st.info("ℹ️ Excellent pronunciation! (Minor text differences ignored)")
+            # High score but text differs slightly
+            st.info("ℹ️ Excellent pronunciation! (Minor text differences)")
+        elif not text_matches and not score_is_high:
+            # Both text and pronunciation differ - likely wrong word or unclear speech
+            st.warning("⚠️ Different words recognized - try speaking more clearly")
     
     # Close the two-column layout before the detailed analysis
     # Show detailed phoneme analysis (works with edit distance!) - full width
