@@ -11,14 +11,13 @@ Run with: streamlit run app.py
 # VERSION MARKER - Update this when releasing new version
 __version__ = "7.1.0"
 __app_name__ = "Pronunciation Trainer"
-__author__ = "Matthew & Contributors"
+__author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"
 
 # Language configuration
 LANGUAGE_CONFIG = {
     "Portuguese": {
         "code": "pt",
-        "whisper_code": "pt",
         "display_name": "Portuguese Pronunciation Trainer",
         "voices": {
             "google_cloud": ["pt-br", "pt"],
@@ -28,7 +27,6 @@ LANGUAGE_CONFIG = {
     },
     "Dutch": {
         "code": "nl",
-        "whisper_code": "nl",
         "display_name": "Dutch/Flemish Pronunciation Trainer",
         "voices": {
             "google_cloud": ["nl", "nl-be"],
@@ -38,7 +36,6 @@ LANGUAGE_CONFIG = {
     },
     "French": {
         "code": "fr",
-        "whisper_code": "fr",
         "display_name": "French Pronunciation Trainer",
         "voices": {
             "google_cloud": ["fr", "fr-fr"],
@@ -48,7 +45,6 @@ LANGUAGE_CONFIG = {
     },
     "German": {
         "code": "de",
-        "whisper_code": "de",
         "display_name": "German Pronunciation Trainer",
         "voices": {
             "google_cloud": ["de", "de-de"],
@@ -58,7 +54,6 @@ LANGUAGE_CONFIG = {
     },
     "Italian": {
         "code": "it",
-        "whisper_code": "it",
         "display_name": "Italian Pronunciation Trainer",
         "voices": {
             "google_cloud": ["it", "it-it"],
@@ -68,7 +63,6 @@ LANGUAGE_CONFIG = {
     },
     "Spanish": {
         "code": "es",
-        "whisper_code": "es",
         "display_name": "Spanish Pronunciation Trainer",
         "voices": {
             "google_cloud": ["es", "es-es"],
@@ -76,6 +70,34 @@ LANGUAGE_CONFIG = {
             "espeak": ["es"]
         }
     }
+}
+
+# Voice locale normalization: lowercase codes → BCP 47 format
+VOICE_LOCALE_NORMALIZATION = {
+    'pt-br': 'pt-BR',
+    'pt': 'pt-PT',
+    'fr': 'fr-FR',
+    'fr-fr': 'fr-FR',
+    'nl': 'nl-NL',
+    'nl-be': 'nl-BE',
+    'de': 'de-DE',
+    'de-de': 'de-DE',
+    'it': 'it-IT',
+    'it-it': 'it-IT',
+    'es': 'es-ES',
+    'es-es': 'es-ES'
+}
+
+# Google Cloud TTS voice names per locale
+GOOGLE_CLOUD_VOICES = {
+    "pt-BR": "pt-BR-Standard-A",  # Female Brazilian Portuguese
+    "pt-PT": "pt-PT-Standard-A",  # Female European Portuguese
+    "fr-FR": "fr-FR-Standard-A",  # Female French
+    "nl-NL": "nl-NL-Standard-A",  # Female Dutch
+    "nl-BE": "nl-BE-Standard-A",  # Female Flemish
+    "de-DE": "de-DE-Standard-A",  # Female German
+    "it-IT": "it-IT-Standard-A",  # Female Italian
+    "es-ES": "es-ES-Standard-A",  # Female Spanish
 }
 
 # Version History:
@@ -261,6 +283,21 @@ def save_settings(settings: Dict):
 # MATERIAL ENRICHMENT (LLM Translations + IPA Generation)
 # ============================================================================
 
+def validate_openai_api_key() -> tuple[bool, str]:
+    """
+    Validate OpenAI API key from Streamlit secrets.
+    
+    Returns:
+        Tuple of (is_valid, api_key_or_error_message)
+        - If valid: (True, actual_api_key)
+        - If invalid: (False, error_message)
+    """
+    api_key = st.secrets.get("openai_api_key")
+    if not api_key or api_key == "your-openai-api-key-here":
+        return False, "Valid OpenAI API key required for translations. Please configure in secrets.toml."
+    return True, api_key
+
+
 def get_ipa_from_espeak(text: str, lang_code: str) -> str:
     """
     Generate IPA transcription using espeak-ng.
@@ -317,13 +354,13 @@ def get_translation_from_llm(text: str, source_lang: str, target_lang: str = "En
         Translation or error message
     """
     try:
-        # Get API key from secrets
-        api_key = st.secrets.get("openai_api_key")
-        if not api_key or api_key == "your-openai-api-key-here":
-            return "[error: Valid API key required in secrets.toml]"
+        # Validate API key
+        is_valid, api_key_or_error = validate_openai_api_key()
+        if not is_valid:
+            return f"[error: {api_key_or_error}]"
         
         from openai import OpenAI
-        client = OpenAI(api_key=api_key)
+        client = OpenAI(api_key=api_key_or_error)
         
         # Simple, direct prompt for translation
         prompt = f"Translate this {source_lang} text to {target_lang}. Only return the translation, nothing else:\n\n{text}"
@@ -380,12 +417,12 @@ def enrich_material_file(
         Dict with keys: success (bool), message (str), stats (dict)
     """
     if add_translations:
-        # Check if API key is available in secrets
-        api_key = st.secrets.get("openai_api_key")
-        if not api_key or api_key == "your-openai-api-key-here":
+        # Validate API key before proceeding
+        is_valid, error_message = validate_openai_api_key()
+        if not is_valid:
             return {
                 'success': False,
-                'message': 'Valid OpenAI API key required for translations. Please configure in secrets.toml.',
+                'message': error_message,
                 'stats': {}
             }
     
@@ -1297,19 +1334,7 @@ def speak_text_google_cloud(text: str, lang: str = "pt-BR", use_wav: bool = Fals
     except KeyError:
         raise ValueError("google_cloud_tts_api_key not found in secrets")
     
-    # Map language codes to voice names
-    voice_map = {
-        "pt-BR": "pt-BR-Standard-A",  # Female Brazilian Portuguese
-        "pt-PT": "pt-PT-Standard-A",  # Female European Portuguese
-        "fr-FR": "fr-FR-Standard-A",  # Female French
-        "nl-NL": "nl-NL-Standard-A",  # Female Dutch
-        "nl-BE": "nl-BE-Standard-A",  # Female Flemish
-        "de-DE": "de-DE-Standard-A",  # Female German
-        "it-IT": "it-IT-Standard-A",  # Female Italian
-        "es-ES": "es-ES-Standard-A",  # Female Spanish
-    }
-    
-    voice_name = voice_map.get(lang, "pt-BR-Standard-A")
+    voice_name = GOOGLE_CLOUD_VOICES.get(lang, "pt-BR-Standard-A")
     audio_encoding = "LINEAR16" if use_wav else "MP3"
     
     # Build the REST API request
@@ -1462,21 +1487,7 @@ def generate_target_audio(text: str, settings: Dict) -> tuple[bytes, str]:
     elif tts_engine == 'google_cloud':
         # Try Google Cloud TTS first (best quality)
         try:
-            voice_map = {
-                'pt-br': 'pt-BR',
-                'pt': 'pt-PT',
-                'fr': 'fr-FR',
-                'fr-fr': 'fr-FR',
-                'nl': 'nl-NL',
-                'nl-be': 'nl-BE',
-                'de': 'de-DE',
-                'de-de': 'de-DE',
-                'it': 'it-IT',
-                'it-it': 'it-IT',
-                'es': 'es-ES',
-                'es-es': 'es-ES'
-            }
-            cloud_lang = voice_map.get(settings.get('voice', 'pt-br'), 'pt-BR')
+            cloud_lang = VOICE_LOCALE_NORMALIZATION.get(settings.get('voice', 'pt-br'), 'pt-BR')
             
             return speak_text_google_cloud(
                 text_no_punct,
@@ -1508,21 +1519,7 @@ def generate_target_audio(text: str, settings: Dict) -> tuple[bytes, str]:
         # Priority: Google Cloud → gTTS → eSpeak
         try:
             # Try Google Cloud first even if user selected gTTS (best quality)
-            voice_map = {
-                'pt-br': 'pt-BR',
-                'pt': 'pt-PT',
-                'fr': 'fr-FR',
-                'fr-fr': 'fr-FR',
-                'nl': 'nl-NL',
-                'nl-be': 'nl-BE',
-                'de': 'de-DE',
-                'de-de': 'de-DE',
-                'it': 'it-IT',
-                'it-it': 'it-IT',
-                'es': 'es-ES',
-                'es-es': 'es-ES'
-            }
-            cloud_lang = voice_map.get(settings.get('voice', 'pt-br'), 'pt-BR')
+            cloud_lang = VOICE_LOCALE_NORMALIZATION.get(settings.get('voice', 'pt-br'), 'pt-BR')
             
             return speak_text_google_cloud(
                 text_no_punct,
@@ -1656,11 +1653,11 @@ def transcribe_audio(audio_file: str, settings: Dict, language: str = "Portugues
     
     # Get language configuration
     lang_config = LANGUAGE_CONFIG[language]
-    whisper_code = lang_config['whisper_code']
+    lang_code = lang_config['code']
     
     if asr_engine == 'wav2vec2':
         # wav2vec2 is Portuguese-only
-        if whisper_code != 'pt':
+        if lang_code != 'pt':
             st.warning("wav2vec2 only supports Portuguese, falling back to Whisper")
             asr_engine = 'whisper'
         else:
@@ -1674,7 +1671,7 @@ def transcribe_audio(audio_file: str, settings: Dict, language: str = "Portugues
     # Default to Whisper
     model_size = settings.get('whisper_model_size', 'base')
     model = get_whisper_model(model_size)
-    return transcribe_audio_whisper(audio_file, model, whisper_code)
+    return transcribe_audio_whisper(audio_file, model, lang_code)
 
 
 def levenshtein_distance(s1: str, s2: str) -> int:
