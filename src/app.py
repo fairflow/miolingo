@@ -3733,8 +3733,8 @@ def main():
         if not st.session_state.history:
             st.info("No previous sessions")
         else:
-            # Show most recent sessions first (reverse chronological order)
-            for i, session in enumerate(st.session_state.history[-10:][::-1], 1):
+            # History is already sorted newest first from load_history()
+            for i, session in enumerate(st.session_state.history[-10:], 1):
                 date = session["date"][:10]
                 count = len(session["practices"])
                 perfect = sum(1 for p in session["practices"] if p.get("exact_match", False))
