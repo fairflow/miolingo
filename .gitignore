@@ -14,6 +14,8 @@
 
 # VSCode project files:
 .vscode
+settings.json
+*.code-workspace
 
 # intermediate build output:
 
