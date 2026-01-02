@@ -9,7 +9,7 @@ Run with: streamlit run app.py
 """
 
 # VERSION MARKER - Update this when releasing new version
-__version__ = "7.1.2"
+__version__ = "7.1.2-fix-phrase-selector"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"
@@ -1092,6 +1092,15 @@ def initialize_session_state():
     # Initialize language - will be set correctly in main() based on material_language
     if 'language' not in st.session_state:
         st.session_state.language = 'French'  # Safe default
+    
+    # Initialize Quick Practice phrase position (app state, persists across tabs)
+    # This is separate from widget state to avoid dual-management conflicts
+    if 'qp_phrase_position' not in st.session_state:
+        st.session_state.qp_phrase_position = 0
+    
+    # Diagnostic tracking for state management debugging
+    if 'state_change_log' not in st.session_state:
+        st.session_state.state_change_log = []
     
     if 'history' not in st.session_state:
         st.session_state.history = load_history()
@@ -3225,7 +3234,9 @@ def main():
                                 try:
                                     phrases = load_phrase_file(str(metadata['path']))
                                     st.session_state.phrase_list = phrases
-                                    st.session_state.current_phrase_index = 0
+                                    st.session_state.qp_phrase_position = 0
+                                    st.session_state.phrase_selector_widget = 0  # Sync widget state
+                                    st.session_state.state_change_log.append(f"Load builtin: Reset position to 0")
                                     st.session_state.quick_last_result = None
                                     st.session_state.material_source = f"{format_language_name(material_lang)} - {format_category_name(category)} - {selected_file}"
                                     st.session_state.qp_materials_expanded = False  # Close expander
@@ -3461,7 +3472,9 @@ def main():
                         with col1:
                             if st.button("✅ Use This File", type="primary", key="use_upload"):
                                 st.session_state.phrase_list = phrases
-                                st.session_state.current_phrase_index = 0
+                                st.session_state.qp_phrase_position = 0
+                                st.session_state.phrase_selector_widget = 0  # Sync widget state
+                                st.session_state.state_change_log.append(f"Upload file: Reset position to 0")
                                 st.session_state.quick_last_result = None
                                 st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
                                 st.session_state.qp_materials_expanded = False  # Close expander
@@ -3530,7 +3543,9 @@ def main():
             
             if st.button("🗑️ Clear Material"):
                 st.session_state.phrase_list = []
-                st.session_state.current_phrase_index = 0
+                st.session_state.qp_phrase_position = 0
+                st.session_state.phrase_selector_widget = 0  # Sync widget state
+                st.session_state.state_change_log.append(f"Clear material: Reset position to 0")
                 st.session_state.quick_last_result = None
                 st.session_state.material_source = None
                 st.rerun()
@@ -3543,20 +3558,22 @@ def main():
             st.markdown("---")
             st.subheader("📚 Guided Practice Mode")
             
-            # Initialize current_phrase_index if not exists
-            if 'current_phrase_index' not in st.session_state:
-                st.session_state.current_phrase_index = 0
+            # Use global app state (initialized once at startup)
+            # No per-tab initialization needed - qp_phrase_position persists
             
             # Progress and navigation
             total_phrases = len(st.session_state.phrase_list)
-            current_idx = st.session_state.current_phrase_index
+            current_idx = st.session_state.qp_phrase_position
+            
             # Keep index in bounds (e.g., if phrase list changes)
             if current_idx < 0:
                 current_idx = 0
-                st.session_state.current_phrase_index = 0
+                st.session_state.qp_phrase_position = 0
+                st.session_state.state_change_log.append(f"Tab load: Bounded qp_phrase_position to 0 (was negative)")
             elif current_idx >= total_phrases:
-                current_idx = total_phrases - 1
-                st.session_state.current_phrase_index = current_idx
+                current_idx = total_phrases - 1 if total_phrases > 0 else 0
+                st.session_state.qp_phrase_position = current_idx
+                st.session_state.state_change_log.append(f"Tab load: Bounded qp_phrase_position to {current_idx} (was >= {total_phrases})")
             current_phrase_obj = st.session_state.phrase_list[current_idx]
             # Handle both dict and string formats for backward compatibility
             if isinstance(current_phrase_obj, dict):
@@ -3590,7 +3607,11 @@ def main():
                 prev_disabled = (current_idx == 0) or in_edit_mode
                 if st.button("⬅️ Previous", disabled=prev_disabled, key="nav_prev",
                            help="Navigation disabled in edit mode" if in_edit_mode else None):
-                    st.session_state.current_phrase_index -= 1
+                    # Update app state
+                    st.session_state.qp_phrase_position -= 1
+                    # Sync widget state so dropdown stays in sync
+                    st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
+                    st.session_state.state_change_log.append(f"Prev button: qp_phrase_position → {st.session_state.qp_phrase_position}")
                     # Keep result when navigating
                     st.rerun()
             with col2:
@@ -3598,7 +3619,11 @@ def main():
                 next_disabled = (current_idx >= total_phrases - 1) or in_edit_mode
                 if st.button("Next ➡️", disabled=next_disabled, key="nav_next",
                            help="Navigation disabled in edit mode" if in_edit_mode else None):
-                    st.session_state.current_phrase_index += 1
+                    # Update app state
+                    st.session_state.qp_phrase_position += 1
+                    # Sync widget state so dropdown stays in sync
+                    st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
+                    st.session_state.state_change_log.append(f"Next button: qp_phrase_position → {st.session_state.qp_phrase_position}")
                     # Keep result when navigating
                     st.rerun()
             with col3:
@@ -3607,16 +3632,24 @@ def main():
                     phrase_text = phrase_obj['text'] if isinstance(phrase_obj, dict) else phrase_obj
                     preview = f"{i+1}. {phrase_text[:40]}{'...' if len(phrase_text) > 40 else ''}"
                     return preview
+                
+                # Callback to sync widget selection to app state
+                def on_phrase_select():
+                    """When user changes dropdown, update app state from widget state"""
+                    new_pos = st.session_state.phrase_selector_widget
+                    st.session_state.qp_phrase_position = new_pos
+                    st.session_state.state_change_log.append(f"Dropdown: qp_phrase_position → {new_pos} (user selected)")
 
-                # IMPORTANT: bind directly to current_phrase_index.
-                # This prevents the dropdown's widget state from overwriting Next/Previous
-                # navigation state on reruns.
+                # Two-key pattern: app state (qp_phrase_position) + widget state (phrase_selector_widget)
+                # Widget reads from app state via index=, writes to widget state via key=
+                # on_change callback syncs widget state back to app state
                 st.selectbox(
                     "Jump to phrase:",
                     options=range(total_phrases),
-                    index=current_idx,
+                    index=st.session_state.qp_phrase_position,  # Read from app state
                     format_func=format_phrase,
-                    key="current_phrase_index",
+                    key="phrase_selector_widget",  # Widget state (separate from app state)
+                    on_change=on_phrase_select,  # Sync back to app state
                     disabled=in_edit_mode,
                     help="Phrase navigation disabled in edit mode" if in_edit_mode else "Jump directly to any phrase"
                 )
@@ -3630,6 +3663,36 @@ def main():
                             help="Edit current phrase or type your own",
                             disabled=st.session_state.edit_mode):
                     st.session_state.edit_mode = True
+                    st.rerun()
+            
+            # Diagnostic expander (collapsible, for debugging state management)
+            with st.expander("🔍 State Diagnostics (for debugging)", expanded=False):
+                st.markdown("""
+                **Purpose**: Verify state persistence across tab switches and widget interactions.
+                
+                This shows how `qp_phrase_position` (app state) and `phrase_selector_widget` (widget state) 
+                are managed separately but kept in sync via callbacks.
+                """)
+                
+                col_diag1, col_diag2 = st.columns(2)
+                with col_diag1:
+                    st.write("**Current State:**")
+                    st.json({
+                        "qp_phrase_position (app)": st.session_state.qp_phrase_position,
+                        "phrase_selector_widget": st.session_state.get('phrase_selector_widget', 'Not created yet'),
+                        "active_tab": st.session_state.get('active_tab', 'Unknown'),
+                        "edit_mode": st.session_state.get('edit_mode', False),
+                        "total_phrases": len(st.session_state.phrase_list) if st.session_state.get('phrase_list') else 0
+                    })
+                
+                with col_diag2:
+                    st.write("**State Change Log (last 10):**")
+                    recent_log = st.session_state.state_change_log[-10:] if st.session_state.state_change_log else ["(No changes yet)"]
+                    for entry in reversed(recent_log):
+                        st.text(entry)
+                
+                if st.button("Clear Log", key="clear_state_log"):
+                    st.session_state.state_change_log = []
                     st.rerun()
             
             st.markdown("---")
