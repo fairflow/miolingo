@@ -1,6 +1,6 @@
 # Miolingo - Multi-Language Pronunciation Trainer - User Guide
 
-**Version 7.1.2** | Last Updated: 15 December 2025
+**Version 7.1.3** | Last Updated: 15 December 2025
 
 Welcome! This guide will help you practice pronunciation in multiple languages (Portuguese, French, Dutch/Flemish, German, Spanish and Italian) using speech recognition and instant AI feedback.
 

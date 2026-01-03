@@ -3,7 +3,7 @@
 ## Quick Reference
 
 <!-- VERSION MARKER - Update this when releasing new version -->
-**Current Version:** 7.1.2
+**Current Version:** 7.1.3
 **App File:** `src/app.py`
 **Admin File:** `src/miolingo-admin.py`
 **Versioning:** Semantic Versioning (MAJOR.MINOR.PATCH)
