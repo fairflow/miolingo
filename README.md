@@ -1,6 +1,6 @@
 # Miolingo
 
-**Version 7.1.0** - Multi-language pronunciation trainer with real-time AI feedback.
+**Version 7.1.2** - Multi-language pronunciation trainer with real-time AI feedback.
 
 🌐 **Try it live:** [miolingo3.streamlit.app](https://miolingo3.streamlit.app)
 

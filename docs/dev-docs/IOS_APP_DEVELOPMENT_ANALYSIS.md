@@ -56,6 +56,7 @@ A web app that behaves like a native app when added to iOS home screen.
 - **Cross-platform** - Works on all devices with browsers
 
 ### Limitations ❌
+
 - **No background processing** - Can't run when app closed
 - **Limited push notifications** - iOS restricts web notification APIs
 - **No App Store presence** - Can't discover via search
@@ -64,7 +65,9 @@ A web app that behaves like a native app when added to iOS home screen.
 - **No Face ID/Touch ID** - Can't access biometric APIs directly
 
 ### Implementation Steps
+
 1. **Add Web App Manifest** (`manifest.json`)
+
    ```json
    {
      "name": "Miolingo",
@@ -89,6 +92,7 @@ A web app that behaves like a native app when added to iOS home screen.
    ```
 
 2. **Add Service Worker** (offline caching)
+
    ```javascript
    // sw.js
    self.addEventListener('install', (event) => {
@@ -109,6 +113,7 @@ A web app that behaves like a native app when added to iOS home screen.
    - Touch-friendly buttons (already implemented)
    - Prevent zoom on input focus
    - Add iOS-specific meta tags:
+  
      ```html
      <meta name="apple-mobile-web-app-capable" content="yes">
      <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -122,7 +127,9 @@ A web app that behaves like a native app when added to iOS home screen.
    - App appears as icon, launches without Safari UI
 
 ### Current Status
+
 Miolingo already works well on iOS Safari! PWA enhancements would add:
+
 - Offline phrase caching
 - Faster load times
 - Full-screen mode (no Safari bar)
@@ -135,15 +142,19 @@ Miolingo already works well on iOS Safari! PWA enhancements would add:
 ## Option 2: React Native / Expo (True Native App)
 
 ### What is React Native?
+
 JavaScript framework for building native iOS/Android apps with single codebase.
 
 ### Architecture Rewrite Required
+
 Current Streamlit app must be rebuilt as:
+
 - **Frontend:** React Native (JavaScript/TypeScript)
 - **Backend:** Keep Python API (FastAPI/Flask)
 - **Communication:** REST API or WebSockets
 
-### Advantages ✅
+### Advantages to Option 2 ✅
+
 - **True native performance** - Compiled to native code
 - **Full iOS API access** - Camera, Face ID, background audio, notifications
 - **App Store eligible** - Can publish if desired (optional)
@@ -151,7 +162,8 @@ Current Streamlit app must be rebuilt as:
 - **TestFlight** - Beta testing with up to 10,000 users (no App Store approval)
 - **React Native for Web** - Can target web too (triple platform)
 
-### Limitations ❌
+### Limitations of Option 2 ❌
+
 - **Complete rewrite** - 3-6 months development
 - **New skills required** - JavaScript/TypeScript, React
 - **Backend API needed** - Can't embed Python logic in app
@@ -159,7 +171,9 @@ Current Streamlit app must be rebuilt as:
 - **Maintenance burden** - Two codebases (web + mobile)
 
 ### Alternative: Expo (Managed React Native)
+
 Expo simplifies React Native with:
+
 - **No Xcode required** - Build iOS apps on Windows/Linux
 - **Over-the-air updates** - Update without App Store (for non-native changes)
 - **Pre-built components** - Audio, camera, auth, etc.
@@ -168,6 +182,7 @@ Expo simplifies React Native with:
 ### Distribution Without App Store
 
 #### Option A: TestFlight (Beta Testing)
+
 - **Capacity:** Up to 10,000 beta testers
 - **Duration:** 90-day builds, unlimited renewals
 - **Requirements:** Apple Developer Account ($99/year)
@@ -175,6 +190,7 @@ Expo simplifies React Native with:
 - **Best for:** Extended beta testing, small user base
 
 #### Option B: Enterprise Distribution
+
 - **Capacity:** Unlimited users within organization
 - **Requirements:** Apple Developer Enterprise Program ($299/year)
 - **Process:** Install via MDM or direct download link
@@ -182,12 +198,14 @@ Expo simplifies React Native with:
 - **Risk:** Apple terminates if misused for consumer apps
 
 #### Option C: Ad Hoc Distribution
+
 - **Capacity:** Up to 100 devices per year
 - **Requirements:** Register each device UDID with Apple
 - **Process:** Build signed IPA, install via Xcode or Configurator
 - **Best for:** Personal use, very small group
 
 #### Option D: Jailbreak Distribution (Cydia/AltStore)
+
 - **Capacity:** Anyone with jailbroken device
 - **Requirements:** None (no Apple account)
 - **Legality:** Gray area, violates Apple EULA
@@ -195,7 +213,8 @@ Expo simplifies React Native with:
 - **Not recommended**
 
 ### Recommended React Native Stack
-```
+
+```stack
 Frontend (Mobile):
   - React Native 0.73+
   - Expo SDK 50+
@@ -215,6 +234,7 @@ Models:
 ```
 
 ### Development Timeline
+
 - **Phase 1:** API backend (2-4 weeks)
 - **Phase 2:** React Native UI (4-8 weeks)
 - **Phase 3:** Audio pipeline (2-3 weeks)
@@ -228,16 +248,19 @@ Models:
 ## Option 3: Native Swift/SwiftUI
 
 ### What is Swift?
+
 Apple's native programming language for iOS/macOS/watchOS.
 
-### Advantages ✅
+### Advantages of Swift ✅
+
 - **Best performance** - Direct hardware access, optimal battery life
 - **Full iOS integration** - All Apple APIs, latest features first
 - **Native UX** - True iOS look and feel
 - **App Store optimized** - Apple's preferred language
 - **Long-term maintainability** - Apple's official path
 
-### Limitations ❌
+### Limitations of Swift ❌
+
 - **iOS only** - Must build separate Android app (Kotlin)
 - **Complete rewrite** - Python → Swift conversion (6-12 months)
 - **ML model challenges** - Core ML conversion or server inference
@@ -248,7 +271,9 @@ Apple's native programming language for iOS/macOS/watchOS.
   - Jailbreak: Dead end
 
 ### Distribution Reality
+
 Without App Store, Swift apps have **no viable distribution path** for consumers.
+
 - TestFlight requires App Store Connect account (same $99/year)
 - No web fallback (Swift is compiled, not interpreted)
 - Can't self-host like PWA
@@ -262,34 +287,41 @@ Without App Store, Swift apps have **no viable distribution path** for consumers
 ## Option 4: Alternative Approaches
 
 ### A. Keep Web App + Native Wrapper (Capacitor)
+
 **Concept:** Wrap Streamlit web app in native container
 
 **Tech:** Ionic Capacitor or Apache Cordova
 
 **Pros:**
+
 - Minimal code changes (mostly config)
 - Access native APIs (notifications, storage)
 - Can publish to App Store
 - 2-4 weeks implementation
 
 **Cons:**
+
 - Still web-based rendering (not truly native feel)
 - Larger bundle size (includes web engine)
 - Performance overhead vs pure native
 
 ### B. Flutter (Google's Framework)
+
 **Concept:** Dart language, compiles to native for iOS/Android/Web
 
 **Similar to React Native but:**
+
 - Better performance (compiles to native ARM)
 - Single codebase for 3+ platforms
 - Growing ecosystem (less mature than RN)
 - Still requires complete rewrite (3-5 months)
 
 ### C. Python Native (Kivy/BeeWare)
+
 **Concept:** Write iOS apps in Python
 
 **Reality check:**
+
 - Kivy: Outdated UI, poor iOS integration
 - BeeWare: Experimental, lacks documentation
 - Both: No App Store success stories
@@ -300,15 +332,19 @@ Without App Store, Swift apps have **no viable distribution path** for consumers
 ## Technical Deep Dive: Key Challenges
 
 ### 1. Audio Recording on iOS
+
 **Web (Current):**
+
 ```javascript
 navigator.mediaDevices.getUserMedia({ audio: true })
 ```
+
 - Works in Safari but requires HTTPS
 - 3-second recording limit in background
 - No access to raw audio buffer (compressed only)
 
 **Native iOS:**
+
 ```swift
 import AVFoundation
 
@@ -322,7 +358,8 @@ let recorder = try AVAudioRecorder(url: fileURL, settings: [
     AVNumberOfChannelsKey: 1
 ])
 recorder.record()
-```
+
+```format
 - Full control over format, sample rate, bit depth
 - Can record indefinitely in background
 - Direct access to PCM audio buffer
@@ -340,17 +377,20 @@ recognizer?.recognitionTask(with: request) { result, error in
     let transcription = result?.bestTranscription.formattedString
 }
 ```
+
 - **Pros:** Free, fast, privacy-friendly, offline capable
 - **Cons:** Less accurate than Whisper, requires iOS 10+
 - **Languages:** Supports pt-BR, fr-FR, nl-NL, de-DE, it-IT, es-ES ✅
 
-**Option B: Whisper (Server-Side)**
+**Option B: Whisper (Server-Side)
+
 - Keep current Whisper implementation on server
 - Stream audio → Server → Get transcription
 - **Pros:** Same accuracy as web app
 - **Cons:** Requires internet, API costs
 
-**Option C: Whisper (On-Device with Core ML)**
+**Option C: Whisper (On-Device with Core ML)
+
 - Convert Whisper to Core ML format
 - Base model: ~140MB download
 - **Pros:** Offline, private, fast after download
@@ -359,7 +399,8 @@ recognizer?.recognitionTask(with: request) { result, error in
 
 ### 3. Text-to-Speech
 
-**Option A: AVSpeechSynthesizer (Built-in)**
+**Option A: AVSpeechSynthesizer (Built-in)
+
 ```swift
 import AVFoundation
 
@@ -369,7 +410,7 @@ utterance.voice = AVSpeechSynthesisVoice(language: "pt-BR")
 utterance.rate = 0.5 // Slow down for learning
 
 synthesizer.speak(utterance)
-```
+
 - **Pros:** Free, offline, decent quality
 - **Cons:** Not as natural as Google Cloud TTS
 - **Languages:** All 6 Miolingo languages supported ✅
@@ -391,21 +432,25 @@ synthesizer.speak(utterance)
 **Solutions:**
 
 **A. REST API Backend**
-```
+
+```seq
 iOS App → HTTPS → FastAPI Server → MySQL
 ```
+
 - Expose Python backend as REST API
 - iOS makes HTTP requests for data
 - **Pros:** Secure, scalable, works anywhere
 - **Cons:** Requires server rewrite (2-3 weeks)
 
-**B. Firebase (Google)**
+**B. Firebase (Google)
+
 - Replace MySQL with Firestore (NoSQL)
 - Native iOS SDK, real-time sync
 - **Pros:** Offline support, easy auth, free tier
 - **Cons:** Migration effort, NoSQL learning curve
 
-**C. SQLite Local + Cloud Sync**
+**C. SQLite Local + Cloud Sync
+
 - Store user data in local SQLite database
 - Sync to server periodically
 - **Pros:** Instant access, offline capable
@@ -417,24 +462,28 @@ iOS App → HTTPS → FastAPI Server → MySQL
 
 **Solutions:**
 
-**A. Download on First Launch**
+**A. Download on First Launch
+
 - Prompt user: "Download AI model for offline use? (140MB)"
 - Store in app's Documents folder
 - **Pros:** Best quality, offline
 - **Cons:** Large initial download, storage space
 
-**B. Server-Side Inference**
+**B. Server-Side Inference
+
 - Keep models on server, stream audio for processing
 - **Pros:** No download, always up-to-date
 - **Cons:** Requires internet, latency
 
-**C. Quantized Models**
+**C. Quantized Models
+
 - Use whisper.cpp with CoreML quantization
 - Reduce to ~40-50MB (8-bit precision)
 - **Pros:** 3x smaller, still good accuracy
 - **Cons:** Slightly lower quality
 
-**D. Apple Neural Engine**
+**D. Apple Neural Engine
+
 - Convert to Core ML with ANE optimization
 - **Pros:** Hardware acceleration, battery efficient
 - **Cons:** Complex conversion process
@@ -457,9 +506,11 @@ iOS App → HTTPS → FastAPI Server → MySQL
 ## Recommended Path Forward
 
 ### Phase 1: PWA Enhancement (Immediate - 1-2 weeks)
+
 **Goal:** Improve iOS web experience to near-native
 
 **Tasks:**
+
 1. Add web app manifest with iOS icons
 2. Implement service worker for offline caching
 3. Add iOS-specific meta tags
@@ -473,7 +524,9 @@ iOS App → HTTPS → FastAPI Server → MySQL
 **User experience:** 80% of native
 
 ### Phase 2: Evaluate User Demand (3-6 months)
+
 **Monitor:**
+
 - iOS Safari usage percentage
 - User feedback on PWA experience
 - Feature requests for native capabilities
@@ -481,9 +534,11 @@ iOS App → HTTPS → FastAPI Server → MySQL
 **Decision point:** If >30% iOS users AND complaints about web limitations, proceed to Phase 3
 
 ### Phase 3: React Native MVP (If needed - 3-5 months)
+
 **Goal:** True native app with core features
 
 **Scope:**
+
 - Quick practice mode only (simplest)
 - Apple Speech Framework for ASR (free, on-device)
 - AVSpeechSynthesizer for TTS (free, offline)
@@ -497,20 +552,24 @@ iOS App → HTTPS → FastAPI Server → MySQL
 **User experience:** 100% native
 
 ### Phase 4: App Store (Optional - if demand warrants)
+
 **Goal:** Public App Store presence
 
 **Requirements:**
+
 - App Store Review Guidelines compliance
 - Privacy policy, terms of service
 - App Store screenshots, description, keywords
 - Ongoing maintenance for iOS updates
 
 **Benefits:**
+
 - Discoverability (search, browse, recommendations)
 - Trust (Apple reviewed)
 - Monetization options (in-app purchases, subscriptions)
 
 **Costs:**
+
 - $99/year Apple Developer
 - ~$500-2000 for professional App Store assets
 - Review compliance (2-7 days per update)
@@ -520,6 +579,7 @@ iOS App → HTTPS → FastAPI Server → MySQL
 ## Cost Analysis
 
 ### PWA Route (Recommended Start)
+
 | Item | Cost |
 |------|------|
 | Development (1-2 weeks @ $75/hr) | $3,000-6,000 |
@@ -530,6 +590,7 @@ iOS App → HTTPS → FastAPI Server → MySQL
 | **Ongoing (per year)** | **$0** |
 
 ### React Native Route
+
 | Item | Cost |
 |------|------|
 | Development (3-5 months @ $75/hr) | $36,000-75,000 |
@@ -542,6 +603,7 @@ iOS App → HTTPS → FastAPI Server → MySQL
 | **Ongoing (per year)** | $700-2,500 |
 
 ### App Store Route (Add to React Native)
+
 | Item | Cost |
 |------|------|
 | App Store assets (pro) | $500-2,000 |
@@ -554,9 +616,11 @@ iOS App → HTTPS → FastAPI Server → MySQL
 ## Alternative: No iOS App at All
 
 ### Just Optimize Web App
+
 **Reality check:** Miolingo already works great on iOS Safari!
 
 **Current stats:**
+
 - ✅ Audio recording works (getUserMedia API)
 - ✅ Audio playback works (st.audio)
 - ✅ Touch-friendly UI (buttons, text input)
@@ -565,6 +629,7 @@ iOS App → HTTPS → FastAPI Server → MySQL
 - ✅ All 6 languages supported
 
 **What's missing?**
+
 - ❌ Offline mode (needs service worker)
 - ❌ Push notifications (limited on iOS web anyway)
 - ❌ App Store presence (can share links instead)
@@ -607,6 +672,7 @@ iOS App → HTTPS → FastAPI Server → MySQL
 ## Security & Privacy Considerations
 
 ### PWA
+
 - ✅ HTTPS enforced (Streamlit Cloud)
 - ✅ No app permissions needed
 - ✅ Same-origin policy protection
@@ -614,6 +680,7 @@ iOS App → HTTPS → FastAPI Server → MySQL
 - ⚠️ No biometric auth (Face ID/Touch ID)
 
 ### Native App
+
 - ✅ Keychain storage (encrypted)
 - ✅ Face ID / Touch ID support
 - ✅ Background audio (practice while phone locked)
@@ -621,7 +688,9 @@ iOS App → HTTPS → FastAPI Server → MySQL
 - ⚠️ App Store review scrutiny
 
 ### Privacy Policy Requirements
+
 Both PWA and native apps need:
+
 - ✅ Privacy policy (already have)
 - ✅ GDPR compliance (EU users)
 - ✅ CCPA compliance (California users)
@@ -633,17 +702,20 @@ Both PWA and native apps need:
 ## Conclusion & Recommendations
 
 ### Immediate Action (This Week)
+
 ✅ **Enhance PWA** - Add manifest, service worker, iOS meta tags  
 🎯 **Goal:** Make web app feel native when added to home screen  
 ⏱️ **Effort:** 1-2 weeks  
 💰 **Cost:** $3K-6K one-time  
 
 ### Short Term (3 Months)
+
 📊 **Monitor Usage** - Track iOS Safari users, gather feedback  
 🧪 **Test PWA** - Validate offline mode, home screen workflow  
 📈 **Measure Satisfaction** - Are users happy with web experience?  
 
 ### Long Term Decision (6+ Months)
+
 **IF** iOS users >30% AND PWA insufficient:  
    → Build React Native app with TestFlight distribution  
    → Estimated 3-5 months, $50K-90K  
@@ -653,6 +725,7 @@ Both PWA and native apps need:
    → Save time/money, serve all platforms equally  
 
 ### Why This Approach?
+
 1. **Validate demand** before massive investment
 2. **Fastest time to value** (weeks vs months)
 3. **Lowest risk** (can always upgrade later)
@@ -664,26 +737,31 @@ Both PWA and native apps need:
 ## Appendix: Useful Resources
 
 ### PWA Development
+
 - [PWA Builder](https://www.pwabuilder.com/) - Generate manifest & service worker
 - [Workbox](https://developers.google.com/web/tools/workbox) - Google's PWA toolkit
 - [iOS PWA Guide](https://web.dev/learn/pwa/ios/) - Apple-specific considerations
 
 ### React Native
+
 - [Expo Documentation](https://docs.expo.dev/) - Managed RN framework
 - [React Native Directory](https://reactnative.directory/) - Component library
 - [Ignite](https://github.com/infinitered/ignite) - RN boilerplate/generator
 
 ### iOS Native
+
 - [Swift Playgrounds](https://www.apple.com/swift/playgrounds/) - Learn Swift on iPad
 - [Stanford CS193p](https://cs193p.sites.stanford.edu/) - Free iOS course
 - [Hacking with Swift](https://www.hackingwithswift.com/) - Tutorials
 
 ### Audio Processing
+
 - [whisper.cpp](https://github.com/ggerganov/whisper.cpp) - C++ Whisper port (iOS compatible)
 - [Core ML Tools](https://coremltools.readme.io/) - Convert models to Core ML
 - [AVAudioEngine Guide](https://developer.apple.com/documentation/avfaudio/avaudioengine) - iOS audio
 
 ### Distribution
+
 - [TestFlight](https://developer.apple.com/testflight/) - Beta testing platform
 - [App Store Connect](https://developer.apple.com/app-store-connect/) - App management
 - [Fastlane](https://fastlane.tools/) - Automate builds & deployment
@@ -700,6 +778,7 @@ Both PWA and native apps need:
 6. **Document user installation** instructions with screenshots
 
 **Questions to answer:**
+
 - What percentage of current users are on iOS?
 - What features do they request most?
 - Is offline mode critical or nice-to-have?
