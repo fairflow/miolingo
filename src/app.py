@@ -843,8 +843,18 @@ def check_authentication():
     Check if user is authenticated. If not, show login page and stop.
     This runs at the start of every app load.
     
-    Session validation is done periodically (every 60 minutes) rather than on every
-    rerun to prevent logout due to temporary database connection issues.
+    SIMPLIFIED APPROACH: No periodic session validation.
+    - Trust browser session state (st.session_state['authenticated'])
+    - Session expiry is enforced by database (7-day sliding window)
+    - Only validate on initial login, then trust until user logs out
+    - If database connection fails, show error but don't force logout
+    
+    Rationale: Periodic validation was causing false-positive logouts when:
+    - Database connections became stale during iOS tab suspension
+    - MySQL server-side timeouts (300s) closed idle connections
+    - Validation queries failed, triggering unnecessary logouts
+    
+    See docs/dev-docs/AUTH_LOGOUT_ANALYSIS.md for full analysis.
     """
     # Initialize session state
     if 'authenticated' not in st.session_state:
@@ -855,53 +865,14 @@ def check_authentication():
         show_login_page()
         st.stop()
     
-    # Validate session periodically (not on every rerun)
-    if 'session_id' in st.session_state:
-        import time
-        
-        # Only validate every 60 minutes to reduce DB load and avoid logout on connection issues
-        last_check = st.session_state.get('last_session_check', 0)
-        now = time.time()
-        
-        if now - last_check > 3600:  # 60 minutes = 3600 seconds
-            try:
-                # Get user agent for logging
-                try:
-                    headers = st.context.headers
-                    user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-                except:
-                    user_agent = 'unknown'
-                
-                user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
-                
-                # validate_session returns None if session not valid
-                # It raises exceptions for database errors (which we catch below)
-                if not user:
-                    # Session validation failed - could be expired or invalid
-                    # Log the forced logout
-                    app_mysql.write_debug_log(
-                        event_type='forced_logout',
-                        message='Session validation failed - forcing logout',
-                        username=st.session_state.get('user', {}).get('username'),
-                        user_id=st.session_state.get('user', {}).get('user_id'),
-                        user_agent=user_agent,
-                        session_id=st.session_state['session_id']
-                    )
-                    # FORCED LOGOUT: Set generic message (don't assume 7-day expiry)
-                    st.session_state['forced_logout_reason'] = "session_invalid"
-                    st.session_state['forced_logout_message'] = "⚠️ **Session Ended**: Your session is no longer valid. Please login again."
-                    st.session_state['authenticated'] = False
-                    st.rerun()
-                else:
-                    # Session valid - update check timestamp
-                    st.session_state['last_session_check'] = now
-            
-            except Exception as e:
-                # Database connection error or other exception - DON'T logout user
-                # This is the key fix: exceptions mean errors, not expiry
-                # Just show warning and keep user logged in
-                st.warning(f"⚠️ Temporary connection issue during session validation. You remain logged in.")
-                # Don't update last_session_check so we retry sooner (next rerun)
+    # NO PERIODIC VALIDATION
+    # Session remains valid until:
+    # 1. User explicitly logs out (voluntary)
+    # 2. Session expires on server (7-day inactivity, database enforces)
+    # 3. User clears browser data
+    # 
+    # Database connection errors will be handled per-query with proper error messages,
+    # but won't trigger automatic logout.
 
 
 # ========================================
