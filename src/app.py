@@ -843,7 +843,7 @@ def check_authentication():
     Check if user is authenticated. If not, show login page and stop.
     This runs at the start of every app load.
     
-    Session validation is done periodically (every 5 minutes) rather than on every
+    Session validation is done periodically (every 60 minutes) rather than on every
     rerun to prevent logout due to temporary database connection issues.
     """
     # Initialize session state
@@ -859,11 +859,11 @@ def check_authentication():
     if 'session_id' in st.session_state:
         import time
         
-        # Only validate every 5 minutes to reduce DB load and avoid logout on connection issues
+        # Only validate every 60 minutes to reduce DB load and avoid logout on connection issues
         last_check = st.session_state.get('last_session_check', 0)
         now = time.time()
         
-        if now - last_check > 300:  # 5 minutes = 300 seconds
+        if now - last_check > 3600:  # 60 minutes = 3600 seconds
             try:
                 # Get user agent for logging
                 try:
