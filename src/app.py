@@ -14,6 +14,23 @@ __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"
 
+def get_git_branch():
+    """Get current git branch name. Returns 'unknown' if not in git repo or error."""
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=2,
+            cwd=os.path.dirname(os.path.abspath(__file__))
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+        return "unknown"
+    except Exception:
+        return "unknown"
+
 # Language configuration
 LANGUAGE_CONFIG = {
     "Portuguese": {
@@ -620,6 +637,9 @@ def show_announcements(location: str):
 def show_login_page():
     """Display login/registration page."""
     st.markdown(f"# 🔐 Miolingo <small>{__version__}</small>", unsafe_allow_html=True)
+    branch = get_git_branch()
+    if branch != "unknown":
+        st.caption(f"🔀 Branch: `{branch}`")
     
     # Get language list from config
     languages = ", ".join(LANGUAGE_CONFIG.keys())
@@ -647,6 +667,84 @@ def show_login_page():
             st.session_state.material_language = selected_code
     except Exception:
         pass
+    
+    # ========================================
+    # DEBUG INFO EXPANDER - Track logout causes
+    # ========================================
+    with st.expander("🔍 Debug Info: Last Logout Details", expanded=False):
+        debug_info = st.session_state.get('logout_debug_info', {})
+        
+        if not debug_info:
+            st.info("ℹ️ No logout data yet. Information will appear here after first logout.")
+        else:
+            st.markdown("### Last Logout Information")
+            
+            # 1. Last logged in user
+            st.markdown(f"**👤 Last User:** `{debug_info.get('username', 'unknown')}`")
+            
+            # 2. Logout path information
+            st.markdown("**🚪 Logout Path:**")
+            logout_type = debug_info.get('logout_type', 'unknown')
+            if logout_type == 'voluntary':
+                st.success("✅ Voluntary logout (user clicked logout button)")
+            elif logout_type == 'forced':
+                st.error(f"❌ Forced logout - Reason: `{debug_info.get('forced_reason', 'unknown')}`")
+                st.caption(f"Message: {debug_info.get('forced_message', 'N/A')}")
+            elif logout_type == 'recovery_failed':
+                st.warning("⚠️ Session recovery failed (session_id invalid)")
+            else:
+                st.warning(f"⚠️ Unknown logout type: {logout_type}")
+            
+            # Code location
+            if 'code_location' in debug_info:
+                st.code(debug_info['code_location'], language='text')
+            
+            # Timestamp
+            if 'timestamp' in debug_info:
+                st.caption(f"🕐 Logged out at: {debug_info['timestamp']}")
+            
+            st.markdown("---")
+            
+            # 3. Last connection data (from debug_info snapshot)
+            st.markdown("**🔌 Last Connection Data (at logout):**")
+            last_conn = debug_info.get('last_connection', {})
+            if last_conn:
+                st.json(last_conn)
+            else:
+                st.caption("No connection data captured")
+            
+            st.markdown("---")
+            
+            # 4. Current connection data (if any)
+            st.markdown("**🔌 Current Connection Data:**")
+            try:
+                conn_info = app_mysql.get_current_connection_info()
+                if conn_info:
+                    st.json(conn_info)
+                else:
+                    st.caption("No active connection")
+            except Exception as e:
+                st.caption(f"Error getting connection info: {e}")
+            
+            st.markdown("---")
+            
+            # 5. Session state snapshot
+            st.markdown("**📊 Session State at Logout:**")
+            session_snapshot = debug_info.get('session_state_snapshot', {})
+            if session_snapshot:
+                st.json(session_snapshot)
+            else:
+                st.caption("No session snapshot captured")
+            
+            # Clear button
+            if st.button("Clear Debug Info", key="clear_logout_debug"):
+                if 'logout_debug_info' in st.session_state:
+                    del st.session_state['logout_debug_info']
+                st.rerun()
+    
+    # ========================================
+    # END DEBUG INFO
+    # ========================================
     
     # CRITICAL: Show forced logout reason if present (prominent display)
     # BUT: Don't show if this was a voluntary logout (user clicked logout button)
@@ -859,6 +957,9 @@ def check_authentication():
     
     See docs/dev-docs/AUTH_LOGOUT_ANALYSIS.md for full analysis.
     """
+    import traceback
+    from datetime import datetime
+    
     # Initialize session state
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
@@ -876,12 +977,53 @@ def check_authentication():
                 _ = app_mysql.get_connection()
                 # Don't show message, just silently recover
             else:
-                # Session truly expired/invalid - clear it
+                # Session truly expired/invalid - clear it and log
+                session_id = st.session_state.get('session_id', 'unknown')
+                username = st.session_state.get('user', {}).get('username', 'unknown')
+                
+                # Capture debug info
+                try:
+                    conn_info = app_mysql.get_current_connection_info()
+                except:
+                    conn_info = None
+                
+                st.session_state['logout_debug_info'] = {
+                    'username': username,
+                    'logout_type': 'recovery_failed',
+                    'forced_reason': 'session_invalid_in_database',
+                    'forced_message': 'Session recovery attempted but session_id not valid in database',
+                    'timestamp': datetime.now().isoformat(),
+                    'code_location': 'check_authentication() line ~948: validate_session() returned None',
+                    'last_connection': conn_info,
+                    'session_state_snapshot': {
+                        'had_session_id': True,
+                        'session_id': session_id[:20] + '...' if len(session_id) > 20 else session_id,
+                        'had_authenticated': False,
+                        'had_user': 'user' in st.session_state
+                    }
+                }
+                
                 if 'session_id' in st.session_state:
                     del st.session_state['session_id']
         except Exception as e:
             # Database error during recovery - show login but keep session_id for retry
-            pass
+            # Log the exception
+            username = st.session_state.get('user', {}).get('username', 'unknown')
+            
+            st.session_state['logout_debug_info'] = {
+                'username': username,
+                'logout_type': 'recovery_error',
+                'forced_reason': 'database_error_during_recovery',
+                'forced_message': f'Exception during session recovery: {str(e)}',
+                'timestamp': datetime.now().isoformat(),
+                'code_location': f'check_authentication() line ~970: Exception in validate_session()\n{traceback.format_exc()}',
+                'last_connection': None,
+                'session_state_snapshot': {
+                    'had_session_id': 'session_id' in st.session_state,
+                    'had_authenticated': False,
+                    'exception': str(e)
+                }
+            }
     
     # Check if authenticated
     if not st.session_state['authenticated']:
@@ -933,6 +1075,9 @@ except Exception:
 with st.sidebar:
     # Version at very top
     st.markdown(f"### 🎯 Miolingo v{__version__}")
+    branch = get_git_branch()
+    if branch != "unknown":
+        st.caption(f"🔀 Branch: `{branch}`")
     
     # Connection info panel (thin, below version)
     # Connection info panel - ALWAYS show (even if no connection)
@@ -1005,8 +1150,34 @@ with st.sidebar:
     # Logout button at bottom of this section
     if st.button("🚪 Logout"):
         # VOLUNTARY LOGOUT: User clicked the button
-        # Mark as voluntary BEFORE clearing, so login page doesn't show forced logout warning
-        voluntary_logout = True
+        from datetime import datetime
+        
+        # Capture debug info BEFORE clearing state
+        username = st.session_state.get('user', {}).get('username', 'unknown')
+        session_id = st.session_state.get('session_id', 'unknown')
+        
+        # Capture connection state
+        try:
+            conn_info = app_mysql.get_current_connection_info()
+        except:
+            conn_info = None
+        
+        # Store logout debug info
+        logout_debug_info = {
+            'username': username,
+            'logout_type': 'voluntary',
+            'forced_reason': None,
+            'forced_message': None,
+            'timestamp': datetime.now().isoformat(),
+            'code_location': 'Logout button handler (app.py line ~1128)',
+            'last_connection': conn_info,
+            'session_state_snapshot': {
+                'had_session_id': 'session_id' in st.session_state,
+                'session_id': session_id[:20] + '...' if len(str(session_id)) > 20 else str(session_id),
+                'had_authenticated': st.session_state.get('authenticated', False),
+                'had_user': 'user' in st.session_state
+            }
+        }
         
         # Delete session from database
         if 'session_id' in st.session_state:
@@ -1015,9 +1186,10 @@ with st.sidebar:
         # Cleanup session resources (connections, etc)
         app_mysql.cleanup_session_resources()
         
-        # Clear session state, but preserve voluntary logout marker
+        # Clear session state, but preserve debug info and voluntary logout marker
         st.session_state.clear()
         st.session_state['voluntary_logout'] = True  # Set AFTER clear
+        st.session_state['logout_debug_info'] = logout_debug_info  # Preserve debug info
         st.rerun()
 
 # ============================================================================
