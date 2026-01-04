@@ -659,9 +659,14 @@ def show_login_page():
             # If session_state has no logout debug info, restore from filesystem
             # This proves session_state was cleared but filesystem persisted
             if not st.session_state.get('logout_debug_info'):
-                st.session_state['logout_debug_info'] = fs_test_data.get('full_debug_info', {})
-                st.warning("⚠️ **SESSION STATE WAS RESET!** Debug info recovered from filesystem. "
-                          "This means st.session_state was cleared between logout and login page display.")
+                full_debug = fs_test_data.get('full_debug_info', {})
+                st.session_state['logout_debug_info'] = full_debug
+                logout_type = full_debug.get('logout_type', 'unknown')
+                logout_time = full_debug.get('timestamp', 'unknown')
+                st.error(f"⚠️ **SESSION STATE WAS RESET!** Debug info recovered from filesystem.\n\n"
+                        f"Logout type: `{logout_type}` | Time: {logout_time}\n\n"
+                        f"This means st.session_state was cleared between logout and login page display. "
+                        f"**If logout_type is wrong, this may be OLD data from a previous session!**")
             else:
                 st.info(f"📁 **Filesystem Persistence Test**: Data persists (session_state intact).")
     except Exception as e:
@@ -707,7 +712,19 @@ def show_login_page():
             
             # Timestamp - PROMINENT DISPLAY
             if 'timestamp' in debug_info:
-                st.markdown(f"### 🕐 {debug_info['timestamp']}")
+                logout_time_str = debug_info['timestamp']
+                st.markdown(f"### 🕐 {logout_time_str}")
+                
+                # Check if data is stale (more than 10 minutes old)
+                try:
+                    from datetime import datetime, timedelta
+                    logout_time = datetime.fromisoformat(logout_time_str)
+                    age = datetime.now() - logout_time
+                    if age > timedelta(minutes=10):
+                        st.warning(f"⚠️ **OLD DATA**: This logout happened {int(age.total_seconds()/60)} minutes ago. "
+                                  "May not reflect the most recent logout. Click 'Clear Debug Info' if stale.")
+                except Exception:
+                    pass
             
             # 1. Last logged in user
             st.markdown(f"**👤 Last User:** `{debug_info.get('username', 'unknown')}`")
@@ -766,6 +783,12 @@ def show_login_page():
             if st.button("Clear Debug Info", key="clear_logout_debug"):
                 if 'logout_debug_info' in st.session_state:
                     del st.session_state['logout_debug_info']
+                # Also delete the filesystem file
+                try:
+                    if os.path.exists(fs_test_file):
+                        os.remove(fs_test_file)
+                except Exception:
+                    pass
                 st.rerun()
     
     # ========================================
