@@ -642,21 +642,29 @@ def show_login_page():
         st.caption(f"🔀 Branch: `{branch}`")
     
     # ========================================
-    # FILESYSTEM PERSISTENCE TEST
+    # FILESYSTEM PERSISTENCE TEST & DEBUG INFO RECOVERY
     # Check if data persists across session resets
+    # If session_state['logout_debug_info'] is empty but filesystem has data,
+    # this proves st.session_state was cleared/reset
     # ========================================
     import json
     from datetime import datetime
     fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
+    fs_test_data = None
     try:
         if os.path.exists(fs_test_file):
             with open(fs_test_file, 'r') as f:
                 fs_test_data = json.load(f)
-            st.info(f"📁 **Filesystem Persistence Test**: Data from previous session found!\n\n"
-                   f"Last logout: {fs_test_data.get('logout_time')} | "
-                   f"User: {fs_test_data.get('username', 'unknown')} | "
-                   f"Type: {fs_test_data.get('logout_type', 'unknown')}")
-    except Exception:
+            
+            # If session_state has no logout debug info, restore from filesystem
+            # This proves session_state was cleared but filesystem persisted
+            if not st.session_state.get('logout_debug_info'):
+                st.session_state['logout_debug_info'] = fs_test_data.get('full_debug_info', {})
+                st.warning("⚠️ **SESSION STATE WAS RESET!** Debug info recovered from filesystem. "
+                          "This means st.session_state was cleared between logout and login page display.")
+            else:
+                st.info(f"📁 **Filesystem Persistence Test**: Data persists (session_state intact).")
+    except Exception as e:
         pass  # Silently ignore errors
     
     # Get language list from config
@@ -1022,17 +1030,18 @@ def check_authentication():
                     }
                 }
                 
-                # FILESYSTEM PERSISTENCE TEST: Write logout data to file
+                # FILESYSTEM PERSISTENCE TEST: Write complete debug data to file
                 try:
                     import json
                     fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
                     fs_test_data = {
                         'logout_time': logout_timestamp,
                         'username': username,
-                        'logout_type': 'recovery_failed'
+                        'logout_type': 'recovery_failed',
+                        'full_debug_info': st.session_state['logout_debug_info']  # Store complete debug info
                     }
                     with open(fs_test_file, 'w') as f:
-                        json.dump(fs_test_data, f)
+                        json.dump(fs_test_data, f, indent=2, default=str)
                 except Exception:
                     pass  # Don't fail logout if filesystem test fails
                 
@@ -1059,17 +1068,18 @@ def check_authentication():
                 }
             }
             
-            # FILESYSTEM PERSISTENCE TEST: Write logout data to file
+            # FILESYSTEM PERSISTENCE TEST: Write complete debug data to file
             try:
                 import json
                 fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
                 fs_test_data = {
                     'logout_time': logout_timestamp,
                     'username': username,
-                    'logout_type': 'recovery_error'
+                    'logout_type': 'recovery_error',
+                    'full_debug_info': st.session_state['logout_debug_info']  # Store complete debug info
                 }
                 with open(fs_test_file, 'w') as f:
-                    json.dump(fs_test_data, f)
+                    json.dump(fs_test_data, f, indent=2, default=str)
             except Exception:
                 pass  # Don't fail logout if filesystem test fails
     
@@ -1229,16 +1239,17 @@ with st.sidebar:
             }
         }
         
-        # FILESYSTEM PERSISTENCE TEST: Write logout data to file
+        # FILESYSTEM PERSISTENCE TEST: Write complete debug data to file
         try:
             fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
             fs_test_data = {
                 'logout_time': logout_timestamp,
                 'username': username,
-                'logout_type': 'voluntary'
+                'logout_type': 'voluntary',
+                'full_debug_info': logout_debug_info  # Store complete debug info
             }
             with open(fs_test_file, 'w') as f:
-                json.dump(fs_test_data, f)
+                json.dump(fs_test_data, f, indent=2, default=str)
         except Exception:
             pass  # Don't fail logout if filesystem test fails
         
