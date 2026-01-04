@@ -641,6 +641,24 @@ def show_login_page():
     if branch != "unknown":
         st.caption(f"🔀 Branch: `{branch}`")
     
+    # ========================================
+    # FILESYSTEM PERSISTENCE TEST
+    # Check if data persists across session resets
+    # ========================================
+    import json
+    from datetime import datetime
+    fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
+    try:
+        if os.path.exists(fs_test_file):
+            with open(fs_test_file, 'r') as f:
+                fs_test_data = json.load(f)
+            st.info(f"📁 **Filesystem Persistence Test**: Data from previous session found!\n\n"
+                   f"Last logout: {fs_test_data.get('logout_time')} | "
+                   f"User: {fs_test_data.get('username', 'unknown')} | "
+                   f"Type: {fs_test_data.get('logout_type', 'unknown')}")
+    except Exception:
+        pass  # Silently ignore errors
+    
     # Get language list from config
     languages = ", ".join(LANGUAGE_CONFIG.keys())
     st.markdown(f"Pronunciation trainer - practice {languages}")
@@ -679,6 +697,10 @@ def show_login_page():
         else:
             st.markdown("### Last Logout Information")
             
+            # Timestamp - PROMINENT DISPLAY
+            if 'timestamp' in debug_info:
+                st.markdown(f"### 🕐 {debug_info['timestamp']}")
+            
             # 1. Last logged in user
             st.markdown(f"**👤 Last User:** `{debug_info.get('username', 'unknown')}`")
             
@@ -698,10 +720,6 @@ def show_login_page():
             # Code location
             if 'code_location' in debug_info:
                 st.code(debug_info['code_location'], language='text')
-            
-            # Timestamp
-            if 'timestamp' in debug_info:
-                st.caption(f"🕐 Logged out at: {debug_info['timestamp']}")
             
             st.markdown("---")
             
@@ -980,6 +998,7 @@ def check_authentication():
                 # Session truly expired/invalid - clear it and log
                 session_id = st.session_state.get('session_id', 'unknown')
                 username = st.session_state.get('user', {}).get('username', 'unknown')
+                logout_timestamp = datetime.now().isoformat()
                 
                 # Capture debug info
                 try:
@@ -992,7 +1011,7 @@ def check_authentication():
                     'logout_type': 'recovery_failed',
                     'forced_reason': 'session_invalid_in_database',
                     'forced_message': 'Session recovery attempted but session_id not valid in database',
-                    'timestamp': datetime.now().isoformat(),
+                    'timestamp': logout_timestamp,
                     'code_location': 'check_authentication() line ~948: validate_session() returned None',
                     'last_connection': conn_info,
                     'session_state_snapshot': {
@@ -1003,19 +1022,34 @@ def check_authentication():
                     }
                 }
                 
+                # FILESYSTEM PERSISTENCE TEST: Write logout data to file
+                try:
+                    import json
+                    fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
+                    fs_test_data = {
+                        'logout_time': logout_timestamp,
+                        'username': username,
+                        'logout_type': 'recovery_failed'
+                    }
+                    with open(fs_test_file, 'w') as f:
+                        json.dump(fs_test_data, f)
+                except Exception:
+                    pass  # Don't fail logout if filesystem test fails
+                
                 if 'session_id' in st.session_state:
                     del st.session_state['session_id']
         except Exception as e:
             # Database error during recovery - show login but keep session_id for retry
             # Log the exception
             username = st.session_state.get('user', {}).get('username', 'unknown')
+            logout_timestamp = datetime.now().isoformat()
             
             st.session_state['logout_debug_info'] = {
                 'username': username,
                 'logout_type': 'recovery_error',
                 'forced_reason': 'database_error_during_recovery',
                 'forced_message': f'Exception during session recovery: {str(e)}',
-                'timestamp': datetime.now().isoformat(),
+                'timestamp': logout_timestamp,
                 'code_location': f'check_authentication() line ~970: Exception in validate_session()\n{traceback.format_exc()}',
                 'last_connection': None,
                 'session_state_snapshot': {
@@ -1024,6 +1058,20 @@ def check_authentication():
                     'exception': str(e)
                 }
             }
+            
+            # FILESYSTEM PERSISTENCE TEST: Write logout data to file
+            try:
+                import json
+                fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
+                fs_test_data = {
+                    'logout_time': logout_timestamp,
+                    'username': username,
+                    'logout_type': 'recovery_error'
+                }
+                with open(fs_test_file, 'w') as f:
+                    json.dump(fs_test_data, f)
+            except Exception:
+                pass  # Don't fail logout if filesystem test fails
     
     # Check if authenticated
     if not st.session_state['authenticated']:
@@ -1151,10 +1199,12 @@ with st.sidebar:
     if st.button("🚪 Logout"):
         # VOLUNTARY LOGOUT: User clicked the button
         from datetime import datetime
+        import json
         
         # Capture debug info BEFORE clearing state
         username = st.session_state.get('user', {}).get('username', 'unknown')
         session_id = st.session_state.get('session_id', 'unknown')
+        logout_timestamp = datetime.now().isoformat()
         
         # Capture connection state
         try:
@@ -1168,7 +1218,7 @@ with st.sidebar:
             'logout_type': 'voluntary',
             'forced_reason': None,
             'forced_message': None,
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': logout_timestamp,
             'code_location': 'Logout button handler (app.py line ~1128)',
             'last_connection': conn_info,
             'session_state_snapshot': {
@@ -1178,6 +1228,19 @@ with st.sidebar:
                 'had_user': 'user' in st.session_state
             }
         }
+        
+        # FILESYSTEM PERSISTENCE TEST: Write logout data to file
+        try:
+            fs_test_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_session_test.json')
+            fs_test_data = {
+                'logout_time': logout_timestamp,
+                'username': username,
+                'logout_type': 'voluntary'
+            }
+            with open(fs_test_file, 'w') as f:
+                json.dump(fs_test_data, f)
+        except Exception:
+            pass  # Don't fail logout if filesystem test fails
         
         # Delete session from database
         if 'session_id' in st.session_state:

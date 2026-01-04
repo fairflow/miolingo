@@ -4,10 +4,13 @@
 Comprehensive debug tracking system to identify the exact code path causing iOS 5-minute logout issue.
 
 ## Implementation Date
+
 2025-01-08
 
 ## Problem
+
 Users were being logged out after 5 minutes on iOS despite:
+
 - Increasing validation interval from 5 to 60 minutes
 - Removing periodic validation entirely
 - Adding session recovery logic
@@ -17,6 +20,7 @@ The logout is programmatic (some code sets `authenticated=False` or clears sessi
 ## Solution Architecture
 
 ### 1. Debug Info Storage
+
 All logout events store debug information in `st.session_state['logout_debug_info']` with this structure:
 
 ```python
@@ -35,22 +39,26 @@ All logout events store debug information in `st.session_state['logout_debug_inf
 ### 2. Instrumented Code Paths
 
 #### A. Voluntary Logout (User Clicks Button)
+
 **Location:** `app.py` line ~1128
 
 **Trigger:** User clicks "🚪 Logout" button
 
 **Debug Info Captured:**
+
 - `logout_type`: 'voluntary'
 - `code_location`: 'Logout button handler (app.py line ~1128)'
 - Connection state before cleanup
 - Session snapshot: had_session_id, session_id (truncated), had_authenticated, had_user
 
 #### B. Session Recovery Failed
+
 **Location:** `check_authentication()` line ~948
 
 **Trigger:** `validate_session()` returns None (session_id invalid in database)
 
 **Debug Info Captured:**
+
 - `logout_type`: 'recovery_failed'
 - `forced_reason`: 'session_invalid_in_database'
 - `forced_message`: 'Session recovery attempted but session_id not valid in database'
@@ -59,11 +67,13 @@ All logout events store debug information in `st.session_state['logout_debug_inf
 - Session snapshot: had_session_id, session_id (truncated), had_authenticated, had_user
 
 #### C. Session Recovery Error
+
 **Location:** `check_authentication()` line ~970
 
 **Trigger:** Exception during `validate_session()` call (database error, connection issue)
 
 **Debug Info Captured:**
+
 - `logout_type`: 'recovery_error'
 - `forced_reason`: 'database_error_during_recovery'
 - `forced_message`: Exception details
@@ -77,6 +87,7 @@ All logout events store debug information in `st.session_state['logout_debug_inf
 **UI Element:** Expandable section "🔍 Debug Info: Last Logout Details" (collapsed by default)
 
 **Display Sections:**
+
 1. **Last User**: Username of user who was logged out
 2. **Logout Path**: Type with color coding (✅ voluntary, ❌ forced, ⚠️ recovery_failed)
 3. **Code Location**: Exact function and line number in code block
@@ -89,6 +100,7 @@ All logout events store debug information in `st.session_state['logout_debug_inf
 ## Usage
 
 ### For Testing
+
 1. Login to app
 2. Trigger logout (click button or wait for timeout)
 3. After redirect to login page, expand "🔍 Debug Info" expander
