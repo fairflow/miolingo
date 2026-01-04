@@ -843,22 +843,45 @@ def check_authentication():
     Check if user is authenticated. If not, show login page and stop.
     This runs at the start of every app load.
     
-    SIMPLIFIED APPROACH: No periodic session validation.
-    - Trust browser session state (st.session_state['authenticated'])
-    - Session expiry is enforced by database (7-day sliding window)
-    - Only validate on initial login, then trust until user logs out
-    - If database connection fails, show error but don't force logout
+    ROBUST APPROACH WITH SESSION RECOVERY:
+    1. Check st.session_state['authenticated'] (in-memory, fast)
+    2. If not authenticated BUT session_id exists, attempt recovery
+    3. Recovery validates session_id against database
+    4. On successful recovery, restore authenticated state
     
-    Rationale: Periodic validation was causing false-positive logouts when:
-    - Database connections became stale during iOS tab suspension
-    - MySQL server-side timeouts (300s) closed idle connections
-    - Validation queries failed, triggering unnecessary logouts
+    This handles iOS tab suspension scenarios where:
+    - Browser websocket disconnects
+    - Streamlit creates new session on reconnect
+    - st.session_state might be cleared
+    - BUT session_id often persists (or can be stored in query param/cookie)
+    
+    No periodic validation - only validate when recovering from apparent logout.
     
     See docs/dev-docs/AUTH_LOGOUT_ANALYSIS.md for full analysis.
     """
     # Initialize session state
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
+    
+    # If not authenticated but we have a session_id, attempt recovery
+    if not st.session_state['authenticated'] and 'session_id' in st.session_state:
+        try:
+            # Attempt to recover session from database
+            user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
+            if user:
+                # Session is still valid in database - restore authenticated state
+                st.session_state['authenticated'] = True
+                st.session_state['user'] = user
+                # Re-establish connection
+                _ = app_mysql.get_connection()
+                # Don't show message, just silently recover
+            else:
+                # Session truly expired/invalid - clear it
+                if 'session_id' in st.session_state:
+                    del st.session_state['session_id']
+        except Exception as e:
+            # Database error during recovery - show login but keep session_id for retry
+            pass
     
     # Check if authenticated
     if not st.session_state['authenticated']:
@@ -870,9 +893,7 @@ def check_authentication():
     # 1. User explicitly logs out (voluntary)
     # 2. Session expires on server (7-day inactivity, database enforces)
     # 3. User clears browser data
-    # 
-    # Database connection errors will be handled per-query with proper error messages,
-    # but won't trigger automatic logout.
+    # 4. Recovery attempt fails (session truly invalid)
 
 
 # ========================================
