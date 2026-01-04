@@ -218,8 +218,67 @@ except ImportError as e:
     st.error(f"Error: {e}")
     st.error("Please activate the virtual environment and install dependencies")
     st.stop()
-finally:
-    _startup_notice.empty()
+
+# ============================================================================
+# PROCESS RESTART DETECTION & SESSION HEARTBEAT
+# Write heartbeat on every app load to detect if process was killed/restarted
+# ============================================================================
+def update_heartbeat():
+    """Write heartbeat file with current timestamp and session info."""
+    try:
+        from datetime import datetime
+        import json
+        heartbeat_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_heartbeat.json')
+        heartbeat_data = {
+            'last_heartbeat': datetime.now().isoformat(),
+            'process_pid': os.getpid(),
+            'session_id': st.session_state.get('session_id', 'none'),
+            'authenticated': st.session_state.get('authenticated', False),
+            'username': st.session_state.get('user', {}).get('username', 'none')
+        }
+        with open(heartbeat_file, 'w') as f:
+            json.dump(heartbeat_data, f, indent=2)
+    except Exception as e:
+        pass  # Don't fail app if heartbeat fails
+
+def check_for_restart():
+    """Check if app was restarted since last session."""
+    try:
+        from datetime import datetime, timedelta
+        import json
+        heartbeat_file = os.path.join(os.path.dirname(__file__), '..', '.miolingo_heartbeat.json')
+        
+        if os.path.exists(heartbeat_file):
+            with open(heartbeat_file, 'r') as f:
+                last_heartbeat = json.load(f)
+            
+            last_time = datetime.fromisoformat(last_heartbeat['last_heartbeat'])
+            time_gap = datetime.now() - last_time
+            
+            # If gap > 30 seconds, likely a restart
+            if time_gap > timedelta(seconds=30):
+                return {
+                    'restarted': True,
+                    'gap_seconds': int(time_gap.total_seconds()),
+                    'last_pid': last_heartbeat.get('process_pid'),
+                    'current_pid': os.getpid(),
+                    'last_session_id': last_heartbeat.get('session_id'),
+                    'last_username': last_heartbeat.get('username')
+                }
+    except Exception:
+        pass
+    return None
+
+# Check for restart BEFORE updating heartbeat
+restart_info = check_for_restart()
+update_heartbeat()
+
+# Store restart info in session_state for display on login page
+if restart_info:
+    st.session_state['app_restart_detected'] = restart_info
+
+# Clear startup notice
+_startup_notice.empty()
 
 # CCS Testing Framework (optional)
 try:
@@ -640,6 +699,25 @@ def show_login_page():
     branch = get_git_branch()
     if branch != "unknown":
         st.caption(f"🔀 Branch: `{branch}`")
+    
+    # ========================================
+    # PROCESS RESTART DETECTION
+    # Show if app was killed/restarted (explains why no logout code ran)
+    # ========================================
+    if 'app_restart_detected' in st.session_state:
+        restart_info = st.session_state['app_restart_detected']
+        gap_min = restart_info['gap_seconds'] / 60
+        st.error(f"🔄 **APP RESTART DETECTED!**\n\n"
+                f"Process was killed/restarted {gap_min:.1f} minutes ago.\n\n"
+                f"Last PID: {restart_info['last_pid']} → Current PID: {restart_info['current_pid']}\n\n"
+                f"Last user: `{restart_info['last_username']}` (session: `{restart_info['last_session_id'][:20]}...`)\n\n"
+                f"**This explains why no logout debug info exists - the process was terminated externally, "
+                f"not through our logout code paths. This could be:**\n"
+                f"- Streamlit auto-restart due to code changes\n"
+                f"- Memory limit causing kill\n"
+                f"- System/container restart\n"
+                f"- Manual process kill")
+        del st.session_state['app_restart_detected']
     
     # ========================================
     # FILESYSTEM PERSISTENCE TEST & DEBUG INFO RECOVERY
