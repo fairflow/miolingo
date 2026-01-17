@@ -1,5 +1,7 @@
 # Caminho do Meio
 
+## Paulo Dantão
+
 um trilho leva esse trem, 
 bem longe, alem do alem, 
 abelha faz zunzunzum, 
@@ -102,6 +104,7 @@ it's a foot on the brake.
 
 Almost incendiary,
 intermission,
+between bombardment.
 between bombardments.
 
 Half of the hourglass,
