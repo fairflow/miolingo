@@ -1,5 +1,7 @@
 # Caminho do Meio
 
+## Paulo Dantão
+
 um trilho leva esse trem, 
 bem longe, alem do alem, 
 abelha faz zunzunzum, 
@@ -96,3 +98,18 @@ far beyond, beyond the beyond.
 a bee goes a buzzing,
 om mani padme hum.
 
+It's this and that,
+it's not faltering,
+it's a foot on the brake.
+
+Almost incendiary,
+intermission,
+between bombardment.
+
+Half of the hourglass,
+like a butterfly,
+neither beautiful nor ugly.
+
+A track guides this train,
+far beyond, beyond the beyond,
+a bee buzzes, om mani padme hum.
