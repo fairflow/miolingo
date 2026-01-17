@@ -7,3 +7,11 @@ Farei o meu melhor em português,
 pois um conhecimento básico desta  
 bela língua é um desses presentes.
 
+Em primeiro lugar, agradeço a Exu,  
+Senhor da Comunicação, por este dom de 
+compreensão. Desejei desde a minha primeira
+cerimônia com Sonia Costa.  
+O coração de Sonia brilha intensamente  
+através de seu discurso claro, honesto e  
+direto.  Eu te saúdo e agradeço por  
+cada palavra.  
