@@ -105,6 +105,7 @@ it's a foot on the brake.
 Almost incendiary,
 intermission,
 between bombardment.
+between bombardments.
 
 Half of the hourglass,
 like a butterfly,
