@@ -21,7 +21,7 @@ que não tem passeio.
 
 é acima do umbigo,  
 é amar o inimigo,  
-é a paz que não treio.
+é a paz que não veio.
 
 escolha de vida,  
 opcão suicida,  
@@ -83,7 +83,7 @@ that has no sidewalk.
 
 It's above the navel,  
 it's loving the enemy,  
-it's the peace I don't train.
+it's the peace I cannot find.
 
 A choice of life,  
 a suicidal option,  
