@@ -28,4 +28,4 @@ Sea of ​​orchids and hibiscus. Sunflowers. Colors in the green. Sea of ​�
 
 I blend into the Caiçara roots and go for a stroll among the islands carved into the landscape. I keep swimming.
 
-Sea of ​​Paraty. The afternoon falls seductively. The sea darkens. Emerald green. The sky turns gray. A wind penetrates my shortness.
+Sea of ​​Paraty. The afternoon falls seductively. The sea darkens. Emerald green. The sky turns gray. A wind penetrates my fissures.
