@@ -18,7 +18,8 @@ Mar amigo, mar amante.
 Mar de sargentinhos  
 Disputando um farelo de pão,  
 Em mar de águas calmas, claras, transparentes.  
-Peixinhos coloridos, como as portas de Paraty,  
+Peixinhos coloridos,  
+como as portas de Paraty,  
 amarelos com listas pretas.  
 Sargentinhos machos que se tingem de anil,  
 à época da reprodução.  
