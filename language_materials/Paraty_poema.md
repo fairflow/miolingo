@@ -34,11 +34,22 @@ como o indígena que vive à beira-mar.
 Mar caipira, solícito, risonho, generoso  
 como os moradores do mar de montanhas.  
 
-Mar de matas de bromélias:  
+Mar de matas de bromélias: 
+Caruás, caraguatás, caraguás. 
 Mar de orquídeas e hibiscos.  
 Girassóis. Cores no verde.  
 Mar de Paraty.  
 
-Me misturo nas raízes caiçaras E saio para passear nas ilhas Recortadas no cenário. Sigo nadando.
+Me misturo nas raízes caiçaras  
+E saio para passear nas ilhas  
+Recortadas no cenário.  
+Sigo nadando.  
 
-Mar de Paraty. A tarde cai sedutoramente O mar escurece. Verde esmeralda. O céu fica acinzentado. Um vento penetra minhas faltas.
+Mar de Paraty.  
+A tarde cai sedutoramente  
+O mar escurece.  
+Verde esmeralda.  
+O céu fica acinzentado.  
+Um vento penetra minhas faltas.  
+
+
