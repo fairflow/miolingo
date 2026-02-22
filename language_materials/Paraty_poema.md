@@ -34,8 +34,8 @@ como o indígena que vive à beira-mar.
 Mar caipira, solícito, risonho, generoso  
 como os moradores do mar de montanhas.  
 
-Mar de matas de bromélias: 
-Caruás, caraguatás, caraguás. 
+Mar de matas de bromélias:  
+Caruás, caraguatás, caraguás.  
 Mar de orquídeas e hibiscos.  
 Girassóis. Cores no verde.  
 Mar de Paraty.  
@@ -52,4 +52,28 @@ Verde esmeralda.
 O céu fica acinzentado.  
 Um vento penetra minhas faltas.  
 
+Sigo em frente.  
+Sigo andando, caminhando,  
+Sonhando em Paraty.  
+Amando em Paraty.
+
+A noite chega em mansidão,  
+quase pede licença.  
+Paraty abre suas cortinas  
+para mais uma noite de música.  
+Som de intimidade, música brasileira  
+da melhor qualidade.  
+Acordes invadem suas ruas em curvas  
+sem fim, eterno recomeço.  
+Aromas, sabores, paladares,  
+rumores dos mistérios caiçaras  
+nas esculturas dos paulistas,  
+nas telas dos pintores.  
+
+Meia-noite.  
+Silencio.  
+Paraty vai dormir.  
+Amanhã Suaves, serenas e amigas  
+As águas regressarão  
+Ao mar de Paraty.
 
