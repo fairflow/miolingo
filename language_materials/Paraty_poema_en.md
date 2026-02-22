@@ -28,4 +28,14 @@ Sea of ​​orchids and hibiscus. Sunflowers. Colors in the green. Sea of ​�
 
 I blend into the Caiçara roots and go for a stroll among the islands carved into the landscape. I keep swimming.
 
-Sea of ​​Paraty. The afternoon falls seductively. The sea darkens. Emerald green. The sky turns gray. A wind penetrates my fissures.
+Sea of ​​Paraty. The afternoon falls seductively. The sea darkens. Emerald green. The sky turns gray. A wind penetrates my fissures.  
+
+I move forward. I keep walking, dreaming of Paraty. Loving in Paraty.
+
+Night arrives gently, almost asking permission.
+
+Paraty opens its curtains for another night of music. Sounds of intimacy, Brazilian music of the highest quality. Chords invade its streets in endless curves, an eternal new beginning. Aromas, flavors, tastes, whispers of the mysteries of the Caiçara people in the sculptures of the Paulistas, in the canvases of the painters.
+
+Midnight.
+
+Silence. Paraty goes to sleep. Tomorrow, gentle, serene and friendly, the waters will return to the sea of ​​Paraty.
