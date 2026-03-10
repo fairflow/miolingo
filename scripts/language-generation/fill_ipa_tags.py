@@ -164,8 +164,8 @@ def main():
         sys.exit(1)
     
     # Find espeak-ng executable (try local build first)
-    espeak_cmd = 'espeak-ng'
-    local_espeak = script_dir / 'src' / 'espeak-ng'
+    espeak_cmd = 'espeak'
+    local_espeak = script_dir / 'src' / 'espeak'
     if local_espeak.exists():
         espeak_cmd = str(local_espeak)
         print(f"🔧 Using local eSpeak NG: {local_espeak}")

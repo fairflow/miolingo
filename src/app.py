@@ -242,7 +242,7 @@ def update_heartbeat():
         pass  # Don't fail app if heartbeat fails
 
 def check_for_restart():
-    """Check if app was restarted since last session."""
+    """Check if app was restarted since last session (PID changed)."""
     try:
         from datetime import datetime, timedelta
         import json
@@ -252,16 +252,20 @@ def check_for_restart():
             with open(heartbeat_file, 'r') as f:
                 last_heartbeat = json.load(f)
             
-            last_time = datetime.fromisoformat(last_heartbeat['last_heartbeat'])
-            time_gap = datetime.now() - last_time
+            last_pid = last_heartbeat.get('process_pid')
+            current_pid = os.getpid()
             
-            # If gap > 30 seconds, likely a restart
-            if time_gap > timedelta(seconds=30):
+            # ONLY count as restart if PID changed
+            # Time gap alone doesn't mean restart (user could just be on login page)
+            if last_pid != current_pid:
+                last_time = datetime.fromisoformat(last_heartbeat['last_heartbeat'])
+                time_gap = datetime.now() - last_time
+                
                 return {
                     'restarted': True,
                     'gap_seconds': int(time_gap.total_seconds()),
-                    'last_pid': last_heartbeat.get('process_pid'),
-                    'current_pid': os.getpid(),
+                    'last_pid': last_pid,
+                    'current_pid': current_pid,
                     'last_session_id': last_heartbeat.get('session_id'),
                     'last_username': last_heartbeat.get('username')
                 }
