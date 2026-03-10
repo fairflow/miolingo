@@ -115,6 +115,19 @@ class SessionManager:
         # Lazy import to avoid circulars
         import app_mysql
 
+        def _log(event_type: str, message: str, **kwargs):
+            try:
+                app_mysql.write_debug_log(
+                    event_type=event_type,
+                    message=message,
+                    session_id=session_id,
+                    **kwargs,
+                )
+            except Exception:
+                pass
+
+        _log("session_reattach_attempt", "Attempting cookie-based session reattach")
+
         ip_address = "unknown"
         try:
             headers = st.context.headers
@@ -128,11 +141,20 @@ class SessionManager:
         try:
             user = app_mysql.validate_session(session_id, ip_address=ip_address)
         except Exception:
+            _log("session_reattach_error", "Validation raised exception")
             # Treat validation errors as non-attachable for now
             return SessionContext()
 
         if not user:
+            _log("session_reattach_failed", "Session invalid or expired")
             return SessionContext()
+
+        _log(
+            "session_reattach_success",
+            "Session reattached",
+            username=user.get("username"),
+            user_id=user.get("user_id"),
+        )
 
         return SessionContext(
             session_id=session_id,
