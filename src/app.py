@@ -179,7 +179,7 @@ import app_mysql
 # SessionManager (feature-flagged; no behavior change until enabled)
 from session_manager import SessionManager
 
-ENABLE_SESSION_MANAGER = False
+ENABLE_SESSION_MANAGER = True
 _session_manager = SessionManager() if ENABLE_SESSION_MANAGER else None
 
 # Import API usage logger for cost tracking
