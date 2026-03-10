@@ -176,6 +176,12 @@ import os
 # Import authentication module
 import app_mysql
 
+# SessionManager (feature-flagged; no behavior change until enabled)
+from session_manager import SessionManager
+
+ENABLE_SESSION_MANAGER = False
+_session_manager = SessionManager() if ENABLE_SESSION_MANAGER else None
+
 # Import API usage logger for cost tracking
 try:
     from api_usage_logger import log_api_call
