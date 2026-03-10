@@ -33,6 +33,7 @@ class SessionContext:
 
     session_id: Optional[str] = None
     username: Optional[str] = None
+    user: Optional[dict] = None
     authenticated: bool = False
 
 
@@ -105,12 +106,37 @@ class SessionManager:
 
     # -- Session re-attach (future) -----------------------------------------------
     def resolve_session(self) -> SessionContext:
-        """Attempt to resolve session from cookie + DB.
+        """Attempt to resolve session from cookie + DB."""
 
-        Phase 1 (future) will:
-        - read cookie
-        - validate session in DB
-        - restore st.session_state
-        """
+        session_id = self.read_cookie_session_id()
+        if not session_id:
+            return SessionContext()
 
-        return SessionContext()
+        # Lazy import to avoid circulars
+        import app_mysql
+
+        ip_address = "unknown"
+        try:
+            headers = st.context.headers
+            if headers:
+                xff = headers.get("X-Forwarded-For") or headers.get("x-forwarded-for")
+                if xff:
+                    ip_address = xff.split(",")[0].strip()
+        except Exception:
+            pass
+
+        try:
+            user = app_mysql.validate_session(session_id, ip_address=ip_address)
+        except Exception:
+            # Treat validation errors as non-attachable for now
+            return SessionContext()
+
+        if not user:
+            return SessionContext()
+
+        return SessionContext(
+            session_id=session_id,
+            username=user.get("username"),
+            user=user,
+            authenticated=True,
+        )

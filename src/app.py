@@ -728,6 +728,10 @@ def show_login_page():
                             st.session_state['authenticated'] = True
                             st.session_state['user'] = user
                             st.session_state['session_id'] = session_id
+
+                            # Persist cookie for re-attach (feature-flagged)
+                            if ENABLE_SESSION_MANAGER and _session_manager:
+                                _session_manager.write_cookie_session_id(session_id)
                             
                             # Get tracked connection from pool (replaces bootstrap)
                             tracked_conn = app_mysql.get_connection()
@@ -829,6 +833,10 @@ def show_login_page():
                 st.session_state['authenticated'] = True
                 st.session_state['user'] = guest_user
                 st.session_state['session_id'] = session_id
+
+                # Persist cookie for re-attach (feature-flagged)
+                if ENABLE_SESSION_MANAGER and _session_manager:
+                    _session_manager.write_cookie_session_id(session_id)
                 
                 # Get tracked connection from pool (replaces bootstrap)
                 tracked_conn = app_mysql.get_connection()
@@ -856,6 +864,16 @@ def check_authentication():
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
     
+    # Attempt cookie-based reattach (feature-flagged)
+    if ENABLE_SESSION_MANAGER and not st.session_state.get('authenticated', False):
+        if _session_manager:
+            context = _session_manager.resolve_session()
+            if context.authenticated and context.user:
+                st.session_state['authenticated'] = True
+                st.session_state['user'] = context.user
+                st.session_state['session_id'] = context.session_id
+                st.session_state.settings = load_settings()
+
     # Check if authenticated
     if not st.session_state['authenticated']:
         show_login_page()
@@ -897,6 +915,11 @@ def check_authentication():
                     st.session_state['forced_logout_reason'] = "session_invalid"
                     st.session_state['forced_logout_message'] = "⚠️ **Session Ended**: Your session is no longer valid. Please login again."
                     st.session_state['authenticated'] = False
+
+                    # Clear cookie on invalid session (feature-flagged)
+                    if ENABLE_SESSION_MANAGER and _session_manager:
+                        _session_manager.clear_cookie_session_id()
+
                     st.rerun()
                 else:
                     # Session valid - update check timestamp
@@ -1025,6 +1048,10 @@ with st.sidebar:
         # Delete session from database
         if 'session_id' in st.session_state:
             app_mysql.delete_session(st.session_state['session_id'])
+
+        # Clear cookie (feature-flagged)
+        if ENABLE_SESSION_MANAGER and _session_manager:
+            _session_manager.clear_cookie_session_id()
         
         # Cleanup session resources (connections, etc)
         app_mysql.cleanup_session_resources()
