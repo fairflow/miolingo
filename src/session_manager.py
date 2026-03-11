@@ -118,6 +118,14 @@ class SessionManager:
         if COOKIE_NAME in cookies:
             del cookies[COOKIE_NAME]
             cookies.save()
+            try:
+                import app_mysql
+                app_mysql.write_debug_log(
+                    event_type="cookie_session_cleared",
+                    message="Session cookie cleared",
+                )
+            except Exception:
+                pass
         return None
 
     def read_logged_out_flag(self) -> bool:
@@ -132,6 +140,14 @@ class SessionManager:
             return None
         cookies[LOGOUT_COOKIE_NAME] = "1"
         cookies.save()
+        try:
+            import app_mysql
+            app_mysql.write_debug_log(
+                event_type="cookie_logout_flag_set",
+                message="Logged-out flag set",
+            )
+        except Exception:
+            pass
         return None
 
     def clear_logged_out_flag(self) -> None:
@@ -141,6 +157,14 @@ class SessionManager:
         if LOGOUT_COOKIE_NAME in cookies:
             del cookies[LOGOUT_COOKIE_NAME]
             cookies.save()
+            try:
+                import app_mysql
+                app_mysql.write_debug_log(
+                    event_type="cookie_logout_flag_cleared",
+                    message="Logged-out flag cleared",
+                )
+            except Exception:
+                pass
         return None
 
     # -- Session re-attach (future) -----------------------------------------------
