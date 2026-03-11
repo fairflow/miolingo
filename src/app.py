@@ -731,6 +731,7 @@ def show_login_page():
 
                             # Persist cookie for re-attach (feature-flagged)
                             if ENABLE_SESSION_MANAGER and _session_manager:
+                                _session_manager.clear_logged_out_flag()
                                 _session_manager.write_cookie_session_id(session_id)
                             
                             # Get tracked connection from pool (replaces bootstrap)
@@ -836,6 +837,7 @@ def show_login_page():
 
                 # Persist cookie for re-attach (feature-flagged)
                 if ENABLE_SESSION_MANAGER and _session_manager:
+                    _session_manager.clear_logged_out_flag()
                     _session_manager.write_cookie_session_id(session_id)
                 
                 # Get tracked connection from pool (replaces bootstrap)
@@ -1049,8 +1051,9 @@ with st.sidebar:
         if 'session_id' in st.session_state:
             app_mysql.delete_session(st.session_state['session_id'])
 
-        # Clear cookie (feature-flagged)
+        # Clear cookie + set logged-out flag (feature-flagged)
         if ENABLE_SESSION_MANAGER and _session_manager:
+            _session_manager.set_logged_out_flag()
             _session_manager.clear_cookie_session_id()
         
         # Cleanup session resources (connections, etc)

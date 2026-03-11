@@ -20,6 +20,7 @@ import streamlit as st
 
 
 COOKIE_NAME = "miolingo_session"
+LOGOUT_COOKIE_NAME = "miolingo_logged_out"
 COOKIE_PREFIX = ""
 
 
@@ -119,9 +120,44 @@ class SessionManager:
             cookies.save()
         return None
 
+    def read_logged_out_flag(self) -> bool:
+        cookies = self._get_cookie_manager()
+        if not cookies:
+            return False
+        return cookies.get(LOGOUT_COOKIE_NAME) == "1"
+
+    def set_logged_out_flag(self) -> None:
+        cookies = self._get_cookie_manager()
+        if not cookies:
+            return None
+        cookies[LOGOUT_COOKIE_NAME] = "1"
+        cookies.save()
+        return None
+
+    def clear_logged_out_flag(self) -> None:
+        cookies = self._get_cookie_manager()
+        if not cookies:
+            return None
+        if LOGOUT_COOKIE_NAME in cookies:
+            del cookies[LOGOUT_COOKIE_NAME]
+            cookies.save()
+        return None
+
     # -- Session re-attach (future) -----------------------------------------------
     def resolve_session(self) -> SessionContext:
         """Attempt to resolve session from cookie + DB."""
+
+        if self.read_logged_out_flag():
+            # User explicitly logged out; do not auto-reattach
+            try:
+                import app_mysql
+                app_mysql.write_debug_log(
+                    event_type="session_reattach_skipped_logged_out",
+                    message="Logged-out flag set; skipping reattach",
+                )
+            except Exception:
+                pass
+            return SessionContext()
 
         session_id = self.read_cookie_session_id()
         if not session_id:
