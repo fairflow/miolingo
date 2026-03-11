@@ -1046,6 +1046,17 @@ with st.sidebar:
         # VOLUNTARY LOGOUT: User clicked the button
         # Mark as voluntary BEFORE clearing, so login page doesn't show forced logout warning
         voluntary_logout = True
+
+        try:
+            app_mysql.write_debug_log(
+                event_type="logout_button_clicked",
+                message="Logout button clicked",
+                username=st.session_state.get('user', {}).get('username'),
+                user_id=st.session_state.get('user', {}).get('user_id'),
+                session_id=st.session_state.get('session_id'),
+            )
+        except Exception:
+            pass
         
         # Delete session from database
         if 'session_id' in st.session_state:
