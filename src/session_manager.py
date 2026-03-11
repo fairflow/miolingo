@@ -20,7 +20,7 @@ import streamlit as st
 
 
 COOKIE_NAME = "miolingo_session"
-COOKIE_PREFIX = "miolingo/"
+COOKIE_PREFIX = ""
 
 
 @dataclass
@@ -95,6 +95,17 @@ class SessionManager:
             return None
         cookies[COOKIE_NAME] = session_id
         cookies.save()
+
+        try:
+            import app_mysql
+            app_mysql.write_debug_log(
+                event_type="cookie_write_success",
+                message="Session cookie written",
+                session_id=session_id,
+            )
+        except Exception:
+            pass
+
         return None
 
     def clear_cookie_session_id(self) -> None:
