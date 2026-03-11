@@ -61,6 +61,14 @@ class SessionManager:
             from streamlit_cookies_manager import EncryptedCookieManager
         except ImportError:
             st.warning("Cookie manager not installed (streamlit-cookies-manager)")
+            try:
+                import app_mysql
+                app_mysql.write_debug_log(
+                    event_type="cookie_manager_missing",
+                    message="streamlit-cookies-manager not installed",
+                )
+            except Exception:
+                pass
             return None
 
         password = (
@@ -70,14 +78,34 @@ class SessionManager:
         )
         if not password:
             st.warning("Missing cookie_password in st.secrets")
+            try:
+                import app_mysql
+                app_mysql.write_debug_log(
+                    event_type="cookie_password_missing",
+                    message="cookie_password missing in st.secrets",
+                )
+            except Exception:
+                pass
             return None
 
         cookies = EncryptedCookieManager(prefix=COOKIE_PREFIX, password=password)
         if not cookies.ready():
+            try:
+                import app_mysql
+                app_mysql.write_debug_log(
+                    event_type="cookie_manager_not_ready",
+                    message="EncryptedCookieManager not ready (awaiting rerun)",
+                )
+            except Exception:
+                pass
             st.stop()
 
         self._cookies = cookies
         return self._cookies
+
+    def ensure_cookie_manager_ready(self):
+        """Force cookie manager init early (may trigger a rerun)."""
+        return self._get_cookie_manager()
 
     # -- Cookie handling ----------------------------------------------------------
     def read_cookie_session_id(self) -> Optional[str]:

@@ -181,6 +181,8 @@ from session_manager import SessionManager
 
 ENABLE_SESSION_MANAGER = True
 _session_manager = SessionManager() if ENABLE_SESSION_MANAGER else None
+if ENABLE_SESSION_MANAGER and _session_manager:
+    _session_manager.ensure_cookie_manager_ready()
 
 # Import API usage logger for cost tracking
 try:
