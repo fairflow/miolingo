@@ -62,7 +62,11 @@ class SessionManager:
             st.warning("Cookie manager not installed (streamlit-cookies-manager)")
             return None
 
-        password = self._cookie_password or st.secrets.get("cookie_password")
+        password = (
+            self._cookie_password
+            or st.secrets.get("cookie_password")
+            or st.secrets.get("auth", {}).get("cookie_password")
+        )
         if not password:
             st.warning("Missing cookie_password in st.secrets")
             return None
