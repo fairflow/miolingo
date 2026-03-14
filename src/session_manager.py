@@ -57,6 +57,10 @@ class SessionManager:
         if self._cookies is not None:
             return self._cookies
 
+        if "cookie_manager" in st.session_state:
+            self._cookies = st.session_state["cookie_manager"]
+            return self._cookies
+
         try:
             from streamlit_cookies_manager import EncryptedCookieManager
         except ImportError:
@@ -101,6 +105,7 @@ class SessionManager:
             st.stop()
 
         self._cookies = cookies
+        st.session_state["cookie_manager"] = cookies
         return self._cookies
 
     def ensure_cookie_manager_ready(self):
