@@ -291,19 +291,33 @@ def save_settings(settings: Dict):
 # MATERIAL ENRICHMENT (LLM Translations + IPA Generation)
 # ============================================================================
 
-def validate_translation_api_key() -> tuple[bool, str]:
-    """
-    Validate Google Translate API key from Streamlit secrets or env.
+def get_translation_provider() -> str:
+    return (
+        st.secrets.get("translation_provider")
+        or os.environ.get("TRANSLATION_PROVIDER")
+        or "google"
+    ).lower()
 
-    Returns:
-        Tuple of (is_valid, api_key_or_error_message)
-        - If valid: (True, actual_api_key)
-        - If invalid: (False, error_message)
+
+def validate_translation_api_key(provider: str) -> tuple[bool, str]:
     """
-    api_key = st.secrets.get("google_cloud_translate_api_key") or os.environ.get("GOOGLE_TRANSLATE_API_KEY")
-    if not api_key or api_key == "your-google-translate-api-key-here":
-        return False, "Valid Google Translate API key required for translations. Please configure google_cloud_translate_api_key in secrets.toml or set GOOGLE_TRANSLATE_API_KEY."
-    return True, api_key
+    Validate translation API key for the selected provider.
+    """
+    provider = (provider or "google").lower()
+
+    if provider == "google":
+        api_key = st.secrets.get("google_cloud_translate_api_key") or os.environ.get("GOOGLE_TRANSLATE_API_KEY")
+        if not api_key or api_key == "your-google-translate-api-key-here":
+            return False, "Valid Google Translate API key required. Configure google_cloud_translate_api_key in secrets.toml or set GOOGLE_TRANSLATE_API_KEY."
+        return True, api_key
+
+    if provider == "openai":
+        api_key = st.secrets.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
+        if not api_key or api_key == "your-openai-api-key-here":
+            return False, "Valid OpenAI API key required. Configure openai_api_key in secrets.toml or set OPENAI_API_KEY."
+        return True, api_key
+
+    return False, f"Unknown translation provider: {provider}"
 
 
 def get_ipa_from_espeak(text: str, lang_code: str) -> str:
@@ -354,14 +368,14 @@ def get_translation_from_llm(text: str, source_lang: str, target_lang: str = "En
     Get translation using a pluggable provider (default: Google Translate).
     """
     try:
+        provider = get_translation_provider()
+
         # Validate API key
-        is_valid, api_key_or_error = validate_translation_api_key()
+        is_valid, api_key_or_error = validate_translation_api_key(provider)
         if not is_valid:
             return f"[error: {api_key_or_error}]"
 
         from translation_providers import get_translator
-
-        provider = "google"
 
         # Cache lookup
         cached = app_mysql.get_translation_cache(
@@ -389,14 +403,24 @@ def get_translation_from_llm(text: str, source_lang: str, target_lang: str = "En
 
         # Log API usage for cost tracking
         try:
-            log_api_call(
-                api_name=provider,
-                model='google-translate',
-                operation='translation',
-                input_tokens=0,
-                output_tokens=0,
-                metadata={'source_lang': source_lang, 'target_lang': target_lang}
-            )
+            if provider == "openai" and getattr(result.raw, "usage", None):
+                log_api_call(
+                    api_name='openai',
+                    model=getattr(result.raw, "model", "gpt-4o-mini"),
+                    operation='translation',
+                    input_tokens=result.raw.usage.prompt_tokens,
+                    output_tokens=result.raw.usage.completion_tokens,
+                    metadata={'source_lang': source_lang, 'target_lang': target_lang}
+                )
+            else:
+                log_api_call(
+                    api_name=provider,
+                    model='google-translate',
+                    operation='translation',
+                    input_tokens=0,
+                    output_tokens=0,
+                    metadata={'source_lang': source_lang, 'target_lang': target_lang}
+                )
         except Exception:
             pass
 
@@ -426,9 +450,11 @@ def enrich_material_file(
     Returns:
         Dict with keys: success (bool), message (str), stats (dict)
     """
+    provider = get_translation_provider()
+
     if add_translations:
         # Validate API key before proceeding
-        is_valid, error_message = validate_translation_api_key()
+        is_valid, error_message = validate_translation_api_key(provider)
         if not is_valid:
             return {
                 'success': False,

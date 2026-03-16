@@ -66,8 +66,42 @@ class GoogleTranslator(TranslationProvider):
         )
 
 
+class OpenAITranslator(TranslationProvider):
+    name = "openai"
+
+    def __init__(self, api_key: str, model: str = "gpt-4o-mini"):
+        self.api_key = api_key
+        self.model = model
+
+    def translate(self, text: str, source_lang: str, target_lang: str) -> TranslationResult:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=self.api_key)
+        prompt = f"Translate this {source_lang} text to {target_lang}. Only return the translation, nothing else:\n\n{text}"
+
+        response = client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": f"You are a professional translator. Translate {source_lang} to {target_lang} accurately and naturally."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.3,
+            max_tokens=200,
+        )
+
+        translation = response.choices[0].message.content.strip()
+
+        return TranslationResult(
+            translated_text=translation,
+            provider=self.name,
+            raw=response,
+        )
+
+
 def get_translator(provider: str, api_key: str) -> TranslationProvider:
     provider = (provider or "google").lower()
     if provider == "google":
         return GoogleTranslator(api_key=api_key)
+    if provider == "openai":
+        return OpenAITranslator(api_key=api_key)
     raise ValueError(f"Unknown translation provider: {provider}")
