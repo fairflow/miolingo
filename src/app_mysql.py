@@ -32,6 +32,7 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any, Tuple
 import json
+import hashlib
 from sshtunnel import SSHTunnelForwarder
 from pathlib import Path
 import atexit
@@ -1192,6 +1193,109 @@ def delete_user_setting(user_id: int, key: str) -> bool:
         st.error(f"❌ Failed to delete setting: {e}")
         return False
     
+
+# ============================================================================
+# TRANSLATION CACHE
+# ============================================================================
+
+def _normalize_translation_text(text: str) -> str:
+    return " ".join(text.strip().lower().split())
+
+
+def _translation_hash(text: str) -> str:
+    normalized = _normalize_translation_text(text)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def ensure_translation_cache_table():
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS translation_cache (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                provider VARCHAR(32) NOT NULL,
+                source_lang VARCHAR(16) NOT NULL,
+                target_lang VARCHAR(16) NOT NULL,
+                source_text_hash CHAR(64) NOT NULL,
+                source_text TEXT NOT NULL,
+                translated_text TEXT NOT NULL,
+                detected_source VARCHAR(16),
+                confidence FLOAT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY uniq_translation (provider, source_lang, target_lang, source_text_hash)
+            )
+            """
+        )
+        conn.commit()
+    except Exception as e:
+        logging.error(f"Failed to ensure translation_cache table: {e}")
+
+
+def get_translation_cache(source_lang: str, target_lang: str, source_text: str, provider: str) -> Optional[Dict]:
+    try:
+        ensure_translation_cache_table()
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        source_hash = _translation_hash(source_text)
+        cursor.execute(
+            """
+            SELECT translated_text, detected_source, confidence
+            FROM translation_cache
+            WHERE provider = %s AND source_lang = %s AND target_lang = %s AND source_text_hash = %s
+            """,
+            (provider, source_lang, target_lang, source_hash),
+        )
+        row = cursor.fetchone()
+        return row
+    except Exception as e:
+        logging.error(f"Failed to read translation cache: {e}")
+        return None
+
+
+def set_translation_cache(
+    source_lang: str,
+    target_lang: str,
+    source_text: str,
+    translated_text: str,
+    provider: str,
+    detected_source: Optional[str] = None,
+    confidence: Optional[float] = None,
+):
+    try:
+        ensure_translation_cache_table()
+        conn = get_connection()
+        cursor = conn.cursor()
+        source_hash = _translation_hash(source_text)
+        cursor.execute(
+            """
+            INSERT INTO translation_cache
+                (provider, source_lang, target_lang, source_text_hash, source_text, translated_text, detected_source, confidence)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                translated_text = VALUES(translated_text),
+                detected_source = VALUES(detected_source),
+                confidence = VALUES(confidence),
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (
+                provider,
+                source_lang,
+                target_lang,
+                source_hash,
+                source_text,
+                translated_text,
+                detected_source,
+                confidence,
+            ),
+        )
+        conn.commit()
+    except Exception as e:
+        logging.error(f"Failed to write translation cache: {e}")
+
 
 # ============================================================================
 # DEBUG LOGGING (Admin troubleshooting)
