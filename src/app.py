@@ -299,6 +299,21 @@ def get_translation_provider() -> str:
     ).lower()
 
 
+def get_language_code(language_name: str) -> str:
+    if language_name.lower() == "english":
+        return "en"
+    if language_name in LANGUAGE_CONFIG:
+        return LANGUAGE_CONFIG[language_name].get("code", language_name.lower())
+    return language_name.lower()
+
+
+def get_language_for_provider(provider: str, language_name: str) -> str:
+    # Google expects language codes; OpenAI can use full names
+    if provider == "google":
+        return get_language_code(language_name)
+    return language_name
+
+
 def validate_translation_api_key(provider: str) -> tuple[bool, str]:
     """
     Validate translation API key for the selected provider.
@@ -377,10 +392,13 @@ def get_translation_from_llm(text: str, source_lang: str, target_lang: str = "En
 
         from translation_providers import get_translator
 
+        source_lang_for_provider = get_language_for_provider(provider, source_lang)
+        target_lang_for_provider = get_language_for_provider(provider, target_lang)
+
         # Cache lookup
         cached = app_mysql.get_translation_cache(
-            source_lang=source_lang,
-            target_lang=target_lang,
+            source_lang=source_lang_for_provider,
+            target_lang=target_lang_for_provider,
             source_text=text,
             provider=provider,
         )
@@ -388,12 +406,12 @@ def get_translation_from_llm(text: str, source_lang: str, target_lang: str = "En
             return cached["translated_text"]
 
         translator = get_translator(provider, api_key=api_key_or_error)
-        result = translator.translate(text, source_lang, target_lang)
+        result = translator.translate(text, source_lang_for_provider, target_lang_for_provider)
 
         # Cache store
         app_mysql.set_translation_cache(
-            source_lang=source_lang,
-            target_lang=target_lang,
+            source_lang=source_lang_for_provider,
+            target_lang=target_lang_for_provider,
             source_text=text,
             translated_text=result.translated_text,
             provider=provider,
@@ -1169,6 +1187,14 @@ def initialize_session_state():
     # Initialize language - will be set correctly in main() based on material_language
     if 'language' not in st.session_state:
         st.session_state.language = 'French'  # Safe default
+
+    # Two-way language settings
+    if 'source_language' not in st.session_state:
+        st.session_state.source_language = 'English'
+    if 'target_language' not in st.session_state:
+        st.session_state.target_language = st.session_state.language
+    if 'translation_direction' not in st.session_state:
+        st.session_state.translation_direction = 'source_to_target'
 
     # Initialize Quick Practice phrase position (app state, persists across tabs)
     # This is separate from widget state to avoid dual-management conflicts
@@ -2722,7 +2748,8 @@ def render_scene_by_scene(scenes_dir, lang_code):
         # Display options
         col1, col2 = st.columns([3, 1])
         with col1:
-            show_translations = st.checkbox("Show English translations", value=False)
+            source_lang = st.session_state.source_language
+            show_translations = st.checkbox(f"Show {source_lang} translations", value=False)
         with col2:
             show_ipa = st.checkbox("Show IPA", value=False)
 
@@ -2732,15 +2759,22 @@ def render_scene_by_scene(scenes_dir, lang_code):
         for i, phrase in enumerate(phrases, 1):
             # Get text in the target language (french, pt, etc.)
             target_text = phrase.get(lang_key, '')
-            english_text = phrase.get('english', '[Translation missing]')
+            source_lang = st.session_state.source_language
+            target_lang = st.session_state.target_language
+
+            if source_lang == "English":
+                translation_text = phrase.get('english', '[Translation missing]')
+            else:
+                translation_text = get_translation_from_llm(target_text, target_lang, source_lang)
+
             ipa_text = phrase.get('ipa', '')
 
             # Target language text (always shown)
             st.markdown(f"**{i}.** {target_text}")
 
-            # Optional: English translation
-            if show_translations:
-                st.markdown(f"   *{english_text}*")
+            # Optional: Source-language translation
+            if show_translations and translation_text and not translation_text.startswith('[error'):
+                st.markdown(f"   *{translation_text}*")
 
             # Optional: IPA
             if show_ipa and ipa_text:
@@ -2857,35 +2891,69 @@ def main():
         st.markdown("---")
         st.header("⚙️ Settings")
 
-        # Material Language selection (already initialized above)
-        st.markdown("**🌍 Language**")
+        # Source/Target Language selection
+        st.markdown("**🌍 Languages**")
 
         available_materials = get_available_languages()
         if available_materials:
+            # Source language (default English)
+            source_options = ["English"] + available_materials
+            if st.session_state.get('source_language') not in source_options:
+                st.session_state.source_language = "English"
+
+            st.selectbox(
+                "Source Language",
+                source_options,
+                format_func=format_language_name,
+                help="Language the learner is most comfortable with",
+                key="source_language"
+            )
+
+            # Target language (drives materials + IPA)
             # Find current index from saved settings or existing session state
             current_idx = 0
             if 'material_language' in st.session_state:
                 try:
                     current_idx = available_materials.index(st.session_state.material_language)
                 except ValueError:
-                    pass  # Invalid value, use default
+                    pass
             elif 'material_language' in st.session_state.settings:
-                # First time - use saved language as default
                 try:
                     current_idx = available_materials.index(st.session_state.settings['material_language'])
                 except ValueError:
-                    pass  # Invalid value, use default
+                    pass
 
-            # Save previous value (use .get() to avoid AttributeError on first run)
             previous_material_language = st.session_state.get('material_language', None)
             st.selectbox(
-                "Language",
+                "Target Language",
                 available_materials,
                 index=current_idx,
                 format_func=format_language_name,
-                help="Language of practice materials and stories to display",
-                key="material_language"  # Widget automatically updates st.session_state.material_language
+                help="Language being learned (IPA + practice target)",
+                key="material_language"
             )
+
+            # Sync target language
+            st.session_state.target_language = st.session_state.material_language
+
+            # Prevent source == target
+            if st.session_state.source_language == st.session_state.target_language:
+                st.warning("Source and target must be different. Source reset to English.")
+                st.session_state.source_language = "English"
+
+            # Translation direction toggle
+            direction = st.session_state.get('translation_direction', 'source_to_target')
+            if st.button("⇄ Switch translation direction"):
+                st.session_state.translation_direction = (
+                    'target_to_source' if direction == 'source_to_target' else 'source_to_target'
+                )
+                st.rerun()
+
+            # Direction label
+            if st.session_state.translation_direction == 'source_to_target':
+                st.caption(f"Direction: {st.session_state.source_language} → {st.session_state.target_language}")
+            else:
+                st.caption(f"Direction: {st.session_state.target_language} → {st.session_state.source_language}")
 
             # Derive training language from material language
             if st.session_state.material_language in material_to_training:
@@ -3788,12 +3856,21 @@ def main():
                     st.rerun()
             else:
                 # Show translation/IPA if available (above phrase for mobile visibility)
-                if phrase_translation or phrase_ipa:
+                source_lang = st.session_state.source_language
+                target_lang = st.session_state.target_language
+
+                translation_text = None
+                if source_lang == "English" and phrase_translation:
+                    translation_text = phrase_translation
+                elif source_lang != target_lang:
+                    translation_text = get_translation_from_llm(current_phrase, target_lang, source_lang)
+
+                if translation_text or phrase_ipa:
                     with st.expander("📖 Translation & Reference", expanded=False):
-                        if phrase_translation:
-                            st.markdown(f"**🇬🇧 English:** {phrase_translation}")
+                        if translation_text and not translation_text.startswith('[error'):
+                            st.markdown(f"**{source_lang}:** {translation_text}")
                         if phrase_ipa:
-                            st.markdown(f"**📚 Reference IPA:** {format_ipa(phrase_ipa)}", unsafe_allow_html=True)
+                            st.markdown(f"**📚 Reference IPA ({target_lang}):** {format_ipa(phrase_ipa)}", unsafe_allow_html=True)
                             st.caption("Compare with eSpeak IPA generated below")
 
                 # Display phrase - mobile-friendly with emoji inline
@@ -3820,8 +3897,38 @@ def main():
             st.markdown("---")
             text = st.text_input("Enter word or phrase:", key="practice_text_free")
 
+        # Translation-aware practice text
+        source_lang = st.session_state.source_language
+        target_lang = st.session_state.target_language
+        direction = st.session_state.translation_direction
+
+        translated_text = None
+        practice_text = text
+
+        if text:
+            if direction == 'source_to_target':
+                translated_text = get_translation_from_llm(text, source_lang, target_lang)
+                if translated_text and not translated_text.startswith('[error'):
+                    practice_text = translated_text
+            else:
+                translated_text = get_translation_from_llm(text, target_lang, source_lang)
+
+        # Show translation + IPA reference for free text
+        if text and translated_text and not translated_text.startswith('[error'):
+            with st.expander("📖 Translation & Reference", expanded=False):
+                if direction == 'source_to_target':
+                    st.markdown(f"**{source_lang}:** {text}")
+                    st.markdown(f"**{target_lang}:** {translated_text}")
+                else:
+                    st.markdown(f"**{target_lang}:** {text}")
+                    st.markdown(f"**{source_lang}:** {translated_text}")
+
+                ipa = get_ipa_from_espeak(practice_text, get_language_code(target_lang))
+                if ipa and not ipa.startswith('[error'):
+                    st.markdown(f"**📚 Reference IPA ({target_lang}):** {format_ipa(ipa)}", unsafe_allow_html=True)
+
         # Use reusable practice interface with quick practice key prefix
-        render_practice_interface(text, key_prefix="quick")
+        render_practice_interface(practice_text, key_prefix="quick")
 
         # Show last result using reusable component
         if st.session_state.get('quick_last_result'):
