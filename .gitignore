@@ -264,6 +264,7 @@ app-docs/mega_chat.md
 .streamlit_*.log
 .cloudflared_*.pid
 .cloudflared_*.log
+.miolingo_heartbeat.json
 language_materials/*/.DS_Store
 language_materials/fr/phrases-original/
 .streamlit/secrets.toml
