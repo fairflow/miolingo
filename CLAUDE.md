@@ -1,5 +1,17 @@
 # Miolingo — Claude Code Instructions
 
+## Python Environment
+
+**Always activate the project virtual environment before running any Python, pip, or related command.**
+
+The venv holds all installed packages — running outside it means those packages are invisible to Python, regardless of which binary you invoke.
+
+- Look for `venv/` or `.venv/` at the project root (check both)
+- Activate with `source venv/bin/activate` or `source .venv/bin/activate` before running anything
+- If neither exists, **stop and ask the user for help** — do not attempt to recreate it
+
+---
+
 ## Project Overview
 Streamlit pronunciation trainer for Portuguese, French, Dutch, Flemish and other languages.
 - **Main app:** `src/app.py` (~4000 lines), runs at `localhost:8501`
@@ -72,8 +84,10 @@ Include at the top of the report:
 ### Depth
 Cover **all** of the following before writing up:
 - Every tab: Quick Practice, Story Reader, Statistics, History
-- Sidebar: language settings, TTS engine, slow speech, Connection Info
+- Sidebar: language settings, TTS engine, slow speech, Scoring Algorithm, Audio Processing, CCS Testing, Connection Info
 - Within each tab: every expander, every sub-mode, at least one complete primary action
+
+**Widget State Rule:** For every interactive widget encountered (toggle, checkbox, radio button, dropdown, selector), test **all** states — not just the default. Binary widgets: test both on and off. Multi-value selectors: test at least one non-default value. An untested state is an untested feature. This is the browser-test equivalent of ISTQB State Transition Testing, and is what the CCS framework's port matching is built to catch.
 
 ### Interleaving
 Claude may (and should) pause to ask the user to log in, record audio, or perform any action requiring human input. This is expected and collaborative — not an error.

@@ -5,6 +5,19 @@ Cover every section before writing the report. Tick items off as you go.
 
 ---
 
+## Widget State Testing Rule
+
+> For any interactive element with multiple states (toggle, checkbox, radio button, dropdown, selector), test **ALL** states — not just the default.
+>
+> - **Binary widgets** (on/off, enabled/disabled, checked/unchecked): test both states in every session
+> - **Multi-value selectors** (dropdowns, radio groups): test at least 2 distinct values, including one non-default
+> - **Why this matters:** an untested state is an untested feature. The CCS framework's port-matching is designed to catch exactly this — but only if the widget is actually clicked.
+> - **Grounding:** ISTQB State Transition Testing (Foundation Level, chapter 4); Milner's CCS port matching (already in this project)
+>
+> *Known miss from v7.1.3 testing:* CCS Testing toggle (enabled/disabled) was never clicked.
+
+---
+
 ## Pre-test
 - [ ] Note app version (sidebar title, e.g. "Miolingo v7.1.3")
 - [ ] Note active TTS engine (sidebar: Text-to-Speech Engine)
@@ -103,11 +116,32 @@ Cover every section before writing the report. Tick items off as you go.
 ### Language settings
 - [ ] Change **Source Language** → confirm the UI updates
 - [ ] Change **Target Language** → confirm the tab heading, TTS, and materials update
-- [ ] Click **Switch translation direction** → Source and Target swap; direction label updates
+- [ ] Click **Switch translation direction** → Source and Target values swap AND direction label updates
+- [ ] Click **Switch translation direction** again → returns to original direction (round-trip test)
 
 ### TTS settings
 - [ ] Change TTS Engine (if multiple options available) → confirm new audio is generated with changed voice
-- [ ] Toggle Slow speech on/off → audio duration changes
+- [ ] Toggle Slow speech **on** → audio duration increases
+- [ ] Toggle Slow speech **off** → audio duration returns to normal
+
+### Scoring Algorithm
+- [ ] Open Scoring Algorithm dropdown → confirm options are visible (e.g. edit_distance)
+- [ ] Select a non-default algorithm if available → note for comparison; revert after
+
+### Audio Processing
+- [ ] Confirm Silence Trim Threshold slider is present and draggable
+- [ ] Toggle **Use WAV audio format** on → confirm no error
+- [ ] Toggle **Use WAV audio format** off → confirm no error (round-trip)
+- [ ] Click **Save Settings** → confirm no error displayed
+
+### CCS Testing (dev panel)
+- [ ] Scroll to bottom of sidebar — confirm 🧪 CCS Testing section is present
+- [ ] Click to **enable** CCS Testing → confirm validation controls appear in sidebar (Current State, port matching display)
+- [ ] Verify "Current State" display shows Mode, Visible Elements, Capabilities
+- [ ] Click **✅ Matches** → confirm it registers
+- [ ] Click **❌ Mismatch** → confirm notes field appears and accepts text
+- [ ] Click to **disable** CCS Testing → confirm validation controls disappear
+- [ ] Confirm normal app functionality is unaffected after disabling
 
 ---
 
