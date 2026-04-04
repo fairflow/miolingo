@@ -1,63 +1,19 @@
 """
-Tests for scoring/comparison functions extracted from app.py.
+Tests for scoring/comparison and phoneme functions.
 
-These are pure functions with no Streamlit or database dependencies,
-making them safe to test in isolation.
+Now imports from the extracted modules directly.
 """
 
 import sys
 from pathlib import Path
 
-# Import the functions directly from app.py
-# Once the refactor extracts these into scoring/, update the imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# We can't import app.py directly (it has Streamlit side effects at import time),
-# so we extract the functions by reading the source. Post-refactor, these become
-# clean imports like: from scoring.comparison import levenshtein_distance
-#
-# For now, we duplicate the pure logic here as a baseline. When the refactor
-# extracts these functions, we swap to real imports and these tests become
-# regression guards.
-
-
-def levenshtein_distance(s1: str, s2: str) -> int:
-    """Copied from app.py:1803 — will be replaced by import after refactor."""
-    if len(s1) < len(s2):
-        return levenshtein_distance(s2, s1)
-    if len(s2) == 0:
-        return len(s1)
-    previous_row = range(len(s2) + 1)
-    for i, c1 in enumerate(s1):
-        current_row = [i + 1]
-        for j, c2 in enumerate(s2):
-            insertions = previous_row[j + 1] + 1
-            deletions = current_row[j] + 1
-            substitutions = previous_row[j] + (c1 != c2)
-            current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row
-    return previous_row[-1]
-
-
-def normalize_for_phoneme_scoring(s: str) -> str:
-    """Copied from app.py:1318 — will be replaced by import after refactor."""
-    import re
-    if not s:
-        return ""
-    s = re.sub(r"\s+", "", s.strip())
-    s = re.sub(r'_[:!|]+', '', s)
-    return s
-
-
-def compare_phonemes_edit_distance(user_phonemes: str, correct_phonemes: str):
-    """Copied from app.py:1896 — will be replaced by import after refactor."""
-    exact_match = user_phonemes == correct_phonemes
-    if len(correct_phonemes) == 0:
-        return exact_match, 0.0, len(user_phonemes)
-    distance = levenshtein_distance(user_phonemes, correct_phonemes)
-    max_length = max(len(user_phonemes), len(correct_phonemes))
-    similarity = 1.0 - (distance / max_length)
-    return exact_match, similarity, distance
+from scoring.comparison import (
+    levenshtein_distance,
+    compare_phonemes_edit_distance,
+)
+from scoring.phonemes import normalize_for_phoneme_scoring
 
 
 # ---------------------------------------------------------------------------
@@ -91,13 +47,11 @@ class TestLevenshteinDistance:
         assert levenshtein_distance("kitten", "sitting") == levenshtein_distance("sitting", "kitten")
 
     def test_known_value(self):
-        # Classic textbook example
         assert levenshtein_distance("kitten", "sitting") == 3
 
     def test_unicode_phonemes(self):
-        # IPA characters that the app actually compares
         assert levenshtein_distance("bɾazil", "bɾazil") == 0
-        assert levenshtein_distance("bɾazil", "bɹazil") == 1  # ɾ vs ɹ
+        assert levenshtein_distance("bɾazil", "bɹazil") == 1
 
 
 # ---------------------------------------------------------------------------

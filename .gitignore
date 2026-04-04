@@ -65,6 +65,7 @@ aclocal.m4
 autom4te.cache/
 compile
 config.*
+!src/config.py
 configure
 depcomp
 install-sh
