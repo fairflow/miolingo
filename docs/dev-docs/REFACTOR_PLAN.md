@@ -2,6 +2,7 @@
 
 **Status:** Draft — needs team review before implementation begins
 **Created:** 2026-04-04
+**Updated:** 2026-04-04
 **Branch:** `claude/dev`
 
 ---
@@ -15,8 +16,10 @@ scoring, authentication, and database interaction. This makes it:
 - Fragile to change (a TTS fix risks breaking the login flow)
 - Untestable in isolation (no function can be tested without Streamlit session state)
 
-The refactor aims to decompose `app.py` into focused modules while keeping the app
-functional at every step.
+Beyond structure, the app has a **baked-in language assumption**: English is always the
+helper/base language, and the practice target is always one of PT/FR/DE/ES/IT/NL. This
+prevents use cases like "French speaker learning English" or "Portuguese speaker learning
+German with Portuguese glosses". The refactor addresses both concerns, in the right order.
 
 ---
 
@@ -26,6 +29,8 @@ functional at every step.
 2. **Extract, don't rewrite** — move existing code into modules; minimise logic changes
 3. **Test what you extract** — each new module gets at least smoke-test imports
 4. **One concern per PR** — each extraction is a reviewable, revertible unit
+5. **Structure first, semantics second** — decompose the monolith before changing
+   language behaviour; never both at once
 
 ---
 
@@ -35,13 +40,14 @@ functional at every step.
 src/
 ├── app.py                    # Slim orchestrator: routing, sidebar, session init
 ├── config.py                 # LANGUAGE_CONFIG, constants, settings load/save
+├── language_context.py       # UserLanguageContext: practice/helper language, fallback chain
 ├── auth.py                   # Login, authentication, role checks
 ├── audio/
 │   ├── tts.py                # TTS engines: espeak, Google Cloud, gTTS
 │   ├── asr.py                # Whisper, WAV2Vec2 transcription
 │   └── recording.py          # Audio capture utilities
 ├── scoring/
-│   ├── phonemes.py           # IPA extraction, phoneme processing
+│   ├── phonemes.py           # IPA extraction, phoneme processing, file-based IPA cache
 │   ├── comparison.py         # Levenshtein, edit operations, scoring algorithms
 │   └── practice.py           # practice_word_from_audio orchestration
 ├── ui/
@@ -51,7 +57,7 @@ src/
 │   ├── history_tab.py        # History tab rendering
 │   └── components.py         # Shared UI components (IPA display, result cards)
 ├── translation.py            # Translation providers + LLM translation
-├── materials.py              # Language material loading (rename of app_language_materials)
+├── materials.py              # Normalised phrase store, material loading
 ├── db/
 │   ├── connection.py         # Connection pool + tunnel (merge connection_pool + app_mysql)
 │   └── queries.py            # Query functions extracted from app_mysql
@@ -104,6 +110,88 @@ Each phase is one or more PRs. Later phases depend on earlier ones.
 After phases 1–4, `app.py` should be ~500 lines: imports, session init, sidebar,
 and tab routing via the extracted modules.
 
+### Phase 6 — Language-parametric model
+
+**Prerequisites:** Phases 1–5 complete (modules exist and are tested).
+
+This phase removes the hard-coded "English = helper" assumption and makes any
+language usable as either practice target or helper language.
+
+#### 6.1 — UserLanguageContext
+
+Introduce a context object that replaces scattered `st.session_state` language reads:
+
+```python
+@dataclass
+class UserLanguageContext:
+    practice_language: str   # what the user is pronouncing
+    helper_language: str     # glosses, translations, UI hints
+```
+
+No hardcoded defaults. Both fields set by the UI. All modules that care about
+"which language?" receive this context rather than reading session state directly.
+
+#### 6.2 — Normalised phrase format
+
+Migrate from the current per-language files (one file per language, English
+embedded as helper) to a normalised format where each phrase carries direct
+translations into all available languages:
+
+```json
+{
+  "phrase_id": "scene01-01",
+  "text": {
+    "de": "Hallo Sophie, wie geht's?",
+    "en": "Hello Sophie, how are you?",
+    "fr": "Bonjour Sophie, comment ça va ?"
+  },
+  "ipa_cache": {
+    "de": "[ˈhalo ˈzoːfi viː ˈɡeːts]"
+  }
+}
+```
+
+Key design decisions:
+
+- **Each `text` entry is a direct translation**, not a round-trip through English.
+  Translation is not a bijection: FR→EN→DE loses nuance that FR→DE preserves.
+  Direct pairwise translations are preferred; English is a fallback, not a pivot.
+- **`ipa_cache` is optional and per-language.** espeak generates IPA on-the-fly
+  for any language (including English) at runtime. Pre-computed IPA in files is a
+  **performance cache** for fast scrolling through stories, not a replacement for
+  runtime generation. Users can always enter arbitrary phrases and get IPA live.
+- **IPA cache is file-based, not DB** — speed matters for scrolling through
+  story scenes with many phrases.
+- **Sparse translations are fine.** A phrase with only `{fr, en}` works for
+  FR↔EN practice. Other pairs are added over time via the translation pipeline.
+- **Fallback chain** when a direct translation is missing:
+  `direct(practice, helper)` → `English as pivot` → `"[translation not available]"`
+
+#### 6.3 — Materials migration
+
+A one-time script converts current per-language files to normalised format:
+
+1. Read all `language_materials/<lang>/story-scenes-json/*.json`
+2. Match phrases across languages by `phrase_id` (or by English text as
+   initial join key, then assign stable IDs)
+3. Merge into normalised files with all available translations inline
+4. Generate missing IPA cache entries via espeak
+
+The existing `scripts/language-generation/` pipeline adapts to produce
+normalised output. New translations are generated as direct pairs (FR→DE)
+rather than pivoting through English.
+
+#### 6.4 — Add English to LANGUAGE_CONFIG
+
+English becomes a first-class practice language with voice mappings, espeak
+config, and material support — exactly like PT/FR/DE today.
+
+#### 6.5 — UI: language pair selector
+
+Replace the current single "language" dropdown with a practice/helper pair
+selector. The existing language dropdown becomes the practice language;
+a new helper language dropdown appears alongside it.
+
 ---
 
 ## Constraints
@@ -113,6 +201,12 @@ and tab routing via the extracted modules.
   or import it at function call time, not module load time
 - The app must remain deployable on Streamlit Cloud throughout
 - No dependency additions without discussion (keep requirements.txt lean)
+- espeak is a **runtime dependency** everywhere — required for on-the-fly IPA generation
+  of arbitrary user-entered phrases. The binary is called `espeak` (not `espeak-ng`)
+- **Storage scales linearly, not quadratically.** The normalised phrase format stores one
+  entry per language per phrase. With 7 languages that's 7 entries, not 42 files.
+  Adding language 8 is O(phrases), not O(phrases × languages). We do not pre-generate
+  all possible language pairs; translations are added as needed.
 
 ---
 
@@ -122,6 +216,10 @@ and tab routing via the extracted modules.
 - [ ] Is the CCS test framework worth keeping as-is, or should it evolve into pytest fixtures?
 - [ ] Target for admin: keep as separate app or fold into main app with role-based routing?
 - [ ] What's the minimum test coverage before we start moving code?
+- [ ] For materials migration: use English text as initial join key, or assign phrase IDs
+      manually? (English text is available in all current files but is semantically lossy)
+- [ ] Translation provider preference for direct pairs: DeepL (high quality, limited
+      languages) vs OpenAI (broad coverage, variable quality)?
 
 ---
 
@@ -131,4 +229,5 @@ Updates will be logged here as phases complete.
 
 | Date | Phase | PR | Notes |
 |------|-------|----|-------|
-| — | — | — | Not yet started |
+| 2026-04-04 | Pre-work | #26 | Project organisation: AGENTS.md, CLAUDE.md update, REFACTOR_PLAN.md, legacy file cleanup |
+| 2026-04-04 | Pre-work | #27 | Script cleanup (credential leak fix) + pytest scaffolding (25 tests) |
