@@ -77,6 +77,18 @@ except ImportError:
     def log_api_call(*args, **kwargs):
         pass
 
+# ---------------------------------------------------------------------------
+# Ensure common binary paths are available regardless of how the app is
+# launched. When spawned from sandboxed environments (e.g. Claude Code,
+# launchd, cron) the inherited PATH may lack dirs like /opt/local/bin
+# where MacPorts installs ffmpeg, espeak, etc.
+# ---------------------------------------------------------------------------
+_EXTRA_BIN_DIRS = ["/opt/local/bin", "/usr/local/bin"]
+_current_path = os.environ.get("PATH", "")
+_missing = [d for d in _EXTRA_BIN_DIRS if d not in _current_path.split(os.pathsep)]
+if _missing:
+    os.environ["PATH"] = os.pathsep.join(_missing) + os.pathsep + _current_path
+
 # Environment configuration
 IS_LOCAL_DEV = os.path.exists('./local/bin/run-espeak-ng')  # True if local eSpeak build exists
 
