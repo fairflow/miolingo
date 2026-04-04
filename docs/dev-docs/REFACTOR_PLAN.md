@@ -140,10 +140,15 @@ translations into all available languages:
 ```json
 {
   "phrase_id": "scene01-01",
+  "source_language": "fr",
   "text": {
     "de": "Hallo Sophie, wie geht's?",
     "en": "Hello Sophie, how are you?",
     "fr": "Bonjour Sophie, comment ça va ?"
+  },
+  "translation_provenance": {
+    "en": "direct_from:fr",
+    "de": "direct_from:fr"
   },
   "ipa_cache": {
     "de": "[ˈhalo ˈzoːfi viː ˈɡeːts]"
@@ -156,6 +161,13 @@ Key design decisions:
 - **Each `text` entry is a direct translation**, not a round-trip through English.
   Translation is not a bijection: FR→EN→DE loses nuance that FR→DE preserves.
   Direct pairwise translations are preferred; English is a fallback, not a pivot.
+- **Translation provenance tracks the shortest path.** `source_language` records
+  which language the phrase was originally authored in. `translation_provenance`
+  records how each translation was derived (e.g. `direct_from:fr` vs
+  `pivot_via:en`). This lets us later identify translations that could be improved
+  by regenerating directly from the source language instead of via a pivot.
+  No single pivot language is optimal for all pairs — French may be better for
+  Romance↔Germanic, but worse for NL↔DE where a direct path is far shorter.
 - **`ipa_cache` is optional and per-language.** espeak generates IPA on-the-fly
   for any language (including English) at runtime. Pre-computed IPA in files is a
   **performance cache** for fast scrolling through stories, not a replacement for
@@ -166,6 +178,11 @@ Key design decisions:
   FR↔EN practice. Other pairs are added over time via the translation pipeline.
 - **Fallback chain** when a direct translation is missing:
   `direct(practice, helper)` → `English as pivot` → `"[translation not available]"`
+- **Schema must be extensible to per-user annotations.** A planned personal
+  vocabulary feature will let users track words with source context (which story
+  scene, poem, or news item they first encountered a word in). The phrase format
+  and `materials.py` data model should not preclude attaching user-level metadata
+  that references back to source materials.
 
 #### 6.3 — Materials migration
 
@@ -176,6 +193,8 @@ A one-time script converts current per-language files to normalised format:
    initial join key, then assign stable IDs)
 3. Merge into normalised files with all available translations inline
 4. Generate missing IPA cache entries via espeak
+5. Populate `source_language` and `translation_provenance` from known
+   authoring history (e.g. story scenes were authored in French)
 
 The existing `scripts/language-generation/` pipeline adapts to produce
 normalised output. New translations are generated as direct pairs (FR→DE)

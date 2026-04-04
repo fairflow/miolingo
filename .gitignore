@@ -65,6 +65,7 @@ aclocal.m4
 autom4te.cache/
 compile
 config.*
+!src/config.py
 configure
 depcomp
 install-sh
@@ -268,6 +269,7 @@ app-docs/mega_chat.md
 language_materials/*/.DS_Store
 language_materials/fr/phrases-original/
 .streamlit/secrets.toml
+src/.streamlit/secrets.toml
 test_krystal_connection.py
 deploy_schema.py
 test_mysql_connection.py
