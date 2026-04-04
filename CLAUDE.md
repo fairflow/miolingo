@@ -96,7 +96,24 @@ Use `docs/TESTING_CHECKLIST.md` as a structured guide.
 
 ---
 
+## app.py Layout (line ranges)
+
+See `AGENTS.md` for the full module map. Quick reference for the main file:
+
+```
+  1–222     Imports, constants, LANGUAGE_CONFIG
+223–620     Settings, translation/IPA utilities, material enrichment
+622–1125    Announcements, authentication, login, role checks
+1126–1298   History, session state init, ASR model loading
+1299–1675   Phoneme/IPA processing, TTS engines (espeak, Google Cloud, gTTS)
+1676–1942   ASR transcription (Whisper/WAV2Vec2), scoring algorithms
+1943–2456   Practice flow, UI rendering (interface + results)
+2457–2796   Story practice and story reader
+2797–4034   main(): sidebar, tab routing, entry point
+```
+
 ## Key Files
+- `AGENTS.md` — canonical project reference for all AI assistants
 - `src/app.py` — main Streamlit app
 - `src/app_mysql.py` — MySQL DB module (use `get_connection()`)
 - `src/ccs_test_framework.py` — CCS dual-agent test framework (available for structured testing)
