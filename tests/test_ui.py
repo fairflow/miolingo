@@ -107,6 +107,34 @@ class TestUiPackage:
 # save_history — pure-function behaviour (no-op legacy)
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# ui.quick_practice_tab
+# ---------------------------------------------------------------------------
+
+class TestQuickPracticeTabImports:
+    """Verify ui.quick_practice_tab is importable and exports expected names."""
+
+    def test_import_render_quick_practice_tab(self):
+        from ui.quick_practice_tab import render_quick_practice_tab
+        assert callable(render_quick_practice_tab)
+
+    def test_import_render_materials_loader(self):
+        from ui.quick_practice_tab import _render_materials_loader
+        assert callable(_render_materials_loader)
+
+    def test_import_render_practice_area(self):
+        from ui.quick_practice_tab import _render_practice_area
+        assert callable(_render_practice_area)
+
+    def test_import_render_guided_mode(self):
+        from ui.quick_practice_tab import _render_guided_mode
+        assert callable(_render_guided_mode)
+
+    def test_import_render_free_text_mode(self):
+        from ui.quick_practice_tab import _render_free_text_mode
+        assert callable(_render_free_text_mode)
+
+
 class TestSaveHistory:
     """save_history is a legacy no-op — should accept any list without error."""
 
