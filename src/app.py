@@ -26,6 +26,23 @@ from scoring.phonemes import (
     get_ipa, get_ipa_from_espeak, format_ipa,
 )
 
+# Audio modules
+from audio.tts import (
+    speak_text, speak_text_google_cloud, speak_text_gtts,
+    generate_target_audio,
+)
+from audio.asr import (
+    get_whisper_model, get_wav2vec2_model,
+    transcribe_audio_whisper, transcribe_audio_wav2vec2,
+    transcribe_audio,
+)
+
+# Practice orchestration
+from scoring.practice import (
+    practice_word_from_audio as _practice_word_from_audio_core,
+    trim_silence,
+)
+
 # Translation module
 from translation import (
     get_translation_provider, validate_translation_api_key,
@@ -77,6 +94,18 @@ except ImportError:
     def log_api_call(*args, **kwargs):
         pass
 
+# ---------------------------------------------------------------------------
+# Ensure common binary paths are available regardless of how the app is
+# launched. When spawned from sandboxed environments (e.g. Claude Code,
+# launchd, cron) the inherited PATH may lack dirs like /opt/local/bin
+# where MacPorts installs ffmpeg, espeak, etc.
+# ---------------------------------------------------------------------------
+_EXTRA_BIN_DIRS = ["/opt/local/bin", "/usr/local/bin"]
+_current_path = os.environ.get("PATH", "")
+_missing = [d for d in _EXTRA_BIN_DIRS if d not in _current_path.split(os.pathsep)]
+if _missing:
+    os.environ["PATH"] = os.pathsep.join(_missing) + os.pathsep + _current_path
+
 # Environment configuration
 IS_LOCAL_DEV = os.path.exists('./local/bin/run-espeak-ng')  # True if local eSpeak build exists
 
@@ -84,12 +113,14 @@ IS_LOCAL_DEV = os.path.exists('./local/bin/run-espeak-ng')  # True if local eSpe
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")  # Whisper on CPU
 warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL")  # LibreSSL compatibility
 
+# Audio libraries (whisper, soundfile, numpy, gTTS) are now imported
+# inside audio/tts.py, audio/asr.py, and scoring/practice.py.
+# Verify they're loadable at startup so we fail fast with a clear message.
 try:
     with st.spinner("Loading speech + audio libraries (first load may take a minute)…"):
-        import whisper
-        import soundfile as sf
-        import numpy as np
-        from gtts import gTTS
+        import whisper  # noqa: F401 — preload for ASR
+        import soundfile as sf  # noqa: F401 — preload for audio I/O
+        import numpy as np  # noqa: F401 — preload for silence trimming
 except ImportError as e:
     st.error(f"Error: {e}")
     st.error("Please activate the virtual environment and install dependencies")
@@ -757,449 +788,20 @@ def initialize_session_state():
         st.session_state.ccs_test = CCSTestSession(enabled=False)
 
 
-def get_whisper_model(model_name: str):
-    """Load or get cached Whisper model"""
-    if st.session_state.whisper_model_name != model_name:
-        with st.spinner(f"Loading Whisper model '{model_name}'..."):
-            st.session_state.whisper_model = whisper.load_model(model_name)
-            st.session_state.whisper_model_name = model_name
-    return st.session_state.whisper_model
-
-
-def get_wav2vec2_model():
-    """Load or get cached wav2vec2 Portuguese model"""
-    if 'wav2vec2_processor' not in st.session_state or st.session_state.wav2vec2_processor is None:
-        try:
-            with st.spinner("Loading wav2vec2 Portuguese model (first time may take a few minutes)..."):
-                from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
-                model_name = "jonatasgrosman/wav2vec2-large-xlsr-53-portuguese"
-                st.session_state.wav2vec2_processor = Wav2Vec2Processor.from_pretrained(model_name)
-                st.session_state.wav2vec2_model = Wav2Vec2ForCTC.from_pretrained(model_name)
-        except ImportError:
-            st.error("wav2vec2 requires 'transformers' and 'torch'. Install with: pip install transformers torch")
-            return None, None
-        except Exception as e:
-            st.error(f"Failed to load wav2vec2 model: {e}")
-            return None, None
-    return st.session_state.wav2vec2_processor, st.session_state.wav2vec2_model
-
+# ASR model loaders — now in audio/asr.py (imported above)
+# get_whisper_model, get_wav2vec2_model are imported at top of file.
 
 # Phoneme/IPA functions — now in scoring/phonemes.py (imported above)
 # espeak path, get_phonemes, normalize_for_phoneme_scoring, get_ipa,
 # get_ipa_from_espeak, format_ipa are all imported at top of file.
 
-
-def speak_text(text: str, voice: str = "pt-br", speed: int = 160, pitch: int = 40) -> tuple[bytes, str]:
-    """
-    Generate speech using eSpeak NG (returns audio bytes, does not auto-play)
-
-    Args:
-        text: Text to speak
-        voice: Voice/language code (e.g., 'pt-br', 'fr-fr', 'nl')
-        speed: Speech speed in words per minute (80-450)
-        pitch: Voice pitch (0-99)
-
-    Returns:
-        (audio_bytes, format) where format is 'audio/wav'
-    """
-    try:
-        # Use --stdout to capture audio bytes instead of playing directly
-        result = subprocess.run([
-            get_espeak_path(),
-            "-v", voice,
-            "-s", str(speed),
-            "-p", str(pitch),
-            "--stdout",  # Output WAV to stdout instead of playing
-            text
-        ], capture_output=True, check=True)
-
-        # Log API call (eSpeak is free/local but good to track usage)
-        log_api_call(
-            api_type="espeak",
-            text=text,
-            language=voice,
-            char_count=len(text),
-            audio_bytes=len(result.stdout),
-            success=True,
-            cached=False
-        )
-
-        return result.stdout, 'audio/wav'
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        # Return empty audio if espeak not available
-        return b'', 'audio/wav'
-
-
-@st.cache_data(ttl=86400)  # Cache for 24 hours (shared across all users!)
-def speak_text_google_cloud(text: str, lang: str = "pt-BR", use_wav: bool = False, speaking_rate: float = 1.0) -> tuple[bytes, str]:
-    """
-    Generate speech using Google Cloud Text-to-Speech REST API with API key auth
-    Returns tuple of (audio_bytes, format) for playback in Streamlit
-
-    Cached for 24 hours and shared across all users to minimize API calls.
-    Requires GOOGLE_CLOUD_TTS_API_KEY in Streamlit secrets.
-
-    Uses REST API instead of client library because API key auth is simpler
-    and doesn't require service account JSON credentials.
-
-    Args:
-        text: Text to speak
-        lang: Language code (pt-BR, fr-FR, nl-NL, etc.)
-        use_wav: If True, return as WAV format (LINEAR16)
-        speaking_rate: Speech speed (0.25 to 4.0, default 1.0)
-
-    Returns:
-        (audio_bytes, format) where format is 'audio/mp3' or 'audio/wav'
-    """
-    import requests
-    import json
-    import base64
-
-    # Get API key from secrets
-    try:
-        api_key = st.secrets["google_cloud_tts_api_key"]
-    except KeyError:
-        raise ValueError("google_cloud_tts_api_key not found in secrets")
-
-    voice_name = GOOGLE_CLOUD_VOICES.get(lang, "pt-BR-Standard-A")
-    audio_encoding = "LINEAR16" if use_wav else "MP3"
-
-    # Build the REST API request
-    url = "https://texttospeech.googleapis.com/v1/text:synthesize"
-    headers = {
-        "X-goog-api-key": api_key,
-        "Content-Type": "application/json; charset=utf-8"
-    }
-
-    payload = {
-        "input": {"text": text},
-        "voice": {
-            "languageCode": lang[:5],  # pt-BR, fr-FR, etc.
-            "name": voice_name
-        },
-        "audioConfig": {
-            "audioEncoding": audio_encoding,
-            "speakingRate": speaking_rate
-        }
-    }
-
-    # Make the API request
-    response = requests.post(url, headers=headers, json=payload)
-
-    if response.status_code != 200:
-        error_msg = f"Google Cloud TTS API error {response.status_code}: {response.text[:200]}"
-        st.warning(f"⚠️ {error_msg}")
-        raise Exception(error_msg)
-
-    # Extract audio content from response (it's base64 encoded)
-    response_data = response.json()
-    audio_content_base64 = response_data.get("audioContent", "")
-    audio_bytes = base64.b64decode(audio_content_base64)
-
-    # Log API call for cost tracking
-    log_api_call(
-        api_type="google_cloud_tts",
-        text=text,
-        language=lang,
-        char_count=len(text),
-        audio_bytes=len(audio_bytes),
-        success=True,
-        cached=False  # This runs before cache check
-    )
-
-    # Return audio bytes and format
-    format_str = 'audio/wav' if use_wav else 'audio/mp3'
-    return audio_bytes, format_str
-
-
-@st.cache_data(ttl=86400)  # Cache for 24 hours (shared across all users!)
-def speak_text_gtts(text: str, lang: str = "pt-br", use_wav: bool = False, slow: bool = False) -> tuple[bytes, str]:
-    """
-    Generate speech using Google TTS (higher quality than eSpeak)
-    Returns tuple of (audio_bytes, format) for playback in Streamlit
-
-    Cached for 24 hours and shared across all users to minimize API calls.
-    Once a phrase is generated, it's reused for everyone.
-
-    Args:
-        text: Text to speak
-        lang: Language code (default pt-br)
-        use_wav: If True, convert MP3 to WAV for iOS Safari compatibility
-        slow: If True, speak at ~50% speed (Google TTS slow mode)
-
-    Returns:
-        (audio_bytes, format) where format is 'audio/mp3' or 'audio/wav'
-    """
-    # Use 'pt' for Portuguese (gTTS auto-detects Brazilian vs European)
-    # or 'pt-br' specifically for Brazilian Portuguese
-    tts = gTTS(text=text, lang=lang.replace('-br', ''), slow=slow)
-
-    # Save to temporary file and read back
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
-        mp3_path = fp.name
-        tts.save(mp3_path)
-
-        if use_wav:
-            # Convert MP3 to WAV for iOS Safari compatibility
-            wav_path = mp3_path.replace('.mp3', '.wav')
-
-            # Run ffmpeg without capturing output to avoid pipe buffer deadlock
-            result = subprocess.run(
-                ['ffmpeg', '-i', mp3_path, '-acodec', 'pcm_s16le',
-                 '-ar', '22050', '-y', wav_path],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-
-            if result.returncode == 0:
-                with open(wav_path, 'rb') as audio_file:
-                    audio_bytes = audio_file.read()
-                Path(wav_path).unlink()  # Clean up WAV
-                Path(mp3_path).unlink()  # Clean up MP3
-                return audio_bytes, 'audio/wav'
-            else:
-                # Conversion failed, fall back to MP3
-                with open(mp3_path, 'rb') as audio_file:
-                    audio_bytes = audio_file.read()
-                Path(mp3_path).unlink()
-                return audio_bytes, 'audio/mp3'
-        else:
-            # Return MP3
-            with open(mp3_path, 'rb') as audio_file:
-                audio_bytes = audio_file.read()
-            Path(mp3_path).unlink()  # Clean up temp file
-
-            # Log API call for cost tracking
-            log_api_call(
-                api_type="gtts",
-                text=text,
-                language=lang,
-                char_count=len(text),
-                audio_bytes=len(audio_bytes),
-                success=True,
-                cached=False
-            )
-
-            return audio_bytes, 'audio/mp3'
-
-
-def generate_target_audio(text: str, settings: Dict) -> tuple[bytes, str]:
-    """
-    Generate target pronunciation audio using the configured TTS engine
-
-    Args:
-        text: Text to speak
-        settings: User settings dict containing tts_engine, voice, speed, pitch, use_wav_audio
-
-    Returns:
-        (audio_bytes, format) where format is 'audio/mp3', 'audio/wav', or 'audio/x-wav'
-    """
-    # Remove punctuation to avoid comma/pause detection affecting scores
-    import string
-    text_no_punct = text.translate(str.maketrans('', '', string.punctuation))
-
-    tts_engine = settings.get('tts_engine', 'google_cloud')  # Default to Google Cloud TTS
-
-    # Smart fallback priority: Google Cloud TTS → gTTS → eSpeak
-    # This ensures best quality audio with graceful degradation
-
-    if tts_engine == 'espeak':
-        # User explicitly chose eSpeak - use it directly
-        return speak_text(
-            text_no_punct,
-            voice=settings.get('voice', 'pt-br'),
-            speed=settings.get('speed', 140),
-            pitch=settings.get('pitch', 35)
-        )
-    elif tts_engine == 'google_cloud':
-        # Try Google Cloud TTS first (best quality)
-        try:
-            cloud_lang = VOICE_LOCALE_NORMALIZATION.get(settings.get('voice', 'pt-br'), 'pt-BR')
-
-            return speak_text_google_cloud(
-                text_no_punct,
-                lang=cloud_lang,
-                use_wav=settings.get('use_wav_audio', False),
-                speaking_rate=1.0 if not settings.get('gtts_slow', False) else 0.75
-            )
-        except Exception as e:
-            # Google Cloud TTS failed - try gTTS as fallback
-            st.warning(f"⚠️ Google Cloud TTS unavailable, trying gTTS... ({str(e)[:80]})")
-            try:
-                return speak_text_gtts(
-                    text_no_punct,
-                    lang=settings.get('voice', 'pt-br'),
-                    use_wav=settings.get('use_wav_audio', False),
-                    slow=settings.get('gtts_slow', False)
-                )
-            except Exception as e2:
-                # Both Google options failed - fall back to eSpeak
-                st.warning("⚠️ All Google TTS options failed, using eSpeak NG")
-                return speak_text(
-                    text_no_punct,
-                    voice=settings.get('voice', 'pt-br'),
-                    speed=settings.get('speed', 140),
-                    pitch=settings.get('pitch', 35)
-                )
-    else:
-        # tts_engine is 'gtts' - but use smart fallback
-        # Priority: Google Cloud → gTTS → eSpeak
-        try:
-            # Try Google Cloud first even if user selected gTTS (best quality)
-            cloud_lang = VOICE_LOCALE_NORMALIZATION.get(settings.get('voice', 'pt-br'), 'pt-BR')
-
-            return speak_text_google_cloud(
-                text_no_punct,
-                lang=cloud_lang,
-                use_wav=settings.get('use_wav_audio', False),
-                speaking_rate=1.0 if not settings.get('gtts_slow', False) else 0.75
-            )
-        except Exception:
-            # Google Cloud not available - try gTTS as requested
-            try:
-                return speak_text_gtts(
-                    text_no_punct,
-                    lang=settings.get('voice', 'pt-br'),
-                    use_wav=settings.get('use_wav_audio', False),
-                    slow=settings.get('gtts_slow', False)
-                )
-            except Exception as e:
-                # gTTS failed - fall back to eSpeak to preserve basic functionality
-                st.warning(f"⚠️ Google TTS unavailable, using eSpeak NG instead. ({str(e)[:100]})")
-                return speak_text(
-                    text_no_punct,
-                    voice=settings.get('voice', 'pt-br'),
-                    speed=settings.get('speed', 140),
-                    pitch=settings.get('pitch', 35)
-                )
-
-
-def transcribe_audio_whisper(audio_file: str, model, language_code: str = "pt"):
-    """
-    Transcribe audio to text using Whisper
-
-    Args:
-        audio_file: Path to audio file
-        model: Whisper model instance
-        language_code: Whisper language code (e.g., 'pt', 'fr', 'nl')
-
-    Note: No initial_prompt is used to avoid biasing the transcription.
-    We force language detection and use low temperature for consistency.
-    """
-    result = model.transcribe(
-        audio=audio_file,
-        language=language_code,  # Force language (ISO 639-1 code)
-        task="transcribe",
-        temperature=0.0,  # Deterministic output
-        no_speech_threshold=0.6,  # Higher threshold to reject non-speech (like beeps)
-        logprob_threshold=-1.0,   # Stricter on low-confidence segments
-        condition_on_previous_text=False,  # Don't use context from previous segments
-        word_timestamps=False,  # Disable word-level timestamps to reduce space insertion
-        compression_ratio_threshold=2.4  # Default is 2.4, keep it strict
-    )
-
-    # Double-check detected language (Whisper should respect language parameter but doesn't always)
-    detected_lang = result.get("language", "unknown")
-    if detected_lang != language_code:
-        # Log warning but continue (the transcription might still be correct)
-        import warnings
-        warnings.warn(f"Whisper detected language '{detected_lang}' instead of '{language_code}'")
-
-    transcribed_text = result["text"].strip().lower()
-
-    # CRITICAL: Detect hallucination - Whisper sometimes loops when audio is poor
-    # Check for repetitive patterns like "é o que é o que é o que..."
-    words = transcribed_text.split()
-    if len(words) > 20:  # Only check longer transcriptions
-        # Check if same 2-3 word pattern repeats many times
-        # Look for patterns like "word1 word2" repeated 10+ times
-        pattern_found = False
-        for pattern_len in [2, 3, 4]:
-            if len(words) >= pattern_len * 10:
-                # Check if first pattern repeats throughout
-                pattern = ' '.join(words[:pattern_len])
-                repetitions = transcribed_text.count(pattern)
-                if repetitions >= 10:  # Pattern repeats 10+ times
-                    pattern_found = True
-                    import warnings
-                    warnings.warn(f"Whisper hallucination detected: '{pattern}' repeated {repetitions} times")
-                    # Return truncated version to show the issue
-                    return f"[hallucination detected: '{pattern}' x{repetitions}]"
-
-        # Also check total word count - if way too long, it's probably hallucinating
-        if len(words) > 100:
-            import warnings
-            warnings.warn(f"Suspiciously long transcription: {len(words)} words")
-            return f"[error: transcription too long - {len(words)} words, possible hallucination]"
-
-    return transcribed_text
-
-
-def transcribe_audio_wav2vec2(audio_file: str, processor, model):
-    """
-    Transcribe audio to text using wav2vec2 Portuguese model
-    """
-    try:
-        import torch
-        import soundfile as sf
-
-        # Load audio
-        speech, sample_rate = sf.read(audio_file)
-
-        # Resample if needed (wav2vec2 expects 16kHz)
-        if sample_rate != 16000:
-            import librosa
-            speech = librosa.resample(speech, orig_sr=sample_rate, target_sr=16000)
-
-        # Process
-        inputs = processor(speech, sampling_rate=16000, return_tensors="pt", padding=True)
-
-        with torch.no_grad():
-            logits = model(inputs.input_values).logits
-
-        predicted_ids = torch.argmax(logits, dim=-1)
-        transcription = processor.batch_decode(predicted_ids)[0]
-
-        return transcription.strip().lower()
-
-    except Exception as e:
-        st.error(f"wav2vec2 transcription failed: {e}")
-        return ""
-
-
-def transcribe_audio(audio_file: str, settings: Dict, language: str = "Portuguese"):
-    """
-    Transcribe audio using the selected ASR engine
-
-    Args:
-        audio_file: Path to audio file
-        settings: App settings dict
-        language: Selected language name (e.g., "Portuguese", "French")
-    """
-    asr_engine = settings.get('asr_engine', 'whisper')
-
-    # Get language configuration
-    lang_config = LANGUAGE_CONFIG[language]
-    lang_code = lang_config['code']
-
-    if asr_engine == 'wav2vec2':
-        # wav2vec2 is Portuguese-only
-        if lang_code != 'pt':
-            st.warning("wav2vec2 only supports Portuguese, falling back to Whisper")
-            asr_engine = 'whisper'
-        else:
-            processor, model = get_wav2vec2_model()
-            if processor is None or model is None:
-                st.warning("wav2vec2 unavailable, falling back to Whisper")
-                asr_engine = 'whisper'
-            else:
-                return transcribe_audio_wav2vec2(audio_file, processor, model)
-
-    # Default to Whisper
-    model_size = settings.get('whisper_model_size', 'base')
-    model = get_whisper_model(model_size)
-    return transcribe_audio_whisper(audio_file, model, lang_code)
-
+# TTS functions — now in audio/tts.py (imported above)
+# speak_text, speak_text_google_cloud, speak_text_gtts,
+# generate_target_audio are all imported at top of file.
+
+# ASR transcription — now in audio/asr.py (imported above)
+# transcribe_audio_whisper, transcribe_audio_wav2vec2,
+# transcribe_audio are all imported at top of file.
 
 # Scoring/comparison functions — now in scoring/comparison.py (imported above)
 # levenshtein_distance, get_edit_operations, compare_phonemes_positional,
@@ -1208,117 +810,23 @@ def transcribe_audio(audio_file: str, settings: Dict, language: str = "Portugues
 
 def practice_word_from_audio(text: str, audio_bytes: bytes, settings: Dict):
     """
-    Practice a word/phrase using pre-recorded audio
+    Thin wrapper around scoring.practice.practice_word_from_audio that
+    handles session-state persistence and database saves.
 
-    Logic:
-    1. Transcribe audio to text (with proper spacing)
-    2. Generate phonemes for both target and recognized text (preserving word boundaries)
-    3. For comparison: strip spaces from phonemes only (not from text)
-    4. This allows flexible matching while maintaining proper IPA display
+    The core scoring logic lives in scoring/practice.py.
     """
-    try:
-        # Save audio bytes to temporary file
-        temp_audio = "temp_streamlit_recording.wav"
-        with open(temp_audio, 'wb') as f:
-            f.write(audio_bytes)
-
-        # Preprocess audio: trim silence/noise from start and end
-        # This helps remove system noise and other artifacts
-        try:
-            audio_data, sample_rate = sf.read(temp_audio)
-
-            # Simple energy-based trimming
-            # Calculate short-term energy
-            frame_length = int(0.02 * sample_rate)  # 20ms frames
-            energy = np.array([
-                np.sum(audio_data[i:i+frame_length]**2)
-                for i in range(0, len(audio_data) - frame_length, frame_length)
-            ])
-
-            # Find speech boundaries using user-configurable threshold
-            # threshold is a percentage of max energy (default 0.01 = 1%)
-            silence_threshold = settings.get('silence_threshold', 0.01)
-            threshold = silence_threshold * np.max(energy)
-            speech_frames = np.where(energy > threshold)[0]
-
-            if len(speech_frames) > 0:
-                # Add 200ms padding before and after to avoid speech artifacts
-                padding_ms = 0.2  # 200ms as requested
-                padding_samples = int(padding_ms * sample_rate)
-
-                start_sample = max(0, speech_frames[0] * frame_length - padding_samples)
-                end_sample = min(len(audio_data), (speech_frames[-1] + 1) * frame_length + padding_samples)
-
-                trimmed_audio = audio_data[start_sample:end_sample]
-
-                # Save trimmed audio
-                sf.write(temp_audio, trimmed_audio, sample_rate)
-
-                # Also save trimmed audio bytes for playback
-                import io
-                trimmed_buffer = io.BytesIO()
-                sf.write(trimmed_buffer, trimmed_audio, sample_rate, format='WAV')
-                trimmed_audio_bytes = trimmed_buffer.getvalue()
-            else:
-                trimmed_audio_bytes = audio_bytes
-        except Exception as e:
-            # If trimming fails, continue with original audio
-            pass
-
-        # Get correct pronunciation
-        correct_phonemes = get_phonemes(text, settings['voice'])
-        correct_ipa = get_ipa(text, settings['voice'])
-
-        # Transcribe user's audio using selected ASR engine
-        recognized_text = transcribe_audio(temp_audio, settings, st.session_state.language)
-
-        # Get phonemes with proper spacing (for display)
-        user_phonemes = get_phonemes(recognized_text, settings['voice'])
-        user_ipa = get_ipa(recognized_text, settings['voice'])
-
-        # For comparison: normalize by removing ALL whitespace from phoneme codes.
-        # (eSpeak can emit newlines; remove them too to avoid phantom edit-distance penalties.)
-        correct_phonemes_normalized = normalize_for_phoneme_scoring(correct_phonemes)
-        user_phonemes_normalized = normalize_for_phoneme_scoring(user_phonemes)
-
-        # Compare normalized phonemes (without spaces) using edit distance
-        # Get algorithm from settings (default: edit_distance)
-        algorithm = settings.get('comparison_algorithm', 'edit_distance')
-        exact_match, similarity, edit_distance = compare_phonemes(
-            user_phonemes_normalized,
-            correct_phonemes_normalized,
-            algorithm=algorithm
-        )
-
-        # Keep the original recording for playback
-        # (Don't delete temp_audio - we'll save it in the result)
-
-        result = {
-            "target": text,
-            "recognized": recognized_text,
-            "correct_phonemes": correct_phonemes,
-            "user_phonemes": user_phonemes,
-            "correct_ipa": correct_ipa,
-            "user_ipa": user_ipa,
-            "exact_match": exact_match,
-            "similarity": similarity,
-            "edit_distance": edit_distance,
-            "correct_phonemes_normalized": correct_phonemes_normalized,
-            "user_phonemes_normalized": user_phonemes_normalized,
-            "user_audio_bytes": audio_bytes,  # Original recording
-            "user_audio_trimmed_bytes": trimmed_audio_bytes  # Trimmed version (what was actually recognized)
+    def _persist_result(result):
+        """Save result to session state and database."""
+        session_data = {
+            k: v for k, v in result.items()
+            if k not in ["user_audio_bytes", "user_audio_trimmed_bytes"]
         }
-
-        # Save to current session (exclude bytes for JSON serialization)
-        session_data = {k: v for k, v in result.items() if k not in ["user_audio_bytes", "user_audio_trimmed_bytes"]}
         st.session_state.current_sessions[st.session_state.language]["practices"].append({
             "time": datetime.now().isoformat(),
             **session_data
         })
         st.session_state.session_saved = False
-        # Note: last_result is now stored per-mode (quick_last_result, story_last_result) by the caller
 
-        # Save to database immediately
         if st.session_state.get('authenticated', False):
             try:
                 user_id = st.session_state['user']['user_id']
@@ -1335,13 +843,13 @@ def practice_word_from_audio(text: str, audio_bytes: bytes, settings: Dict):
             except Exception as e:
                 st.warning(f"⚠️ Could not save to database: {e}")
 
-        return result
-
-    except Exception as e:
-        st.error(f"Error during practice: {e}")
-        import traceback
-        st.error(traceback.format_exc())
-        return None
+    return _practice_word_from_audio_core(
+        text,
+        audio_bytes,
+        settings,
+        language=st.session_state.language,
+        on_result=_persist_result,
+    )
 
 
 def save_current_session():

@@ -101,16 +101,24 @@ Use `docs/TESTING_CHECKLIST.md` as a structured guide.
 See `AGENTS.md` for the full module map. Quick reference for the main file:
 
 ```
-  1–222     Imports, constants, LANGUAGE_CONFIG
-223–620     Settings, translation/IPA utilities, material enrichment
-622–1125    Announcements, authentication, login, role checks
-1126–1298   History, session state init, ASR model loading
-1299–1675   Phoneme/IPA processing, TTS engines (espeak, Google Cloud, gTTS)
-1676–1942   ASR transcription (Whisper/WAV2Vec2), scoring algorithms
-1943–2456   Practice flow, UI rendering (interface + results)
-2457–2796   Story practice and story reader
-2797–4034   main(): sidebar, tab routing, entry point
+  1–130     Imports (config, scoring, audio, translation modules), PATH fix, lib preload
+131–550     Settings wrappers, translation/IPA utilities, material enrichment
+551–1050    Announcements, authentication, login, role checks
+1050–1220   History, session state init
+1220–1280   Extracted-module comments + practice_word_from_audio wrapper
+1280–1700   Practice flow, UI rendering (interface + results)
+1700–2050   Story practice and story reader
+2050–2808   main(): sidebar, tab routing, entry point
 ```
+
+Extracted modules (Phase 1 + Phase 2):
+- `src/config.py` — constants, LANGUAGE_CONFIG, settings
+- `src/scoring/comparison.py` — Levenshtein, phoneme comparison
+- `src/scoring/phonemes.py` — IPA/phoneme extraction via espeak
+- `src/scoring/practice.py` — practice pipeline: silence trim, ASR, scoring
+- `src/audio/tts.py` — TTS engines (eSpeak, Google Cloud, gTTS) + fallback
+- `src/audio/asr.py` — ASR (Whisper, Wav2Vec2) + model loaders
+- `src/translation.py` — translation providers + LLM translation
 
 ## Key Files
 - `AGENTS.md` — canonical project reference for all AI assistants

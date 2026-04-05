@@ -40,7 +40,14 @@ new_tunnel = SSHTunnelForwarder(...)
 
 | File | Lines | Role |
 |------|-------|------|
-| `src/app.py` | 4,034 | Main Streamlit app — all UI, audio, scoring, practice logic |
+| `src/app.py` | ~2,800 | Main Streamlit app — UI, routing, session orchestration |
+| `src/config.py` | ~190 | Constants, LANGUAGE_CONFIG, settings load/save |
+| `src/translation.py` | ~260 | Translation providers + LLM translation |
+| `src/scoring/comparison.py` | ~130 | Levenshtein, edit operations, scoring algorithms |
+| `src/scoring/phonemes.py` | ~130 | IPA extraction, phoneme processing via espeak |
+| `src/scoring/practice.py` | ~170 | Practice orchestration: silence trim, ASR, scoring pipeline |
+| `src/audio/tts.py` | ~280 | TTS engines: eSpeak, Google Cloud, gTTS + fallback dispatcher |
+| `src/audio/asr.py` | ~180 | ASR: Whisper, Wav2Vec2 transcription + model loaders |
 | `src/app_mysql.py` | 1,890 | Database layer — auth, progress, sessions, data persistence |
 | `src/app_language_materials.py` | 373 | Language material loading (phrases, words, stories by language/level) |
 | `src/session_manager.py` | 272 | Streamlit session state management |
