@@ -250,3 +250,5 @@ Updates will be logged here as phases complete.
 |------|-------|----|-------|
 | 2026-04-04 | Pre-work | #26 | Project organisation: AGENTS.md, CLAUDE.md update, REFACTOR_PLAN.md, legacy file cleanup |
 | 2026-04-04 | Pre-work | #27 | Script cleanup (credential leak fix) + pytest scaffolding (25 tests) |
+| 2026-04-04 | Phase 1 | #28 | Extract config, scoring, phonemes, translation from app.py (~734 lines, 28 tests) |
+| 2026-04-05 | Phase 2 | TBD | Extract audio/tts, audio/asr, scoring/practice from app.py (~500 lines, 43 tests) |
