@@ -182,12 +182,18 @@ def render_settings_panel():
             # Sync target language
             st.session_state.target_language = st.session_state.material_language
 
-            # Prevent source == target
-            if st.session_state.source_language == st.session_state.target_language:
+            # Resolve full target name for display and comparison
+            _target_full = MATERIAL_TO_TRAINING.get(
+                st.session_state.material_language,
+                st.session_state.material_language,
+            )
+
+            # Prevent source == target (compare full names)
+            if st.session_state.source_language == _target_full:
                 st.warning("Source and target must be different. Source reset to English.")
                 st.session_state.source_language = "English"
 
-            st.caption(f"Direction: {st.session_state.source_language} → {st.session_state.target_language}")
+            st.caption(f"Direction: {st.session_state.source_language} → {_target_full}")
 
             # Update training language if material language changed
             training_language = MATERIAL_TO_TRAINING.get(

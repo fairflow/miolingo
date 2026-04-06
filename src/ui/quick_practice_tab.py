@@ -656,26 +656,37 @@ def _render_guided_mode():
 
 def _render_free_text_mode():
     """Render free-text practice UI; returns the entered text."""
+    from config import MATERIAL_TO_TRAINING
+
     source = st.session_state.get("source_language", "English")
     target_code = st.session_state.get("material_language", "fr")
-    from config import MATERIAL_TO_TRAINING
     target = MATERIAL_TO_TRAINING.get(target_code, target_code)
 
-    st.write(f"Enter a word or phrase in **{source}** to practise in **{target}**")
+    direction = st.session_state.get("translation_direction", "source_to_target")
+    if direction == "source_to_target":
+        from_lang, to_lang = source, target
+    else:
+        from_lang, to_lang = target, source
+
+    st.write(f"Enter a word or phrase in **{from_lang}** to practise in **{to_lang}**")
 
     col1, col2, col3 = st.columns([1, 1, 4])
     with col1:
-        st.button("⬅️ Previous", disabled=True, key="nav_prev_disabled",
-                  help="Navigation only available in guided mode")
+        if st.button("⇄ Swap", key="swap_direction",
+                     help=f"Switch to {to_lang} → {from_lang}"):
+            st.session_state.translation_direction = (
+                "target_to_source" if direction == "source_to_target"
+                else "source_to_target"
+            )
+            st.rerun()
     with col2:
-        st.button("Next ➡️", disabled=True, key="nav_next_disabled",
-                  help="Navigation only available in guided mode")
+        st.write("")
     with col3:
         st.write("")
 
     st.markdown("---")
     return st.text_input(
-        f"Enter word or phrase ({source} → {target}):",
+        f"Enter word or phrase ({from_lang} → {to_lang}):",
         key="practice_text_free",
     )
 
@@ -698,9 +709,11 @@ def render_quick_practice_tab():
     text = _render_practice_area()
 
     # Translation-aware practice text
-    source_lang = st.session_state.source_language
-    target_lang = st.session_state.target_language
-    direction = st.session_state.translation_direction
+    from config import MATERIAL_TO_TRAINING
+    source_lang = st.session_state.source_language  # full name, e.g. "English"
+    _target_code = st.session_state.get("material_language", "fr")
+    target_lang = MATERIAL_TO_TRAINING.get(_target_code, _target_code)  # full name
+    direction = st.session_state.get("translation_direction", "source_to_target")
 
     translated_text = None
     practice_text = text

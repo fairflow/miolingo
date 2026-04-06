@@ -78,9 +78,11 @@ def _resolve_and_lock_source_language():
     lock it in session state, and persist to DB.
     Called after every successful login path (regular, guest, cookie re-attach).
     """
-    # DB value (returning user) takes precedence over login-form selection
+    # Login-form selection takes precedence (user explicitly chose this session).
+    # Fall back to DB-saved value (cookie re-attach), then default.
+    _login_source = st.session_state.get('_login_source_lang')
     _saved_source = st.session_state.get('settings', {}).get('source_language')
-    _chosen_source = _saved_source or st.session_state.get('_login_source_lang', 'English')
+    _chosen_source = _login_source or _saved_source or 'English'
     st.session_state['source_language'] = _chosen_source
     st.session_state.setdefault('settings', {})['source_language'] = _chosen_source
 

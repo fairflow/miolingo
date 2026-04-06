@@ -338,8 +338,28 @@ class ConnectionPool:
                 )
                 return conn
 
-        # No existing tunnel — create a temporary one via bootstrap
+        # No existing tunnel — create one and register it in pool + DB
         tunnel = self.create_ssh_tunnel()
+        pid = self.get_tunnel_pid(tunnel)
+        now = datetime.now()
+
+        # Store tunnel in pool so it can be reused (avoid proliferation)
+        tunnel_id = f"bootstrap_{self._next_tunnel_index}"
+        self._next_tunnel_index += 1
+        self.tunnel_pool[tunnel_id] = TunnelInfo(
+            tunnel_id=tunnel_id,
+            tunnel_obj=tunnel,
+            pid=pid,
+            local_port=tunnel.local_bind_port,
+            created_at=now,
+            last_used=now,
+            status='active',
+            connection_count=0,
+        )
+
+        # Give tunnel time to stabilize
+        time.sleep(0.3)
+
         conn = mysql.connector.connect(
             host='127.0.0.1',
             port=tunnel.local_bind_port,
@@ -349,19 +369,26 @@ class ConnectionPool:
             connect_timeout=10,
             use_pure=True,
         )
-        # Store tunnel in pool so it can be reused (avoid proliferation)
-        tunnel_id = f"bootstrap_{self._next_tunnel_index}"
-        self._next_tunnel_index += 1
-        self.tunnel_pool[tunnel_id] = TunnelInfo(
-            tunnel_id=tunnel_id,
-            tunnel_obj=tunnel,
-            pid=self.get_tunnel_pid(tunnel),
-            local_port=tunnel.local_bind_port,
-            created_at=datetime.now(),
-            last_used=datetime.now(),
-            status='active',
-            connection_count=0,
-        )
+
+        # Register in tunnel_monitor DB table so FK constraints work when
+        # this tunnel is later picked up by get_tracked_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO tunnel_monitor
+                (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    pid = VALUES(pid),
+                    local_port = VALUES(local_port),
+                    last_used = VALUES(last_used),
+                    status = VALUES(status)
+            """, (tunnel_id, pid, tunnel.local_bind_port, now, now, 'active', 0))
+            conn.commit()
+            cursor.close()
+        except Exception as e:
+            logging.warning(f"Could not register bootstrap tunnel {tunnel_id} in DB: {e}")
+
         return conn
 
     @contextmanager
