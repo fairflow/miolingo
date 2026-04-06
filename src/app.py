@@ -143,12 +143,7 @@ finally:
 # Initialise session manager (auth infrastructure — must happen after st.set_page_config)
 init_session_manager()
 
-# CCS Testing Framework (optional)
-try:
-    from ccs_test_integration import CCSTestSession
-    CCS_AVAILABLE = True
-except ImportError:
-    CCS_AVAILABLE = False
+# CCS Testing Framework removed — see commit history for rationale
 
 
 # ============================================================================
@@ -412,9 +407,6 @@ def initialize_session_state():
         st.session_state.wav2vec2_processor = None
         st.session_state.wav2vec2_model = None
 
-    # CCS Testing Framework initialization (disabled by default)
-    if CCS_AVAILABLE and 'ccs_test' not in st.session_state:
-        st.session_state.ccs_test = CCSTestSession(enabled=False)
 
 
 # ASR model loaders — now in audio/asr.py (imported above)
@@ -826,14 +818,6 @@ def main():
         # The challenge is that Streamlit widgets maintain their own state that can conflict
         # with programmatic session_state updates during auto-sync
 
-        # CCS Testing Framework Controls
-        if CCS_AVAILABLE:
-            st.markdown("---")
-            st.header("🧪 CCS Testing")
-            st.session_state.ccs_test.render_toggle_ui()
-            if st.session_state.ccs_test.enabled:
-                st.session_state.ccs_test.render_validation_ui()
-
     # Main content - Tabs with state management
     tab_names = ["🎯 Quick Practice", "📖 Story Reader", "📊 Statistics", "📜 History"]
 
@@ -862,11 +846,6 @@ def main():
     # Tab 4: History
     elif selected_tab_index == 3:
         render_history_tab()
-
-    # CCS Testing: Extract app state after UI renders (if testing enabled)
-    if CCS_AVAILABLE and st.session_state.ccs_test.enabled:
-        st.session_state.ccs_test.extract_app_state_from_streamlit()
-
 
 if __name__ == "__main__":
     main()
