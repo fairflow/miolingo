@@ -804,20 +804,6 @@ def main():
         - Discord: [Coming soon]
         """)
 
-        # Fun section - hidden advanced features (currently disabled)
-        st.markdown("---")
-        st.header("🎉 Fun")
-
-        st.markdown("**Mix up the spoken language**")
-        st.info("🚧 Feature temporarily disabled - Training language automatically matches material language for now.")
-
-        # Display current training language (read-only)
-        st.text(f"Current training language: {st.session_state.language}")
-
-        # TODO: Re-enable training language override after fixing widget state synchronization issues
-        # The challenge is that Streamlit widgets maintain their own state that can conflict
-        # with programmatic session_state updates during auto-sync
-
     # Main content - Tabs with state management
     tab_names = ["🎯 Quick Practice", "📖 Story Reader", "📊 Statistics", "📜 History"]
 
