@@ -656,7 +656,12 @@ def _render_guided_mode():
 
 def _render_free_text_mode():
     """Render free-text practice UI; returns the entered text."""
-    st.write("Practice any word or phrase you like")
+    source = st.session_state.get("source_language", "English")
+    target_code = st.session_state.get("material_language", "fr")
+    from config import MATERIAL_TO_TRAINING
+    target = MATERIAL_TO_TRAINING.get(target_code, target_code)
+
+    st.write(f"Enter a word or phrase in **{source}** to practise in **{target}**")
 
     col1, col2, col3 = st.columns([1, 1, 4])
     with col1:
@@ -669,7 +674,10 @@ def _render_free_text_mode():
         st.write("")
 
     st.markdown("---")
-    return st.text_input("Enter word or phrase:", key="practice_text_free")
+    return st.text_input(
+        f"Enter word or phrase ({source} → {target}):",
+        key="practice_text_free",
+    )
 
 
 # ---------------------------------------------------------------------------

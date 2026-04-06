@@ -13,7 +13,7 @@ from typing import Dict
 # Version metadata
 # ---------------------------------------------------------------------------
 
-__version__ = "7.1.11-claude-dev"
+__version__ = "7.2.0-claude-dev"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"
@@ -124,6 +124,7 @@ DEFAULT_SETTINGS = {
     "use_wav_audio": False,
     "tts_engine": "google_cloud",
     "gtts_slow": False,
+    "source_language": "English",
 }
 
 # ---------------------------------------------------------------------------
@@ -140,6 +141,12 @@ MATERIAL_TO_TRAINING: dict[str, str] = {
     'nl': 'Dutch',
     'pt': 'Portuguese',
 }
+
+# Languages available as source (practice-from) language.
+# Includes English plus all supported practice languages.
+SOURCE_LANGUAGE_OPTIONS: list[str] = [
+    "English", "French", "German", "Spanish", "Italian", "Dutch", "Portuguese"
+]
 
 # ---------------------------------------------------------------------------
 # Language helpers

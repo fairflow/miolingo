@@ -23,6 +23,8 @@ import app_mysql
 from config import (
     __version__,
     LANGUAGE_CONFIG,
+    MATERIAL_TO_TRAINING,
+    SOURCE_LANGUAGE_OPTIONS,
     load_settings as _config_load_settings,
 )
 
@@ -70,6 +72,26 @@ def _load_settings():
     return _config_load_settings(session_state=st.session_state, db_module=app_mysql)
 
 
+def _resolve_and_lock_source_language():
+    """
+    Resolve source language from DB settings or login-form selection,
+    lock it in session state, and persist to DB.
+    Called after every successful login path (regular, guest, cookie re-attach).
+    """
+    # DB value (returning user) takes precedence over login-form selection
+    _saved_source = st.session_state.get('settings', {}).get('source_language')
+    _chosen_source = _saved_source or st.session_state.get('_login_source_lang', 'English')
+    st.session_state['source_language'] = _chosen_source
+    st.session_state.setdefault('settings', {})['source_language'] = _chosen_source
+
+    # Persist to DB
+    try:
+        _user_id = st.session_state['user']['user_id']
+        app_mysql.save_user_setting(_user_id, 'source_language', _chosen_source)
+    except Exception:
+        pass  # best-effort; setting is also in session state
+
+
 # ---------------------------------------------------------------------------
 # Announcements
 # ---------------------------------------------------------------------------
@@ -112,28 +134,42 @@ def show_login_page():
     languages = ", ".join(LANGUAGE_CONFIG.keys())
     st.markdown(f"Pronunciation trainer - practice {languages}")
 
-    # Choose the initial practice language before login/guest
-    # (keeps the main app language selection aligned on first load)
-    language_names = list(LANGUAGE_CONFIG.keys())
-    default_language_name = st.session_state.get('login_practice_language', 'Portuguese')
-    if default_language_name not in language_names:
-        default_language_name = language_names[0] if language_names else 'Portuguese'
+    # ── Language selection (shown on login page, above the form) ──────────────
+    st.markdown("#### Choose your languages")
+    _practice_options = list(LANGUAGE_CONFIG.keys())
 
-    selected_language_name = st.selectbox(
-        "Practice language",
-        language_names,
-        index=language_names.index(default_language_name) if default_language_name in language_names else 0,
-        key='login_practice_language',
-        help="Select the language you want to practice first. You can change this later in Settings."
-    )
+    _col1, _col2 = st.columns(2)
+    with _col1:
+        st.selectbox(
+            "Your language (source)",
+            SOURCE_LANGUAGE_OPTIONS,
+            index=SOURCE_LANGUAGE_OPTIONS.index(
+                st.session_state.get("_login_source_lang", "English")
+            ),
+            key="_login_source_lang",
+            help="The language you know — what you translate FROM. Fixed for this session.",
+        )
+    with _col2:
+        _default_target = st.session_state.get('_login_target_lang', 'Portuguese')
+        if _default_target not in _practice_options:
+            _default_target = _practice_options[0] if _practice_options else 'Portuguese'
+        st.selectbox(
+            "Language to practise",
+            _practice_options,
+            index=_practice_options.index(_default_target),
+            key="_login_target_lang",
+            help="The language you want to practise today. Adjustable in the sidebar.",
+        )
 
-    # Persist as the canonical material language code (used by the main app selector)
+    # Persist practice language as the canonical material language code
     try:
+        selected_language_name = st.session_state.get('_login_target_lang', 'Portuguese')
         selected_code = LANGUAGE_CONFIG[selected_language_name]['code']
         if st.session_state.get('material_language') != selected_code:
             st.session_state.material_language = selected_code
     except Exception:
         pass
+    # ─────────────────────────────────────────────────────────────────────────
 
     # CRITICAL: Show forced logout reason if present (prominent display)
     # BUT: Don't show if this was a voluntary logout (user clicked logout button)
@@ -221,6 +257,7 @@ def show_login_page():
 
                             # Reload settings from database (using new tracked connection)
                             st.session_state.settings = _load_settings()
+                            _resolve_and_lock_source_language()
                             st.success(f"✅ Welcome back, {user['username']}!")
                             st.rerun()
                         else:
@@ -325,6 +362,7 @@ def show_login_page():
 
                 # Reload settings from database (will have defaults for new guest)
                 st.session_state.settings = _load_settings()
+                _resolve_and_lock_source_language()
                 st.success(f"✅ Welcome, Guest! Enjoy exploring Miolingo!")
                 st.rerun()
             else:
@@ -356,6 +394,7 @@ def check_authentication():
                 st.session_state['user'] = context.user
                 st.session_state['session_id'] = context.session_id
                 st.session_state.settings = _load_settings()
+                _resolve_and_lock_source_language()
 
     # Check if authenticated
     if not st.session_state['authenticated']:
