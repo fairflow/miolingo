@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.1.11-claude-dev] - 2026-04-06
+
+### Fixed
+
+- **Bootstrap connection generator bug**: `get_connection()` pre-auth path called
+  `pool.get_bootstrap_connection()` without `with`, storing a `_GeneratorContextManager`
+  in session state instead of a real MySQL connection. Every subsequent `.cursor()` call
+  failed. Fixed by adding `ConnectionPool.get_direct_connection()` which returns a real
+  connection object, reusing existing tunnels when available.
+- **`write_debug_log` crash on missing SSH secrets**: On environments without `[ssh]` in
+  `st.secrets` (e.g. Streamlit Cloud), `write_debug_log()` raised `KeyError` inside its
+  own error handler, creating log noise. Added a guard that returns early when SSH secrets
+  are absent, plus a `None` check on the connection.
+- Added `tests/test_connection.py` covering both fixes.
+
+
 ## [7.1.10-claude-dev] - 2026-04-06
 
 ### Fixed

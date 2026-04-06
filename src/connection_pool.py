@@ -317,14 +317,61 @@ class ConnectionPool:
         tunnel.start()
         return tunnel
     
+    def get_direct_connection(self):
+        """
+        Return a real MySQL connection object (not a context manager) using
+        an available tracked tunnel from the pool, or creating one if needed.
+        For pre-auth ephemeral use where storing in session state is required.
+        Caller is responsible for closing when done.
+        """
+        # Reuse first available healthy tunnel
+        for tunnel_info in self.tunnel_pool.values():
+            if tunnel_info.status == 'active' and self._is_tunnel_healthy(tunnel_info):
+                conn = mysql.connector.connect(
+                    host='127.0.0.1',
+                    port=tunnel_info.local_port,
+                    database=self.secrets['mysql']['database'],
+                    user=self.secrets['mysql']['user'],
+                    password=self.secrets['mysql']['password'],
+                    connect_timeout=10,
+                    use_pure=True,
+                )
+                return conn
+
+        # No existing tunnel — create a temporary one via bootstrap
+        tunnel = self.create_ssh_tunnel()
+        conn = mysql.connector.connect(
+            host='127.0.0.1',
+            port=tunnel.local_bind_port,
+            database=self.secrets['mysql']['database'],
+            user=self.secrets['mysql']['user'],
+            password=self.secrets['mysql']['password'],
+            connect_timeout=10,
+            use_pure=True,
+        )
+        # Store tunnel in pool so it can be reused (avoid proliferation)
+        tunnel_id = f"bootstrap_{self._next_tunnel_index}"
+        self._next_tunnel_index += 1
+        self.tunnel_pool[tunnel_id] = TunnelInfo(
+            tunnel_id=tunnel_id,
+            tunnel_obj=tunnel,
+            pid=self.get_tunnel_pid(tunnel),
+            local_port=tunnel.local_bind_port,
+            created_at=datetime.now(),
+            last_used=datetime.now(),
+            status='active',
+            connection_count=0,
+        )
+        return conn
+
     @contextmanager
     def get_bootstrap_connection(self):
         """
         Context manager for TRULY EPHEMERAL MySQL connection.
         Creates temporary tunnel → connection → automatically closes both.
-        
+
         CRITICAL: Prevents tunnel proliferation (125 SSH tunnel limit).
-        
+
         Usage:
             with pool.get_bootstrap_connection() as conn:
                 cursor = conn.cursor()

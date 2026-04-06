@@ -319,11 +319,11 @@ def get_connection() -> mysql.connector.MySQLConnection:
     # Pre-auth: Use single bootstrap connection (untracked, temporary)
     # Post-auth: Switch to tracked connection from pool (permanent until logout)
     if not st.session_state.get('authenticated', False):
-        # Not authenticated - use bootstrap connection (unlimited, not tracked)
+        # Not authenticated - use direct connection (not tracked, not a context manager)
         # Store it for reuse until login, then it will be closed during handover
         if 'db_connection' not in st.session_state:
             print("⚠️ Creating bootstrap connection for unauthenticated user (temporary, not tracked)")
-            conn = pool.get_bootstrap_connection()
+            conn = pool.get_direct_connection()
             st.session_state.db_connection = conn
         else:
             conn = st.session_state.db_connection
@@ -339,7 +339,7 @@ def get_connection() -> mysql.connector.MySQLConnection:
                     conn.close()
                 except:
                     pass
-                conn = pool.get_bootstrap_connection()
+                conn = pool.get_direct_connection()
                 st.session_state.db_connection = conn
         return conn
     
@@ -1323,6 +1323,10 @@ def write_debug_log(
     """
     conn = None
     try:
+        # Guard: if SSH secrets not available, skip silently
+        if 'ssh' not in st.secrets:
+            return  # graceful no-op on environments without SSH tunnel
+
         # Detect environment
         try:
             # Check if running on Streamlit Cloud
@@ -1331,11 +1335,13 @@ def write_debug_log(
             environment = 'deployed' if 'streamlit' in hostname.lower() else 'local'
         except:
             environment = 'unknown'
-        
+
         # Extract partial session ID for correlation (privacy)
         session_id_partial = session_id[:8] if session_id else None
-        
+
         conn = get_connection()
+        if conn is None:
+            return  # no connection available pre-auth
         cursor = conn.cursor()
         
         # Insert log entry
