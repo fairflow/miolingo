@@ -136,27 +136,34 @@ def show_login_page():
 
     # ── Language selection (shown on login page, above the form) ──────────────
     st.markdown("#### Choose your languages")
-    _practice_options = list(LANGUAGE_CONFIG.keys())
+
+    _current_source = st.session_state.get("_login_source_lang", "English")
+    _current_target = st.session_state.get("_login_target_lang", "Portuguese")
+
+    # Filter each list to exclude the other's current selection
+    _source_options = [l for l in SOURCE_LANGUAGE_OPTIONS if l != _current_target]
+    _target_options = [l for l in LANGUAGE_CONFIG.keys() if l != _current_source]
+
+    # Clamp defaults if they got filtered out
+    if _current_source not in _source_options:
+        _current_source = _source_options[0]
+    if _current_target not in _target_options:
+        _current_target = _target_options[0]
 
     _col1, _col2 = st.columns(2)
     with _col1:
         st.selectbox(
             "Your language (source)",
-            SOURCE_LANGUAGE_OPTIONS,
-            index=SOURCE_LANGUAGE_OPTIONS.index(
-                st.session_state.get("_login_source_lang", "English")
-            ),
+            _source_options,
+            index=_source_options.index(_current_source),
             key="_login_source_lang",
             help="The language you know — what you translate FROM. Fixed for this session.",
         )
     with _col2:
-        _default_target = st.session_state.get('_login_target_lang', 'Portuguese')
-        if _default_target not in _practice_options:
-            _default_target = _practice_options[0] if _practice_options else 'Portuguese'
         st.selectbox(
             "Language to practise",
-            _practice_options,
-            index=_practice_options.index(_default_target),
+            _target_options,
+            index=_target_options.index(_current_target),
             key="_login_target_lang",
             help="The language you want to practise today. Adjustable in the sidebar.",
         )

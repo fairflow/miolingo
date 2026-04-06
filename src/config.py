@@ -23,6 +23,15 @@ __license__ = "GPL-3.0"
 # ---------------------------------------------------------------------------
 
 LANGUAGE_CONFIG = {
+    "English": {
+        "code": "en",
+        "display_name": "English Pronunciation Trainer",
+        "voices": {
+            "google_cloud": ["en-gb", "en-us"],
+            "gtts": ["en"],
+            "espeak": ["en-gb", "en"]
+        }
+    },
     "Portuguese": {
         "code": "pt",
         "display_name": "Portuguese Pronunciation Trainer",
@@ -81,6 +90,9 @@ LANGUAGE_CONFIG = {
 
 # Voice locale normalization: lowercase codes → BCP 47 format
 VOICE_LOCALE_NORMALIZATION = {
+    'en': 'en-US',
+    'en-gb': 'en-GB',
+    'en-us': 'en-US',
     'pt-br': 'pt-BR',
     'pt': 'pt-PT',
     'fr': 'fr-FR',
@@ -97,6 +109,8 @@ VOICE_LOCALE_NORMALIZATION = {
 
 # Google Cloud TTS voice names per locale
 GOOGLE_CLOUD_VOICES = {
+    "en-GB": "en-GB-Standard-A",
+    "en-US": "en-US-Standard-A",
     "pt-BR": "pt-BR-Standard-A",
     "pt-PT": "pt-PT-Standard-A",
     "fr-FR": "fr-FR-Standard-A",
@@ -134,6 +148,7 @@ DEFAULT_SETTINGS = {
 # Maps short material language codes (used in filenames, session state) to the
 # full language names used by LANGUAGE_CONFIG / TTS / ASR.
 MATERIAL_TO_TRAINING: dict[str, str] = {
+    'en': 'English',
     'de': 'German',
     'es': 'Spanish',
     'fr': 'French',
