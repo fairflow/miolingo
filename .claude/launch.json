@@ -5,11 +5,11 @@
       "name": "miolingo (main app)",
       "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
       "runtimeArgs": [
-        "run",
-        "/Users/matthew/Software/working/miolingo/src/app.py",
+        "run", "src/app.py",
         "--server.headless", "true",
         "--server.port", "8701"
       ],
+      "cwd": "${workspaceFolder}",
       "port": 8701,
       "autoPort": false
     },
@@ -17,11 +17,11 @@
       "name": "miolingo-admin",
       "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
       "runtimeArgs": [
-        "run",
-        "/Users/matthew/Software/working/miolingo/src/miolingo-admin.py",
+        "run", "src/miolingo-admin.py",
         "--server.headless", "true",
         "--server.port", "8702"
       ],
+      "cwd": "${workspaceFolder}",
       "port": 8702,
       "autoPort": false
     },
@@ -29,11 +29,11 @@
       "name": "unified-admin",
       "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
       "runtimeArgs": [
-        "run",
-        "/Users/matthew/Software/working/miolingo/src/unified_admin.py",
+        "run", "src/unified_admin.py",
         "--server.headless", "true",
         "--server.port", "8703"
       ],
+      "cwd": "${workspaceFolder}",
       "port": 8703,
       "autoPort": false
     }
