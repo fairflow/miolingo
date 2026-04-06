@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "miolingo",
+      "name": "miolingo (main app)",
       "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
       "runtimeArgs": [
         "run",
@@ -11,6 +11,30 @@
         "--server.port", "8701"
       ],
       "port": 8701,
+      "autoPort": false
+    },
+    {
+      "name": "miolingo-admin",
+      "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
+      "runtimeArgs": [
+        "run",
+        "/Users/matthew/Software/working/miolingo/src/miolingo-admin.py",
+        "--server.headless", "true",
+        "--server.port", "8702"
+      ],
+      "port": 8702,
+      "autoPort": false
+    },
+    {
+      "name": "unified-admin",
+      "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
+      "runtimeArgs": [
+        "run",
+        "/Users/matthew/Software/working/miolingo/src/unified_admin.py",
+        "--server.headless", "true",
+        "--server.port", "8703"
+      ],
+      "port": 8703,
       "autoPort": false
     }
   ]
