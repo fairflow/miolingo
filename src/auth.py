@@ -52,10 +52,13 @@ def on_logout():
     """
     Handle the session-manager side of logout (clear cookie, set logged-out flag).
     Call from the logout button handler in app.py before clearing session state.
+
+    Uses SessionManager.logout() which batches both cookie mutations into a single
+    save() call, avoiding StreamlitDuplicateElementKey when the cookie component
+    renders its fixed key twice in the same run.
     """
     if ENABLE_SESSION_MANAGER and _session_manager:
-        _session_manager.set_logged_out_flag()
-        _session_manager.clear_cookie_session_id()
+        _session_manager.logout()  # batched: flag + clear + single save
 
 
 # ---------------------------------------------------------------------------
