@@ -111,6 +111,22 @@ class TestUiPackage:
 # ui.quick_practice_tab
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# ui.sidebar
+# ---------------------------------------------------------------------------
+
+class TestSidebarImports:
+    """Verify ui.sidebar is importable and exports expected names."""
+
+    def test_import_render_user_panel(self):
+        from ui.sidebar import render_user_panel
+        assert callable(render_user_panel)
+
+    def test_import_render_settings_panel(self):
+        from ui.sidebar import render_settings_panel
+        assert callable(render_settings_panel)
+
+
 class TestQuickPracticeTabImports:
     """Verify ui.quick_practice_tab is importable and exports expected names."""
 

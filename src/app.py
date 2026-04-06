@@ -12,7 +12,8 @@ Run with: streamlit run app.py
 from config import (
     __version__, __app_name__, __author__, __license__,
     LANGUAGE_CONFIG, VOICE_LOCALE_NORMALIZATION, GOOGLE_CLOUD_VOICES,
-    DEFAULT_SETTINGS, get_language_code, get_language_for_provider,
+    DEFAULT_SETTINGS, MATERIAL_TO_TRAINING,
+    get_language_code, get_language_for_provider,
 )
 
 # Scoring and phoneme modules
@@ -97,6 +98,7 @@ from ui.story_tab import render_story_reader
 from ui.statistics_tab import render_statistics_tab
 from ui.history_tab import load_history, save_history, render_history_tab
 from ui.quick_practice_tab import render_quick_practice_tab
+from ui.sidebar import render_user_panel, render_settings_panel
 
 # Import API usage logger for cost tracking
 try:
@@ -226,110 +228,8 @@ except Exception:
     # Don't break the app if capacity check fails
     pass
 
-# If we get here, user is authenticated! Show logout button in sidebar
-with st.sidebar:
-    # Version at very top
-    st.markdown(f"### 🎯 Miolingo v{__version__}")
-
-    # Connection info panel (thin, below version)
-    # Connection info panel - ALWAYS show (even if no connection)
-    conn_info = app_mysql.get_current_connection_info()
-    with st.expander("🔌 Connection Info", expanded=False):
-        if conn_info:
-            st.caption(f"**Tunnel:** `{conn_info['tunnel_id']}` (PID: {conn_info['tunnel_pid']}, Port: {conn_info['tunnel_port']})")
-            st.caption(f"**Created:** {conn_info['tunnel_created']}")
-            st.caption(f"**Connections:** {conn_info['tunnel_conn_count']} on this tunnel")
-            st.caption("---")
-            st.caption(f"**SQL Conn:** `{conn_info['connection_id'][:30]}...`")
-            st.caption(f"**MySQL ID:** {conn_info['mysql_conn_id']} ({conn_info['connection_status']})")
-            st.caption(f"**Age:** {conn_info['connection_age']} | **TTL:** {conn_info['session_ttl']}")
-            st.caption(f"**Now:** {conn_info['current_time'].strftime('%H:%M:%S')}")
-        else:
-            st.caption("⚠️ No connection info available")
-
-        # Reconnect button - OUTSIDE conn_info check so always visible
-        if st.button("🔄 Reconnect", help="Get new connection from pool and swap it in"):
-            try:
-                # Get old connection details for cleanup
-                old_conn_id = conn_info.get('connection_id') if conn_info else None
-                old_conn = st.session_state.get('db_connection')
-
-                # Clear the session connection so get_connection() creates a new one
-                if 'db_connection' in st.session_state:
-                    del st.session_state.db_connection
-
-                # Clear cached display info BEFORE getting new connection
-                # This ensures get_connection() will update the cache with fresh data
-                if '_last_connection_info' in st.session_state:
-                    del st.session_state['_last_connection_info']
-                if '_last_tunnel_info' in st.session_state:
-                    del st.session_state['_last_tunnel_info']
-
-                # Get new connection from pool (this creates new tracked connection AND updates cache)
-                new_conn = app_mysql.get_connection()
-
-                # Verify new connection is tracked by doing a simple query
-                # This ensures the connection info is fully populated in the database
-                cursor = new_conn.cursor(buffered=True)
-                cursor.execute("SELECT 1")
-                cursor.fetchall()  # Consume all results
-                cursor.close()
-
-                # Now close the old connection (after new one is established and verified)
-                if old_conn_id and old_conn:
-                    pool = app_mysql.get_connection_pool_instance()
-                    pool.close_connection(old_conn_id)
-                    try:
-                        old_conn.close()
-                    except:
-                        pass
-
-                st.success("✓ Switched to fresh connection from pool.")
-                st.rerun()
-            except Exception as e:
-                st.error(f"Reconnect failed: {e}")
-
-    st.markdown("---")
-
-    # User info below divider
-    if st.session_state['user'].get('is_guest', False):
-        st.markdown("👤 **Guest User** 🎭")
-        st.warning("⚠️ **Temporary session**: Your progress and settings will be lost when you log out. Create an account to save everything!")
-    else:
-        st.markdown(f"👤 **{st.session_state['user']['username']}**")
-        st.markdown(f"📧 {st.session_state['user']['email']}")
-
-    # Logout button at bottom of this section
-    if st.button("🚪 Logout"):
-        # VOLUNTARY LOGOUT: User clicked the button
-        # Mark as voluntary BEFORE clearing, so login page doesn't show forced logout warning
-        voluntary_logout = True
-
-        try:
-            app_mysql.write_debug_log(
-                event_type="logout_button_clicked",
-                message="Logout button clicked",
-                username=st.session_state.get('user', {}).get('username'),
-                user_id=st.session_state.get('user', {}).get('user_id'),
-                session_id=st.session_state.get('session_id'),
-            )
-        except Exception:
-            pass
-
-        # Delete session from database
-        if 'session_id' in st.session_state:
-            app_mysql.delete_session(st.session_state['session_id'])
-
-        # Clear cookie + set logged-out flag (delegated to auth module)
-        on_logout()
-
-        # Cleanup session resources (connections, etc)
-        app_mysql.cleanup_session_resources()
-
-        # Clear session state, but preserve voluntary logout marker
-        st.session_state.clear()
-        st.session_state['voluntary_logout'] = True  # Set AFTER clear
-        st.rerun()
+# If we get here, user is authenticated! Show user panel in sidebar.
+render_user_panel()
 
 # ============================================================================
 # END AUTHENTICATION - Main app starts below
@@ -477,15 +377,8 @@ def main():
     # Material Language selection
     from app_language_materials import get_available_languages, format_language_name
 
-    # Map material language to training language
-    material_to_training = {
-        'de': 'German',
-        'es': 'Spanish',
-        'fr': 'French',
-        'it': 'Italian',
-        'nl': 'Dutch',
-        'pt': 'Portuguese'
-    }
+    # Map material language to training language (canonical definition in config.py)
+    material_to_training = MATERIAL_TO_TRAINING
 
     # Initialize material_language from saved settings if not already set
     # Do this BEFORE rendering title so the correct language is displayed
@@ -535,274 +428,7 @@ def main():
 
     st.markdown("---")
 
-    # Sidebar - Settings and Navigation
-    with st.sidebar:
-        st.markdown("---")
-        st.header("⚙️ Settings")
-
-        # Source/Target Language selection
-        st.markdown("**🌍 Languages**")
-
-        available_materials = get_available_languages()
-        if available_materials:
-            # Source language (default English)
-            source_options = ["English"] + available_materials
-            if st.session_state.get('source_language') not in source_options:
-                st.session_state.source_language = "English"
-
-            st.selectbox(
-                "Source Language",
-                source_options,
-                format_func=format_language_name,
-                help="Language the learner is most comfortable with",
-                key="source_language"
-            )
-
-            # Target language (drives materials + IPA)
-            # Find current index from saved settings or existing session state
-            current_idx = 0
-            if 'material_language' in st.session_state:
-                try:
-                    current_idx = available_materials.index(st.session_state.material_language)
-                except ValueError:
-                    pass
-            elif 'material_language' in st.session_state.settings:
-                try:
-                    current_idx = available_materials.index(st.session_state.settings['material_language'])
-                except ValueError:
-                    pass
-
-            previous_material_language = st.session_state.get('material_language', None)
-            st.selectbox(
-                "Target Language",
-                available_materials,
-                index=current_idx,
-                format_func=format_language_name,
-                help="Language being learned (IPA + practice target)",
-                key="material_language"
-            )
-
-            # Sync target language
-            st.session_state.target_language = st.session_state.material_language
-
-            # Prevent source == target
-            if st.session_state.source_language == st.session_state.target_language:
-                st.warning("Source and target must be different. Source reset to English.")
-                st.session_state.source_language = "English"
-
-            # Translation direction toggle
-            direction = st.session_state.get('translation_direction', 'source_to_target')
-            if st.button("⇄ Switch translation direction"):
-                st.session_state.translation_direction = (
-                    'target_to_source' if direction == 'source_to_target' else 'source_to_target'
-                )
-                st.rerun()
-
-            # Direction label
-            if st.session_state.translation_direction == 'source_to_target':
-                st.caption(f"Direction: {st.session_state.source_language} → {st.session_state.target_language}")
-            else:
-                st.caption(f"Direction: {st.session_state.target_language} → {st.session_state.source_language}")
-
-            # Derive training language from material language
-            if st.session_state.material_language in material_to_training:
-                training_language = material_to_training[st.session_state.material_language]
-            else:
-                training_language = 'French'
-
-            # Update training language if material language changed
-            if previous_material_language != st.session_state.material_language:
-                st.session_state.language = training_language
-                # Ensure session exists for new language
-                if training_language not in st.session_state.current_sessions:
-                    st.session_state.current_sessions[training_language] = {
-                        "date": datetime.now().isoformat(),
-                        "practices": []
-                    }
-
-        # Ensure session exists for current language (safety check)
-        if st.session_state.language not in st.session_state.current_sessions:
-            st.session_state.current_sessions[st.session_state.language] = {
-                "date": datetime.now().isoformat(),
-                "practices": []
-            }
-
-        # Get current language config from the derived training language
-        lang_config = LANGUAGE_CONFIG[st.session_state.language]
-
-        # TTS Engine selection
-        st.markdown("**🔊 Text-to-Speech Engine**")
-
-        # Map current setting to dropdown index
-        current_engine = st.session_state.settings.get('tts_engine', 'google_cloud')
-        engine_options = ["google_cloud", "gtts", "espeak"]
-        try:
-            current_index = engine_options.index(current_engine)
-        except ValueError:
-            current_index = 0  # Default to google_cloud if unknown
-
-        st.session_state.settings['tts_engine'] = st.selectbox(
-            "TTS Engine",
-            engine_options,
-            index=current_index,
-            help="google_cloud: Official Google Cloud TTS (best quality, requires API key)\ngtts: Unofficial Google TTS (rate limited)\nespeak: eSpeak (adjustable speed/pitch, robotic voice)"
-        )
-
-        tts_is_espeak = st.session_state.settings.get('tts_engine', 'gtts') == 'espeak'
-
-        # Voice settings
-        if tts_is_espeak:
-            # eSpeak: Full speed and pitch control
-            st.session_state.settings['speed'] = st.slider(
-                "Speed (wpm)", 80, 450, st.session_state.settings['speed'], 10,
-                help="Lower = slower speech (eSpeak only)"
-            )
-
-            st.session_state.settings['pitch'] = st.slider(
-                "Pitch", 0, 99, st.session_state.settings['pitch'], 5,
-                help="Voice pitch (eSpeak only)"
-            )
-        else:
-            # Google TTS: Limited speed control (normal/slow only)
-            st.session_state.settings['gtts_slow'] = st.checkbox(
-                "Slow speech",
-                value=st.session_state.settings.get('gtts_slow', False),
-                help="Enable slower speech (~50% speed). Google TTS only supports normal or slow."
-            )
-            st.caption("💡 For more speed control, change the speed settings on the playback control (⋮)")
-
-        # Get available voices for current language and TTS engine
-        tts_engine = st.session_state.settings['tts_engine']
-        available_voices = lang_config['voices'][tts_engine]
-
-        # Make sure current voice is valid for selected language, otherwise use first available
-        current_voice = st.session_state.settings.get('voice', available_voices[0])
-        if current_voice not in available_voices:
-            current_voice = available_voices[0]
-            st.session_state.settings['voice'] = current_voice
-
-        st.session_state.settings['voice'] = st.selectbox(
-            "Voice",
-            available_voices,
-            index=available_voices.index(current_voice),
-            help=f"Available voices for {st.session_state.language}"
-        )
-
-        st.markdown("**🎙️ Speech Recognition**")
-
-        # wav2vec2 temporarily disabled (requires large dependencies: transformers, torch, librosa)
-        # Whisper is the primary ASR engine and works across all 6 languages
-        st.session_state.settings['asr_engine'] = 'whisper'  # Force whisper
-
-        # Commented out: ASR Engine selector (can be re-enabled if wav2vec2 dependencies are added back)
-        # st.session_state.settings['asr_engine'] = st.selectbox(
-        #     "ASR Engine",
-        #     ["whisper", "wav2vec2"],
-        #     index=0 if st.session_state.settings.get('asr_engine', 'whisper') == 'whisper' else 1,
-        #     help="whisper: Multilingual (99 languages)\nwav2vec2: Portuguese-specific (may be more accurate)"
-        # )
-
-        # Whisper model size selection
-        st.session_state.settings['whisper_model_size'] = st.selectbox(
-            "Whisper Model Size",
-            ["tiny", "base", "small", "medium", "large"],
-            index=["tiny", "base", "small", "medium", "large"].index(
-                st.session_state.settings.get('whisper_model_size', 'base')
-            ),
-            help="Larger = more accurate but slower. tiny is fastest, large is most accurate."
-        )
-        # Keep 'model' in sync for backwards compatibility
-        st.session_state.settings['model'] = st.session_state.settings['whisper_model_size']
-
-        st.session_state.settings['comparison_algorithm'] = st.selectbox(
-            "Scoring Algorithm",
-            ["edit_distance", "positional"],
-            index=0 if st.session_state.settings.get('comparison_algorithm', 'edit_distance') == 'edit_distance' else 1,
-            help="edit_distance: Handles insertions/deletions (recommended)\npositional: Simple character-by-character matching"
-        )
-
-        st.markdown("**🎚️ Audio Processing**")
-
-        st.session_state.settings['silence_threshold'] = st.slider(
-            "Silence Trim Threshold",
-            min_value=0.001,
-            max_value=0.1,
-            value=st.session_state.settings.get('silence_threshold', 0.01),
-            step=0.001,
-            format="%.3f",
-            help="Audio above this threshold (% of max) is kept as speech. Lower = keep more audio (may include noise). Higher = more aggressive trimming (may cut speech ends). Default: 0.01"
-        )
-
-        use_wav = st.checkbox(
-            "Use WAV audio format",
-            value=st.session_state.settings.get('use_wav_audio', False),
-            help="Enable if TTS audio doesn't play on your device (iOS Safari compatibility). Converts MP3→WAV.",
-            key="use_wav_checkbox"
-        )
-        # Update setting immediately when checkbox changes
-        if use_wav != st.session_state.settings.get('use_wav_audio', False):
-            st.session_state.settings['use_wav_audio'] = use_wav
-            save_settings(st.session_state.settings)
-            st.info("WAV audio setting saved")
-
-        if st.button("💾 Save Settings"):
-            # Include material_language in settings to persist it
-            settings_to_save = st.session_state.settings.copy()
-            settings_to_save['material_language'] = st.session_state.get('material_language', 'fr')
-            save_settings(settings_to_save)
-            st.success("Settings saved!")
-            st.rerun()
-
-        st.markdown("---")
-
-        # Session info
-        st.header("📊 Current Session")
-        current_session = st.session_state.current_sessions[st.session_state.language]
-        practice_count = len(current_session["practices"])
-        st.metric("Practices", practice_count)
-
-        if practice_count > 0:
-            perfect = sum(1 for p in current_session["practices"] if p.get("exact_match", False))
-            st.metric("Perfect", f"{perfect}/{practice_count}")
-
-            if not st.session_state.session_saved:
-                st.warning(f"⚠️ {practice_count} unsaved practice(s)")
-                if st.button("💾 Save Session Now"):
-                    save_current_session()
-
-        # Documentation links
-        st.markdown("---")
-        st.header("📚 Help & Docs")
-        st.markdown("""
-        **📖 Guides:**
-        - [User Guide](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/USER_GUIDE.md) - How to use the app
-        - [Testing Guide](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/TESTING_GUIDE.md) - Report bugs & test
-        - [All Documentation](https://github.com/fairflow/miolingo/tree/feature/admin-fusion/docs/app-docs)
-
-        **📚 Stories:**
-        """)
-
-        # Language-aware story links (based on material language)
-        lang_code = st.session_state.get('material_language', 'fr')
-
-        if lang_code == 'pt':
-            st.markdown("- [Sophie & Lucas: Uma Jornada aos Alpes](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/pt/story.md) (Portuguese)")
-        elif lang_code == 'fr':
-            st.markdown("- [Sophie & Lucas: A Journey to the Alps](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/fr/story.md) (French)")
-        elif lang_code == 'nl':
-            st.markdown("- [Sophie & Lucas: Een Reis naar de Alpen](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/nl/story.md) (Dutch)")
-        elif lang_code == 'de':
-            st.markdown("- [Sophie & Lucas: Eine Reise in die Alpen](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/de/story.md) (German)")
-        elif lang_code == 'it':
-            st.markdown("- [Sophie & Lucas: Un Viaggio sulle Alpi](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/it/story.md) (Italian)")
-        elif lang_code == 'es':
-            st.markdown("- [Sophie & Lucas: Un Viaje a Sierra Nevada](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/language_materials/es/story.md) (Spanish)")
-
-        st.markdown("""
-        **💬 Support:**
-        - Email: io@miolingo.io
-        - Discord: [Coming soon]
-        """)
+    render_settings_panel()
 
     # Main content - Tabs with state management
     tab_names = ["🎯 Quick Practice", "📖 Story Reader", "📊 Statistics", "📜 History"]
