@@ -13,7 +13,7 @@ from typing import Dict
 # Version metadata
 # ---------------------------------------------------------------------------
 
-__version__ = "7.1.8-claude-dev-phase5"
+__version__ = "7.1.9-claude-dev-phase6"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"
@@ -124,6 +124,21 @@ DEFAULT_SETTINGS = {
     "use_wav_audio": False,
     "tts_engine": "google_cloud",
     "gtts_slow": False,
+}
+
+# ---------------------------------------------------------------------------
+# Material-code → Training-language mapping
+# ---------------------------------------------------------------------------
+
+# Maps short material language codes (used in filenames, session state) to the
+# full language names used by LANGUAGE_CONFIG / TTS / ASR.
+MATERIAL_TO_TRAINING: dict[str, str] = {
+    'de': 'German',
+    'es': 'Spanish',
+    'fr': 'French',
+    'it': 'Italian',
+    'nl': 'Dutch',
+    'pt': 'Portuguese',
 }
 
 # ---------------------------------------------------------------------------
