@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.1.10-claude-dev] - 2026-04-06
+
+### Fixed
+
+- **Logout crash (`StreamlitDuplicateElementKey`)**: `on_logout()` previously called
+  `set_logged_out_flag()` then `clear_cookie_session_id()` separately, each invoking
+  `cookies.save()`.  The cookie component renders with the hardcoded key
+  `'CookieManager.sync_cookies.save'`; two renders in one Streamlit run raised
+  `StreamlitDuplicateElementKey`, crashing logout for any user whose previous session
+  ended without an explicit logout click.  Fixed by adding `SessionManager.logout()`
+  which applies both cookie mutations and calls `save()` exactly once.
+- Added `tests/test_session_manager.py` (9 tests) asserting the single-save invariant.
+
+
 ## [7.1.9-claude-dev-phase6] - 2026-04-06
 
 ### Changed

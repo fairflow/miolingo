@@ -183,6 +183,32 @@ class SessionManager:
             pass
         return None
 
+    def logout(self) -> None:
+        """Batch logout: set the logged-out flag AND clear the session cookie in a single
+        ``cookies.save()`` call.
+
+        The cookie manager renders a Streamlit component with a fixed key each time
+        ``save()`` is called.  Calling it twice in the same run (once for the flag, once
+        for the session cookie) raises ``StreamlitDuplicateElementKey``.  This method
+        combines both mutations so the component is rendered exactly once.
+        """
+        cookies = self._get_cookie_manager()
+        if not cookies:
+            return None
+        cookies[LOGOUT_COOKIE_NAME] = "1"
+        if COOKIE_NAME in cookies:
+            del cookies[COOKIE_NAME]
+        cookies.save()  # single save — one component render, no duplicate key
+        try:
+            import app_mysql
+            app_mysql.write_debug_log(
+                event_type="cookie_logout_complete",
+                message="Logout flag set and session cookie cleared in one save",
+            )
+        except Exception:
+            pass
+        return None
+
     def clear_logged_out_flag(self) -> None:
         cookies = self._get_cookie_manager()
         if not cookies:
