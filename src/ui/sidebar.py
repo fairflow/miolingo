@@ -156,23 +156,27 @@ def render_settings_panel():
             )
             # ─────────────────────────────────────────────────────────────────────
 
-            # Target language
+            # Target language — exclude the source language from options
+            from config import get_language_code
+            _source_code = get_language_code(st.session_state.get("source_language", "English"))
+            _target_options = [m for m in available_materials if m != _source_code]
+
             current_idx = 0
             if 'material_language' in st.session_state:
                 try:
-                    current_idx = available_materials.index(st.session_state.material_language)
+                    current_idx = _target_options.index(st.session_state.material_language)
                 except ValueError:
                     pass
             elif 'material_language' in st.session_state.settings:
                 try:
-                    current_idx = available_materials.index(st.session_state.settings['material_language'])
+                    current_idx = _target_options.index(st.session_state.settings['material_language'])
                 except ValueError:
                     pass
 
             previous_material_language = st.session_state.get('material_language', None)
             st.selectbox(
                 "Target Language",
-                available_materials,
+                _target_options,
                 index=current_idx,
                 format_func=format_language_name,
                 help="Language being learned (IPA + practice target)",
@@ -182,16 +186,11 @@ def render_settings_panel():
             # Sync target language
             st.session_state.target_language = st.session_state.material_language
 
-            # Resolve full target name for display and comparison
+            # Resolve full target name for display
             _target_full = MATERIAL_TO_TRAINING.get(
                 st.session_state.material_language,
                 st.session_state.material_language,
             )
-
-            # Prevent source == target (compare full names)
-            if st.session_state.source_language == _target_full:
-                st.warning("Source and target must be different. Source reset to English.")
-                st.session_state.source_language = "English"
 
             st.caption(f"Direction: {st.session_state.source_language} → {_target_full}")
 
