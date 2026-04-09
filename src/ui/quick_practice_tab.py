@@ -209,7 +209,15 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
     # Load button
     if st.button("📂 Load This File", type="primary", key="load_builtin"):
         try:
-            phrases = load_phrase_file(str(metadata['path']))
+            file_path_str = str(metadata['path'])
+            if category.startswith('unified-'):
+                from app_language_materials import load_unified_phrase_file
+                from config import get_language_code
+                target = st.session_state.get('material_language', 'fr')
+                source = get_language_code(st.session_state.get('source_language', 'English'))
+                phrases = load_unified_phrase_file(file_path_str, target, source)
+            else:
+                phrases = load_phrase_file(file_path_str)
             st.session_state.phrase_list = phrases
             st.session_state.qp_phrase_position = 0
             st.session_state.phrase_selector_widget = 0

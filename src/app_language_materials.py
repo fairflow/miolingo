@@ -342,14 +342,15 @@ def load_phrase_file(file_path_str: str) -> List[Dict]:
     except Exception as e:
         raise ValueError(f"Invalid file path: {e}")
 
-    # Detect unified files — delegate to language-pair-aware loader
+    # Unified files should be loaded via load_unified_phrase_file() directly,
+    # which is cached by (path, target_lang, source_lang). Do not load them
+    # through this function as it only caches by path.
     unified_resolved = UNIFIED_DIR.resolve()
     if str(file_path_resolved).startswith(str(unified_resolved)):
-        from config import get_language_code
-        target = st.session_state.get('material_language', 'fr')
-        source_name = st.session_state.get('source_language', 'English')
-        source = get_language_code(source_name)
-        return load_unified_phrase_file(file_path_str, target, source)
+        raise ValueError(
+            "Unified files must be loaded via load_unified_phrase_file() "
+            "with explicit target/source language parameters"
+        )
 
     # Handle JSON files (story scenes)
     if file_path.suffix == '.json':
