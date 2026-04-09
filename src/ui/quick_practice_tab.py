@@ -129,7 +129,7 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
     missing_translations = not metadata.get('has_translations')
     missing_ipa = not metadata.get('has_ipa')
 
-    if (missing_translations or missing_ipa) and not selected_category.startswith('unified-'):
+    if (missing_translations or missing_ipa) and not category.startswith('unified-'):
         st.markdown("---")
         st.markdown("**✨ Enrich This Material**")
 
