@@ -1,0 +1,309 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "exclamations",
+    "phrase_count": 10,
+    "languages": [
+      "de",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-exclamations-001",
+      "text": {
+        "fr": "Ah bon!",
+        "en": "Oh really!",
+        "de": "Ach wirklich!",
+        "pt": "Ah é!",
+        "it": "Davvero!",
+        "es": "¡Ah sí!",
+        "nl": "O echt!"
+      },
+      "ipa": {
+        "fr": "[ˈa bˈɔ̃]",
+        "de": "[ˈax vˈɪɾklɪç]",
+        "pt": "[ˈa ɛ]",
+        "it": "[davvˈeːro]",
+        "es": "[ˈa sˈi]",
+        "nl": "[ˈoː ˈɛxt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-002",
+      "text": {
+        "fr": "Allez!",
+        "en": "Come on!",
+        "de": "Los!",
+        "pt": "Vamos!",
+        "it": "Dai!",
+        "es": "¡Venga!",
+        "nl": "Kom op!"
+      },
+      "ipa": {
+        "fr": "[alˈe]",
+        "de": "[lˈoːs]",
+        "pt": "[vˈɐ̃mʊs]",
+        "it": "[dˈaːɪ]",
+        "es": "[bˈɛŋɡa]",
+        "nl": "[kˈɔm ˈɔp]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-003",
+      "text": {
+        "fr": "Bof",
+        "en": "Meh",
+        "de": "Na ja",
+        "pt": "Tanto faz",
+        "it": "Mah",
+        "es": "Bah",
+        "nl": "Nou ja"
+      },
+      "ipa": {
+        "fr": "[bˈɔf]",
+        "de": "[nˈɑː jˈɑː]",
+        "pt": "[tˈɐ̃ŋtʊ fˈas]",
+        "it": "[mˈa]",
+        "es": "[bˈa]",
+        "nl": "[nˈʌʊ jˈaː]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-004",
+      "text": {
+        "fr": "N'importe quoi!",
+        "en": "Whatever!",
+        "de": "Egal!",
+        "pt": "Qualquer coisa!",
+        "it": "Qualunque cosa!",
+        "es": "¡Lo que sea!",
+        "nl": "Maakt niet uit!"
+      },
+      "ipa": {
+        "fr": "[nɛ̃pˈɔʁt kwˈa]",
+        "de": "[eːɡˈɑːl]",
+        "pt": "[kwaʊkˌɛr kˈoɪzæ]",
+        "it": "[kwalˈunkwe kˈɔːza]",
+        "es": "[lo ke sˈea]",
+        "nl": "[mˈaːkt nˌit ˈœyt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-005",
+      "text": {
+        "fr": "C'est n'importe quoi!",
+        "en": "That's nonsense!",
+        "de": "Das ist Unsinn!",
+        "pt": "Isso é absurdo!",
+        "it": "È una sciocchezza!",
+        "es": "¡Eso es una tontería!",
+        "nl": "Dat slaat nergens op!"
+      },
+      "ipa": {
+        "fr": "[sɛ nɛ̃pˈɔʁt kwˈa]",
+        "de": "[das ɪst ˈʊnzˌɪn]",
+        "pt": "[ˈisw ɛ ˌabsˈuɾədʊ]",
+        "it": "[ˌɛ ˌʊna ʃokːˈetsːa]",
+        "es": "[ˈeso ˈes ˈuna tˌɔntɛɾˈia]",
+        "nl": "[dɑt slˈaːt nˈɛrɣəns ˈɔp]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-006",
+      "text": {
+        "fr": "Laisse tomber",
+        "en": "Forget it",
+        "de": "Vergiss es",
+        "pt": "Deixa pra lá",
+        "it": "Lascia perdere",
+        "es": "Olvídalo",
+        "nl": "Laat maar"
+      },
+      "ipa": {
+        "fr": "[lˈɛs tɔ̃bˈe]",
+        "de": "[fɛɾɡˈɪs ɛs]",
+        "pt": "[dˈeɪʃæ pra lˈa]",
+        "it": "[lˈaːʃa pˈɛrdere]",
+        "es": "[ɔlβˈiðalo]",
+        "nl": "[lˈaːt maːr]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-007",
+      "text": {
+        "fr": "Bref",
+        "en": "Anyway",
+        "de": "Jedenfalls",
+        "pt": "Enfim",
+        "it": "Insomma",
+        "es": "En fin",
+        "nl": "Kortom"
+      },
+      "ipa": {
+        "fr": "[bʁˈɛf]",
+        "de": "[jˈeːdənfˌals]",
+        "pt": "[eɪŋfˈiŋ]",
+        "it": "[insˈomma]",
+        "es": "[ɛm fˈin]",
+        "nl": "[kˈɔrtɔm]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-008",
+      "text": {
+        "fr": "Dis donc!",
+        "en": "Wow!",
+        "de": "Wahnsinn!",
+        "pt": "Nossa!",
+        "it": "Wow!",
+        "es": "¡Guau!",
+        "nl": "Wauw!"
+      },
+      "ipa": {
+        "fr": "[dˈi dˈɔ̃k]",
+        "de": "[vˈɑːnzɪn]",
+        "pt": "[nˈɔsæ]",
+        "it": "[(en)wˈaʊ(it)]",
+        "es": "[ɡwˈaʊ]",
+        "nl": "[ʋˈʌʊ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-009",
+      "text": {
+        "fr": "La vache!",
+        "en": "Holy cow!",
+        "de": "Mensch!",
+        "pt": "Caramba!",
+        "it": "Cavolo!",
+        "es": "¡Madre mía!",
+        "nl": "Jeetje!"
+      },
+      "ipa": {
+        "fr": "[la- vˈaʃ]",
+        "de": "[mˈɛnʃ]",
+        "pt": "[kˌaɾˈɐ̃mbæ]",
+        "it": "[kˈavolo]",
+        "es": "[mˈaðɾe mˈia]",
+        "nl": "[jˈeːtʲə]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-exclamations-010",
+      "text": {
+        "fr": "C'est nul",
+        "en": "That sucks",
+        "de": "Das ist doof",
+        "pt": "Isso é uma droga",
+        "it": "Che schifo",
+        "es": "Qué rollo",
+        "nl": "Dat is balen"
+      },
+      "ipa": {
+        "fr": "[sɛ nˈyl]",
+        "de": "[das ɪst dˈoːf]",
+        "pt": "[ˈisw ɛ ˌumæ drˈɔɡæ]",
+        "it": "[kˌe skˈiːfo]",
+        "es": "[kˈɛ rˈɔʎo]",
+        "nl": "[dɑt ɪs bˈaːlən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}

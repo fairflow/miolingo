@@ -1,0 +1,309 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "conversation",
+    "phrase_count": 10,
+    "languages": [
+      "de",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-conversation-001",
+      "text": {
+        "fr": "Comment vas-tu?",
+        "en": "How are you?",
+        "de": "Wie geht es dir?",
+        "pt": "Como você está?",
+        "it": "Come stai?",
+        "es": "¿Cómo estás?",
+        "nl": "Hoe gaat het met je?"
+      },
+      "ipa": {
+        "fr": "[kɔmˌɑ̃ vˈatˈy]",
+        "de": "[viː ɡˈeːt ɛs dˈiːɾ]",
+        "pt": "[kˌomʊ vosˌe estˈa]",
+        "it": "[kˌome stˈaɪ]",
+        "es": "[kˈɔmo estˈas]",
+        "nl": "[hˈu ɣˈaːt hət mɛt jə]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-002",
+      "text": {
+        "fr": "Qu'est-ce que tu fais?",
+        "en": "What are you doing?",
+        "de": "Was machst du?",
+        "pt": "O que você está fazendo?",
+        "it": "Che fai?",
+        "es": "¿Qué haces?",
+        "nl": "Wat ben je aan het doen?"
+      },
+      "ipa": {
+        "fr": "[kɛskˌə ty fˈɛ]",
+        "de": "[vˈas mˈaxst duː]",
+        "pt": "[ʊ ky vosˌe estˌa fˌazˈeɪŋdʊ]",
+        "it": "[kˌe fˈaːɪ]",
+        "es": "[kˈɛ ˈaθes]",
+        "nl": "[ʋɑt bɛn jə aːn hə tˈun]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-003",
+      "text": {
+        "fr": "Tu fais quoi?",
+        "en": "What are you doing?",
+        "de": "Was machst du?",
+        "pt": "O que você faz?",
+        "it": "Cosa fai?",
+        "es": "¿Qué haces?",
+        "nl": "Wat doe je?"
+      },
+      "ipa": {
+        "fr": "[ty fˈɛ kwˈa]",
+        "de": "[vˈas mˈaxst duː]",
+        "pt": "[ʊ ky vosˌe fˈas]",
+        "it": "[kˈɔːza fˈaːɪ]",
+        "es": "[kˈɛ ˈaθes]",
+        "nl": "[ʋɑ tˈu jə]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-004",
+      "text": {
+        "fr": "Ça te dit?",
+        "en": "How about it?",
+        "de": "Hast du Lust?",
+        "pt": "Que tal?",
+        "it": "Ti va?",
+        "es": "¿Te apetece?",
+        "nl": "Lijkt het je wat?"
+      },
+      "ipa": {
+        "fr": "[sa tə- dˈi]",
+        "de": "[hast duː lˈʊst]",
+        "pt": "[ky tˈaʊ]",
+        "it": "[tˌɪ vˈa]",
+        "es": "[te ˌapetˈeθe]",
+        "nl": "[lˈɛɪkt hət jə ʋɑt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-005",
+      "text": {
+        "fr": "J'ai envie de...",
+        "en": "I feel like...",
+        "de": "Ich habe Lust auf...",
+        "pt": "Estou com vontade de...",
+        "it": "Ho voglia di...",
+        "es": "Tengo ganas de...",
+        "nl": "Ik heb zin in..."
+      },
+      "ipa": {
+        "fr": "[ʒe ɑ̃vˈi də-]",
+        "de": "[ɪç hɑːbə lˈʊst ˈaʊf]",
+        "pt": "[estˌow koŋ vˌoŋtˈadʒy dʒy]",
+        "it": "[ˌo vˈoːʎa dˈi]",
+        "es": "[tˈɛŋɡo ɣˈanas ðˈe]",
+        "nl": "[ɪk hɛp zˈɪn ˈɪn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-006",
+      "text": {
+        "fr": "Tu veux prendre un verre?",
+        "en": "Want to get a drink?",
+        "de": "Willst du was trinken gehen?",
+        "pt": "Você quer tomar algo?",
+        "it": "Vuoi andare a bere qualcosa?",
+        "es": "¿Quieres ir a tomar algo?",
+        "nl": "Zullen we iets drinken?"
+      },
+      "ipa": {
+        "fr": "[ty vˈø pʁˈɑ̃dʁ œ̃ vˈɛʁ]",
+        "de": "[vɪlst duː vˈas tɾˈɪŋkən ɡˈeːən]",
+        "pt": "[vosˌe kˈɛr tomˈaɾ ˈaʊɡʊ]",
+        "it": "[vʊˈɔːɪ andˈaːre ˌa bˈeːre kwalkˈɔːza]",
+        "es": "[kjˈɛɾɛs ˈiɾ a tomˈaɾ ˈalɣo]",
+        "nl": "[zˌɵlən ʋə ˈits drˈɪŋkən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-007",
+      "text": {
+        "fr": "Comment va le travail?",
+        "en": "How's work?",
+        "de": "Wie läuft die Arbeit?",
+        "pt": "Como está o trabalho?",
+        "it": "Come va il lavoro?",
+        "es": "¿Cómo va el trabajo?",
+        "nl": "Hoe gaat het met je werk?"
+      },
+      "ipa": {
+        "fr": "[kɔmˌɑ̃ vˈa lə- tʁavˈaj]",
+        "de": "[viː lˈɔøft diː ˈaɾbaɪt]",
+        "pt": "[kˌomʊ estˌa ʊ trˌabˈaljʊ]",
+        "it": "[kˌome vˈa ˌil lavˈɔːro]",
+        "es": "[kˈɔmo βˈa el tɾaβˈaxo]",
+        "nl": "[hˈu ɣˈaːt hət mɛt jə ʋˈɛrk]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-008",
+      "text": {
+        "fr": "Comment va ta famille?",
+        "en": "How's your family?",
+        "de": "Wie geht es deiner Familie?",
+        "pt": "Como está sua família?",
+        "it": "Come sta la tua famiglia?",
+        "es": "¿Cómo está tu familia?",
+        "nl": "Hoe gaat het met je familie?"
+      },
+      "ipa": {
+        "fr": "[kɔmˌɑ̃ vˈa ta- famˈij]",
+        "de": "[viː ɡˈeːt ɛs dˌaɪnɜ famˈiːlɪə]",
+        "pt": "[kˌomʊ estˌa sˌuæ fˌæmˈiljæ]",
+        "it": "[kˌome stˈa lˌa tˌʊa famˈiːʎa]",
+        "es": "[kˈɔmo estˈa tu famˈilja]",
+        "nl": "[hˈu ɣˈaːt hət mɛt jə faːmˈilˌi]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-009",
+      "text": {
+        "fr": "Tiens-moi au courant",
+        "en": "Keep me updated",
+        "de": "Halt mich auf dem Laufenden",
+        "pt": "Me mantenha informado",
+        "it": "Tienimi aggiornato",
+        "es": "Mantenme informado",
+        "nl": "Hou me op de hoogte"
+      },
+      "ipa": {
+        "fr": "[tjˈɛ̃mwˌa o kuʁˈɑ̃]",
+        "de": "[hˈalt mɪç aʊf deːm lˈaʊfəndən]",
+        "pt": "[my mˌɐ̃ŋtˈeɲæ ˌiŋfoɾəmˈadʊ]",
+        "it": "[tjˈɛnimɪ ˌadʒːornˈaːto]",
+        "es": "[mantˈɛnme ˌimfɔɾmˈaðo]",
+        "nl": "[hˈʌʊ mə ɔp də hˈoːxtə]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-conversation-010",
+      "text": {
+        "fr": "Tu t'en sors?",
+        "en": "Are you managing?",
+        "de": "Kommst du zurecht?",
+        "pt": "Você está dando conta?",
+        "it": "Te la cavi?",
+        "es": "¿Te las arreglas?",
+        "nl": "Red je het?"
+      },
+      "ipa": {
+        "fr": "[ty tɑ̃ sˈɔʁ]",
+        "de": "[kˈɔmst duː tsuːrˈɛçt]",
+        "pt": "[vosˌe estˌa dˈɐ̃ŋdʊ kˈoŋtæ]",
+        "it": "[tˌe lˌa kˈaːvɪ]",
+        "es": "[te las arˈeɣlas]",
+        "nl": "[rˈɛt jə hət]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}

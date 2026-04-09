@@ -1,0 +1,1019 @@
+{
+  "meta": {
+    "source": "story-scenes",
+    "scene_number": 5,
+    "scene_title": {
+      "en": "At the Station",
+      "fr": "À La Gare",
+      "de": "Am Bahnhof",
+      "pt": "Na Rodoviária",
+      "it": "Alla stazione",
+      "es": "En la estación",
+      "nl": "Op het Station"
+    },
+    "phrase_count": 39,
+    "core_phrase_count": 29,
+    "pt_matched": 26,
+    "pt_unmatched": 10,
+    "languages": [
+      "de",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "scene-05-001",
+      "text": {
+        "fr": "Deux billets pour Grenoble, s'il vous plaît,",
+        "en": "Two tickets to Maastricht, please.",
+        "de": "Zwei Tickets nach München bitte,",
+        "it": "Due biglietti per Roma Termini, per favore.",
+        "es": "Dos billetes para Segovia, por favor.",
+        "nl": "Twee kaartjes naar Maastricht, alsjeblieft.",
+        "pt": "Duas passagens para Campos do Jordão, por favor, diz Lucas.",
+        "en_pt": "Two tickets to Campos do Jordão, please, Lucas says."
+      },
+      "ipa": {
+        "fr": "dˈø bijˈɛ puʁ ɡʁənˈɔbl sil vu plˈɛ",
+        "de": "[ˈtsvaɪ̯ ˈtɪkɪts naχ ˈmʏnçn̩ ˈbɪtə]",
+        "it": "[dˈuːe biʎˈetːɪ pˌɛr rˈɔːma tˈɛrminɪ\n pˌɛr favˈoːre]",
+        "es": "[ˈdos βiˈʎetes paɾa seˈɣoβja poɾ faˈβoɾ]",
+        "nl": "[tʋˈeː kˈaːrtʲəs naːr mˈaːstrɪxt\n ˌɑlʃɛblˈift]",
+        "pt": "[dˈuæs pˌasˈaʒeɪŋs pˌaɾæ kˈɐ̃mpʊz dʊ ʒoɾədˈɐ̃ʊ̃\n por favˈor\n dʒˈiz lˈukæs]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-002",
+      "text": {
+        "fr": "Aller simple ou aller-retour?",
+        "en": "One-way or return?",
+        "de": "Einfache Fahrt oder Hin- und Rückfahrt?",
+        "it": "Solo andata o andata e ritorno?",
+        "es": "¿Ida o ida y vuelta?",
+        "nl": "Enkele reis of retour?",
+        "pt": "Só ida ou ida e volta?",
+        "en_pt": "One way or round trip?"
+      },
+      "ipa": {
+        "fr": "alˈe sˈɛ̃pl u alˈeʁətˈuʁ",
+        "de": "[ˈaɪ̯nfaxə faːɐ̯t ˈoːdɐ hɪnʊnt ˈʁʏkfart]",
+        "it": "[sˈoːlo andˈaːta ˌo andˈaːta ˌe ritˈoːrno]",
+        "es": "[ˈiða o ˈiða i ˈbwelta]",
+        "nl": "[ˈɛŋkələ rˈɛɪs ɔf rˈeːtuːr]",
+        "pt": "[sˈɔ ˈidæ ow ˈidæ i vˈɔltæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-003",
+      "text": {
+        "fr": "Aller simple.",
+        "en": "One-way.",
+        "de": "Einfache Fahrt.",
+        "it": "Solo andata.",
+        "es": "Ida.",
+        "nl": "Enkele reis.",
+        "pt": "Só ida.",
+        "en_pt": "One way."
+      },
+      "ipa": {
+        "fr": "alˈe sˈɛ̃pl",
+        "de": "[ˈaɪ̯nfaxə faːɐ̯t]",
+        "it": "[sˈoːlo andˈaːta]",
+        "es": "[ˈiða]",
+        "nl": "[ˈɛŋkələ rˈɛɪs]",
+        "pt": "[sˈɔ ˈidæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-004",
+      "text": {
+        "fr": "Le train part à quelle heure?",
+        "en": "What time does the train leave?",
+        "de": "Wann fährt der Zug ab?",
+        "it": "A che ora parte il treno?",
+        "es": "¿A qué hora sale el tren?",
+        "nl": "Hoe laat vertrekt de trein?",
+        "pt": "O ônibus sai que horas?",
+        "en_pt": "What time does the bus leave?"
+      },
+      "ipa": {
+        "fr": "lə- tʁˈɛ̃ pˈaʁ a kɛl ˈœʁ",
+        "de": "[van fɛːɐ̯t deːɐ̯ t͡suːk ap]",
+        "it": "[ˌa kˌe ˈɔːra pˈaːrte ˌil trˈɛːno]",
+        "es": "[a ke ˈoɾa ˈsale el tɾen]",
+        "nl": "[hˈu lˈaːt vərtrˈɛk tə trˈɛɪn]",
+        "pt": "[u ˈonibus sˈaɪ ky ˈɔɾæs]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-005",
+      "text": {
+        "fr": "À onze heures quinze",
+        "en": "At eleven fifteen.",
+        "de": "Um elf Uhr fünfzehn",
+        "it": "Alle undici e quindici",
+        "es": "A las once y cuarto",
+        "nl": "Om elf uur vijftien.",
+        "pt": "Às onze e quinze."
+      },
+      "ipa": {
+        "fr": "a ˈɔ̃z ˈœʁ kˈɛ̃z",
+        "de": "[ʊm ɛlf ʔuːɐ̯ ˈfʏnftseːn]",
+        "it": "[ˌalle ˈunditʃɪ ˌe kwˈinditʃɪ]",
+        "es": "[a las ˈonθe i ˈkwaɾto]",
+        "nl": "[ɔm ˈɛlf ˈyr vɛɪftˈin]",
+        "pt": "[aːz ˈoŋzj i kˈiŋzy]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-006",
+      "text": {
+        "fr": "Vous avez de la chance, c'est le TGV direct.",
+        "en": "You're in luck, it's the direct Intercity.",
+        "de": "Ihr habt Glück, es ist der direkte ICE.",
+        "it": "Sei fortunato, è un Frecciarossa diretto.",
+        "es": "Tienes suerte, es el tren directo.",
+        "nl": "Je hebt geluk, het is de directe Intercity.",
+        "pt": "Vocês têm sorte, é o direto.",
+        "en_pt": "You're lucky, it's the direct one."
+      },
+      "ipa": {
+        "fr": "vuz avˈe də- la- ʃˈɑ̃s sɛ lə- tˌeʒˌevˈe diʁˈɛkt",
+        "de": "[iːɐ̯ hapt ɡlʏk, ɛs ɪst deːɐ̯ dɪˈʁɛktə ˈiːt͡seːˈʔeː]",
+        "it": "[sˌɛj fˌɔrtʊnˈaːto\n ˌɛ ˌʊn frˌetʃːarˈossa dirˈɛtːo]",
+        "es": "[ˈtjenes ˈswerte es el tɾen diˈɾekto]",
+        "nl": "[jə hɛpt ɣəlˈɵk\n hət ɪs də dˈirɛktə ˈɪntərsˌiti]",
+        "pt": "[vosˌes teɪŋ sˈɔɾətʃy\n ɛ ʊ dʒˌiɾˈɛtʊ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-007",
+      "text": {
+        "fr": "Nous avons le temps de prendre un café?",
+        "en": "Do we have time for a coffee?",
+        "de": "Haben wir Zeit für einen Kaffee?",
+        "it": "Abbiamo tempo per un caffè?",
+        "es": "¿Tenemos tiempo para tomar un café?",
+        "nl": "Hebben we tijd voor een koffie?",
+        "pt": "Temos tempo de tomar um café?"
+      },
+      "ipa": {
+        "fr": "nuz avˈɔ̃ lə- tˈɑ̃ də- pʁˈɑ̃dʁ œ̃ kafˈe",
+        "de": "[ˈhaːbn̩ viːɐ̯ t͡saɪ̯t fʏːɐ̯ ˈaɪ̯nən ˈkafɛː]",
+        "it": "[abːjˌamo tˈɛmpo pˌɛr ˌʊn kaffˈɛ]",
+        "es": "[teˈnemos ˈtjempo paɾa toˈmaɾ un kaˈfe]",
+        "nl": "[hˌɛbən ʋə tˈɛɪd vɔːr ən kɔfˈi]",
+        "pt": "[tˌemʊs tˈeɪmpʊ dʒy tomˈaɾ ũŋ kafˈɛ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-008",
+      "text": {
+        "fr": "Oui, nous avons une demi-heure.",
+        "en": "Yes, we have half an hour.",
+        "de": "Ja, wir haben eine halbe Stunde.",
+        "it": "Sì, abbiamo mezz'ora.",
+        "es": "Sí, tenemos media hora.",
+        "nl": "Ja, we hebben een half uur.",
+        "pt": "Sim, temos meia hora."
+      },
+      "ipa": {
+        "fr": "wˈi nuz avˈɔ̃z yn dəmjˈœʁ",
+        "de": "[jaː, viːɐ̯ ˈhabn̩ ˈaɪ̯nə ˈhalbə ˈʃtʊndə]",
+        "it": "[sˈi\n abːjˌamo medzːˈɔːra]",
+        "es": "[si teˈnemos ˈmeðja ˈoɾa]",
+        "nl": "[jˈaː\n ʋə hˌɛbən ən hˈɑlf ˈyr]",
+        "pt": "[sˈiŋ\n tˌemʊz mˈeɪæ ˈɔɾæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-009",
+      "text": {
+        "fr": "Quel quai pour le train de Grenoble?",
+        "en": "Which platform is the train to Maastricht on?",
+        "de": "Auf welchem Bahnsteig fährt der Zug nach München?",
+        "it": "Quale binario per il treno per Roma Termini?",
+        "es": "¿En qué andén sale el tren para Segovia?",
+        "nl": "Op welk perron is de trein naar Maastricht?"
+      },
+      "ipa": {
+        "fr": "kɛl kˈe puʁ lə- tʁˈɛ̃ də- ɡʁənˈɔbl",
+        "de": "[aʊ̯f ˈvɛlçəm ˈbaːnʃtaɪ̯k fɛːɐ̯t deːɐ̯ t͡suːk naχ ˈmʏnçn̩]",
+        "it": "[kwˈaːle binˈario pˌɛr ˌil trˈɛːno pˌɛr rˈɔːma tˈɛrminɪ]",
+        "es": "[en ke anˈden ˈsale el tɾen paɾa seˈɣoβja]",
+        "nl": "[ɔp ʋˈɛlk pɛɾrˈɔn ɪs də trˈɛɪn naːr mˈaːstrɪxt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-010",
+      "text": {
+        "fr": "Le quai numéro sept. Vous verrez les panneaux.",
+        "en": "Platform number seven. You'll see the signs.",
+        "de": "Bahnsteig Nummer sieben. Ihr seht die Schilder.",
+        "it": "Il binario numero sette. Vedrai i cartelli.",
+        "es": "El andén número siete. Verás los carteles.",
+        "nl": "Perron nummer zeven. Je zult de borden zien.",
+        "pt": "Plataforma número sete.",
+        "en_pt": "Platform number seven."
+      },
+      "ipa": {
+        "fr": "lə- kˈe nymeʁˈo sˈɛt vu vɛʁˈe le- panˈo",
+        "de": "[ˈbaːnʃtaɪ̯k ˈnʊmɐ ˈziːbn̩. iːɐ̯ zeːt diː ˈʃɪldɐ]",
+        "it": "[ˌil binˈario nˈumero sˈɛtːe\n vedrˈaɪ ˌɪ kartˈɛllɪ]",
+        "es": "[el anˈden ˈnumeɾo ˈsjete βeˈɾas los kaɾˈteles]",
+        "nl": "[pɛɾrˈɔn nˈɵmər zˈeːvən\n jə zɵl tə bˈɔrdən zˈin]",
+        "pt": "[plˌatafˈɔɾəmæ nˈũmeɾʊ sˈɛtʃy]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-011",
+      "text": {
+        "fr": "N'oublie pas ton sac!",
+        "en": "Don't forget your bag!",
+        "de": "Vergiss deinen Rucksack nicht!",
+        "it": "Non dimenticare la tua borsa!",
+        "es": "¡No olvides tu mochila!",
+        "nl": "Vergeet je tas niet!",
+        "pt": "Não esqueça sua mochila!",
+        "en_pt": "Don't forget your backpack!"
+      },
+      "ipa": {
+        "fr": "nublˈi pa tɔ̃ sˈak",
+        "de": "[fɛɐ̯ˈɡɪs ˈdaɪ̯nən ˈʁʊkzak nɪçt]",
+        "it": "[nˌon dˌimentikˈaːre lˌa tˌʊa bˈoːrsa]",
+        "es": "[no olˈβiðes tu moˈtʃila]",
+        "nl": "[vərɣˈeːt jə tˈɑs nˈit]",
+        "pt": "[nˌɐ̃ʊ̃ ˌeskˈesæ sˌuæ mˌoʃˈilæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-012",
+      "text": {
+        "fr": "Je l'ai déjà pris. Et toi, tu as les billets?",
+        "en": "I've already grabbed it. And you, do you have the tickets?",
+        "de": "Ich habe ihn schon geholt. Und du, hast du die Tickets?",
+        "it": "L'ho già presa. E tu, hai i biglietti?",
+        "es": "Ya la he cogido. ¿Y tú, tienes los billetes?",
+        "nl": "Ik heb hem al gepakt. En jij, heb je de kaartjes?",
+        "pt": "E você, tem as passagens?",
+        "en_pt": "And you, do you have the tickets?"
+      },
+      "ipa": {
+        "fr": "ʒə- le deʒˈa pʁˈi e twˈa ty a le- bijˈɛ",
+        "de": "[ɪç ˈhaːbə iːn ʃoːn ɡəˈhɔlt. ʊnt duː, hast duː diː ˈtɪkɪts]",
+        "it": "[lˌo dʒˈa prˈeːza\n ˌe tˈu\n ˌaj ˌɪ biʎˈetːɪ]",
+        "es": "[ʝa la e koˈxiðo i ˈtu ˈtjenes los βiˈʎetes]",
+        "nl": "[ɪk hɛp hˈɛm ˈɑl ɣəpˈɑkt\n ˈɛn jɛɪ\n hɛp jə də kˈaːrtʲəs]",
+        "pt": "[i vosˈe\n teɪŋ as pˌasˈaʒeɪŋs]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-013",
+      "text": {
+        "fr": "Oui, dans ma poche.",
+        "en": "Yes, in my pocket.",
+        "de": "Ja, in meiner Tasche.",
+        "it": "Sì, nella mia tasca.",
+        "es": "Sí, en mi bolsillo.",
+        "nl": "Ja, in mijn zak.",
+        "pt": "Sim, no meu bolso."
+      },
+      "ipa": {
+        "fr": "wˈi dɑ̃ ma- pˈɔʃ",
+        "de": "[jaː, ɪn ˈmaɪ̯nɐ ˈtaʃə]",
+        "it": "[sˈi\n nˌɛlla mˌia tˈaska]",
+        "es": "[si en mi βolˈsiʎo]",
+        "nl": "[jˈaː\n ɪn mɛɪn zˈɑk]",
+        "pt": "[sˈiŋ\n nʊ meʊ bˈowsʊ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-014",
+      "text": {
+        "fr": "Tu es prêt pour l'aventure?",
+        "en": "Are you ready for the adventure?",
+        "de": "Bist du bereit für das Abenteuer?",
+        "it": "Sei pronto per l'avventura?",
+        "es": "¿Estás listo para la aventura?",
+        "nl": "Ben je klaar voor het avontuur?",
+        "pt": "Você está pronto para a aventura?"
+      },
+      "ipa": {
+        "fr": "ty ɛ pʁˈɛ puʁ lavɑ̃tˈyʁ",
+        "de": "[bɪst duː bəˈʁaɪ̯t fʏːɐ̯ das abənˈtɔɪ̯ɐ̯]",
+        "it": "[sˌɛj prˈonto pˌɛr lˌavventˈuːra]",
+        "es": "[ˈestas ˈlisto paɾa la aβenˈtuɾa]",
+        "nl": "[bɛn jə klˈaːr vɔːr hət ˌaːvɔntˈyr]",
+        "pt": "[vosˌe estˌa prˈoŋtʊ pˌaɾæ a ˌaveɪŋtˈuɾæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-015",
+      "text": {
+        "fr": "Oui, plus que jamais!",
+        "en": "Yes, more than ever!",
+        "de": "Ja, mehr denn je!",
+        "it": "Sì, più che mai!",
+        "es": "¡Sí, más que nunca!",
+        "nl": "Ja, meer dan ooit!",
+        "pt": "Sim, mais do que nunca!"
+      },
+      "ipa": {
+        "fr": "wˈi ply kə ʒamˈɛ",
+        "de": "[jaː, meːɐ̯ dɛn jeː]",
+        "it": "[sˈi\n pjˌʊ kˌe mˈaɪ]",
+        "es": "[si mas ke ˈnunka]",
+        "nl": "[jˈaː\n mˈɪːr dˈɑn ˈoːjt]",
+        "pt": "[sˈiŋ\n mˈaɪz dʊ ky nˈũŋkæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-016",
+      "text": {
+        "fr": "Le train arrive bientôt.",
+        "en": "The train is coming soon.",
+        "de": "Der Zug kommt bald.",
+        "it": "Il treno arriva presto.",
+        "es": "El tren llegará pronto.",
+        "nl": "De trein komt zo.",
+        "pt": "O ônibus vai chegar logo.",
+        "en_pt": "The bus will arrive soon."
+      },
+      "ipa": {
+        "fr": "lə- tʁˈɛ̃ aʁˈiv bjɛ̃tˈo",
+        "de": "[deːɐ̯ t͡suːk kɔmt bald]",
+        "it": "[ˌil trˈɛːno arɾˈiːva prˈɛsto]",
+        "es": "[el tɾen ʎeˈɣaɾa ˈpɾonto]",
+        "nl": "[də trˈɛɪn kˈɔmt zˈoː]",
+        "pt": "[u ˈonibuz vaɪ ʃeɡˈar lˈɔɡʊ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-017",
+      "text": {
+        "fr": "Montons vite, il y a du monde,",
+        "en": "Let's board quickly, it's crowded,",
+        "de": "Schnell einsteigen, es wird voll,",
+        "it": "Saliamo in fretta, c'è molta gente.",
+        "es": "Subamos rápido, que hay mucha gente.",
+        "nl": "Laten we snel instappen, het is druk,",
+        "pt": "Vamos rápido, tem muita gente, diz Lucas.",
+        "en_pt": "Let's go quickly, there are a lot of people, Lucas says."
+      },
+      "ipa": {
+        "fr": "mɔ̃tˈɔ̃ vˈit il i a dy- mˈɔ̃d",
+        "de": "[ʃnɛl ˈaɪ̯nʃtaɪ̯ɡn̩, ɛs vɪɐ̯t fɔl]",
+        "it": "[sˌaliˈaːmo ˌin frˈetːa\n tʃˌɛ mˈolta dʒˈɛnte]",
+        "es": "[suˈβamos ˈrapido ke ai ˈmutʃa ˈxente]",
+        "nl": "[lˈaːtən ʋə snˈɛl ˈɪnstˌɑpən\n hət ɪs drˈɵk]",
+        "pt": "[vˌɐ̃mʊz xˈapidʊ\n teɪŋ mwˈiŋtæ ʒˈeɪŋtʃy\n dʒˈiz lˈukæs]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-018",
+      "text": {
+        "fr": "Voici nos places. Près de la fenêtre!",
+        "en": "Here are our seats. By the window!",
+        "de": "Hier sind unsere Plätze. Neben dem Fenster!",
+        "it": "Ecco i nostri posti. Vicino alla finestra!",
+        "es": "Aquí están nuestros asientos. ¡Junto a la ventana!",
+        "nl": "Hier zijn onze plaatsen. Bij het raam!",
+        "pt": "Aqui estão nossos lugares.",
+        "en_pt": "Here are our seats."
+      },
+      "ipa": {
+        "fr": "vwasˌi no plˈas pʁɛ də- la- fənˈɛtʁ",
+        "de": "[hiːɐ̯ zɪnt ʔʊnzəʁə ˈplɛt͡sə. ˈneːbn̩ deːm ˈfɛnstɐ]",
+        "it": "[ˈɛkːo ˌɪ nˌɔstrɪ pˈostɪ\n vitʃˈiːno ˌalla finˈɛstra]",
+        "es": "[aˈki esˈtan nwestɾos aˈsjentos ˈxunto a la βenˈtana]",
+        "nl": "[hˈir zɛɪn ɔnzˌə plˈaːtsən\n bɛɪ hət rˈaːm]",
+        "pt": "[akˈi estˌɐ̃ʊ̃ nˌɔsʊs lˌuɡˈaɾys]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-019",
+      "text": {
+        "fr": "C'est parti pour une nouvelle vie!",
+        "en": "Here we go, on to a new life!",
+        "de": "Los geht's, auf zu einem neuen Leben!",
+        "it": "Si parte per una nuova vita!",
+        "es": "¡Empezamos una nueva vida!",
+        "nl": "Daar gaan we, op naar een nieuw leven!",
+        "pt": "Lá vamos nós para uma nova vida!",
+        "en_pt": "Here we go to a new life!"
+      },
+      "ipa": {
+        "fr": "sɛ paʁtˈi puʁ yn nuvˈɛl vˈi",
+        "de": "[loːs ɡeːts, aʊ̯f t͡su ˈaɪ̯nəm ˈnɔɪ̯ən ˈleːbn̩]",
+        "it": "[sˌɪ pˈaːrte pˌɛr ˌʊna nʊˈɔːva vˈiːta]",
+        "es": "[empeˈθamos ˈuna ˈnweβa ˈβiða]",
+        "nl": "[dˈaːr ɣˈaːn ʋə\n ɔp naːr ən nˈiw lˈeːvən]",
+        "pt": "[lˈa vˌɐ̃mʊz nɔs pˌaɾæ ˌumæ nˈɔvæ vˈidæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-020",
+      "text": {
+        "fr": "Une semaine plus tard, Sophie et Lucas se tiennent devant la Gare de Lyon.",
+        "en": "A week later, Sophie and Lucas are standing in front of the Central Station.",
+        "de": "Eine Woche später stehen Sophie und Lucas vor dem Hauptbahnhof.",
+        "it": "Una settimana dopo, Sophie e Lucas stanno davanti alla stazione Termini.",
+        "es": "Una semana después, Sophie y Lucas están frente a la Estación de Atocha.",
+        "nl": "Een week later staan Sophie en Lucas voor het Centraal Station.",
+        "pt": "Uma semana depois, Sophie e Lucas estão na frente da Rodoviária do Tietê.",
+        "en_pt": "One week later, Sophie and Lucas are in front of the Tietê Bus Station."
+      },
+      "ipa": {
+        "fr": "yn səmˈɛn ply tˈaʁ sɔfˈi e lykˈa sə- tjˈɛn dəvˈɑ̃ la- ɡˈaʁ də- ljˈɔ̃",
+        "de": "[ˈaɪ̯nə ˈvɔxə ˈʃpɛːtɐ ˈʃteːən ˈzoːfiː ʊnt ˈluːkas fɔɐ̯ deːm ˈhaʊ̯ptbaːnhoːf]",
+        "it": "[ˌʊna sˌɛtːimˈaːna dˈoːpo\n sˈopje ˌe lˈuːkas stˈanno davˈantɪ ˌalla stˌatsiˈɔːne tˈɛrminɪ]",
+        "es": "[ˈuna seˈmana desˈpwes ˈsofi i ˈlukas esˈtan ˈfɾente a la estaˈθjon de aˈtotʃa]",
+        "nl": "[ən ʋˈeːk lˈaːtər stˈaːn sɔphˈi ɛn lˈykɑs vɔːr hət sɛntrˈaːl staːʃˈɔn]",
+        "pt": "[ˌumæ sˌemˈɐ̃næ depˈoɪs\n sˌofˈij i lˈukæz estˌɐ̃ʊ̃ na frˈeɪŋtʃy da xˌodoviˈaɾjæ dʊ tʃˌietˈe]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-021",
+      "text": {
+        "fr": "Leurs sacs à dos sont prêts.",
+        "en": "Their backpacks are ready.",
+        "de": "Ihre Rucksäcke sind gepackt.",
+        "it": "I loro zaini sono pronti.",
+        "es": "Sus mochilas están listas.",
+        "nl": "Hun rugzakken zijn klaar.",
+        "pt": "Suas mochilas estão prontas."
+      },
+      "ipa": {
+        "fr": "lœʁ sˈakz adˈɔs sˈɔ̃ pʁˈɛ",
+        "de": "[ˈiːʁə ˈʁʊkzɛkə zɪnt ɡəˈpakt]",
+        "it": "[ˌɪ lˌɔro dzˈaɪːnɪ sˌono prˈontɪ]",
+        "es": "[sus moˈtʃilas esˈtan ˈlistas]",
+        "nl": "[hɵn rˈɵɣzɑkən zɛɪn klˈaːr]",
+        "pt": "[sˌuæz mˌoʃˈilæz estˌɐ̃ʊ̃ prˈoŋtæs]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-022",
+      "text": {
+        "fr": "L'excitation se mêle à la nervosité.",
+        "en": "Excitement mixes with nervousness.",
+        "de": "Aufregung mischt sich mit Nervosität.",
+        "it": "L'eccitazione si mescola alla nervosità.",
+        "es": "La emoción se mezcla con la nerviosidad.",
+        "nl": "Opwinding vermengt zich met nervositeit.",
+        "pt": "A empolgação se mistura com o nervosismo."
+      },
+      "ipa": {
+        "fr": "lɛksitasjˈɔ̃ sə- mˈɛl a la- nɛʁvozitˈe",
+        "de": "[ˈaʊ̯fʁeːɡʊŋ ˈmɪʃt zɪç mɪt nɛʁvoˈziːtɛːt]",
+        "it": "[lˌetʃːitˌatsiˈɔːne sˌɪ mˈeskola ˌalla nˌɛrvozitˈa]",
+        "es": "[la emoˈθjon se ˈmeθkla kon la nerβjoˈsiðað]",
+        "nl": "[ˈɔpʋˌɪndɪŋ vərmˈɛŋt zɪx mɛt nˌɛrvoːzitˈɛɪt]",
+        "pt": "[a ˌeɪmpowɡasˈɐ̃ʊ̃ sy mˌistˈuɾæ koŋ ʊ nˌeɾəvozˈizmʊ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-023",
+      "text": {
+        "fr": "Ils s'approchent du guichet.",
+        "en": "They approach the ticket counter.",
+        "de": "Sie gehen zum Schalter.",
+        "it": "Si avvicinano allo sportello.",
+        "es": "Se acercan al mostrador.",
+        "nl": "Ze benaderen het loket.",
+        "pt": "Eles se aproximam do guichê."
+      },
+      "ipa": {
+        "fr": "il sapʁˈɔʃ dy- ɡiʃˈɛ",
+        "de": "[ziː ˈɡeːən t͡sʊm ˈʃaltɐ]",
+        "it": "[sˌɪ ˌavvitʃinˈaːno ˌallo sportˈɛllo]",
+        "es": "[se aθeɾˈkan al mosˈtɾaðoɾ]",
+        "nl": "[zə bənˈaːdərən hət loːkˈɛt]",
+        "pt": "[ˌelys sj ˌaprosˈimɐ̃ʊ̃ dʊ ɡiʃˈe]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-024",
+      "text": {
+        "fr": "Lucas regarde sa montre.",
+        "en": "Lucas looks at his watch.",
+        "de": "Lucas schaut auf die Uhr.",
+        "it": "Lucas guarda l'orologio.",
+        "es": "Lucas mira su reloj.",
+        "nl": "Lucas kijkt op zijn horloge.",
+        "pt": "Lucas olha o relógio."
+      },
+      "ipa": {
+        "fr": "lykˈa ʁəɡˈaʁd sa- mˈɔ̃tʁ",
+        "de": "[ˈluːkas ʃaʊ̯t aʊ̯f diː ʔuːɐ]",
+        "it": "[lˈuːkas ɡwˈaːrda lˌɔrolˈɔːdʒo]",
+        "es": "[ˈlukas ˈmiɾa su reˈlox]",
+        "nl": "[lˈykɑs kˈɛɪkt ɔp zɛɪn hˈɔrloːxə]",
+        "pt": "[lˈukæz ˈɔljæ ʊ xˌelˈɔʒjʊ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-025",
+      "text": {
+        "fr": "Ils trouvent un café dans la gare.",
+        "en": "They find a cafe in the station.",
+        "de": "Sie finden ein Café im Bahnhof.",
+        "it": "Trovano un caffè nella stazione.",
+        "es": "Encuentran un café en la estación.",
+        "nl": "Ze vinden een café in het station.",
+        "pt": "Eles encontram uma lanchonete na rodoviária.",
+        "en_pt": "They find a snack bar in the bus station."
+      },
+      "ipa": {
+        "fr": "il tʁˈuvt œ̃ kafˈe dɑ̃ la- ɡˈaʁ",
+        "de": "[ziː ˈfɪndn̩ aɪ̯n kaˈfeː ɪm ˈbaːnhoːf]",
+        "it": "[trˈovano ˌʊn kaffˈɛ nˌɛlla stˌatsiˈɔːne]",
+        "es": "[enˈkwentɾan un kaˈfe en la estaˈθjon]",
+        "nl": "[zə vˈɪndən ən kaːfˈeː ɪn hət staːʃˈɔn]",
+        "pt": "[ˌelyz ˌeɪŋkˈoŋtrɐ̃ʊ̃ ˌumæ lˌɐ̃ŋʃonˈɛtʃy na xˌodoviˈaɾjæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-026",
+      "text": {
+        "fr": "Sophie respire profondément.",
+        "en": "Sophie takes a deep breath.",
+        "de": "Sophie atmet tief ein.",
+        "it": "Sophie respira profondamente.",
+        "es": "Sophie respira hondo.",
+        "nl": "Sophie haalt diep adem."
+      },
+      "ipa": {
+        "fr": "sɔfˈi ʁɛspˈiʁ pʁɔfɔ̃demˈɑ̃",
+        "de": "[ˈzoːfiː ˈatmət tiːf aɪ̯n]",
+        "it": "[sˈopje respˈiːra prˌofondamˈente]",
+        "es": "[ˈsofi resˈpiɾa ˈondo]",
+        "nl": "[sɔphˈi hˈaːl tˈip ˈaːdəm]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-027",
+      "text": {
+        "fr": "Une annonce résonne dans la gare.",
+        "en": "An announcement resounds through the station.",
+        "de": "Eine Durchsage erschallt im Bahnhof.",
+        "it": "Un annuncio risuona nella stazione.",
+        "es": "Una anunciación resuena en la estación.",
+        "nl": "Een omroepbericht klinkt door het station.",
+        "pt": "Um anúncio ressoa na rodoviária.",
+        "en_pt": "An announcement echoes through the bus station."
+      },
+      "ipa": {
+        "fr": "yn anˈɔ̃s ʁezˈɔn dɑ̃ la- ɡˈaʁ",
+        "de": "[ˈaɪ̯nə ˈdʊʁçzaːɡə ɛɐ̯ˈʃalt ɪm ˈbaːnhoːf]",
+        "it": "[ˌʊn annˈuntʃo rˌizʊˈoːna nˌɛlla stˌatsiˈɔːne]",
+        "es": "[ˈuna anunθjaˈθjon resuˈena en la estaˈθjon]",
+        "nl": "[ən ˈɔmrupbˌɪːrɪxt klˈɪŋkt doːr hət staːʃˈɔn]",
+        "pt": "[ũŋ ˌænˈũŋsjʊ xˌesˈoæ na xˌodoviˈaɾjæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-028",
+      "text": {
+        "fr": "Ils trouvent leurs places dans le wagon.",
+        "en": "They find their seats in the wagon.",
+        "de": "Sie finden ihre Plätze im Waggon.",
+        "it": "Trovano i loro posti nel vagone.",
+        "es": "Encuentran sus asientos en el vagón.",
+        "nl": "Ze vinden hun plaatsen in de wagon.",
+        "pt": "Eles encontram seus assentos no ônibus.",
+        "en_pt": "They find their seats on the bus."
+      },
+      "ipa": {
+        "fr": "il tʁˈuv lœʁ plˈas dɑ̃ lə- vaɡˈɔ̃",
+        "de": "[ziː ˈfɪndn̩ ˈiːʁə ˈplɛt͡sə ɪm ˈvaɡɔn]",
+        "it": "[trˈovano ˌɪ lˌɔro pˈostɪ nˌɛl vaɡˈoːne]",
+        "es": "[enˈkwentɾan sus aˈsjentos en el βaˈɣon]",
+        "nl": "[zə vˈɪndən hɵn plˈaːtsən ɪn də ʋaːɣˈɔn]",
+        "pt": "[ˌelyz ˌeɪŋkˈoŋtrɐ̃ʊ̃ seʊz ˌasˈeɪŋtʊz nʊ ˈonibus]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-029",
+      "text": {
+        "fr": "Sophie regarde Paris qui s'éloigne.",
+        "en": "Sophie watches as Amsterdam fades away.",
+        "de": "Sophie sieht Berlin, das sich entfernt.",
+        "it": "Sophie guarda Roma che si allontana.",
+        "es": "Sophie mira cómo Madrid se aleja.",
+        "nl": "Sophie kijkt hoe Amsterdam achter hen verdwijnt."
+      },
+      "ipa": {
+        "fr": "sɔfˈi ʁəɡˈaʁd paʁˈi ki selwˈaɲ",
+        "de": "[ˈzoːfiː ziːt bɛʁˈliːn, das zɪç ɛntˈfɛʁnt]",
+        "it": "[sˈopje ɡwˈaːrda rˈɔːma kˌe sˌɪ ˌallontˈaːna]",
+        "es": "[ˈsofi ˈmiɾa ˈkomo maˈðɾið se aˈlexa]",
+        "nl": "[sɔphˈi kˈɛɪkt hˈu ˈɑmstərdˌɑm ˈɑxtər hɛn vərdʋˈɛɪnt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-030",
+      "text": {
+        "pt": "pergunta a atendente.",
+        "en": "the attendant asks."
+      },
+      "ipa": {
+        "pt": "[pˌeɾəɡˈũŋtæ a ˌateɪŋdˈeɪŋtʃy]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-031",
+      "text": {
+        "pt": "pergunta Sophie.",
+        "en": "Sophie asks."
+      },
+      "ipa": {
+        "pt": "[pˌeɾəɡˈũŋtæ sˌofˈiy]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-032",
+      "text": {
+        "pt": "Sophie pergunta ao atendente: Qual plataforma para o ônibus de Campos do Jordão?",
+        "en": "Sophie asks the attendant: Which platform for the Campos do Jordão bus?"
+      },
+      "ipa": {
+        "pt": "[sˌofˈiy pˌeɾəɡˈũŋtæ aʊ ˌateɪŋdˈeɪŋtʃy\n kwˈaʊ plˌatafˈɔɾəmæ pˌaɾæ u ˈonibuz dʒy kˈɐ̃mpʊz dʊ ʒoɾədˈɐ̃ʊ̃]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-033",
+      "text": {
+        "pt": "Você vai ver os painéis.",
+        "en": "You'll see the signs."
+      },
+      "ipa": {
+        "pt": "[vosˌe vaɪ vˈeɾ ʊs paɪnˈɛɪs]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-034",
+      "text": {
+        "pt": "Lucas verifica sua mochila.",
+        "en": "Lucas checks his backpack."
+      },
+      "ipa": {
+        "pt": "[lˈukæz vˌeɾifˈikæ sˌuæ mˌoʃˈilæ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-035",
+      "text": {
+        "pt": "Já peguei.",
+        "en": "I already got it."
+      },
+      "ipa": {
+        "pt": "[ʒˈa peɡˈeɪ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-036",
+      "text": {
+        "pt": "Sophie respira fundo.",
+        "en": "Sophie takes a deep breath."
+      },
+      "ipa": {
+        "pt": "[sˌofˈiy xˌespˈiɾæ fˈũŋdʊ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-037",
+      "text": {
+        "pt": "Perto da janela!",
+        "en": "By the window!"
+      },
+      "ipa": {
+        "pt": "[pˈɛɾətʊ da ʒˌænˈɛlæ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-038",
+      "text": {
+        "pt": "O ônibus parte.",
+        "en": "The bus departs."
+      },
+      "ipa": {
+        "pt": "[u ˈonibus pˈaɾətʃy]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "scene-05-039",
+      "text": {
+        "pt": "Sophie olha São Paulo ficando para trás.",
+        "en": "Sophie watches São Paulo receding behind them."
+      },
+      "ipa": {
+        "pt": "[sˌofˈij ˈɔljæ sɐ̃ʊ̃ pˈaʊlʊ fˌikˈɐ̃ŋdʊ pˌaɾæ trˈas]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    }
+  ]
+}

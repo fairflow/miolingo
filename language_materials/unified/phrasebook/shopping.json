@@ -1,0 +1,309 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "shopping",
+    "phrase_count": 10,
+    "languages": [
+      "de",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-shopping-001",
+      "text": {
+        "fr": "Combien ça coûte?",
+        "en": "How much does it cost?",
+        "de": "Wie viel kostet das?",
+        "pt": "Quanto custa?",
+        "it": "Quanto costa?",
+        "es": "¿Cuánto cuesta?",
+        "nl": "Hoeveel kost dit?"
+      },
+      "ipa": {
+        "fr": "[kɔ̃bjˈɛ̃ sa kˈut]",
+        "de": "[viː fˈiːl kˈɔstət das]",
+        "pt": "[kwˈɐ̃ŋtʊ kˈustæ]",
+        "it": "[kwˈanto kˈɔsta]",
+        "es": "[kwˈanto kwˈesta]",
+        "nl": "[huvˈeːl kˈɔs tɪt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-002",
+      "text": {
+        "fr": "C'est combien?",
+        "en": "How much is it?",
+        "de": "Was kostet das?",
+        "pt": "Quanto é?",
+        "it": "Quanto è?",
+        "es": "¿Cuánto es?",
+        "nl": "Hoeveel is het?"
+      },
+      "ipa": {
+        "fr": "[sɛ kɔ̃bjˈɛ̃]",
+        "de": "[vˈas kˈɔstət das]",
+        "pt": "[kwˈɐ̃ŋtw ɛ]",
+        "it": "[kwˈanto ˈɛ]",
+        "es": "[kwˈanto ˈes]",
+        "nl": "[huvˈeːl ɪs hət]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-003",
+      "text": {
+        "fr": "C'est trop cher",
+        "en": "It's too expensive",
+        "de": "Das ist zu teuer",
+        "pt": "É muito caro",
+        "it": "È troppo caro",
+        "es": "Es demasiado caro",
+        "nl": "Dat is te duur"
+      },
+      "ipa": {
+        "fr": "[sɛ tʁo ʃˈɛʁ]",
+        "de": "[das ɪst tsuː tˈɔøɜ]",
+        "pt": "[ɛ mwˈiŋtʊ kˈaɾʊ]",
+        "it": "[ˌɛ trˈɔpːo kˈaːro]",
+        "es": "[ˈes ðˌemasjˈaðo kˈaɾɔ]",
+        "nl": "[dɑt ɪs tə dˈyr]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-004",
+      "text": {
+        "fr": "Je voudrais...",
+        "en": "I would like...",
+        "de": "Ich hätte gern...",
+        "pt": "Eu gostaria de...",
+        "it": "Vorrei...",
+        "es": "Quisiera...",
+        "nl": "Ik wil graag..."
+      },
+      "ipa": {
+        "fr": "[ʒə- vudʁˈɛ]",
+        "de": "[ɪç hˌɛtə ɡˈɛɾn]",
+        "pt": "[eʊ ɡˌostaɾˈiæ dʒy]",
+        "it": "[vorɾˈeːɪ]",
+        "es": "[kisjˈɛɾa]",
+        "nl": "[ɪk ʋɪl ɣrˈaːx]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-005",
+      "text": {
+        "fr": "Je cherche...",
+        "en": "I'm looking for...",
+        "de": "Ich suche...",
+        "pt": "Estou procurando...",
+        "it": "Sto cercando...",
+        "es": "Estoy buscando...",
+        "nl": "Ik zoek..."
+      },
+      "ipa": {
+        "fr": "[ʒə- ʃˈɛʁʃ]",
+        "de": "[ɪç zˈuːxə]",
+        "pt": "[estˌow prˌokuɾˈɐ̃ŋdʊ]",
+        "it": "[stˈo tʃerkˈando]",
+        "es": "[estˈoɪ βuskˈando]",
+        "nl": "[ɪk zˈuk]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-006",
+      "text": {
+        "fr": "Avez-vous...?",
+        "en": "Do you have...?",
+        "de": "Haben Sie...?",
+        "pt": "Você tem...?",
+        "it": "Ha...?",
+        "es": "¿Tiene...?",
+        "nl": "Heeft u...?"
+      },
+      "ipa": {
+        "fr": "[avˈevˈu]",
+        "de": "[hˈɑːbən ziː]",
+        "pt": "[vosˈe teɪŋ]",
+        "it": "[ˈa]",
+        "es": "[tjˈene]",
+        "nl": "[hˈeːft y]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-007",
+      "text": {
+        "fr": "Quelle taille?",
+        "en": "What size?",
+        "de": "Welche Größe?",
+        "pt": "Qual tamanho?",
+        "it": "Che taglia?",
+        "es": "¿Qué talla?",
+        "nl": "Welke maat?"
+      },
+      "ipa": {
+        "fr": "[kɛl tˈaj]",
+        "de": "[vˈɛlçə ɡrˈøːsə]",
+        "pt": "[kwˈaʊ tˌæmˈɐ̃ɲʊ]",
+        "it": "[kˌe tˈaːʎa]",
+        "es": "[kˈɛ tˈaʎa]",
+        "nl": "[ʋˈɛlkə mˈaːt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-008",
+      "text": {
+        "fr": "Je vais prendre ça",
+        "en": "I'll take this",
+        "de": "Ich nehme das",
+        "pt": "Vou levar isso",
+        "it": "Prendo questo",
+        "es": "Me lo llevo",
+        "nl": "Ik neem dit"
+      },
+      "ipa": {
+        "fr": "[ʒə- vˈɛ pʁˈɑ̃dʁ sˈa]",
+        "de": "[ɪç nˈeːmə das]",
+        "pt": "[vow levˈaɾ ˈisʊ]",
+        "it": "[prˈɛndo kwˈɛsto]",
+        "es": "[me lo ʎˈeβo]",
+        "nl": "[ɪk nˈeːm dɪt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-009",
+      "text": {
+        "fr": "Puis-je payer par carte?",
+        "en": "Can I pay by card?",
+        "de": "Kann ich mit Karte zahlen?",
+        "pt": "Posso pagar com cartão?",
+        "it": "Posso pagare con la carta?",
+        "es": "¿Puedo pagar con tarjeta?",
+        "nl": "Kan ik met kaart betalen?"
+      },
+      "ipa": {
+        "fr": "[pyˈiʒ pɛjˈe paʁ kˈaʁt]",
+        "de": "[kˌan ɪç mɪt kˈaɾtə tsˈɑːlən]",
+        "pt": "[pˌɔsʊ paɡˈar koŋ kaɾətˈɐ̃ʊ̃]",
+        "it": "[pˈɔsso paɡˈaːre kˌon lˌa kˈaːrta]",
+        "es": "[pwˈeðo paɣˈaɾ kɔn taɾxˈeta]",
+        "nl": "[kɑn ɪk mɛt kˈaːrt bətˈaːlən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-shopping-010",
+      "text": {
+        "fr": "Puis-je essayer?",
+        "en": "Can I try it?",
+        "de": "Kann ich das anprobieren?",
+        "pt": "Posso experimentar?",
+        "it": "Posso provare?",
+        "es": "¿Puedo probármelo?",
+        "nl": "Mag ik dit passen?"
+      },
+      "ipa": {
+        "fr": "[pyˈiʒ esɛjˈe]",
+        "de": "[kˌan ɪç das ˈanproːbˌiːrən]",
+        "pt": "[pˌɔsʊ ˌespeɾˌimeɪŋtˈar]",
+        "it": "[pˈɔsso provˈaːre]",
+        "es": "[pwˈeðo pɾoβˈaɾmelo]",
+        "nl": "[mɑx ɪk dɪt pˈɑsən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}
