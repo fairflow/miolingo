@@ -749,15 +749,14 @@ def render_quick_practice_tab():
     if len(current_session["practices"]) == 0:
         st.info("👋 **New here?** Check the [User Guide](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/USER_GUIDE.md) for step-by-step instructions!")
 
-    _render_materials_loader()
-
-    # _render_practice_area returns the practice text:
-    # - guided mode: the phrase from the loaded material
-    # - free-text mode: user input (or translated text if source_to_target)
+    # Practice area first — quick to use without scrolling
     practice_text = _render_practice_area()
 
     # Reusable practice interface
     render_practice_interface(practice_text, key_prefix="quick")
+
+    # Materials loader below the practice section
+    _render_materials_loader()
 
     # Show last result
     if st.session_state.get('quick_last_result'):
