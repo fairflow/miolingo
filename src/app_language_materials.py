@@ -362,6 +362,7 @@ def format_language_name(lang_code: str) -> str:
         Formatted display name with flag (e.g., '🇫🇷 French')
     """
     language_map = {
+        'en': '🇬🇧 English',
         'fr': '🇫🇷 French',
         'pt': '🇵🇹 Portuguese',
         'nl': '🇳🇱 Dutch',

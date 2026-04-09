@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.2.0-claude-dev] - 2026-04-06
+
+### Added
+
+- **Bi-directional language selection**: Users now choose both a source language (what
+  they know) and a target language (what they practise) on the login page. Source language
+  is locked for the session and persisted to the database. Returning users see their
+  saved preference pre-filled.
+- Login page shows two side-by-side language selectboxes instead of one.
+- Sidebar shows source language as a read-only badge ("fixed until logout").
+- Free-text practice mode shows the translation direction in the input label.
+- `SOURCE_LANGUAGE_OPTIONS` and `source_language` default added to `config.py`.
+- `tests/test_bilingual.py` — 10 tests covering the new config exports and UI contracts.
+
+
 ## [7.1.11-claude-dev] - 2026-04-06
 
 ### Fixed

@@ -142,36 +142,41 @@ def render_settings_panel():
 
         available_materials = get_available_languages()
         if available_materials:
-            # Source language
-            source_options = ["English"] + available_materials
-            if st.session_state.get('source_language') not in source_options:
-                st.session_state.source_language = "English"
-
-            st.selectbox(
-                "Source Language",
-                source_options,
-                format_func=format_language_name,
-                help="Language the learner is most comfortable with",
-                key="source_language"
+            # ── Source language: locked for this session ─────────────────────────
+            _SOURCE_FLAGS = {
+                "English": "🇬🇧", "French": "🇫🇷", "German": "🇩🇪",
+                "Spanish": "🇪🇸", "Italian": "🇮🇹", "Dutch": "🇳🇱", "Portuguese": "🇵🇹",
+            }
+            _source = st.session_state.get("source_language", "English")
+            _sflag = _SOURCE_FLAGS.get(_source, "🌍")
+            st.markdown(
+                f"**Your language:** {_sflag}&nbsp;{_source}&emsp;"
+                f"<small style='color:gray'>*(fixed until logout)*</small>",
+                unsafe_allow_html=True,
             )
+            # ─────────────────────────────────────────────────────────────────────
 
-            # Target language
+            # Target language — exclude the source language from options
+            from config import get_language_code
+            _source_code = get_language_code(st.session_state.get("source_language", "English"))
+            _target_options = [m for m in available_materials if m != _source_code]
+
             current_idx = 0
             if 'material_language' in st.session_state:
                 try:
-                    current_idx = available_materials.index(st.session_state.material_language)
+                    current_idx = _target_options.index(st.session_state.material_language)
                 except ValueError:
                     pass
             elif 'material_language' in st.session_state.settings:
                 try:
-                    current_idx = available_materials.index(st.session_state.settings['material_language'])
+                    current_idx = _target_options.index(st.session_state.settings['material_language'])
                 except ValueError:
                     pass
 
             previous_material_language = st.session_state.get('material_language', None)
             st.selectbox(
                 "Target Language",
-                available_materials,
+                _target_options,
                 index=current_idx,
                 format_func=format_language_name,
                 help="Language being learned (IPA + practice target)",
@@ -181,23 +186,13 @@ def render_settings_panel():
             # Sync target language
             st.session_state.target_language = st.session_state.material_language
 
-            # Prevent source == target
-            if st.session_state.source_language == st.session_state.target_language:
-                st.warning("Source and target must be different. Source reset to English.")
-                st.session_state.source_language = "English"
+            # Resolve full target name for display
+            _target_full = MATERIAL_TO_TRAINING.get(
+                st.session_state.material_language,
+                st.session_state.material_language,
+            )
 
-            # Translation direction toggle
-            direction = st.session_state.get('translation_direction', 'source_to_target')
-            if st.button("⇄ Switch translation direction"):
-                st.session_state.translation_direction = (
-                    'target_to_source' if direction == 'source_to_target' else 'source_to_target'
-                )
-                st.rerun()
-
-            if st.session_state.translation_direction == 'source_to_target':
-                st.caption(f"Direction: {st.session_state.source_language} → {st.session_state.target_language}")
-            else:
-                st.caption(f"Direction: {st.session_state.target_language} → {st.session_state.source_language}")
+            st.caption(f"Direction: {st.session_state.source_language} → {_target_full}")
 
             # Update training language if material language changed
             training_language = MATERIAL_TO_TRAINING.get(
