@@ -227,7 +227,7 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
             st.session_state.quick_last_result = None
             st.session_state.material_source = f"{format_language_name(material_lang)} - {format_category_name(category)} - {selected_file}"
             st.session_state.qp_materials_expanded = False
-            st.success(f"✓ Loaded {len(phrases)} items - scroll down to practice section")
+            st.rerun()
         except Exception as e:
             st.error(f"Error loading file: {e}")
 
