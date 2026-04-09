@@ -352,7 +352,7 @@ def merge_story_scenes(materials_dir, output_dir, dry_run=False, verbose=False):
                         l
                         for p in unified_phrases
                         for l in p["text"]
-                        if l not in ("en", "en_pt")
+                        if l != "en_pt"
                     )
                 ),
                 "generated": str(date.today()),
@@ -644,7 +644,7 @@ def merge_phrase_files(materials_dir, output_dir, dry_run=False, verbose=False):
                         l
                         for p in unified_phrases
                         for l in p["text"]
-                        if l not in ("en", "en_pt")
+                        if l != "en_pt"
                     )
                 ),
                 "generated": str(date.today()),
@@ -727,7 +727,7 @@ def merge_phrasebook_topics(
                         l
                         for p in unified_phrases
                         for l in p["text"]
-                        if l not in ("en", "en_pt")
+                        if l != "en_pt"
                     )
                 ),
                 "generated": str(date.today()),

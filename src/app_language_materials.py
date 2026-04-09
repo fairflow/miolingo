@@ -11,9 +11,10 @@ import streamlit as st
 import json
 
 DATA_DIR = Path(__file__).parent.parent / "language_materials"
+UNIFIED_DIR = DATA_DIR / "unified"
 
 # Cache version - increment when language list or structure changes
-CACHE_VERSION = "1.8.3"
+CACHE_VERSION = "1.9.0"
 
 
 @st.cache_data
@@ -29,7 +30,10 @@ def get_available_languages(_cache_version: str = CACHE_VERSION) -> List[str]:
     if not DATA_DIR.exists():
         return []
     
-    return sorted([d.name for d in DATA_DIR.iterdir() if d.is_dir() and not d.name.startswith('.')])
+    return sorted([
+        d.name for d in DATA_DIR.iterdir()
+        if d.is_dir() and not d.name.startswith('.') and d.name != 'unified'
+    ])
 
 
 @st.cache_data
@@ -99,7 +103,31 @@ def get_language_structure(language: str, _cache_version: str = CACHE_VERSION) -
             aggregated[category_dir.name] = files
     
     # Remove empty aggregated categories
-    return {k: v for k, v in aggregated.items() if v}
+    result = {k: v for k, v in aggregated.items() if v}
+
+    # Inject unified multi-language categories (preferred over per-language files)
+    unified_category_map = {
+        'stories': 'unified-stories',
+        'phrases': 'unified-phrases',
+        'phrasebook': 'unified-phrasebook',
+    }
+    for subdir, category_name in unified_category_map.items():
+        unified_subdir = UNIFIED_DIR / subdir
+        if unified_subdir.is_dir():
+            files = sorted([f.name for f in unified_subdir.glob("*.json")])
+            if files:
+                # Only include if target language has data in these files
+                # (check first file's meta.languages)
+                try:
+                    sample = unified_subdir / files[0]
+                    with open(sample, 'r', encoding='utf-8') as f:
+                        meta = json.load(f).get('meta', {})
+                    if language in meta.get('languages', []):
+                        result[category_name] = files
+                except Exception:
+                    pass  # Skip if file can't be read
+
+    return result
 
 
 @st.cache_data
@@ -124,11 +152,14 @@ def get_file_metadata(language: str, category: str, filename: str) -> Dict:
             'preview': ['first', 'few', 'lines']
         }
     """
-    lang_dir = DATA_DIR / language
-    
-    # All categories now point directly to their directories
-    file_path = lang_dir / category / filename
-    
+    # Handle unified categories (e.g., 'unified-stories' → UNIFIED_DIR/stories/)
+    if category.startswith('unified-'):
+        subdir = category.replace('unified-', '', 1)
+        file_path = UNIFIED_DIR / subdir / filename
+    else:
+        lang_dir = DATA_DIR / language
+        file_path = lang_dir / category / filename
+
     if not file_path.exists():
         return {}
     
@@ -137,8 +168,32 @@ def get_file_metadata(language: str, category: str, filename: str) -> Dict:
         if file_path.suffix == '.json':
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            
-            # Format 2: {"lang": [...], "scene_number": 1, "scene_title": "..."}
+
+            # Unified format: {"meta": {...}, "phrases": [{text: {lang: ...}, ...}]}
+            if isinstance(data, dict) and 'meta' in data and 'phrases' in data:
+                meta = data['meta']
+                phrases = data['phrases']
+                # Project preview using the target language
+                preview = []
+                for phrase in phrases[:3]:
+                    text = phrase.get('text', {}).get(language, '')
+                    translation = phrase.get('text', {}).get('en', '')
+                    ipa = phrase.get('ipa', {}).get(language, '')
+                    if translation and ipa:
+                        preview.append(f"{text} | {translation} | {ipa}")
+                    elif translation:
+                        preview.append(f"{text} | {translation}")
+                    else:
+                        preview.append(text)
+                return {
+                    'path': file_path,
+                    'line_count': meta.get('phrase_count', len(phrases)),
+                    'has_translations': True,
+                    'has_ipa': any(p.get('ipa', {}).get(language) for p in phrases[:5]),
+                    'preview': preview,
+                }
+
+            # Legacy Format 2: {"lang": [...], "scene_number": 1, "scene_title": "..."}
             if isinstance(data, dict):
                 # Get language key (pt, fr, de, etc.)
                 lang_keys = [k for k in data.keys() if k not in ['scene_number', 'scene_title']]
@@ -232,12 +287,42 @@ def get_file_metadata(language: str, category: str, filename: str) -> Dict:
 
 
 @st.cache_data
+def load_unified_phrase_file(file_path_str: str, target_lang: str, source_lang: str) -> List[Dict]:
+    """Load a unified multi-language JSON file, projecting a specific language pair.
+
+    Args:
+        file_path_str: Path to unified JSON file
+        target_lang: Target language code (e.g. 'fr') — becomes 'text'
+        source_lang: Source language code (e.g. 'de') — becomes 'translation'
+
+    Returns:
+        Same [{text, translation, ipa}] shape as load_phrase_file()
+    """
+    with open(file_path_str, 'r', encoding='utf-8') as f:
+        doc = json.load(f)
+
+    phrases = []
+    for entry in doc.get('phrases', []):
+        target_text = entry.get('text', {}).get(target_lang)
+        if not target_text:
+            continue  # Skip phrases missing the target language
+        source_text = entry.get('text', {}).get(source_lang) or entry.get('text', {}).get('en', '')
+        ipa_text = entry.get('ipa', {}).get(target_lang, '')
+        phrases.append({
+            'text': target_text,
+            'translation': source_text,
+            'ipa': ipa_text or None,
+        })
+    return phrases
+
+
+@st.cache_data
 def load_phrase_file(file_path_str: str) -> List[Dict]:
     """Load and parse a phrase/word file (TXT or JSON).
-    
+
     Args:
         file_path_str: String representation of file path (for caching)
-    
+
     Returns:
         List of phrase dictionaries:
         [
@@ -246,17 +331,26 @@ def load_phrase_file(file_path_str: str) -> List[Dict]:
         ]
     """
     file_path = Path(file_path_str)
-    
+
     # Security: Ensure path is within DATA_DIR
     try:
         file_path_resolved = file_path.resolve()
         data_dir_resolved = DATA_DIR.resolve()
-        
+
         if not str(file_path_resolved).startswith(str(data_dir_resolved)):
             raise ValueError("Invalid file path: outside language materials directory")
     except Exception as e:
         raise ValueError(f"Invalid file path: {e}")
-    
+
+    # Detect unified files — delegate to language-pair-aware loader
+    unified_resolved = UNIFIED_DIR.resolve()
+    if str(file_path_resolved).startswith(str(unified_resolved)):
+        from config import get_language_code
+        target = st.session_state.get('material_language', 'fr')
+        source_name = st.session_state.get('source_language', 'English')
+        source = get_language_code(source_name)
+        return load_unified_phrase_file(file_path_str, target, source)
+
     # Handle JSON files (story scenes)
     if file_path.suffix == '.json':
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -347,6 +441,9 @@ def format_category_name(category: str) -> str:
         'words-C': '📖 Words - Level C (Advanced)',
         'words-D': '📖 Words - Level D (Expert)',
         'phrasebook-topics': '💬 Phrasebook by Topic',
+        'unified-stories': '📖 Story Scenes (All Languages)',
+        'unified-phrases': '📝 Phrases (All Languages)',
+        'unified-phrasebook': '💬 Phrasebook (All Languages)',
     }
     
     return category_map.get(category, category)

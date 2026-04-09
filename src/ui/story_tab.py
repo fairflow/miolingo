@@ -19,6 +19,90 @@ from scoring.phonemes import format_ipa
 from translation import get_translation_from_llm
 from ui.practice_tab import render_practice_interface, render_practice_results
 
+# Unified materials directory
+_UNIFIED_STORIES = Path(__file__).parent.parent.parent / "language_materials" / "unified" / "stories"
+
+
+def _extract_scene_phrases(scene_data, lang_code, source_lang_code="en"):
+    """Extract phrases from a scene JSON, handling both unified and legacy formats.
+
+    Returns:
+        list of {text, translation, ipa} dicts, scene_title str
+    """
+    # Unified format: {"meta": {...}, "phrases": [{text: {lang: ...}, ...}]}
+    if 'meta' in scene_data and 'phrases' in scene_data:
+        title = scene_data['meta'].get('scene_title', {}).get(lang_code, '')
+        phrases = []
+        for entry in scene_data['phrases']:
+            target = entry.get('text', {}).get(lang_code)
+            if not target:
+                continue
+            source = (entry.get('text', {}).get(source_lang_code)
+                      or entry.get('text', {}).get('en', ''))
+            ipa = entry.get('ipa', {}).get(lang_code, '')
+            phrases.append({'text': target, 'translation': source, 'ipa': ipa or None})
+        return phrases, title
+
+    # Legacy format: {"lang_code": [...], "scene_number": N, "scene_title": "..."}
+    lang_keys = [k for k in scene_data.keys() if k not in ('scene_number', 'scene_title')]
+    if not lang_keys:
+        return [], ''
+    lang_key = lang_keys[0]
+    raw = scene_data.get(lang_key, [])
+    title = scene_data.get('scene_title', '')
+    phrases = []
+    for item in raw:
+        phrases.append({
+            'text': item.get(lang_key, ''),
+            'translation': item.get('english', ''),
+            'ipa': item.get('ipa'),
+        })
+    return phrases, title
+
+
+@st.cache_data
+def _scene_display_name(scene_file_str: str, lang_code: str) -> str:
+    """Get a display name for a scene file, using JSON meta if available."""
+    scene_file = Path(scene_file_str)
+    parts = scene_file.stem.split('-', 2)
+    scene_num = parts[1] if len(parts) >= 2 else '??'
+
+    # Try reading title from JSON meta (unified files)
+    try:
+        with open(scene_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if 'meta' in data:
+            titles = data['meta'].get('scene_title', {})
+            title = titles.get(lang_code) or titles.get('en', '')
+            if title:
+                return f"Scene {scene_num}: {title}"
+    except Exception:
+        pass
+
+    # Fallback: parse from filename
+    if len(parts) >= 3:
+        title = parts[2].replace('-', ' ').title()
+        return f"Scene {scene_num}: {title}"
+    return scene_file.stem
+
+
+def _get_scene_files(lang_code):
+    """Return sorted scene file paths, preferring unified over per-language.
+
+    Returns:
+        (scene_files list, is_unified bool)
+    """
+    if _UNIFIED_STORIES.is_dir():
+        files = sorted(_UNIFIED_STORIES.glob("scene-*.json"))
+        if files:
+            return files, True
+    legacy = Path(f"language_materials/{lang_code}/story-scenes-json")
+    if legacy.is_dir():
+        files = sorted(legacy.glob("scene-*.json"))
+        if files:
+            return files, False
+    return [], False
+
 
 # ---------------------------------------------------------------------------
 # Scene practice mode
@@ -29,17 +113,14 @@ def render_scene_practice_mode(scenes_dir):
     Story practice mode - practice pronunciation of story phrases scene by scene.
 
     Args:
-        scenes_dir: Path to the directory containing scene JSON files
+        scenes_dir: Path to the directory containing scene JSON files (may be ignored
+                    if unified scenes are available)
     """
-    if not scenes_dir.exists():
-        st.warning("Story scenes not found. Please ensure story-scenes-json/ exists.")
-        return
-
-    # Get all scene files
-    scene_files = sorted(scenes_dir.glob("scene-*.json"))
+    lang_code = st.session_state.get('material_language', 'fr')
+    scene_files, is_unified = _get_scene_files(lang_code)
 
     if not scene_files:
-        st.warning("No scene files found in the story-scenes-json directory.")
+        st.warning("No scene files found.")
         return
 
     # Initialize session state for story practice
@@ -51,15 +132,7 @@ def render_scene_practice_mode(scenes_dir):
     # Create scene selector with friendly names
     scene_options = {}
     for scene_file in scene_files:
-        # Extract scene number and title from filename
-        parts = scene_file.stem.split('-', 2)
-        if len(parts) >= 3:
-            scene_num = parts[1]
-            scene_title = parts[2].replace('-', ' ').title()
-            display_name = f"Scene {scene_num}: {scene_title}"
-        else:
-            display_name = scene_file.stem
-
+        display_name = _scene_display_name(str(scene_file), lang_code)
         scene_options[display_name] = str(scene_file)
 
     # Scene selector
@@ -86,19 +159,9 @@ def render_scene_practice_mode(scenes_dir):
         with open(selected_scene_path, 'r', encoding='utf-8') as f:
             scene_data = json.load(f)
 
-        # All story scenes now use Format 2: {"lang": [...], "scene_number": 1, "scene_title": "..."}
-        if not isinstance(scene_data, dict):
-            st.error(f"Invalid scene format - expected dict, got {type(scene_data).__name__}")
-            return
-
-        # Get language key (pt, fr, de, nl, it, es)
-        lang_keys = [k for k in scene_data.keys() if k not in ['scene_number', 'scene_title']]
-        if not lang_keys:
-            st.error("Invalid scene data - no language key found")
-            return
-
-        lang_key = lang_keys[0]
-        phrases = scene_data[lang_key]
+        from config import get_language_code
+        source_lang_code = get_language_code(st.session_state.get('source_language', 'English'))
+        phrases, _ = _extract_scene_phrases(scene_data, lang_code, source_lang_code)
 
         if not phrases:
             st.warning("No phrases found in this scene.")
@@ -114,8 +177,8 @@ def render_scene_practice_mode(scenes_dir):
             current_idx = 0
 
         current_phrase_obj = phrases[current_idx]
-        current_phrase = current_phrase_obj.get(lang_key, '')
-        phrase_translation = current_phrase_obj.get('english')
+        current_phrase = current_phrase_obj.get('text', '')
+        phrase_translation = current_phrase_obj.get('translation')
         phrase_ipa = current_phrase_obj.get('ipa')
 
         st.subheader(selected_scene_display)
@@ -191,14 +254,15 @@ def render_story_reader():
 
         # Check if story materials exist for this language
         story_md_path = Path(f"language_materials/{lang_code}/story.md")
-        story_scenes_dir = Path(f"language_materials/{lang_code}/story-scenes-json")
+        scene_files, is_unified = _get_scene_files(lang_code)
+        story_scenes_dir = scene_files[0].parent if scene_files else Path(f"language_materials/{lang_code}/story-scenes-json")
 
         config = story_config.get(lang_code, {'title': 'Story', 'setting': 'Unknown'})
         st.header(f"📖 {config['title']}")
 
         # Check what story materials are available
         has_full_story = story_md_path.exists()
-        has_scenes = story_scenes_dir.exists() and list(story_scenes_dir.glob("scene-*.json"))
+        has_scenes = bool(scene_files)
 
         if not has_full_story and not has_scenes:
             st.warning("Story materials not found. Please ensure story files exist for this language.")
@@ -261,30 +325,16 @@ def render_full_story(story_path):
 
 def render_scene_by_scene(scenes_dir, lang_code):
     """Render individual scenes with target language text and English translations"""
-    if not scenes_dir.exists():
-        st.warning(f"Story scenes not found. Please ensure `language_materials/{lang_code}/story-scenes-json/` exists.")
-        return
-
-    # Get all scene files
-    scene_files = sorted(scenes_dir.glob("scene-*.json"))
+    scene_files, is_unified = _get_scene_files(lang_code)
 
     if not scene_files:
-        st.warning("No scene files found in the story-scenes-json directory.")
+        st.warning("No scene files found.")
         return
 
     # Create scene selector with friendly names
     scene_options = {}
     for scene_file in scene_files:
-        # Extract scene number and title from filename
-        # e.g., "scene-01-le-café-du-matin.json" -> "Scene 1: Le Café du Matin"
-        parts = scene_file.stem.split('-', 2)
-        if len(parts) >= 3:
-            scene_num = parts[1]
-            scene_title = parts[2].replace('-', ' ').title()
-            display_name = f"Scene {scene_num}: {scene_title}"
-        else:
-            display_name = scene_file.stem
-
+        display_name = _scene_display_name(str(scene_file), lang_code)
         scene_options[display_name] = scene_file
 
     # Scene selector
@@ -301,19 +351,14 @@ def render_scene_by_scene(scenes_dir, lang_code):
         with open(scene_file, 'r', encoding='utf-8') as f:
             scene_data = json.load(f)
 
-        # All story scenes now use Format 2: {"lang": [...], "scene_number": 1, "scene_title": "..."}
-        if not isinstance(scene_data, dict):
-            st.error(f"Invalid scene format - expected dict, got {type(scene_data).__name__}")
-            return
+        from config import get_language_code
+        source_lang = st.session_state.get('source_language', 'English')
+        source_lang_code = get_language_code(source_lang)
+        phrases, scene_title = _extract_scene_phrases(scene_data, lang_code, source_lang_code)
 
-        # Get language key (pt, fr, de, nl, it, es)
-        lang_keys = [k for k in scene_data.keys() if k not in ['scene_number', 'scene_title']]
-        if not lang_keys:
-            st.error("Invalid scene data - no language key found")
+        if not phrases:
+            st.warning("No phrases found in this scene.")
             return
-
-        lang_key = lang_keys[0]
-        phrases = scene_data[lang_key]
 
         st.subheader(selected_scene)
         st.caption(f"📊 {len(phrases)} phrases in this scene")
@@ -321,7 +366,6 @@ def render_scene_by_scene(scenes_dir, lang_code):
         # Display options
         col1, col2 = st.columns([3, 1])
         with col1:
-            source_lang = st.session_state.source_language
             show_translations = st.checkbox(f"Show {source_lang} translations", value=False)
         with col2:
             show_ipa = st.checkbox("Show IPA", value=False)
@@ -330,14 +374,12 @@ def render_scene_by_scene(scenes_dir, lang_code):
 
         # Display each phrase
         for i, phrase in enumerate(phrases, 1):
-            # Get text in the target language (french, pt, etc.)
-            target_text = phrase.get(lang_key, '')
-            source_lang = st.session_state.source_language
-            target_lang = st.session_state.target_language
+            target_text = phrase.get('text', '')
+            translation_text = phrase.get('translation', '')
 
-            if source_lang == "English":
-                translation_text = phrase.get('english', '[Translation missing]')
-            else:
+            # If no pre-stored translation and source isn't English, use LLM
+            if not translation_text and source_lang != "English":
+                target_lang = st.session_state.get('target_language', '')
                 translation_text = get_translation_from_llm(target_text, target_lang, source_lang)
 
             ipa_text = phrase.get('ipa', '')
@@ -346,7 +388,7 @@ def render_scene_by_scene(scenes_dir, lang_code):
             st.markdown(f"**{i}.** {target_text}")
 
             # Optional: Source-language translation
-            if show_translations and translation_text and not translation_text.startswith('[error'):
+            if show_translations and translation_text and not str(translation_text).startswith('[error'):
                 st.markdown(f"   *{translation_text}*")
 
             # Optional: IPA
@@ -354,7 +396,7 @@ def render_scene_by_scene(scenes_dir, lang_code):
                 st.markdown(f"   🔊 {format_ipa(ipa_text)}", unsafe_allow_html=True)
 
             # Add spacing between phrases
-            if i < len(scene_data):
+            if i < len(phrases):
                 st.markdown("")  # Small gap
 
         # Practice transition

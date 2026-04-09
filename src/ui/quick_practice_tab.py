@@ -125,11 +125,11 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
             for line in metadata['preview']:
                 st.text(line)
 
-    # Enrichment UI
+    # Enrichment UI (not applicable for unified multi-language files)
     missing_translations = not metadata.get('has_translations')
     missing_ipa = not metadata.get('has_ipa')
 
-    if missing_translations or missing_ipa:
+    if (missing_translations or missing_ipa) and not selected_category.startswith('unified-'):
         st.markdown("---")
         st.markdown("**✨ Enrich This Material**")
 
