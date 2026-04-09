@@ -131,7 +131,8 @@ def get_language_structure(language: str, _cache_version: str = CACHE_VERSION) -
 
 
 @st.cache_data
-def get_file_metadata(language: str, category: str, filename: str) -> Dict:
+def get_file_metadata(language: str, category: str, filename: str,
+                      source_language: str = "en") -> Dict:
     """Get metadata about a phrase/word file.
     
     For aggregated categories ('phrases', 'words'), searches across all level subdirectories
@@ -173,16 +174,24 @@ def get_file_metadata(language: str, category: str, filename: str) -> Dict:
             if isinstance(data, dict) and 'meta' in data and 'phrases' in data:
                 meta = data['meta']
                 phrases = data['phrases']
-                # Project preview using the target language
+                # Project preview using target (language) and source
+                source_code = source_language
                 preview = []
                 for phrase in phrases[:3]:
                     text = phrase.get('text', {}).get(language, '')
-                    translation = phrase.get('text', {}).get('en', '')
+                    if not text:
+                        continue
+                    # Translation: use source lang, fall back to English
+                    trans = (phrase.get('text', {}).get(source_code)
+                             or phrase.get('text', {}).get('en', ''))
+                    # Avoid showing identical text and translation
+                    if trans == text:
+                        trans = ''
                     ipa = phrase.get('ipa', {}).get(language, '')
-                    if translation and ipa:
-                        preview.append(f"{text} | {translation} | {ipa}")
-                    elif translation:
-                        preview.append(f"{text} | {translation}")
+                    if trans and ipa:
+                        preview.append(f"{text} | {trans} | {ipa}")
+                    elif trans:
+                        preview.append(f"{text} | {trans}")
                     else:
                         preview.append(text)
                 return {

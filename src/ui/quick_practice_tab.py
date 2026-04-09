@@ -103,7 +103,9 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
         help="Select a specific file from this category"
     )
 
-    metadata = get_file_metadata(material_lang, category, selected_file)
+    from config import get_language_code
+    source_code = get_language_code(st.session_state.get('source_language', 'English'))
+    metadata = get_file_metadata(material_lang, category, selected_file, source_code)
 
     if not metadata:
         st.error("Could not read file metadata")
