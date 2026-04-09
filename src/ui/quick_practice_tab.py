@@ -638,7 +638,7 @@ def _render_guided_mode():
         if source_lang == "English" and phrase_translation:
             translation_text = phrase_translation
         elif source_lang != target_lang:
-            translation_text = get_translation_from_llm(current_phrase, target_lang, source_lang)
+            translation_text = get_translation_from_llm(current_phrase, target_lang, source_lang, secrets=st.secrets)
 
         if translation_text or phrase_ipa:
             with st.expander("📖 Translation & Reference", expanded=False):
@@ -655,41 +655,85 @@ def _render_guided_mode():
 
 
 def _render_free_text_mode():
-    """Render free-text practice UI; returns the entered text."""
+    """Render free-text practice UI with paired source/target fields.
+
+    Two input fields, one for source language, one for target.  Typing in
+    either triggers translation into the other.  Practice is always in the
+    target language.
+
+    Returns the target-language text to practise (empty string if nothing yet).
+    """
     from config import MATERIAL_TO_TRAINING
 
     source = st.session_state.get("source_language", "English")
     target_code = st.session_state.get("material_language", "fr")
     target = MATERIAL_TO_TRAINING.get(target_code, target_code)
 
-    direction = st.session_state.get("translation_direction", "source_to_target")
+    # ------------------------------------------------------------------
+    # Detect which field changed and translate BEFORE widgets render,
+    # because Streamlit forbids setting widget keys after instantiation.
+    # ------------------------------------------------------------------
+    prev_source = st.session_state.get("_prev_source_text", "")
+    prev_target = st.session_state.get("_prev_target_text", "")
+    cur_source = st.session_state.get("free_source_text", "")
+    cur_target = st.session_state.get("free_target_text", "")
 
-    if direction == "source_to_target":
-        # User types in source language, app translates to target for practice
-        st.write(f"Enter a word or phrase in **{source}** for practice")
-        input_label = f"Enter word or phrase ({source} → {target}):"
-        swap_help = f"Switch to typing directly in {target}"
-    else:
-        # User types directly in target language — no translation needed
-        st.write(f"Enter a word or phrase in **{target}** to practice")
-        input_label = f"Enter word or phrase ({target}):"
-        swap_help = f"Switch to typing in {source} with translation"
+    source_changed = cur_source != prev_source
+    target_changed = cur_target != prev_target
+    translation_error = None
 
-    col1, col2, col3 = st.columns([1, 1, 4])
-    with col1:
-        if st.button("⇄ Swap", key="swap_direction", help=swap_help):
-            st.session_state.translation_direction = (
-                "target_to_source" if direction == "source_to_target"
-                else "source_to_target"
-            )
-            st.rerun()
-    with col2:
-        st.write("")
-    with col3:
-        st.write("")
+    if source_changed and cur_source:
+        translated = get_translation_from_llm(
+            cur_source, source, target, secrets=st.secrets,
+        )
+        if translated and not translated.startswith('[error'):
+            st.session_state.free_target_text = translated
+            st.session_state._prev_target_text = translated
+        else:
+            translation_error = translated
+        st.session_state._prev_source_text = cur_source
 
-    st.markdown("---")
-    return st.text_input(input_label, key="practice_text_free")
+    elif target_changed and cur_target:
+        translated = get_translation_from_llm(
+            cur_target, target, source, secrets=st.secrets,
+        )
+        if translated and not translated.startswith('[error'):
+            st.session_state.free_source_text = translated
+            st.session_state._prev_source_text = translated
+        else:
+            translation_error = translated
+        st.session_state._prev_target_text = cur_target
+
+    # ------------------------------------------------------------------
+    # Render the two input fields (they read from session state)
+    # ------------------------------------------------------------------
+    st.text_input(
+        f"{source}",
+        placeholder=f"Enter a word or phrase in {source}",
+        key="free_source_text",
+    )
+    st.text_input(
+        f"{target}",
+        placeholder=f"Enter a word or phrase in {target}",
+        key="free_target_text",
+    )
+
+    if translation_error:
+        st.warning(f"Translation unavailable: {translation_error}")
+        return ""
+
+    practice_text = st.session_state.get("free_target_text", "")
+    if not practice_text:
+        return ""
+
+    # Optional IPA
+    show_ipa = st.checkbox("Show IPA", value=True, key="free_show_ipa")
+    if show_ipa:
+        ipa = get_ipa_from_espeak(practice_text, get_language_code(target))
+        if ipa and not ipa.startswith('[error'):
+            st.markdown(f"**IPA:** {format_ipa(ipa)}", unsafe_allow_html=True)
+
+    return practice_text
 
 
 # ---------------------------------------------------------------------------
@@ -707,32 +751,10 @@ def render_quick_practice_tab():
 
     _render_materials_loader()
 
-    guided_mode = 'phrase_list' in st.session_state and st.session_state.phrase_list
-    text = _render_practice_area()
-
-    practice_text = text
-
-    # Free-text mode: handle translation, display, and IPA
-    if text and not guided_mode:
-        from config import MATERIAL_TO_TRAINING
-        source_lang = st.session_state.source_language  # full name
-        _target_code = st.session_state.get("material_language", "fr")
-        target_lang = MATERIAL_TO_TRAINING.get(_target_code, _target_code)  # full name
-        direction = st.session_state.get("translation_direction", "source_to_target")
-
-        if direction == 'source_to_target':
-            # User typed in source language — translate to target
-            translated = get_translation_from_llm(text, source_lang, target_lang)
-            if translated and not translated.startswith('[error'):
-                practice_text = translated
-                st.markdown(f"**{target_lang}:** {translated}")
-            elif translated:
-                st.warning(f"Translation issue: {translated}")
-
-        # Show IPA for the practice text (target language)
-        ipa = get_ipa_from_espeak(practice_text, get_language_code(target_lang))
-        if ipa and not ipa.startswith('[error'):
-            st.markdown(f"**IPA:** {format_ipa(ipa)}", unsafe_allow_html=True)
+    # _render_practice_area returns the practice text:
+    # - guided mode: the phrase from the loaded material
+    # - free-text mode: user input (or translated text if source_to_target)
+    practice_text = _render_practice_area()
 
     # Reusable practice interface
     render_practice_interface(practice_text, key_prefix="quick")
