@@ -708,14 +708,16 @@ def _render_free_text_mode():
     # Render the two input fields (they read from session state)
     # ------------------------------------------------------------------
     st.text_input(
-        f"{source}",
+        source,
         placeholder=f"Enter a word or phrase in {source}",
         key="free_source_text",
+        label_visibility="collapsed",
     )
     st.text_input(
-        f"{target}",
+        target,
         placeholder=f"Enter a word or phrase in {target}",
         key="free_target_text",
+        label_visibility="collapsed",
     )
 
     if translation_error:
