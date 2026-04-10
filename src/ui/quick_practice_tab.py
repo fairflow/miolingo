@@ -222,7 +222,6 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
                 phrases = load_phrase_file(file_path_str)
             st.session_state.phrase_list = phrases
             st.session_state.qp_phrase_position = 0
-            st.session_state.phrase_selector_widget = 0
             st.session_state.state_change_log.append("Load builtin: Reset position to 0")
             st.session_state.quick_last_result = None
             st.session_state.material_source = f"{format_language_name(material_lang)} - {format_category_name(category)} - {selected_file}"
@@ -427,7 +426,6 @@ def _render_upload_materials(format_language_name):
             if st.button("✅ Use This File", type="primary", key="use_upload"):
                 st.session_state.phrase_list = phrases
                 st.session_state.qp_phrase_position = 0
-                st.session_state.phrase_selector_widget = 0
                 st.session_state.state_change_log.append("Upload file: Reset position to 0")
                 st.session_state.quick_last_result = None
                 st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
@@ -494,7 +492,6 @@ def _render_practice_area():
         if st.button("🗑️ Clear Material"):
             st.session_state.phrase_list = []
             st.session_state.qp_phrase_position = 0
-            st.session_state.phrase_selector_widget = 0
             st.session_state.state_change_log.append("Clear material: Reset position to 0")
             st.session_state.quick_last_result = None
             st.session_state.material_source = None
@@ -557,7 +554,6 @@ def _render_guided_mode():
                      key="nav_prev",
                      help="Navigation disabled in edit mode" if in_edit_mode else None):
             st.session_state.qp_phrase_position -= 1
-            st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
             st.session_state.state_change_log.append(f"Prev button: qp_phrase_position → {st.session_state.qp_phrase_position}")
             st.rerun()
 
@@ -566,7 +562,6 @@ def _render_guided_mode():
                      key="nav_next",
                      help="Navigation disabled in edit mode" if in_edit_mode else None):
             st.session_state.qp_phrase_position += 1
-            st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
             st.session_state.state_change_log.append(f"Next button: qp_phrase_position → {st.session_state.qp_phrase_position}")
             st.rerun()
 
