@@ -257,10 +257,8 @@ def initialize_session_state():
 
     # Two-way language settings
     if 'source_language' not in st.session_state:
-        # Prefer value locked at login; fall back to settings, then default
-        st.session_state.source_language = (
-            st.session_state.settings.get("source_language", "English")
-        )
+        # Source language is session-only (not read from DB settings)
+        st.session_state.source_language = "English"
     if 'target_language' not in st.session_state:
         st.session_state.target_language = st.session_state.language
     if 'translation_direction' not in st.session_state:

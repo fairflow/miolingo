@@ -401,7 +401,8 @@ def render_scene_by_scene(scenes_dir, lang_code):
 
         # Practice transition
         st.divider()
-        st.info("✏️ **Ready to practice?** Go to the **🎯 Quick Practice** tab and load this scene from the Built-in Library → French → Story Scenes.")
+        lang_display = format_language_name(lang_code).split(' ', 1)[-1] if lang_code else 'French'
+        st.info(f"✏️ **Ready to practice?** Go to the **🎯 Quick Practice** tab and load this scene from the Built-in Library → {lang_display} → Story Scenes.")
 
     except json.JSONDecodeError as e:
         st.error(f"Error parsing scene file: {e}")

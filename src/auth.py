@@ -74,24 +74,14 @@ def _load_settings():
 
 def _resolve_and_lock_source_language():
     """
-    Resolve source language from DB settings or login-form selection,
-    lock it in session state, and persist to DB.
+    Resolve source language from login-form selection, lock it in session state.
     Called after every successful login path (regular, guest, cookie re-attach).
+    Source language is session-only — not read from or written to the database.
     """
-    # Login-form selection takes precedence (user explicitly chose this session).
-    # Fall back to DB-saved value (cookie re-attach), then default.
     _login_source = st.session_state.get('_login_source_lang')
-    _saved_source = st.session_state.get('settings', {}).get('source_language')
-    _chosen_source = _login_source or _saved_source or 'English'
+    _chosen_source = _login_source or 'English'
     st.session_state['source_language'] = _chosen_source
     st.session_state.setdefault('settings', {})['source_language'] = _chosen_source
-
-    # Persist to DB
-    try:
-        _user_id = st.session_state['user']['user_id']
-        app_mysql.save_user_setting(_user_id, 'source_language', _chosen_source)
-    except Exception:
-        pass  # best-effort; setting is also in session state
 
 
 # ---------------------------------------------------------------------------
@@ -257,8 +247,7 @@ def show_login_page():
 
                             # Persist cookie for re-attach (feature-flagged)
                             if ENABLE_SESSION_MANAGER and _session_manager:
-                                _session_manager.clear_logged_out_flag()
-                                _session_manager.write_cookie_session_id(session_id)
+                                _session_manager.login(session_id)
 
                             # Get tracked connection from pool (replaces bootstrap)
                             tracked_conn = app_mysql.get_connection()  # noqa: F841
@@ -362,8 +351,7 @@ def show_login_page():
 
                 # Persist cookie for re-attach (feature-flagged)
                 if ENABLE_SESSION_MANAGER and _session_manager:
-                    _session_manager.clear_logged_out_flag()
-                    _session_manager.write_cookie_session_id(session_id)
+                    _session_manager.login(session_id)
 
                 # Get tracked connection from pool (replaces bootstrap)
                 tracked_conn = app_mysql.get_connection()  # noqa: F841
