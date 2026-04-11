@@ -1,0 +1,252 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "courtesy-basics",
+    "phrase_count": 8,
+    "languages": [
+      "de",
+      "en",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-courtesy-basics-001",
+      "text": {
+        "fr": "Merci",
+        "en": "Thank you",
+        "de": "Danke",
+        "pt": "Obrigado",
+        "it": "Grazie",
+        "es": "Gracias",
+        "nl": "Dank je"
+      },
+      "ipa": {
+        "fr": "[mɛʁsˈi]",
+        "de": "[dˈaŋkə]",
+        "pt": "[ˌobriɡˈadʊ]",
+        "it": "[ɡrˈatsje]",
+        "es": "[ɡɾˈaθjas]",
+        "nl": "[dˈɑŋk jə]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-courtesy-basics-002",
+      "text": {
+        "fr": "Merci beaucoup",
+        "en": "Thank you very much",
+        "de": "Vielen Dank",
+        "pt": "Muito obrigado",
+        "it": "Grazie mille",
+        "es": "Muchas gracias",
+        "nl": "Dank je wel"
+      },
+      "ipa": {
+        "fr": "[mɛʁsˈi bokˈu]",
+        "de": "[fˈiːlən dˈaŋk]",
+        "pt": "[mwˈiŋtw ˌobriɡˈadʊ]",
+        "it": "[ɡrˈatsje mˈille]",
+        "es": "[mˈutʃas ɣɾˈaθjas]",
+        "nl": "[dˈɑŋk jə ʋˈɛl]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-courtesy-basics-003",
+      "text": {
+        "fr": "De rien",
+        "en": "You're welcome",
+        "de": "Bitte",
+        "pt": "De nada",
+        "it": "Prego",
+        "es": "De nada",
+        "nl": "Graag gedaan"
+      },
+      "ipa": {
+        "fr": "[də- ʁjˈɛ̃]",
+        "de": "[bˈɪtə]",
+        "pt": "[dʒy nˈadæ]",
+        "it": "[prˈɛːɡo]",
+        "es": "[de nˈaða]",
+        "nl": "[ɣrˈaːx ɣədˈaːn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-courtesy-basics-004",
+      "text": {
+        "fr": "S'il vous plaît",
+        "en": "Please",
+        "de": "Bitte",
+        "pt": "Por favor",
+        "it": "Per favore",
+        "es": "Por favor",
+        "nl": "Alsjeblieft"
+      },
+      "ipa": {
+        "fr": "[sil vu plˈɛ]",
+        "de": "[bˈɪtə]",
+        "pt": "[por favˈor]",
+        "it": "[pˌɛr favˈoːre]",
+        "es": "[pɔɾ faβˈɔɾ]",
+        "nl": "[ˌɑlʃɛblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-courtesy-basics-005",
+      "text": {
+        "fr": "S'il te plaît",
+        "en": "Please",
+        "de": "Bitte",
+        "pt": "Por favor",
+        "it": "Per piacere",
+        "es": "Por favor",
+        "nl": "Alstublieft"
+      },
+      "ipa": {
+        "fr": "[sil tə- plˈɛ]",
+        "de": "[bˈɪtə]",
+        "pt": "[por favˈor]",
+        "it": "[pˌɛr pjatʃˈeːre]",
+        "es": "[pɔɾ faβˈɔɾ]",
+        "nl": "[ˌɑlstɵblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-courtesy-basics-006",
+      "text": {
+        "fr": "Excusez-moi",
+        "en": "Excuse me",
+        "de": "Entschuldigung",
+        "pt": "Com licença",
+        "it": "Mi scusi",
+        "es": "Disculpe",
+        "nl": "Pardon"
+      },
+      "ipa": {
+        "fr": "[ɛkskyzˈemwˈa]",
+        "de": "[ɛntʃˈʊldɪɡˌʊŋ]",
+        "pt": "[koŋ lˌisˈeɪŋsæ]",
+        "it": "[mˌɪ skˈuːzɪ]",
+        "es": "[diskˈulpe]",
+        "nl": "[pɑrdˈɔn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-courtesy-basics-007",
+      "text": {
+        "fr": "Pardon",
+        "en": "Pardon",
+        "de": "Verzeihung",
+        "pt": "Perdão",
+        "it": "Scusi",
+        "es": "Perdón",
+        "nl": "Pardon"
+      },
+      "ipa": {
+        "fr": "[paʁdˈɔ̃]",
+        "de": "[fɛɾtsˈaɪhʊŋ]",
+        "pt": "[peɾədˈɐ̃ʊ̃]",
+        "it": "[skˈuːzɪ]",
+        "es": "[pɛɾðˈɔn]",
+        "nl": "[pɑrdˈɔn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-courtesy-basics-008",
+      "text": {
+        "fr": "Désolé",
+        "en": "Sorry",
+        "de": "Tut mir leid",
+        "pt": "Desculpa",
+        "it": "Scusa",
+        "es": "Lo siento",
+        "nl": "Sorry"
+      },
+      "ipa": {
+        "fr": "[dezɔlˈe]",
+        "de": "[tˈuːt miːɾ lˈaɪt]",
+        "pt": "[dˌeskˈuwpæ]",
+        "it": "[skˈuːza]",
+        "es": "[lo sjˈɛnto]",
+        "nl": "[sˈɔɾri]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}

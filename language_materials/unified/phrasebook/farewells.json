@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "farewells",
+    "phrase_count": 6,
+    "languages": [
+      "de",
+      "en",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-farewells-001",
+      "text": {
+        "fr": "Au revoir",
+        "en": "Goodbye",
+        "de": "Auf Wiedersehen",
+        "pt": "Tchau",
+        "it": "Arrivederci",
+        "es": "Adiós",
+        "nl": "Tot ziens"
+      },
+      "ipa": {
+        "fr": "[o ʁəvwˈaʁ]",
+        "de": "[aʊf viːdɜzˈeːən]",
+        "pt": "[tʃˈaʊ]",
+        "it": "[ˌarɾivedˈɛːrtʃɪ]",
+        "es": "[aðjˈɔs]",
+        "nl": "[tɔt zˈins]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-farewells-002",
+      "text": {
+        "fr": "À bientôt",
+        "en": "See you soon",
+        "de": "Bis bald",
+        "pt": "Até logo",
+        "it": "A presto",
+        "es": "Hasta pronto",
+        "nl": "Tot snel"
+      },
+      "ipa": {
+        "fr": "[a bjɛ̃tˈo]",
+        "de": "[bɪs bˈalt]",
+        "pt": "[atˌɛ lˈɔɡʊ]",
+        "it": "[ˌa prˈɛsto]",
+        "es": "[ˌasta pɾˈɔnto]",
+        "nl": "[tɔt snˈɛl]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-farewells-003",
+      "text": {
+        "fr": "À demain",
+        "en": "See you tomorrow",
+        "de": "Bis morgen",
+        "pt": "Até amanhã",
+        "it": "A domani",
+        "es": "Hasta mañana",
+        "nl": "Tot morgen"
+      },
+      "ipa": {
+        "fr": "[a dəmˈɛ̃]",
+        "de": "[bɪs mˈɔɾɡən]",
+        "pt": "[atˌɛ ˌæmɐ̃ɲˈɐ̃]",
+        "it": "[ˌa domˈaːnɪ]",
+        "es": "[ˌasta maɲˈana]",
+        "nl": "[tɔt mˈɔrɣən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-farewells-004",
+      "text": {
+        "fr": "Bonne journée",
+        "en": "Have a good day",
+        "de": "Schönen Tag noch",
+        "pt": "Bom dia",
+        "it": "Buona giornata",
+        "es": "Que tengas un buen día",
+        "nl": "Fijne dag"
+      },
+      "ipa": {
+        "fr": "[bˈɔn ʒuʁnˈe]",
+        "de": "[ʃˈøːnən tˈɑːk nˈɔx]",
+        "pt": "[bˈoŋ dʒˈiæ]",
+        "it": "[bʊˌona dʒornˈaːta]",
+        "es": "[ke tˈɛŋɡas ˈum bwˈɛn dˈia]",
+        "nl": "[fˈɛɪnə dˈɑx]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-farewells-005",
+      "text": {
+        "fr": "Bonne soirée",
+        "en": "Have a good evening",
+        "de": "Schönen Abend noch",
+        "pt": "Boa tarde",
+        "it": "Buona serata",
+        "es": "Que tengas una buena tarde",
+        "nl": "Fijne avond"
+      },
+      "ipa": {
+        "fr": "[bˈɔn swaʁˈe]",
+        "de": "[ʃˈøːnən ˈɑːbənt nˈɔx]",
+        "pt": "[bˈoæ tˈaɾədʒy]",
+        "it": "[bʊˌona serˈaːta]",
+        "es": "[ke tˈɛŋɡas ˈuna βwˈena tˈaɾðe]",
+        "nl": "[fˈɛɪnə ˈaːvɔnt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-farewells-006",
+      "text": {
+        "fr": "Bonne nuit",
+        "en": "Good night",
+        "de": "Gute Nacht",
+        "pt": "Boa noite",
+        "it": "Buonanotte",
+        "es": "Buenas noches",
+        "nl": "Welterusten"
+      },
+      "ipa": {
+        "fr": "[bˈɔn nyˈi]",
+        "de": "[ɡˈuːtə nˈaxt]",
+        "pt": "[bˈoæ nˈoɪtʃy]",
+        "it": "[bˌʊonanˈɔtːe]",
+        "es": "[bwˈenas nˈotʃes]",
+        "nl": "[ʋˈɛltɪːrˌɵstən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}

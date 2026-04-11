@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "directions",
+    "phrase_count": 9,
+    "languages": [
+      "de",
+      "en",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-directions-001",
+      "text": {
+        "fr": "Où est...?",
+        "en": "Where is...?",
+        "de": "Wo ist...?",
+        "pt": "Onde fica...?",
+        "it": "Dov'è...?",
+        "es": "¿Dónde está...?",
+        "nl": "Waar is...?"
+      },
+      "ipa": {
+        "fr": "[u ˈɛ]",
+        "de": "[vˈoː ɪst]",
+        "pt": "[ˌoŋdʒy fˈikæ]",
+        "it": "[dovˈɛ]",
+        "es": "[dˈɔnde estˈa]",
+        "nl": "[ʋˈaːr ɪs]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-002",
+      "text": {
+        "fr": "Où sont les toilettes?",
+        "en": "Where is the bathroom?",
+        "de": "Wo ist die Toilette?",
+        "pt": "Onde fica o banheiro?",
+        "it": "Dove sono i bagni?",
+        "es": "¿Dónde está el baño?",
+        "nl": "Waar is het toilet?"
+      },
+      "ipa": {
+        "fr": "[u sˈɔ̃ le- twalˈɛt]",
+        "de": "[vˌoː ɪst diː tˈoːiːlˌɛtə]",
+        "pt": "[ˌoŋdʒy fˈikæ ʊ bˌɐ̃ɲˈeɪɾʊ]",
+        "it": "[dˈoːve sˌono ˌɪ bˈaɲɲɪ]",
+        "es": "[dˈɔnde estˈa el βˈaɲo]",
+        "nl": "[ʋˈaːr ɪs hə tʋɑlˈɛt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-003",
+      "text": {
+        "fr": "C'est loin d'ici?",
+        "en": "Is it far from here?",
+        "de": "Ist es weit von hier?",
+        "pt": "É longe daqui?",
+        "it": "È lontano da qui?",
+        "es": "¿Está lejos de aquí?",
+        "nl": "Is het ver hier vandaan?"
+      },
+      "ipa": {
+        "fr": "[sɛ lwˌɛ̃ disˈi]",
+        "de": "[ɪst ɛs vˈaɪt fɔn hˈiːɾ]",
+        "pt": "[ɛ lˈoŋʒy dakˈi]",
+        "it": "[ˌɛ lontˈaːno dˌa kwˈi]",
+        "es": "[estˈa lˈexos ðe akˈi]",
+        "nl": "[ɪs hət vˈɛr hˈir vɑndˈaːn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-004",
+      "text": {
+        "fr": "C'est près d'ici?",
+        "en": "Is it near here?",
+        "de": "Ist es in der Nähe?",
+        "pt": "É perto daqui?",
+        "it": "È vicino?",
+        "es": "¿Está cerca?",
+        "nl": "Is het dichtbij?"
+      },
+      "ipa": {
+        "fr": "[sɛ pʁɛ disˈi]",
+        "de": "[ɪst ɛs ɪn dɛɾ nˈɛːə]",
+        "pt": "[ɛ pˈɛɾətʊ dakˈi]",
+        "it": "[ˌɛ vitʃˈiːno]",
+        "es": "[estˈa θˈɛɾka]",
+        "nl": "[ɪs hə tɪxtbˈɛɪ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-005",
+      "text": {
+        "fr": "À gauche",
+        "en": "To the left",
+        "de": "Nach links",
+        "pt": "À esquerda",
+        "it": "A sinistra",
+        "es": "A la izquierda",
+        "nl": "Naar links"
+      },
+      "ipa": {
+        "fr": "[a ɡˈoʃ]",
+        "de": "[nɑːx lˈɪŋks]",
+        "pt": "[ˌaː ˌeskˈeɾədæ]",
+        "it": "[ˌa sinˈistra]",
+        "es": "[a la iθkjˈɛɾða]",
+        "nl": "[naːr lˈɪŋks]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-006",
+      "text": {
+        "fr": "À droite",
+        "en": "To the right",
+        "de": "Nach rechts",
+        "pt": "À direita",
+        "it": "A destra",
+        "es": "A la derecha",
+        "nl": "Naar rechts"
+      },
+      "ipa": {
+        "fr": "[a dʁwˈat]",
+        "de": "[nɑːx rˈɛçts]",
+        "pt": "[ˌaː dʒˌiɾˈeɪtæ]",
+        "it": "[ˌa dˈɛstra]",
+        "es": "[a la ðɛɾˈɛtʃa]",
+        "nl": "[naːr rˈɛxts]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-007",
+      "text": {
+        "fr": "Tout droit",
+        "en": "Straight ahead",
+        "de": "Geradeaus",
+        "pt": "Reto",
+        "it": "Dritto",
+        "es": "Todo recto",
+        "nl": "Rechtdoor"
+      },
+      "ipa": {
+        "fr": "[tu dʁwˈa]",
+        "de": "[ɡərˈɑdeːˌaʊs]",
+        "pt": "[xˈɛtʊ]",
+        "it": "[drˈitːo]",
+        "es": "[tˈoðo rˈekto]",
+        "nl": "[rɛxtˈoːr]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-008",
+      "text": {
+        "fr": "Je cherche...",
+        "en": "I'm looking for...",
+        "de": "Ich suche...",
+        "pt": "Estou procurando...",
+        "it": "Sto cercando...",
+        "es": "Estoy buscando...",
+        "nl": "Ik zoek..."
+      },
+      "ipa": {
+        "fr": "[ʒə- ʃˈɛʁʃ]",
+        "de": "[ɪç zˈuːxə]",
+        "pt": "[estˌow prˌokuɾˈɐ̃ŋdʊ]",
+        "it": "[stˈo tʃerkˈando]",
+        "es": "[estˈoɪ βuskˈando]",
+        "nl": "[ɪk zˈuk]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-directions-009",
+      "text": {
+        "fr": "Où se trouve...?",
+        "en": "Where is...?",
+        "de": "Wo befindet sich...?",
+        "pt": "Onde fica...?",
+        "it": "Dove si trova...?",
+        "es": "¿Dónde se encuentra...?",
+        "nl": "Waar vind ik...?"
+      },
+      "ipa": {
+        "fr": "[u sə- tʁˈuv]",
+        "de": "[vˌoː bəfˈɪndət zɪç]",
+        "pt": "[ˌoŋdʒy fˈikæ]",
+        "it": "[dˈoːve sˌɪ trˈɔːva]",
+        "es": "[dˈɔnde se ɛnkwˈɛntɾa]",
+        "nl": "[ʋˈaːr vˈɪnt ɪk]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}
