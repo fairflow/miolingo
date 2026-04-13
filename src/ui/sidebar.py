@@ -42,10 +42,10 @@ def render_user_panel():
     with st.sidebar:
         st.markdown(f"### 🎯 Miolingo v{__version__}")
 
-        # Connection info panel — detail only shown in debug mode
-        conn_info = app_mysql.get_current_connection_info()
-        with st.expander("🔌 Connection Info", expanded=False):
-            if is_debug():
+        # Connection info panel — debug mode only
+        if is_debug():
+            conn_info = app_mysql.get_current_connection_info()
+            with st.expander("🔌 Connection Info", expanded=False):
                 if conn_info:
                     st.caption(f"**Tunnel:** `{conn_info['tunnel_id']}` (PID: {conn_info['tunnel_pid']}, Port: {conn_info['tunnel_port']})")
                     st.caption(f"**Created:** {conn_info['tunnel_created']}")
@@ -58,41 +58,37 @@ def render_user_panel():
                 else:
                     st.caption("⚠️ No connection info available")
 
-            # Reconnect button — always visible inside expander
-            if st.button("🔄 Reconnect", help="Get new connection from pool and swap it in"):
-                try:
-                    old_conn_id = conn_info.get('connection_id') if conn_info else None
-                    old_conn = st.session_state.get('db_connection')
+                if st.button("🔄 Reconnect", help="Get new connection from pool and swap it in"):
+                    try:
+                        old_conn_id = conn_info.get('connection_id') if conn_info else None
+                        old_conn = st.session_state.get('db_connection')
 
-                    # Clear session connection so get_connection() creates a new one
-                    if 'db_connection' in st.session_state:
-                        del st.session_state.db_connection
-                    if '_last_connection_info' in st.session_state:
-                        del st.session_state['_last_connection_info']
-                    if '_last_tunnel_info' in st.session_state:
-                        del st.session_state['_last_tunnel_info']
+                        if 'db_connection' in st.session_state:
+                            del st.session_state.db_connection
+                        if '_last_connection_info' in st.session_state:
+                            del st.session_state['_last_connection_info']
+                        if '_last_tunnel_info' in st.session_state:
+                            del st.session_state['_last_tunnel_info']
 
-                    new_conn = app_mysql.get_connection()
+                        new_conn = app_mysql.get_connection()
 
-                    # Verify connection by running a lightweight query
-                    cursor = new_conn.cursor(buffered=True)
-                    cursor.execute("SELECT 1")
-                    cursor.fetchall()
-                    cursor.close()
+                        cursor = new_conn.cursor(buffered=True)
+                        cursor.execute("SELECT 1")
+                        cursor.fetchall()
+                        cursor.close()
 
-                    # Close old connection after new one is verified
-                    if old_conn_id and old_conn:
-                        pool = app_mysql.get_connection_pool_instance()
-                        pool.close_connection(old_conn_id)
-                        try:
-                            old_conn.close()
-                        except Exception:
-                            pass
+                        if old_conn_id and old_conn:
+                            pool = app_mysql.get_connection_pool_instance()
+                            pool.close_connection(old_conn_id)
+                            try:
+                                old_conn.close()
+                            except Exception:
+                                pass
 
-                    st.success("✓ Switched to fresh connection from pool.")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Reconnect failed: {e}")
+                        st.success("✓ Switched to fresh connection from pool.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Reconnect failed: {e}")
 
         st.markdown("---")
 
