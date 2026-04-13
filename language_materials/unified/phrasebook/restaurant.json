@@ -1,0 +1,310 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "restaurant",
+    "phrase_count": 10,
+    "languages": [
+      "de",
+      "en",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-restaurant-001",
+      "text": {
+        "fr": "Une table pour deux, s'il vous plaît",
+        "en": "A table for two, please",
+        "de": "Einen Tisch für zwei, bitte",
+        "pt": "Uma mesa para dois, por favor",
+        "it": "Un tavolo per due, per favore",
+        "es": "Una mesa para dos, por favor",
+        "nl": "Een tafel voor twee, alstublieft"
+      },
+      "ipa": {
+        "fr": "[yn tˈabl puʁ dˈø  sil vu plˈɛ]",
+        "de": "[ˌaɪnən tˈɪʃ fyːɾ tsvˈaɪ bˈɪtə]",
+        "pt": "[ˌumæ mˈezæ pˌaɾæ dˈoɪs  por favˈor]",
+        "it": "[ˌʊn tˈavolo pˌɛr dˈuːe pˌɛr favˈoːre]",
+        "es": "[ˈuna mˈesa pˌaɾa ðˈos pɔɾ faβˈɔɾ]",
+        "nl": "[ən tˈaːfəl vɔːr tʋˈeː ˌɑlstɵblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-002",
+      "text": {
+        "fr": "Le menu, s'il vous plaît",
+        "en": "The menu, please",
+        "de": "Die Speisekarte, bitte",
+        "pt": "O cardápio, por favor",
+        "it": "Il menu, per favore",
+        "es": "El menú, por favor",
+        "nl": "De menukaart, alstublieft"
+      },
+      "ipa": {
+        "fr": "[lə- mənˈy  sil vu plˈɛ]",
+        "de": "[diː ʃpˈaɪzeːkˌaɾtə bˈɪtə]",
+        "pt": "[ʊ kˌaɾədˈapjʊ  por favˈor]",
+        "it": "[ˌil menˈu pˌɛr favˈoːre]",
+        "es": "[el menˈu pɔɾ faβˈɔɾ]",
+        "nl": "[də mˈeːnykˌaːrt ˌɑlstɵblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-003",
+      "text": {
+        "fr": "Je voudrais...",
+        "en": "I would like...",
+        "de": "Ich hätte gern...",
+        "pt": "Eu gostaria de...",
+        "it": "Vorrei...",
+        "es": "Quisiera...",
+        "nl": "Ik wil graag..."
+      },
+      "ipa": {
+        "fr": "[ʒə- vudʁˈɛ]",
+        "de": "[ɪç hˌɛtə ɡˈɛɾn]",
+        "pt": "[eʊ ɡˌostaɾˈiæ dʒy]",
+        "it": "[vorɾˈeːɪ]",
+        "es": "[kisjˈɛɾa]",
+        "nl": "[ɪk ʋɪl ɣrˈaːx]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-004",
+      "text": {
+        "fr": "L'addition, s'il vous plaît",
+        "en": "The bill, please",
+        "de": "Die Rechnung, bitte",
+        "pt": "A conta, por favor",
+        "it": "Il conto, per favore",
+        "es": "La cuenta, por favor",
+        "nl": "De rekening, alstublieft"
+      },
+      "ipa": {
+        "fr": "[ladisjˈɔ̃  sil vu plˈɛ]",
+        "de": "[diː rˈɛçnʊŋ bˈɪtə]",
+        "pt": "[a kˈoŋtæ  por favˈor]",
+        "it": "[ˌil kˈonto pˌɛr favˈoːre]",
+        "es": "[la kwˈɛnta pɔɾ faβˈɔɾ]",
+        "nl": "[də rˈeːkənˌɪŋ ˌɑlstɵblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-005",
+      "text": {
+        "fr": "C'était délicieux",
+        "en": "It was delicious",
+        "de": "Es war köstlich",
+        "pt": "Estava delicioso",
+        "it": "Era delizioso",
+        "es": "Estaba delicioso",
+        "nl": "Het was heerlijk"
+      },
+      "ipa": {
+        "fr": "[setˈɛ delisjˈø]",
+        "de": "[ɛs vɑːɾ kˈœstlɪç]",
+        "pt": "[estˌavæ dˌelisiˈozʊ]",
+        "it": "[ˌɛra dˌɛlitsiˈoːzo]",
+        "es": "[estˈaβa ðˌeliθjˈoso]",
+        "nl": "[hət ʋˈɑs hˈɪːrlək]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-006",
+      "text": {
+        "fr": "Je suis végétarien",
+        "en": "I'm vegetarian",
+        "de": "Ich bin Vegetarier",
+        "pt": "Eu sou vegetariano",
+        "it": "Sono vegetariano",
+        "es": "Soy vegetariano",
+        "nl": "Ik ben vegetariër"
+      },
+      "ipa": {
+        "fr": "[ʒə- syˌi veʒetaʁjˈɛ̃]",
+        "de": "[ɪç bɪn vˌeːɡeːtˈɑːriːɜ]",
+        "pt": "[eʊ sow vˌeʒetˌaɾiˈɐ̃nʊ]",
+        "it": "[sˌono vˌedʒetˌariˈaːno]",
+        "es": "[sˈoɪ βˌexetaɾjˈano]",
+        "nl": "[ɪk bɛn vˈeːɣətˌaːriər]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-007",
+      "text": {
+        "fr": "Un café, s'il vous plaît",
+        "en": "A coffee, please",
+        "de": "Einen Kaffee, bitte",
+        "pt": "Um café, por favor",
+        "it": "Un caffè, per favore",
+        "es": "Un café, por favor",
+        "nl": "Een koffie, alstublieft"
+      },
+      "ipa": {
+        "fr": "[œ̃ kafˈe  sil vu plˈɛ]",
+        "de": "[ˌaɪnən kˈafeː bˈɪtə]",
+        "pt": "[ũŋ kafˈɛ  por favˈor]",
+        "it": "[ˌʊn kaffˈɛ pˌɛr favˈoːre]",
+        "es": "[ˈun kafˈɛ pɔɾ faβˈɔɾ]",
+        "nl": "[ən kɔfˈi ˌɑlstɵblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-008",
+      "text": {
+        "fr": "Une carafe d'eau, s'il vous plaît",
+        "en": "A carafe of water, please",
+        "de": "Eine Karaffe Wasser, bitte",
+        "pt": "Uma jarra de água, por favor",
+        "it": "Una caraffa d'acqua, per favore",
+        "es": "Una jarra de agua, por favor",
+        "nl": "Een karaf water, alstublieft"
+      },
+      "ipa": {
+        "fr": "[yn kaʁˈaf dˈo  sil vu plˈɛ]",
+        "de": "[ˌaɪnə kˈɑrafə vˈasɜ bˈɪtə]",
+        "pt": "[ˌumæ ʒˈaxæ dʒj ˈaɡwæ  por favˈor]",
+        "it": "[ˌʊna karˈaffa dˈakːwa pˌɛr favˈoːre]",
+        "es": "[ˈuna xˈara ðe ˈaɣwa pɔɾ faβˈɔɾ]",
+        "nl": "[ən kˈaːrɑf ʋˈaːtər ˌɑlstɵblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-009",
+      "text": {
+        "fr": "Qu'est-ce que vous recommandez?",
+        "en": "What do you recommend?",
+        "de": "Was empfehlen Sie?",
+        "pt": "O que você recomenda?",
+        "it": "Cosa consiglia?",
+        "es": "¿Qué recomienda?",
+        "nl": "Wat raadt u aan?"
+      },
+      "ipa": {
+        "fr": "[kɛskˌə vu ʁəkɔmɑ̃dˈe]",
+        "de": "[vˈas ɛmpfˈeːlən ziː]",
+        "pt": "[ʊ ky vosˌe xˌekomˈeɪŋdæ]",
+        "it": "[kˈɔːza konsˈiːʎa]",
+        "es": "[kˈɛ rˌekomjˈɛnda]",
+        "nl": "[ʋɑt rˈaːt y ˈaːn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-restaurant-010",
+      "text": {
+        "fr": "Je suis allergique à...",
+        "en": "I'm allergic to...",
+        "de": "Ich bin allergisch gegen...",
+        "pt": "Eu sou alérgico a...",
+        "it": "Sono allergico a...",
+        "es": "Soy alérgico a...",
+        "nl": "Ik ben allergisch voor..."
+      },
+      "ipa": {
+        "fr": "[ʒə- syˌiz alɛʁʒˈik ˌaaksɑ̃ɡʁˈav]",
+        "de": "[ɪç bɪn ˈalɜɡˌɪʃ ɡˈeːɡən]",
+        "pt": "[eʊ sow ˌalˈɛɾəʒikw ˈa]",
+        "it": "[sˌono allˈɛrdʒiko ˈaː]",
+        "es": "[sˈoɪ alˈɛɾxiko ˈa]",
+        "nl": "[ɪk bɛn ɑlˈɛrɣis vˈɔːr]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}

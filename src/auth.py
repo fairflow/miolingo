@@ -74,24 +74,36 @@ def _load_settings():
 
 def _resolve_and_lock_source_language():
     """
-    Resolve source language from DB settings or login-form selection,
-    lock it in session state, and persist to DB.
+    Resolve source language from login-form selection, lock it in session state.
     Called after every successful login path (regular, guest, cookie re-attach).
+    Source language is session-only — not read from or written to the database.
     """
-    # Login-form selection takes precedence (user explicitly chose this session).
-    # Fall back to DB-saved value (cookie re-attach), then default.
     _login_source = st.session_state.get('_login_source_lang')
-    _saved_source = st.session_state.get('settings', {}).get('source_language')
-    _chosen_source = _login_source or _saved_source or 'English'
+    _chosen_source = _login_source or 'English'
     st.session_state['source_language'] = _chosen_source
     st.session_state.setdefault('settings', {})['source_language'] = _chosen_source
 
-    # Persist to DB
+
+# ---------------------------------------------------------------------------
+# Request helpers
+# ---------------------------------------------------------------------------
+
+def _get_client_ip():
+    """Extract client IP from request headers, falling back to localhost."""
     try:
-        _user_id = st.session_state['user']['user_id']
-        app_mysql.save_user_setting(_user_id, 'source_language', _chosen_source)
+        headers = st.context.headers
+        forwarded = headers.get('X-Forwarded-For', '')
+        return forwarded.split(',')[0].strip() if forwarded else '127.0.0.1'
     except Exception:
-        pass  # best-effort; setting is also in session state
+        return '127.0.0.1'
+
+
+def _get_user_agent():
+    """Extract user agent from request headers."""
+    try:
+        return st.context.headers.get('User-Agent', 'unknown')
+    except Exception:
+        return 'unknown'
 
 
 # ---------------------------------------------------------------------------
@@ -223,19 +235,12 @@ def show_login_page():
                     user = app_mysql.authenticate_user(username, password)
 
                     if user:
-                        # Get user agent for session metadata
-                        try:
-                            headers = st.context.headers
-                            user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-                        except Exception:
-                            user_agent = 'unknown'
-
                         # Create session (stores metadata directly in `sessions`)
                         session_id = app_mysql.create_session(
                             user['user_id'],
-                            "127.0.0.1",
+                            _get_client_ip(),
                             username=username,
-                            user_agent=user_agent,
+                            user_agent=_get_user_agent(),
                             app_name='miolingo',
                         )
 
@@ -257,8 +262,7 @@ def show_login_page():
 
                             # Persist cookie for re-attach (feature-flagged)
                             if ENABLE_SESSION_MANAGER and _session_manager:
-                                _session_manager.clear_logged_out_flag()
-                                _session_manager.write_cookie_session_id(session_id)
+                                _session_manager.login(session_id)
 
                             # Get tracked connection from pool (replaces bootstrap)
                             tracked_conn = app_mysql.get_connection()  # noqa: F841
@@ -321,16 +325,9 @@ def show_login_page():
 
         if st.button("🚀 Start as Guest", type="primary", use_container_width=True):
             # Create guest user
-            # Get user agent for session metadata
-            try:
-                headers = st.context.headers
-                user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-            except Exception:
-                user_agent = 'unknown'
-
             result = app_mysql.create_guest_user(
-                ip_address="127.0.0.1",
-                user_agent=user_agent,
+                ip_address=_get_client_ip(),
+                user_agent=_get_user_agent(),
                 app_name='miolingo',
             )
 
@@ -362,8 +359,7 @@ def show_login_page():
 
                 # Persist cookie for re-attach (feature-flagged)
                 if ENABLE_SESSION_MANAGER and _session_manager:
-                    _session_manager.clear_logged_out_flag()
-                    _session_manager.write_cookie_session_id(session_id)
+                    _session_manager.login(session_id)
 
                 # Get tracked connection from pool (replaces bootstrap)
                 tracked_conn = app_mysql.get_connection()  # noqa: F841
@@ -426,7 +422,7 @@ def check_authentication():
                 except Exception:
                     user_agent = 'unknown'
 
-                user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
+                user = app_mysql.validate_session(st.session_state['session_id'], _get_client_ip())
 
                 # validate_session returns None if session not valid
                 # It raises exceptions for database errors (which we catch below)

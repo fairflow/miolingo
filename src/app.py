@@ -19,7 +19,7 @@ from config import (
 # Scoring and phoneme modules
 from scoring.comparison import (
     levenshtein_distance, get_edit_operations,
-    compare_phonemes_positional, compare_phonemes_edit_distance,
+    compare_phonemes_edit_distance,
     compare_phonemes,
 )
 from scoring.phonemes import (
@@ -257,10 +257,8 @@ def initialize_session_state():
 
     # Two-way language settings
     if 'source_language' not in st.session_state:
-        # Prefer value locked at login; fall back to settings, then default
-        st.session_state.source_language = (
-            st.session_state.settings.get("source_language", "English")
-        )
+        # Source language is session-only (not read from DB settings)
+        st.session_state.source_language = "English"
     if 'target_language' not in st.session_state:
         st.session_state.target_language = st.session_state.language
     if 'translation_direction' not in st.session_state:
@@ -309,6 +307,12 @@ def initialize_session_state():
     if 'wav2vec2_processor' not in st.session_state:
         st.session_state.wav2vec2_processor = None
         st.session_state.wav2vec2_model = None
+
+    # Quick Practice state (moved from render functions to avoid per-render init)
+    if 'last_phrase_index' not in st.session_state:
+        st.session_state.last_phrase_index = -1
+    if 'edit_mode' not in st.session_state:
+        st.session_state.edit_mode = False
 
 
 
@@ -421,8 +425,6 @@ def main():
         "Spanish": "🇪🇸"
     }
 
-    # Get language config AFTER material_language is initialized
-    lang_config = LANGUAGE_CONFIG[st.session_state.language]
     flag = flag_emojis.get(st.session_state.language, "🌍")
     st.title(f"Miolingo · Multi-language · Practicing: {flag} {st.session_state.language}")
 

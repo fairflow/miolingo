@@ -1,0 +1,1556 @@
+{
+  "meta": {
+    "source": "phrases",
+    "file_number": 4,
+    "phrase_count": 66,
+    "languages": [
+      "de",
+      "en",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrases-004-001",
+      "text": {
+        "fr": "Je suis perdu",
+        "en": "I'm lost (m)",
+        "de": "Ich habe mich verirrt",
+        "it": "Mi sono perso",
+        "es": "Estoy perdido",
+        "nl": "Ik ben verdwaald"
+      },
+      "ipa": {
+        "fr": "[ʒə sɥi pɛʁdy]",
+        "de": "[ɪç hɑːbə mɪç fɛɾˈɪɾt]",
+        "it": "[mˌɪ sˌono pˈɛːrso]",
+        "es": "[estˈoɪ pɛɾðˈiðo]",
+        "nl": "[ɪk bɛn vərdʋˈaːlt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-002",
+      "text": {
+        "fr": "Je suis perdue",
+        "en": "I'm lost (f)",
+        "de": "Ich habe mich verirrt",
+        "it": "Mi sono persa",
+        "es": "Estoy perdida",
+        "nl": "Ik ben verdwaald"
+      },
+      "ipa": {
+        "fr": "[ʒə sɥi pɛʁdy]",
+        "de": "[ɪç hɑːbə mɪç fɛɾˈɪɾt]",
+        "it": "[mˌɪ sˌono pˈɛːrsa]",
+        "es": "[estˈoɪ pɛɾðˈiða]",
+        "nl": "[ɪk bɛn vərdʋˈaːlt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-003",
+      "text": {
+        "fr": "Pouvez-vous m'indiquer le chemin?",
+        "en": "Can you show me the way?",
+        "de": "Können Sie mir den Weg zeigen?",
+        "it": "Può mostrarmi la strada?",
+        "es": "¿Puede indicarme el camino?",
+        "nl": "Kunt u mij de weg wijzen?"
+      },
+      "ipa": {
+        "fr": "[puve vu mɛ̃dike lə ʃəmɛ̃]",
+        "de": "[kˌœnən ziː miːɾ deːn vˈeːk tsˈaɪɡən]",
+        "it": "[pʊˈɔ mostrˈaːrmɪ lˌa strˈaːda]",
+        "es": "[pwˈeðe ˌindikˈaɾme el kamˈino]",
+        "nl": "[kɵnt y mˈɛɪ də ʋˈɛx ʋˈɛɪzən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-004",
+      "text": {
+        "fr": "Je cherche la gare",
+        "en": "I'm looking for the train station",
+        "de": "Ich suche den Bahnhof",
+        "it": "Sto cercando la stazione ferroviaria",
+        "es": "Estoy buscando la estación de tren",
+        "nl": "Ik zoek het treinstation"
+      },
+      "ipa": {
+        "fr": "[ʒə ʃɛʁʃ la ɡaʁ]",
+        "de": "[ɪç zˈuːxə deːn bˈɑːnhoːf]",
+        "it": "[stˈo tʃerkˈando lˌa stˌatsiˈɔːne fˌɛrɾovjˈaria]",
+        "es": "[estˈoɪ βuskˈando la ˌestaθjˈɔn de tɾˈɛn]",
+        "nl": "[ɪk zˈuk hə trˌɛɪnstaːʃˈɔn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-005",
+      "text": {
+        "fr": "Où est l'arrêt de bus?",
+        "en": "Where is the bus stop?",
+        "de": "Wo ist die Bushaltestelle?",
+        "it": "Dove si trova la fermata dell'autobus?",
+        "es": "¿Dónde está la parada de autobús?",
+        "nl": "Waar is de bushalte?"
+      },
+      "ipa": {
+        "fr": "[u ɛ laʁɛ də bys]",
+        "de": "[vˌoː ɪst diː bˈʊshaltˌɛʃtɛlə]",
+        "it": "[dˈoːve sˌɪ trˈɔːva lˌa fermˈaːta dˈellˌaʊtˌobʊs]",
+        "es": "[dˈɔnde estˈa la paɾˈaða ðe ˌaʊtoβˈus]",
+        "nl": "[ʋˈaːr ɪs də bˈɵshɑltə]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-006",
+      "text": {
+        "fr": "Un billet pour Paris, s'il vous plaît",
+        "en": "A ticket to Paris, please",
+        "de": "Ein Ticket nach Paris, bitte",
+        "it": "Un biglietto per Parigi, per favore",
+        "es": "Un billete para París, por favor",
+        "nl": "Een kaartje naar Parijs, alstublieft"
+      },
+      "ipa": {
+        "fr": "[œ̃ bijɛ puʁ paʁi sil vu plɛ]",
+        "de": "[aɪn tˈɪkət nɑːx pˈɑrɪs",
+        "it": "[ˌʊn biʎˈetːo pˌɛr parˈiːdʒɪ",
+        "es": "[ˈum biʎˈete pˌaɾa paɾˈis",
+        "nl": "[ən kˈaːrtʲə naːr paːrˈɛɪs"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-007",
+      "text": {
+        "fr": "Aller simple ou aller-retour?",
+        "en": "One-way or round-trip?",
+        "de": "Einfache Fahrt oder Hin- und Rückfahrt?",
+        "it": "Solo andata o andata e ritorno?",
+        "es": "¿Ida o ida y vuelta?",
+        "nl": "Enkele reis of retour?"
+      },
+      "ipa": {
+        "fr": "[ale sɛ̃pl u ale ʁətuʁ]",
+        "de": "[ˈaɪnfˌaxə fˈɑːɾt ˌoːdɜ hˈɪn ʊnt rˈʏkfɑːɾt]",
+        "it": "[sˈoːlo andˈaːta ˌo andˈaːta ˌe ritˈoːrno]",
+        "es": "[ˈiða o ˈiða i βwˈelta]",
+        "nl": "[ˈɛŋkələ rˈɛɪs ɔf rˈeːtuːr]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-008",
+      "text": {
+        "fr": "À quelle heure part le train?",
+        "en": "What time does the train leave?",
+        "de": "Wann fährt der Zug ab?",
+        "it": "A che ora parte il treno?",
+        "es": "¿A qué hora sale el tren?",
+        "nl": "Hoe laat vertrekt de trein?"
+      },
+      "ipa": {
+        "fr": "[a kɛl‿œʁ paʁ lə tʁɛ̃]",
+        "de": "[vˈan fˈɛːɾt dɛɾ tsˈuːk ˈap]",
+        "it": "[ˌa kˌe ˈɔːra pˈaːrte ˌil trˈɛːno]",
+        "es": "[a kˈɛ ˈɔɾa sˈale el tɾˈɛn]",
+        "nl": "[hˈu lˈaːt vərtrˈɛk tə trˈɛɪn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-009",
+      "text": {
+        "fr": "Le train est en retard",
+        "en": "The train is late",
+        "de": "Der Zug ist verspätet",
+        "it": "Il treno è in ritardo",
+        "es": "El tren está retrasado",
+        "nl": "De trein is vertraagd"
+      },
+      "ipa": {
+        "fr": "[lə tʁɛ̃ ɛt‿ɑ̃ ʁətaʁ]",
+        "de": "[dɛɾ tsˈuːk ɪst fɛɾʃpˈɛːtət]",
+        "it": "[ˌil trˈɛːno ˌɛ ˌin ritˈaːrdo]",
+        "es": "[el tɾˈɛn estˈa rˌetɾasˈaðo]",
+        "nl": "[də trˈɛɪn ɪs vərtrˈaːxt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-010",
+      "text": {
+        "fr": "C'est direct?",
+        "en": "Is it direct?",
+        "de": "Ist es eine Direktverbindung?",
+        "it": "È diretto?",
+        "es": "¿Es directo?",
+        "nl": "Is het een directe verbinding?"
+      },
+      "ipa": {
+        "fr": "[sɛ diʁɛkt]",
+        "de": "[ɪst ɛs ˌaɪnə dˈiːrɛktfɛɾbˌɪndʊŋ]",
+        "it": "[ˌɛ dirˈɛtːo]",
+        "es": "[ˈes ðiɾˈɛkto]",
+        "nl": "[ɪs hət ˈeːn dˈirɛktə vərbˈɪndɪŋ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-011",
+      "text": {
+        "fr": "Je dois changer où?",
+        "en": "Where do I need to change?",
+        "de": "Wo muss ich umsteigen?",
+        "it": "Dove devo cambiare?",
+        "es": "¿Dónde tengo que cambiar?",
+        "nl": "Waar moet ik overstappen?"
+      },
+      "ipa": {
+        "fr": "[ʒə dwa ʃɑ̃ʒe u]",
+        "de": "[vˌoː mˈʊs ɪç ˈʊmʃtˌaɪɡən]",
+        "it": "[dˈoːve dˈɛːvo kambjˈaːre]",
+        "es": "[dˈɔnde tˈɛŋɡo ke kambjˈaɾ]",
+        "nl": "[ʋˈaːr mˈut ɪk ˌoːvərstˈɑpən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-012",
+      "text": {
+        "fr": "Avez-vous une chambre disponible?",
+        "en": "Do you have a room available?",
+        "de": "Haben Sie ein freies Zimmer?",
+        "it": "Ha una camera disponibile?",
+        "es": "¿Tiene alguna habitación disponible?",
+        "nl": "Heeft u een kamer vrij?"
+      },
+      "ipa": {
+        "fr": "[ave vu yn ʃɑ̃bʁ dispɔnibl]",
+        "de": "[hˌɑːbən ziː aɪn frˈaɪəs tsˈɪmɜ]",
+        "it": "[ˌa ˌʊna kˈamera dˌisponˈibile]",
+        "es": "[tjˈene alɣˈuna ˌaβitaθjˈɔn dˌisponˈiβle]",
+        "nl": "[heːft y ən kˈaːmər vrˈɛɪ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-013",
+      "text": {
+        "fr": "Pour combien de nuits?",
+        "en": "For how many nights?",
+        "de": "Für wie viele Nächte?",
+        "it": "Per quante notti?",
+        "es": "¿Para cuántas noches?",
+        "nl": "Voor hoeveel nachten?"
+      },
+      "ipa": {
+        "fr": "[puʁ kɔ̃bjɛ̃ də nɥi]",
+        "de": "[fyːɾ viː fˈiːlə nˈɛçtə]",
+        "it": "[pˌɛr kwˈante nˈɔtːɪ]",
+        "es": "[pˌaɾa kwˈantas nˈotʃes]",
+        "nl": "[vɔːr huvˈeːl nˈɑxtən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-014",
+      "text": {
+        "fr": "Quel est le prix par nuit?",
+        "en": "What is the price per night?",
+        "de": "Wie viel kostet die Nacht?",
+        "it": "Qual è il prezzo per notte?",
+        "es": "¿Cuál es el precio por noche?",
+        "nl": "Wat is de prijs per nacht?"
+      },
+      "ipa": {
+        "fr": "[kɛl‿ɛ lə pʁi paʁ nɥi]",
+        "de": "[viː fˈiːl kˈɔstət diː nˈaxt]",
+        "it": "[kwˈal ˌɛ ˌil prˈɛtsːo pˌɛr nˈɔtːe]",
+        "es": "[kwˈal ˈes el pɾˈeθjo pɔɾ nˈotʃe]",
+        "nl": "[ʋɑt ɪs də prˈɛɪs pˈɛr nˈɑxt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-015",
+      "text": {
+        "fr": "Le petit-déjeuner est inclus?",
+        "en": "Is breakfast included?",
+        "de": "Ist das Frühstück inbegriffen?",
+        "it": "La colazione è inclusa?",
+        "es": "¿El desayuno está incluido?",
+        "nl": "Is het ontbijt inbegrepen?"
+      },
+      "ipa": {
+        "fr": "[lə pəti deʒøne ɛt‿ɛ̃kly]",
+        "de": "[ɪst das frˈyːʃtʏk ˈɪnbɛɡrˌɪfən]",
+        "it": "[lˌa kˌolatsiˈɔːne ˌɛ inklˈuːza]",
+        "es": "[el ðˌesajjˈuno estˈa ˌinkluˈiðo]",
+        "nl": "[ɪs hət ɔntbˈɛɪt ˈɪnbəɣrˌeːpən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-016",
+      "text": {
+        "fr": "À quelle heure est le petit-déjeuner?",
+        "en": "What time is breakfast?",
+        "de": "Um wie viel Uhr gibt es Frühstück?",
+        "it": "A che ora è la colazione?",
+        "es": "¿A qué hora es el desayuno?",
+        "nl": "Hoe laat is het ontbijt?"
+      },
+      "ipa": {
+        "fr": "[a kɛl‿œʁ ɛ lə pəti deʒøne]",
+        "de": "[ʊm viː fˈiːl ˈuːɾ ɡˈiːpt ɛs frˈyːʃtʏk]",
+        "it": "[ˌa kˌe ˈɔːra ˌɛ lˌa kˌolatsiˈɔːne]",
+        "es": "[a kˈɛ ˈɔɾa ˈes el ðˌesajjˈuno]",
+        "nl": "[hˈu lˈaːt ɪs hət ɔntbˈɛɪt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-017",
+      "text": {
+        "fr": "Pouvez-vous me réveiller à sept heures?",
+        "en": "Can you wake me at seven o'clock?",
+        "de": "Können Sie mich um sieben Uhr wecken?",
+        "it": "Può svegliarmi alle sette?",
+        "es": "¿Puede despertarme a las siete?",
+        "nl": "Kunt u mij om zeven uur wekken?"
+      },
+      "ipa": {
+        "fr": "[puve vu mə ʁeveje a sɛt‿œʁ]",
+        "de": "[kˌœnən ziː mɪç ʊm zˈiːbən ˈuːɾ vˈɛkən]",
+        "it": "[pʊˈɔ zveʎˈaːrmɪ ˌalle sˈɛtːe]",
+        "es": "[pwˈeðe ðˌespɛɾtˈaɾme a las sjˈete]",
+        "nl": "[kɵnt y mˈɛɪ ɔm zˈeːvən ˈyr ʋˈɛkən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-018",
+      "text": {
+        "fr": "La clé ne fonctionne pas",
+        "en": "The key doesn't work",
+        "de": "Der Schlüssel funktioniert nicht",
+        "it": "La chiave non funziona",
+        "es": "La llave no funciona",
+        "nl": "De sleutel werkt niet"
+      },
+      "ipa": {
+        "fr": "[la kle nə fɔ̃ksjɔn pa]",
+        "de": "[dɛɾ ʃlˈʏsəl fˌʊŋktsɪˌoːnˈiːɾt nˈɪçt]",
+        "it": "[lˌa kjˈaːve nˌon fˌʊntsiˈɔːna]",
+        "es": "[la ʎˈaβe nˈo funθjˈona]",
+        "nl": "[də slˈøːtəl ʋˈɛrkt nˈit]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-019",
+      "text": {
+        "fr": "Il n'y a pas d'eau chaude",
+        "en": "There's no hot water",
+        "de": "Es gibt kein heißes Wasser",
+        "it": "Non c'è acqua calda",
+        "es": "No hay agua caliente",
+        "nl": "Er is geen warm water"
+      },
+      "ipa": {
+        "fr": "[il ni a pa do ʃod]",
+        "de": "[ɛs ɡˈiːpt kˈaɪn hˈaɪsəs vˈasɜ]",
+        "it": "[nˌon tʃˌɛ ˈakːwa kˈalda]",
+        "es": "[nˈo ˈaɪ ˈaɣwa kaljˈɛnte]",
+        "nl": "[ər ɪs ɣˈeːn ʋˈɑrm ʋˈaːtər]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-020",
+      "text": {
+        "fr": "La climatisation ne marche pas",
+        "en": "The air conditioning doesn't work",
+        "de": "Die Klimaanlage funktioniert nicht",
+        "it": "L'aria condizionata non funziona",
+        "es": "El aire acondicionado no funciona",
+        "nl": "De airconditioning werkt niet"
+      },
+      "ipa": {
+        "fr": "[la klimatizasjɔ̃ nə maʁʃ pa]",
+        "de": "[diː klˈiːmɑːnlˌɑːɡə fˌʊŋktsɪˌoːnˈiːɾt nˈɪçt]",
+        "it": "[lˈaria kˌonditsˌionˈaːta nˌon fˌʊntsiˈɔːna]",
+        "es": "[el ˈaɪɾɛ ˌakɔndˌiθjonˈaðo nˈo funθjˈona]",
+        "nl": "[də ˈɑjrkɔndˌiʃoːnˌɪŋ ʋˈɛrkt nˈit]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-021",
+      "text": {
+        "fr": "Une table pour deux personnes",
+        "en": "A table for two people",
+        "de": "Einen Tisch für zwei Personen, bitte",
+        "it": "Un tavolo per due persone",
+        "es": "Una mesa para dos personas",
+        "nl": "Een tafel voor twee personen"
+      },
+      "ipa": {
+        "fr": "[yn tabl puʁ dø pɛʁsɔn]",
+        "de": "[ˌaɪnən tˈɪʃ fyːɾ tsvˈaɪ pɛɾzˈoːnən",
+        "it": "[ˌʊn tˈavolo pˌɛr dˈuːe persˈoːne]",
+        "es": "[ˈuna mˈesa pˌaɾa ðˈos pɛɾsˈonas]",
+        "nl": "[ən tˈaːfəl vɔːr tʋˈeː pɛrsˈɔnən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-022",
+      "text": {
+        "fr": "Avez-vous un menu en anglais?",
+        "en": "Do you have a menu in English?",
+        "de": "Haben Sie eine Speisekarte auf Englisch?",
+        "it": "Ha un menu in inglese?",
+        "es": "¿Tiene un menú en inglés?",
+        "nl": "Heeft u een menu in het Engels?"
+      },
+      "ipa": {
+        "fr": "[ave vu œ̃ məny ɑ̃n‿ɑ̃ɡlɛ]",
+        "de": "[hˌɑːbən ziː ˌaɪnə ʃpˈaɪzeːkˌaɾtə aʊf ˈɛŋlɪʃ]",
+        "it": "[ˌa ˌʊn menˈu ˌin iŋɡlˈeːze]",
+        "es": "[tjˈene ˈun menˈu ɛn iŋɡlˈɛs]",
+        "nl": "[heːft y ən mənˈy ɪn hət ˈɛŋəls]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-023",
+      "text": {
+        "fr": "Qu'est-ce que vous recommandez?",
+        "en": "What do you recommend?",
+        "de": "Was empfehlen Sie?",
+        "it": "Cosa consiglia?",
+        "es": "¿Qué recomienda?",
+        "nl": "Wat raadt u aan?"
+      },
+      "ipa": {
+        "fr": "[kɛs kə vu ʁəkɔmɑ̃de]",
+        "de": "[vˈas ɛmpfˈeːlən ziː]",
+        "it": "[kˈɔːza konsˈiːʎa]",
+        "es": "[kˈɛ rˌekomjˈɛnda]",
+        "nl": "[ʋɑt rˈaːt y ˈaːn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-024",
+      "text": {
+        "fr": "Je suis végétarien",
+        "en": "I'm vegetarian (m)",
+        "de": "Ich bin Vegetarier",
+        "it": "Sono vegetariano",
+        "es": "Soy vegetariano",
+        "nl": "Ik ben vegetariër"
+      },
+      "ipa": {
+        "fr": "[ʒə sɥi veʒetaʁjɛ̃]",
+        "de": "[ɪç bɪn vˌeːɡeːtˈɑːriːɜ]",
+        "it": "[sˌono vˌedʒetˌariˈaːno]",
+        "es": "[sˈoɪ βˌexetaɾjˈano]",
+        "nl": "[ɪk bɛn vˈeːɣətˌaːriər]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-025",
+      "text": {
+        "fr": "Je suis végétarienne",
+        "en": "I'm vegetarian (f)",
+        "de": "Ich bin Vegetarierin",
+        "it": "Sono vegetariana",
+        "es": "Soy vegetariana",
+        "nl": "Ik ben vegetariër"
+      },
+      "ipa": {
+        "fr": "[ʒə sɥi veʒetaʁjɛn]",
+        "de": "[ɪç bɪn vˌeːɡeːtˈɑriːərˌɪn]",
+        "it": "[sˌono vˌedʒetˌariˈaːna]",
+        "es": "[sˈoɪ βˌexetaɾjˈana]",
+        "nl": "[ɪk bɛn vˈeːɣətˌaːriər]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-026",
+      "text": {
+        "fr": "Je suis allergique aux arachides",
+        "en": "I'm allergic to peanuts",
+        "de": "Ich bin allergisch gegen Erdnüsse",
+        "it": "Sono allergico alle arachidi",
+        "es": "Soy alérgico a los cacahuetes",
+        "nl": "Ik ben allergisch voor pinda's"
+      },
+      "ipa": {
+        "fr": "[ʒə sɥi‿alɛʁʒik o‿aʁaʃid]",
+        "de": "[ɪç bɪn ˈalɜɡˌɪʃ ɡˌeːɡən ɛɾdnˈʏsə]",
+        "it": "[sˌono allˈɛrdʒiko ˌalle arˈakidɪ]",
+        "es": "[sˈoɪ alˈɛɾxiko a los kˌakawˈetes]",
+        "nl": "[ɪk bɛn ɑlˈɛrɣis vɔːr pˈɪndaːs]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-027",
+      "text": {
+        "fr": "Sans gluten, s'il vous plaît",
+        "en": "Gluten-free, please",
+        "de": "Glutenfrei, bitte",
+        "it": "Senza glutine, per favore",
+        "es": "Sin gluten, por favor",
+        "nl": "Glutenvrij, alstublieft"
+      },
+      "ipa": {
+        "fr": "[sɑ̃ ɡlytɛn sil vu plɛ]",
+        "de": "[ɡlˈuːtənfrˌaɪ",
+        "it": "[sˌɛntsa ɡlˈutine",
+        "es": "[siŋ ɡlˈutɛn",
+        "nl": "[ɣlˌytənvrˈɛɪ"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-028",
+      "text": {
+        "fr": "L'addition, s'il vous plaît",
+        "en": "The bill, please",
+        "de": "Die Rechnung, bitte",
+        "it": "Il conto, per favore",
+        "es": "La cuenta, por favor",
+        "nl": "De rekening, alstublieft"
+      },
+      "ipa": {
+        "fr": "[ladisjɔ̃ sil vu plɛ]",
+        "de": "[diː rˈɛçnʊŋ",
+        "it": "[ˌil kˈonto",
+        "es": "[la kwˈɛnta",
+        "nl": "[də rˈeːkənˌɪŋ"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-029",
+      "text": {
+        "fr": "Est-ce que le service est compris?",
+        "en": "Is service included?",
+        "de": "Ist der Service inbegriffen?",
+        "it": "Il servizio è incluso?",
+        "es": "¿Está incluido el servicio?",
+        "nl": "Is de service inbegrepen?"
+      },
+      "ipa": {
+        "fr": "[ɛs kə lə sɛʁvis ɛ kɔ̃pʁi]",
+        "de": "[ɪst dɛɾ sˈɛɾvɪs ˈɪnbɛɡrˌɪfən]",
+        "it": "[ˌil servˈitsio ˌɛ inklˈuːzo]",
+        "es": "[estˈa ˌinkluˈiðo el sɛɾβˈiθjo]",
+        "nl": "[ɪs də sˈɵvəs ˈɪnbəɣrˌeːpən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-030",
+      "text": {
+        "fr": "Je peux payer par carte?",
+        "en": "Can I pay by card?",
+        "de": "Kann ich mit Karte zahlen?",
+        "it": "Posso pagare con carta?",
+        "es": "¿Puedo pagar con tarjeta?",
+        "nl": "Kan ik met een kaart betalen?"
+      },
+      "ipa": {
+        "fr": "[ʒə pø peje paʁ kaʁt]",
+        "de": "[kˌan ɪç mɪt kˈaɾtə tsˈɑːlən]",
+        "it": "[pˈɔsso paɡˈaːre kˌon kˈaːrta]",
+        "es": "[pwˈeðo paɣˈaɾ kɔn taɾxˈeta]",
+        "nl": "[kɑn ɪk mɛt ən kˈaːrt bətˈaːlən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-031",
+      "text": {
+        "fr": "Gardez la monnaie",
+        "en": "Keep the change",
+        "de": "Behalten Sie das Wechselgeld",
+        "it": "Tenga il resto",
+        "es": "Quédese con el cambio",
+        "nl": "Houd het wisselgeld"
+      },
+      "ipa": {
+        "fr": "[ɡaʁde la mɔnɛ]",
+        "de": "[bəhˈaltən ziː das vˈɛksəlɡˌɛlt]",
+        "it": "[tˈeŋɡa ˌil rˈɛsto]",
+        "es": "[kˈɛðese kɔn el kˈambjo]",
+        "nl": "[hˈʌʊt hət ʋˈɪsɛlɣəlt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-032",
+      "text": {
+        "fr": "Où puis-je acheter...?",
+        "en": "Where can I buy...?",
+        "de": "Wo kann ich ... kaufen?",
+        "it": "Dove posso comprare...?",
+        "es": "¿Dónde puedo comprar...?",
+        "nl": "Waar kan ik... kopen?",
+        "pt": "onde posso comprar"
+      },
+      "ipa": {
+        "fr": "[u pɥiʒ aʃte]",
+        "de": "[vˌoː kˈan ɪç",
+        "it": "[dˈoːve pˈɔsso komprˈaːre]",
+        "es": "[dˈɔnde pwˈeðo kɔmpɾˈaɾ]",
+        "nl": "[ʋˈaːr kɑn ɪk",
+        "pt": "[ˌoŋdʒy pˌɔsʊ komprˈar]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original",
+        "pt": "original"
+      }
+    },
+    {
+      "id": "phrases-004-033",
+      "text": {
+        "fr": "Est-ce que je peux essayer?",
+        "en": "Can I try it on?",
+        "de": "Kann ich das anprobieren?",
+        "it": "Posso provarlo?",
+        "es": "¿Puedo probarlo?",
+        "nl": "Kan ik dit passen?"
+      },
+      "ipa": {
+        "fr": "[ɛs kə ʒə pø‿ɛseje]",
+        "de": "[kˌan ɪç das ˈanproːbˌiːrən]",
+        "it": "[pˈɔsso provˈaːrlo]",
+        "es": "[pwˈeðo pɾoβˈaɾlo]",
+        "nl": "[kɑn ɪk dɪt pˈɑsən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-034",
+      "text": {
+        "fr": "Avez-vous une taille plus grande?",
+        "en": "Do you have a larger size?",
+        "de": "Haben Sie eine größere Größe?",
+        "it": "Ha una taglia più grande?",
+        "es": "¿Tiene una talla más grande?",
+        "nl": "Heeft u een grotere maat?"
+      },
+      "ipa": {
+        "fr": "[ave vu yn taj ply ɡʁɑ̃d]",
+        "de": "[hˌɑːbən ziː ˌaɪnə ɡrˈøːsərə ɡrˈøːsə]",
+        "it": "[ˌa ˌʊna tˈaːʎa pjˌʊ ɡrˈande]",
+        "es": "[tjˈene ˈuna tˈaʎa mˈas ɣɾˈande]",
+        "nl": "[heːft y ən ɣrˈoːtərə mˈaːt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-035",
+      "text": {
+        "fr": "Avez-vous une autre couleur?",
+        "en": "Do you have another color?",
+        "de": "Haben Sie eine andere Farbe?",
+        "it": "Ha un altro colore?",
+        "es": "¿Tiene otro color?",
+        "nl": "Heeft u een andere kleur?"
+      },
+      "ipa": {
+        "fr": "[ave vu yn‿otʁ kulœʁ]",
+        "de": "[hˌɑːbən ziː ˌaɪnə ˈandərə fˈaɾbə]",
+        "it": "[ˌa ˌʊn ˈaltro kolˈoːre]",
+        "es": "[tjˈene ˈɔtɾo kolˈɔɾ]",
+        "nl": "[heːft y ən ˈɑndərə klˈøːr]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-036",
+      "text": {
+        "fr": "C'est en solde?",
+        "en": "Is it on sale?",
+        "de": "Ist es im Angebot?",
+        "it": "È in saldo?",
+        "es": "¿Está en oferta?",
+        "nl": "Is het in de aanbieding?"
+      },
+      "ipa": {
+        "fr": "[sɛt‿ɑ̃ sɔld]",
+        "de": "[ɪst ɛs ɪm ˈanɡəbˌoːt]",
+        "it": "[ˌɛ ˌin sˈaldo]",
+        "es": "[estˈa ɛn ofˈɛɾta]",
+        "nl": "[ɪs hət ɪn də ˈaːnbˌidɪŋ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-037",
+      "text": {
+        "fr": "Acceptez-vous les cartes bancaires?",
+        "en": "Do you accept credit cards?",
+        "de": "Nehmen Sie Kreditkarten?",
+        "it": "Accetta carte di credito?",
+        "es": "¿Aceptan tarjetas de crédito?",
+        "nl": "Accepteert u creditcards?",
+        "pt": "aceita cartão de crédito"
+      },
+      "ipa": {
+        "fr": "[aksɛpte vu le kaʁt bɑ̃kɛʁ]",
+        "de": "[nˈeːmən ziː krˈeːdɪtkˌaɾtən]",
+        "it": "[atʃːˈetːa kˈaːrte dˌɪ krˈedito]",
+        "es": "[aθˈepːtan taɾxˈetas ðe kɾˈɛðito]",
+        "nl": "[ˌɑksɛptˈɪrt y krˈeːdɪtkˌɑrts]",
+        "pt": "[ˌasˈeɪtæ kaɾətˈɐ̃ʊ̃ dʒy krˈɛdʒitʊ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original",
+        "pt": "original"
+      }
+    },
+    {
+      "id": "phrases-004-038",
+      "text": {
+        "fr": "Pouvez-vous faire un paquet-cadeau?",
+        "en": "Can you gift-wrap it?",
+        "de": "Können Sie das als Geschenk verpacken?",
+        "it": "Può fare un pacchetto regalo?",
+        "es": "¿Puede envolverlo para regalo?",
+        "nl": "Kunt u het als cadeau inpakken?"
+      },
+      "ipa": {
+        "fr": "[puve vu fɛʁ œ̃ pakɛ kado]",
+        "de": "[kˌœnən ziː das als ɡəʃˈɛŋk fɛɾpˈakən]",
+        "it": "[pʊˈɔ fˌare ˌʊn pakːˈetːo reɡˈaːlo]",
+        "es": "[pwˈeðe ˌɛmbɔlβˈɛɾlo pˌaɾa reɣˈalo]",
+        "nl": "[kɵnt y hət ɑls kaːdˈoː ˈɪnpˌɑkən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-039",
+      "text": {
+        "fr": "J'ai besoin d'un médecin",
+        "en": "I need a doctor",
+        "de": "Ich brauche einen Arzt",
+        "it": "Ho bisogno di un medico",
+        "es": "Necesito un médico",
+        "nl": "Ik heb een dokter nodig",
+        "pt": "preciso ir embora"
+      },
+      "ipa": {
+        "fr": "[ʒɛ bəzwɛ̃ dœ̃ medsɛ̃]",
+        "de": "[ɪç brˈaʊxə ˌaɪnən ˈaɾtst]",
+        "it": "[ˌo bizˈoɲʲo dˌɪ ˌʊn mˈɛdiko]",
+        "es": "[nˌeθesˈito ˈun mˈɛðiko]",
+        "nl": "[ɪk hɛp ən dˈɔktər nˈoːdəx]",
+        "pt": "[prˌesˈizw ˈiɾ ˌeɪmbˈɔɾæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original",
+        "pt": "original"
+      }
+    },
+    {
+      "id": "phrases-004-040",
+      "text": {
+        "fr": "Où est la pharmacie la plus proche?",
+        "en": "Where is the nearest pharmacy?",
+        "de": "Wo ist die nächste Apotheke?",
+        "it": "Dove è la farmacia più vicina?",
+        "es": "¿Dónde está la farmacia más cercana?",
+        "nl": "Waar is de dichtstbijzijnde apotheek?"
+      },
+      "ipa": {
+        "fr": "[u ɛ la faʁmasi la ply pʁɔʃ]",
+        "de": "[vˌoː ɪst diː nˈɛçstə ˈɑpɔthˌeːkə]",
+        "it": "[dˈoːve ˌɛ lˌa fˌarmatʃˈiːa pjˌʊ vitʃˈiːna]",
+        "es": "[dˈɔnde estˈa la faɾmˈaθja mˈas θɛɾkˈana]",
+        "nl": "[ʋˈaːr ɪs də dˈɪxtstbɛɪzˌɛɪndə ˌaːpɔtˈeːk]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-041",
+      "text": {
+        "fr": "J'ai mal à la tête",
+        "en": "I have a headache",
+        "de": "Ich habe Kopfschmerzen",
+        "it": "Ho mal di testa",
+        "es": "Me duele la cabeza",
+        "nl": "Ik heb hoofdpijn"
+      },
+      "ipa": {
+        "fr": "[ʒɛ mal a la tɛt]",
+        "de": "[ɪç hɑːbə kˈɔpfʃmɜtsən]",
+        "it": "[ˌo mˈal dˌɪ tˈɛsta]",
+        "es": "[me dwˈele la kaβˈeθa]",
+        "nl": "[ɪk hɛp hoːvdpˈɛɪn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-042",
+      "text": {
+        "fr": "J'ai mal au ventre",
+        "en": "I have a stomachache",
+        "de": "Ich habe Bauchschmerzen",
+        "it": "Ho mal di stomaco",
+        "es": "Me duele el estómago",
+        "nl": "Ik heb buikpijn"
+      },
+      "ipa": {
+        "fr": "[ʒɛ mal o vɑ̃tʁ]",
+        "de": "[ɪç hɑːbə bˈaʊxʃmɜtsən]",
+        "it": "[ˌo mˈal dˌɪ stˈɔmako]",
+        "es": "[me dwˈele el estˈɔmaɣo]",
+        "nl": "[ɪk hɛ pœykpˈɛɪn]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-043",
+      "text": {
+        "fr": "J'ai de la fièvre",
+        "en": "I have a fever",
+        "de": "Ich habe Fieber",
+        "it": "Ho la febbre",
+        "es": "Tengo fiebre",
+        "nl": "Ik heb koorts"
+      },
+      "ipa": {
+        "fr": "[ʒɛ də la fjɛvʁ]",
+        "de": "[ɪç hɑːbə fˈiːbɜ]",
+        "it": "[ˌo lˌa fˈɛbːre]",
+        "es": "[tˈɛŋɡo fjˈeβɾe]",
+        "nl": "[ɪk hɛp kˈɔːrts]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-044",
+      "text": {
+        "fr": "Je tousse beaucoup",
+        "en": "I'm coughing a lot",
+        "de": "Ich huste viel",
+        "it": "Tosso molto",
+        "es": "Estoy tosiendo mucho",
+        "nl": "Ik hoest veel"
+      },
+      "ipa": {
+        "fr": "[ʒə tus boku]",
+        "de": "[ɪç hˈʊstə fˈiːl]",
+        "it": "[tˈɔsso mˈolto]",
+        "es": "[estˈoɪ tosjˈɛndo mˈutʃo]",
+        "nl": "[ɪk hˈust vˈeːl]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-045",
+      "text": {
+        "fr": "Je me sens mal",
+        "en": "I feel sick",
+        "de": "Ich fühle mich schlecht",
+        "it": "Mi sento male",
+        "es": "Me siento mal",
+        "nl": "Ik voel me ziek"
+      },
+      "ipa": {
+        "fr": "[ʒə mə sɑ̃ mal]",
+        "de": "[ɪç fˈyːlə mɪç ʃlˈɛçt]",
+        "it": "[mˌɪ sˈɛnto mˈaːle]",
+        "es": "[me sjˈɛnto mˈal]",
+        "nl": "[ɪk vˈul mə zˈik]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-046",
+      "text": {
+        "fr": "J'ai besoin d'une ordonnance",
+        "en": "I need a prescription",
+        "de": "Ich brauche ein Rezept",
+        "it": "Ho bisogno di una ricetta",
+        "es": "Necesito una receta médica",
+        "nl": "Ik heb een recept nodig"
+      },
+      "ipa": {
+        "fr": "[ʒɛ bəzwɛ̃ dyn‿ɔʁdɔnɑ̃s]",
+        "de": "[ɪç brˈaʊxə aɪn reːtsˈɛpt]",
+        "it": "[ˌo bizˈoɲʲo dˌɪ ˌʊna ritʃˈɛtːa]",
+        "es": "[nˌeθesˈito ˈuna reθˈeta mˈɛðika]",
+        "nl": "[ɪk hɛp ən rəsˈɛpt nˈoːdəx]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-047",
+      "text": {
+        "fr": "Où est le commissariat?",
+        "en": "Where is the police station?",
+        "de": "Wo ist die Polizeistation?",
+        "it": "Dove si trova la stazione di polizia?",
+        "es": "¿Dónde está la comisaría?",
+        "nl": "Waar is het politiebureau?"
+      },
+      "ipa": {
+        "fr": "[u ɛ lə kɔmisaʁja]",
+        "de": "[vˌoː ɪst diː pˌoːliːtsˌaɪstatsɪˈoːn]",
+        "it": "[dˈoːve sˌɪ trˈɔːva lˌa stˌatsiˈɔːne dˌɪ pˌɔlitsˈiːa]",
+        "es": "[dˈɔnde estˈa la kˌomisaɾˈia]",
+        "nl": "[ʋˈaːr ɪs hət poːlˈitsibyrˌoː]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-048",
+      "text": {
+        "fr": "On m'a volé mon sac",
+        "en": "My bag was stolen",
+        "de": "Meine Tasche wurde gestohlen",
+        "it": "Mi hanno rubato la borsa",
+        "es": "Me han robado el bolso",
+        "nl": "Mijn tas is gestolen"
+      },
+      "ipa": {
+        "fr": "[ɔ̃ ma vɔle mɔ̃ sak]",
+        "de": "[mˌaɪnə tˈaʃə vˌʊɐdə ɡəʃtˈoːlən]",
+        "it": "[mˌɪ ˌanno rʊbˈaːto lˌa bˈoːrsa]",
+        "es": "[me ˈan roβˈaðo el βˈɔlso]",
+        "nl": "[mɛɪn tˈɑs ɪs ɣəstˈoːlən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-049",
+      "text": {
+        "fr": "J'ai perdu mon passeport",
+        "en": "I lost my passport",
+        "de": "Ich habe meinen Pass verloren",
+        "it": "Ho perso il mio passaporto",
+        "es": "He perdido mi pasaporte",
+        "nl": "Ik ben mijn paspoort kwijt"
+      },
+      "ipa": {
+        "fr": "[ʒɛ pɛʁdy mɔ̃ paspɔʁ]",
+        "de": "[ɪç hɑːbə mˌaɪnən pˈas fɛɾlˈoːrən]",
+        "it": "[ˌo pˈɛːrso ˌil mˌio pˌassapˈɔːrto]",
+        "es": "[ˈe pɛɾðˈiðo mi pˌasapˈɔɾte]",
+        "nl": "[ɪk bɛn mɛɪn pˈɑspɔːrt kʋˈɛɪt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-050",
+      "text": {
+        "fr": "Pouvez-vous appeler la police?",
+        "en": "Can you call the police?",
+        "de": "Können Sie die Polizei rufen?",
+        "it": "Può chiamare la polizia?",
+        "es": "¿Puede llamar a la policía?",
+        "nl": "Kunt u de politie bellen?",
+        "pt": "pode trazer a conta"
+      },
+      "ipa": {
+        "fr": "[puve vu‿aple la pɔlis]",
+        "de": "[kˌœnən ziː diː pˌoːliːtsˈaɪ rˈuːfən]",
+        "it": "[pʊˈɔ kjamˈaːre lˌa pˌɔlitsˈiːa]",
+        "es": "[pwˈeðe ʎamˈaɾ a la pˌoliθˈia]",
+        "nl": "[kɵnt y də poːlˈitsi bˈɛlən]",
+        "pt": "[pˌɔdʒy trazˈeɾ a kˈoŋtæ]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original",
+        "pt": "original"
+      }
+    },
+    {
+      "id": "phrases-004-051",
+      "text": {
+        "pt": "eu gosto de café",
+        "en": "i like coffee"
+      },
+      "ipa": {
+        "pt": "[eʊ ɡˈɔstʊ dʒy kafˈɛ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-052",
+      "text": {
+        "pt": "água com gás",
+        "en": "sparkling water"
+      },
+      "ipa": {
+        "pt": "[ˈaɡwæ koŋ ɡˈas]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-053",
+      "text": {
+        "pt": "água sem gás",
+        "en": "still water"
+      },
+      "ipa": {
+        "pt": "[ˈaɡwæ sˈeɪŋ ɡˈas]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-054",
+      "text": {
+        "pt": "a comida está deliciosa",
+        "en": "the food is delicious"
+      },
+      "ipa": {
+        "pt": "[a kˌomˈidæ estˌa dˌelisiˈɔzæ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-055",
+      "text": {
+        "pt": "vou comer pão com manteiga",
+        "en": "i'll eat bread with butter"
+      },
+      "ipa": {
+        "pt": "[vow komˈer pˈɐ̃ʊ̃ koŋ mˌɐ̃ŋtˈeɪɡæ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-056",
+      "text": {
+        "pt": "gostaria de um café com leite",
+        "en": "i would like a coffee with milk"
+      },
+      "ipa": {
+        "pt": "[ɡˌostaɾˈiæ dʒj ũŋ kafˈɛ koŋ lˈeɪtʃy]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-057",
+      "text": {
+        "pt": "está muito caro",
+        "en": "it's too expensive"
+      },
+      "ipa": {
+        "pt": "[estˌa mwˈiŋtʊ kˈaɾʊ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-058",
+      "text": {
+        "pt": "tem desconto",
+        "en": "is there a discount"
+      },
+      "ipa": {
+        "pt": "[teɪŋ dˌeskˈoŋtʊ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-059",
+      "text": {
+        "pt": "vou à praia no fim de semana",
+        "en": "i'm going to the beach on the weekend"
+      },
+      "ipa": {
+        "pt": "[vow ˌaː prˈaɪæ nʊ fˈiŋ dʒy sˌemˈɐ̃næ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-060",
+      "text": {
+        "pt": "o tempo está muito bom",
+        "en": "the weather is very good"
+      },
+      "ipa": {
+        "pt": "[ʊ tˈeɪmpw estˌa mwˈiŋtʊ bˈoŋ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-061",
+      "text": {
+        "pt": "está fazendo calor",
+        "en": "it's hot"
+      },
+      "ipa": {
+        "pt": "[estˌa fˌazˈeɪŋdʊ kalˈor]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-062",
+      "text": {
+        "pt": "está fazendo frio",
+        "en": "it's cold"
+      },
+      "ipa": {
+        "pt": "[estˌa fˌazˈeɪŋdʊ frˈiʊ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-063",
+      "text": {
+        "pt": "até mais tarde",
+        "en": "see you later"
+      },
+      "ipa": {
+        "pt": "[atˌɛ mˈaɪs tˈaɾədʒy]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-064",
+      "text": {
+        "pt": "tenha um bom dia",
+        "en": "have a good day"
+      },
+      "ipa": {
+        "pt": "[tˈeɲæ ũŋ bˈoŋ dʒˈiæ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-065",
+      "text": {
+        "pt": "boa viagem",
+        "en": "have a good trip"
+      },
+      "ipa": {
+        "pt": "[bˈoæ vˌiˈaʒeɪŋ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrases-004-066",
+      "text": {
+        "pt": "feliz aniversário",
+        "en": "happy birthday"
+      },
+      "ipa": {
+        "pt": "[felˈiz ˌæniveɾəsˈaɾjʊ]"
+      },
+      "provenance": {
+        "pt": "original",
+        "en": "original"
+      }
+    }
+  ]
+}

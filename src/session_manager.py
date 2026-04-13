@@ -183,6 +183,30 @@ class SessionManager:
             pass
         return None
 
+    def login(self, session_id: str) -> None:
+        """Batch login: clear logged-out flag AND write session cookie in a single
+        ``cookies.save()`` call to avoid ``StreamlitDuplicateElementKey``.
+
+        Mirror of ``logout()`` — both mutations in one component render.
+        """
+        cookies = self._get_cookie_manager()
+        if not cookies:
+            return None
+        if LOGOUT_COOKIE_NAME in cookies:
+            del cookies[LOGOUT_COOKIE_NAME]
+        cookies[COOKIE_NAME] = session_id
+        cookies.save()  # single save — one component render
+        try:
+            import app_mysql
+            app_mysql.write_debug_log(
+                event_type="cookie_login_complete",
+                message="Logout flag cleared and session cookie written in one save",
+                session_id=session_id,
+            )
+        except Exception:
+            pass
+        return None
+
     def logout(self) -> None:
         """Batch logout: set the logged-out flag AND clear the session cookie in a single
         ``cookies.save()`` call.

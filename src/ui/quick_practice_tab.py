@@ -103,7 +103,8 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
         help="Select a specific file from this category"
     )
 
-    metadata = get_file_metadata(material_lang, category, selected_file)
+    source_code = get_language_code(st.session_state.get('source_language', 'English'))
+    metadata = get_file_metadata(material_lang, category, selected_file, source_code)
 
     if not metadata:
         st.error("Could not read file metadata")
@@ -125,11 +126,11 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
             for line in metadata['preview']:
                 st.text(line)
 
-    # Enrichment UI
+    # Enrichment UI (not applicable for unified multi-language files)
     missing_translations = not metadata.get('has_translations')
     missing_ipa = not metadata.get('has_ipa')
 
-    if missing_translations or missing_ipa:
+    if (missing_translations or missing_ipa) and not category.startswith('unified-'):
         st.markdown("---")
         st.markdown("**✨ Enrich This Material**")
 
@@ -209,15 +210,21 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
     # Load button
     if st.button("📂 Load This File", type="primary", key="load_builtin"):
         try:
-            phrases = load_phrase_file(str(metadata['path']))
+            file_path_str = str(metadata['path'])
+            if category.startswith('unified-'):
+                from app_language_materials import load_unified_phrase_file
+                target = st.session_state.get('material_language', 'fr')
+                source = get_language_code(st.session_state.get('source_language', 'English'))
+                phrases = load_unified_phrase_file(file_path_str, target, source)
+            else:
+                phrases = load_phrase_file(file_path_str)
             st.session_state.phrase_list = phrases
             st.session_state.qp_phrase_position = 0
-            st.session_state.phrase_selector_widget = 0
             st.session_state.state_change_log.append("Load builtin: Reset position to 0")
             st.session_state.quick_last_result = None
             st.session_state.material_source = f"{format_language_name(material_lang)} - {format_category_name(category)} - {selected_file}"
             st.session_state.qp_materials_expanded = False
-            st.success(f"✓ Loaded {len(phrases)} items - scroll down to practice section")
+            st.rerun()
         except Exception as e:
             st.error(f"Error loading file: {e}")
 
@@ -398,8 +405,6 @@ def _render_upload_materials(format_language_name):
                                     for line in first_lines:
                                         st.code(line, language=None)
 
-                                time.sleep(2)
-                                st.info("🔄 Reloading with enriched content...")
                                 st.rerun()
                             else:
                                 st.error(f"❌ Enrichment failed: {result.get('error', 'Unknown error')}")
@@ -417,7 +422,6 @@ def _render_upload_materials(format_language_name):
             if st.button("✅ Use This File", type="primary", key="use_upload"):
                 st.session_state.phrase_list = phrases
                 st.session_state.qp_phrase_position = 0
-                st.session_state.phrase_selector_widget = 0
                 st.session_state.state_change_log.append("Upload file: Reset position to 0")
                 st.session_state.quick_last_result = None
                 st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
@@ -484,7 +488,6 @@ def _render_practice_area():
         if st.button("🗑️ Clear Material"):
             st.session_state.phrase_list = []
             st.session_state.qp_phrase_position = 0
-            st.session_state.phrase_selector_widget = 0
             st.session_state.state_change_log.append("Clear material: Reset position to 0")
             st.session_state.quick_last_result = None
             st.session_state.material_source = None
@@ -542,23 +545,25 @@ def _render_guided_mode():
     in_edit_mode = st.session_state.get('edit_mode', False)
     col1, col2, col3, col4 = st.columns([1, 1, 2, 1])
 
+    def _on_prev():
+        st.session_state.qp_phrase_position -= 1
+        st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
+        st.session_state.state_change_log.append(f"Prev button: qp_phrase_position → {st.session_state.qp_phrase_position}")
+
+    def _on_next():
+        st.session_state.qp_phrase_position += 1
+        st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
+        st.session_state.state_change_log.append(f"Next button: qp_phrase_position → {st.session_state.qp_phrase_position}")
+
     with col1:
-        if st.button("⬅️ Previous", disabled=(current_idx == 0) or in_edit_mode,
-                     key="nav_prev",
-                     help="Navigation disabled in edit mode" if in_edit_mode else None):
-            st.session_state.qp_phrase_position -= 1
-            st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
-            st.session_state.state_change_log.append(f"Prev button: qp_phrase_position → {st.session_state.qp_phrase_position}")
-            st.rerun()
+        st.button("⬅️ Previous", disabled=(current_idx == 0) or in_edit_mode,
+                  key="nav_prev", on_click=_on_prev,
+                  help="Navigation disabled in edit mode" if in_edit_mode else None)
 
     with col2:
-        if st.button("Next ➡️", disabled=(current_idx >= total_phrases - 1) or in_edit_mode,
-                     key="nav_next",
-                     help="Navigation disabled in edit mode" if in_edit_mode else None):
-            st.session_state.qp_phrase_position += 1
-            st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
-            st.session_state.state_change_log.append(f"Next button: qp_phrase_position → {st.session_state.qp_phrase_position}")
-            st.rerun()
+        st.button("Next ➡️", disabled=(current_idx >= total_phrases - 1) or in_edit_mode,
+                  key="nav_next", on_click=_on_next,
+                  help="Navigation disabled in edit mode" if in_edit_mode else None)
 
     with col3:
         def format_phrase(i):
@@ -567,21 +572,23 @@ def _render_guided_mode():
             preview = f"{i+1}. {phrase_text[:40]}{'...' if len(phrase_text) > 40 else ''}"
             return preview
 
-        def on_phrase_select():
-            new_pos = st.session_state.phrase_selector_widget
-            st.session_state.qp_phrase_position = new_pos
-            st.session_state.state_change_log.append(f"Dropdown: qp_phrase_position → {new_pos} (user selected)")
+        # Ensure widget state exists and is in bounds before selectbox renders
+        if 'phrase_selector_widget' not in st.session_state:
+            st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
 
-        st.selectbox(
+        selected_pos = st.selectbox(
             "Jump to phrase:",
             options=range(total_phrases),
-            index=st.session_state.qp_phrase_position,
             format_func=format_phrase,
             key="phrase_selector_widget",
-            on_change=on_phrase_select,
             disabled=in_edit_mode,
             help="Phrase navigation disabled in edit mode" if in_edit_mode else "Jump directly to any phrase"
         )
+        # Detect user interaction with selectbox (no on_change — avoids callback conflicts)
+        if selected_pos != st.session_state.qp_phrase_position:
+            st.session_state.qp_phrase_position = selected_pos
+            st.session_state.state_change_log.append(f"Dropdown: qp_phrase_position → {selected_pos} (user selected)")
+            st.rerun()
 
     with col4:
         if 'edit_mode' not in st.session_state:

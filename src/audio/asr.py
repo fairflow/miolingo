@@ -21,7 +21,7 @@ def get_whisper_model(model_name: str):
     """Load or return cached Whisper model."""
     import whisper
 
-    if st.session_state.whisper_model_name != model_name:
+    if st.session_state.get('whisper_model_name') != model_name:
         with st.spinner(f"Loading Whisper model '{model_name}'..."):
             st.session_state.whisper_model = whisper.load_model(model_name)
             st.session_state.whisper_model_name = model_name

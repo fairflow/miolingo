@@ -1,0 +1,442 @@
+{
+  "meta": {
+    "source": "phrasebook",
+    "topic": "asking-for-help",
+    "phrase_count": 22,
+    "languages": [
+      "de",
+      "en",
+      "es",
+      "fr",
+      "it",
+      "nl",
+      "pt"
+    ],
+    "generated": "2026-04-09",
+    "generator": "merge_materials.py"
+  },
+  "phrases": [
+    {
+      "id": "phrasebook-asking-for-help-001",
+      "text": {
+        "fr": "Je ne comprends pas",
+        "en": "I don't understand",
+        "de": "Ich verstehe nicht",
+        "pt": "Eu não entendo",
+        "it": "Non capisco",
+        "es": "No entiendo",
+        "nl": "Ik begrijp het niet"
+      },
+      "ipa": {
+        "fr": "[ʒə- nə- kɔ̃pʁˈɑ̃ pˈa]",
+        "de": "[ɪç fɛɾʃtˈeːə nˈɪçt]",
+        "pt": "[eʊ nˌɐ̃ʊ̃ ˌeɪŋtˈeɪŋdʊ]",
+        "it": "[nˌon kapˈisko]",
+        "es": "[nˈo ɛntjˈɛndo]",
+        "nl": "[ɪk bəɣrˈɛɪp hət nˈit]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-002",
+      "text": {
+        "fr": "Je ne parle pas français",
+        "en": "I don't speak French",
+        "pt": "Eu não falo português"
+      },
+      "ipa": {
+        "fr": "[ʒə- nə- pˈaʁl pa fʁɑ̃sˈɛ]",
+        "pt": "[eʊ nˌɐ̃ʊ̃ fˈalʊ pˌoɾətuɡˈes]"
+      },
+      "provenance": {
+        "fr": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-003",
+      "text": {
+        "fr": "Je parle un peu français",
+        "en": "I speak a little French",
+        "pt": "Eu falo um pouco de português"
+      },
+      "ipa": {
+        "fr": "[ʒə- pˈaʁl œ̃ pø fʁɑ̃sˈɛ]",
+        "pt": "[eʊ fˈalw ũŋ pˈowkʊ dʒy pˌoɾətuɡˈes]"
+      },
+      "provenance": {
+        "fr": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-004",
+      "text": {
+        "fr": "Parlez-vous anglais?",
+        "en": "Do you speak English?",
+        "de": "Sprechen Sie Englisch?",
+        "pt": "Você fala inglês?",
+        "it": "Parla inglese?",
+        "es": "¿Habla inglés?",
+        "nl": "Spreek je Engels?"
+      },
+      "ipa": {
+        "fr": "[paʁlˈevuz ɑ̃ɡlˈɛ]",
+        "de": "[ʃprˈɛçən ziː ˈɛŋlɪʃ]",
+        "pt": "[vosˌe fˈalæ iŋɡlˈes]",
+        "it": "[pˈaːrla iŋɡlˈeːze]",
+        "es": "[ˈaβla iŋɡlˈɛs]",
+        "nl": "[sprˈeːk jə ˈɛŋəls]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-005",
+      "text": {
+        "fr": "Plus lentement, s'il vous plaît",
+        "en": "Slower, please",
+        "de": "Langsamer, bitte",
+        "pt": "Mais devagar, por favor",
+        "it": "Più lentamente, per favore",
+        "es": "Más despacio, por favor",
+        "nl": "Langzamer, alstublieft"
+      },
+      "ipa": {
+        "fr": "[ply lɑ̃tmˈɑ̃  sil vu plˈɛ]",
+        "de": "[lˈaŋzɑːmɜ bˈɪtə]",
+        "pt": "[mˈaɪz dˌevaɡˈar  por favˈor]",
+        "it": "[pjˌʊ lˌentamˈente pˌɛr favˈoːre]",
+        "es": "[mˈas ðespˈaθjo pɔɾ faβˈɔɾ]",
+        "nl": "[lˈɑŋzaːmər ˌɑlstɵblˈift]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-006",
+      "text": {
+        "fr": "Pouvez-vous répéter?",
+        "en": "Can you repeat?",
+        "de": "Können Sie das wiederholen?",
+        "pt": "Pode repetir?",
+        "it": "Può ripetere?",
+        "es": "¿Puede repetir?",
+        "nl": "Kun je dat herhalen?"
+      },
+      "ipa": {
+        "fr": "[puvˈevu ʁepetˈe]",
+        "de": "[kˌœnən ziː das viːdɜhˈoːlən]",
+        "pt": "[pˌɔdʒy xˌepetʃˈir]",
+        "it": "[pʊˈɔ ripˈetere]",
+        "es": "[pwˈeðe rˌepetˈiɾ]",
+        "nl": "[kˈɵn jə dɑt hɛrhˈaːlən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-007",
+      "text": {
+        "fr": "J'ai besoin d'aide",
+        "en": "I need help",
+        "de": "Ich brauche Hilfe",
+        "pt": "Eu preciso de ajuda",
+        "it": "Ho bisogno di aiuto",
+        "es": "Necesito ayuda",
+        "nl": "Ik heb hulp nodig"
+      },
+      "ipa": {
+        "fr": "[ʒe bəzwˈɛ̃ dˈɛd]",
+        "de": "[ɪç brˈaʊxə hˈɪlfə]",
+        "pt": "[eʊ prˌesˈizʊ dʒj ˌaʒˈudæ]",
+        "it": "[ˌo bizˈoɲʲo dˌɪ ajˈuːto]",
+        "es": "[nˌeθesˈito ajjˈuða]",
+        "nl": "[ɪk hɛp hˈɵlp nˈoːdəx]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-008",
+      "text": {
+        "fr": "Pouvez-vous m'aider?",
+        "en": "Can you help me?",
+        "de": "Können Sie mir helfen?",
+        "pt": "Você pode me ajudar?",
+        "it": "Può aiutarmi?",
+        "es": "¿Puede ayudarme?",
+        "nl": "Kun je me helpen?"
+      },
+      "ipa": {
+        "fr": "[puvˈevu mɛdˈe]",
+        "de": "[kˌœnən ziː miːɾ hˈɛlfən]",
+        "pt": "[vosˌe pˌɔdʒy mj ˌaʒudˈar]",
+        "it": "[pʊˈɔ ˌajʊtˈaːrmɪ]",
+        "es": "[pwˈeðe ˌajjuðˈaɾme]",
+        "nl": "[kˈɵn jə mə hˈɛlpən]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-009",
+      "text": {
+        "fr": "Comment dit-on... en français?",
+        "en": "How do you say... in French?",
+        "pt": "Como se diz... em português?"
+      },
+      "ipa": {
+        "fr": "[kɔmˌɑ̃ dˈitˈɔ̃  ɑ̃ fʁɑ̃sˈɛ]",
+        "pt": "[kˌomʊ sy dʒˈis  ˈeɪŋ pˌoɾətuɡˈes]"
+      },
+      "provenance": {
+        "fr": "original",
+        "pt": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-010",
+      "text": {
+        "fr": "Qu'est-ce que ça veut dire?",
+        "en": "What does that mean?",
+        "de": "Was bedeutet das?",
+        "pt": "O que isso quer dizer?",
+        "it": "Cosa significa?",
+        "es": "¿Qué significa eso?",
+        "nl": "Wat betekent dat?"
+      },
+      "ipa": {
+        "fr": "[kɛskˌə sa vˈø dˈiʁ]",
+        "de": "[vˈas bədˈɔøtət das]",
+        "pt": "[ʊ ky ˈisʊ kˈɛr dʒizˈer]",
+        "it": "[kˈɔːza siɲˈifika]",
+        "es": "[kˈɛ sˌiɡnifˈika ˈeso]",
+        "nl": "[ʋɑt bətˈeːkən tɑt]"
+      },
+      "provenance": {
+        "fr": "original",
+        "de": "original",
+        "pt": "original",
+        "it": "original",
+        "es": "original",
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-011",
+      "text": {
+        "de": "Ich spreche ein bisschen Deutsch",
+        "en": "I speak a little German"
+      },
+      "ipa": {
+        "de": "[ɪç ʃprˈɛçə aɪn bˈɪsçən dˈɔøtʃ]"
+      },
+      "provenance": {
+        "de": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-012",
+      "text": {
+        "de": "Ich spreche kein Deutsch",
+        "en": "I don't speak German"
+      },
+      "ipa": {
+        "de": "[ɪç ʃprˈɛçə kˈaɪn dˈɔøtʃ]"
+      },
+      "provenance": {
+        "de": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-013",
+      "text": {
+        "de": "Wie sagt man... auf Deutsch?",
+        "en": "How do you say... in German?"
+      },
+      "ipa": {
+        "de": "[viː zˈɑːkt man aʊf dˈɔøtʃ]"
+      },
+      "provenance": {
+        "de": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-014",
+      "text": {
+        "it": "Non parlo italiano",
+        "en": "I don't speak Italian"
+      },
+      "ipa": {
+        "it": "[nˌon pˈaːrlo ˌitaliˈaːno]"
+      },
+      "provenance": {
+        "it": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-015",
+      "text": {
+        "it": "Parlo un po' di italiano",
+        "en": "I speak a little Italian"
+      },
+      "ipa": {
+        "it": "[pˈaːrlo ˌʊn pˈo dˌɪ ˌitaliˈaːno]"
+      },
+      "provenance": {
+        "it": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-016",
+      "text": {
+        "it": "Come si dice... in italiano?",
+        "en": "How do you say... in Italian?"
+      },
+      "ipa": {
+        "it": "[kˌome sˌɪ dˈiːtʃe ˌin ˌitaliˈaːno]"
+      },
+      "provenance": {
+        "it": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-017",
+      "text": {
+        "es": "Hablo un poco de español",
+        "en": "I speak a little Spanish"
+      },
+      "ipa": {
+        "es": "[ˈaβlo ˈum pˈoko ðe ˌespaɲˈɔl]"
+      },
+      "provenance": {
+        "es": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-018",
+      "text": {
+        "es": "No hablo español",
+        "en": "I don't speak Spanish"
+      },
+      "ipa": {
+        "es": "[nˈo ˈaβlo ˌespaɲˈɔl]"
+      },
+      "provenance": {
+        "es": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-019",
+      "text": {
+        "es": "¿Cómo se dice... en español?",
+        "en": "How do you say... in Spanish?"
+      },
+      "ipa": {
+        "es": "[kˈɔmo se ðˈiθe ɛn ˌespaɲˈɔl]"
+      },
+      "provenance": {
+        "es": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-020",
+      "text": {
+        "nl": "Ik spreek een beetje Nederlands",
+        "en": "I speak a little Dutch"
+      },
+      "ipa": {
+        "nl": "[ɪk sprˈeːk ən bˈeːtʲə nˈeːdərlˌɑnts]"
+      },
+      "provenance": {
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-021",
+      "text": {
+        "nl": "Ik spreek geen Nederlands",
+        "en": "I don't speak Dutch"
+      },
+      "ipa": {
+        "nl": "[ɪk sprˈeːk ɣˈeːn nˈeːdərlˌɑnts]"
+      },
+      "provenance": {
+        "nl": "original",
+        "en": "original"
+      }
+    },
+    {
+      "id": "phrasebook-asking-for-help-022",
+      "text": {
+        "nl": "Hoe zeg je... in het Nederlands?",
+        "en": "How do you say... in Dutch?"
+      },
+      "ipa": {
+        "nl": "[hˈu zˈɛx jə ɪn hət nˈeːdərlˌɑnts]"
+      },
+      "provenance": {
+        "nl": "original",
+        "en": "original"
+      }
+    }
+  ]
+}
