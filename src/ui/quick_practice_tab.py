@@ -103,7 +103,6 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
         help="Select a specific file from this category"
     )
 
-    from config import get_language_code
     source_code = get_language_code(st.session_state.get('source_language', 'English'))
     metadata = get_file_metadata(material_lang, category, selected_file, source_code)
 
@@ -214,7 +213,6 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
             file_path_str = str(metadata['path'])
             if category.startswith('unified-'):
                 from app_language_materials import load_unified_phrase_file
-                from config import get_language_code
                 target = st.session_state.get('material_language', 'fr')
                 source = get_language_code(st.session_state.get('source_language', 'English'))
                 phrases = load_unified_phrase_file(file_path_str, target, source)
@@ -407,8 +405,6 @@ def _render_upload_materials(format_language_name):
                                     for line in first_lines:
                                         st.code(line, language=None)
 
-                                time.sleep(2)
-                                st.info("🔄 Reloading with enriched content...")
                                 st.rerun()
                             else:
                                 st.error(f"❌ Enrichment failed: {result.get('error', 'Unknown error')}")

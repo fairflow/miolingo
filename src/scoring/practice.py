@@ -13,7 +13,8 @@ the caller in app.py via the on_result callback.
 """
 
 import io
-from datetime import datetime
+import tempfile
+from pathlib import Path
 from typing import Dict, Optional, Callable, Any
 
 import numpy as np
@@ -129,9 +130,12 @@ def practice_word_from_audio(
     if warn_fn is None:
         warn_fn = _st.warning
 
+    # Create temp file properly (cleaned up in finally block)
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+    temp_audio = tmp.name
+    tmp.close()
+
     try:
-        # Save audio to temp file for ASR
-        temp_audio = "temp_streamlit_recording.wav"
         with open(temp_audio, "wb") as f:
             f.write(audio_bytes)
 
@@ -146,8 +150,9 @@ def practice_word_from_audio(
             f.write(trimmed_wav_bytes)
 
         # Target phonemes and IPA
-        correct_phonemes = get_phonemes(text, settings["voice"])
-        correct_ipa = get_ipa(text, settings["voice"])
+        voice = settings.get("voice", "en")
+        correct_phonemes = get_phonemes(text, voice)
+        correct_ipa = get_ipa(text, voice)
 
         # ASR
         recognized_text = transcribe_audio(
@@ -155,8 +160,8 @@ def practice_word_from_audio(
         )
 
         # User phonemes and IPA
-        user_phonemes = get_phonemes(recognized_text, settings["voice"])
-        user_ipa = get_ipa(recognized_text, settings["voice"])
+        user_phonemes = get_phonemes(recognized_text, voice)
+        user_ipa = get_ipa(recognized_text, voice)
 
         # Normalise for comparison
         correct_phonemes_normalized = normalize_for_phoneme_scoring(
@@ -199,3 +204,6 @@ def practice_word_from_audio(
         import traceback
         error_fn(traceback.format_exc())
         return None
+
+    finally:
+        Path(temp_audio).unlink(missing_ok=True)

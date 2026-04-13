@@ -15,6 +15,7 @@ import json
 import streamlit as st
 from pathlib import Path
 
+from app_language_materials import format_language_name
 from scoring.phonemes import format_ipa
 from translation import get_translation_from_llm
 from ui.practice_tab import render_practice_interface, render_practice_results

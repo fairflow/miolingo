@@ -79,24 +79,6 @@ def get_edit_operations(s1: str, s2: str):
     return operations
 
 
-def compare_phonemes_positional(user_phonemes: str, correct_phonemes: str):
-    """
-    DEPRECATED: Simple positional matching (fails with insertions/deletions).
-    Kept for reference but not recommended for use.
-    """
-    exact_match = user_phonemes == correct_phonemes
-
-    if len(correct_phonemes) == 0:
-        similarity = 0.0
-    else:
-        matches = sum(
-            1 for a, b in zip(user_phonemes, correct_phonemes)
-            if a == b
-        )
-        similarity = matches / max(len(user_phonemes), len(correct_phonemes))
-
-    return exact_match, similarity
-
 
 def compare_phonemes_edit_distance(user_phonemes: str, correct_phonemes: str):
     """
@@ -136,8 +118,5 @@ def compare_phonemes(user_phonemes: str, correct_phonemes: str,
     """
     if algorithm == "edit_distance":
         return compare_phonemes_edit_distance(user_phonemes, correct_phonemes)
-    elif algorithm == "positional":
-        exact_match, similarity = compare_phonemes_positional(user_phonemes, correct_phonemes)
-        return exact_match, similarity, None
     else:
         raise ValueError(f"Unknown algorithm: {algorithm}")

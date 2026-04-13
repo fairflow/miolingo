@@ -346,7 +346,7 @@ def load_phrase_file(file_path_str: str) -> List[Dict]:
         file_path_resolved = file_path.resolve()
         data_dir_resolved = DATA_DIR.resolve()
 
-        if not str(file_path_resolved).startswith(str(data_dir_resolved)):
+        if not file_path_resolved.is_relative_to(data_dir_resolved):
             raise ValueError("Invalid file path: outside language materials directory")
     except Exception as e:
         raise ValueError(f"Invalid file path: {e}")

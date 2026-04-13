@@ -138,13 +138,13 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
             if tunnel.is_active and tunnel.tunnel_is_up.get(tunnel.remote_bind_address):
                 # Tunnel is healthy, return it
                 return tunnel
-        except:
+        except Exception:
             pass
         
         # Tunnel died, clean it up
         try:
             tunnel.stop()
-        except:
+        except Exception:
             pass
         _global_ssh_tunnel = None
     
@@ -204,40 +204,6 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
     
     return _global_ssh_tunnel
 
-
-def get_connection_pool() -> pooling.MySQLConnectionPool:
-    """
-    DEPRECATED: Old connection pool function (single tunnel architecture).
-    Kept for backward compatibility during transition.
-    
-    NEW CODE SHOULD USE: get_connection() which now uses ConnectionPool internally.
-    """
-    if "mysql_pool" not in st.session_state:
-        try:
-            # Establish SSH tunnel first
-            tunnel = get_ssh_tunnel()
-            
-            st.session_state.mysql_pool = pooling.MySQLConnectionPool(
-                pool_name="miolingo_pool",
-                pool_size=10,  # Increased for Emerald plan resources
-                pool_reset_session=True,  # Reset session variables on get
-                host='127.0.0.1',  # Connect via SSH tunnel
-                port=tunnel.local_bind_port,  # Tunnel's local port
-                database=st.secrets["mysql"]["database"],
-                user=st.secrets["mysql"]["user"],
-                password=st.secrets["mysql"]["password"],
-                autocommit=False,  # Explicit transaction control
-                connection_timeout=10,
-                # Connection health parameters
-                use_pure=True,  # Use pure Python implementation (more stable)
-                # MySQL session variables to prevent timeout
-                init_command="SET SESSION wait_timeout=28800, interactive_timeout=28800"  # 8 hours
-            )
-        except Error as e:
-            st.error(f"❌ Database connection pool failed: {e}")
-            raise
-    
-    return st.session_state.mysql_pool
 
 
 def get_connection() -> mysql.connector.MySQLConnection:
@@ -337,7 +303,7 @@ def get_connection() -> mysql.connector.MySQLConnection:
                 print(f"⚠️ Bootstrap connection died, getting fresh one")
                 try:
                     conn.close()
-                except:
+                except Exception:
                     pass
                 conn = pool.get_direct_connection()
                 st.session_state.db_connection = conn
@@ -488,7 +454,7 @@ def cleanup_ssh_tunnel():
             if _global_ssh_tunnel.is_active:
                 _global_ssh_tunnel.stop()
                 logging.info("SSH tunnel closed on process exit")
-        except:
+        except Exception:
             pass
         _global_ssh_tunnel = None
 
@@ -568,7 +534,7 @@ def create_guest_user(
         # Log guest account creation (non-critical, swallow errors)
         try:
             log_activity(user_id, "GUEST_CREATED", f"Guest username: {username}", "system")
-        except:
+        except Exception:
             pass  # Don't fail guest creation if logging fails
         
         # Create session immediately (stores metadata directly in `sessions`)
@@ -589,7 +555,7 @@ def create_guest_user(
         if conn:
             try:
                 conn.rollback()
-            except:
+            except Exception:
                 pass
         # Return None without calling st.error (let caller handle UI)
         return None
@@ -1333,7 +1299,7 @@ def write_debug_log(
             import socket
             hostname = socket.gethostname()
             environment = 'deployed' if 'streamlit' in hostname.lower() else 'local'
-        except:
+        except Exception:
             environment = 'unknown'
 
         # Extract partial session ID for correlation (privacy)

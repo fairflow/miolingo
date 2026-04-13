@@ -6,6 +6,7 @@ Runtime dependency: espeak must be installed (binary name 'espeak' locally,
 'espeak-ng' on Debian/Ubuntu/Streamlit Cloud).
 """
 
+import functools
 import re
 import subprocess
 from pathlib import Path
@@ -32,6 +33,7 @@ def get_espeak_path() -> str:
     return "espeak"
 
 
+@functools.lru_cache(maxsize=256)
 def get_phonemes(text: str, voice: str = "pt-br") -> str:
     """Get phoneme representation of text using espeak."""
     try:
@@ -62,6 +64,7 @@ def normalize_for_phoneme_scoring(s: str) -> str:
     return s
 
 
+@functools.lru_cache(maxsize=256)
 def get_ipa(text: str, voice: str = "pt-br") -> str:
     """
     Get IPA transcription for text.
@@ -113,7 +116,7 @@ def get_ipa_from_espeak(text: str, lang_code: str) -> str:
             [espeak_cmd, '-v', espeak_lang, '-q', '--ipa', text],
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=2
         )
         if result.returncode == 0:
             ipa = result.stdout.strip()

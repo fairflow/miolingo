@@ -85,6 +85,28 @@ def _resolve_and_lock_source_language():
 
 
 # ---------------------------------------------------------------------------
+# Request helpers
+# ---------------------------------------------------------------------------
+
+def _get_client_ip():
+    """Extract client IP from request headers, falling back to localhost."""
+    try:
+        headers = st.context.headers
+        forwarded = headers.get('X-Forwarded-For', '')
+        return forwarded.split(',')[0].strip() if forwarded else '127.0.0.1'
+    except Exception:
+        return '127.0.0.1'
+
+
+def _get_user_agent():
+    """Extract user agent from request headers."""
+    try:
+        return st.context.headers.get('User-Agent', 'unknown')
+    except Exception:
+        return 'unknown'
+
+
+# ---------------------------------------------------------------------------
 # Announcements
 # ---------------------------------------------------------------------------
 
@@ -213,19 +235,12 @@ def show_login_page():
                     user = app_mysql.authenticate_user(username, password)
 
                     if user:
-                        # Get user agent for session metadata
-                        try:
-                            headers = st.context.headers
-                            user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-                        except Exception:
-                            user_agent = 'unknown'
-
                         # Create session (stores metadata directly in `sessions`)
                         session_id = app_mysql.create_session(
                             user['user_id'],
-                            "127.0.0.1",
+                            _get_client_ip(),
                             username=username,
-                            user_agent=user_agent,
+                            user_agent=_get_user_agent(),
                             app_name='miolingo',
                         )
 
@@ -310,16 +325,9 @@ def show_login_page():
 
         if st.button("🚀 Start as Guest", type="primary", use_container_width=True):
             # Create guest user
-            # Get user agent for session metadata
-            try:
-                headers = st.context.headers
-                user_agent = headers.get('User-Agent', 'unknown') if headers else 'unknown'
-            except Exception:
-                user_agent = 'unknown'
-
             result = app_mysql.create_guest_user(
-                ip_address="127.0.0.1",
-                user_agent=user_agent,
+                ip_address=_get_client_ip(),
+                user_agent=_get_user_agent(),
                 app_name='miolingo',
             )
 
@@ -414,7 +422,7 @@ def check_authentication():
                 except Exception:
                     user_agent = 'unknown'
 
-                user = app_mysql.validate_session(st.session_state['session_id'], "127.0.0.1")
+                user = app_mysql.validate_session(st.session_state['session_id'], _get_client_ip())
 
                 # validate_session returns None if session not valid
                 # It raises exceptions for database errors (which we catch below)
