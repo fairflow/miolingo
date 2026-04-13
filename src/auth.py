@@ -72,16 +72,28 @@ def _load_settings():
     return _config_load_settings(session_state=st.session_state, db_module=app_mysql)
 
 
-def _resolve_and_lock_source_language():
+def _resolve_and_lock_languages():
     """
-    Resolve source language from login-form selection, lock it in session state.
+    Resolve source AND target language from login-form selection, lock in session state.
     Called after every successful login path (regular, guest, cookie re-attach).
+
     Source language is session-only — not read from or written to the database.
+    Target language (material_language) is persisted so the sidebar selectbox
+    picks it up on the first post-login render.
     """
+    # ── Source language ──────────────────────────────────────────────────────
     _login_source = st.session_state.get('_login_source_lang')
     _chosen_source = _login_source or 'English'
     st.session_state['source_language'] = _chosen_source
     st.session_state.setdefault('settings', {})['source_language'] = _chosen_source
+
+    # ── Target language ──────────────────────────────────────────────────────
+    _login_target = st.session_state.get('_login_target_lang')
+    if _login_target and _login_target in LANGUAGE_CONFIG:
+        target_code = LANGUAGE_CONFIG[_login_target]['code']
+        st.session_state['material_language'] = target_code
+        st.session_state['language'] = MATERIAL_TO_TRAINING.get(target_code, _login_target)
+        st.session_state['target_language'] = target_code
 
 
 # ---------------------------------------------------------------------------
@@ -270,7 +282,7 @@ def show_login_page():
 
                             # Reload settings from database (using new tracked connection)
                             st.session_state.settings = _load_settings()
-                            _resolve_and_lock_source_language()
+                            _resolve_and_lock_languages()
                             st.success(f"✅ Welcome back, {user['username']}!")
                             st.rerun()
                         else:
@@ -367,7 +379,7 @@ def show_login_page():
 
                 # Reload settings from database (will have defaults for new guest)
                 st.session_state.settings = _load_settings()
-                _resolve_and_lock_source_language()
+                _resolve_and_lock_languages()
                 st.success(f"✅ Welcome, Guest! Enjoy exploring Miolingo!")
                 st.rerun()
             else:
@@ -399,7 +411,7 @@ def check_authentication():
                 st.session_state['user'] = context.user
                 st.session_state['session_id'] = context.session_id
                 st.session_state.settings = _load_settings()
-                _resolve_and_lock_source_language()
+                _resolve_and_lock_languages()
 
     # Check if authenticated
     if not st.session_state['authenticated']:

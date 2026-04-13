@@ -161,23 +161,25 @@ def render_settings_panel():
             _source_code = get_language_code(st.session_state.get("source_language", "English"))
             _target_options = [m for m in available_materials if m != _source_code]
 
-            current_idx = 0
-            if 'material_language' in st.session_state:
-                try:
-                    current_idx = _target_options.index(st.session_state.material_language)
-                except ValueError:
-                    pass
-            elif 'material_language' in st.session_state.settings:
-                try:
-                    current_idx = _target_options.index(st.session_state.settings['material_language'])
-                except ValueError:
-                    pass
+            # Ensure material_language is set to a valid option BEFORE the
+            # widget renders.  The selectbox with key= reads its value from
+            # session state — we must NOT also pass index= or Streamlit warns
+            # about conflicting defaults.
+            if 'material_language' not in st.session_state:
+                # First render — pick from saved settings or first available
+                _saved = st.session_state.settings.get('material_language')
+                st.session_state.material_language = (
+                    _saved if _saved in _target_options
+                    else _target_options[0] if _target_options else 'fr'
+                )
+            elif st.session_state.material_language not in _target_options:
+                # Current value was filtered out (e.g. source language changed)
+                st.session_state.material_language = _target_options[0] if _target_options else 'fr'
 
             previous_material_language = st.session_state.get('material_language', None)
             st.selectbox(
                 "Target Language",
                 _target_options,
-                index=current_idx,
                 format_func=format_language_name,
                 help="Language being learned (IPA + practice target)",
                 key="material_language"
