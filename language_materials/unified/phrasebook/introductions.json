@@ -1,223 +1,230 @@
 {
-  "meta": {
-    "source": "phrasebook",
-    "topic": "introductions",
-    "phrase_count": 7,
-    "languages": [
-      "de",
-      "en",
-      "es",
-      "fr",
-      "it",
-      "nl",
-      "pt"
-    ],
-    "generated": "2026-04-09",
-    "generator": "merge_materials.py"
-  },
-  "phrases": [
-    {
-      "id": "phrasebook-introductions-001",
-      "text": {
-        "fr": "Je m'appelle...",
-        "en": "My name is...",
-        "de": "Ich heiße...",
-        "pt": "Meu nome é...",
-        "it": "Mi chiamo...",
-        "es": "Me llamo...",
-        "nl": "Ik heet..."
-      },
-      "ipa": {
-        "fr": "[ʒə- mapˈɛl]",
-        "de": "[ɪç hˈaɪsə]",
-        "pt": "[meʊ nˈomj ɛ]",
-        "it": "[mˌɪ kjˈaːmo]",
-        "es": "[me ʎˈamo]",
-        "nl": "[ɪk hˈeːt]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "pt": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
+    "meta": {
+        "source": "phrasebook",
+        "topic": "introductions",
+        "phrase_count": 7,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-09",
+        "generator": "merge_materials.py"
     },
-    {
-      "id": "phrasebook-introductions-002",
-      "text": {
-        "fr": "Comment vous appelez-vous?",
-        "en": "What is your name?",
-        "de": "Wie heißen Sie?",
-        "pt": "Como você se chama?",
-        "it": "Come si chiama?",
-        "es": "¿Cómo se llama?",
-        "nl": "Hoe heet je?"
-      },
-      "ipa": {
-        "fr": "[kɔmˌɑ̃ vuz aplˈevˈu]",
-        "de": "[viː hˈaɪsən ziː]",
-        "pt": "[kˌomʊ vosˌe sy ʃˈɐ̃mæ]",
-        "it": "[kˌome sˌɪ kjˈaːma]",
-        "es": "[kˈɔmo se ʎˈama]",
-        "nl": "[hˈu hˈeːt jə]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "pt": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "phrasebook-introductions-003",
-      "text": {
-        "fr": "Enchanté",
-        "en": "Nice to meet you",
-        "de": "Angenehm",
-        "pt": "Prazer em conhecer",
-        "it": "Piacere",
-        "es": "Encantada",
-        "nl": "Aangenaam"
-      },
-      "ipa": {
-        "fr": "[ɑ̃ʃɑ̃tˈe]",
-        "de": "[ˈanɡənˌeːm]",
-        "pt": "[prazˈeɾ ˈeɪŋ kˌoɲesˈer]",
-        "it": "[pjatʃˈeːre]",
-        "es": "[ˌɛnkantˈaða]",
-        "nl": "[ˈaːnɣənˌaːm]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "pt": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "phrasebook-introductions-004",
-      "text": {
-        "fr": "Enchantée",
-        "en": "Nice to meet you",
-        "de": "Angenehm",
-        "pt": "Prazer em conhecer",
-        "it": "Piacere",
-        "es": "Encantado",
-        "nl": "Aangenaam"
-      },
-      "ipa": {
-        "fr": "[ɑ̃ʃɑ̃tˈe]",
-        "de": "[ˈanɡənˌeːm]",
-        "pt": "[prazˈeɾ ˈeɪŋ kˌoɲesˈer]",
-        "it": "[pjatʃˈeːre]",
-        "es": "[ˌɛnkantˈaðo]",
-        "nl": "[ˈaːnɣənˌaːm]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "pt": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "phrasebook-introductions-005",
-      "text": {
-        "fr": "D'où venez-vous?",
-        "en": "Where are you from?",
-        "de": "Woher kommen Sie?",
-        "pt": "De onde você é?",
-        "it": "Di dove sei?",
-        "es": "¿De dónde eres?",
-        "nl": "Waar kom je vandaan?"
-      },
-      "ipa": {
-        "fr": "[du vənˈevˈu]",
-        "de": "[voːhˈeːɾ kˈɔmən ziː]",
-        "pt": "[dʒj ˌoŋdʒy vosˈe ɛ]",
-        "it": "[dˌɪ dˈoːve sˈɛj]",
-        "es": "[de ðˈɔnde ˈɛɾɛs]",
-        "nl": "[ʋˈaːr kˈɔm jə vɑndˈaːn]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "pt": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "phrasebook-introductions-006",
-      "text": {
-        "fr": "Je viens de...",
-        "en": "I come from...",
-        "de": "Ich komme aus...",
-        "pt": "Eu sou de...",
-        "it": "Vengo da...",
-        "es": "Soy de...",
-        "nl": "Ik kom uit..."
-      },
-      "ipa": {
-        "fr": "[ʒə- vjˈɛ̃ də-]",
-        "de": "[ɪç kˈɔmə ˈaʊs]",
-        "pt": "[eʊ sow dʒˈy]",
-        "it": "[vˈeŋɡo dˈa]",
-        "es": "[sˈoɪ ðˈe]",
-        "nl": "[ɪk kˈɔm ˈœyt]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "pt": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "phrasebook-introductions-007",
-      "text": {
-        "fr": "Ravi de faire votre connaissance",
-        "en": "Pleased to meet you",
-        "de": "Freut mich, Sie kennenzulernen",
-        "pt": "Prazer em conhecê-lo",
-        "it": "Molto lieto di conoscerla",
-        "es": "Mucho gusto en conocerle",
-        "nl": "Aangenaam kennis te maken"
-      },
-      "ipa": {
-        "fr": "[ʁavˈi də- fˈɛʁ vɔtʁ kɔnɛsˈɑ̃s]",
-        "de": "[frˈɔøt mɪç ziː kˈɛnəntsˌuːlɜnən]",
-        "pt": "[prazˈeɾ ˈeɪŋ kˌoɲesˈelʊ]",
-        "it": "[mˈolto liˈɛːto dˌɪ konˈoʃerla]",
-        "es": "[mˈutʃo ɣˈusto ɛn kˌonoθˈɛɾle]",
-        "nl": "[ˈaːnɣənˌaːm kˈɛnɪs tə mˈaːkən]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "pt": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    }
-  ]
+    "phrases": [
+        {
+            "id": "phrasebook-introductions-001",
+            "text": {
+                "fr": "Je m'appelle...",
+                "en": "My name is...",
+                "de": "Ich heiße...",
+                "pt": "Meu nome é...",
+                "it": "Mi chiamo...",
+                "es": "Me llamo...",
+                "nl": "Ik heet..."
+            },
+            "ipa": {
+                "fr": "[ʒə- mapˈɛl]",
+                "de": "[ɪç hˈaɪsə]",
+                "pt": "[meʊ nˈomj ɛ]",
+                "it": "[mˌɪ kjˈaːmo]",
+                "es": "[me ʎˈamo]",
+                "nl": "[ɪk hˈeːt]",
+                "en": "[maɪ nˈeɪm ɪz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-introductions-002",
+            "text": {
+                "fr": "Comment vous appelez-vous?",
+                "en": "What is your name?",
+                "de": "Wie heißen Sie?",
+                "pt": "Como você se chama?",
+                "it": "Come si chiama?",
+                "es": "¿Cómo se llama?",
+                "nl": "Hoe heet je?"
+            },
+            "ipa": {
+                "fr": "[kɔmˌɑ̃ vuz aplˈevˈu]",
+                "de": "[viː hˈaɪsən ziː]",
+                "pt": "[kˌomʊ vosˌe sy ʃˈɐ̃mæ]",
+                "it": "[kˌome sˌɪ kjˈaːma]",
+                "es": "[kˈɔmo se ʎˈama]",
+                "nl": "[hˈu hˈeːt jə]",
+                "en": "[wˌɒt ɪz jɔː nˈeɪm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-introductions-003",
+            "text": {
+                "fr": "Enchanté",
+                "en": "Nice to meet you",
+                "de": "Angenehm",
+                "pt": "Prazer em conhecer",
+                "it": "Piacere",
+                "es": "Encantada",
+                "nl": "Aangenaam"
+            },
+            "ipa": {
+                "fr": "[ɑ̃ʃɑ̃tˈe]",
+                "de": "[ˈanɡənˌeːm]",
+                "pt": "[prazˈeɾ ˈeɪŋ kˌoɲesˈer]",
+                "it": "[pjatʃˈeːre]",
+                "es": "[ˌɛnkantˈaða]",
+                "nl": "[ˈaːnɣənˌaːm]",
+                "en": "[nˈaɪs tə mˈiːt juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-introductions-004",
+            "text": {
+                "fr": "Enchantée",
+                "en": "Nice to meet you",
+                "de": "Angenehm",
+                "pt": "Prazer em conhecer",
+                "it": "Piacere",
+                "es": "Encantado",
+                "nl": "Aangenaam"
+            },
+            "ipa": {
+                "fr": "[ɑ̃ʃɑ̃tˈe]",
+                "de": "[ˈanɡənˌeːm]",
+                "pt": "[prazˈeɾ ˈeɪŋ kˌoɲesˈer]",
+                "it": "[pjatʃˈeːre]",
+                "es": "[ˌɛnkantˈaðo]",
+                "nl": "[ˈaːnɣənˌaːm]",
+                "en": "[nˈaɪs tə mˈiːt juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-introductions-005",
+            "text": {
+                "fr": "D'où venez-vous?",
+                "en": "Where are you from?",
+                "de": "Woher kommen Sie?",
+                "pt": "De onde você é?",
+                "it": "Di dove sei?",
+                "es": "¿De dónde eres?",
+                "nl": "Waar kom je vandaan?"
+            },
+            "ipa": {
+                "fr": "[du vənˈevˈu]",
+                "de": "[voːhˈeːɾ kˈɔmən ziː]",
+                "pt": "[dʒj ˌoŋdʒy vosˈe ɛ]",
+                "it": "[dˌɪ dˈoːve sˈɛj]",
+                "es": "[de ðˈɔnde ˈɛɾɛs]",
+                "nl": "[ʋˈaːr kˈɔm jə vɑndˈaːn]",
+                "en": "[wˈeəɹ ɑː juː fɹɒm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-introductions-006",
+            "text": {
+                "fr": "Je viens de...",
+                "en": "I come from...",
+                "de": "Ich komme aus...",
+                "pt": "Eu sou de...",
+                "it": "Vengo da...",
+                "es": "Soy de...",
+                "nl": "Ik kom uit..."
+            },
+            "ipa": {
+                "fr": "[ʒə- vjˈɛ̃ də-]",
+                "de": "[ɪç kˈɔmə ˈaʊs]",
+                "pt": "[eʊ sow dʒˈy]",
+                "it": "[vˈeŋɡo dˈa]",
+                "es": "[sˈoɪ ðˈe]",
+                "nl": "[ɪk kˈɔm ˈœyt]",
+                "en": "[aɪ kˈʌm fɹɒm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-introductions-007",
+            "text": {
+                "fr": "Ravi de faire votre connaissance",
+                "en": "Pleased to meet you",
+                "de": "Freut mich, Sie kennenzulernen",
+                "pt": "Prazer em conhecê-lo",
+                "it": "Molto lieto di conoscerla",
+                "es": "Mucho gusto en conocerle",
+                "nl": "Aangenaam kennis te maken"
+            },
+            "ipa": {
+                "fr": "[ʁavˈi də- fˈɛʁ vɔtʁ kɔnɛsˈɑ̃s]",
+                "de": "[frˈɔøt mɪç ziː kˈɛnəntsˌuːlɜnən]",
+                "pt": "[prazˈeɾ ˈeɪŋ kˌoɲesˈelʊ]",
+                "it": "[mˈolto liˈɛːto dˌɪ konˈoʃerla]",
+                "es": "[mˈutʃo ɣˈusto ɛn kˌonoθˈɛɾle]",
+                "nl": "[ˈaːnɣənˌaːm kˈɛnɪs tə mˈaːkən]",
+                "en": "[plˈiːzd tə mˈiːt juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        }
+    ]
 }

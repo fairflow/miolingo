@@ -1,646 +1,672 @@
 {
-  "meta": {
-    "source": "story-scenes",
-    "scene_number": 4,
-    "scene_title": {
-      "en": "The Decision",
-      "fr": "La Décision",
-      "de": "Die Entscheidung",
-      "pt": "A Decisão",
-      "it": "La Decisione",
-      "es": "La decisión",
-      "nl": "De Beslissing"
+    "meta": {
+        "source": "story-scenes",
+        "scene_number": 4,
+        "scene_title": {
+            "en": "The Decision",
+            "fr": "La Décision",
+            "de": "Die Entscheidung",
+            "pt": "A Decisão",
+            "it": "La Decisione",
+            "es": "La decisión",
+            "nl": "De Beslissing"
+        },
+        "phrase_count": 26,
+        "core_phrase_count": 16,
+        "pt_matched": 15,
+        "pt_unmatched": 10,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-09",
+        "generator": "merge_materials.py"
     },
-    "phrase_count": 26,
-    "core_phrase_count": 16,
-    "pt_matched": 15,
-    "pt_unmatched": 10,
-    "languages": [
-      "de",
-      "en",
-      "es",
-      "fr",
-      "it",
-      "nl",
-      "pt"
-    ],
-    "generated": "2026-04-09",
-    "generator": "merge_materials.py"
-  },
-  "phrases": [
-    {
-      "id": "scene-04-001",
-      "text": {
-        "fr": "C'est décidé, nous partons!",
-        "en": "It's decided, we're going!",
-        "de": "Es ist beschlossen, wir fahren los!",
-        "it": "È deciso, partiamo!",
-        "es": "¡Está decidido, nos vamos!",
-        "nl": "Het is besloten, we gaan!",
-        "pt": "Está decidido, vamos viajar!",
-        "en_pt": "It's decided, we're going to travel!"
-      },
-      "ipa": {
-        "fr": "sɛ desidˈe nu paʁtˈɔ̃",
-        "de": "[ɛs ɪst bəˈʃlɔsn̩, viːɐ̯ ˈfaːɐ̯ən loːs]",
-        "it": "[ˌɛ detʃˈiːzo\n partjˈaːmo]",
-        "es": "[ˈesta ðeθiˈðiðo nos ˈβamos]",
-        "nl": "[hət ɪs bəslˈoːtən\n ʋə ɣˈaːn]",
-        "pt": "[estˌa dˌesidʒˈidʊ\n vˌɐ̃mʊz vˌiaʒˈar]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-002",
-      "text": {
-        "fr": "Dans combien de temps?",
-        "en": "How much longer?",
-        "de": "Wie lange dauert es?",
-        "it": "Tra quanto tempo?",
-        "es": "¿En cuánto tiempo?",
-        "nl": "Hoe lang nog?"
-      },
-      "ipa": {
-        "fr": "dɑ̃ kɔ̃bjˈɛ̃ də- tˈɑ̃",
-        "de": "[viː ˈlaŋə ˈdaʊ̯ɐt ɛs]",
-        "it": "[trˌa kwˈanto tˈɛmpo]",
-        "es": "[en ˈkwanto ˈtjempo]",
-        "nl": "[hˈu lˈɑŋ nˈɔx]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-003",
-      "text": {
-        "fr": "Dans une semaine. J'ai regardé les trains cette nuit.",
-        "en": "In a week. I looked at the trains last night.",
-        "de": "In einer Woche. Ich habe letzte Nacht die Züge angeschaut.",
-        "it": "Tra una settimana. Ho guardato i treni stanotte.",
-        "es": "En una semana. He mirado los trenes esta noche.",
-        "nl": "Over een week. Ik heb vannacht naar de treinen gekeken.",
-        "pt": "Olhei os ônibus ontem à noite.",
-        "en_pt": "I looked at buses last night."
-      },
-      "ipa": {
-        "fr": "dɑ̃z yn səmˈɛn ʒe ʁəɡaʁdˈe le- tʁˈɛ̃ sɛt nyˈi",
-        "de": "[ɪn ˈʔaɪ̯nɐ ˈvɔxə. ɪç ˈhaːbə ˈlɛt͡stə naχt diː ˈtsyːɡə ˈʔanʃaʊ̯t]",
-        "it": "[trˌa ˌʊna sˌɛtːimˈaːna\n ˌo ɡwardˈaːto ˌɪ trˈɛːnɪ stanˈɔtːe]",
-        "es": "[en ˈuna seˈmana e miˈɾaðo los ˈtɾenes ˈesta ˈnotʃe]",
-        "nl": "[ˈoːvər ən ʋˈeːk\n ɪk hɛp vɑnnˈɑxt naːr də trˈɛɪnən ɣəkˈeːkən]",
-        "pt": "[oljˈeɪ ʊz ˈonibuz ˈoŋteɪŋ ˌaː nˈoɪtʃy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-004",
-      "text": {
-        "fr": "Une semaine? C'est si rapide!",
-        "en": "A week? That's so quick!",
-        "de": "Eine Woche? Das ist so schnell!",
-        "it": "Una settimana? È così rapido!",
-        "es": "¿Una semana? ¡Es tan rápido!",
-        "nl": "Een week? Dat is zo snel!",
-        "pt": "É tão rápido!",
-        "en_pt": "That's so soon!"
-      },
-      "ipa": {
-        "fr": "yn səmˈɛn sɛ sˈi ʁapˈid",
-        "de": "[ˈʔaɪ̯nə ˈvɔxə? das ɪst zoː ˈʃnɛl]",
-        "it": "[ˌʊna sˌɛtːimˈaːna\n ˌɛ kozˈi rˈapido]",
-        "es": "[ˈuna seˈmana es tan ˈraˈpiðo]",
-        "nl": "[ən ʋˈeːk\n dɑt ɪ soː snˈɛl]",
-        "pt": "[ɛ tˈɐ̃ʊ̃ xˈapidʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-005",
-      "text": {
-        "fr": "Oui, mais c'est mieux comme ça",
-        "en": "Yes, but it's better this way",
-        "de": "Ja, aber es ist besser so.",
-        "it": "Sì, ma è meglio così",
-        "es": "Sí, pero es mejor así",
-        "nl": "Ja, maar het is beter zo",
-        "pt": "Sim, mas é melhor assim.",
-        "en_pt": "Yes, but it's better that way."
-      },
-      "ipa": {
-        "fr": "wˈi mɛ sɛ mjˌø kɔm sˈa",
-        "de": "[jaː ˈʔabɐ ɛs ɪst ˈbɛsɐ zoː]",
-        "it": "[sˈi\n mˌa ˌɛ mˈɛːʎo kozˈi]",
-        "es": "[si ˈpeɾo es meˈxoɾ aˈsi]",
-        "nl": "[jˈaː\n maːr hət ɪs bˈeːtər zˈoː]",
-        "pt": "[sˈiŋ\n maz ɛ meljˈɔɾ asˈiŋ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-006",
-      "text": {
-        "fr": "Si on attend trop, on ne partira jamais.",
-        "en": "If we wait too long, we'll never go.",
-        "de": "Wenn wir zu lange warten, fahren wir nie ab.",
-        "it": "Se aspettiamo troppo, non partiremo mai.",
-        "es": "Si esperamos demasiado, nunca nos iremos.",
-        "nl": "Als we te lang wachten, gaan we nooit.",
-        "pt": "Se a gente esperar muito, nunca vai sair.",
-        "en_pt": "If we wait too long, we'll never leave."
-      },
-      "ipa": {
-        "fr": "sˈi ɔ̃n atˈɑ̃ tʁˈo ɔ̃ nə- paʁtiʁˈa ʒamˈɛ",
-        "de": "[vɛn viːɐ̯ t͡suː ˈlaŋə ˈvaɐ̯tn̩, ˈfaːɐ̯ən viːɐ̯ niː ʔap]",
-        "it": "[sˌe ˌaspetːjˈaːmo trˈɔpːo\n nˌon pˌartirˈɛːmo mˈaɪ]",
-        "es": "[si espeˈɾamos ðemaˈsjaðo ˈnunka nos iˈɾemos]",
-        "nl": "[ɑls ʋə tə lˈɑŋ ʋˈɑxtən\n ɣˈaːn ʋə nˈoːjt]",
-        "pt": "[sj a ʒˈeɪŋtʃj ˌespeɾˈar mwˈiŋtʊ\n nˌũŋkæ vaɪ saˈir]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-007",
-      "text": {
-        "fr": "Tu as raison. Qu'est-ce qu'on emporte?",
-        "en": "You're right. What are we taking?",
-        "de": "Du hast recht. Was nehmen wir mit?",
-        "it": "Hai ragione. Cosa portiamo?",
-        "es": "Tienes razón. ¿Qué llevamos?",
-        "nl": "Je hebt gelijk. Wat nemen we mee?",
-        "pt": "Você tem razão.",
-        "en_pt": "You're right."
-      },
-      "ipa": {
-        "fr": "ty a ʁɛzˈɔ̃ kɛs kɔ̃n ɑ̃pˈɔʁt",
-        "de": "[duː hast rɛçt. vas ˈneːmən viːɐ̯ mɪt]",
-        "it": "[ˌaj radʒˈoːne\n kˈɔːza portjˈaːmo]",
-        "es": "[ˈtjenes raˈθon ke ʎeˈβamos]",
-        "nl": "[jə hɛpt ɣəlˈɛɪk\n ʋɑt nˈeːmən ʋə mˈeː]",
-        "pt": "[vosˌe teɪŋ xazˈɐ̃ʊ̃]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-008",
-      "text": {
-        "fr": "Pas grand-chose, juste l'essentiel",
-        "en": "Not much, just the essentials",
-        "de": "Nicht viel, nur das Nötigste.",
-        "it": "Non molto, solo l'essenziale",
-        "es": "No mucho, solo lo esencial",
-        "nl": "Niet veel, gewoon het essentiële",
-        "pt": "Não muita coisa, só o essencial.",
-        "en_pt": "Not much, just the essentials."
-      },
-      "ipa": {
-        "fr": "pa ɡʁˈɑ̃ʃˈoz ʒˈyst lesɑ̃sjˈɛl",
-        "de": "[nɪçt fiːl, nuːɐ̯ das ˈnøːtɪçstə]",
-        "it": "[nˌon mˈolto\n sˈoːlo lˌessentsjˈaːle]",
-        "es": "[no ˈmutʃo ˈsolo lo esenˈθjal]",
-        "nl": "[nˌit vˈeːl\n ɣəʋˈoːn hət ˌɛsənʃˈeːlə]",
-        "pt": "[nˌɐ̃ʊ̃ mwˈiŋtæ kˈoɪzæ\n sˈɔ u ˌeseɪŋsiˈaʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-009",
-      "text": {
-        "fr": "Des vêtements chauds, une lampe de poche.",
-        "en": "Warm clothes, a flashlight.",
-        "de": "Warme Kleidung, eine Taschenlampe.",
-        "it": "Vestiti caldi, una torcia elettrica.",
-        "es": "Ropa de abrigo, una linterna.",
-        "nl": "Warme kleren, een zaklamp.",
-        "pt": "Roupas quentes, uma lanterna...",
-        "en_pt": "Warm clothes, a flashlight..."
-      },
-      "ipa": {
-        "fr": "de- vɛtmˈɑ̃ ʃˈo yn lˈɑ̃p də- pˈɔʃ",
-        "de": "[ˈvarmə ˈkleːdʊŋ, ˈʔaɪ̯nə ˈtaʃənˌlampə]",
-        "it": "[vestˈiːtɪ kˈaldɪ\n ˌʊna tˈɔːrtʃa elˈɛtːrika]",
-        "es": "[ˈropa ðe aˈβɾiɣo ˈuna linˈteɾna]",
-        "nl": "[ʋˈɑrmə klˈɪːrən\n ən zˈɑklɑmp]",
-        "pt": "[xˈowpæs kˈeɪŋtʃys\n ˌumæ lˌɐ̃ŋtˈɛɾənæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-010",
-      "text": {
-        "fr": "Un sac à dos chacun,",
-        "en": "A backpack each,",
-        "de": "Einen Rucksack pro Person,",
-        "it": "Uno zaino a testa,",
-        "es": "Una mochila cada uno,",
-        "nl": "Een rugzak voor ieder,",
-        "pt": "Uma mochila cada, decide Sophie.",
-        "en_pt": "One backpack each, Sophie decides."
-      },
-      "ipa": {
-        "fr": "œ̃ sˈak adˈɔs ʃakˈœ̃",
-        "de": "[ˈʔaɪ̯nən ˈrʊkzak proː pɛrˈzoːn]",
-        "it": "[ˈuːno dzˈaɪːno ˌa tˈɛsta]",
-        "es": "[ˈuna moˈtʃila ˈkaða ˈuno]",
-        "nl": "[ən rˈɵɣzɑk vɔːr ˈidər]",
-        "pt": "[ˌumæ mˌoʃˈilæ kˈadæ\n dˌesˈidʒy sˌofˈiy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-011",
-      "text": {
-        "fr": "Et nos téléphones?",
-        "en": "And our phones?",
-        "de": "Und unsere Handys?",
-        "it": "E i nostri telefoni?",
-        "es": "¿Y nuestros teléfonos?",
-        "nl": "En onze telefoons?",
-        "pt": "E nossos celulares?",
-        "en_pt": "And our cell phones?"
-      },
-      "ipa": {
-        "fr": "e no telefˈɔn",
-        "de": "[ʊnt ˈʔʊnzərə ˈhandis]",
-        "it": "[ˌe ˌɪ nˌɔstrɪ telˈɛfonɪ]",
-        "es": "[i ˈnwestɾos teˈlefonos]",
-        "nl": "[ɛn ɔnzˌə tˌeːləfˈoːns]",
-        "pt": "[i nˌɔsʊs sˌelulˈaɾys]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-012",
-      "text": {
-        "fr": "Bien sûr, pour les photos. Et pour la sécurité.",
-        "en": "Of course, for the photos. And for safety.",
-        "de": "Natürlich, für Fotos und zur Sicherheit.",
-        "it": "Certo, per le foto. E per la sicurezza.",
-        "es": "Claro, para las fotos. Y por seguridad.",
-        "nl": "Natuurlijk, voor de foto's. En voor de veiligheid.",
-        "pt": "Claro, para as fotos.",
-        "en_pt": "Of course, for photos."
-      },
-      "ipa": {
-        "fr": "bjˈɛ̃ sˈyːʁ puʁ le- fɔtˈo e puʁ la- sekyʁitˈe",
-        "de": "[naˈtʏːʁlɪç, fyːɐ̯ ˈfoːtos ʊnt t͡sʊɐ̯ zɪçɐˈhaɪ̯t]",
-        "it": "[tʃˈɛːrto\n pˌɛr lˌe fˈɔːto\n ˌe pˌɛr lˌa sˌikʊrˈetsːa]",
-        "es": "[ˈklaɾo ˈpara las ˈfotos i poɾ seguˈɾiðað]",
-        "nl": "[naːtˈyrlək\n vɔːr də fˈoːtoːs\n ɛn vɔːr də vˈɛɪləxhˌɛɪt]",
-        "pt": "[klˈaɾʊ\n pˌaɾæ as fˈɔtʊs]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-013",
-      "text": {
-        "fr": "Je suis excitée! C'est vraiment en train d'arriver!",
-        "en": "I'm excited! It's really happening!",
-        "de": "Ich bin aufgeregt! Es passiert wirklich!",
-        "it": "Sono emozionata! Sta davvero succedendo!",
-        "es": "¡Estoy emocionada! ¡Esto realmente está pasando!",
-        "nl": "Ik ben opgewonden! Het gebeurt echt!",
-        "pt": "Isso realmente vai acontecer!",
-        "en_pt": "This is really going to happen!"
-      },
-      "ipa": {
-        "fr": "ʒə- syˌiz ɛksitˈe sɛ vʁɛmˈɑ̃ ɑ̃ tʁˈɛ̃ daʁivˈe",
-        "de": "[ɪç bɪn ˈaʊ̯fɡəˌʁɛkt! ɛs paˈsiːɐ̯t ˈvɪʁklɪç]",
-        "it": "[sˌono ˌemotsˌionˈaːta\n stˈa davvˈeːro sˌʊtʃːedˈɛndo]",
-        "es": "[esˈtoj emoθjoˈnaða ˈesto reˈalmente ˈesta paˈsando]",
-        "nl": "[ɪk bɛn ˈɔpɣəʋˌɔndən\n hət ɣəbˈøːrt ˈɛxt]",
-        "pt": "[ˈisʊ xˌeaʊmˈeɪŋtʃy vaɪ ˌakoŋtesˈer]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-014",
-      "text": {
-        "fr": "Moi aussi. Une nouvelle aventure commence.",
-        "en": "Me too. A new adventure begins.",
-        "de": "Ich auch. Ein neues Abenteuer beginnt.",
-        "it": "Anch'io. Una nuova avventura sta per iniziare.",
-        "es": "Yo también. Comienza una nueva aventura.",
-        "nl": "Ik ook. Een nieuw avontuur begint.",
-        "pt": "Uma nova aventura começa.",
-        "en_pt": "A new adventure begins."
-      },
-      "ipa": {
-        "fr": "mwˌa osˈi yn nuvˈɛl avɑ̃tˈyʁ kɔmˈɑ̃s",
-        "de": "[ɪç aʊ̯ç. ʔaɪ̯n ˈnɔʏ̯əs ʔaˈbɛntʏɐ̯ bəˈɡɪnt]",
-        "it": "[ankˈiːo\n ˌʊna nʊˈɔːva ˌavventˈuːra stˈa pˌɛr ˌinitsjˈaːre]",
-        "es": "[ʝo tamˈbjen koˈmjensa ˈuna ˈnweβa aβenˈtuɾa]",
-        "nl": "[ɪk ˈoːk\n ən nˈiw ˌaːvɔntˈyr bəɣˈɪnt]",
-        "pt": "[ˌumæ nˈɔvæ ˌaveɪŋtˈuɾæ kˌomˈɛsæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-015",
-      "text": {
-        "fr": "Le lendemain matin, Lucas arrive chez Sophie avec son ordinateur portable.",
-        "en": "The next morning, Lucas arrives at Sophie's place with his laptop.",
-        "de": "Am nächsten Morgen kommt Lucas mit seinem Laptop zu Sophie.",
-        "it": "La mattina dopo, Lucas arriva a casa di Sophie con il suo computer portatile.",
-        "es": "A la mañana siguiente, Lucas llega a casa de Sophie con su ordenador portátil.",
-        "nl": "De volgende ochtend komt Lucas met zijn laptop bij Sophie thuis.",
-        "pt": "Na manhã seguinte, Lucas chega na casa de Sophie com seu laptop."
-      },
-      "ipa": {
-        "fr": "lə- lɑ̃dmˈɛ̃ matˈɛ̃ lykˈaz aʁˈiv ʃe sɔfˈi avˌɛk sɔ̃n ɔʁdinatˈœʁ pɔʁtˈabl",
-        "de": "[ʔam ˈnɛçstn̩ ˈmɔʁɡn̩ kɔmt ˈluːkas mɪt ˈzaɪ̯nəm ˈlɛptɔp t͡suː ˈzoːfi]",
-        "it": "[lˌa matːˈiːna dˈoːpo\n lˈuːkas arɾˈiːva ˌa kˈaːza dˌɪ sˈopje kˌon ˌil sˌʊo kompjˈuːter portˈatile]",
-        "es": "[a la maˈɲana siˈɣjente ˈlukas ˈʎeɣa a ˈkasa ðe ˈsofi kon su orðenaˈðoɾ poɾˈtatil]",
-        "nl": "[də vˈɔlɣəndə ˈɔxtənt kˈɔmt lˈykɑs mɛt zɛɪn (en)lˈaptɒp(nl) bɛɪ sɔphˈi tˈœys]",
-        "pt": "[na mɐ̃ɲˈɐ̃ sˌeɡˈiŋtʃy\n lˈukæs ʃˈeɡæ na kˈazæ dʒy sˌofˈiy koŋ seʊ lɛptˈɔp]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-016",
-      "text": {
-        "fr": "Sophie commence à faire une liste.",
-        "en": "Sophie starts making a list.",
-        "de": "Sophie fängt an, eine Liste zu machen.",
-        "it": "Sophie inizia a fare una lista.",
-        "es": "Sophie empieza a hacer una lista.",
-        "nl": "Sophie begint een lijst te maken.",
-        "pt": "Sophie começa a fazer uma lista."
-      },
-      "ipa": {
-        "fr": "sɔfˈi kɔmˈɑ̃s a fˈɛʁ yn lˈist",
-        "de": "[ˈzoːfi ˈfɛŋt ʔan, ˈʔaɪ̯nə ˈlɪstə t͡su ˈmaχn̩]",
-        "it": "[sˈopje inˈitsia ˌa fˌare ˌʊna lˈista]",
-        "es": "[ˈsofi emˈpjeθa a aˈθeɾ ˈuna ˈlista]",
-        "nl": "[sɔphˈi bəɣˈɪnt ən lˈɛɪst tə mˈaːkən]",
-        "pt": "[sˌofˈiy kˌomˈɛsæ a fazˌeɾ ˌumæ lˈistæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-017",
-      "text": {
-        "pt": "anuncia ele.",
-        "en": "he announces."
-      },
-      "ipa": {
-        "pt": "[ˌænũŋsˈiæ ˈely]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-018",
-      "text": {
-        "pt": "Daqui a quanto tempo?",
-        "en": "How soon?"
-      },
-      "ipa": {
-        "pt": "[dakˈi a kwˈɐ̃ŋtʊ tˈeɪmpʊ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-019",
-      "text": {
-        "pt": "Uma semana.",
-        "en": "One week."
-      },
-      "ipa": {
-        "pt": "[ˌumæ sˌemˈɐ̃næ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-020",
-      "text": {
-        "pt": "Uma semana?",
-        "en": "One week?"
-      },
-      "ipa": {
-        "pt": "[ˌumæ sˌemˈɐ̃næ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-021",
-      "text": {
-        "pt": "Sophie pensa.",
-        "en": "Sophie thinks."
-      },
-      "ipa": {
-        "pt": "[sˌofˈiy pˈeɪŋsæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-022",
-      "text": {
-        "pt": "O que a gente leva?",
-        "en": "What should we bring?"
-      },
-      "ipa": {
-        "pt": "[ʊ ky a ʒˈeɪŋtʃy lˈɛvæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-023",
-      "text": {
-        "pt": "E para segurança.",
-        "en": "And for safety."
-      },
-      "ipa": {
-        "pt": "[i pˌaɾæ sˌeɡuɾˈɐ̃ŋsæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-024",
-      "text": {
-        "pt": "Estou empolgada!",
-        "en": "I'm so excited!"
-      },
-      "ipa": {
-        "pt": "[estˌow ˌeɪmpowɡˈadæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-025",
-      "text": {
-        "pt": "Lucas sorri.",
-        "en": "Lucas smiles."
-      },
-      "ipa": {
-        "pt": "[lˈukæs soxˈi]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-04-026",
-      "text": {
-        "pt": "Eu também.",
-        "en": "Me too."
-      },
-      "ipa": {
-        "pt": "[eʊ tɐ̃mbˈeɪŋ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    }
-  ]
+    "phrases": [
+        {
+            "id": "scene-04-001",
+            "text": {
+                "fr": "C'est décidé, nous partons!",
+                "en": "It's decided, we're going!",
+                "de": "Es ist beschlossen, wir fahren los!",
+                "it": "È deciso, partiamo!",
+                "es": "¡Está decidido, nos vamos!",
+                "nl": "Het is besloten, we gaan!",
+                "pt": "Está decidido, vamos viajar!",
+                "en_pt": "It's decided, we're going to travel!"
+            },
+            "ipa": {
+                "fr": "sɛ desidˈe nu paʁtˈɔ̃",
+                "de": "[ɛs ɪst bəˈʃlɔsn̩, viːɐ̯ ˈfaːɐ̯ən loːs]",
+                "it": "[ˌɛ detʃˈiːzo\n partjˈaːmo]",
+                "es": "[ˈesta ðeθiˈðiðo nos ˈβamos]",
+                "nl": "[hət ɪs bəslˈoːtən\n ʋə ɣˈaːn]",
+                "pt": "[estˌa dˌesidʒˈidʊ\n vˌɐ̃mʊz vˌiaʒˈar]",
+                "en": "[ɪts dɪsˈaɪdɪd wiə ɡˈəʊɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-002",
+            "text": {
+                "fr": "Dans combien de temps?",
+                "en": "How much longer?",
+                "de": "Wie lange dauert es?",
+                "it": "Tra quanto tempo?",
+                "es": "¿En cuánto tiempo?",
+                "nl": "Hoe lang nog?"
+            },
+            "ipa": {
+                "fr": "dɑ̃ kɔ̃bjˈɛ̃ də- tˈɑ̃",
+                "de": "[viː ˈlaŋə ˈdaʊ̯ɐt ɛs]",
+                "it": "[trˌa kwˈanto tˈɛmpo]",
+                "es": "[en ˈkwanto ˈtjempo]",
+                "nl": "[hˈu lˈɑŋ nˈɔx]",
+                "en": "[hˌaʊ mˈʌtʃ lˈɒŋɡə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-003",
+            "text": {
+                "fr": "Dans une semaine. J'ai regardé les trains cette nuit.",
+                "en": "In a week. I looked at the trains last night.",
+                "de": "In einer Woche. Ich habe letzte Nacht die Züge angeschaut.",
+                "it": "Tra una settimana. Ho guardato i treni stanotte.",
+                "es": "En una semana. He mirado los trenes esta noche.",
+                "nl": "Over een week. Ik heb vannacht naar de treinen gekeken.",
+                "pt": "Olhei os ônibus ontem à noite.",
+                "en_pt": "I looked at buses last night."
+            },
+            "ipa": {
+                "fr": "dɑ̃z yn səmˈɛn ʒe ʁəɡaʁdˈe le- tʁˈɛ̃ sɛt nyˈi",
+                "de": "[ɪn ˈʔaɪ̯nɐ ˈvɔxə. ɪç ˈhaːbə ˈlɛt͡stə naχt diː ˈtsyːɡə ˈʔanʃaʊ̯t]",
+                "it": "[trˌa ˌʊna sˌɛtːimˈaːna\n ˌo ɡwardˈaːto ˌɪ trˈɛːnɪ stanˈɔtːe]",
+                "es": "[en ˈuna seˈmana e miˈɾaðo los ˈtɾenes ˈesta ˈnotʃe]",
+                "nl": "[ˈoːvər ən ʋˈeːk\n ɪk hɛp vɑnnˈɑxt naːr də trˈɛɪnən ɣəkˈeːkən]",
+                "pt": "[oljˈeɪ ʊz ˈonibuz ˈoŋteɪŋ ˌaː nˈoɪtʃy]",
+                "en": "[ɪn ɐ wˈiːk aɪ lˈʊkt at ðə tɹˈeɪnz lˈast nˈaɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-004",
+            "text": {
+                "fr": "Une semaine? C'est si rapide!",
+                "en": "A week? That's so quick!",
+                "de": "Eine Woche? Das ist so schnell!",
+                "it": "Una settimana? È così rapido!",
+                "es": "¿Una semana? ¡Es tan rápido!",
+                "nl": "Een week? Dat is zo snel!",
+                "pt": "É tão rápido!",
+                "en_pt": "That's so soon!"
+            },
+            "ipa": {
+                "fr": "yn səmˈɛn sɛ sˈi ʁapˈid",
+                "de": "[ˈʔaɪ̯nə ˈvɔxə? das ɪst zoː ˈʃnɛl]",
+                "it": "[ˌʊna sˌɛtːimˈaːna\n ˌɛ kozˈi rˈapido]",
+                "es": "[ˈuna seˈmana es tan ˈraˈpiðo]",
+                "nl": "[ən ʋˈeːk\n dɑt ɪ soː snˈɛl]",
+                "pt": "[ɛ tˈɐ̃ʊ̃ xˈapidʊ]",
+                "en": "[ɐ wˈiːk ðats sˌəʊ kwˈɪk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-005",
+            "text": {
+                "fr": "Oui, mais c'est mieux comme ça",
+                "en": "Yes, but it's better this way",
+                "de": "Ja, aber es ist besser so.",
+                "it": "Sì, ma è meglio così",
+                "es": "Sí, pero es mejor así",
+                "nl": "Ja, maar het is beter zo",
+                "pt": "Sim, mas é melhor assim.",
+                "en_pt": "Yes, but it's better that way."
+            },
+            "ipa": {
+                "fr": "wˈi mɛ sɛ mjˌø kɔm sˈa",
+                "de": "[jaː ˈʔabɐ ɛs ɪst ˈbɛsɐ zoː]",
+                "it": "[sˈi\n mˌa ˌɛ mˈɛːʎo kozˈi]",
+                "es": "[si ˈpeɾo es meˈxoɾ aˈsi]",
+                "nl": "[jˈaː\n maːr hət ɪs bˈeːtər zˈoː]",
+                "pt": "[sˈiŋ\n maz ɛ meljˈɔɾ asˈiŋ]",
+                "en": "[jˈɛs bˌʌt ɪts bˈɛtə ðɪs wˈeɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-006",
+            "text": {
+                "fr": "Si on attend trop, on ne partira jamais.",
+                "en": "If we wait too long, we'll never go.",
+                "de": "Wenn wir zu lange warten, fahren wir nie ab.",
+                "it": "Se aspettiamo troppo, non partiremo mai.",
+                "es": "Si esperamos demasiado, nunca nos iremos.",
+                "nl": "Als we te lang wachten, gaan we nooit.",
+                "pt": "Se a gente esperar muito, nunca vai sair.",
+                "en_pt": "If we wait too long, we'll never leave."
+            },
+            "ipa": {
+                "fr": "sˈi ɔ̃n atˈɑ̃ tʁˈo ɔ̃ nə- paʁtiʁˈa ʒamˈɛ",
+                "de": "[vɛn viːɐ̯ t͡suː ˈlaŋə ˈvaɐ̯tn̩, ˈfaːɐ̯ən viːɐ̯ niː ʔap]",
+                "it": "[sˌe ˌaspetːjˈaːmo trˈɔpːo\n nˌon pˌartirˈɛːmo mˈaɪ]",
+                "es": "[si espeˈɾamos ðemaˈsjaðo ˈnunka nos iˈɾemos]",
+                "nl": "[ɑls ʋə tə lˈɑŋ ʋˈɑxtən\n ɣˈaːn ʋə nˈoːjt]",
+                "pt": "[sj a ʒˈeɪŋtʃj ˌespeɾˈar mwˈiŋtʊ\n nˌũŋkæ vaɪ saˈir]",
+                "en": "[ɪf wiː wˈeɪt tˈuː lˈɒŋ wiːl nˈɛvə ɡˈəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-007",
+            "text": {
+                "fr": "Tu as raison. Qu'est-ce qu'on emporte?",
+                "en": "You're right. What are we taking?",
+                "de": "Du hast recht. Was nehmen wir mit?",
+                "it": "Hai ragione. Cosa portiamo?",
+                "es": "Tienes razón. ¿Qué llevamos?",
+                "nl": "Je hebt gelijk. Wat nemen we mee?",
+                "pt": "Você tem razão.",
+                "en_pt": "You're right."
+            },
+            "ipa": {
+                "fr": "ty a ʁɛzˈɔ̃ kɛs kɔ̃n ɑ̃pˈɔʁt",
+                "de": "[duː hast rɛçt. vas ˈneːmən viːɐ̯ mɪt]",
+                "it": "[ˌaj radʒˈoːne\n kˈɔːza portjˈaːmo]",
+                "es": "[ˈtjenes raˈθon ke ʎeˈβamos]",
+                "nl": "[jə hɛpt ɣəlˈɛɪk\n ʋɑt nˈeːmən ʋə mˈeː]",
+                "pt": "[vosˌe teɪŋ xazˈɐ̃ʊ̃]",
+                "en": "[jɔː ɹˈaɪt wˌɒt ɑː wiː tˈeɪkɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-008",
+            "text": {
+                "fr": "Pas grand-chose, juste l'essentiel",
+                "en": "Not much, just the essentials",
+                "de": "Nicht viel, nur das Nötigste.",
+                "it": "Non molto, solo l'essenziale",
+                "es": "No mucho, solo lo esencial",
+                "nl": "Niet veel, gewoon het essentiële",
+                "pt": "Não muita coisa, só o essencial.",
+                "en_pt": "Not much, just the essentials."
+            },
+            "ipa": {
+                "fr": "pa ɡʁˈɑ̃ʃˈoz ʒˈyst lesɑ̃sjˈɛl",
+                "de": "[nɪçt fiːl, nuːɐ̯ das ˈnøːtɪçstə]",
+                "it": "[nˌon mˈolto\n sˈoːlo lˌessentsjˈaːle]",
+                "es": "[no ˈmutʃo ˈsolo lo esenˈθjal]",
+                "nl": "[nˌit vˈeːl\n ɣəʋˈoːn hət ˌɛsənʃˈeːlə]",
+                "pt": "[nˌɐ̃ʊ̃ mwˈiŋtæ kˈoɪzæ\n sˈɔ u ˌeseɪŋsiˈaʊ]",
+                "en": "[nˌɒt mˈʌtʃ dʒˈʌst ðɪ ɪsˈɛnʃəlz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-009",
+            "text": {
+                "fr": "Des vêtements chauds, une lampe de poche.",
+                "en": "Warm clothes, a flashlight.",
+                "de": "Warme Kleidung, eine Taschenlampe.",
+                "it": "Vestiti caldi, una torcia elettrica.",
+                "es": "Ropa de abrigo, una linterna.",
+                "nl": "Warme kleren, een zaklamp.",
+                "pt": "Roupas quentes, uma lanterna...",
+                "en_pt": "Warm clothes, a flashlight..."
+            },
+            "ipa": {
+                "fr": "de- vɛtmˈɑ̃ ʃˈo yn lˈɑ̃p də- pˈɔʃ",
+                "de": "[ˈvarmə ˈkleːdʊŋ, ˈʔaɪ̯nə ˈtaʃənˌlampə]",
+                "it": "[vestˈiːtɪ kˈaldɪ\n ˌʊna tˈɔːrtʃa elˈɛtːrika]",
+                "es": "[ˈropa ðe aˈβɾiɣo ˈuna linˈteɾna]",
+                "nl": "[ʋˈɑrmə klˈɪːrən\n ən zˈɑklɑmp]",
+                "pt": "[xˈowpæs kˈeɪŋtʃys\n ˌumæ lˌɐ̃ŋtˈɛɾənæ]",
+                "en": "[wˈɔːm klˈəʊðz ɐ flˈaʃlaɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-010",
+            "text": {
+                "fr": "Un sac à dos chacun,",
+                "en": "A backpack each,",
+                "de": "Einen Rucksack pro Person,",
+                "it": "Uno zaino a testa,",
+                "es": "Una mochila cada uno,",
+                "nl": "Een rugzak voor ieder,",
+                "pt": "Uma mochila cada, decide Sophie.",
+                "en_pt": "One backpack each, Sophie decides."
+            },
+            "ipa": {
+                "fr": "œ̃ sˈak adˈɔs ʃakˈœ̃",
+                "de": "[ˈʔaɪ̯nən ˈrʊkzak proː pɛrˈzoːn]",
+                "it": "[ˈuːno dzˈaɪːno ˌa tˈɛsta]",
+                "es": "[ˈuna moˈtʃila ˈkaða ˈuno]",
+                "nl": "[ən rˈɵɣzɑk vɔːr ˈidər]",
+                "pt": "[ˌumæ mˌoʃˈilæ kˈadæ\n dˌesˈidʒy sˌofˈiy]",
+                "en": "[ɐ bˈakpak ˈiːtʃ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-011",
+            "text": {
+                "fr": "Et nos téléphones?",
+                "en": "And our phones?",
+                "de": "Und unsere Handys?",
+                "it": "E i nostri telefoni?",
+                "es": "¿Y nuestros teléfonos?",
+                "nl": "En onze telefoons?",
+                "pt": "E nossos celulares?",
+                "en_pt": "And our cell phones?"
+            },
+            "ipa": {
+                "fr": "e no telefˈɔn",
+                "de": "[ʊnt ˈʔʊnzərə ˈhandis]",
+                "it": "[ˌe ˌɪ nˌɔstrɪ telˈɛfonɪ]",
+                "es": "[i ˈnwestɾos teˈlefonos]",
+                "nl": "[ɛn ɔnzˌə tˌeːləfˈoːns]",
+                "pt": "[i nˌɔsʊs sˌelulˈaɾys]",
+                "en": "[and aʊə fˈəʊnz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-012",
+            "text": {
+                "fr": "Bien sûr, pour les photos. Et pour la sécurité.",
+                "en": "Of course, for the photos. And for safety.",
+                "de": "Natürlich, für Fotos und zur Sicherheit.",
+                "it": "Certo, per le foto. E per la sicurezza.",
+                "es": "Claro, para las fotos. Y por seguridad.",
+                "nl": "Natuurlijk, voor de foto's. En voor de veiligheid.",
+                "pt": "Claro, para as fotos.",
+                "en_pt": "Of course, for photos."
+            },
+            "ipa": {
+                "fr": "bjˈɛ̃ sˈyːʁ puʁ le- fɔtˈo e puʁ la- sekyʁitˈe",
+                "de": "[naˈtʏːʁlɪç, fyːɐ̯ ˈfoːtos ʊnt t͡sʊɐ̯ zɪçɐˈhaɪ̯t]",
+                "it": "[tʃˈɛːrto\n pˌɛr lˌe fˈɔːto\n ˌe pˌɛr lˌa sˌikʊrˈetsːa]",
+                "es": "[ˈklaɾo ˈpara las ˈfotos i poɾ seguˈɾiðað]",
+                "nl": "[naːtˈyrlək\n vɔːr də fˈoːtoːs\n ɛn vɔːr də vˈɛɪləxhˌɛɪt]",
+                "pt": "[klˈaɾʊ\n pˌaɾæ as fˈɔtʊs]",
+                "en": "[ɒv kˈɔːs fəðə fˈəʊtəʊz and fɔː sˈeɪfti]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-013",
+            "text": {
+                "fr": "Je suis excitée! C'est vraiment en train d'arriver!",
+                "en": "I'm excited! It's really happening!",
+                "de": "Ich bin aufgeregt! Es passiert wirklich!",
+                "it": "Sono emozionata! Sta davvero succedendo!",
+                "es": "¡Estoy emocionada! ¡Esto realmente está pasando!",
+                "nl": "Ik ben opgewonden! Het gebeurt echt!",
+                "pt": "Isso realmente vai acontecer!",
+                "en_pt": "This is really going to happen!"
+            },
+            "ipa": {
+                "fr": "ʒə- syˌiz ɛksitˈe sɛ vʁɛmˈɑ̃ ɑ̃ tʁˈɛ̃ daʁivˈe",
+                "de": "[ɪç bɪn ˈaʊ̯fɡəˌʁɛkt! ɛs paˈsiːɐ̯t ˈvɪʁklɪç]",
+                "it": "[sˌono ˌemotsˌionˈaːta\n stˈa davvˈeːro sˌʊtʃːedˈɛndo]",
+                "es": "[esˈtoj emoθjoˈnaða ˈesto reˈalmente ˈesta paˈsando]",
+                "nl": "[ɪk bɛn ˈɔpɣəʋˌɔndən\n hət ɣəbˈøːrt ˈɛxt]",
+                "pt": "[ˈisʊ xˌeaʊmˈeɪŋtʃy vaɪ ˌakoŋtesˈer]",
+                "en": "[aɪm ɛksˈaɪtɪd ɪts ɹˈiəlɪ hˈapənɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-014",
+            "text": {
+                "fr": "Moi aussi. Une nouvelle aventure commence.",
+                "en": "Me too. A new adventure begins.",
+                "de": "Ich auch. Ein neues Abenteuer beginnt.",
+                "it": "Anch'io. Una nuova avventura sta per iniziare.",
+                "es": "Yo también. Comienza una nueva aventura.",
+                "nl": "Ik ook. Een nieuw avontuur begint.",
+                "pt": "Uma nova aventura começa.",
+                "en_pt": "A new adventure begins."
+            },
+            "ipa": {
+                "fr": "mwˌa osˈi yn nuvˈɛl avɑ̃tˈyʁ kɔmˈɑ̃s",
+                "de": "[ɪç aʊ̯ç. ʔaɪ̯n ˈnɔʏ̯əs ʔaˈbɛntʏɐ̯ bəˈɡɪnt]",
+                "it": "[ankˈiːo\n ˌʊna nʊˈɔːva ˌavventˈuːra stˈa pˌɛr ˌinitsjˈaːre]",
+                "es": "[ʝo tamˈbjen koˈmjensa ˈuna ˈnweβa aβenˈtuɾa]",
+                "nl": "[ɪk ˈoːk\n ən nˈiw ˌaːvɔntˈyr bəɣˈɪnt]",
+                "pt": "[ˌumæ nˈɔvæ ˌaveɪŋtˈuɾæ kˌomˈɛsæ]",
+                "en": "[mˌiː tˈuː ɐ njˈuː ɐdvˈɛntʃə bɪɡˈɪnz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-015",
+            "text": {
+                "fr": "Le lendemain matin, Lucas arrive chez Sophie avec son ordinateur portable.",
+                "en": "The next morning, Lucas arrives at Sophie's place with his laptop.",
+                "de": "Am nächsten Morgen kommt Lucas mit seinem Laptop zu Sophie.",
+                "it": "La mattina dopo, Lucas arriva a casa di Sophie con il suo computer portatile.",
+                "es": "A la mañana siguiente, Lucas llega a casa de Sophie con su ordenador portátil.",
+                "nl": "De volgende ochtend komt Lucas met zijn laptop bij Sophie thuis.",
+                "pt": "Na manhã seguinte, Lucas chega na casa de Sophie com seu laptop."
+            },
+            "ipa": {
+                "fr": "lə- lɑ̃dmˈɛ̃ matˈɛ̃ lykˈaz aʁˈiv ʃe sɔfˈi avˌɛk sɔ̃n ɔʁdinatˈœʁ pɔʁtˈabl",
+                "de": "[ʔam ˈnɛçstn̩ ˈmɔʁɡn̩ kɔmt ˈluːkas mɪt ˈzaɪ̯nəm ˈlɛptɔp t͡suː ˈzoːfi]",
+                "it": "[lˌa matːˈiːna dˈoːpo\n lˈuːkas arɾˈiːva ˌa kˈaːza dˌɪ sˈopje kˌon ˌil sˌʊo kompjˈuːter portˈatile]",
+                "es": "[a la maˈɲana siˈɣjente ˈlukas ˈʎeɣa a ˈkasa ðe ˈsofi kon su orðenaˈðoɾ poɾˈtatil]",
+                "nl": "[də vˈɔlɣəndə ˈɔxtənt kˈɔmt lˈykɑs mɛt zɛɪn (en)lˈaptɒp(nl) bɛɪ sɔphˈi tˈœys]",
+                "pt": "[na mɐ̃ɲˈɐ̃ sˌeɡˈiŋtʃy\n lˈukæs ʃˈeɡæ na kˈazæ dʒy sˌofˈiy koŋ seʊ lɛptˈɔp]",
+                "en": "[ðə nˈɛkst mˈɔːnɪŋ lˈuːkəz ɐɹˈaɪvz at sˈəʊfiz plˈeɪs wɪð hɪz lˈaptɒp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-016",
+            "text": {
+                "fr": "Sophie commence à faire une liste.",
+                "en": "Sophie starts making a list.",
+                "de": "Sophie fängt an, eine Liste zu machen.",
+                "it": "Sophie inizia a fare una lista.",
+                "es": "Sophie empieza a hacer una lista.",
+                "nl": "Sophie begint een lijst te maken.",
+                "pt": "Sophie começa a fazer uma lista."
+            },
+            "ipa": {
+                "fr": "sɔfˈi kɔmˈɑ̃s a fˈɛʁ yn lˈist",
+                "de": "[ˈzoːfi ˈfɛŋt ʔan, ˈʔaɪ̯nə ˈlɪstə t͡su ˈmaχn̩]",
+                "it": "[sˈopje inˈitsia ˌa fˌare ˌʊna lˈista]",
+                "es": "[ˈsofi emˈpjeθa a aˈθeɾ ˈuna ˈlista]",
+                "nl": "[sɔphˈi bəɣˈɪnt ən lˈɛɪst tə mˈaːkən]",
+                "pt": "[sˌofˈiy kˌomˈɛsæ a fazˌeɾ ˌumæ lˈistæ]",
+                "en": "[sˈəʊfi stˈɑːts mˌeɪkɪŋ ɐ lˈɪst]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-017",
+            "text": {
+                "pt": "anuncia ele.",
+                "en": "he announces."
+            },
+            "ipa": {
+                "pt": "[ˌænũŋsˈiæ ˈely]",
+                "en": "[hiː ɐnˈaʊnsɪz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-018",
+            "text": {
+                "pt": "Daqui a quanto tempo?",
+                "en": "How soon?"
+            },
+            "ipa": {
+                "pt": "[dakˈi a kwˈɐ̃ŋtʊ tˈeɪmpʊ]",
+                "en": "[hˌaʊ sˈuːn]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-019",
+            "text": {
+                "pt": "Uma semana.",
+                "en": "One week."
+            },
+            "ipa": {
+                "pt": "[ˌumæ sˌemˈɐ̃næ]",
+                "en": "[wˈɒn wˈiːk]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-020",
+            "text": {
+                "pt": "Uma semana?",
+                "en": "One week?"
+            },
+            "ipa": {
+                "pt": "[ˌumæ sˌemˈɐ̃næ]",
+                "en": "[wˈɒn wˈiːk]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-021",
+            "text": {
+                "pt": "Sophie pensa.",
+                "en": "Sophie thinks."
+            },
+            "ipa": {
+                "pt": "[sˌofˈiy pˈeɪŋsæ]",
+                "en": "[sˈəʊfi θˈɪŋks]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-022",
+            "text": {
+                "pt": "O que a gente leva?",
+                "en": "What should we bring?"
+            },
+            "ipa": {
+                "pt": "[ʊ ky a ʒˈeɪŋtʃy lˈɛvæ]",
+                "en": "[wˌɒt ʃˌʊd wiː bɹˈɪŋ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-023",
+            "text": {
+                "pt": "E para segurança.",
+                "en": "And for safety."
+            },
+            "ipa": {
+                "pt": "[i pˌaɾæ sˌeɡuɾˈɐ̃ŋsæ]",
+                "en": "[and fɔː sˈeɪfti]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-024",
+            "text": {
+                "pt": "Estou empolgada!",
+                "en": "I'm so excited!"
+            },
+            "ipa": {
+                "pt": "[estˌow ˌeɪmpowɡˈadæ]",
+                "en": "[aɪm sˌəʊ ɛksˈaɪtɪd]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-025",
+            "text": {
+                "pt": "Lucas sorri.",
+                "en": "Lucas smiles."
+            },
+            "ipa": {
+                "pt": "[lˈukæs soxˈi]",
+                "en": "[lˈuːkəz smˈaɪlz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-04-026",
+            "text": {
+                "pt": "Eu também.",
+                "en": "Me too."
+            },
+            "ipa": {
+                "pt": "[eʊ tɐ̃mbˈeɪŋ]",
+                "en": "[mˌiː tˈuː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        }
+    ]
 }

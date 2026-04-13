@@ -1,988 +1,1027 @@
 {
-  "meta": {
-    "source": "story-scenes",
-    "scene_number": 6,
-    "scene_title": {
-      "en": "On the Train",
-      "fr": "Dans Le Train",
-      "de": "Im Zug",
-      "pt": "No Ônibus",
-      "it": "Sul treno",
-      "es": "En el tren",
-      "nl": "In de trein"
+    "meta": {
+        "source": "story-scenes",
+        "scene_number": 6,
+        "scene_title": {
+            "en": "On the Train",
+            "fr": "Dans Le Train",
+            "de": "Im Zug",
+            "pt": "No Ônibus",
+            "it": "Sul treno",
+            "es": "En el tren",
+            "nl": "In de trein"
+        },
+        "phrase_count": 39,
+        "core_phrase_count": 27,
+        "pt_matched": 23,
+        "pt_unmatched": 12,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-09",
+        "generator": "merge_materials.py"
     },
-    "phrase_count": 39,
-    "core_phrase_count": 27,
-    "pt_matched": 23,
-    "pt_unmatched": 12,
-    "languages": [
-      "de",
-      "en",
-      "es",
-      "fr",
-      "it",
-      "nl",
-      "pt"
-    ],
-    "generated": "2026-04-09",
-    "generator": "merge_materials.py"
-  },
-  "phrases": [
-    {
-      "id": "scene-06-001",
-      "text": {
-        "fr": "Nous avons finalement quitté Paris,",
-        "en": "We have finally left Amsterdam,",
-        "de": "Wir haben schließlich Berlin verlassen,",
-        "it": "Abbiamo finalmente lasciato Roma,",
-        "es": "Finalmente hemos dejado Madrid,",
-        "nl": "We zijn eindelijk uit Amsterdam vertrokken,"
-      },
-      "ipa": {
-        "fr": "nuz avˈɔ̃ finalmˈɑ̃ kitˈe paʁˈi",
-        "de": "[viːɐ̯ haːbm̩ ʃliːslɪç ˈbɛɐ̯liːn fɛɐ̯ˈlasn̩]",
-        "it": "[abːjˌamo fˌinalmˈente laʃˈaːto rˈɔːma]",
-        "es": "[fiˈnalmen̩te eˈmos deˈxaðo maˈðɾið]",
-        "nl": "[ʋə zɛɪn ˈɛɪndələk œyt ˈɑmstərdˌɑm vərtrˌɔkən]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-002",
-      "text": {
-        "fr": "As-tu fermé la porte à clé?",
-        "en": "Did you lock the door?",
-        "de": "Hast du die Tür abgeschlossen?",
-        "it": "Hai chiuso la porta a chiave?",
-        "es": "¿Has cerrado la puerta con llave?",
-        "nl": "Heb je de deur op slot gedaan?",
-        "pt": "Você trancou a porta direito?",
-        "en_pt": "Did you lock the door properly?"
-      },
-      "ipa": {
-        "fr": "atˈy fɛʁmˈe la- pˈɔʁt a klˈe",
-        "de": "[hast du diː tyːɐ̯ ˈapɡəʃlɔsn̩]",
-        "it": "[ˌaj kjˈuːzo lˌa pˈɔːrta ˌa kjˈaːve]",
-        "es": "[as θeˈraðo la ˈpweɾta kon ˈʎaβe]",
-        "nl": "[hɛp jə də dˈøːr ɔp slˈɔt ɣədˈaːn]",
-        "pt": "[vosˌe trɐ̃ŋkˈow a pˈɔɾətæ dʒˌiɾˈeɪtʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-003",
-      "text": {
-        "fr": "Oui, j'ai vérifié trois fois",
-        "en": "Yes, I checked three times",
-        "de": "Ja, ich habe dreimal nachgeprüft",
-        "it": "Sì, ho controllato tre volte",
-        "es": "Sí, lo he comprobado tres veces",
-        "nl": "Ja, ik heb drie keer gecontroleerd",
-        "pt": "Sim, verifiquei três vezes.",
-        "en_pt": "Yes, I checked three times."
-      },
-      "ipa": {
-        "fr": "wˈi ʒe veʁifjˈe tʁwˈa fwˈa",
-        "de": "[jaː ɪç haːbə ˈdʁaɪ̯maːl ˈnaːxɡəˌpʁyːft]",
-        "it": "[sˈi\n ˌo kˌontrollˈaːto trˈe vˈɔlte]",
-        "es": "[si lo e kompɾoˈβaðo ˈtɾes ˈβeθes]",
-        "nl": "[jˈaː\n ɪk hɛp drˈi kˈɪːr ɣəkˌɔntroːlˈɪrt]",
-        "pt": "[sˈiŋ\n vˌeɾifikˈeɪ trˈez vˈezys]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-004",
-      "text": {
-        "fr": "Et toi, tu as prévenu ton travail?",
-        "en": "And you, did you notify your work?",
-        "de": "Und du, hast du deiner Arbeit Bescheid gesagt?",
-        "it": "E tu, hai avvisato al lavoro?",
-        "es": "¿Y tú, has avisado en tu trabajo?",
-        "nl": "En jij, heb je je werk ingelicht?",
-        "pt": "E você, avisou seu trabalho?"
-      },
-      "ipa": {
-        "fr": "e twˈa ty a pʁevnˈy tɔ̃ tʁavˈaj",
-        "de": "[ʊnt duː hast duː ˈdaɪ̯nɐ ˈaɐ̯baɪ̯t bəˈʃaɪ̯t ɡəˈzaːkt]",
-        "it": "[ˌe tˈu\n ˌaj ˌavvizˈaːto ˌal lavˈɔːro]",
-        "es": "[i tu as aβiˈsaðo en tu tɾaˈβaxo]",
-        "nl": "[ˈɛn jɛɪ\n hɛp jə jə ʋˈɛrk ˈɪnɣəlˌɪxt]",
-        "pt": "[i vosˈe\n ˌavizˈow seʊ trˌabˈaljʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-005",
-      "text": {
-        "fr": "Oui, j'ai envoyé un email hier soir.",
-        "en": "Yes, I sent an email last night.",
-        "de": "Ja, ich habe gestern Abend eine E-Mail geschickt.",
-        "it": "Sì, ho inviato una mail ieri sera.",
-        "es": "Sí, envié un correo anoche.",
-        "nl": "Ja, ik heb gisteravond een e-mail gestuurd.",
-        "pt": "Sim, mandei um email ontem à noite."
-      },
-      "ipa": {
-        "fr": "wˈi ʒe ɑ̃vwajˈe œ̃nˈiːmɛːjl jˈɛʁ swˈaʁ",
-        "de": "[jaː ɪç haːbə ˈɡɛstɐn ˈaːbm̩t ˈaɪ̯nə ˈiːmeɪ̯l ɡəˈʃɪkt]",
-        "it": "[sˈi\n ˌo ˌinvɪˈaːto ˌʊna mˈeːil jˈɛːrɪ sˈeːra]",
-        "es": "[si emˈbje un koˈrɛ.o aˈnoʧe]",
-        "nl": "[jˈaː\n ɪk hɛp ɣˈɪstɪːrˌaːvɔnt ən ˈiːmeːl ɣəstˈyrt]",
-        "pt": "[sˈiŋ\n mɐ̃ŋdˈeɪ ũŋ ˌemaˈiʊ ˈoŋteɪŋ ˌaː nˈoɪtʃy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-006",
-      "text": {
-        "fr": "Qu'est-ce que tu ressens?",
-        "en": "What do you feel?",
-        "de": "Wie fühlst du dich?",
-        "it": "Come ti senti?",
-        "es": "¿Qué sientes?",
-        "nl": "Wat voel je?",
-        "pt": "O que você está sentindo?",
-        "en_pt": "What are you feeling?"
-      },
-      "ipa": {
-        "fr": "kɛskˌə ty ʁəsˈɛn",
-        "de": "[viː ˈfyːlst duː dɪç]",
-        "it": "[kˌome tˌɪ sˈɛntɪ]",
-        "es": "[ke ˈsjentes]",
-        "nl": "[ʋɑt vˈul jə]",
-        "pt": "[ʊ ky vosˌe estˌa sˌeɪŋtʃˈiŋdʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-007",
-      "text": {
-        "fr": "Je me sens libre et un peu nerveux. C'est bizarre, non?",
-        "en": "I feel free and a bit nervous. Weird, right?",
-        "de": "Ich fühle mich frei und ein bisschen nervös. Komisch, oder?",
-        "it": "Mi sento libero e un po' nervoso. È strano, vero?",
-        "es": "Me siento libre y un poco nervioso. ¿Es raro, verdad?",
-        "nl": "Ik voel me vrij en een beetje nerveus. Raar hè?",
-        "pt": "Me sinto livre e um pouco nervoso.",
-        "en_pt": "I feel free and a little nervous."
-      },
-      "ipa": {
-        "fr": "ʒə- mə- sˈɑ̃ lˈibʁ e œ̃ pø nɛʁvˈø sɛ bizˈaʁ nˈɔ̃",
-        "de": "[ɪç ˈfyːlə mɪç fʁaɪ̯ ʊnt aɪ̯n ˈbɪsn̩ ˈnɛʁvøːs ˈkɔmɪʃ ˈoːdɐ]",
-        "it": "[mˌɪ sˈɛnto lˈibero ˌe ˌʊn pˈo nervˈoːzo\n ˌɛ strˈaːno\n vˈeːro]",
-        "es": "[me ˈsjento ˈliβɾe i un ˈpoko nerˈβjoso es ˈraɾo βeɾˈðað]",
-        "nl": "[ɪk vˈul mə vrˈɛɪ ɛn ən bˈeːtʲə nˈɛrvøːs\n rˈaːr hˈeː]",
-        "pt": "[my sˈiŋtʊ lˈivri i ũŋ pˈowkʊ nˌeɾəvˈozʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-008",
-      "text": {
-        "fr": "Moi aussi, c'est normal. On change toute notre vie.",
-        "en": "Me too, it's normal. We are changing our entire life.",
-        "de": "Ich auch, das ist normal. Wir ändern unser ganzes Leben.",
-        "it": "Anche io, è normale. Stiamo cambiando tutta la nostra vita.",
-        "es": "Yo también, es normal. Estamos cambiando toda nuestra vida.",
-        "nl": "Ik ook, het is normaal. We veranderen ons hele leven.",
-        "pt": "A gente está mudando toda nossa vida.",
-        "en_pt": "We're changing our whole life."
-      },
-      "ipa": {
-        "fr": "mwˌa osˈi sɛ nɔʁmˈal ɔ̃ ʃˈɑ̃ʒ tut nɔtʁ vˈi",
-        "de": "[ɪç aʊ̯x das ɪst noʁˈmaːl viːɐ̯ ˈɛndəʁn ˈʊnzɐ ˈɡantsəs ˈleːbn̩]",
-        "it": "[ˈanke ˈio\n ˌɛ normˈaːle\n stjˈaːmo kambjˈando tˈutːa lˌa nˌɔstra vˈiːta]",
-        "es": "[ʝo tamˈbjen es norˈmal esˈtamos kamˈβjando ˈtoða ˈnwes.tɾa ˈβiða]",
-        "nl": "[ɪk ˈoːk\n hət ɪs nɔrmˈaːl\n ʋə vərˈɑndərən ɔns hˈeːlə lˈeːvən]",
-        "pt": "[a ʒˈeɪŋtʃj estˌa mˌudˈɐ̃ŋdʊ tˈodæ nˌɔsæ vˈidæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-009",
-      "text": {
-        "fr": "Regarde le paysage, il est magnifique!",
-        "en": "Look at the landscape, it's beautiful!",
-        "de": "Schau dir die Landschaft an, sie ist wunderschön!",
-        "it": "Guarda il paesaggio, è magnifico!",
-        "es": "Mira el paisaje, ¡es precioso!",
-        "nl": "Kijk naar het landschap, het is prachtig!",
-        "pt": "Olha a paisagem, está linda!"
-      },
-      "ipa": {
-        "fr": "ʁəɡˈaʁd lə- pɛizˈaʒ il ɛ maɲifˈik",
-        "de": "[ʃaʊ̯ diːɐ̯ diː ˈlantʃaft an ziː ɪst ˈvʊndɐʃøːn]",
-        "it": "[ɡwˈaːrda ˌil pˌaezˈadʒːo\n ˌɛ maɲˈifiko]",
-        "es": "[ˈmiɾa el pajˈsaxe es pɾeˈθjoso]",
-        "nl": "[kˈɛɪk naːr hət lˈɑndsxˌɑp\n hət ɪs prˈɑxtəx]",
-        "pt": "[ˈɔljæ a pˌaɪzˈaʒeɪŋ\n estˌa lˈiŋdæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-010",
-      "text": {
-        "fr": "J'ai apporté des sandwichs. Fromage et jambon.",
-        "en": "I brought sandwiches. Cheese and ham.",
-        "de": "Ich habe Sandwiches mitgebracht. Käse und Schinken.",
-        "it": "Ho portato dei panini. Formaggio e prosciutto.",
-        "es": "He traído bocadillos. De queso y jamón.",
-        "nl": "Ik heb broodjes meegenomen. Kaas en ham.",
-        "pt": "Trouxe sanduíches.",
-        "en_pt": "I brought sandwiches."
-      },
-      "ipa": {
-        "fr": "ʒe apɔʁtˈe de- sɑ̃dwˈitʃ fʁɔmˈaʒ e ʒɑ̃bˈɔ̃",
-        "de": "[ɪç haːbə ˈzandvɪçəs ˈmɪtɡəbʁaxt ˈkɛːzə ʊnt ˈʃɪŋkn̩]",
-        "it": "[ˌo portˈaːto dˌɛj panˈiːnɪ\n formˈadʒːo ˌe proʃˈutːo]",
-        "es": "[e tɾaˈiðo βokaˈðiʎos de ˈkeso i xaˈmon]",
-        "nl": "[ɪk hɛ prˈoːtjəs mˈeːɣənˌoːmən\n kˈaːs ɛn hˈɑm]",
-        "pt": "[trˈowsy sˌɐ̃ŋduˈiʃys]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-011",
-      "text": {
-        "fr": "Excellente idée, j'ai faim.",
-        "en": "Excellent idea, I'm hungry.",
-        "de": "Ausgezeichnete Idee, ich habe Hunger.",
-        "it": "Ottima idea, ho fame.",
-        "es": "Buena idea, tengo hambre.",
-        "nl": "Uitstekend idee, ik heb honger.",
-        "pt": "Ótima ideia, estou com fome.",
-        "en_pt": "Great idea, I'm hungry."
-      },
-      "ipa": {
-        "fr": "ɛksɛlˈɑ̃t idˈe ʒe fˈɛ̃",
-        "de": "[ˈaʊ̯sɡətsaɪ̯çnətə ˈiːdeː ɪç haːbə ˈhʊŋɐ]",
-        "it": "[ˈotːima idˈɛːa\n ˌo fˈaːme]",
-        "es": "[ˈbwena iˈðea ˈteŋgo ˈambɾe]",
-        "nl": "[ˈœytstˌeːkənt idˈeː\n ɪk hɛp hˈɔŋər]",
-        "pt": "[ˈɔtʃimæ ˌidˈɛɪæ\n estˌow koŋ fˈomy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-012",
-      "text": {
-        "fr": "Combien de temps dure le voyage?",
-        "en": "How long is the trip?",
-        "de": "Wie lange dauert die Fahrt?",
-        "it": "Quanto dura il viaggio?",
-        "es": "¿Cuánto dura el viaje?",
-        "nl": "Hoe lang duurt de reis?",
-        "pt": "Lucas pergunta: Quanto tempo dura a viagem?",
-        "en_pt": "Lucas asks: How long does the trip take?"
-      },
-      "ipa": {
-        "fr": "kɔ̃bjˈɛ̃ də- tˈɑ̃ dˈyʁ lə- vwajˈaʒ",
-        "de": "[viː ˈlaŋə ˈdaʊ̯ɐt diː faːɐ̯t]",
-        "it": "[kwˈanto dˈuːra ˌil vjˈadʒːo]",
-        "es": "[ˈkwanto ˈðuɾa el βiˈaxe]",
-        "nl": "[hˈu lˈɑŋ dˈyr tə rˈɛɪs]",
-        "pt": "[lˈukæs pˌeɾəɡˈũŋtæ\n kwˈɐ̃ŋtʊ tˈeɪmpʊ dˈuɾæ a vˌiˈaʒeɪŋ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-013",
-      "text": {
-        "fr": "Environ cinq heures. On arrive vers seize heures.",
-        "en": "About five hours. We'll arrive around four o'clock.",
-        "de": "Etwa fünf Stunden. Wir kommen gegen sechzehn Uhr an.",
-        "it": "Circa cinque ore. Arriviamo verso le sedici.",
-        "es": "Unas cinco horas. Llegaremos sobre las cuatro.",
-        "nl": "Ongeveer vijf uur. We komen rond vier uur aan."
-      },
-      "ipa": {
-        "fr": "ɑ̃viʁˈɔ̃ sˈɛ̃k ˈœʁ ɔ̃n aʁˈiv vɛʁ sˈɛz ˈœʁ",
-        "de": "[ˈɛtva ˈfʏnf ˈʃtʊndn̩ viːɐ̯ ˈkɔmən ˈɡeːɡn̩ zɛçˈtseːn uːɐ̯ an]",
-        "it": "[tʃˈiːrka tʃˈinkwe ˈoːre\n ˌarɾivjˈaːmo vˌɛrso lˌe sˈeditʃɪ]",
-        "es": "[ˈunas ˈθiŋko ˈoɾas ʎeɣaˈɾemos ˈsoβɾe las ˈkwatɾo]",
-        "nl": "[ˌɔnɣəvˈɪːr vˈɛɪf ˈyr\n ʋə kˈoːmən rˈɔnt vˈir ˈyr ˈaːn]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-014",
-      "text": {
-        "fr": "Oh non! J'ai oublié mon livre!",
-        "en": "Oh no! I forgot my book!",
-        "de": "Oh nein! Ich habe mein Buch vergessen!",
-        "it": "Oh no! Ho dimenticato il mio libro!",
-        "es": "¡Oh no! ¡He olvidado mi libro!",
-        "nl": "Oh nee! Ik ben mijn boek vergeten!",
-        "pt": "Esqueci meu livro!",
-        "en_pt": "I forgot my book!"
-      },
-      "ipa": {
-        "fr": "ˈɔ nˈɔ̃ ʒe ubliˈe mɔ̃ lˈivʁ",
-        "de": "[oː ˈnaɪ̯n ɪç haːbə maɪ̯n buːx fɛɐ̯ˈɡɛsn̩]",
-        "it": "[ˈɔ nˈɔ\n ˌo dˌimentikˈaːto ˌil mˌio lˈiːbro]",
-        "es": "[o no e olβiˈðaðo mi ˈliβɾo]",
-        "nl": "[ˈɔh nˈeː\n ɪk bɛn mɛɪn bˈuk vərɣˈeːtən]",
-        "pt": "[ˌeskesˈi meʊ lˈivrʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-015",
-      "text": {
-        "fr": "Ce n'est pas grave, on peut parler.",
-        "en": "It's okay, we can talk.",
-        "de": "Macht nichts, wir können reden.",
-        "it": "Non è grave, possiamo parlare.",
-        "es": "No pasa nada, podemos hablar.",
-        "nl": "Geeft niet, we kunnen praten.",
-        "pt": "Não tem problema, a gente pode conversar.",
-        "en_pt": "No problem, we can talk."
-      },
-      "ipa": {
-        "fr": "sə- nɛ pa ɡʁˈav ɔ̃ pˈø paʁlˈe",
-        "de": "[maxt nɪçts viːɐ̯ ˈkœnən ˈʁeːdn̩]",
-        "it": "[nˌon ˌɛ ɡrˈaːve\n possjˈaːmo parlˈaːre]",
-        "es": "[no ˈpasa ˈnaða poˈðemos aˈβlaɾ]",
-        "nl": "[ɣˈeːft nˈit\n ʋə kˌɵnən prˈaːtən]",
-        "pt": "[nˌɐ̃ʊ̃ teɪŋ prˌoblˈemæ\n a ʒˈeɪŋtʃy pˌɔdʒy kˌoŋveɾəsˈar]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-016",
-      "text": {
-        "fr": "De quoi veux-tu parler?",
-        "en": "What do you want to talk about?",
-        "de": "Worüber möchtest du sprechen?",
-        "it": "Di cosa vuoi parlare?",
-        "es": "¿Sobre qué quieres hablar?",
-        "nl": "Waar wil je over praten?",
-        "pt": "Sobre o que você quer falar?"
-      },
-      "ipa": {
-        "fr": "də- kwˌa vˈøty paʁlˈe",
-        "de": "[voˈʁyːbɐ ˈmøːçtəst duː ˈʃpʁeːçn̩]",
-        "it": "[dˌɪ kˈɔːza vʊˈɔːɪ parlˈaːre]",
-        "es": "[ˈsoβɾe ke ˈkjeɾes aˈβlaɾ]",
-        "nl": "[ʋˈaːr ʋɪl jə ˈoːvər prˈaːtən]",
-        "pt": "[sˈobri ʊ ky vosˌe kˈɛr falˈar]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-017",
-      "text": {
-        "fr": "De nos rêves et de notre avenir",
-        "en": "About our dreams and our future",
-        "de": "Über unsere Träume und unsere Zukunft",
-        "it": "Dei nostri sogni e del nostro futuro",
-        "es": "Sobre nuestros sueños y nuestro futuro",
-        "nl": "Over onze dromen en onze toekomst",
-        "pt": "Sobre nossos sonhos e nosso futuro.",
-        "en_pt": "About our dreams and our future."
-      },
-      "ipa": {
-        "fr": "də- no ʁˈɛvz e də- nɔtʁ avnˈiʁ",
-        "de": "[ˈyːbɐ ˈʊnzəʁə ˈtʁɔɪ̯mə ʊnt ˈʊnzəʁə ˈtsʊkʊnft]",
-        "it": "[dˌɛj nˌɔstrɪ sˈoɲʲɪ ˌe dˌɛl nˌɔstro fʊtˈuːro]",
-        "es": "[ˈsoβɾe ˈnwestɾos ˈsweɲos i ˈnwestɾo fuˈtuɾo]",
-        "nl": "[ˈoːvər ɔnzˌə drˈoːmən ɛn ɔnzˌə tˈukˌɔmst]",
-        "pt": "[sˈobry nˌɔsʊs sˈoɲʊz i nˌɔsʊ fˌutˈuɾʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-018",
-      "text": {
-        "fr": "Qu'est-ce que tu veux vraiment dans la vie?",
-        "en": "What do you really want in life?",
-        "de": "Was willst du wirklich im Leben?",
-        "it": "Cosa vuoi veramente nella vita?",
-        "es": "¿Qué es lo que realmente quieres en la vida?",
-        "nl": "Wat wil je echt in het leven?",
-        "pt": "O que você realmente quer na vida?"
-      },
-      "ipa": {
-        "fr": "kɛskˌə ty vˈø vʁɛmˈɑ̃ dɑ̃ la- vˈi",
-        "de": "[vas ˈvɪlst duː ˈvɪʁklɪç ɪm ˈleːbn̩]",
-        "it": "[kˈɔːza vʊˈɔːɪ vˌɛramˈente nˌɛlla vˈiːta]",
-        "es": "[ke es lo ke reˈalmen̩te ˈkjeɾes en la ˈβiða]",
-        "nl": "[ʋɑt ʋɪl jə ˈɛxt ɪn hət lˈeːvən]",
-        "pt": "[ʊ ky vosˌe xˌeaʊmˈeɪŋtʃy kˈɛr na vˈidæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-019",
-      "text": {
-        "fr": "C'est une grande question",
-        "en": "That's a big question",
-        "de": "Das ist eine große Frage",
-        "it": "È una grande domanda",
-        "es": "Es una gran pregunta",
-        "nl": "Dat is een grote vraag",
-        "pt": "É uma grande pergunta.",
-        "en_pt": "That's a big question."
-      },
-      "ipa": {
-        "fr": "sɛt yn ɡʁˈɑ̃d kɛstjˈɔ̃",
-        "de": "[das ɪst ˈaɪ̯nə ˈɡʁoːsə ˈfʁaːɡə]",
-        "it": "[ˌɛ ˌʊna ɡrˈande domˈanda]",
-        "es": "[es ˈuna ɣɾan preˈɣunta]",
-        "nl": "[dɑt ɪs ən ɣrˈoːtə vrˈaːx]",
-        "pt": "[ɛ ˌumæ ɡrˈɐ̃ŋdʒy pˌeɾəɡˈũŋtæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-020",
-      "text": {
-        "fr": "Je veux me sentir vivante, je pense.",
-        "en": "I want to feel alive, I think.",
-        "de": "Ich möchte mich lebendig fühlen, denke ich.",
-        "it": "Voglio sentirmi viva, penso.",
-        "es": "Quiero sentirme viva, creo.",
-        "nl": "Ik wil me levend voelen, denk ik.",
-        "pt": "Eu quero me sentir viva, eu acho."
-      },
-      "ipa": {
-        "fr": "ʒə- vˈø mə- sɑ̃tˈiʁ vivˈɑ̃t ʒə- pˈɑ̃s",
-        "de": "[ɪç ˈmœçtə mɪç ˈleːbəndɪç ˈfyːlən ˈdɛŋkə ɪç]",
-        "it": "[vˈoːʎo sentˈiːrmɪ vˈiːva\n pˈɛnso]",
-        "es": "[ˈkjeɾo senˈtiɾme ˈβiβa ˈkɾeo]",
-        "nl": "[ɪk ʋɪl mə lˈeːvənt vˈulən\n dˈɛŋk ɪk]",
-        "pt": "[eʊ kˈɛɾʊ my seɪŋtʃˈir vˈivæ\n eʊ ˈaʃʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-021",
-      "text": {
-        "fr": "Le train file à travers la campagne française.",
-        "en": "The train races through the Dutch countryside.",
-        "de": "Der Zug rast durch die deutsche Landschaft.",
-        "it": "Il treno sfreccia attraverso la campagna italiana.",
-        "es": "El metro corre por el campo madrileño.",
-        "nl": "De trein raast door het Nederlandse landschap."
-      },
-      "ipa": {
-        "fr": "lə- tʁˈɛ̃ fˈil a tʁavˈɛʁ la- kɑ̃pˈaɲ fʁɑ̃sˈɛz",
-        "de": "[deːɐ̯ tsuːk ʁast dʊʁç diː ˈdɔɪ̯tʃə ˈlantʃaft]",
-        "it": "[ˌil trˈɛːno sfrˈetʃːa ˌatːravˈɛːrso lˌa kampˈaɲɲa ˌitaliˈaːna]",
-        "es": "[el ˈmetɾo ˈkoɾe por el ˈkampo maðɾiˈleɲo]",
-        "nl": "[də trˈɛɪn rˈaːst doːr hət nˈeːdərlˌɑndsə lˈɑndsxˌɑp]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-022",
-      "text": {
-        "fr": "Sophie et Lucas regardent le paysage qui défile par la fenêtre.",
-        "en": "Sophie and Lucas watch the passing landscape through the window.",
-        "de": "Sophie und Lucas schauen die vorbeiziehende Landschaft an.",
-        "it": "Sophie e Lucas guardano il paesaggio che scorre dalla finestra.",
-        "es": "Sophie y Lucas miran el paisaje que pasa por la ventana.",
-        "nl": "Sophie en Lucas kijken naar het voorbijgaande landschap door het raam.",
-        "pt": "Sophie e Lucas olham a paisagem que passa pela janela.",
-        "en_pt": "Sophie and Lucas watch the landscape passing by the window."
-      },
-      "ipa": {
-        "fr": "sɔfˈi e lykˈa ʁəɡˈaʁd lə- pɛizˈaʒ ki defˈil paʁ la- fənˈɛtʁ",
-        "de": "[ˈzɔfiː ʊnt ˈluːkas ˈʃaʊ̯ən diː ˈfoːɐ̯baɪ̯ˌtsiːəndə ˈlantʃaft an]",
-        "it": "[sˈopje ˌe lˈuːkas ɡwˈardano ˌil pˌaezˈadʒːo kˌe skˈɔrɾe dˌalla finˈɛstra]",
-        "es": "[ˈsofi i ˈlukas ˈmiɾan el pajˈsaxe ke ˈpasa por la βenˈtana]",
-        "nl": "[sɔphˈi ɛn lˈykɑs kˈɛɪkən naːr hət vˈɔːrbɛɪɣˌaːndə lˈɑndsxˌɑp doːr hət rˈaːm]",
-        "pt": "[sˌofˈij i lˈukæz ˈɔljɐ̃ʊ̃ a pˌaɪzˈaʒeɪŋ ky pˈasæ pˈelæ ʒˌænˈɛlæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-023",
-      "text": {
-        "fr": "dit Sophie, presque incrédule.",
-        "en": "says Sophie, almost incredulously.",
-        "de": "sagt Sophie, fast ungläubig.",
-        "it": "dice Sophie, quasi incredula.",
-        "es": "dice Sophie, casi incrédula.",
-        "nl": "zegt Sophie, bijna ongelovig."
-      },
-      "ipa": {
-        "fr": "dˈi sɔfˈi pʁˌɛskə ɛ̃kʁedˈyl",
-        "de": "[zaːkt ˈzɔfiː fast ˈʊnɡlɔɪ̯bɪç]",
-        "it": "[dˈiːtʃe sˈopje\n kwˈaːzɪ inkrˈɛdʊla]",
-        "es": "[ˈdiθe ˈsofi ˈkasi inˈkɾeðula]",
-        "nl": "[zˈɛxt sɔphˈi\n bˈɛɪnˌaː ˌɔnɣəlˈoːvəx]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-024",
-      "text": {
-        "fr": "Lucas vérifie son téléphone.",
-        "en": "Lucas checks his phone.",
-        "de": "Lucas prüft sein Handy.",
-        "it": "Lucas controlla il suo telefono.",
-        "es": "Lucas revisa su teléfono.",
-        "nl": "Lucas controleert zijn telefoon.",
-        "pt": "Lucas verifica seu celular.",
-        "en_pt": "Lucas checks his cell phone."
-      },
-      "ipa": {
-        "fr": "lykˈa veʁifˈi sɔ̃ telefˈɔn",
-        "de": "[ˈluːkas pʁyːft zaɪ̯n ˈhandi]",
-        "it": "[lˈuːkas kontrˈɔlla ˌil sˌʊo telˈɛfono]",
-        "es": "[ˈlukas reˈβisa su teleˈfono]",
-        "nl": "[lˈykɑs kˌɔntroːlˈɪrt zɛɪn tˌeːləfˈoːn]",
-        "pt": "[lˈukæz vˌeɾifˈikæ seʊ sˌelulˈar]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-025",
-      "text": {
-        "fr": "Sophie se tourne vers Lucas.",
-        "en": "Sophie turns towards Lucas.",
-        "de": "Sophie wendet sich zu Lucas.",
-        "it": "Sophie si gira verso Lucas.",
-        "es": "Sophie se gira hacia Lucas.",
-        "nl": "Sophie draait zich naar Lucas toe.",
-        "pt": "Sophie se vira para Lucas.",
-        "en_pt": "Sophie turns to Lucas."
-      },
-      "ipa": {
-        "fr": "sɔfˈi sə- tˈuʁn vɛʁ lykˈa",
-        "de": "[ˈzɔfiː ˈvɛndət zɪç tsuː ˈluːkas]",
-        "it": "[sˈopje sˌɪ dʒˈiːra vˌɛrso lˈuːkas]",
-        "es": "[ˈsofi se ˈxiɾa ˈaθja ˈlukas]",
-        "nl": "[sɔphˈi drˈaːjt zɪx naːr lˈykɑs tˈu]",
-        "pt": "[sˌofˈiy sy vˈiɾæ pˌaɾæ lˈukæs]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-026",
-      "text": {
-        "fr": "Le paysage devient de plus en plus vallonné.",
-        "en": "The landscape becomes more and more hilly.",
-        "de": "Die Landschaft wird immer hügeliger.",
-        "it": "Il paesaggio diventa sempre più collinoso.",
-        "es": "El paisaje se vuelve más montañoso.",
-        "nl": "Het landschap wordt steeds heuvelachtiger.",
-        "pt": "A paisagem fica cada vez mais montanhosa.",
-        "en_pt": "The landscape becomes increasingly mountainous."
-      },
-      "ipa": {
-        "fr": "lə- pɛizˈaʒ dəvjˈɛ̃ də- plyz ɑ̃ ply valɔnˈe",
-        "de": "[diː ˈlantʃaft vɪɐ̯t ˈɪmɐ ˈhyːɡəliːɡɐ]",
-        "it": "[ˌil pˌaezˈadʒːo divˈɛnta sˈɛmpre pjˌʊ kˌollinˈoːzo]",
-        "es": "[el pajˈsaxe se ˈbwelβe mas monˈtaɲoso]",
-        "nl": "[hət lˈɑndsxˌɑp ʋɔrt stˈeːts hˌøːvəlˈɑxtəɣər]",
-        "pt": "[a pˌaɪzˈaʒeɪŋ fˈikæ kˈadæ vˈez mˈaɪz mˌoŋtɐ̃ɲˈɔzæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-027",
-      "text": {
-        "fr": "Ils mangent en silence, admirant la vue.",
-        "en": "They eat in silence, enjoying the view.",
-        "de": "Sie essen schweigend und bewundern die Aussicht.",
-        "it": "Mangiano in silenzio, ammirando la vista.",
-        "es": "Comen en silencio, admirando la vista.",
-        "nl": "Ze eten in stilte, genietend van het uitzicht.",
-        "pt": "Eles comem em silêncio, admirando a vista.",
-        "en_pt": "They eat in silence, admiring the view."
-      },
-      "ipa": {
-        "fr": "il mˈɑ̃ʒt ɑ̃ silˈɑ̃s admiʁˈɑ̃ la- vˈy",
-        "de": "[ziː ˈɛsn̩ ˈʃvaɪ̯ɡn̩t ʊnt bəˈvʊndɐn diː ˈaʊ̯szɪçt]",
-        "it": "[mˈandʒano ˌin silˈɛntsio\n ˌammirˈando lˌa vˈista]",
-        "es": "[ˈkomen en siˈlenθjo aðmiˈɾando la ˈβista]",
-        "nl": "[zə ˈeːtən ɪn stˈɪltə\n ɣənˈitənt vɑn hət ˈœytzˌɪxt]",
-        "pt": "[ˌelys kˈomeɪŋ ˈeɪŋ sˌilˈeɪŋsjʊ\n ˌadmiɾˈɐ̃ŋdw a vˈistæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-028",
-      "text": {
-        "pt": "O ônibus viaja pela rodovia Dutra.",
-        "en": "The bus travels along the Dutra highway."
-      },
-      "ipa": {
-        "pt": "[u ˈonibuz vˌiˈaʒæ pˈelæ xˌodovˈiæ dˈutræ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-029",
-      "text": {
-        "pt": "Finalmente saímos de São Paulo, diz Sophie, quase incrédula.",
-        "en": "We finally left São Paulo, Sophie says, almost in disbelief."
-      },
-      "ipa": {
-        "pt": "[fˌinaʊmˈeɪŋtʃy sˌaˈimʊz dʒy sɐ̃ʊ̃ pˈaʊlʊ\n dʒˈis sˌofˈiy\n kwˈazj ˌiŋkrˈɛdulæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-030",
-      "text": {
-        "pt": "É estranho, né?",
-        "en": "It's strange, isn't it?"
-      },
-      "ipa": {
-        "pt": "[ɛ ˌestrˈɐ̃ɲʊ\n nˈɛ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-031",
-      "text": {
-        "pt": "Eu também, é normal.",
-        "en": "Me too, it's normal."
-      },
-      "ipa": {
-        "pt": "[eʊ tɐ̃mbˈeɪŋ\n ɛ noɾəmˈaʊ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-032",
-      "text": {
-        "pt": "Sophie abre sua mochila.",
-        "en": "Sophie opens her backpack."
-      },
-      "ipa": {
-        "pt": "[sˌofˈij ˈabry sˌuæ mˌoʃˈilæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-033",
-      "text": {
-        "pt": "Queijo e presunto.",
-        "en": "Cheese and ham."
-      },
-      "ipa": {
-        "pt": "[kˈeɪʒw i prˌezˈũŋtʊ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-034",
-      "text": {
-        "pt": "Umas cinco horas.",
-        "en": "About five hours."
-      },
-      "ipa": {
-        "pt": "[ˌumæs sˈiŋkw ˈɔɾæs]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-035",
-      "text": {
-        "pt": "Chegamos por volta das quatro.",
-        "en": "We'll arrive around four."
-      },
-      "ipa": {
-        "pt": "[ʃˌeɡˈɐ̃mʊs por vˈɔltæ das kwˈatrʊ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-036",
-      "text": {
-        "pt": "Sophie procura em sua mochila.",
-        "en": "Sophie searches in her backpack."
-      },
-      "ipa": {
-        "pt": "[sˌofˈiy prˌokˈuɾæ ˈeɪŋ sˌuæ mˌoʃˈilæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-037",
-      "text": {
-        "pt": "Ah não!",
-        "en": "Oh no!"
-      },
-      "ipa": {
-        "pt": "[ˈa nˈɐ̃ʊ̃]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-038",
-      "text": {
-        "pt": "Lucas pensa.",
-        "en": "Lucas thinks."
-      },
-      "ipa": {
-        "pt": "[lˈukæs pˈeɪŋsæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-06-039",
-      "text": {
-        "pt": "Sophie sorri.",
-        "en": "Sophie smiles."
-      },
-      "ipa": {
-        "pt": "[sˌofˈiy soxˈi]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    }
-  ]
+    "phrases": [
+        {
+            "id": "scene-06-001",
+            "text": {
+                "fr": "Nous avons finalement quitté Paris,",
+                "en": "We have finally left Amsterdam,",
+                "de": "Wir haben schließlich Berlin verlassen,",
+                "it": "Abbiamo finalmente lasciato Roma,",
+                "es": "Finalmente hemos dejado Madrid,",
+                "nl": "We zijn eindelijk uit Amsterdam vertrokken,"
+            },
+            "ipa": {
+                "fr": "nuz avˈɔ̃ finalmˈɑ̃ kitˈe paʁˈi",
+                "de": "[viːɐ̯ haːbm̩ ʃliːslɪç ˈbɛɐ̯liːn fɛɐ̯ˈlasn̩]",
+                "it": "[abːjˌamo fˌinalmˈente laʃˈaːto rˈɔːma]",
+                "es": "[fiˈnalmen̩te eˈmos deˈxaðo maˈðɾið]",
+                "nl": "[ʋə zɛɪn ˈɛɪndələk œyt ˈɑmstərdˌɑm vərtrˌɔkən]",
+                "en": "[wiː hav fˈaɪnəli lˈɛft ˈamstədˌam]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-002",
+            "text": {
+                "fr": "As-tu fermé la porte à clé?",
+                "en": "Did you lock the door?",
+                "de": "Hast du die Tür abgeschlossen?",
+                "it": "Hai chiuso la porta a chiave?",
+                "es": "¿Has cerrado la puerta con llave?",
+                "nl": "Heb je de deur op slot gedaan?",
+                "pt": "Você trancou a porta direito?",
+                "en_pt": "Did you lock the door properly?"
+            },
+            "ipa": {
+                "fr": "atˈy fɛʁmˈe la- pˈɔʁt a klˈe",
+                "de": "[hast du diː tyːɐ̯ ˈapɡəʃlɔsn̩]",
+                "it": "[ˌaj kjˈuːzo lˌa pˈɔːrta ˌa kjˈaːve]",
+                "es": "[as θeˈraðo la ˈpweɾta kon ˈʎaβe]",
+                "nl": "[hɛp jə də dˈøːr ɔp slˈɔt ɣədˈaːn]",
+                "pt": "[vosˌe trɐ̃ŋkˈow a pˈɔɾətæ dʒˌiɾˈeɪtʊ]",
+                "en": "[dˈɪd juː lˈɒk ðə dˈɔː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-003",
+            "text": {
+                "fr": "Oui, j'ai vérifié trois fois",
+                "en": "Yes, I checked three times",
+                "de": "Ja, ich habe dreimal nachgeprüft",
+                "it": "Sì, ho controllato tre volte",
+                "es": "Sí, lo he comprobado tres veces",
+                "nl": "Ja, ik heb drie keer gecontroleerd",
+                "pt": "Sim, verifiquei três vezes.",
+                "en_pt": "Yes, I checked three times."
+            },
+            "ipa": {
+                "fr": "wˈi ʒe veʁifjˈe tʁwˈa fwˈa",
+                "de": "[jaː ɪç haːbə ˈdʁaɪ̯maːl ˈnaːxɡəˌpʁyːft]",
+                "it": "[sˈi\n ˌo kˌontrollˈaːto trˈe vˈɔlte]",
+                "es": "[si lo e kompɾoˈβaðo ˈtɾes ˈβeθes]",
+                "nl": "[jˈaː\n ɪk hɛp drˈi kˈɪːr ɣəkˌɔntroːlˈɪrt]",
+                "pt": "[sˈiŋ\n vˌeɾifikˈeɪ trˈez vˈezys]",
+                "en": "[jˈɛs aɪ tʃˈɛkt θɹˈiː tˈaɪmz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-004",
+            "text": {
+                "fr": "Et toi, tu as prévenu ton travail?",
+                "en": "And you, did you notify your work?",
+                "de": "Und du, hast du deiner Arbeit Bescheid gesagt?",
+                "it": "E tu, hai avvisato al lavoro?",
+                "es": "¿Y tú, has avisado en tu trabajo?",
+                "nl": "En jij, heb je je werk ingelicht?",
+                "pt": "E você, avisou seu trabalho?"
+            },
+            "ipa": {
+                "fr": "e twˈa ty a pʁevnˈy tɔ̃ tʁavˈaj",
+                "de": "[ʊnt duː hast duː ˈdaɪ̯nɐ ˈaɐ̯baɪ̯t bəˈʃaɪ̯t ɡəˈzaːkt]",
+                "it": "[ˌe tˈu\n ˌaj ˌavvizˈaːto ˌal lavˈɔːro]",
+                "es": "[i tu as aβiˈsaðo en tu tɾaˈβaxo]",
+                "nl": "[ˈɛn jɛɪ\n hɛp jə jə ʋˈɛrk ˈɪnɣəlˌɪxt]",
+                "pt": "[i vosˈe\n ˌavizˈow seʊ trˌabˈaljʊ]",
+                "en": "[and jˈuː dˈɪd juː nˈəʊtɪfˌaɪ jɔː wˈɜːk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-005",
+            "text": {
+                "fr": "Oui, j'ai envoyé un email hier soir.",
+                "en": "Yes, I sent an email last night.",
+                "de": "Ja, ich habe gestern Abend eine E-Mail geschickt.",
+                "it": "Sì, ho inviato una mail ieri sera.",
+                "es": "Sí, envié un correo anoche.",
+                "nl": "Ja, ik heb gisteravond een e-mail gestuurd.",
+                "pt": "Sim, mandei um email ontem à noite."
+            },
+            "ipa": {
+                "fr": "wˈi ʒe ɑ̃vwajˈe œ̃nˈiːmɛːjl jˈɛʁ swˈaʁ",
+                "de": "[jaː ɪç haːbə ˈɡɛstɐn ˈaːbm̩t ˈaɪ̯nə ˈiːmeɪ̯l ɡəˈʃɪkt]",
+                "it": "[sˈi\n ˌo ˌinvɪˈaːto ˌʊna mˈeːil jˈɛːrɪ sˈeːra]",
+                "es": "[si emˈbje un koˈrɛ.o aˈnoʧe]",
+                "nl": "[jˈaː\n ɪk hɛp ɣˈɪstɪːrˌaːvɔnt ən ˈiːmeːl ɣəstˈyrt]",
+                "pt": "[sˈiŋ\n mɐ̃ŋdˈeɪ ũŋ ˌemaˈiʊ ˈoŋteɪŋ ˌaː nˈoɪtʃy]",
+                "en": "[jˈɛs aɪ sˈɛnt ɐn ˈiːmeɪl lˈast nˈaɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-006",
+            "text": {
+                "fr": "Qu'est-ce que tu ressens?",
+                "en": "What do you feel?",
+                "de": "Wie fühlst du dich?",
+                "it": "Come ti senti?",
+                "es": "¿Qué sientes?",
+                "nl": "Wat voel je?",
+                "pt": "O que você está sentindo?",
+                "en_pt": "What are you feeling?"
+            },
+            "ipa": {
+                "fr": "kɛskˌə ty ʁəsˈɛn",
+                "de": "[viː ˈfyːlst duː dɪç]",
+                "it": "[kˌome tˌɪ sˈɛntɪ]",
+                "es": "[ke ˈsjentes]",
+                "nl": "[ʋɑt vˈul jə]",
+                "pt": "[ʊ ky vosˌe estˌa sˌeɪŋtʃˈiŋdʊ]",
+                "en": "[wˌɒt dˈuː juː fˈiːl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-007",
+            "text": {
+                "fr": "Je me sens libre et un peu nerveux. C'est bizarre, non?",
+                "en": "I feel free and a bit nervous. Weird, right?",
+                "de": "Ich fühle mich frei und ein bisschen nervös. Komisch, oder?",
+                "it": "Mi sento libero e un po' nervoso. È strano, vero?",
+                "es": "Me siento libre y un poco nervioso. ¿Es raro, verdad?",
+                "nl": "Ik voel me vrij en een beetje nerveus. Raar hè?",
+                "pt": "Me sinto livre e um pouco nervoso.",
+                "en_pt": "I feel free and a little nervous."
+            },
+            "ipa": {
+                "fr": "ʒə- mə- sˈɑ̃ lˈibʁ e œ̃ pø nɛʁvˈø sɛ bizˈaʁ nˈɔ̃",
+                "de": "[ɪç ˈfyːlə mɪç fʁaɪ̯ ʊnt aɪ̯n ˈbɪsn̩ ˈnɛʁvøːs ˈkɔmɪʃ ˈoːdɐ]",
+                "it": "[mˌɪ sˈɛnto lˈibero ˌe ˌʊn pˈo nervˈoːzo\n ˌɛ strˈaːno\n vˈeːro]",
+                "es": "[me ˈsjento ˈliβɾe i un ˈpoko nerˈβjoso es ˈraɾo βeɾˈðað]",
+                "nl": "[ɪk vˈul mə vrˈɛɪ ɛn ən bˈeːtʲə nˈɛrvøːs\n rˈaːr hˈeː]",
+                "pt": "[my sˈiŋtʊ lˈivri i ũŋ pˈowkʊ nˌeɾəvˈozʊ]",
+                "en": "[aɪ fˈiːl fɹˈiː and ɐ bˈɪt nˈɜːvəs wˈiəd ɹˈaɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-008",
+            "text": {
+                "fr": "Moi aussi, c'est normal. On change toute notre vie.",
+                "en": "Me too, it's normal. We are changing our entire life.",
+                "de": "Ich auch, das ist normal. Wir ändern unser ganzes Leben.",
+                "it": "Anche io, è normale. Stiamo cambiando tutta la nostra vita.",
+                "es": "Yo también, es normal. Estamos cambiando toda nuestra vida.",
+                "nl": "Ik ook, het is normaal. We veranderen ons hele leven.",
+                "pt": "A gente está mudando toda nossa vida.",
+                "en_pt": "We're changing our whole life."
+            },
+            "ipa": {
+                "fr": "mwˌa osˈi sɛ nɔʁmˈal ɔ̃ ʃˈɑ̃ʒ tut nɔtʁ vˈi",
+                "de": "[ɪç aʊ̯x das ɪst noʁˈmaːl viːɐ̯ ˈɛndəʁn ˈʊnzɐ ˈɡantsəs ˈleːbn̩]",
+                "it": "[ˈanke ˈio\n ˌɛ normˈaːle\n stjˈaːmo kambjˈando tˈutːa lˌa nˌɔstra vˈiːta]",
+                "es": "[ʝo tamˈbjen es norˈmal esˈtamos kamˈβjando ˈtoða ˈnwes.tɾa ˈβiða]",
+                "nl": "[ɪk ˈoːk\n hət ɪs nɔrmˈaːl\n ʋə vərˈɑndərən ɔns hˈeːlə lˈeːvən]",
+                "pt": "[a ʒˈeɪŋtʃj estˌa mˌudˈɐ̃ŋdʊ tˈodæ nˌɔsæ vˈidæ]",
+                "en": "[mˌiː tˈuː ɪts nˈɔːməl wiː ɑː tʃˈeɪndʒɪŋ aʊəɹ ɛntˈaɪə lˈaɪf]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-009",
+            "text": {
+                "fr": "Regarde le paysage, il est magnifique!",
+                "en": "Look at the landscape, it's beautiful!",
+                "de": "Schau dir die Landschaft an, sie ist wunderschön!",
+                "it": "Guarda il paesaggio, è magnifico!",
+                "es": "Mira el paisaje, ¡es precioso!",
+                "nl": "Kijk naar het landschap, het is prachtig!",
+                "pt": "Olha a paisagem, está linda!"
+            },
+            "ipa": {
+                "fr": "ʁəɡˈaʁd lə- pɛizˈaʒ il ɛ maɲifˈik",
+                "de": "[ʃaʊ̯ diːɐ̯ diː ˈlantʃaft an ziː ɪst ˈvʊndɐʃøːn]",
+                "it": "[ɡwˈaːrda ˌil pˌaezˈadʒːo\n ˌɛ maɲˈifiko]",
+                "es": "[ˈmiɾa el pajˈsaxe es pɾeˈθjoso]",
+                "nl": "[kˈɛɪk naːr hət lˈɑndsxˌɑp\n hət ɪs prˈɑxtəx]",
+                "pt": "[ˈɔljæ a pˌaɪzˈaʒeɪŋ\n estˌa lˈiŋdæ]",
+                "en": "[lˈʊk at ðə lˈandskeɪp ɪts bjˈuːtɪfəl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-010",
+            "text": {
+                "fr": "J'ai apporté des sandwichs. Fromage et jambon.",
+                "en": "I brought sandwiches. Cheese and ham.",
+                "de": "Ich habe Sandwiches mitgebracht. Käse und Schinken.",
+                "it": "Ho portato dei panini. Formaggio e prosciutto.",
+                "es": "He traído bocadillos. De queso y jamón.",
+                "nl": "Ik heb broodjes meegenomen. Kaas en ham.",
+                "pt": "Trouxe sanduíches.",
+                "en_pt": "I brought sandwiches."
+            },
+            "ipa": {
+                "fr": "ʒe apɔʁtˈe de- sɑ̃dwˈitʃ fʁɔmˈaʒ e ʒɑ̃bˈɔ̃",
+                "de": "[ɪç haːbə ˈzandvɪçəs ˈmɪtɡəbʁaxt ˈkɛːzə ʊnt ˈʃɪŋkn̩]",
+                "it": "[ˌo portˈaːto dˌɛj panˈiːnɪ\n formˈadʒːo ˌe proʃˈutːo]",
+                "es": "[e tɾaˈiðo βokaˈðiʎos de ˈkeso i xaˈmon]",
+                "nl": "[ɪk hɛ prˈoːtjəs mˈeːɣənˌoːmən\n kˈaːs ɛn hˈɑm]",
+                "pt": "[trˈowsy sˌɐ̃ŋduˈiʃys]",
+                "en": "[aɪ bɹˈɔːt sˈandwɪtʃɪz tʃˈiːz and hˈam]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-011",
+            "text": {
+                "fr": "Excellente idée, j'ai faim.",
+                "en": "Excellent idea, I'm hungry.",
+                "de": "Ausgezeichnete Idee, ich habe Hunger.",
+                "it": "Ottima idea, ho fame.",
+                "es": "Buena idea, tengo hambre.",
+                "nl": "Uitstekend idee, ik heb honger.",
+                "pt": "Ótima ideia, estou com fome.",
+                "en_pt": "Great idea, I'm hungry."
+            },
+            "ipa": {
+                "fr": "ɛksɛlˈɑ̃t idˈe ʒe fˈɛ̃",
+                "de": "[ˈaʊ̯sɡətsaɪ̯çnətə ˈiːdeː ɪç haːbə ˈhʊŋɐ]",
+                "it": "[ˈotːima idˈɛːa\n ˌo fˈaːme]",
+                "es": "[ˈbwena iˈðea ˈteŋgo ˈambɾe]",
+                "nl": "[ˈœytstˌeːkənt idˈeː\n ɪk hɛp hˈɔŋər]",
+                "pt": "[ˈɔtʃimæ ˌidˈɛɪæ\n estˌow koŋ fˈomy]",
+                "en": "[ˈɛksələnt aɪdˈiə aɪm hˈʌŋɡɹi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-012",
+            "text": {
+                "fr": "Combien de temps dure le voyage?",
+                "en": "How long is the trip?",
+                "de": "Wie lange dauert die Fahrt?",
+                "it": "Quanto dura il viaggio?",
+                "es": "¿Cuánto dura el viaje?",
+                "nl": "Hoe lang duurt de reis?",
+                "pt": "Lucas pergunta: Quanto tempo dura a viagem?",
+                "en_pt": "Lucas asks: How long does the trip take?"
+            },
+            "ipa": {
+                "fr": "kɔ̃bjˈɛ̃ də- tˈɑ̃ dˈyʁ lə- vwajˈaʒ",
+                "de": "[viː ˈlaŋə ˈdaʊ̯ɐt diː faːɐ̯t]",
+                "it": "[kwˈanto dˈuːra ˌil vjˈadʒːo]",
+                "es": "[ˈkwanto ˈðuɾa el βiˈaxe]",
+                "nl": "[hˈu lˈɑŋ dˈyr tə rˈɛɪs]",
+                "pt": "[lˈukæs pˌeɾəɡˈũŋtæ\n kwˈɐ̃ŋtʊ tˈeɪmpʊ dˈuɾæ a vˌiˈaʒeɪŋ]",
+                "en": "[hˌaʊ lˈɒŋ ɪz ðə tɹˈɪp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-013",
+            "text": {
+                "fr": "Environ cinq heures. On arrive vers seize heures.",
+                "en": "About five hours. We'll arrive around four o'clock.",
+                "de": "Etwa fünf Stunden. Wir kommen gegen sechzehn Uhr an.",
+                "it": "Circa cinque ore. Arriviamo verso le sedici.",
+                "es": "Unas cinco horas. Llegaremos sobre las cuatro.",
+                "nl": "Ongeveer vijf uur. We komen rond vier uur aan."
+            },
+            "ipa": {
+                "fr": "ɑ̃viʁˈɔ̃ sˈɛ̃k ˈœʁ ɔ̃n aʁˈiv vɛʁ sˈɛz ˈœʁ",
+                "de": "[ˈɛtva ˈfʏnf ˈʃtʊndn̩ viːɐ̯ ˈkɔmən ˈɡeːɡn̩ zɛçˈtseːn uːɐ̯ an]",
+                "it": "[tʃˈiːrka tʃˈinkwe ˈoːre\n ˌarɾivjˈaːmo vˌɛrso lˌe sˈeditʃɪ]",
+                "es": "[ˈunas ˈθiŋko ˈoɾas ʎeɣaˈɾemos ˈsoβɾe las ˈkwatɾo]",
+                "nl": "[ˌɔnɣəvˈɪːr vˈɛɪf ˈyr\n ʋə kˈoːmən rˈɔnt vˈir ˈyr ˈaːn]",
+                "en": "[ɐbˌaʊt fˈaɪv ˈaʊəz wiːl ɐɹˈaɪv ɐɹˈaʊnd fˈɔːɹ əklˈɒk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-014",
+            "text": {
+                "fr": "Oh non! J'ai oublié mon livre!",
+                "en": "Oh no! I forgot my book!",
+                "de": "Oh nein! Ich habe mein Buch vergessen!",
+                "it": "Oh no! Ho dimenticato il mio libro!",
+                "es": "¡Oh no! ¡He olvidado mi libro!",
+                "nl": "Oh nee! Ik ben mijn boek vergeten!",
+                "pt": "Esqueci meu livro!",
+                "en_pt": "I forgot my book!"
+            },
+            "ipa": {
+                "fr": "ˈɔ nˈɔ̃ ʒe ubliˈe mɔ̃ lˈivʁ",
+                "de": "[oː ˈnaɪ̯n ɪç haːbə maɪ̯n buːx fɛɐ̯ˈɡɛsn̩]",
+                "it": "[ˈɔ nˈɔ\n ˌo dˌimentikˈaːto ˌil mˌio lˈiːbro]",
+                "es": "[o no e olβiˈðaðo mi ˈliβɾo]",
+                "nl": "[ˈɔh nˈeː\n ɪk bɛn mɛɪn bˈuk vərɣˈeːtən]",
+                "pt": "[ˌeskesˈi meʊ lˈivrʊ]",
+                "en": "[ˈəʊ nˈəʊ aɪ fəɡˈɒt maɪ bˈʊk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-015",
+            "text": {
+                "fr": "Ce n'est pas grave, on peut parler.",
+                "en": "It's okay, we can talk.",
+                "de": "Macht nichts, wir können reden.",
+                "it": "Non è grave, possiamo parlare.",
+                "es": "No pasa nada, podemos hablar.",
+                "nl": "Geeft niet, we kunnen praten.",
+                "pt": "Não tem problema, a gente pode conversar.",
+                "en_pt": "No problem, we can talk."
+            },
+            "ipa": {
+                "fr": "sə- nɛ pa ɡʁˈav ɔ̃ pˈø paʁlˈe",
+                "de": "[maxt nɪçts viːɐ̯ ˈkœnən ˈʁeːdn̩]",
+                "it": "[nˌon ˌɛ ɡrˈaːve\n possjˈaːmo parlˈaːre]",
+                "es": "[no ˈpasa ˈnaða poˈðemos aˈβlaɾ]",
+                "nl": "[ɣˈeːft nˈit\n ʋə kˌɵnən prˈaːtən]",
+                "pt": "[nˌɐ̃ʊ̃ teɪŋ prˌoblˈemæ\n a ʒˈeɪŋtʃy pˌɔdʒy kˌoŋveɾəsˈar]",
+                "en": "[ɪts əʊkˈeɪ wiː kan tˈɔːk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-016",
+            "text": {
+                "fr": "De quoi veux-tu parler?",
+                "en": "What do you want to talk about?",
+                "de": "Worüber möchtest du sprechen?",
+                "it": "Di cosa vuoi parlare?",
+                "es": "¿Sobre qué quieres hablar?",
+                "nl": "Waar wil je over praten?",
+                "pt": "Sobre o que você quer falar?"
+            },
+            "ipa": {
+                "fr": "də- kwˌa vˈøty paʁlˈe",
+                "de": "[voˈʁyːbɐ ˈmøːçtəst duː ˈʃpʁeːçn̩]",
+                "it": "[dˌɪ kˈɔːza vʊˈɔːɪ parlˈaːre]",
+                "es": "[ˈsoβɾe ke ˈkjeɾes aˈβlaɾ]",
+                "nl": "[ʋˈaːr ʋɪl jə ˈoːvər prˈaːtən]",
+                "pt": "[sˈobri ʊ ky vosˌe kˈɛr falˈar]",
+                "en": "[wˌɒt dˈuː juː wˈɒnt tə tˈɔːk ɐbˈaʊt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-017",
+            "text": {
+                "fr": "De nos rêves et de notre avenir",
+                "en": "About our dreams and our future",
+                "de": "Über unsere Träume und unsere Zukunft",
+                "it": "Dei nostri sogni e del nostro futuro",
+                "es": "Sobre nuestros sueños y nuestro futuro",
+                "nl": "Over onze dromen en onze toekomst",
+                "pt": "Sobre nossos sonhos e nosso futuro.",
+                "en_pt": "About our dreams and our future."
+            },
+            "ipa": {
+                "fr": "də- no ʁˈɛvz e də- nɔtʁ avnˈiʁ",
+                "de": "[ˈyːbɐ ˈʊnzəʁə ˈtʁɔɪ̯mə ʊnt ˈʊnzəʁə ˈtsʊkʊnft]",
+                "it": "[dˌɛj nˌɔstrɪ sˈoɲʲɪ ˌe dˌɛl nˌɔstro fʊtˈuːro]",
+                "es": "[ˈsoβɾe ˈnwestɾos ˈsweɲos i ˈnwestɾo fuˈtuɾo]",
+                "nl": "[ˈoːvər ɔnzˌə drˈoːmən ɛn ɔnzˌə tˈukˌɔmst]",
+                "pt": "[sˈobry nˌɔsʊs sˈoɲʊz i nˌɔsʊ fˌutˈuɾʊ]",
+                "en": "[ɐbˌaʊt aʊə dɹˈiːmz and aʊə fjˈuːtʃə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-018",
+            "text": {
+                "fr": "Qu'est-ce que tu veux vraiment dans la vie?",
+                "en": "What do you really want in life?",
+                "de": "Was willst du wirklich im Leben?",
+                "it": "Cosa vuoi veramente nella vita?",
+                "es": "¿Qué es lo que realmente quieres en la vida?",
+                "nl": "Wat wil je echt in het leven?",
+                "pt": "O que você realmente quer na vida?"
+            },
+            "ipa": {
+                "fr": "kɛskˌə ty vˈø vʁɛmˈɑ̃ dɑ̃ la- vˈi",
+                "de": "[vas ˈvɪlst duː ˈvɪʁklɪç ɪm ˈleːbn̩]",
+                "it": "[kˈɔːza vʊˈɔːɪ vˌɛramˈente nˌɛlla vˈiːta]",
+                "es": "[ke es lo ke reˈalmen̩te ˈkjeɾes en la ˈβiða]",
+                "nl": "[ʋɑt ʋɪl jə ˈɛxt ɪn hət lˈeːvən]",
+                "pt": "[ʊ ky vosˌe xˌeaʊmˈeɪŋtʃy kˈɛr na vˈidæ]",
+                "en": "[wˌɒt dˈuː juː ɹˈiəlɪ wˈɒnt ɪn lˈaɪf]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-019",
+            "text": {
+                "fr": "C'est une grande question",
+                "en": "That's a big question",
+                "de": "Das ist eine große Frage",
+                "it": "È una grande domanda",
+                "es": "Es una gran pregunta",
+                "nl": "Dat is een grote vraag",
+                "pt": "É uma grande pergunta.",
+                "en_pt": "That's a big question."
+            },
+            "ipa": {
+                "fr": "sɛt yn ɡʁˈɑ̃d kɛstjˈɔ̃",
+                "de": "[das ɪst ˈaɪ̯nə ˈɡʁoːsə ˈfʁaːɡə]",
+                "it": "[ˌɛ ˌʊna ɡrˈande domˈanda]",
+                "es": "[es ˈuna ɣɾan preˈɣunta]",
+                "nl": "[dɑt ɪs ən ɣrˈoːtə vrˈaːx]",
+                "pt": "[ɛ ˌumæ ɡrˈɐ̃ŋdʒy pˌeɾəɡˈũŋtæ]",
+                "en": "[ðats ɐ bˈɪɡ kwˈɛstʃən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-020",
+            "text": {
+                "fr": "Je veux me sentir vivante, je pense.",
+                "en": "I want to feel alive, I think.",
+                "de": "Ich möchte mich lebendig fühlen, denke ich.",
+                "it": "Voglio sentirmi viva, penso.",
+                "es": "Quiero sentirme viva, creo.",
+                "nl": "Ik wil me levend voelen, denk ik.",
+                "pt": "Eu quero me sentir viva, eu acho."
+            },
+            "ipa": {
+                "fr": "ʒə- vˈø mə- sɑ̃tˈiʁ vivˈɑ̃t ʒə- pˈɑ̃s",
+                "de": "[ɪç ˈmœçtə mɪç ˈleːbəndɪç ˈfyːlən ˈdɛŋkə ɪç]",
+                "it": "[vˈoːʎo sentˈiːrmɪ vˈiːva\n pˈɛnso]",
+                "es": "[ˈkjeɾo senˈtiɾme ˈβiβa ˈkɾeo]",
+                "nl": "[ɪk ʋɪl mə lˈeːvənt vˈulən\n dˈɛŋk ɪk]",
+                "pt": "[eʊ kˈɛɾʊ my seɪŋtʃˈir vˈivæ\n eʊ ˈaʃʊ]",
+                "en": "[aɪ wˈɒnt tə fˈiːl ɐlˈaɪv aɪ θˈɪŋk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-021",
+            "text": {
+                "fr": "Le train file à travers la campagne française.",
+                "en": "The train races through the Dutch countryside.",
+                "de": "Der Zug rast durch die deutsche Landschaft.",
+                "it": "Il treno sfreccia attraverso la campagna italiana.",
+                "es": "El metro corre por el campo madrileño.",
+                "nl": "De trein raast door het Nederlandse landschap."
+            },
+            "ipa": {
+                "fr": "lə- tʁˈɛ̃ fˈil a tʁavˈɛʁ la- kɑ̃pˈaɲ fʁɑ̃sˈɛz",
+                "de": "[deːɐ̯ tsuːk ʁast dʊʁç diː ˈdɔɪ̯tʃə ˈlantʃaft]",
+                "it": "[ˌil trˈɛːno sfrˈetʃːa ˌatːravˈɛːrso lˌa kampˈaɲɲa ˌitaliˈaːna]",
+                "es": "[el ˈmetɾo ˈkoɾe por el ˈkampo maðɾiˈleɲo]",
+                "nl": "[də trˈɛɪn rˈaːst doːr hət nˈeːdərlˌɑndsə lˈɑndsxˌɑp]",
+                "en": "[ðə tɹˈeɪn ɹˈeɪsɪz θɹuː ðə dˈʌtʃ kˈʌntɹɪsˌaɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-022",
+            "text": {
+                "fr": "Sophie et Lucas regardent le paysage qui défile par la fenêtre.",
+                "en": "Sophie and Lucas watch the passing landscape through the window.",
+                "de": "Sophie und Lucas schauen die vorbeiziehende Landschaft an.",
+                "it": "Sophie e Lucas guardano il paesaggio che scorre dalla finestra.",
+                "es": "Sophie y Lucas miran el paisaje que pasa por la ventana.",
+                "nl": "Sophie en Lucas kijken naar het voorbijgaande landschap door het raam.",
+                "pt": "Sophie e Lucas olham a paisagem que passa pela janela.",
+                "en_pt": "Sophie and Lucas watch the landscape passing by the window."
+            },
+            "ipa": {
+                "fr": "sɔfˈi e lykˈa ʁəɡˈaʁd lə- pɛizˈaʒ ki defˈil paʁ la- fənˈɛtʁ",
+                "de": "[ˈzɔfiː ʊnt ˈluːkas ˈʃaʊ̯ən diː ˈfoːɐ̯baɪ̯ˌtsiːəndə ˈlantʃaft an]",
+                "it": "[sˈopje ˌe lˈuːkas ɡwˈardano ˌil pˌaezˈadʒːo kˌe skˈɔrɾe dˌalla finˈɛstra]",
+                "es": "[ˈsofi i ˈlukas ˈmiɾan el pajˈsaxe ke ˈpasa por la βenˈtana]",
+                "nl": "[sɔphˈi ɛn lˈykɑs kˈɛɪkən naːr hət vˈɔːrbɛɪɣˌaːndə lˈɑndsxˌɑp doːr hət rˈaːm]",
+                "pt": "[sˌofˈij i lˈukæz ˈɔljɐ̃ʊ̃ a pˌaɪzˈaʒeɪŋ ky pˈasæ pˈelæ ʒˌænˈɛlæ]",
+                "en": "[sˈəʊfi and lˈuːkəz wˈɒtʃ ðə pˈasɪŋ lˈandskeɪp θɹuː ðə wˈɪndəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-023",
+            "text": {
+                "fr": "dit Sophie, presque incrédule.",
+                "en": "says Sophie, almost incredulously.",
+                "de": "sagt Sophie, fast ungläubig.",
+                "it": "dice Sophie, quasi incredula.",
+                "es": "dice Sophie, casi incrédula.",
+                "nl": "zegt Sophie, bijna ongelovig."
+            },
+            "ipa": {
+                "fr": "dˈi sɔfˈi pʁˌɛskə ɛ̃kʁedˈyl",
+                "de": "[zaːkt ˈzɔfiː fast ˈʊnɡlɔɪ̯bɪç]",
+                "it": "[dˈiːtʃe sˈopje\n kwˈaːzɪ inkrˈɛdʊla]",
+                "es": "[ˈdiθe ˈsofi ˈkasi inˈkɾeðula]",
+                "nl": "[zˈɛxt sɔphˈi\n bˈɛɪnˌaː ˌɔnɣəlˈoːvəx]",
+                "en": "[sˈɛz sˈəʊfi ˈɔːlməʊst ɪnkɹˈɛdjʊləsli]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-024",
+            "text": {
+                "fr": "Lucas vérifie son téléphone.",
+                "en": "Lucas checks his phone.",
+                "de": "Lucas prüft sein Handy.",
+                "it": "Lucas controlla il suo telefono.",
+                "es": "Lucas revisa su teléfono.",
+                "nl": "Lucas controleert zijn telefoon.",
+                "pt": "Lucas verifica seu celular.",
+                "en_pt": "Lucas checks his cell phone."
+            },
+            "ipa": {
+                "fr": "lykˈa veʁifˈi sɔ̃ telefˈɔn",
+                "de": "[ˈluːkas pʁyːft zaɪ̯n ˈhandi]",
+                "it": "[lˈuːkas kontrˈɔlla ˌil sˌʊo telˈɛfono]",
+                "es": "[ˈlukas reˈβisa su teleˈfono]",
+                "nl": "[lˈykɑs kˌɔntroːlˈɪrt zɛɪn tˌeːləfˈoːn]",
+                "pt": "[lˈukæz vˌeɾifˈikæ seʊ sˌelulˈar]",
+                "en": "[lˈuːkəz tʃˈɛks hɪz fˈəʊn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-025",
+            "text": {
+                "fr": "Sophie se tourne vers Lucas.",
+                "en": "Sophie turns towards Lucas.",
+                "de": "Sophie wendet sich zu Lucas.",
+                "it": "Sophie si gira verso Lucas.",
+                "es": "Sophie se gira hacia Lucas.",
+                "nl": "Sophie draait zich naar Lucas toe.",
+                "pt": "Sophie se vira para Lucas.",
+                "en_pt": "Sophie turns to Lucas."
+            },
+            "ipa": {
+                "fr": "sɔfˈi sə- tˈuʁn vɛʁ lykˈa",
+                "de": "[ˈzɔfiː ˈvɛndət zɪç tsuː ˈluːkas]",
+                "it": "[sˈopje sˌɪ dʒˈiːra vˌɛrso lˈuːkas]",
+                "es": "[ˈsofi se ˈxiɾa ˈaθja ˈlukas]",
+                "nl": "[sɔphˈi drˈaːjt zɪx naːr lˈykɑs tˈu]",
+                "pt": "[sˌofˈiy sy vˈiɾæ pˌaɾæ lˈukæs]",
+                "en": "[sˈəʊfi tˈɜːnz tʊwˈɔːdz lˈuːkəz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-026",
+            "text": {
+                "fr": "Le paysage devient de plus en plus vallonné.",
+                "en": "The landscape becomes more and more hilly.",
+                "de": "Die Landschaft wird immer hügeliger.",
+                "it": "Il paesaggio diventa sempre più collinoso.",
+                "es": "El paisaje se vuelve más montañoso.",
+                "nl": "Het landschap wordt steeds heuvelachtiger.",
+                "pt": "A paisagem fica cada vez mais montanhosa.",
+                "en_pt": "The landscape becomes increasingly mountainous."
+            },
+            "ipa": {
+                "fr": "lə- pɛizˈaʒ dəvjˈɛ̃ də- plyz ɑ̃ ply valɔnˈe",
+                "de": "[diː ˈlantʃaft vɪɐ̯t ˈɪmɐ ˈhyːɡəliːɡɐ]",
+                "it": "[ˌil pˌaezˈadʒːo divˈɛnta sˈɛmpre pjˌʊ kˌollinˈoːzo]",
+                "es": "[el pajˈsaxe se ˈbwelβe mas monˈtaɲoso]",
+                "nl": "[hət lˈɑndsxˌɑp ʋɔrt stˈeːts hˌøːvəlˈɑxtəɣər]",
+                "pt": "[a pˌaɪzˈaʒeɪŋ fˈikæ kˈadæ vˈez mˈaɪz mˌoŋtɐ̃ɲˈɔzæ]",
+                "en": "[ðə lˈandskeɪp bɪkˌʌmz mˈɔː and mˈɔː hˈɪli]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-027",
+            "text": {
+                "fr": "Ils mangent en silence, admirant la vue.",
+                "en": "They eat in silence, enjoying the view.",
+                "de": "Sie essen schweigend und bewundern die Aussicht.",
+                "it": "Mangiano in silenzio, ammirando la vista.",
+                "es": "Comen en silencio, admirando la vista.",
+                "nl": "Ze eten in stilte, genietend van het uitzicht.",
+                "pt": "Eles comem em silêncio, admirando a vista.",
+                "en_pt": "They eat in silence, admiring the view."
+            },
+            "ipa": {
+                "fr": "il mˈɑ̃ʒt ɑ̃ silˈɑ̃s admiʁˈɑ̃ la- vˈy",
+                "de": "[ziː ˈɛsn̩ ˈʃvaɪ̯ɡn̩t ʊnt bəˈvʊndɐn diː ˈaʊ̯szɪçt]",
+                "it": "[mˈandʒano ˌin silˈɛntsio\n ˌammirˈando lˌa vˈista]",
+                "es": "[ˈkomen en siˈlenθjo aðmiˈɾando la ˈβista]",
+                "nl": "[zə ˈeːtən ɪn stˈɪltə\n ɣənˈitənt vɑn hət ˈœytzˌɪxt]",
+                "pt": "[ˌelys kˈomeɪŋ ˈeɪŋ sˌilˈeɪŋsjʊ\n ˌadmiɾˈɐ̃ŋdw a vˈistæ]",
+                "en": "[ðeɪ ˈiːt ɪn sˈaɪləns ɛndʒˈɔɪɪŋ ðə vjˈuː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-028",
+            "text": {
+                "pt": "O ônibus viaja pela rodovia Dutra.",
+                "en": "The bus travels along the Dutra highway."
+            },
+            "ipa": {
+                "pt": "[u ˈonibuz vˌiˈaʒæ pˈelæ xˌodovˈiæ dˈutræ]",
+                "en": "[ðə bˈʌs tɹˈavəlz ɐlˈɒŋ ðə dˈʌtɹə hˈaɪweɪ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-029",
+            "text": {
+                "pt": "Finalmente saímos de São Paulo, diz Sophie, quase incrédula.",
+                "en": "We finally left São Paulo, Sophie says, almost in disbelief."
+            },
+            "ipa": {
+                "pt": "[fˌinaʊmˈeɪŋtʃy sˌaˈimʊz dʒy sɐ̃ʊ̃ pˈaʊlʊ\n dʒˈis sˌofˈiy\n kwˈazj ˌiŋkrˈɛdulæ]",
+                "en": "[wiː fˈaɪnəli lˈɛft sˈaʊ pˈɔːləʊ sˈəʊfi sˈɛz ˈɔːlməʊst ɪn dˌɪsbɪlˈiːf]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-030",
+            "text": {
+                "pt": "É estranho, né?",
+                "en": "It's strange, isn't it?"
+            },
+            "ipa": {
+                "pt": "[ɛ ˌestrˈɐ̃ɲʊ\n nˈɛ]",
+                "en": "[ɪts stɹˈeɪndʒ ˈɪzənt ɪt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-031",
+            "text": {
+                "pt": "Eu também, é normal.",
+                "en": "Me too, it's normal."
+            },
+            "ipa": {
+                "pt": "[eʊ tɐ̃mbˈeɪŋ\n ɛ noɾəmˈaʊ]",
+                "en": "[mˌiː tˈuː ɪts nˈɔːməl]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-032",
+            "text": {
+                "pt": "Sophie abre sua mochila.",
+                "en": "Sophie opens her backpack."
+            },
+            "ipa": {
+                "pt": "[sˌofˈij ˈabry sˌuæ mˌoʃˈilæ]",
+                "en": "[sˈəʊfi ˈəʊpənz hɜː bˈakpak]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-033",
+            "text": {
+                "pt": "Queijo e presunto.",
+                "en": "Cheese and ham."
+            },
+            "ipa": {
+                "pt": "[kˈeɪʒw i prˌezˈũŋtʊ]",
+                "en": "[tʃˈiːz and hˈam]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-034",
+            "text": {
+                "pt": "Umas cinco horas.",
+                "en": "About five hours."
+            },
+            "ipa": {
+                "pt": "[ˌumæs sˈiŋkw ˈɔɾæs]",
+                "en": "[ɐbˌaʊt fˈaɪv ˈaʊəz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-035",
+            "text": {
+                "pt": "Chegamos por volta das quatro.",
+                "en": "We'll arrive around four."
+            },
+            "ipa": {
+                "pt": "[ʃˌeɡˈɐ̃mʊs por vˈɔltæ das kwˈatrʊ]",
+                "en": "[wiːl ɐɹˈaɪv ɐɹˈaʊnd fˈɔː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-036",
+            "text": {
+                "pt": "Sophie procura em sua mochila.",
+                "en": "Sophie searches in her backpack."
+            },
+            "ipa": {
+                "pt": "[sˌofˈiy prˌokˈuɾæ ˈeɪŋ sˌuæ mˌoʃˈilæ]",
+                "en": "[sˈəʊfi sˈɜːtʃɪz ɪn hɜː bˈakpak]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-037",
+            "text": {
+                "pt": "Ah não!",
+                "en": "Oh no!"
+            },
+            "ipa": {
+                "pt": "[ˈa nˈɐ̃ʊ̃]",
+                "en": "[ˈəʊ nˈəʊ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-038",
+            "text": {
+                "pt": "Lucas pensa.",
+                "en": "Lucas thinks."
+            },
+            "ipa": {
+                "pt": "[lˈukæs pˈeɪŋsæ]",
+                "en": "[lˈuːkəz θˈɪŋks]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-06-039",
+            "text": {
+                "pt": "Sophie sorri.",
+                "en": "Sophie smiles."
+            },
+            "ipa": {
+                "pt": "[sˌofˈiy soxˈi]",
+                "en": "[sˈəʊfi smˈaɪlz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        }
+    ]
 }

@@ -1,959 +1,993 @@
 {
-  "meta": {
-    "source": "story-scenes",
-    "scene_number": 9,
-    "scene_title": {
-      "en": "The Difficult Hike",
-      "fr": "La Randonnée Difficile",
-      "de": "Die schwierige Wanderung",
-      "pt": "A Trilha Difícil",
-      "it": "L'Escursione Difficile",
-      "es": "La excursión difícil",
-      "nl": "De Moeilijke Wandeling"
+    "meta": {
+        "source": "story-scenes",
+        "scene_number": 9,
+        "scene_title": {
+            "en": "The Difficult Hike",
+            "fr": "La Randonnée Difficile",
+            "de": "Die schwierige Wanderung",
+            "pt": "A Trilha Difícil",
+            "it": "L'Escursione Difficile",
+            "es": "La excursión difícil",
+            "nl": "De Moeilijke Wandeling"
+        },
+        "phrase_count": 34,
+        "core_phrase_count": 29,
+        "pt_matched": 28,
+        "pt_unmatched": 5,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-09",
+        "generator": "merge_materials.py"
     },
-    "phrase_count": 34,
-    "core_phrase_count": 29,
-    "pt_matched": 28,
-    "pt_unmatched": 5,
-    "languages": [
-      "de",
-      "en",
-      "es",
-      "fr",
-      "it",
-      "nl",
-      "pt"
-    ],
-    "generated": "2026-04-09",
-    "generator": "merge_materials.py"
-  },
-  "phrases": [
-    {
-      "id": "scene-09-001",
-      "text": {
-        "fr": "Nous marchions depuis trois heures quand les nuages sont arrivés,",
-        "en": "We had been walking for three hours when the clouds arrived,",
-        "de": "Wir waren drei Stunden unterwegs, als die Wolken aufzogen,",
-        "it": "Camminavamo da tre ore quando sono arrivati i nuvoloni,",
-        "es": "Llevábamos tres horas caminando cuando llegaron las nubes,",
-        "nl": "We liepen al drie uur toen de wolken kwamen,",
-        "pt": "Estávamos caminhando há três horas quando as nuvens chegaram, contará Sophie mais tarde.",
-        "en_pt": "We had been walking for three hours when the clouds arrived, Sophie would later recount."
-      },
-      "ipa": {
-        "fr": "nu maʁʃjˈɔ̃ dəpyˌi tʁwˈaz ˈœʁ kɑ̃ le- nyˈaʒ sˈɔ̃t aʁivˈe",
-        "de": "[viːɐ̯ vaːʁən dʁaɪ̯ ˈʃtʊndən ˈʊntɐveːks, als diː ˈvɔlkən ˈaʊ̯ftsoːɡən,]",
-        "it": "[kˌamminavˈaːmo dˌa trˈe ˈoːre kwˈando sˌono ˌarɾivˈaːtɪ ˌɪ nˌʊvolˈoːnɪ]",
-        "es": "[ʎeˈβaβamos ˈtɾes ˈoɾas kamˈjando ˈkwando ʎeˈɣaɾon las ˈnubes]",
-        "nl": "[ʋə lˈipən ˈɑl drˈi ˈyr tˈun də ʋˈɔlkən kʋˈaːmən]",
-        "pt": "[estˌavæmʊs kˌæmiɲˈɐ̃ŋdw a trˈes ˈɔɾæs kwˈɐ̃ŋdw az nˈuveɪŋs ʃˌeɡˈaɾɐ̃ʊ̃\n kˌoŋtaɾˈa sˌofˈiy mˈaɪs tˈaɾədʒy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-002",
-      "text": {
-        "fr": "Il faisait de plus en plus froid.",
-        "en": "It was getting colder and colder.",
-        "de": "Es wurde immer kälter.",
-        "it": "Stava diventando sempre più freddo.",
-        "es": "Empezaba a hacer cada vez más frío.",
-        "nl": "Het werd steeds kouder.",
-        "pt": "Estava ficando cada vez mais frio."
-      },
-      "ipa": {
-        "fr": "il fəzˈɛ də- plyz ɑ̃ ply fʁwˈa",
-        "de": "[ɛs ˈvʊrdə ˈɪmɐ ˈkɛltɐ]",
-        "it": "[stˈaːva dˌiventˈando sˈɛmpre pjˌʊ frˈedːo]",
-        "es": "[empeˈθaβa a aˈθeɾ ˈkaða βeθ ˈmas ˈfɾio]",
-        "nl": "[hət ʋɛrt stˈeːts kˈʌʊdər]",
-        "pt": "[estˌavæ fˌikˈɐ̃ŋdʊ kˈadæ vˈez mˈaɪs frˈiʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-003",
-      "text": {
-        "fr": "Si j'avais su, j'aurais apporté un pull plus chaud.",
-        "en": "If I had known, I would have brought a warmer sweater.",
-        "de": "Hätte ich das gewusst, hätte ich einen wärmeren Pullover mitgebracht.",
-        "it": "Se l'avessi saputo, avrei portato un maglione più caldo.",
-        "es": "Si lo hubiera sabido, habría traído un jersey más abrigado.",
-        "nl": "Als ik het had geweten, had ik een warmere trui meegenomen.",
-        "pt": "Se eu soubesse, teria trazido um casaco mais quente.",
-        "en_pt": "If I had known, I would have brought a warmer jacket."
-      },
-      "ipa": {
-        "fr": "sˈi ʒavˈɛ sˈy ʒoʁˈɛz apɔʁtˈe œ̃pˈul ply ʃˈo",
-        "de": "[ˈhɛtə ɪç das ɡəˈvʊst, ˈhɛtə ɪç ˈaɪ̯nən ˈvɛrməʁən ˈpʊlovɐ ˈmɪtɡəbʁaxt]",
-        "it": "[sˌe lavˌɛssɪ sapˈuːto\n avrˈeːɪ portˈaːto ˌʊn maʎˈoːne pjˌʊ kˈaldo]",
-        "es": "[si lo uˈβjeɾa saˈβiðo, aˈβɾia tɾaˈiðo un ˈxeɾsei mas aβɾiˈɣaðo]",
-        "nl": "[ɑls ɪk hət hˈɑt ɣəʋˈeːtən\n hˈɑt ɪk ən ʋˈɑrmərə trˈœy mˈeːɣənˌoːmən]",
-        "pt": "[sj eʊ sˌowbˈɛsy\n tˌeɾˈiæ trˌazˈidw ũŋ kˌazˈakʊ mˈaɪs kˈeɪŋtʃy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-004",
-      "text": {
-        "fr": "Nous devrions peut-être faire demi-tour.",
-        "en": "Maybe we should turn back.",
-        "de": "Vielleicht sollten wir umkehren.",
-        "it": "Forse dovremmo tornare indietro.",
-        "es": "Quizás deberíamos dar la vuelta.",
-        "nl": "Misschien moeten we terugkeren.",
-        "pt": "Talvez a gente devesse voltar."
-      },
-      "ipa": {
-        "fr": "nu dəvʁiˈɔ̃ pˈøtˈɛtʁ fˈɛʁ dəmˈitˈuʁ",
-        "de": "[fiˈlaɪ̯çt ˈzɔldən viːɐ̯ ˈʊmkɛːʁən]",
-        "it": "[fˈoːrse dovrˈɛmmo tornˈaːre indjˈɛːtro]",
-        "es": "[kiˈθas deβeˈɾiamos ðaɾ la ˈβwelta]",
-        "nl": "[mɪsxˈin mˈutən ʋə tərˈɵxkˌɪːrən]",
-        "pt": "[taʊvˈez a ʒˈeɪŋtʃy dˌevˈesy vowtˈar]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-005",
-      "text": {
-        "fr": "Non, le refuge n'est pas loin. Regarde la carte.",
-        "en": "No, the shelter is not far. Look at the map.",
-        "de": "Nein, die Schutzhütte ist nicht weit. Schau auf die Karte.",
-        "it": "No, il rifugio non è lontano. Guarda la mappa.",
-        "es": "No, el refugio no está lejos. Mira el mapa.",
-        "nl": "Nee, de schuilplaats is niet ver. Kijk op de kaart.",
-        "pt": "Não, o refúgio não está longe.",
-        "en_pt": "No, the refuge isn't far."
-      },
-      "ipa": {
-        "fr": "nˈɔ̃ lə- ʁəfˈyʒ nɛ pa lwˈɛ̃ ʁəɡˈaʁd la- kˈaʁt",
-        "de": "[naɪ̯n, diː ˈʃʊtst͡sʏtə ɪst nɪçt vaɪ̯t. ʃaʊ̯ aʊ̯f diː ˈkaʁtə]",
-        "it": "[nˈɔ\n ˌil rifˈuːdʒo nˌon ˌɛ lontˈaːno\n ɡwˈaːrda lˌa mˈapːa]",
-        "es": "[no, el reˈfuχjo no esˈta ˈlexos. ˈmiɾa el ˈmapa]",
-        "nl": "[nˈeː\n də sxœylplˈaːts ɪs nˌit vˈɛr\n kˈɛɪk ɔp də kˈaːrt]",
-        "pt": "[nˈɐ̃ʊ̃\n ʊ xˌefˈuʒjʊ nˌɐ̃ʊ̃ estˌa lˈoŋʒy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-006",
-      "text": {
-        "fr": "Tu es trop optimiste parfois!",
-        "en": "You are too optimistic sometimes!",
-        "de": "Du bist manchmal zu optimistisch!",
-        "it": "Sei troppo ottimista a volte!",
-        "es": "¡A veces eres demasiado optimista!",
-        "nl": "Je bent soms te optimistisch!",
-        "pt": "Você é otimista demais às vezes!",
-        "en_pt": "You're too optimistic sometimes!"
-      },
-      "ipa": {
-        "fr": "ty ɛ tʁop ɔptimˈist paʁfwˈa",
-        "de": "[duː bɪst ˈmançmaːl t͡suː optimɪsˈtɪʃ]",
-        "it": "[sˌɛj trˈɔpːo ˌotːimˈista ˌa vˈɔlte]",
-        "es": "[a ˈβeθes ˈeɾes ðemaˈsjaðo optiˈmista]",
-        "nl": "[jə bɛnt sˈɔms tə ˈɔptimˌɪstis]",
-        "pt": "[vosˌe ɛ ˌotʃimˈistæ demˈaɪz aːz vˈezys]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-007",
-      "text": {
-        "fr": "Et toi, tu t'inquiètes toujours trop.",
-        "en": "And you, you always worry too much.",
-        "de": "Und du machst dir immer zu viele Sorgen.",
-        "it": "E tu, ti preoccupi sempre troppo.",
-        "es": "Y tú, siempre te preocupas demasiado.",
-        "nl": "En jij maakt je altijd te veel zorgen.",
-        "pt": "E você sempre se preocupa demais.",
-        "en_pt": "And you always worry too much."
-      },
-      "ipa": {
-        "fr": "e twˈa ty tɛ̃kjˈɛt tuʒˌuʁ tʁˈo",
-        "de": "[ʊnt duː maxst diːɐ̯ ˈɪmɐ t͡suː ˈfiːlə ˈzɔʁɡən]",
-        "it": "[ˌe tˈu\n tˌɪ preˈokːʊpɪ sˈɛmpre trˈɔpːo]",
-        "es": "[i ˈtu, ˈsjempɾe te pɾeokuˈpas ðemaˈsjaðo]",
-        "nl": "[ɛn jɛɪ mˈaːkt jə ˈɑltɛɪd tə vˈeːl zˈɔrɣən]",
-        "pt": "[i vosˌe sˌeɪmpry sy prˌeokˈupæ demˈaɪs]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-008",
-      "text": {
-        "fr": "Ce n'est pas le moment de se disputer.",
-        "en": "This is not the time to argue.",
-        "de": "Jetzt ist nicht die Zeit zu streiten.",
-        "it": "Non è il momento di litigare.",
-        "es": "Ahora no es momento de discutir.",
-        "nl": "Dit is niet het moment om te ruziën.",
-        "pt": "Não é hora de brigar.",
-        "en_pt": "This is no time to argue."
-      },
-      "ipa": {
-        "fr": "sə- nɛ pa lə- mɔmˈɑ̃ də- sə- dispytˈe",
-        "de": "[jɛt͡st ɪst nɪçt diː t͡saɪ̯t t͡suː ˈʃtʁaɪ̯tən]",
-        "it": "[nˌon ˌɛ ˌil momˈento dˌɪ lˌitiɡˈaːre]",
-        "es": "[aˈoɾa no es moˈmento ðe ðiskuˈtiɾ]",
-        "nl": "[dɪt ɪs nˌit hət moːmˈɛnt ɔm tə ryzˈiən]",
-        "pt": "[nˌɐ̃ʊ̃ ɛ ˈɔɾæ dʒy briɡˈar]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-009",
-      "text": {
-        "fr": "Je suis désolé, j'ai juste peur.",
-        "en": "I'm sorry, I'm just scared.",
-        "de": "Es tut mir leid, ich habe nur Angst.",
-        "it": "Mi dispiace, ho solo paura.",
-        "es": "Lo siento, es que tengo miedo.",
-        "nl": "Sorry, ik ben gewoon bang.",
-        "pt": "Desculpa, estou com medo.",
-        "en_pt": "Sorry, I'm scared."
-      },
-      "ipa": {
-        "fr": "ʒə- syˌi dezɔlˈe ʒe ʒˈyst pˈœʁ",
-        "de": "[ɛs tuːt miːɐ̯ laɪ̯t, ɪç haːbə nuːɐ̯ ˈaŋst]",
-        "it": "[mˌɪ dˌispiˈaːtʃe\n ˌo sˈoːlo paˈuːra]",
-        "es": "[lo ˈsjento, es ke ˈteŋɡo ˈmjeðo]",
-        "nl": "[sˈɔɾri\n ɪk bɛn ɣəʋˈoːn bˈɑŋ]",
-        "pt": "[dˌeskˈuwpæ\n estˌow koŋ mˈedʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-010",
-      "text": {
-        "fr": "Moi aussi, mais il faut continuer",
-        "en": "Me too, but we must keep going",
-        "de": "Ich auch, aber wir müssen weitermachen",
-        "it": "Anche io, ma dobbiamo andare avanti",
-        "es": "Yo también, pero tenemos que seguir",
-        "nl": "Ik ook, maar we moeten doorgaan",
-        "pt": "Eu também, mas temos que continuar.",
-        "en_pt": "Me too, but we have to keep going."
-      },
-      "ipa": {
-        "fr": "mwˌa osˈi mɛz il fo kɔ̃tinyˈe",
-        "de": "[ɪç aʊ̯x, ˈabɐ viːɐ̯ ˈmʏsn̩ ˈvaɪ̯tɐmaxən]",
-        "it": "[ˈanke ˈio\n mˌa dobːjˈaːmo andˈaːre avˈantɪ]",
-        "es": "[ʝo tamˈbjen, ˈpeɾo teˈnemos ke seˈɣiɾ]",
-        "nl": "[ɪk ˈoːk\n maːr ʋə mˈutən dɔːrɣˈaːn]",
-        "pt": "[eʊ tɐ̃mbˈeɪŋ\n mas tˌemʊs ky kˌoŋtʃinuˈar]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-011",
-      "text": {
-        "fr": "On ne peut pas rester ici.",
-        "en": "We can't stay here.",
-        "de": "Wir können hier nicht bleiben.",
-        "it": "Non possiamo restare qui.",
-        "es": "No podemos quedarnos aquí.",
-        "nl": "We kunnen hier niet blijven.",
-        "pt": "Não podemos ficar aqui."
-      },
-      "ipa": {
-        "fr": "ɔ̃ nə- pˈø pa ʁɛstˈe isˈi",
-        "de": "[viːɐ̯ ˈkœnən hiːɐ̯ nɪçt ˈblaɪ̯bən]",
-        "it": "[nˌon possjˈaːmo restˈaːre kwˈi]",
-        "es": "[no poˈðemos keˈðaɾnos aˈki]",
-        "nl": "[ʋə kˌɵnən hˈir nˌit blˈɛɪvən]",
-        "pt": "[nˌɐ̃ʊ̃ podˌemʊs fikˈaɾ akˈi]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-012",
-      "text": {
-        "fr": "Le brouillard devient très épais.",
-        "en": "The fog is getting very thick.",
-        "de": "Der Nebel wird sehr dicht.",
-        "it": "La nebbia si sta addensando molto.",
-        "es": "La niebla se está haciendo muy densa.",
-        "nl": "De mist wordt erg dik.",
-        "pt": "A neblina está ficando muito densa."
-      },
-      "ipa": {
-        "fr": "lə- bʁujˈaʁ dəvjˈɛ̃ tʁɛz epˈɛ",
-        "de": "[deːɐ̯ ˈneːbəl vɪʁt zeːɐ̯ ˈdɪçt]",
-        "it": "[lˌa nˈebːia sˌɪ stˈa ˌadːensˈando mˈolto]",
-        "es": "[la ˈnjeβla se esˈta aˈθjendo ˈmuj ˈðensa]",
-        "nl": "[də mˈɪst ʋɔrt ˈɛrx dˈɪk]",
-        "pt": "[a nˌeblˈinæ estˌa fˌikˈɐ̃ŋdʊ mwˈiŋtʊ dˈeɪŋsæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-013",
-      "text": {
-        "fr": "Je ne vois presque plus le sentier.",
-        "en": "I can hardly see the trail anymore.",
-        "de": "Ich sehe den Weg fast nicht mehr.",
-        "it": "Vedo a malapena il sentiero.",
-        "es": "Casi no veo el camino.",
-        "nl": "Ik zie het pad bijna niet meer.",
-        "pt": "Quase não consigo ver a trilha.",
-        "en_pt": "I can barely see the trail."
-      },
-      "ipa": {
-        "fr": "ʒə- nə- vwˈa pʁˌɛskə ply lə- sɑ̃tjˈe",
-        "de": "[ɪç zeːə deːn veːk fast nɪçt meːɐ̯]",
-        "it": "[vˈeːdo ˌa mˌalapˈeːna ˌil sˌentiˈɛːro]",
-        "es": "[ˈkasi no ˈβeo el kaˈmino]",
-        "nl": "[ɪk zˈi hət pˈɑt bˈɛɪnˌaː nˈit mˌeːr]",
-        "pt": "[kwˈazy nˌɐ̃ʊ̃ kˌoŋsˈiɡʊ vˈeɾ a trˈiljæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-014",
-      "text": {
-        "fr": "Restons ensemble, ne nous séparons pas,",
-        "en": "Let's stay together, let's not separate,",
-        "de": "Bleiben wir zusammen, trennen wir uns nicht,",
-        "it": "Restiamo insieme, non separiamoci,",
-        "es": "Quedémonos juntos, no nos separemos,",
-        "nl": "Laten we bij elkaar blijven, laten we niet uit elkaar gaan,",
-        "pt": "Vamos ficar juntos, não nos separemos, insiste Sophie.",
-        "en_pt": "Let's stay together, let's not separate, Sophie insists."
-      },
-      "ipa": {
-        "fr": "ʁɛstˈɔ̃z ɑ̃sˈɑ̃bl nə- nu sepaʁˈɔ̃ pˈa",
-        "de": "[ˈblaɪ̯bən viːɐ̯ t͡suˈzamən, ˈtʁɛnən viːɐ̯ ʊns nɪçt]",
-        "it": "[restjˈaːmo insjˈɛːme\n nˌon sˌepariˈamotʃɪ]",
-        "es": "[keˈðemonos ˈxuntos, no nos sepaˈɾemos]",
-        "nl": "[lˈaːtən ʋə bɛɪ ˈɛlkaːr blˈɛɪvən\n lˈaːtən ʋə nˌit œyt ˈɛlkaːr ɣˈaːn]",
-        "pt": "[vˌɐ̃mʊs fikˈar ʒˈũŋtʊs\n nˌɐ̃ʊ̃ nʊs sˌepaɾˈemʊs\n ˌiŋsˈistʃy sˌofˈiy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-015",
-      "text": {
-        "fr": "Attends, j'ai perdu mon sac! Il était juste là!",
-        "en": "Wait, I have lost my bag! It was right here!",
-        "de": "Warte, ich habe meinen Rucksack verloren! Er war gerade hier!",
-        "it": "Aspetta, ho perso il mio zaino! Era proprio qui!",
-        "es": "Espera, ¡he perdido mi mochila! Estaba justo aquí.",
-        "nl": "Wacht, ik ben mijn tas kwijt! Hij was net hier!",
-        "pt": "Estava aqui!",
-        "en_pt": "It was right here!"
-      },
-      "ipa": {
-        "fr": "atˈɑ̃ ʒe pɛʁdˈy mɔ̃ sˈak il etˈɛ ʒˈyst lˈa",
-        "de": "[ˈvaʁtə, ɪç haːbə ˈmaɪ̯nən ˈʁʊksak fɛɐ̯ˈloːʁən! ɛɐ̯ vaːɐ̯ ɡəˈʁaːdə hiːɐ̯]",
-        "it": "[aspˈɛtːa\n ˌo pˈɛːrso ˌil mˌio dzˈaɪːno\n ˌɛra prˈɔprio kwˈi]",
-        "es": "[esˈpeɾa, e peɾˈðiðo mi moˈtʃila! esˈtaβa ˈxusto aˈki]",
-        "nl": "[ʋˈɑxt\n ɪk bɛn mɛɪn tˈɑs kʋˈɛɪt\n hɛɪ ʋˈɑs nˈɛt hˈir]",
-        "pt": "[estˌavæ akˈi]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-016",
-      "text": {
-        "fr": "Je reviens le chercher, toi, continue! Suis le sentier!",
-        "en": "I'll go back to look for it, you continue! Follow the trail!",
-        "de": "Ich gehe ihn holen, du geh weiter! Folge dem Weg!",
-        "it": "Torno indietro a prenderlo, tu continua! Segui il sentiero!",
-        "es": "Voy a buscarla, tú sigue el camino.",
-        "nl": "Ik ga terug om hem te zoeken, jij gaat door! Volg het pad!",
-        "pt": "Vou voltar para procurar, você continua!",
-        "en_pt": "I'll go back to look for it, you keep going!"
-      },
-      "ipa": {
-        "fr": "ʒə- ʁəvjˈɛ̃ lə- ʃɛʁʃˈe twˈa kɔ̃tinˈy syˈi lə- sɑ̃tjˈe",
-        "de": "[ɪç ɡeːə ɪn ˈhoːlən, duː geː ˈvaɪ̯tɐ! ˈfɔlɡə deːm veːk]",
-        "it": "[tˈoːrno indjˈɛːtro ˌa prˈenderlo\n tˌʊ kontˈinʊa\n sˈeɡwɪ ˌil sˌentiˈɛːro]",
-        "es": "[boj a busˈkaɾla, ˈtu ˈsiɣe el kaˈmino]",
-        "nl": "[ɪk ɣˈaː tərˈɵx ɔm hˈɛm tə zˈukən\n jɛɪ ɣˈaː tˈoːr\n vˈɔlx hət pˈɑt]",
-        "pt": "[vow vowtˈar pˌaɾæ prˌokuɾˈar\n vosˌe kˌoŋtʃinˈuæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-017",
-      "text": {
-        "fr": "Non, Lucas, attendons ensemble!",
-        "en": "No, Lucas, let's wait together!",
-        "de": "Nein, Lucas, warten wir zusammen!",
-        "it": "No, Lucas, aspettiamo insieme!",
-        "es": "No, Lucas, esperemos juntos.",
-        "nl": "Nee, Lucas, laten we samen wachten!",
-        "pt": "Não Lucas, vamos esperar juntos!",
-        "en_pt": "No Lucas, let's wait together!"
-      },
-      "ipa": {
-        "fr": "nˈɔ̃ lykˈa atɑ̃dˈɔ̃z ɑ̃sˈɑ̃bl",
-        "de": "[naɪ̯n, ˈluːkas, ˈvaʁtən viːɐ̯ t͡suˈzamən]",
-        "it": "[nˈɔ\n lˈuːkas\n ˌaspetːjˈaːmo insjˈɛːme]",
-        "es": "[no, ˈlukas, espeˈɾemos ˈxuntos]",
-        "nl": "[nˈeː\n lˈykɑs\n lˈaːtən ʋə sˈaːmən ʋˈɑxtən]",
-        "pt": "[nˌɐ̃ʊ̃ lˈukæs\n vˌɐ̃mʊz ˌespeɾˈar ʒˈũŋtʊs]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-018",
-      "text": {
-        "fr": "Le lendemain matin, Sophie et Lucas commencent leur randonnée.",
-        "en": "The next morning, Sophie and Lucas start their hike.",
-        "de": "Am nächsten Morgen beginnen Sophie und Lucas ihre Wanderung.",
-        "it": "Il giorno dopo, Sophie e Lucas iniziano la loro escursione.",
-        "es": "A la mañana siguiente, Sophie y Lucas empiezan su caminata.",
-        "nl": "De volgende ochtend beginnen Sophie en Lucas aan hun wandeling.",
-        "pt": "Na manhã seguinte, Sophie e Lucas começam sua trilha.",
-        "en_pt": "The next morning, Sophie and Lucas begin their hike."
-      },
-      "ipa": {
-        "fr": "lə- lɑ̃dmˈɛ̃ matˈɛ̃ sɔfˈi e lykˈa kɔmˈɑ̃s lœʁ ʁɑ̃dɔnˈe",
-        "de": "[am ˈnɛçstn̩ ˈmɔʁɡn̩ bəˈɡɪnən ˈzɔfiː ʊnt ˈluːkas ˈiːʁə ˈvandəʁʊŋ]",
-        "it": "[ˌil dʒˈoːrno dˈoːpo\n sˈopje ˌe lˈuːkas inˈitsjano lˌa lˌɔro ˌeskʊrsiˈoːne]",
-        "es": "[a la maˈɲana siˈɣjente, ˈsofi i ˈlukas emˈpjεθan su kamiˈnata]",
-        "nl": "[də vˈɔlɣəndə ˈɔxtənt bəɣˈɪnən sɔphˈi ɛn lˈykɑs aːn hɵn ʋˈɑndəlˌɪŋ]",
-        "pt": "[na mɐ̃ɲˈɐ̃ sˌeɡˈiŋtʃy\n sˌofˈij i lˈukæs kˌomˈɛsɐ̃ʊ̃ sˌuæ trˈiljæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-019",
-      "text": {
-        "fr": "Le temps est beau, le ciel est bleu.",
-        "en": "The weather is nice, the sky is blue.",
-        "de": "Das Wetter ist schön, der Himmel ist blau.",
-        "it": "Il tempo è bello, il cielo è blu.",
-        "es": "Hace buen tiempo, el cielo está azul.",
-        "nl": "Het weer is mooi, de lucht is blauw.",
-        "pt": "O tempo está bonito, o céu está azul."
-      },
-      "ipa": {
-        "fr": "lə- tˈɑ̃ ɛ bˈo lə- sjˈɛl ɛ blˈø",
-        "de": "[das ˈvɛtɐ ɪst ʃøːn, deːɐ̯ ˈhɪməl ɪst blaʊ̯]",
-        "it": "[ˌil tˈɛmpo ˌɛ bˈɛllo\n ˌil tʃˈɛːlo ˌɛ blˈu]",
-        "es": "[ˈaθe βwen ˈtjempo, el ˈθjelo esˈta aˈθul]",
-        "nl": "[hət ʋˈɪːr ɪs mˈoːj\n də lˈɵxt ɪs blˈʌʊ]",
-        "pt": "[ʊ tˈeɪmpw estˌa bˌonˈitʊ\n ʊ sˈɛʊ estˌa azˈuw]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-020",
-      "text": {
-        "fr": "Ils suivent un sentier qui monte vers un refuge de montagne.",
-        "en": "They follow a trail that goes up to a mountain hut.",
-        "de": "Sie folgen einem Weg, der zu einer Berghütte führt.",
-        "it": "Seguono un sentiero che sale verso un rifugio di montagna.",
-        "es": "Siguen un camino que sube hacia un refugio de montaña.",
-        "nl": "Ze volgen een pad dat omhoog loopt naar een berghut.",
-        "pt": "Eles seguem uma trilha que sobe em direção a um refúgio na montanha.",
-        "en_pt": "They follow a trail that climbs toward a mountain refuge."
-      },
-      "ipa": {
-        "fr": "il syˈivt œ̃ sɑ̃tjˈe ki mˈɔ̃t vɛʁ œ̃ ʁəfˈyʒ də- mɔ̃tˈaɲ",
-        "de": "[ziː ˈfɔlɡən ˈaɪ̯nəm veːk, deːɐ̯ t͡suː ˈaɪ̯nɐ ˈbɛʁχʏtə ˈfyːʁt]",
-        "it": "[sˈeɡwono ˌʊn sˌentiˈɛːro kˌe sˈaːle vˌɛrso ˌʊn rifˈuːdʒo dˌɪ montˈaɲɲa]",
-        "es": "[ˈsiɣen un kaˈmino ke ˈsuβe ˈaθja un reˈfuχjo de monˈtaɲa]",
-        "nl": "[zə vˈɔlɣən ən pˈɑd dɑt ɔmhˈoːx lˈoːpt naːr ən bərxhˈɵt]",
-        "pt": "[ˌelys sˈɛɡeɪŋ ˌumæ trˈiljæ ky sˈɔbj ˈeɪŋ dʒˌiɾesˈɐ̃ʊ̃ a ũŋ xˌefˈuʒjʊ na mˌoŋtˈɐ̃ɲæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-021",
-      "text": {
-        "fr": "racontera plus tard Sophie.",
-        "en": "Sophie will tell later.",
-        "de": "erzählt später Sophie.",
-        "it": "racconterà più tardi Sophie.",
-        "es": "lo contará más tarde Sophie.",
-        "nl": "zal Sophie later vertellen."
-      },
-      "ipa": {
-        "fr": "ʁakɔ̃tʁˈa ply tˈaʁ sɔfˈi",
-        "de": "[ɛɐ̯ˈt͡sɛlt ˈʃpɛːtɐ ˈzɔfiː]",
-        "it": "[rˌakːonterˈa pjˌʊ tˈaːrdɪ sˈopje]",
-        "es": "[lo konˈtaɾa mas ˈtaɾðe ˈsofi]",
-        "nl": "[zɑl sɔphˈi lˈaːtər vərtˈɛlən]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-022",
-      "text": {
-        "fr": "Le changement est soudain.",
-        "en": "The change is sudden.",
-        "de": "Der Wandel ist plötzlich.",
-        "it": "Il cambiamento è improvviso.",
-        "es": "El cambio es repentino.",
-        "nl": "De verandering is plotseling.",
-        "pt": "A mudança é repentina."
-      },
-      "ipa": {
-        "fr": "lə- ʃɑ̃ʒmˈɑ̃ ɛ sudˈɛ̃",
-        "de": "[deːɐ̯ ˈvandəl ɪst ˈplœt͡slɪç]",
-        "it": "[ˌil kˌambjamˈento ˌɛ ˌimprovvˈiːzo]",
-        "es": "[el kamˈβjo es reˈpentino]",
-        "nl": "[də vərˈɑndərˌɪŋ ɪs plˈɔtsəlˌɪŋ]",
-        "pt": "[a mˌudˈɐ̃ŋsæ ɛ xˌepeɪŋtʃˈinæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-023",
-      "text": {
-        "fr": "Lucas regarde le ciel menaçant.",
-        "en": "Lucas looks at the threatening sky.",
-        "de": "Lucas schaut auf den drohenden Himmel.",
-        "it": "Lucas guarda il cielo minaccioso.",
-        "es": "Lucas mira el cielo amenazante.",
-        "nl": "Lucas kijkt naar de dreigende lucht.",
-        "pt": "Lucas olha o céu ameaçador."
-      },
-      "ipa": {
-        "fr": "lykˈa ʁəɡˈaʁd lə- sjˈɛl mənasˈɑ̃",
-        "de": "[ˈluːkas ʃaʊ̯t aʊ̯f deːn ˈdʁoːəndən ˈhɪməl]",
-        "it": "[lˈuːkas ɡwˈaːrda ˌil tʃˈɛːlo mˌinatʃːˈoːzo]",
-        "es": "[ˈlukas ˈmiɾa el ˈθjelo amenaˈθante]",
-        "nl": "[lˈykɑs kˈɛɪkt naːr də drˈɛɪɣəndə lˈɵxt]",
-        "pt": "[lˈukæz ˈɔljæ ʊ sˈɛʊ ˌæmeˌasadˈor]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-024",
-      "text": {
-        "fr": "dit Sophie, la voix tendue.",
-        "en": "says Sophie, in a tense voice.",
-        "de": "sagt Sophie, ihre Stimme angespannt.",
-        "it": "dice Sophie, con la voce tesa.",
-        "es": "dice Sophie, con la voz tensa.",
-        "nl": "zegt Sophie, met een gespannen stem.",
-        "pt": "diz Sophie, a voz tensa.",
-        "en_pt": "Sophie says, her voice tense."
-      },
-      "ipa": {
-        "fr": "dˈi sɔfˈi la- vwˈa tɑ̃dˈy",
-        "de": "[zaːkt ˈzɔfiː, ˈiːʁə ˈʃtɪmə ˈanɡəʃpant]",
-        "it": "[dˈiːtʃe sˈopje\n kˌon lˌa vˈoːtʃe tˈeːza]",
-        "es": "[ˈdiθe ˈsofi, kon la βoθ ˈtensa]",
-        "nl": "[zˈɛxt sɔphˈi\n mɛt ən ɣəspˈɑnən stˈɛm]",
-        "pt": "[dʒˈis sˌofˈiy\n a vˈɔs tˈeɪŋsæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-025",
-      "text": {
-        "fr": "Sophie s'arrête brusquement.",
-        "en": "Sophie suddenly stops.",
-        "de": "Sophie bleibt plötzlich stehen.",
-        "it": "Sophie si ferma di colpo.",
-        "es": "Sophie se detiene de repente.",
-        "nl": "Sophie stopt plotseling.",
-        "pt": "Sophie para bruscamente.",
-        "en_pt": "Sophie stops abruptly."
-      },
-      "ipa": {
-        "fr": "sɔfˈi saʁˈɛt bʁyskəmˈɑ̃",
-        "de": "[ˈzɔfiː ˈblaɪ̯pt ˈplœt͡slɪç ˈʃteːən]",
-        "it": "[sˈopje sˌɪ fˈeːrma dˌɪ kˈolpo]",
-        "es": "[ˈsofi se ðeˈtjene ðe reˈpente]",
-        "nl": "[sɔphˈi stˈɔpt plˈɔtsəlˌɪŋ]",
-        "pt": "[sˌofˈiy pˌaɾæ brˌuskæmˈeɪŋtʃy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-026",
-      "text": {
-        "fr": "Le brouillard commence à descendre de la montagne.",
-        "en": "The fog begins to descend from the mountain.",
-        "de": "Der Nebel beginnt von den Bergen herabzusteigen.",
-        "it": "La nebbia comincia a scendere dalla montagna.",
-        "es": "La niebla empieza a bajar de la montaña.",
-        "nl": "De mist begint van de berg af te dalen.",
-        "pt": "A neblina começa a descer da montanha."
-      },
-      "ipa": {
-        "fr": "lə- bʁujˈaʁ kɔmˈɑ̃s a dɛsˈɑ̃dʁ də- la- mɔ̃tˈaɲ",
-        "de": "[deːɐ̯ ˈneːbəl bəˈɡɪnt fɔn deːn ˈbɛʁɡən heːʁapˈt͡saɪ̯ɡən]",
-        "it": "[lˌa nˈebːia komˈintʃa ˌa ʃˈendere dˌalla montˈaɲɲa]",
-        "es": "[la ˈnjeβla emˈpjεθa a baˈxaɾ ðe la monˈtaɲa]",
-        "nl": "[də mˈɪst bəɣˈɪnt vɑn də bˈɛrx ˈɑf tə dˈaːlən]",
-        "pt": "[a nˌeblˈinæ kˌomˈɛsæ a desˈer da mˌoŋtˈɐ̃ɲæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-027",
-      "text": {
-        "fr": "Lucas avance prudemment.",
-        "en": "Lucas proceeds cautiously.",
-        "de": "Lucas geht vorsichtig voran.",
-        "it": "Lucas avanza con cautela.",
-        "es": "Lucas avanza con cuidado.",
-        "nl": "Lucas gaat voorzichtig verder.",
-        "pt": "Lucas avança com cuidado.",
-        "en_pt": "Lucas moves forward carefully."
-      },
-      "ipa": {
-        "fr": "lykˈaz avˈɑ̃s pʁydamˈɑ̃",
-        "de": "[ˈluːkas geːt fɔɐ̯ˈzɪçtɪç foːʁˈʔan]",
-        "it": "[lˈuːkas avˈantsa kˌon kˌaʊtˈɛːla]",
-        "es": "[ˈlukas aˈβanθa kon kwiˈðaðo]",
-        "nl": "[lˈykɑs ɣˈaːt vˌɔːrzˈɪxtəx vˈɛrdər]",
-        "pt": "[lˈukæz ˌavˈɐ̃ŋsæ koŋ kˌuɪdˈadʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-028",
-      "text": {
-        "fr": "Soudain, Sophie s'arrête.",
-        "en": "Suddenly, Sophie stops.",
-        "de": "Plötzlich bleibt Sophie stehen.",
-        "it": "All'improvviso, Sophie si ferma.",
-        "es": "De repente, Sophie se detiene.",
-        "nl": "Plotseling stopt Sophie.",
-        "pt": "De repente, Sophie para."
-      },
-      "ipa": {
-        "fr": "sudˈɛ̃ sɔfˈi saʁˈɛt",
-        "de": "[ˈplœt͡slɪç ˈblaɪ̯pt ˈzɔfiː ˈʃteːən]",
-        "it": "[allˌimprovvˈiːzo\n sˈopje sˌɪ fˈeːrma]",
-        "es": "[de reˈpente, ˈsofi se ðeˈtjene]",
-        "nl": "[plˈɔtsəlˌɪŋ stˈɔpt sɔphˈi]",
-        "pt": "[dʒy xˌepˈeɪŋtʃy\n sˌofˈiy pˌaɾæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-029",
-      "text": {
-        "fr": "Mais Lucas est déjà parti dans le brouillard.",
-        "en": "But Lucas has already gone into the fog.",
-        "de": "Aber Lucas ist schon im Nebel verschwunden.",
-        "it": "Ma Lucas è già partito nella nebbia.",
-        "es": "Pero Lucas ya se ha ido en la niebla.",
-        "nl": "Maar Lucas is al verdwenen in de mist.",
-        "pt": "Mas Lucas já foi embora na neblina.",
-        "en_pt": "But Lucas has already disappeared into the fog."
-      },
-      "ipa": {
-        "fr": "mɛ lykˈaz ɛ deʒˈa paʁtˈi dɑ̃ lə- bʁujˈaʁ",
-        "de": "[ˈabɐ ˈluːkas ɪst ʃoːn ɪm ˈneːbəl fɛɐ̯ˈʃvʊndən]",
-        "it": "[mˌa lˈuːkas ˌɛ dʒˈa partˈiːto nˌɛlla nˈebːia]",
-        "es": "[ˈpeɾo ˈlukas ʝa se a iˈðo en la ˈnjeβla]",
-        "nl": "[maːr lˈykɑs ɪs ˈɑl vərdʋˈeːnən ɪn də mˈɪst]",
-        "pt": "[maz lˈukæz ʒˈa foɪ ˌeɪmbˈɔɾæ na nˌeblˈinæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-030",
-      "text": {
-        "pt": "Sophie treme.",
-        "en": "Sophie shivers."
-      },
-      "ipa": {
-        "pt": "[sˌofˈiy trˈemy]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-031",
-      "text": {
-        "pt": "Olha o mapa.",
-        "en": "Look at the map."
-      },
-      "ipa": {
-        "pt": "[ˈɔljæ ʊ mˈapæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-032",
-      "text": {
-        "pt": "Lucas pega a mão dela.",
-        "en": "Lucas takes her hand."
-      },
-      "ipa": {
-        "pt": "[lˈukæs pˈɛɡæ a mˈɐ̃ʊ̃ dˈɛlæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-033",
-      "text": {
-        "pt": "Espera, perdi minha mochila!",
-        "en": "Wait, I lost my backpack!"
-      },
-      "ipa": {
-        "pt": "[ˌespˈɛɾæ\n peɾədʒˈi mˌiɲæ mˌoʃˈilæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-09-034",
-      "text": {
-        "pt": "Segue a trilha!",
-        "en": "Follow the trail!"
-      },
-      "ipa": {
-        "pt": "[sˈɛɡj a trˈiljæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    }
-  ]
+    "phrases": [
+        {
+            "id": "scene-09-001",
+            "text": {
+                "fr": "Nous marchions depuis trois heures quand les nuages sont arrivés,",
+                "en": "We had been walking for three hours when the clouds arrived,",
+                "de": "Wir waren drei Stunden unterwegs, als die Wolken aufzogen,",
+                "it": "Camminavamo da tre ore quando sono arrivati i nuvoloni,",
+                "es": "Llevábamos tres horas caminando cuando llegaron las nubes,",
+                "nl": "We liepen al drie uur toen de wolken kwamen,",
+                "pt": "Estávamos caminhando há três horas quando as nuvens chegaram, contará Sophie mais tarde.",
+                "en_pt": "We had been walking for three hours when the clouds arrived, Sophie would later recount."
+            },
+            "ipa": {
+                "fr": "nu maʁʃjˈɔ̃ dəpyˌi tʁwˈaz ˈœʁ kɑ̃ le- nyˈaʒ sˈɔ̃t aʁivˈe",
+                "de": "[viːɐ̯ vaːʁən dʁaɪ̯ ˈʃtʊndən ˈʊntɐveːks, als diː ˈvɔlkən ˈaʊ̯ftsoːɡən,]",
+                "it": "[kˌamminavˈaːmo dˌa trˈe ˈoːre kwˈando sˌono ˌarɾivˈaːtɪ ˌɪ nˌʊvolˈoːnɪ]",
+                "es": "[ʎeˈβaβamos ˈtɾes ˈoɾas kamˈjando ˈkwando ʎeˈɣaɾon las ˈnubes]",
+                "nl": "[ʋə lˈipən ˈɑl drˈi ˈyr tˈun də ʋˈɔlkən kʋˈaːmən]",
+                "pt": "[estˌavæmʊs kˌæmiɲˈɐ̃ŋdw a trˈes ˈɔɾæs kwˈɐ̃ŋdw az nˈuveɪŋs ʃˌeɡˈaɾɐ̃ʊ̃\n kˌoŋtaɾˈa sˌofˈiy mˈaɪs tˈaɾədʒy]",
+                "en": "[wiː hɐdbɪn wˈɔːkɪŋ fɔː θɹˈiː ˈaʊəz wɛn ðə klˈaʊdz ɐɹˈaɪvd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-002",
+            "text": {
+                "fr": "Il faisait de plus en plus froid.",
+                "en": "It was getting colder and colder.",
+                "de": "Es wurde immer kälter.",
+                "it": "Stava diventando sempre più freddo.",
+                "es": "Empezaba a hacer cada vez más frío.",
+                "nl": "Het werd steeds kouder.",
+                "pt": "Estava ficando cada vez mais frio."
+            },
+            "ipa": {
+                "fr": "il fəzˈɛ də- plyz ɑ̃ ply fʁwˈa",
+                "de": "[ɛs ˈvʊrdə ˈɪmɐ ˈkɛltɐ]",
+                "it": "[stˈaːva dˌiventˈando sˈɛmpre pjˌʊ frˈedːo]",
+                "es": "[empeˈθaβa a aˈθeɾ ˈkaða βeθ ˈmas ˈfɾio]",
+                "nl": "[hət ʋɛrt stˈeːts kˈʌʊdər]",
+                "pt": "[estˌavæ fˌikˈɐ̃ŋdʊ kˈadæ vˈez mˈaɪs frˈiʊ]",
+                "en": "[ɪt wɒz ɡˌɛtɪŋ kˈəʊldə and kˈəʊldə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-003",
+            "text": {
+                "fr": "Si j'avais su, j'aurais apporté un pull plus chaud.",
+                "en": "If I had known, I would have brought a warmer sweater.",
+                "de": "Hätte ich das gewusst, hätte ich einen wärmeren Pullover mitgebracht.",
+                "it": "Se l'avessi saputo, avrei portato un maglione più caldo.",
+                "es": "Si lo hubiera sabido, habría traído un jersey más abrigado.",
+                "nl": "Als ik het had geweten, had ik een warmere trui meegenomen.",
+                "pt": "Se eu soubesse, teria trazido um casaco mais quente.",
+                "en_pt": "If I had known, I would have brought a warmer jacket."
+            },
+            "ipa": {
+                "fr": "sˈi ʒavˈɛ sˈy ʒoʁˈɛz apɔʁtˈe œ̃pˈul ply ʃˈo",
+                "de": "[ˈhɛtə ɪç das ɡəˈvʊst, ˈhɛtə ɪç ˈaɪ̯nən ˈvɛrməʁən ˈpʊlovɐ ˈmɪtɡəbʁaxt]",
+                "it": "[sˌe lavˌɛssɪ sapˈuːto\n avrˈeːɪ portˈaːto ˌʊn maʎˈoːne pjˌʊ kˈaldo]",
+                "es": "[si lo uˈβjeɾa saˈβiðo, aˈβɾia tɾaˈiðo un ˈxeɾsei mas aβɾiˈɣaðo]",
+                "nl": "[ɑls ɪk hət hˈɑt ɣəʋˈeːtən\n hˈɑt ɪk ən ʋˈɑrmərə trˈœy mˈeːɣənˌoːmən]",
+                "pt": "[sj eʊ sˌowbˈɛsy\n tˌeɾˈiæ trˌazˈidw ũŋ kˌazˈakʊ mˈaɪs kˈeɪŋtʃy]",
+                "en": "[ɪf aɪ hɐd nˈəʊn aɪ wʊdhɐv bɹˈɔːt ɐ wˈɔːmə swˈɛtə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-004",
+            "text": {
+                "fr": "Nous devrions peut-être faire demi-tour.",
+                "en": "Maybe we should turn back.",
+                "de": "Vielleicht sollten wir umkehren.",
+                "it": "Forse dovremmo tornare indietro.",
+                "es": "Quizás deberíamos dar la vuelta.",
+                "nl": "Misschien moeten we terugkeren.",
+                "pt": "Talvez a gente devesse voltar."
+            },
+            "ipa": {
+                "fr": "nu dəvʁiˈɔ̃ pˈøtˈɛtʁ fˈɛʁ dəmˈitˈuʁ",
+                "de": "[fiˈlaɪ̯çt ˈzɔldən viːɐ̯ ˈʊmkɛːʁən]",
+                "it": "[fˈoːrse dovrˈɛmmo tornˈaːre indjˈɛːtro]",
+                "es": "[kiˈθas deβeˈɾiamos ðaɾ la ˈβwelta]",
+                "nl": "[mɪsxˈin mˈutən ʋə tərˈɵxkˌɪːrən]",
+                "pt": "[taʊvˈez a ʒˈeɪŋtʃy dˌevˈesy vowtˈar]",
+                "en": "[mˈeɪbiː wiː ʃˌʊd tˈɜːn bˈak]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-005",
+            "text": {
+                "fr": "Non, le refuge n'est pas loin. Regarde la carte.",
+                "en": "No, the shelter is not far. Look at the map.",
+                "de": "Nein, die Schutzhütte ist nicht weit. Schau auf die Karte.",
+                "it": "No, il rifugio non è lontano. Guarda la mappa.",
+                "es": "No, el refugio no está lejos. Mira el mapa.",
+                "nl": "Nee, de schuilplaats is niet ver. Kijk op de kaart.",
+                "pt": "Não, o refúgio não está longe.",
+                "en_pt": "No, the refuge isn't far."
+            },
+            "ipa": {
+                "fr": "nˈɔ̃ lə- ʁəfˈyʒ nɛ pa lwˈɛ̃ ʁəɡˈaʁd la- kˈaʁt",
+                "de": "[naɪ̯n, diː ˈʃʊtst͡sʏtə ɪst nɪçt vaɪ̯t. ʃaʊ̯ aʊ̯f diː ˈkaʁtə]",
+                "it": "[nˈɔ\n ˌil rifˈuːdʒo nˌon ˌɛ lontˈaːno\n ɡwˈaːrda lˌa mˈapːa]",
+                "es": "[no, el reˈfuχjo no esˈta ˈlexos. ˈmiɾa el ˈmapa]",
+                "nl": "[nˈeː\n də sxœylplˈaːts ɪs nˌit vˈɛr\n kˈɛɪk ɔp də kˈaːrt]",
+                "pt": "[nˈɐ̃ʊ̃\n ʊ xˌefˈuʒjʊ nˌɐ̃ʊ̃ estˌa lˈoŋʒy]",
+                "en": "[nˈəʊ ðə ʃˈɛltəɹ ɪz nˌɒt fˈɑː lˈʊk at ðə mˈap]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-006",
+            "text": {
+                "fr": "Tu es trop optimiste parfois!",
+                "en": "You are too optimistic sometimes!",
+                "de": "Du bist manchmal zu optimistisch!",
+                "it": "Sei troppo ottimista a volte!",
+                "es": "¡A veces eres demasiado optimista!",
+                "nl": "Je bent soms te optimistisch!",
+                "pt": "Você é otimista demais às vezes!",
+                "en_pt": "You're too optimistic sometimes!"
+            },
+            "ipa": {
+                "fr": "ty ɛ tʁop ɔptimˈist paʁfwˈa",
+                "de": "[duː bɪst ˈmançmaːl t͡suː optimɪsˈtɪʃ]",
+                "it": "[sˌɛj trˈɔpːo ˌotːimˈista ˌa vˈɔlte]",
+                "es": "[a ˈβeθes ˈeɾes ðemaˈsjaðo optiˈmista]",
+                "nl": "[jə bɛnt sˈɔms tə ˈɔptimˌɪstis]",
+                "pt": "[vosˌe ɛ ˌotʃimˈistæ demˈaɪz aːz vˈezys]",
+                "en": "[juː ɑː tˈuː ˌɒptɪmˈɪstɪk sˈʌmtaɪmz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-007",
+            "text": {
+                "fr": "Et toi, tu t'inquiètes toujours trop.",
+                "en": "And you, you always worry too much.",
+                "de": "Und du machst dir immer zu viele Sorgen.",
+                "it": "E tu, ti preoccupi sempre troppo.",
+                "es": "Y tú, siempre te preocupas demasiado.",
+                "nl": "En jij maakt je altijd te veel zorgen.",
+                "pt": "E você sempre se preocupa demais.",
+                "en_pt": "And you always worry too much."
+            },
+            "ipa": {
+                "fr": "e twˈa ty tɛ̃kjˈɛt tuʒˌuʁ tʁˈo",
+                "de": "[ʊnt duː maxst diːɐ̯ ˈɪmɐ t͡suː ˈfiːlə ˈzɔʁɡən]",
+                "it": "[ˌe tˈu\n tˌɪ preˈokːʊpɪ sˈɛmpre trˈɔpːo]",
+                "es": "[i ˈtu, ˈsjempɾe te pɾeokuˈpas ðemaˈsjaðo]",
+                "nl": "[ɛn jɛɪ mˈaːkt jə ˈɑltɛɪd tə vˈeːl zˈɔrɣən]",
+                "pt": "[i vosˌe sˌeɪmpry sy prˌeokˈupæ demˈaɪs]",
+                "en": "[and jˈuː juː ˈɔːlweɪz wˈʌɹi tˈuː mʌtʃ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-008",
+            "text": {
+                "fr": "Ce n'est pas le moment de se disputer.",
+                "en": "This is not the time to argue.",
+                "de": "Jetzt ist nicht die Zeit zu streiten.",
+                "it": "Non è il momento di litigare.",
+                "es": "Ahora no es momento de discutir.",
+                "nl": "Dit is niet het moment om te ruziën.",
+                "pt": "Não é hora de brigar.",
+                "en_pt": "This is no time to argue."
+            },
+            "ipa": {
+                "fr": "sə- nɛ pa lə- mɔmˈɑ̃ də- sə- dispytˈe",
+                "de": "[jɛt͡st ɪst nɪçt diː t͡saɪ̯t t͡suː ˈʃtʁaɪ̯tən]",
+                "it": "[nˌon ˌɛ ˌil momˈento dˌɪ lˌitiɡˈaːre]",
+                "es": "[aˈoɾa no es moˈmento ðe ðiskuˈtiɾ]",
+                "nl": "[dɪt ɪs nˌit hət moːmˈɛnt ɔm tə ryzˈiən]",
+                "pt": "[nˌɐ̃ʊ̃ ɛ ˈɔɾæ dʒy briɡˈar]",
+                "en": "[ðɪs ɪz nˌɒt ðə tˈaɪm tʊ ˈɑːɡjuː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-009",
+            "text": {
+                "fr": "Je suis désolé, j'ai juste peur.",
+                "en": "I'm sorry, I'm just scared.",
+                "de": "Es tut mir leid, ich habe nur Angst.",
+                "it": "Mi dispiace, ho solo paura.",
+                "es": "Lo siento, es que tengo miedo.",
+                "nl": "Sorry, ik ben gewoon bang.",
+                "pt": "Desculpa, estou com medo.",
+                "en_pt": "Sorry, I'm scared."
+            },
+            "ipa": {
+                "fr": "ʒə- syˌi dezɔlˈe ʒe ʒˈyst pˈœʁ",
+                "de": "[ɛs tuːt miːɐ̯ laɪ̯t, ɪç haːbə nuːɐ̯ ˈaŋst]",
+                "it": "[mˌɪ dˌispiˈaːtʃe\n ˌo sˈoːlo paˈuːra]",
+                "es": "[lo ˈsjento, es ke ˈteŋɡo ˈmjeðo]",
+                "nl": "[sˈɔɾri\n ɪk bɛn ɣəʋˈoːn bˈɑŋ]",
+                "pt": "[dˌeskˈuwpæ\n estˌow koŋ mˈedʊ]",
+                "en": "[aɪm sˈɒɹi aɪm dʒˈʌst skˈeəd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-010",
+            "text": {
+                "fr": "Moi aussi, mais il faut continuer",
+                "en": "Me too, but we must keep going",
+                "de": "Ich auch, aber wir müssen weitermachen",
+                "it": "Anche io, ma dobbiamo andare avanti",
+                "es": "Yo también, pero tenemos que seguir",
+                "nl": "Ik ook, maar we moeten doorgaan",
+                "pt": "Eu também, mas temos que continuar.",
+                "en_pt": "Me too, but we have to keep going."
+            },
+            "ipa": {
+                "fr": "mwˌa osˈi mɛz il fo kɔ̃tinyˈe",
+                "de": "[ɪç aʊ̯x, ˈabɐ viːɐ̯ ˈmʏsn̩ ˈvaɪ̯tɐmaxən]",
+                "it": "[ˈanke ˈio\n mˌa dobːjˈaːmo andˈaːre avˈantɪ]",
+                "es": "[ʝo tamˈbjen, ˈpeɾo teˈnemos ke seˈɣiɾ]",
+                "nl": "[ɪk ˈoːk\n maːr ʋə mˈutən dɔːrɣˈaːn]",
+                "pt": "[eʊ tɐ̃mbˈeɪŋ\n mas tˌemʊs ky kˌoŋtʃinuˈar]",
+                "en": "[mˌiː tˈuː bˌʌt wiː mˈʌst kˈiːp ɡˈəʊɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-011",
+            "text": {
+                "fr": "On ne peut pas rester ici.",
+                "en": "We can't stay here.",
+                "de": "Wir können hier nicht bleiben.",
+                "it": "Non possiamo restare qui.",
+                "es": "No podemos quedarnos aquí.",
+                "nl": "We kunnen hier niet blijven.",
+                "pt": "Não podemos ficar aqui."
+            },
+            "ipa": {
+                "fr": "ɔ̃ nə- pˈø pa ʁɛstˈe isˈi",
+                "de": "[viːɐ̯ ˈkœnən hiːɐ̯ nɪçt ˈblaɪ̯bən]",
+                "it": "[nˌon possjˈaːmo restˈaːre kwˈi]",
+                "es": "[no poˈðemos keˈðaɾnos aˈki]",
+                "nl": "[ʋə kˌɵnən hˈir nˌit blˈɛɪvən]",
+                "pt": "[nˌɐ̃ʊ̃ podˌemʊs fikˈaɾ akˈi]",
+                "en": "[wiː kˈɑːnt stˈeɪ hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-012",
+            "text": {
+                "fr": "Le brouillard devient très épais.",
+                "en": "The fog is getting very thick.",
+                "de": "Der Nebel wird sehr dicht.",
+                "it": "La nebbia si sta addensando molto.",
+                "es": "La niebla se está haciendo muy densa.",
+                "nl": "De mist wordt erg dik.",
+                "pt": "A neblina está ficando muito densa."
+            },
+            "ipa": {
+                "fr": "lə- bʁujˈaʁ dəvjˈɛ̃ tʁɛz epˈɛ",
+                "de": "[deːɐ̯ ˈneːbəl vɪʁt zeːɐ̯ ˈdɪçt]",
+                "it": "[lˌa nˈebːia sˌɪ stˈa ˌadːensˈando mˈolto]",
+                "es": "[la ˈnjeβla se esˈta aˈθjendo ˈmuj ˈðensa]",
+                "nl": "[də mˈɪst ʋɔrt ˈɛrx dˈɪk]",
+                "pt": "[a nˌeblˈinæ estˌa fˌikˈɐ̃ŋdʊ mwˈiŋtʊ dˈeɪŋsæ]",
+                "en": "[ðə fˈɒɡ ɪz ɡˌɛtɪŋ vˈɛɹɪ θˈɪk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-013",
+            "text": {
+                "fr": "Je ne vois presque plus le sentier.",
+                "en": "I can hardly see the trail anymore.",
+                "de": "Ich sehe den Weg fast nicht mehr.",
+                "it": "Vedo a malapena il sentiero.",
+                "es": "Casi no veo el camino.",
+                "nl": "Ik zie het pad bijna niet meer.",
+                "pt": "Quase não consigo ver a trilha.",
+                "en_pt": "I can barely see the trail."
+            },
+            "ipa": {
+                "fr": "ʒə- nə- vwˈa pʁˌɛskə ply lə- sɑ̃tjˈe",
+                "de": "[ɪç zeːə deːn veːk fast nɪçt meːɐ̯]",
+                "it": "[vˈeːdo ˌa mˌalapˈeːna ˌil sˌentiˈɛːro]",
+                "es": "[ˈkasi no ˈβeo el kaˈmino]",
+                "nl": "[ɪk zˈi hət pˈɑt bˈɛɪnˌaː nˈit mˌeːr]",
+                "pt": "[kwˈazy nˌɐ̃ʊ̃ kˌoŋsˈiɡʊ vˈeɾ a trˈiljæ]",
+                "en": "[aɪ kan hˈɑːdli sˈiː ðə tɹˈeɪl ˌɛnɪmˈɔː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-014",
+            "text": {
+                "fr": "Restons ensemble, ne nous séparons pas,",
+                "en": "Let's stay together, let's not separate,",
+                "de": "Bleiben wir zusammen, trennen wir uns nicht,",
+                "it": "Restiamo insieme, non separiamoci,",
+                "es": "Quedémonos juntos, no nos separemos,",
+                "nl": "Laten we bij elkaar blijven, laten we niet uit elkaar gaan,",
+                "pt": "Vamos ficar juntos, não nos separemos, insiste Sophie.",
+                "en_pt": "Let's stay together, let's not separate, Sophie insists."
+            },
+            "ipa": {
+                "fr": "ʁɛstˈɔ̃z ɑ̃sˈɑ̃bl nə- nu sepaʁˈɔ̃ pˈa",
+                "de": "[ˈblaɪ̯bən viːɐ̯ t͡suˈzamən, ˈtʁɛnən viːɐ̯ ʊns nɪçt]",
+                "it": "[restjˈaːmo insjˈɛːme\n nˌon sˌepariˈamotʃɪ]",
+                "es": "[keˈðemonos ˈxuntos, no nos sepaˈɾemos]",
+                "nl": "[lˈaːtən ʋə bɛɪ ˈɛlkaːr blˈɛɪvən\n lˈaːtən ʋə nˌit œyt ˈɛlkaːr ɣˈaːn]",
+                "pt": "[vˌɐ̃mʊs fikˈar ʒˈũŋtʊs\n nˌɐ̃ʊ̃ nʊs sˌepaɾˈemʊs\n ˌiŋsˈistʃy sˌofˈiy]",
+                "en": "[lˈɛts stˈeɪ təɡˈɛðə lˈɛts nˌɒt sˈɛpɹət]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-015",
+            "text": {
+                "fr": "Attends, j'ai perdu mon sac! Il était juste là!",
+                "en": "Wait, I have lost my bag! It was right here!",
+                "de": "Warte, ich habe meinen Rucksack verloren! Er war gerade hier!",
+                "it": "Aspetta, ho perso il mio zaino! Era proprio qui!",
+                "es": "Espera, ¡he perdido mi mochila! Estaba justo aquí.",
+                "nl": "Wacht, ik ben mijn tas kwijt! Hij was net hier!",
+                "pt": "Estava aqui!",
+                "en_pt": "It was right here!"
+            },
+            "ipa": {
+                "fr": "atˈɑ̃ ʒe pɛʁdˈy mɔ̃ sˈak il etˈɛ ʒˈyst lˈa",
+                "de": "[ˈvaʁtə, ɪç haːbə ˈmaɪ̯nən ˈʁʊksak fɛɐ̯ˈloːʁən! ɛɐ̯ vaːɐ̯ ɡəˈʁaːdə hiːɐ̯]",
+                "it": "[aspˈɛtːa\n ˌo pˈɛːrso ˌil mˌio dzˈaɪːno\n ˌɛra prˈɔprio kwˈi]",
+                "es": "[esˈpeɾa, e peɾˈðiðo mi moˈtʃila! esˈtaβa ˈxusto aˈki]",
+                "nl": "[ʋˈɑxt\n ɪk bɛn mɛɪn tˈɑs kʋˈɛɪt\n hɛɪ ʋˈɑs nˈɛt hˈir]",
+                "pt": "[estˌavæ akˈi]",
+                "en": "[wˈeɪt aɪ hav lˈɒst maɪ bˈaɡ ɪt wɒz ɹˈaɪt hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-016",
+            "text": {
+                "fr": "Je reviens le chercher, toi, continue! Suis le sentier!",
+                "en": "I'll go back to look for it, you continue! Follow the trail!",
+                "de": "Ich gehe ihn holen, du geh weiter! Folge dem Weg!",
+                "it": "Torno indietro a prenderlo, tu continua! Segui il sentiero!",
+                "es": "Voy a buscarla, tú sigue el camino.",
+                "nl": "Ik ga terug om hem te zoeken, jij gaat door! Volg het pad!",
+                "pt": "Vou voltar para procurar, você continua!",
+                "en_pt": "I'll go back to look for it, you keep going!"
+            },
+            "ipa": {
+                "fr": "ʒə- ʁəvjˈɛ̃ lə- ʃɛʁʃˈe twˈa kɔ̃tinˈy syˈi lə- sɑ̃tjˈe",
+                "de": "[ɪç ɡeːə ɪn ˈhoːlən, duː geː ˈvaɪ̯tɐ! ˈfɔlɡə deːm veːk]",
+                "it": "[tˈoːrno indjˈɛːtro ˌa prˈenderlo\n tˌʊ kontˈinʊa\n sˈeɡwɪ ˌil sˌentiˈɛːro]",
+                "es": "[boj a busˈkaɾla, ˈtu ˈsiɣe el kaˈmino]",
+                "nl": "[ɪk ɣˈaː tərˈɵx ɔm hˈɛm tə zˈukən\n jɛɪ ɣˈaː tˈoːr\n vˈɔlx hət pˈɑt]",
+                "pt": "[vow vowtˈar pˌaɾæ prˌokuɾˈar\n vosˌe kˌoŋtʃinˈuæ]",
+                "en": "[aɪl ɡˌəʊ bˈak tə lˈʊk fɔːɹ ɪt juː kəntˈɪnjuː fˈɒləʊ ðə tɹˈeɪl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-017",
+            "text": {
+                "fr": "Non, Lucas, attendons ensemble!",
+                "en": "No, Lucas, let's wait together!",
+                "de": "Nein, Lucas, warten wir zusammen!",
+                "it": "No, Lucas, aspettiamo insieme!",
+                "es": "No, Lucas, esperemos juntos.",
+                "nl": "Nee, Lucas, laten we samen wachten!",
+                "pt": "Não Lucas, vamos esperar juntos!",
+                "en_pt": "No Lucas, let's wait together!"
+            },
+            "ipa": {
+                "fr": "nˈɔ̃ lykˈa atɑ̃dˈɔ̃z ɑ̃sˈɑ̃bl",
+                "de": "[naɪ̯n, ˈluːkas, ˈvaʁtən viːɐ̯ t͡suˈzamən]",
+                "it": "[nˈɔ\n lˈuːkas\n ˌaspetːjˈaːmo insjˈɛːme]",
+                "es": "[no, ˈlukas, espeˈɾemos ˈxuntos]",
+                "nl": "[nˈeː\n lˈykɑs\n lˈaːtən ʋə sˈaːmən ʋˈɑxtən]",
+                "pt": "[nˌɐ̃ʊ̃ lˈukæs\n vˌɐ̃mʊz ˌespeɾˈar ʒˈũŋtʊs]",
+                "en": "[nˈəʊ lˈuːkəz lˈɛts wˈeɪt təɡˈɛðə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-018",
+            "text": {
+                "fr": "Le lendemain matin, Sophie et Lucas commencent leur randonnée.",
+                "en": "The next morning, Sophie and Lucas start their hike.",
+                "de": "Am nächsten Morgen beginnen Sophie und Lucas ihre Wanderung.",
+                "it": "Il giorno dopo, Sophie e Lucas iniziano la loro escursione.",
+                "es": "A la mañana siguiente, Sophie y Lucas empiezan su caminata.",
+                "nl": "De volgende ochtend beginnen Sophie en Lucas aan hun wandeling.",
+                "pt": "Na manhã seguinte, Sophie e Lucas começam sua trilha.",
+                "en_pt": "The next morning, Sophie and Lucas begin their hike."
+            },
+            "ipa": {
+                "fr": "lə- lɑ̃dmˈɛ̃ matˈɛ̃ sɔfˈi e lykˈa kɔmˈɑ̃s lœʁ ʁɑ̃dɔnˈe",
+                "de": "[am ˈnɛçstn̩ ˈmɔʁɡn̩ bəˈɡɪnən ˈzɔfiː ʊnt ˈluːkas ˈiːʁə ˈvandəʁʊŋ]",
+                "it": "[ˌil dʒˈoːrno dˈoːpo\n sˈopje ˌe lˈuːkas inˈitsjano lˌa lˌɔro ˌeskʊrsiˈoːne]",
+                "es": "[a la maˈɲana siˈɣjente, ˈsofi i ˈlukas emˈpjεθan su kamiˈnata]",
+                "nl": "[də vˈɔlɣəndə ˈɔxtənt bəɣˈɪnən sɔphˈi ɛn lˈykɑs aːn hɵn ʋˈɑndəlˌɪŋ]",
+                "pt": "[na mɐ̃ɲˈɐ̃ sˌeɡˈiŋtʃy\n sˌofˈij i lˈukæs kˌomˈɛsɐ̃ʊ̃ sˌuæ trˈiljæ]",
+                "en": "[ðə nˈɛkst mˈɔːnɪŋ sˈəʊfi and lˈuːkəz stˈɑːt ðeə hˈaɪk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-019",
+            "text": {
+                "fr": "Le temps est beau, le ciel est bleu.",
+                "en": "The weather is nice, the sky is blue.",
+                "de": "Das Wetter ist schön, der Himmel ist blau.",
+                "it": "Il tempo è bello, il cielo è blu.",
+                "es": "Hace buen tiempo, el cielo está azul.",
+                "nl": "Het weer is mooi, de lucht is blauw.",
+                "pt": "O tempo está bonito, o céu está azul."
+            },
+            "ipa": {
+                "fr": "lə- tˈɑ̃ ɛ bˈo lə- sjˈɛl ɛ blˈø",
+                "de": "[das ˈvɛtɐ ɪst ʃøːn, deːɐ̯ ˈhɪməl ɪst blaʊ̯]",
+                "it": "[ˌil tˈɛmpo ˌɛ bˈɛllo\n ˌil tʃˈɛːlo ˌɛ blˈu]",
+                "es": "[ˈaθe βwen ˈtjempo, el ˈθjelo esˈta aˈθul]",
+                "nl": "[hət ʋˈɪːr ɪs mˈoːj\n də lˈɵxt ɪs blˈʌʊ]",
+                "pt": "[ʊ tˈeɪmpw estˌa bˌonˈitʊ\n ʊ sˈɛʊ estˌa azˈuw]",
+                "en": "[ðə wˈɛðəɹ ɪz nˈaɪs ðə skˈaɪ ɪz blˈuː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-020",
+            "text": {
+                "fr": "Ils suivent un sentier qui monte vers un refuge de montagne.",
+                "en": "They follow a trail that goes up to a mountain hut.",
+                "de": "Sie folgen einem Weg, der zu einer Berghütte führt.",
+                "it": "Seguono un sentiero che sale verso un rifugio di montagna.",
+                "es": "Siguen un camino que sube hacia un refugio de montaña.",
+                "nl": "Ze volgen een pad dat omhoog loopt naar een berghut.",
+                "pt": "Eles seguem uma trilha que sobe em direção a um refúgio na montanha.",
+                "en_pt": "They follow a trail that climbs toward a mountain refuge."
+            },
+            "ipa": {
+                "fr": "il syˈivt œ̃ sɑ̃tjˈe ki mˈɔ̃t vɛʁ œ̃ ʁəfˈyʒ də- mɔ̃tˈaɲ",
+                "de": "[ziː ˈfɔlɡən ˈaɪ̯nəm veːk, deːɐ̯ t͡suː ˈaɪ̯nɐ ˈbɛʁχʏtə ˈfyːʁt]",
+                "it": "[sˈeɡwono ˌʊn sˌentiˈɛːro kˌe sˈaːle vˌɛrso ˌʊn rifˈuːdʒo dˌɪ montˈaɲɲa]",
+                "es": "[ˈsiɣen un kaˈmino ke ˈsuβe ˈaθja un reˈfuχjo de monˈtaɲa]",
+                "nl": "[zə vˈɔlɣən ən pˈɑd dɑt ɔmhˈoːx lˈoːpt naːr ən bərxhˈɵt]",
+                "pt": "[ˌelys sˈɛɡeɪŋ ˌumæ trˈiljæ ky sˈɔbj ˈeɪŋ dʒˌiɾesˈɐ̃ʊ̃ a ũŋ xˌefˈuʒjʊ na mˌoŋtˈɐ̃ɲæ]",
+                "en": "[ðeɪ fˈɒləʊ ɐ tɹˈeɪl ðat ɡəʊz ˌʌp tʊ ɐ mˈaʊntɪn hˈʌt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-021",
+            "text": {
+                "fr": "racontera plus tard Sophie.",
+                "en": "Sophie will tell later.",
+                "de": "erzählt später Sophie.",
+                "it": "racconterà più tardi Sophie.",
+                "es": "lo contará más tarde Sophie.",
+                "nl": "zal Sophie later vertellen."
+            },
+            "ipa": {
+                "fr": "ʁakɔ̃tʁˈa ply tˈaʁ sɔfˈi",
+                "de": "[ɛɐ̯ˈt͡sɛlt ˈʃpɛːtɐ ˈzɔfiː]",
+                "it": "[rˌakːonterˈa pjˌʊ tˈaːrdɪ sˈopje]",
+                "es": "[lo konˈtaɾa mas ˈtaɾðe ˈsofi]",
+                "nl": "[zɑl sɔphˈi lˈaːtər vərtˈɛlən]",
+                "en": "[sˈəʊfi wɪl tˈɛl lˈeɪtə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-022",
+            "text": {
+                "fr": "Le changement est soudain.",
+                "en": "The change is sudden.",
+                "de": "Der Wandel ist plötzlich.",
+                "it": "Il cambiamento è improvviso.",
+                "es": "El cambio es repentino.",
+                "nl": "De verandering is plotseling.",
+                "pt": "A mudança é repentina."
+            },
+            "ipa": {
+                "fr": "lə- ʃɑ̃ʒmˈɑ̃ ɛ sudˈɛ̃",
+                "de": "[deːɐ̯ ˈvandəl ɪst ˈplœt͡slɪç]",
+                "it": "[ˌil kˌambjamˈento ˌɛ ˌimprovvˈiːzo]",
+                "es": "[el kamˈβjo es reˈpentino]",
+                "nl": "[də vərˈɑndərˌɪŋ ɪs plˈɔtsəlˌɪŋ]",
+                "pt": "[a mˌudˈɐ̃ŋsæ ɛ xˌepeɪŋtʃˈinæ]",
+                "en": "[ðə tʃˈeɪndʒ ɪz sˈʌdən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-023",
+            "text": {
+                "fr": "Lucas regarde le ciel menaçant.",
+                "en": "Lucas looks at the threatening sky.",
+                "de": "Lucas schaut auf den drohenden Himmel.",
+                "it": "Lucas guarda il cielo minaccioso.",
+                "es": "Lucas mira el cielo amenazante.",
+                "nl": "Lucas kijkt naar de dreigende lucht.",
+                "pt": "Lucas olha o céu ameaçador."
+            },
+            "ipa": {
+                "fr": "lykˈa ʁəɡˈaʁd lə- sjˈɛl mənasˈɑ̃",
+                "de": "[ˈluːkas ʃaʊ̯t aʊ̯f deːn ˈdʁoːəndən ˈhɪməl]",
+                "it": "[lˈuːkas ɡwˈaːrda ˌil tʃˈɛːlo mˌinatʃːˈoːzo]",
+                "es": "[ˈlukas ˈmiɾa el ˈθjelo amenaˈθante]",
+                "nl": "[lˈykɑs kˈɛɪkt naːr də drˈɛɪɣəndə lˈɵxt]",
+                "pt": "[lˈukæz ˈɔljæ ʊ sˈɛʊ ˌæmeˌasadˈor]",
+                "en": "[lˈuːkəz lˈʊks at ðə θɹˈɛtənɪŋ skˈaɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-024",
+            "text": {
+                "fr": "dit Sophie, la voix tendue.",
+                "en": "says Sophie, in a tense voice.",
+                "de": "sagt Sophie, ihre Stimme angespannt.",
+                "it": "dice Sophie, con la voce tesa.",
+                "es": "dice Sophie, con la voz tensa.",
+                "nl": "zegt Sophie, met een gespannen stem.",
+                "pt": "diz Sophie, a voz tensa.",
+                "en_pt": "Sophie says, her voice tense."
+            },
+            "ipa": {
+                "fr": "dˈi sɔfˈi la- vwˈa tɑ̃dˈy",
+                "de": "[zaːkt ˈzɔfiː, ˈiːʁə ˈʃtɪmə ˈanɡəʃpant]",
+                "it": "[dˈiːtʃe sˈopje\n kˌon lˌa vˈoːtʃe tˈeːza]",
+                "es": "[ˈdiθe ˈsofi, kon la βoθ ˈtensa]",
+                "nl": "[zˈɛxt sɔphˈi\n mɛt ən ɣəspˈɑnən stˈɛm]",
+                "pt": "[dʒˈis sˌofˈiy\n a vˈɔs tˈeɪŋsæ]",
+                "en": "[sˈɛz sˈəʊfi ɪn ɐ tˈɛns vˈɔɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-025",
+            "text": {
+                "fr": "Sophie s'arrête brusquement.",
+                "en": "Sophie suddenly stops.",
+                "de": "Sophie bleibt plötzlich stehen.",
+                "it": "Sophie si ferma di colpo.",
+                "es": "Sophie se detiene de repente.",
+                "nl": "Sophie stopt plotseling.",
+                "pt": "Sophie para bruscamente.",
+                "en_pt": "Sophie stops abruptly."
+            },
+            "ipa": {
+                "fr": "sɔfˈi saʁˈɛt bʁyskəmˈɑ̃",
+                "de": "[ˈzɔfiː ˈblaɪ̯pt ˈplœt͡slɪç ˈʃteːən]",
+                "it": "[sˈopje sˌɪ fˈeːrma dˌɪ kˈolpo]",
+                "es": "[ˈsofi se ðeˈtjene ðe reˈpente]",
+                "nl": "[sɔphˈi stˈɔpt plˈɔtsəlˌɪŋ]",
+                "pt": "[sˌofˈiy pˌaɾæ brˌuskæmˈeɪŋtʃy]",
+                "en": "[sˈəʊfi sˈʌdənli stˈɒps]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-026",
+            "text": {
+                "fr": "Le brouillard commence à descendre de la montagne.",
+                "en": "The fog begins to descend from the mountain.",
+                "de": "Der Nebel beginnt von den Bergen herabzusteigen.",
+                "it": "La nebbia comincia a scendere dalla montagna.",
+                "es": "La niebla empieza a bajar de la montaña.",
+                "nl": "De mist begint van de berg af te dalen.",
+                "pt": "A neblina começa a descer da montanha."
+            },
+            "ipa": {
+                "fr": "lə- bʁujˈaʁ kɔmˈɑ̃s a dɛsˈɑ̃dʁ də- la- mɔ̃tˈaɲ",
+                "de": "[deːɐ̯ ˈneːbəl bəˈɡɪnt fɔn deːn ˈbɛʁɡən heːʁapˈt͡saɪ̯ɡən]",
+                "it": "[lˌa nˈebːia komˈintʃa ˌa ʃˈendere dˌalla montˈaɲɲa]",
+                "es": "[la ˈnjeβla emˈpjεθa a baˈxaɾ ðe la monˈtaɲa]",
+                "nl": "[də mˈɪst bəɣˈɪnt vɑn də bˈɛrx ˈɑf tə dˈaːlən]",
+                "pt": "[a nˌeblˈinæ kˌomˈɛsæ a desˈer da mˌoŋtˈɐ̃ɲæ]",
+                "en": "[ðə fˈɒɡ bɪɡˈɪnz tə dɪsˈɛnd fɹʌmðə mˈaʊntɪn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-027",
+            "text": {
+                "fr": "Lucas avance prudemment.",
+                "en": "Lucas proceeds cautiously.",
+                "de": "Lucas geht vorsichtig voran.",
+                "it": "Lucas avanza con cautela.",
+                "es": "Lucas avanza con cuidado.",
+                "nl": "Lucas gaat voorzichtig verder.",
+                "pt": "Lucas avança com cuidado.",
+                "en_pt": "Lucas moves forward carefully."
+            },
+            "ipa": {
+                "fr": "lykˈaz avˈɑ̃s pʁydamˈɑ̃",
+                "de": "[ˈluːkas geːt fɔɐ̯ˈzɪçtɪç foːʁˈʔan]",
+                "it": "[lˈuːkas avˈantsa kˌon kˌaʊtˈɛːla]",
+                "es": "[ˈlukas aˈβanθa kon kwiˈðaðo]",
+                "nl": "[lˈykɑs ɣˈaːt vˌɔːrzˈɪxtəx vˈɛrdər]",
+                "pt": "[lˈukæz ˌavˈɐ̃ŋsæ koŋ kˌuɪdˈadʊ]",
+                "en": "[lˈuːkəz pɹˈəʊsiːdz kˈɔːʃəsli]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-028",
+            "text": {
+                "fr": "Soudain, Sophie s'arrête.",
+                "en": "Suddenly, Sophie stops.",
+                "de": "Plötzlich bleibt Sophie stehen.",
+                "it": "All'improvviso, Sophie si ferma.",
+                "es": "De repente, Sophie se detiene.",
+                "nl": "Plotseling stopt Sophie.",
+                "pt": "De repente, Sophie para."
+            },
+            "ipa": {
+                "fr": "sudˈɛ̃ sɔfˈi saʁˈɛt",
+                "de": "[ˈplœt͡slɪç ˈblaɪ̯pt ˈzɔfiː ˈʃteːən]",
+                "it": "[allˌimprovvˈiːzo\n sˈopje sˌɪ fˈeːrma]",
+                "es": "[de reˈpente, ˈsofi se ðeˈtjene]",
+                "nl": "[plˈɔtsəlˌɪŋ stˈɔpt sɔphˈi]",
+                "pt": "[dʒy xˌepˈeɪŋtʃy\n sˌofˈiy pˌaɾæ]",
+                "en": "[sˈʌdənli sˈəʊfi stˈɒps]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-029",
+            "text": {
+                "fr": "Mais Lucas est déjà parti dans le brouillard.",
+                "en": "But Lucas has already gone into the fog.",
+                "de": "Aber Lucas ist schon im Nebel verschwunden.",
+                "it": "Ma Lucas è già partito nella nebbia.",
+                "es": "Pero Lucas ya se ha ido en la niebla.",
+                "nl": "Maar Lucas is al verdwenen in de mist.",
+                "pt": "Mas Lucas já foi embora na neblina.",
+                "en_pt": "But Lucas has already disappeared into the fog."
+            },
+            "ipa": {
+                "fr": "mɛ lykˈaz ɛ deʒˈa paʁtˈi dɑ̃ lə- bʁujˈaʁ",
+                "de": "[ˈabɐ ˈluːkas ɪst ʃoːn ɪm ˈneːbəl fɛɐ̯ˈʃvʊndən]",
+                "it": "[mˌa lˈuːkas ˌɛ dʒˈa partˈiːto nˌɛlla nˈebːia]",
+                "es": "[ˈpeɾo ˈlukas ʝa se a iˈðo en la ˈnjeβla]",
+                "nl": "[maːr lˈykɑs ɪs ˈɑl vərdʋˈeːnən ɪn də mˈɪst]",
+                "pt": "[maz lˈukæz ʒˈa foɪ ˌeɪmbˈɔɾæ na nˌeblˈinæ]",
+                "en": "[bˌʌt lˈuːkəz hɐz ɔːlɹˌɛdi ɡɒn ˌɪntʊ ðə fˈɒɡ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-030",
+            "text": {
+                "pt": "Sophie treme.",
+                "en": "Sophie shivers."
+            },
+            "ipa": {
+                "pt": "[sˌofˈiy trˈemy]",
+                "en": "[sˈəʊfi ʃˈɪvəz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-031",
+            "text": {
+                "pt": "Olha o mapa.",
+                "en": "Look at the map."
+            },
+            "ipa": {
+                "pt": "[ˈɔljæ ʊ mˈapæ]",
+                "en": "[lˈʊk at ðə mˈap]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-032",
+            "text": {
+                "pt": "Lucas pega a mão dela.",
+                "en": "Lucas takes her hand."
+            },
+            "ipa": {
+                "pt": "[lˈukæs pˈɛɡæ a mˈɐ̃ʊ̃ dˈɛlæ]",
+                "en": "[lˈuːkəz tˈeɪks hɜː hˈand]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-033",
+            "text": {
+                "pt": "Espera, perdi minha mochila!",
+                "en": "Wait, I lost my backpack!"
+            },
+            "ipa": {
+                "pt": "[ˌespˈɛɾæ\n peɾədʒˈi mˌiɲæ mˌoʃˈilæ]",
+                "en": "[wˈeɪt aɪ lˈɒst maɪ bˈakpak]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-09-034",
+            "text": {
+                "pt": "Segue a trilha!",
+                "en": "Follow the trail!"
+            },
+            "ipa": {
+                "pt": "[sˈɛɡj a trˈiljæ]",
+                "en": "[fˈɒləʊ ðə tɹˈeɪl]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        }
+    ]
 }

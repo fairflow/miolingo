@@ -1,1007 +1,1045 @@
 {
-  "meta": {
-    "source": "story-scenes",
-    "scene_number": 2,
-    "scene_title": {
-      "en": "Shopping in the City",
-      "fr": "Les Achats En Ville",
-      "de": "Einkäufe in der Stadt",
-      "pt": "As Compras na Cidade",
-      "it": "Gli Acquisti in Città",
-      "es": "Las compras en la ciudad",
-      "nl": "Winkelen in de Stad"
+    "meta": {
+        "source": "story-scenes",
+        "scene_number": 2,
+        "scene_title": {
+            "en": "Shopping in the City",
+            "fr": "Les Achats En Ville",
+            "de": "Einkäufe in der Stadt",
+            "pt": "As Compras na Cidade",
+            "it": "Gli Acquisti in Città",
+            "es": "Las compras en la ciudad",
+            "nl": "Winkelen in de Stad"
+        },
+        "phrase_count": 38,
+        "core_phrase_count": 29,
+        "pt_matched": 26,
+        "pt_unmatched": 9,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-09",
+        "generator": "merge_materials.py"
     },
-    "phrase_count": 38,
-    "core_phrase_count": 29,
-    "pt_matched": 26,
-    "pt_unmatched": 9,
-    "languages": [
-      "de",
-      "en",
-      "es",
-      "fr",
-      "it",
-      "nl",
-      "pt"
-    ],
-    "generated": "2026-04-09",
-    "generator": "merge_materials.py"
-  },
-  "phrases": [
-    {
-      "id": "scene-02-001",
-      "text": {
-        "fr": "Bonjour,",
-        "en": "Hello,",
-        "de": "Hallo,",
-        "it": "Ciao,",
-        "es": "Hola,",
-        "nl": "Hoi,"
-      },
-      "ipa": {
-        "fr": "bɔ̃ʒˈuʁ",
-        "de": "[ˈhalo]",
-        "it": "[tʃˈaʊ]",
-        "es": "[ˈola]",
-        "nl": "[hˈoːi]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-002",
-      "text": {
-        "fr": "Qu'est-ce que je peux faire pour vous?",
-        "en": "What can I do for you?",
-        "de": "Was kann ich für dich tun?",
-        "it": "Cosa posso fare per te?",
-        "es": "¿Qué puedo hacer por ti?",
-        "nl": "Wat kan ik voor je doen?",
-        "pt": "O que posso fazer por vocês?"
-      },
-      "ipa": {
-        "fr": "kɛskˌə ʒə- pˈø fˈɛʁ puʁ vˈu",
-        "de": "[vas kan ɪç fʏɐ̯ dɪç tuːn]",
-        "it": "[kˈɔːza pˈɔsso fˌare pˌɛr tˈe]",
-        "es": "[ˈke ˈpwedo aˈθeɾ poɾ ˈti]",
-        "nl": "[ʋɑt kɑn ɪk vɔːr jə dˈun]",
-        "pt": "[ʊ ky pˌɔsʊ fazˌer por vosˈes]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-003",
-      "text": {
-        "fr": "Nous avons besoin de pain,",
-        "en": "We need bread,",
-        "de": "Wir brauchen Brot,",
-        "it": "Abbiamo bisogno di pane,",
-        "es": "Necesitamos churros,",
-        "nl": "We hebben brood nodig,",
-        "pt": "Precisamos de pão, responde Sophie.",
-        "en_pt": "We need bread, Sophie replies."
-      },
-      "ipa": {
-        "fr": "nuz avˈɔ̃ bəzwˈɛ̃ də- pˈɛ̃",
-        "de": "[viːɐ̯ ˈbʁaʊ̯çən bʁoːt]",
-        "it": "[abːjˌamo bizˈoɲʲo dˌɪ pˈaːne]",
-        "es": "[neθeˈsitamos ˈtʃuros]",
-        "nl": "[ʋə hˌɛbən brˈoːt nˈoːdəx]",
-        "pt": "[prˌesizˈɐ̃mʊz dʒy pˈɐ̃ʊ̃\n xˌespˈoŋdʒy sˌofˈiy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-004",
-      "text": {
-        "fr": "Le pain est là-bas, près de l'entrée.",
-        "en": "The bread is over there, near the entrance.",
-        "de": "Das Brot ist dort drüben, bei dem Eingang.",
-        "it": "Il pane è là, vicino all'entrata.",
-        "es": "Los churros están allí, cerca de la entrada.",
-        "nl": "Het brood is daar, bij de ingang.",
-        "pt": "O pão está ali, perto da entrada."
-      },
-      "ipa": {
-        "fr": "lə- pˈɛ̃ ɛ lˈabˈa pʁɛ də- lɑ̃tʁˈe",
-        "de": "[das bʁoːt ɪst dɔʁt ˈdʁyːbn̩, baɪ̯ deːm ˈʔaɪ̯nɡaŋ]",
-        "it": "[ˌil pˈaːne ˌɛ lˈa\n vitʃˈiːno allentrˈaːta]",
-        "es": "[los ˈtʃuros esˈtan aˈʎi ˈθeɾka ðe la enˈtɾaða]",
-        "nl": "[hət brˈoːt ɪs dˈaːr\n bɛɪ də ˈɪnɣˌɑŋ]",
-        "pt": "[ʊ pˈɐ̃ʊ̃ estˌa alˈi\n pˈɛɾətʊ da ˌeɪŋtrˈadæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-005",
-      "text": {
-        "fr": "Le fromage est frais?",
-        "en": "Is the cheese fresh?",
-        "de": "Ist der Käse frisch?",
-        "it": "Il formaggio è fresco?",
-        "es": "¿El queso está fresco?",
-        "nl": "Is de kaas vers?",
-        "pt": "O queijo está fresco?"
-      },
-      "ipa": {
-        "fr": "lə- fʁɔmˈaʒ ɛ fʁˈɛ",
-        "de": "[ɪst deːɐ̯ ˈkɛːzə fʁɪʃ]",
-        "it": "[ˌil formˈadʒːo ˌɛ frˈesko]",
-        "es": "[el ˈkeso esˈta ˈfɾesko]",
-        "nl": "[ɪs də kˈaːs vˈɛrs]",
-        "pt": "[ʊ kˈeɪʒw estˌa frˈeskʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-006",
-      "text": {
-        "fr": "Oui, il est très bon. Je l'ai reçu ce matin.",
-        "en": "Yes, it's very good. I received it this morning.",
-        "de": "Ja, er ist sehr gut. Ich habe ihn heute Morgen bekommen.",
-        "it": "Sì, è molto buono. L'ho ricevuto stamattina.",
-        "es": "Sí, está muy bueno. Lo recibí esta mañana.",
-        "nl": "Ja, hij is erg goed. Ik heb hem vanochtend ontvangen.",
-        "pt": "Recebi hoje de manhã.",
-        "en_pt": "I received it this morning."
-      },
-      "ipa": {
-        "fr": "wˈi il ɛ tʁɛ bˈɔ̃ ʒə- le ʁəsˈy sə- matˈɛ̃",
-        "de": "[jaː, ɛɐ̯ ɪst zeːɐ̯ ɡuːt. ɪç ˈhaːbə iːn ˈhoːtə ˈmɔʁɡn̩ bəˈkɔmən]",
-        "it": "[sˈi\n ˌɛ mˈolto bʊˈono\n lˌo rˌitʃevˈuːto stˌamatːˈiːna]",
-        "es": "[si esˈta ˈmwi ˈβweno lo reθiˈβi esˈta maˈɲana]",
-        "nl": "[jˈaː\n hɛɪ ɪs ˈɛrx ɣˈut\n ɪk hɛp hˈɛm vɑnˈɔxtənt ɔntvˈɑŋən]",
-        "pt": "[xˌesebˈi ˈoʒy dʒy mɐ̃ɲˈɐ̃]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-007",
-      "text": {
-        "fr": "Parfait. Et combien coûtent les tomates?",
-        "en": "Perfect. And how much are the tomatoes?",
-        "de": "Perfekt. Und wie viel kosten die Tomaten?",
-        "it": "Perfetto. E quanto costano i pomodori?",
-        "es": "Perfecto. ¿Y cuánto cuestan los tomates?",
-        "nl": "Perfect. En hoeveel kosten de tomaten?",
-        "pt": "E quanto custam os tomates?",
-        "en_pt": "And how much do the tomatoes cost?"
-      },
-      "ipa": {
-        "fr": "paʁfˈɛ e kɔ̃bjˈɛ̃ kˈut le- tɔmˈat",
-        "de": "[pɛʁˈfɛkt. ʊnt viː ˈfiːl ˈkɔstn̩ diː toˈmaːtn̩]",
-        "it": "[perfˈɛtːo\n ˌe kwˈanto kˈɔstano ˌɪ pˌomodˈoːrɪ]",
-        "es": "[peɾˈfekto i ˈkwanto kwesˈtan los toˈmates]",
-        "nl": "[pˈɛrfɛkt\n ɛn huvˈeːl kˈɔstən də toːmˈaːtən]",
-        "pt": "[i kwˈɐ̃ŋtʊ kˈustɐ̃ʊ̃ ʊs tˌomˈatʃys]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-008",
-      "text": {
-        "fr": "Trois euros le kilo.",
-        "en": "Three euros per kilo.",
-        "de": "Drei Euro pro Kilo.",
-        "it": "Tre euro al chilo.",
-        "es": "Tres euros el kilo.",
-        "nl": "Drie euro per kilo.",
-        "pt": "Seis reais o quilo.",
-        "en_pt": "Six reais per kilo."
-      },
-      "ipa": {
-        "fr": "tʁwˈaz øʁˈo lə- kilˈo",
-        "de": "[dʁaɪ̯ ˈʔøːʁo pʁoː ˈkiːlo]",
-        "it": "[trˈe ˈɛʊro ˌal kˈiːlo]",
-        "es": "[tɾes ˈewɾos el ˈkilo]",
-        "nl": "[drˈi ˈøːroː pˈɛr kˈiloː]",
-        "pt": "[sˈeɪz xeˈaɪz ʊ kˈilʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-009",
-      "text": {
-        "fr": "C'est trop cher pour moi.",
-        "en": "That's too expensive for me.",
-        "de": "Das ist mir zu teuer.",
-        "it": "È troppo caro per me.",
-        "es": "Es demasiado caro para mí.",
-        "nl": "Dat is te duur voor mij.",
-        "pt": "Está muito caro para mim."
-      },
-      "ipa": {
-        "fr": "sɛ tʁo ʃˈɛʁ puʁ mwˈa",
-        "de": "[das ɪst miːɐ̯ tsuː ˈtɔɪ̯ɐ]",
-        "it": "[ˌɛ trˈɔpːo kˈaːro pˌɛr mˈe]",
-        "es": "[es deˈmasjaðo ˈkaɾo paɾa ˈmi]",
-        "nl": "[dɑt ɪs tə dˈyr vɔːr mˈɛɪ]",
-        "pt": "[estˌa mwˈiŋtʊ kˈaɾʊ pˌaɾæ mˈiŋ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-010",
-      "text": {
-        "fr": "Regardez,",
-        "en": "Look,",
-        "de": "Schau mal,",
-        "it": "Guarda,",
-        "es": "Mira,",
-        "nl": "Kijk,"
-      },
-      "ipa": {
-        "fr": "ʁəɡaʁdˈe",
-        "de": "[ʃaʊ̯ mal]",
-        "it": "[ɡwˈaːrda]",
-        "es": "[ˈmiɾa]",
-        "nl": "[kˈɛɪk]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-011",
-      "text": {
-        "fr": "j'ai des tomates d'hier. Deux euros le kilo.",
-        "en": "I have yesterday's tomatoes. Two euros per kilo.",
-        "de": "ich habe noch Tomaten von gestern. Zwei Euro pro Kilo.",
-        "it": "ho dei pomodori di ieri. Due euro al chilo.",
-        "es": "tengo tomates de ayer. Dos euros el kilo.",
-        "nl": "ik heb tomaten van gisteren. Twee euro per kilo."
-      },
-      "ipa": {
-        "fr": "ʒe de- tɔmˈat djˈɛʁ dˈøz øʁˈo lə- kilˈo",
-        "de": "[ɪç ˈhaːbə nɔx toˈmaːtn̩ fɔn ˈɡɛstɐn. tsvaɪ̯ ˈʔøːʁo pʁoː ˈkiːlo]",
-        "it": "[ˌo dˌɛj pˌomodˈoːrɪ dˌɪ jˈɛːrɪ\n dˈuːe ˈɛʊro ˌal kˈiːlo]",
-        "es": "[ˈteŋɡo toˈmates ðe aˈʝeɾ dos ˈewɾos el ˈkilo]",
-        "nl": "[ɪk hɛp toːmˈaːtən vɑn ɣˈɪstərən\n tʋˈeː ˈøːroː pˈɛr kˈiloː]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-012",
-      "text": {
-        "fr": "D'accord, nous prenons un kilo.",
-        "en": "Okay, we'll take a kilo.",
-        "de": "Okay, wir nehmen ein Kilo.",
-        "it": "Va bene, prendiamo un chilo.",
-        "es": "Vale, llevamos un kilo.",
-        "nl": "Oké, we nemen een kilo.",
-        "pt": "Tá bom, a gente leva um quilo.",
-        "en_pt": "Okay, we'll take one kilo."
-      },
-      "ipa": {
-        "fr": "dakˈɔʁ nu pʁənˈɔ̃z œ̃ kilˈo",
-        "de": "[oˈkaɪ̯, viːɐ̯ ˈneːmən aɪ̯n ˈkiːlo]",
-        "it": "[vˈa bˈɛːne\n prendjˈaːmo ˌʊn kˈiːlo]",
-        "es": "[ˈβale ʎeˈβamos un ˈkilo]",
-        "nl": "[oːkˈeː\n ʋə nˈeːmən ən kˈiloː]",
-        "pt": "[tˈa bˈoŋ\n a ʒˈeɪŋtʃy lˈɛvæ ũŋ kˈilʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-013",
-      "text": {
-        "fr": "Où est la boulangerie?",
-        "en": "Where is the bakery?",
-        "de": "Wo ist die Bäckerei?",
-        "it": "Dove è la panetteria?",
-        "es": "¿Dónde está la churrería?",
-        "nl": "Waar is de bakkerij?",
-        "pt": "Lucas pergunta: Onde fica a padaria?",
-        "en_pt": "Lucas asks: Where is the bakery?"
-      },
-      "ipa": {
-        "fr": "u ɛ la- bulɑ̃ʒʁˈi",
-        "de": "[voː ɪst diː ˈbɛkəʁaɪ̯]",
-        "it": "[dˈoːve ˌɛ lˌa pˌanetːerˈiːa]",
-        "es": "[ˈdonde esˈta la tʃuˈreɾia]",
-        "nl": "[ʋˈaːr ɪs də bˌɑkərˈɛɪ]",
-        "pt": "[lˈukæs pˌeɾəɡˈũŋtæ\n ˌoŋdʒy fˈikæ a pˌadaɾˈiæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-014",
-      "text": {
-        "fr": "Elle est au coin de la rue, après l'église.",
-        "en": "It's around the corner, past the church.",
-        "de": "Sie ist an der Ecke, nach der Kirche.",
-        "it": "È all'angolo della strada, dopo la chiesa.",
-        "es": "Está en la esquina de la calle, después de la iglesia.",
-        "nl": "Die is om de hoek, voorbij de kerk.",
-        "pt": "É na esquina, depois da igreja.",
-        "en_pt": "It's on the corner, past the church."
-      },
-      "ipa": {
-        "fr": "ɛl ɛt o kwˈɛ̃ də- la- ʁˈy apʁˌɛ leɡlˈiz",
-        "de": "[ziː ɪst an deːɐ̯ ˈʔɛkə, naːx deːɐ̯ ˈkɪʁçə]",
-        "it": "[ˌɛ allˈaŋɡolo dˌɛlla strˈaːda\n dˈoːpo lˌa kjˈɛːza]",
-        "es": "[esˈta en la esˈkiɲa ðe la ˈkaʎe deˈspwes ðe la iˈɣlesja]",
-        "nl": "[di ɪs ɔm də hˈuk\n vˈɔːrbˌɛɪ də kˈɛrk]",
-        "pt": "[ɛ na ˌeskˈinæ\n depˈoɪz da ˌiɡrˈeʒæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-015",
-      "text": {
-        "fr": "J'aime ce quartier.",
-        "en": "I love this neighborhood.",
-        "de": "Ich mag diesen Kiez.",
-        "it": "Mi piace questo quartiere.",
-        "es": "Me gusta mucho este barrio.",
-        "nl": "Ik hou van deze buurt.",
-        "pt": "Eu adoro esse bairro."
-      },
-      "ipa": {
-        "fr": "ʒˈɛm sə- kaʁtjˈe",
-        "de": "[ɪç maːk ˈdiːzn̩ ˈkiːts]",
-        "it": "[mˌɪ pjˈaːtʃe kwˌɛsto kwˌartiˈɛːre]",
-        "es": "[me ˈɣusta ˈmutʃo ˈeste ˈβarjo]",
-        "nl": "[ɪk hˈʌʊ vɑn dˌeːzə bˈyrt]",
-        "pt": "[eʊ ˌadˈɔɾw ˌesi bˈaɪxʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-016",
-      "text": {
-        "fr": "Moi aussi, c'est très joli",
-        "en": "Me too, it's very pretty",
-        "de": "Ich auch, er ist wirklich hübsch.",
-        "it": "Anche a me, è molto bello",
-        "es": "A mí también, es muy bonito.",
-        "nl": "Ik ook, het is heel mooi",
-        "pt": "Eu também, é muito bonito.",
-        "en_pt": "Me too, it's very beautiful."
-      },
-      "ipa": {
-        "fr": "mwˌa osˈi sɛ tʁɛ ʒɔlˈi",
-        "de": "[ɪç aʊ̯x, ɛɐ̯ ɪst ˈvɪʁklɪç ˈhʏpʃ]",
-        "it": "[ˈanke ˌa mˈe\n ˌɛ mˈolto bˈɛllo]",
-        "es": "[a ˈmi tamˈbjɛn es ˈmwi βoˈnito]",
-        "nl": "[ɪk ˈoːk\n hət ɪs hˈeːl mˈoːj]",
-        "pt": "[eʊ tɐ̃mbˈeɪŋ\n ɛ mwˈiŋtʊ bˌonˈitʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-017",
-      "text": {
-        "fr": "Les vieux bâtiments ont du charme.",
-        "en": "The old buildings have charm.",
-        "de": "Die alten Gebäude haben Charme.",
-        "it": "I vecchi edifici hanno il loro fascino.",
-        "es": "Los edificios antiguos tienen su encanto.",
-        "nl": "De oude gebouwen hebben charme.",
-        "pt": "Os prédios antigos têm charme."
-      },
-      "ipa": {
-        "fr": "le- vjˈø batimˈɑ̃z ˈɔ̃ dy- ʃˈaʁm",
-        "de": "[diː ˈʔaltən ɡəˈbɔɪ̯də ˈhaːbn̩ ˈʃaʁm]",
-        "it": "[ˌɪ vˈekːɪ ˌedifˈiːtʃɪ ˌanno ˌil lˌɔro fˈaʃino]",
-        "es": "[los eðiˈfiθjos anˈtiɣwos ˈtjɛnen su enˈtʃanto]",
-        "nl": "[də ˈʌʊdə ɣəbˈʌʊən hˌɛbən ʃˈɑrmə]",
-        "pt": "[ʊs prˈɛdʒjʊz ˌɐ̃ŋtʃˈiɡʊs teɪŋ ʃˈaɾəmy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-018",
-      "text": {
-        "fr": "On achète du vin?",
-        "en": "Shall we buy some wine?",
-        "de": "Kaufen wir Wein?",
-        "it": "Compriamo del vino?",
-        "es": "¿Compramos vino?",
-        "nl": "Zullen we wijn kopen?",
-        "pt": "A gente compra vinho?",
-        "en_pt": "Should we buy wine?"
-      },
-      "ipa": {
-        "fr": "ɔ̃n aʃˈɛt dy- vˈɛ̃",
-        "de": "[ˈkaʊ̯fn̩ viːɐ̯ ˈvaɪ̯n]",
-        "it": "[kˌompriˈaːmo dˌɛl vˈiːno]",
-        "es": "[komˈpɾamos ˈβino]",
-        "nl": "[zˌɵlən ʋə ʋˈɛɪn kˈoːpən]",
-        "pt": "[a ʒˈeɪŋtʃy kˈompræ vˈiɲʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-019",
-      "text": {
-        "fr": "Bonne idée! On peut prendre une bouteille pour ce soir.",
-        "en": "Good idea! We can take a bottle for tonight.",
-        "de": "Gute Idee! Wir können eine Flasche für heute Abend nehmen.",
-        "it": "Buona idea! Possiamo prendere una bottiglia per stasera.",
-        "es": "¡Buena idea! Podemos llevar una botella para esta noche.",
-        "nl": "Goed idee! We kunnen een fles voor vanavond nemen.",
-        "pt": "Podemos pegar uma garrafa para hoje à noite.",
-        "en_pt": "We can get a bottle for tonight."
-      },
-      "ipa": {
-        "fr": "bˈɔn idˈe ɔ̃ pˈø pʁˈɑ̃dʁ yn butˈɛj puʁ sə- swˈaʁ",
-        "de": "[ˈɡuːtə ʔiˈdeː! viːɐ̯ ˈkœnən ˈaɪ̯nə ˈflaʃə fʏɐ̯ ˈhoɪ̯tə ˈʔaːbnt ˈneːmən]",
-        "it": "[bʊˌona idˈɛːa\n possjˈaːmo prˈendere ˌʊna botːˈiːʎa pˌɛr stazˈeːra]",
-        "es": "[ˈbwena iˈðea poˈðemos ʎeˈβaɾ una boˈteʎa paɾa ˈesta ˈnotʃe]",
-        "nl": "[ɣˈut idˈeː\n ʋə kˌɵnən ən flˈɛs vɔːr vɑnˈaːvɔnt nˈeːmən]",
-        "pt": "[podˌemʊs peɡˈaɾ ˌumæ ɡˌaxˈafæ pˌaɾæ ˈoʒj ˌaː nˈoɪtʃy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-020",
-      "text": {
-        "fr": "Quel vin tu préfères?",
-        "en": "Which wine do you prefer?",
-        "de": "Welchen Wein bevorzugst du?",
-        "it": "Quale vino preferisci?",
-        "es": "¿Qué vino prefieres?",
-        "nl": "Welke wijn heb je liever?",
-        "pt": "Que vinho você prefere?",
-        "en_pt": "What wine do you prefer?"
-      },
-      "ipa": {
-        "fr": "kɛl vˈɛ̃ ty pʁefˈɛʁ",
-        "de": "[ˈvɛlçn̩ ˈvaɪ̯n bəˈfɔɐ̯t͡sʊkst duː]",
-        "it": "[kwˈaːle vˈiːno prˌeferˈiːʃɪ]",
-        "es": "[ke ˈβino pɾeˈfjeɾes]",
-        "nl": "[ʋˈɛlkə ʋˈɛɪn hɛp jə lˈivər]",
-        "pt": "[ky vˈiɲʊ vosˌe prˌefˈɛɾy]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-021",
-      "text": {
-        "fr": "Le rouge, toujours le rouge.",
-        "en": "The red, always the red.",
-        "de": "Rotwein, immer Rotwein.",
-        "it": "Il rosso, sempre il rosso.",
-        "es": "El tinto, siempre el tinto.",
-        "nl": "De rode, altijd de rode.",
-        "pt": "Tinto, sempre tinto.",
-        "en_pt": "Red, always red."
-      },
-      "ipa": {
-        "fr": "lə- ʁˈuʒ tuʒˌuʁ lə- ʁˈuʒ",
-        "de": "[ˈʁoːtvaɪ̯n, ˈɪmɐ ˈʁoːtvaɪ̯n]",
-        "it": "[ˌil rˈosso\n sˈɛmpre ˌil rˈosso]",
-        "es": "[el ˈtinto ˈsjɛmpɾe el ˈtinto]",
-        "nl": "[də rˈoːdə\n ˈɑltɛɪ tə rˈoːdə]",
-        "pt": "[tʃˈiŋtʊ\n sˌeɪmpry tʃˈiŋtʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-022",
-      "text": {
-        "fr": "Parfait, prenons une bouteille.",
-        "en": "Perfect, let's take a bottle.",
-        "de": "Perfekt, nehmen wir eine Flasche.",
-        "it": "Perfetto, prendiamo una bottiglia.",
-        "es": "Perfecto, llevemos una botella.",
-        "nl": "Perfect, laten we een fles nemen.",
-        "pt": "Perfeito, vamos pegar uma garrafa.",
-        "en_pt": "Perfect, let's get a bottle."
-      },
-      "ipa": {
-        "fr": "paʁfˈɛ pʁənˈɔ̃z yn butˈɛj",
-        "de": "[pɛʁˈfɛkt, ˈneːmən viːɐ̯ ˈaɪ̯nə ˈflaʃə]",
-        "it": "[perfˈɛtːo\n prendjˈaːmo ˌʊna botːˈiːʎa]",
-        "es": "[peɾˈfekto ʎeˈβemos ˈuna boˈteʎa]",
-        "nl": "[pˈɛrfɛkt\n lˈaːtən ʋə ən flˈɛs nˈeːmən]",
-        "pt": "[pˌeɾəfˈeɪtʊ\n vˌɐ̃mʊs peɡˈaɾ ˌumæ ɡˌaxˈafæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-023",
-      "text": {
-        "fr": "L'après-midi, Sophie et Lucas se promènent dans les rues du Marais.",
-        "en": "In the afternoon, Sophie and Lucas walk through the streets of De Pijp.",
-        "de": "Am Nachmittag spazieren Sophie und Lucas durch die Straßen von Kreuzberg.",
-        "it": "Nel pomeriggio, Sophie e Lucas passeggiano per le strade di Trastevere.",
-        "es": "Por la tarde, Sophie y Lucas pasean por las calles de Malasaña.",
-        "nl": "'s Middags wandelen Sophie en Lucas door de straten van De Pijp.",
-        "pt": "À tarde, Sophie e Lucas passeiam pelas ruas da Vila Madalena.",
-        "en_pt": "In the afternoon, Sophie and Lucas walk through the streets of Vila Madalena."
-      },
-      "ipa": {
-        "fr": "lapʁˌɛmidˈi sɔfˈi e lykˈa sə- pʁɔmˈɛn dɑ̃ le- ʁˈy dy- maʁˈɛ",
-        "de": "[am ˈnaːxmitaːk ˈʃpaːt͡siːʁən ˈzɔfiː ʊnt ˈluːkas dʊʁç diː ˈʃtʁaːsən fɔn ˈkʁɔɪ̯tsbɛʁk]",
-        "it": "[nˌɛl pˌomerˈidʒːo\n sˈopje ˌe lˈuːkas passˈɛdʒːano pˌɛr lˌe strˈaːde dˌɪ trastˈevere]",
-        "es": "[poɾ la ˈtarðe ˈsofi i ˈlukas paˈsean poɾ las ˈkaʎes ðe malaˈsaɲa]",
-        "nl": "[s mˈɪdɑxs ʋˈɑndələn sɔphˈi ɛn lˈykɑs doːr də strˈaːtən vɑn də pˈɛɪp]",
-        "pt": "[ˌaː tˈaɾədʒy\n sˌofˈij i lˈukæs pˌasˈeɪɐ̃ʊ̃ pˈelæz xˈuæz da vˈilæ mˌadalˈenæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-024",
-      "text": {
-        "fr": "Ils entrent dans une petite épicerie.",
-        "en": "They enter a small grocery store.",
-        "de": "Sie gehen in einen kleinen Lebensmittelladen.",
-        "it": "Entrano in un piccolo negozio di alimentari.",
-        "es": "Entran en una pequeña tienda de alimentación.",
-        "nl": "Ze gaan een kleine kruidenierswinkel binnen.",
-        "pt": "Eles entram em uma pequena mercearia."
-      },
-      "ipa": {
-        "fr": "ilz ˈɑ̃tʁ dɑ̃z yn pətˈit episʁˈi",
-        "de": "[ziː ˈɡeːən ˈaɪ̯nən ˈklaɪ̯nən ˈleːbənsˌmɪtəllaːdn̩]",
-        "it": "[ˈentrano ˌin ˌʊn pˈikːolo neɡˈɔtsio dˌɪ ˌalimentˈaːrɪ]",
-        "es": "[ˈentɾan en ˈuna peˈkeɲa ˈtjenda ðe alimenˈtaθjon]",
-        "nl": "[zə ɣˈaːn ən klˈɛɪnə krˌœydənˌirsʋɪŋkˈɛl bˈɪnən]",
-        "pt": "[ˌelyz ˈeɪŋtrɐ̃ʊ̃ ˈeɪŋ ˌumæ pˌekˈenæ mˌeɾəseaɾˈiæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-025",
-      "text": {
-        "fr": "Lucas examine les fromages sur le comptoir.",
-        "en": "Lucas examines the cheeses on the counter.",
-        "de": "Lucas betrachtet die Käse auf dem Tresen.",
-        "it": "Lucas esamina i formaggi sul bancone.",
-        "es": "Lucas examina los quesos sobre el mostrador.",
-        "nl": "Lucas bekijkt de kazen op de toonbank.",
-        "pt": "Lucas examina os queijos no balcão."
-      },
-      "ipa": {
-        "fr": "lykˈaz ɛɡzamˈin le- fʁɔmˈaʒ syʁ lə- kɔ̃twˈaʁ",
-        "de": "[ˈluːkas bəˈtʁaxtət diː ˈkɛːzə aʊ̯f deːm ˈtʁeːzn̩]",
-        "it": "[lˈuːkas ezˈamina ˌɪ formˈadʒːɪ sˌʊl bankˈoːne]",
-        "es": "[ˈlukas eksaˈmina los ˈkesos ˈsoβɾe el mosˈtɾaðoɾ]",
-        "nl": "[lˈykɑs bəkˈɛɪk tə kˈaːzən ɔp də tˈoːnbɑŋk]",
-        "pt": "[lˈukæz ˌezæmˈinæ ʊs kˈeɪʒʊz nʊ baʊkˈɐ̃ʊ̃]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-026",
-      "text": {
-        "fr": "Sophie fait la grimace.",
-        "en": "Sophie makes a face.",
-        "de": "Sophie macht ein Gesicht.",
-        "it": "Sophie fa una smorfia.",
-        "es": "Sophie pone cara de asco.",
-        "nl": "Sophie trekt een gezicht.",
-        "pt": "Sophie faz uma cara de desaprovação.",
-        "en_pt": "Sophie makes a disapproving face."
-      },
-      "ipa": {
-        "fr": "sɔfˈi fˈɛ la- ɡʁimˈas",
-        "de": "[ˈzɔfiː maxt aɪ̯n ɡəˈzɪçt]",
-        "it": "[sˈopje fˌa ˌʊna zmˈɔrfia]",
-        "es": "[ˈsofi ˈpone ˈkaɾa ðe ˈasko]",
-        "nl": "[sɔphˈi trˈɛkt ən ɣəzˈɪxt]",
-        "pt": "[sˌofˈiy faz ˌumæ kˈaɾæ dʒy dˌezaprˌovasˈɐ̃ʊ̃]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-027",
-      "text": {
-        "fr": "Ils marchent vers la boulangerie.",
-        "en": "They walk towards the bakery.",
-        "de": "Sie gehen zur Bäckerei.",
-        "it": "Si dirigono verso la panetteria.",
-        "es": "Caminan hacia la churrería.",
-        "nl": "Ze lopen naar de bakkerij.",
-        "pt": "Eles caminham em direção à padaria.",
-        "en_pt": "They walk toward the bakery."
-      },
-      "ipa": {
-        "fr": "il mˈaʁʃ vɛʁ la- bulɑ̃ʒʁˈi",
-        "de": "[ziː ˈɡeːən tsuːɐ̯ ˈbɛkəʁaɪ̯]",
-        "it": "[sˌɪ dirˈiɡono vˌɛrso lˌa pˌanetːerˈiːa]",
-        "es": "[kaˈminan ˈaθja la tʃuˈreɾia]",
-        "nl": "[zə lˈoːpən naːr də bˌɑkərˈɛɪ]",
-        "pt": "[ˌelys kˌæmˈiɲɐ̃ʊ̃ ˈeɪŋ dʒˌiɾesˈɐ̃ʊ̃ ˌaː pˌadaɾˈiæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-028",
-      "text": {
-        "fr": "Ils entrent dans un petit magasin de vins.",
-        "en": "They enter a small wine shop.",
-        "de": "Sie betreten einen kleinen Weinladen.",
-        "it": "Entrano in un piccolo negozio di vini.",
-        "es": "Entran en una pequeña vinoteca.",
-        "nl": "Ze gaan een kleine wijnwinkel binnen.",
-        "pt": "Eles entram em uma pequena adega."
-      },
-      "ipa": {
-        "fr": "ilz ˈɑ̃tʁ dɑ̃z œ̃ pətˈi maɡazˈɛ̃ də- vˈɛ̃",
-        "de": "[ziː bəˈtʁeːtn̩ ˈaɪ̯nən ˈklaɪ̯nən ˈvaɪ̯nlaːdn̩]",
-        "it": "[ˈentrano ˌin ˌʊn pˈikːolo neɡˈɔtsio dˌɪ vˈiːnɪ]",
-        "es": "[ˈentɾan en ˈuna peˈkeɲa βinoˈteka]",
-        "nl": "[zə ɣˈaːn ən klˈɛɪnə ʋˌɛɪnʋɪŋkˈɛl bˈɪnən]",
-        "pt": "[ˌelyz ˈeɪŋtrɐ̃ʊ̃ ˈeɪŋ ˌumæ pˌekˈenæ ˌadˈɛɡæ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-029",
-      "text": {
-        "fr": "Le propriétaire les conseille et ils repartent avec un bon bordeaux.",
-        "en": "The owner advises them and they leave with a good Bordeaux.",
-        "de": "Der Besitzer berät sie und sie gehen mit einem guten Bordeaux.",
-        "it": "Il proprietario li consiglia e ripartono con un buon vino rosso.",
-        "es": "El dueño les aconseja y se van con un buen vino tinto.",
-        "nl": "De eigenaar geeft hen advies en ze vertrekken met een goede bordeaux.",
-        "pt": "O dono os aconselha e eles saem com um bom vinho brasileiro.",
-        "en_pt": "The owner advises them and they leave with a good Brazilian wine."
-      },
-      "ipa": {
-        "fr": "lə- pʁɔpʁietˈɛʁ le- kɔ̃sˈɛj e il ʁəpˈaʁt avˌɛk œ̃ bˈɔ̃ bɔʁdˈo",
-        "de": "[deːɐ̯ bəˈziːt͡sɐ bəˈʁɛːt ziː ʊnt ziː ˈɡeːən mɪt ˈaɪ̯nəm ɡuːtn̩ bɔʁˈdoː]",
-        "it": "[ˌil prˌɔprietˈario lˌɪ konsˈiːʎa ˌe ripˈartono kˌon ˌʊn bʊˌon vˈiːno rˈosso]",
-        "es": "[el ˈdweɲo les aˈkonsexa i se βan kon un ˈβwen ˈβino ˈtinto]",
-        "nl": "[də ˈɛɪɣənˌaːr ɣˈeːft hɛn ɑdvˈis ɛn zə vərtrˈɛkən mɛt ən ɣˈudə bɔrdˈoːks]",
-        "pt": "[ʊ dˈonw ʊz ˌakoŋsˈeljæ i ˌelys sˈaeɪŋ koŋ ũŋ bˈoŋ vˈiɲʊ brˌazilˈeɪɾʊ]"
-      },
-      "provenance": {
-        "fr": "original",
-        "de": "original",
-        "it": "original",
-        "es": "original",
-        "nl": "original",
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-030",
-      "text": {
-        "pt": "Bom dia, diz a comerciante.",
-        "en": "Good morning, says the shopkeeper."
-      },
-      "ipa": {
-        "pt": "[bˈoŋ dʒˈiæ\n dʒˈiz a kˌomeɾəsiˈɐ̃ŋtʃy]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-031",
-      "text": {
-        "pt": "Sim, está muito bom.",
-        "en": "Yes, it's very good."
-      },
-      "ipa": {
-        "pt": "[sˈiŋ\n estˌa mwˈiŋtʊ bˈoŋ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-032",
-      "text": {
-        "pt": "Perfeito.",
-        "en": "Perfect."
-      },
-      "ipa": {
-        "pt": "[pˌeɾəfˈeɪtʊ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-033",
-      "text": {
-        "pt": "Olha, diz a comerciante, tenho tomates de ontem.",
-        "en": "Look, says the shopkeeper, I have tomatoes from yesterday."
-      },
-      "ipa": {
-        "pt": "[ˈɔljæ\n dʒˈiz a kˌomeɾəsiˈɐ̃ŋtʃy\n tˌeɲʊ tˌomˈatʃyz dʒj ˈoŋteɪŋ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-034",
-      "text": {
-        "pt": "Quatro reais o quilo.",
-        "en": "Four reais per kilo."
-      },
-      "ipa": {
-        "pt": "[kwˈatrʊ xeˈaɪz ʊ kˈilʊ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-035",
-      "text": {
-        "pt": "Eles continuam as compras.",
-        "en": "They continue shopping."
-      },
-      "ipa": {
-        "pt": "[ˌelys kˌoŋtʃinˈuɐ̃ʊ̃ as kˈompræs]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-036",
-      "text": {
-        "pt": "Saindo da loja, Sophie respira o ar fresco.",
-        "en": "Leaving the shop, Sophie breathes in the fresh air."
-      },
-      "ipa": {
-        "pt": "[sˌaˈiŋdʊ da lˈɔʒæ\n sˌofˈiy xˌespˈiɾæ u ˈar frˈeskʊ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-037",
-      "text": {
-        "pt": "Lucas tem uma ideia.",
-        "en": "Lucas has an idea."
-      },
-      "ipa": {
-        "pt": "[lˈukæs teɪŋ ˌumæ ˌidˈɛɪæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    },
-    {
-      "id": "scene-02-038",
-      "text": {
-        "pt": "Boa ideia!",
-        "en": "Good idea!"
-      },
-      "ipa": {
-        "pt": "[bˈoæ ˌidˈɛɪæ]"
-      },
-      "provenance": {
-        "pt": "original",
-        "en": "original"
-      }
-    }
-  ]
+    "phrases": [
+        {
+            "id": "scene-02-001",
+            "text": {
+                "fr": "Bonjour,",
+                "en": "Hello,",
+                "de": "Hallo,",
+                "it": "Ciao,",
+                "es": "Hola,",
+                "nl": "Hoi,"
+            },
+            "ipa": {
+                "fr": "bɔ̃ʒˈuʁ",
+                "de": "[ˈhalo]",
+                "it": "[tʃˈaʊ]",
+                "es": "[ˈola]",
+                "nl": "[hˈoːi]",
+                "en": "[həlˈəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-002",
+            "text": {
+                "fr": "Qu'est-ce que je peux faire pour vous?",
+                "en": "What can I do for you?",
+                "de": "Was kann ich für dich tun?",
+                "it": "Cosa posso fare per te?",
+                "es": "¿Qué puedo hacer por ti?",
+                "nl": "Wat kan ik voor je doen?",
+                "pt": "O que posso fazer por vocês?"
+            },
+            "ipa": {
+                "fr": "kɛskˌə ʒə- pˈø fˈɛʁ puʁ vˈu",
+                "de": "[vas kan ɪç fʏɐ̯ dɪç tuːn]",
+                "it": "[kˈɔːza pˈɔsso fˌare pˌɛr tˈe]",
+                "es": "[ˈke ˈpwedo aˈθeɾ poɾ ˈti]",
+                "nl": "[ʋɑt kɑn ɪk vɔːr jə dˈun]",
+                "pt": "[ʊ ky pˌɔsʊ fazˌer por vosˈes]",
+                "en": "[wˌɒt kan aɪ dˈuː fɔː juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-003",
+            "text": {
+                "fr": "Nous avons besoin de pain,",
+                "en": "We need bread,",
+                "de": "Wir brauchen Brot,",
+                "it": "Abbiamo bisogno di pane,",
+                "es": "Necesitamos churros,",
+                "nl": "We hebben brood nodig,",
+                "pt": "Precisamos de pão, responde Sophie.",
+                "en_pt": "We need bread, Sophie replies."
+            },
+            "ipa": {
+                "fr": "nuz avˈɔ̃ bəzwˈɛ̃ də- pˈɛ̃",
+                "de": "[viːɐ̯ ˈbʁaʊ̯çən bʁoːt]",
+                "it": "[abːjˌamo bizˈoɲʲo dˌɪ pˈaːne]",
+                "es": "[neθeˈsitamos ˈtʃuros]",
+                "nl": "[ʋə hˌɛbən brˈoːt nˈoːdəx]",
+                "pt": "[prˌesizˈɐ̃mʊz dʒy pˈɐ̃ʊ̃\n xˌespˈoŋdʒy sˌofˈiy]",
+                "en": "[wiː nˈiːd bɹˈɛd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-004",
+            "text": {
+                "fr": "Le pain est là-bas, près de l'entrée.",
+                "en": "The bread is over there, near the entrance.",
+                "de": "Das Brot ist dort drüben, bei dem Eingang.",
+                "it": "Il pane è là, vicino all'entrata.",
+                "es": "Los churros están allí, cerca de la entrada.",
+                "nl": "Het brood is daar, bij de ingang.",
+                "pt": "O pão está ali, perto da entrada."
+            },
+            "ipa": {
+                "fr": "lə- pˈɛ̃ ɛ lˈabˈa pʁɛ də- lɑ̃tʁˈe",
+                "de": "[das bʁoːt ɪst dɔʁt ˈdʁyːbn̩, baɪ̯ deːm ˈʔaɪ̯nɡaŋ]",
+                "it": "[ˌil pˈaːne ˌɛ lˈa\n vitʃˈiːno allentrˈaːta]",
+                "es": "[los ˈtʃuros esˈtan aˈʎi ˈθeɾka ðe la enˈtɾaða]",
+                "nl": "[hət brˈoːt ɪs dˈaːr\n bɛɪ də ˈɪnɣˌɑŋ]",
+                "pt": "[ʊ pˈɐ̃ʊ̃ estˌa alˈi\n pˈɛɾətʊ da ˌeɪŋtrˈadæ]",
+                "en": "[ðə bɹˈɛd ɪz ˌəʊvə ðˈeə nˌiə ðɪ ˈɛntɹəns]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-005",
+            "text": {
+                "fr": "Le fromage est frais?",
+                "en": "Is the cheese fresh?",
+                "de": "Ist der Käse frisch?",
+                "it": "Il formaggio è fresco?",
+                "es": "¿El queso está fresco?",
+                "nl": "Is de kaas vers?",
+                "pt": "O queijo está fresco?"
+            },
+            "ipa": {
+                "fr": "lə- fʁɔmˈaʒ ɛ fʁˈɛ",
+                "de": "[ɪst deːɐ̯ ˈkɛːzə fʁɪʃ]",
+                "it": "[ˌil formˈadʒːo ˌɛ frˈesko]",
+                "es": "[el ˈkeso esˈta ˈfɾesko]",
+                "nl": "[ɪs də kˈaːs vˈɛrs]",
+                "pt": "[ʊ kˈeɪʒw estˌa frˈeskʊ]",
+                "en": "[ɪz ðə tʃˈiːz fɹˈɛʃ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-006",
+            "text": {
+                "fr": "Oui, il est très bon. Je l'ai reçu ce matin.",
+                "en": "Yes, it's very good. I received it this morning.",
+                "de": "Ja, er ist sehr gut. Ich habe ihn heute Morgen bekommen.",
+                "it": "Sì, è molto buono. L'ho ricevuto stamattina.",
+                "es": "Sí, está muy bueno. Lo recibí esta mañana.",
+                "nl": "Ja, hij is erg goed. Ik heb hem vanochtend ontvangen.",
+                "pt": "Recebi hoje de manhã.",
+                "en_pt": "I received it this morning."
+            },
+            "ipa": {
+                "fr": "wˈi il ɛ tʁɛ bˈɔ̃ ʒə- le ʁəsˈy sə- matˈɛ̃",
+                "de": "[jaː, ɛɐ̯ ɪst zeːɐ̯ ɡuːt. ɪç ˈhaːbə iːn ˈhoːtə ˈmɔʁɡn̩ bəˈkɔmən]",
+                "it": "[sˈi\n ˌɛ mˈolto bʊˈono\n lˌo rˌitʃevˈuːto stˌamatːˈiːna]",
+                "es": "[si esˈta ˈmwi ˈβweno lo reθiˈβi esˈta maˈɲana]",
+                "nl": "[jˈaː\n hɛɪ ɪs ˈɛrx ɣˈut\n ɪk hɛp hˈɛm vɑnˈɔxtənt ɔntvˈɑŋən]",
+                "pt": "[xˌesebˈi ˈoʒy dʒy mɐ̃ɲˈɐ̃]",
+                "en": "[jˈɛs ɪts vˈɛɹɪ ɡˈʊd aɪ ɹɪsˈiːvd ɪt ðɪs mˈɔːnɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-007",
+            "text": {
+                "fr": "Parfait. Et combien coûtent les tomates?",
+                "en": "Perfect. And how much are the tomatoes?",
+                "de": "Perfekt. Und wie viel kosten die Tomaten?",
+                "it": "Perfetto. E quanto costano i pomodori?",
+                "es": "Perfecto. ¿Y cuánto cuestan los tomates?",
+                "nl": "Perfect. En hoeveel kosten de tomaten?",
+                "pt": "E quanto custam os tomates?",
+                "en_pt": "And how much do the tomatoes cost?"
+            },
+            "ipa": {
+                "fr": "paʁfˈɛ e kɔ̃bjˈɛ̃ kˈut le- tɔmˈat",
+                "de": "[pɛʁˈfɛkt. ʊnt viː ˈfiːl ˈkɔstn̩ diː toˈmaːtn̩]",
+                "it": "[perfˈɛtːo\n ˌe kwˈanto kˈɔstano ˌɪ pˌomodˈoːrɪ]",
+                "es": "[peɾˈfekto i ˈkwanto kwesˈtan los toˈmates]",
+                "nl": "[pˈɛrfɛkt\n ɛn huvˈeːl kˈɔstən də toːmˈaːtən]",
+                "pt": "[i kwˈɐ̃ŋtʊ kˈustɐ̃ʊ̃ ʊs tˌomˈatʃys]",
+                "en": "[pˈɜːfɛkt and hˌaʊ mˈʌtʃ ɑː ðə təmˈɑːtəʊz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-008",
+            "text": {
+                "fr": "Trois euros le kilo.",
+                "en": "Three euros per kilo.",
+                "de": "Drei Euro pro Kilo.",
+                "it": "Tre euro al chilo.",
+                "es": "Tres euros el kilo.",
+                "nl": "Drie euro per kilo.",
+                "pt": "Seis reais o quilo.",
+                "en_pt": "Six reais per kilo."
+            },
+            "ipa": {
+                "fr": "tʁwˈaz øʁˈo lə- kilˈo",
+                "de": "[dʁaɪ̯ ˈʔøːʁo pʁoː ˈkiːlo]",
+                "it": "[trˈe ˈɛʊro ˌal kˈiːlo]",
+                "es": "[tɾes ˈewɾos el ˈkilo]",
+                "nl": "[drˈi ˈøːroː pˈɛr kˈiloː]",
+                "pt": "[sˈeɪz xeˈaɪz ʊ kˈilʊ]",
+                "en": "[θɹˈiː jˈʊəɹəʊz pɜː kˈiːləʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-009",
+            "text": {
+                "fr": "C'est trop cher pour moi.",
+                "en": "That's too expensive for me.",
+                "de": "Das ist mir zu teuer.",
+                "it": "È troppo caro per me.",
+                "es": "Es demasiado caro para mí.",
+                "nl": "Dat is te duur voor mij.",
+                "pt": "Está muito caro para mim."
+            },
+            "ipa": {
+                "fr": "sɛ tʁo ʃˈɛʁ puʁ mwˈa",
+                "de": "[das ɪst miːɐ̯ tsuː ˈtɔɪ̯ɐ]",
+                "it": "[ˌɛ trˈɔpːo kˈaːro pˌɛr mˈe]",
+                "es": "[es deˈmasjaðo ˈkaɾo paɾa ˈmi]",
+                "nl": "[dɑt ɪs tə dˈyr vɔːr mˈɛɪ]",
+                "pt": "[estˌa mwˈiŋtʊ kˈaɾʊ pˌaɾæ mˈiŋ]",
+                "en": "[ðats tˈuː ɛkspˈɛnsɪv fɔː mˌiː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-010",
+            "text": {
+                "fr": "Regardez,",
+                "en": "Look,",
+                "de": "Schau mal,",
+                "it": "Guarda,",
+                "es": "Mira,",
+                "nl": "Kijk,"
+            },
+            "ipa": {
+                "fr": "ʁəɡaʁdˈe",
+                "de": "[ʃaʊ̯ mal]",
+                "it": "[ɡwˈaːrda]",
+                "es": "[ˈmiɾa]",
+                "nl": "[kˈɛɪk]",
+                "en": "[lˈʊk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-011",
+            "text": {
+                "fr": "j'ai des tomates d'hier. Deux euros le kilo.",
+                "en": "I have yesterday's tomatoes. Two euros per kilo.",
+                "de": "ich habe noch Tomaten von gestern. Zwei Euro pro Kilo.",
+                "it": "ho dei pomodori di ieri. Due euro al chilo.",
+                "es": "tengo tomates de ayer. Dos euros el kilo.",
+                "nl": "ik heb tomaten van gisteren. Twee euro per kilo."
+            },
+            "ipa": {
+                "fr": "ʒe de- tɔmˈat djˈɛʁ dˈøz øʁˈo lə- kilˈo",
+                "de": "[ɪç ˈhaːbə nɔx toˈmaːtn̩ fɔn ˈɡɛstɐn. tsvaɪ̯ ˈʔøːʁo pʁoː ˈkiːlo]",
+                "it": "[ˌo dˌɛj pˌomodˈoːrɪ dˌɪ jˈɛːrɪ\n dˈuːe ˈɛʊro ˌal kˈiːlo]",
+                "es": "[ˈteŋɡo toˈmates ðe aˈʝeɾ dos ˈewɾos el ˈkilo]",
+                "nl": "[ɪk hɛp toːmˈaːtən vɑn ɣˈɪstərən\n tʋˈeː ˈøːroː pˈɛr kˈiloː]",
+                "en": "[aɪ hav jˈɛstədˌeɪz təmˈɑːtəʊz tˈuː jˈʊəɹəʊz pɜː kˈiːləʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-012",
+            "text": {
+                "fr": "D'accord, nous prenons un kilo.",
+                "en": "Okay, we'll take a kilo.",
+                "de": "Okay, wir nehmen ein Kilo.",
+                "it": "Va bene, prendiamo un chilo.",
+                "es": "Vale, llevamos un kilo.",
+                "nl": "Oké, we nemen een kilo.",
+                "pt": "Tá bom, a gente leva um quilo.",
+                "en_pt": "Okay, we'll take one kilo."
+            },
+            "ipa": {
+                "fr": "dakˈɔʁ nu pʁənˈɔ̃z œ̃ kilˈo",
+                "de": "[oˈkaɪ̯, viːɐ̯ ˈneːmən aɪ̯n ˈkiːlo]",
+                "it": "[vˈa bˈɛːne\n prendjˈaːmo ˌʊn kˈiːlo]",
+                "es": "[ˈβale ʎeˈβamos un ˈkilo]",
+                "nl": "[oːkˈeː\n ʋə nˈeːmən ən kˈiloː]",
+                "pt": "[tˈa bˈoŋ\n a ʒˈeɪŋtʃy lˈɛvæ ũŋ kˈilʊ]",
+                "en": "[əʊkˈeɪ wiːl tˈeɪk ɐ kˈiːləʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-013",
+            "text": {
+                "fr": "Où est la boulangerie?",
+                "en": "Where is the bakery?",
+                "de": "Wo ist die Bäckerei?",
+                "it": "Dove è la panetteria?",
+                "es": "¿Dónde está la churrería?",
+                "nl": "Waar is de bakkerij?",
+                "pt": "Lucas pergunta: Onde fica a padaria?",
+                "en_pt": "Lucas asks: Where is the bakery?"
+            },
+            "ipa": {
+                "fr": "u ɛ la- bulɑ̃ʒʁˈi",
+                "de": "[voː ɪst diː ˈbɛkəʁaɪ̯]",
+                "it": "[dˈoːve ˌɛ lˌa pˌanetːerˈiːa]",
+                "es": "[ˈdonde esˈta la tʃuˈreɾia]",
+                "nl": "[ʋˈaːr ɪs də bˌɑkərˈɛɪ]",
+                "pt": "[lˈukæs pˌeɾəɡˈũŋtæ\n ˌoŋdʒy fˈikæ a pˌadaɾˈiæ]",
+                "en": "[wˌeəɹ ɪz ðə bˈeɪkəɹɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-014",
+            "text": {
+                "fr": "Elle est au coin de la rue, après l'église.",
+                "en": "It's around the corner, past the church.",
+                "de": "Sie ist an der Ecke, nach der Kirche.",
+                "it": "È all'angolo della strada, dopo la chiesa.",
+                "es": "Está en la esquina de la calle, después de la iglesia.",
+                "nl": "Die is om de hoek, voorbij de kerk.",
+                "pt": "É na esquina, depois da igreja.",
+                "en_pt": "It's on the corner, past the church."
+            },
+            "ipa": {
+                "fr": "ɛl ɛt o kwˈɛ̃ də- la- ʁˈy apʁˌɛ leɡlˈiz",
+                "de": "[ziː ɪst an deːɐ̯ ˈʔɛkə, naːx deːɐ̯ ˈkɪʁçə]",
+                "it": "[ˌɛ allˈaŋɡolo dˌɛlla strˈaːda\n dˈoːpo lˌa kjˈɛːza]",
+                "es": "[esˈta en la esˈkiɲa ðe la ˈkaʎe deˈspwes ðe la iˈɣlesja]",
+                "nl": "[di ɪs ɔm də hˈuk\n vˈɔːrbˌɛɪ də kˈɛrk]",
+                "pt": "[ɛ na ˌeskˈinæ\n depˈoɪz da ˌiɡrˈeʒæ]",
+                "en": "[ɪts ɐɹˈaʊnd ðə kˈɔːnə pˈast ðə tʃˈɜːtʃ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-015",
+            "text": {
+                "fr": "J'aime ce quartier.",
+                "en": "I love this neighborhood.",
+                "de": "Ich mag diesen Kiez.",
+                "it": "Mi piace questo quartiere.",
+                "es": "Me gusta mucho este barrio.",
+                "nl": "Ik hou van deze buurt.",
+                "pt": "Eu adoro esse bairro."
+            },
+            "ipa": {
+                "fr": "ʒˈɛm sə- kaʁtjˈe",
+                "de": "[ɪç maːk ˈdiːzn̩ ˈkiːts]",
+                "it": "[mˌɪ pjˈaːtʃe kwˌɛsto kwˌartiˈɛːre]",
+                "es": "[me ˈɣusta ˈmutʃo ˈeste ˈβarjo]",
+                "nl": "[ɪk hˈʌʊ vɑn dˌeːzə bˈyrt]",
+                "pt": "[eʊ ˌadˈɔɾw ˌesi bˈaɪxʊ]",
+                "en": "[aɪ lˈʌv ðɪs nˈeɪbəhˌʊd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-016",
+            "text": {
+                "fr": "Moi aussi, c'est très joli",
+                "en": "Me too, it's very pretty",
+                "de": "Ich auch, er ist wirklich hübsch.",
+                "it": "Anche a me, è molto bello",
+                "es": "A mí también, es muy bonito.",
+                "nl": "Ik ook, het is heel mooi",
+                "pt": "Eu também, é muito bonito.",
+                "en_pt": "Me too, it's very beautiful."
+            },
+            "ipa": {
+                "fr": "mwˌa osˈi sɛ tʁɛ ʒɔlˈi",
+                "de": "[ɪç aʊ̯x, ɛɐ̯ ɪst ˈvɪʁklɪç ˈhʏpʃ]",
+                "it": "[ˈanke ˌa mˈe\n ˌɛ mˈolto bˈɛllo]",
+                "es": "[a ˈmi tamˈbjɛn es ˈmwi βoˈnito]",
+                "nl": "[ɪk ˈoːk\n hət ɪs hˈeːl mˈoːj]",
+                "pt": "[eʊ tɐ̃mbˈeɪŋ\n ɛ mwˈiŋtʊ bˌonˈitʊ]",
+                "en": "[mˌiː tˈuː ɪts vˈɛɹɪ pɹˈɪti]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-017",
+            "text": {
+                "fr": "Les vieux bâtiments ont du charme.",
+                "en": "The old buildings have charm.",
+                "de": "Die alten Gebäude haben Charme.",
+                "it": "I vecchi edifici hanno il loro fascino.",
+                "es": "Los edificios antiguos tienen su encanto.",
+                "nl": "De oude gebouwen hebben charme.",
+                "pt": "Os prédios antigos têm charme."
+            },
+            "ipa": {
+                "fr": "le- vjˈø batimˈɑ̃z ˈɔ̃ dy- ʃˈaʁm",
+                "de": "[diː ˈʔaltən ɡəˈbɔɪ̯də ˈhaːbn̩ ˈʃaʁm]",
+                "it": "[ˌɪ vˈekːɪ ˌedifˈiːtʃɪ ˌanno ˌil lˌɔro fˈaʃino]",
+                "es": "[los eðiˈfiθjos anˈtiɣwos ˈtjɛnen su enˈtʃanto]",
+                "nl": "[də ˈʌʊdə ɣəbˈʌʊən hˌɛbən ʃˈɑrmə]",
+                "pt": "[ʊs prˈɛdʒjʊz ˌɐ̃ŋtʃˈiɡʊs teɪŋ ʃˈaɾəmy]",
+                "en": "[ðɪ ˈəʊld bˈɪldɪŋz hav tʃˈɑːm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-018",
+            "text": {
+                "fr": "On achète du vin?",
+                "en": "Shall we buy some wine?",
+                "de": "Kaufen wir Wein?",
+                "it": "Compriamo del vino?",
+                "es": "¿Compramos vino?",
+                "nl": "Zullen we wijn kopen?",
+                "pt": "A gente compra vinho?",
+                "en_pt": "Should we buy wine?"
+            },
+            "ipa": {
+                "fr": "ɔ̃n aʃˈɛt dy- vˈɛ̃",
+                "de": "[ˈkaʊ̯fn̩ viːɐ̯ ˈvaɪ̯n]",
+                "it": "[kˌompriˈaːmo dˌɛl vˈiːno]",
+                "es": "[komˈpɾamos ˈβino]",
+                "nl": "[zˌɵlən ʋə ʋˈɛɪn kˈoːpən]",
+                "pt": "[a ʒˈeɪŋtʃy kˈompræ vˈiɲʊ]",
+                "en": "[ʃˌal wiː bˈaɪ sˌʌm wˈaɪn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-019",
+            "text": {
+                "fr": "Bonne idée! On peut prendre une bouteille pour ce soir.",
+                "en": "Good idea! We can take a bottle for tonight.",
+                "de": "Gute Idee! Wir können eine Flasche für heute Abend nehmen.",
+                "it": "Buona idea! Possiamo prendere una bottiglia per stasera.",
+                "es": "¡Buena idea! Podemos llevar una botella para esta noche.",
+                "nl": "Goed idee! We kunnen een fles voor vanavond nemen.",
+                "pt": "Podemos pegar uma garrafa para hoje à noite.",
+                "en_pt": "We can get a bottle for tonight."
+            },
+            "ipa": {
+                "fr": "bˈɔn idˈe ɔ̃ pˈø pʁˈɑ̃dʁ yn butˈɛj puʁ sə- swˈaʁ",
+                "de": "[ˈɡuːtə ʔiˈdeː! viːɐ̯ ˈkœnən ˈaɪ̯nə ˈflaʃə fʏɐ̯ ˈhoɪ̯tə ˈʔaːbnt ˈneːmən]",
+                "it": "[bʊˌona idˈɛːa\n possjˈaːmo prˈendere ˌʊna botːˈiːʎa pˌɛr stazˈeːra]",
+                "es": "[ˈbwena iˈðea poˈðemos ʎeˈβaɾ una boˈteʎa paɾa ˈesta ˈnotʃe]",
+                "nl": "[ɣˈut idˈeː\n ʋə kˌɵnən ən flˈɛs vɔːr vɑnˈaːvɔnt nˈeːmən]",
+                "pt": "[podˌemʊs peɡˈaɾ ˌumæ ɡˌaxˈafæ pˌaɾæ ˈoʒj ˌaː nˈoɪtʃy]",
+                "en": "[ɡˈʊd aɪdˈiə wiː kan tˈeɪk ɐ bˈɒtəl fɔː tənˈaɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-020",
+            "text": {
+                "fr": "Quel vin tu préfères?",
+                "en": "Which wine do you prefer?",
+                "de": "Welchen Wein bevorzugst du?",
+                "it": "Quale vino preferisci?",
+                "es": "¿Qué vino prefieres?",
+                "nl": "Welke wijn heb je liever?",
+                "pt": "Que vinho você prefere?",
+                "en_pt": "What wine do you prefer?"
+            },
+            "ipa": {
+                "fr": "kɛl vˈɛ̃ ty pʁefˈɛʁ",
+                "de": "[ˈvɛlçn̩ ˈvaɪ̯n bəˈfɔɐ̯t͡sʊkst duː]",
+                "it": "[kwˈaːle vˈiːno prˌeferˈiːʃɪ]",
+                "es": "[ke ˈβino pɾeˈfjeɾes]",
+                "nl": "[ʋˈɛlkə ʋˈɛɪn hɛp jə lˈivər]",
+                "pt": "[ky vˈiɲʊ vosˌe prˌefˈɛɾy]",
+                "en": "[wˌɪtʃ wˈaɪn dˈuː juː pɹɪfˈɜː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-021",
+            "text": {
+                "fr": "Le rouge, toujours le rouge.",
+                "en": "The red, always the red.",
+                "de": "Rotwein, immer Rotwein.",
+                "it": "Il rosso, sempre il rosso.",
+                "es": "El tinto, siempre el tinto.",
+                "nl": "De rode, altijd de rode.",
+                "pt": "Tinto, sempre tinto.",
+                "en_pt": "Red, always red."
+            },
+            "ipa": {
+                "fr": "lə- ʁˈuʒ tuʒˌuʁ lə- ʁˈuʒ",
+                "de": "[ˈʁoːtvaɪ̯n, ˈɪmɐ ˈʁoːtvaɪ̯n]",
+                "it": "[ˌil rˈosso\n sˈɛmpre ˌil rˈosso]",
+                "es": "[el ˈtinto ˈsjɛmpɾe el ˈtinto]",
+                "nl": "[də rˈoːdə\n ˈɑltɛɪ tə rˈoːdə]",
+                "pt": "[tʃˈiŋtʊ\n sˌeɪmpry tʃˈiŋtʊ]",
+                "en": "[ðə ɹˈɛd ˈɔːlweɪz ðə ɹˈɛd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-022",
+            "text": {
+                "fr": "Parfait, prenons une bouteille.",
+                "en": "Perfect, let's take a bottle.",
+                "de": "Perfekt, nehmen wir eine Flasche.",
+                "it": "Perfetto, prendiamo una bottiglia.",
+                "es": "Perfecto, llevemos una botella.",
+                "nl": "Perfect, laten we een fles nemen.",
+                "pt": "Perfeito, vamos pegar uma garrafa.",
+                "en_pt": "Perfect, let's get a bottle."
+            },
+            "ipa": {
+                "fr": "paʁfˈɛ pʁənˈɔ̃z yn butˈɛj",
+                "de": "[pɛʁˈfɛkt, ˈneːmən viːɐ̯ ˈaɪ̯nə ˈflaʃə]",
+                "it": "[perfˈɛtːo\n prendjˈaːmo ˌʊna botːˈiːʎa]",
+                "es": "[peɾˈfekto ʎeˈβemos ˈuna boˈteʎa]",
+                "nl": "[pˈɛrfɛkt\n lˈaːtən ʋə ən flˈɛs nˈeːmən]",
+                "pt": "[pˌeɾəfˈeɪtʊ\n vˌɐ̃mʊs peɡˈaɾ ˌumæ ɡˌaxˈafæ]",
+                "en": "[pˈɜːfɛkt lˈɛts tˈeɪk ɐ bˈɒtəl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-023",
+            "text": {
+                "fr": "L'après-midi, Sophie et Lucas se promènent dans les rues du Marais.",
+                "en": "In the afternoon, Sophie and Lucas walk through the streets of De Pijp.",
+                "de": "Am Nachmittag spazieren Sophie und Lucas durch die Straßen von Kreuzberg.",
+                "it": "Nel pomeriggio, Sophie e Lucas passeggiano per le strade di Trastevere.",
+                "es": "Por la tarde, Sophie y Lucas pasean por las calles de Malasaña.",
+                "nl": "'s Middags wandelen Sophie en Lucas door de straten van De Pijp.",
+                "pt": "À tarde, Sophie e Lucas passeiam pelas ruas da Vila Madalena.",
+                "en_pt": "In the afternoon, Sophie and Lucas walk through the streets of Vila Madalena."
+            },
+            "ipa": {
+                "fr": "lapʁˌɛmidˈi sɔfˈi e lykˈa sə- pʁɔmˈɛn dɑ̃ le- ʁˈy dy- maʁˈɛ",
+                "de": "[am ˈnaːxmitaːk ˈʃpaːt͡siːʁən ˈzɔfiː ʊnt ˈluːkas dʊʁç diː ˈʃtʁaːsən fɔn ˈkʁɔɪ̯tsbɛʁk]",
+                "it": "[nˌɛl pˌomerˈidʒːo\n sˈopje ˌe lˈuːkas passˈɛdʒːano pˌɛr lˌe strˈaːde dˌɪ trastˈevere]",
+                "es": "[poɾ la ˈtarðe ˈsofi i ˈlukas paˈsean poɾ las ˈkaʎes ðe malaˈsaɲa]",
+                "nl": "[s mˈɪdɑxs ʋˈɑndələn sɔphˈi ɛn lˈykɑs doːr də strˈaːtən vɑn də pˈɛɪp]",
+                "pt": "[ˌaː tˈaɾədʒy\n sˌofˈij i lˈukæs pˌasˈeɪɐ̃ʊ̃ pˈelæz xˈuæz da vˈilæ mˌadalˈenæ]",
+                "en": "[ɪnðɪ ˌaftənˈuːn sˈəʊfi and lˈuːkəz wˈɔːk θɹuː ðə stɹˈiːts ɒv də pˈeɪp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-024",
+            "text": {
+                "fr": "Ils entrent dans une petite épicerie.",
+                "en": "They enter a small grocery store.",
+                "de": "Sie gehen in einen kleinen Lebensmittelladen.",
+                "it": "Entrano in un piccolo negozio di alimentari.",
+                "es": "Entran en una pequeña tienda de alimentación.",
+                "nl": "Ze gaan een kleine kruidenierswinkel binnen.",
+                "pt": "Eles entram em uma pequena mercearia."
+            },
+            "ipa": {
+                "fr": "ilz ˈɑ̃tʁ dɑ̃z yn pətˈit episʁˈi",
+                "de": "[ziː ˈɡeːən ˈaɪ̯nən ˈklaɪ̯nən ˈleːbənsˌmɪtəllaːdn̩]",
+                "it": "[ˈentrano ˌin ˌʊn pˈikːolo neɡˈɔtsio dˌɪ ˌalimentˈaːrɪ]",
+                "es": "[ˈentɾan en ˈuna peˈkeɲa ˈtjenda ðe alimenˈtaθjon]",
+                "nl": "[zə ɣˈaːn ən klˈɛɪnə krˌœydənˌirsʋɪŋkˈɛl bˈɪnən]",
+                "pt": "[ˌelyz ˈeɪŋtrɐ̃ʊ̃ ˈeɪŋ ˌumæ pˌekˈenæ mˌeɾəseaɾˈiæ]",
+                "en": "[ðeɪ ˈɛntəɹ ɐ smˈɔːl ɡɹˈəʊsəɹɪ stˈɔː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-025",
+            "text": {
+                "fr": "Lucas examine les fromages sur le comptoir.",
+                "en": "Lucas examines the cheeses on the counter.",
+                "de": "Lucas betrachtet die Käse auf dem Tresen.",
+                "it": "Lucas esamina i formaggi sul bancone.",
+                "es": "Lucas examina los quesos sobre el mostrador.",
+                "nl": "Lucas bekijkt de kazen op de toonbank.",
+                "pt": "Lucas examina os queijos no balcão."
+            },
+            "ipa": {
+                "fr": "lykˈaz ɛɡzamˈin le- fʁɔmˈaʒ syʁ lə- kɔ̃twˈaʁ",
+                "de": "[ˈluːkas bəˈtʁaxtət diː ˈkɛːzə aʊ̯f deːm ˈtʁeːzn̩]",
+                "it": "[lˈuːkas ezˈamina ˌɪ formˈadʒːɪ sˌʊl bankˈoːne]",
+                "es": "[ˈlukas eksaˈmina los ˈkesos ˈsoβɾe el mosˈtɾaðoɾ]",
+                "nl": "[lˈykɑs bəkˈɛɪk tə kˈaːzən ɔp də tˈoːnbɑŋk]",
+                "pt": "[lˈukæz ˌezæmˈinæ ʊs kˈeɪʒʊz nʊ baʊkˈɐ̃ʊ̃]",
+                "en": "[lˈuːkəz ɛɡzˈamɪnz ðə tʃˈiːzɪz ɒnðə kˈaʊntə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-026",
+            "text": {
+                "fr": "Sophie fait la grimace.",
+                "en": "Sophie makes a face.",
+                "de": "Sophie macht ein Gesicht.",
+                "it": "Sophie fa una smorfia.",
+                "es": "Sophie pone cara de asco.",
+                "nl": "Sophie trekt een gezicht.",
+                "pt": "Sophie faz uma cara de desaprovação.",
+                "en_pt": "Sophie makes a disapproving face."
+            },
+            "ipa": {
+                "fr": "sɔfˈi fˈɛ la- ɡʁimˈas",
+                "de": "[ˈzɔfiː maxt aɪ̯n ɡəˈzɪçt]",
+                "it": "[sˈopje fˌa ˌʊna zmˈɔrfia]",
+                "es": "[ˈsofi ˈpone ˈkaɾa ðe ˈasko]",
+                "nl": "[sɔphˈi trˈɛkt ən ɣəzˈɪxt]",
+                "pt": "[sˌofˈiy faz ˌumæ kˈaɾæ dʒy dˌezaprˌovasˈɐ̃ʊ̃]",
+                "en": "[sˈəʊfi mˌeɪks ɐ fˈeɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-027",
+            "text": {
+                "fr": "Ils marchent vers la boulangerie.",
+                "en": "They walk towards the bakery.",
+                "de": "Sie gehen zur Bäckerei.",
+                "it": "Si dirigono verso la panetteria.",
+                "es": "Caminan hacia la churrería.",
+                "nl": "Ze lopen naar de bakkerij.",
+                "pt": "Eles caminham em direção à padaria.",
+                "en_pt": "They walk toward the bakery."
+            },
+            "ipa": {
+                "fr": "il mˈaʁʃ vɛʁ la- bulɑ̃ʒʁˈi",
+                "de": "[ziː ˈɡeːən tsuːɐ̯ ˈbɛkəʁaɪ̯]",
+                "it": "[sˌɪ dirˈiɡono vˌɛrso lˌa pˌanetːerˈiːa]",
+                "es": "[kaˈminan ˈaθja la tʃuˈreɾia]",
+                "nl": "[zə lˈoːpən naːr də bˌɑkərˈɛɪ]",
+                "pt": "[ˌelys kˌæmˈiɲɐ̃ʊ̃ ˈeɪŋ dʒˌiɾesˈɐ̃ʊ̃ ˌaː pˌadaɾˈiæ]",
+                "en": "[ðeɪ wˈɔːk tʊwˈɔːdz ðə bˈeɪkəɹɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-028",
+            "text": {
+                "fr": "Ils entrent dans un petit magasin de vins.",
+                "en": "They enter a small wine shop.",
+                "de": "Sie betreten einen kleinen Weinladen.",
+                "it": "Entrano in un piccolo negozio di vini.",
+                "es": "Entran en una pequeña vinoteca.",
+                "nl": "Ze gaan een kleine wijnwinkel binnen.",
+                "pt": "Eles entram em uma pequena adega."
+            },
+            "ipa": {
+                "fr": "ilz ˈɑ̃tʁ dɑ̃z œ̃ pətˈi maɡazˈɛ̃ də- vˈɛ̃",
+                "de": "[ziː bəˈtʁeːtn̩ ˈaɪ̯nən ˈklaɪ̯nən ˈvaɪ̯nlaːdn̩]",
+                "it": "[ˈentrano ˌin ˌʊn pˈikːolo neɡˈɔtsio dˌɪ vˈiːnɪ]",
+                "es": "[ˈentɾan en ˈuna peˈkeɲa βinoˈteka]",
+                "nl": "[zə ɣˈaːn ən klˈɛɪnə ʋˌɛɪnʋɪŋkˈɛl bˈɪnən]",
+                "pt": "[ˌelyz ˈeɪŋtrɐ̃ʊ̃ ˈeɪŋ ˌumæ pˌekˈenæ ˌadˈɛɡæ]",
+                "en": "[ðeɪ ˈɛntəɹ ɐ smˈɔːl wˈaɪn ʃˈɒp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-029",
+            "text": {
+                "fr": "Le propriétaire les conseille et ils repartent avec un bon bordeaux.",
+                "en": "The owner advises them and they leave with a good Bordeaux.",
+                "de": "Der Besitzer berät sie und sie gehen mit einem guten Bordeaux.",
+                "it": "Il proprietario li consiglia e ripartono con un buon vino rosso.",
+                "es": "El dueño les aconseja y se van con un buen vino tinto.",
+                "nl": "De eigenaar geeft hen advies en ze vertrekken met een goede bordeaux.",
+                "pt": "O dono os aconselha e eles saem com um bom vinho brasileiro.",
+                "en_pt": "The owner advises them and they leave with a good Brazilian wine."
+            },
+            "ipa": {
+                "fr": "lə- pʁɔpʁietˈɛʁ le- kɔ̃sˈɛj e il ʁəpˈaʁt avˌɛk œ̃ bˈɔ̃ bɔʁdˈo",
+                "de": "[deːɐ̯ bəˈziːt͡sɐ bəˈʁɛːt ziː ʊnt ziː ˈɡeːən mɪt ˈaɪ̯nəm ɡuːtn̩ bɔʁˈdoː]",
+                "it": "[ˌil prˌɔprietˈario lˌɪ konsˈiːʎa ˌe ripˈartono kˌon ˌʊn bʊˌon vˈiːno rˈosso]",
+                "es": "[el ˈdweɲo les aˈkonsexa i se βan kon un ˈβwen ˈβino ˈtinto]",
+                "nl": "[də ˈɛɪɣənˌaːr ɣˈeːft hɛn ɑdvˈis ɛn zə vərtrˈɛkən mɛt ən ɣˈudə bɔrdˈoːks]",
+                "pt": "[ʊ dˈonw ʊz ˌakoŋsˈeljæ i ˌelys sˈaeɪŋ koŋ ũŋ bˈoŋ vˈiɲʊ brˌazilˈeɪɾʊ]",
+                "en": "[ðɪ ˈəʊnəɹ ɐdvˈaɪzɪz ðˌɛm and ðeɪ lˈiːv wɪð ɐ ɡˈʊd bˈɔːdəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-030",
+            "text": {
+                "pt": "Bom dia, diz a comerciante.",
+                "en": "Good morning, says the shopkeeper."
+            },
+            "ipa": {
+                "pt": "[bˈoŋ dʒˈiæ\n dʒˈiz a kˌomeɾəsiˈɐ̃ŋtʃy]",
+                "en": "[ɡˈʊd mˈɔːnɪŋ sˈɛz ðə ʃˈɒpkiːpə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-031",
+            "text": {
+                "pt": "Sim, está muito bom.",
+                "en": "Yes, it's very good."
+            },
+            "ipa": {
+                "pt": "[sˈiŋ\n estˌa mwˈiŋtʊ bˈoŋ]",
+                "en": "[jˈɛs ɪts vˈɛɹɪ ɡˈʊd]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-032",
+            "text": {
+                "pt": "Perfeito.",
+                "en": "Perfect."
+            },
+            "ipa": {
+                "pt": "[pˌeɾəfˈeɪtʊ]",
+                "en": "[pˈɜːfɛkt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-033",
+            "text": {
+                "pt": "Olha, diz a comerciante, tenho tomates de ontem.",
+                "en": "Look, says the shopkeeper, I have tomatoes from yesterday."
+            },
+            "ipa": {
+                "pt": "[ˈɔljæ\n dʒˈiz a kˌomeɾəsiˈɐ̃ŋtʃy\n tˌeɲʊ tˌomˈatʃyz dʒj ˈoŋteɪŋ]",
+                "en": "[lˈʊk sˈɛz ðə ʃˈɒpkiːpə aɪ hav təmˈɑːtəʊz fɹɒm jˈɛstədˌeɪ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-034",
+            "text": {
+                "pt": "Quatro reais o quilo.",
+                "en": "Four reais per kilo."
+            },
+            "ipa": {
+                "pt": "[kwˈatrʊ xeˈaɪz ʊ kˈilʊ]",
+                "en": "[fˈɔː ɹˈiːiz pɜː kˈiːləʊ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-035",
+            "text": {
+                "pt": "Eles continuam as compras.",
+                "en": "They continue shopping."
+            },
+            "ipa": {
+                "pt": "[ˌelys kˌoŋtʃinˈuɐ̃ʊ̃ as kˈompræs]",
+                "en": "[ðeɪ kəntˈɪnjuː ʃˈɒpɪŋ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-036",
+            "text": {
+                "pt": "Saindo da loja, Sophie respira o ar fresco.",
+                "en": "Leaving the shop, Sophie breathes in the fresh air."
+            },
+            "ipa": {
+                "pt": "[sˌaˈiŋdʊ da lˈɔʒæ\n sˌofˈiy xˌespˈiɾæ u ˈar frˈeskʊ]",
+                "en": "[lˈiːvɪŋ ðə ʃˈɒp sˈəʊfi bɹˈiːðz ɪnðə fɹˈɛʃ ˈeə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-037",
+            "text": {
+                "pt": "Lucas tem uma ideia.",
+                "en": "Lucas has an idea."
+            },
+            "ipa": {
+                "pt": "[lˈukæs teɪŋ ˌumæ ˌidˈɛɪæ]",
+                "en": "[lˈuːkəz hɐz ɐn aɪdˈiə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-02-038",
+            "text": {
+                "pt": "Boa ideia!",
+                "en": "Good idea!"
+            },
+            "ipa": {
+                "pt": "[bˈoæ ˌidˈɛɪæ]",
+                "en": "[ɡˈʊd aɪdˈiə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        }
+    ]
 }
