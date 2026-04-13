@@ -74,16 +74,33 @@ def _load_settings():
 
 def _resolve_and_lock_languages():
     """
-    Resolve source AND target language from login-form selection, lock in session state.
+    Resolve source AND target language, lock in session state.
     Called after every successful login path (regular, guest, cookie re-attach).
 
-    Source language is session-only — not read from or written to the database.
-    Target language (material_language) is persisted so the sidebar selectbox
-    picks it up on the first post-login render.
+    For explicit logins (login page rendered): reads _login_source_lang /
+    _login_target_lang and auto-saves source_language to DB so it persists
+    across cookie re-attaches.
+
+    For cookie re-attach (login page not rendered): restores source_language
+    from DB settings to avoid defaulting to "English" and accidentally
+    excluding the user's practice language from the sidebar target list.
     """
     # ── Source language ──────────────────────────────────────────────────────
     _login_source = st.session_state.get('_login_source_lang')
-    _chosen_source = _login_source or 'English'
+    if _login_source:
+        # Explicit login: use login-page selection and persist to DB
+        _chosen_source = _login_source
+        try:
+            _user_id = st.session_state.get('user', {}).get('user_id')
+            if _user_id:
+                app_mysql.save_user_setting(_user_id, 'source_language', _chosen_source)
+        except Exception:
+            pass
+    else:
+        # Cookie re-attach: restore from saved DB settings (avoids English default
+        # conflicting with English as the target language)
+        _chosen_source = st.session_state.get('settings', {}).get('source_language', 'English')
+
     st.session_state['source_language'] = _chosen_source
     st.session_state.setdefault('settings', {})['source_language'] = _chosen_source
 
