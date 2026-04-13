@@ -116,7 +116,5 @@ def compare_phonemes(user_phonemes: str, correct_phonemes: str,
         similarity: float (0.0 to 1.0)
         distance: int (only for edit_distance, None otherwise)
     """
-    if algorithm == "edit_distance":
-        return compare_phonemes_edit_distance(user_phonemes, correct_phonemes)
-    else:
-        raise ValueError(f"Unknown algorithm: {algorithm}")
+    # "positional" was removed; fall back to edit_distance for any unknown value
+    return compare_phonemes_edit_distance(user_phonemes, correct_phonemes)
