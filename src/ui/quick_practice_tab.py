@@ -21,6 +21,7 @@ from translation import get_translation_from_llm
 from translation import enrich_material_file
 from config import get_language_code
 from ui.practice_tab import render_practice_interface, render_practice_results
+from ui.sidebar import is_debug
 
 # True if local eSpeak build exists (development feature flag)
 IS_LOCAL_DEV = os.path.exists('./local/bin/run-espeak-ng')
@@ -220,7 +221,7 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
                 phrases = load_phrase_file(file_path_str)
             st.session_state.phrase_list = phrases
             st.session_state.qp_phrase_position = 0
-            st.session_state.state_change_log.append("Load builtin: Reset position to 0")
+            if is_debug(): st.session_state.state_change_log.append("Load builtin: Reset position to 0")
             st.session_state.quick_last_result = None
             st.session_state.material_source = f"{format_language_name(material_lang)} - {format_category_name(category)} - {selected_file}"
             st.session_state.qp_materials_expanded = False
@@ -316,11 +317,12 @@ def _render_upload_materials(format_language_name):
             if len(phrases) > preview_count:
                 st.caption(f"...and {len(phrases) - preview_count} more")
 
-        with st.expander("🔍 Raw File Content (first 5 lines)", expanded=False):
-            st.caption("This shows the actual file content in session state:")
-            raw_preview = [line for line in content.split('\n')[:5] if line.strip() and not line.strip().startswith('#')]
-            for line in raw_preview:
-                st.code(line, language=None)
+        if is_debug():
+            with st.expander("🔍 Raw File Content (first 5 lines)", expanded=False):
+                st.caption("This shows the actual file content in session state:")
+                raw_preview = [line for line in content.split('\n')[:5] if line.strip() and not line.strip().startswith('#')]
+                for line in raw_preview:
+                    st.code(line, language=None)
 
         # Enrichment UI for uploaded files
         missing_translations = not has_translations
@@ -422,7 +424,7 @@ def _render_upload_materials(format_language_name):
             if st.button("✅ Use This File", type="primary", key="use_upload"):
                 st.session_state.phrase_list = phrases
                 st.session_state.qp_phrase_position = 0
-                st.session_state.state_change_log.append("Upload file: Reset position to 0")
+                if is_debug(): st.session_state.state_change_log.append("Upload file: Reset position to 0")
                 st.session_state.quick_last_result = None
                 st.session_state.material_source = f"Uploaded: {uploaded_file.name}"
                 st.session_state.qp_materials_expanded = False
@@ -439,8 +441,9 @@ def _render_upload_materials(format_language_name):
                     content_to_save = st.session_state.get(upload_key, content)
 
                     with st.spinner("Uploading to server..."):
-                        st.caption(f"📤 Uploading as user: {username}, language: {current_lang}")
-                        st.caption(f"📁 Target: ~/miolingo.io/public_ftp/incoming/{username}/{current_lang}/")
+                        if is_debug():
+                            st.caption(f"📤 Uploading as user: {username}, language: {current_lang}")
+                            st.caption(f"📁 Target: ~/miolingo.io/public_ftp/incoming/{username}/{current_lang}/")
 
                         result = remote_storage.save_user_material(
                             content=content_to_save,
@@ -451,7 +454,8 @@ def _render_upload_materials(format_language_name):
 
                     if result['success']:
                         st.success(f"✅ Saved to server: {result['path']}")
-                        st.caption(f"📊 {result['verification']}")
+                        if is_debug():
+                            st.caption(f"📊 {result['verification']}")
 
                         try:
                             quota = remote_storage.get_user_quota(username)
@@ -488,7 +492,7 @@ def _render_practice_area():
         if st.button("🗑️ Clear Material"):
             st.session_state.phrase_list = []
             st.session_state.qp_phrase_position = 0
-            st.session_state.state_change_log.append("Clear material: Reset position to 0")
+            if is_debug(): st.session_state.state_change_log.append("Clear material: Reset position to 0")
             st.session_state.quick_last_result = None
             st.session_state.material_source = None
             st.rerun()
@@ -515,11 +519,11 @@ def _render_guided_mode():
     if current_idx < 0:
         current_idx = 0
         st.session_state.qp_phrase_position = 0
-        st.session_state.state_change_log.append("Tab load: Bounded qp_phrase_position to 0 (was negative)")
+        if is_debug(): st.session_state.state_change_log.append("Tab load: Bounded qp_phrase_position to 0 (was negative)")
     elif current_idx >= total_phrases:
         current_idx = total_phrases - 1 if total_phrases > 0 else 0
         st.session_state.qp_phrase_position = current_idx
-        st.session_state.state_change_log.append(f"Tab load: Bounded qp_phrase_position to {current_idx} (was >= {total_phrases})")
+        if is_debug(): st.session_state.state_change_log.append(f"Tab load: Bounded qp_phrase_position to {current_idx} (was >= {total_phrases})")
 
     current_phrase_obj = st.session_state.phrase_list[current_idx]
     if isinstance(current_phrase_obj, dict):
@@ -548,12 +552,12 @@ def _render_guided_mode():
     def _on_prev():
         st.session_state.qp_phrase_position -= 1
         st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
-        st.session_state.state_change_log.append(f"Prev button: qp_phrase_position → {st.session_state.qp_phrase_position}")
+        if is_debug(): st.session_state.state_change_log.append(f"Prev button: qp_phrase_position → {st.session_state.qp_phrase_position}")
 
     def _on_next():
         st.session_state.qp_phrase_position += 1
         st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
-        st.session_state.state_change_log.append(f"Next button: qp_phrase_position → {st.session_state.qp_phrase_position}")
+        if is_debug(): st.session_state.state_change_log.append(f"Next button: qp_phrase_position → {st.session_state.qp_phrase_position}")
 
     with col1:
         st.button("⬅️ Previous", disabled=(current_idx == 0) or in_edit_mode,
@@ -587,7 +591,7 @@ def _render_guided_mode():
         # Detect user interaction with selectbox (no on_change — avoids callback conflicts)
         if selected_pos != st.session_state.qp_phrase_position:
             st.session_state.qp_phrase_position = selected_pos
-            st.session_state.state_change_log.append(f"Dropdown: qp_phrase_position → {selected_pos} (user selected)")
+            if is_debug(): st.session_state.state_change_log.append(f"Dropdown: qp_phrase_position → {selected_pos} (user selected)")
             st.rerun()
 
     with col4:
@@ -599,33 +603,34 @@ def _render_guided_mode():
             st.session_state.edit_mode = True
             st.rerun()
 
-    # State diagnostics expander
-    with st.expander("🔍 State Diagnostics (for debugging)", expanded=False):
-        st.markdown("""
-        **Purpose**: Verify state persistence across tab switches and widget interactions.
+    # State diagnostics expander — debug mode only
+    if is_debug():
+        with st.expander("🔍 State Diagnostics (for debugging)", expanded=False):
+            st.markdown("""
+            **Purpose**: Verify state persistence across tab switches and widget interactions.
 
-        This shows how `qp_phrase_position` (app state) and `phrase_selector_widget` (widget state)
-        are managed separately but kept in sync via callbacks.
-        """)
+            This shows how `qp_phrase_position` (app state) and `phrase_selector_widget` (widget state)
+            are managed separately but kept in sync via callbacks.
+            """)
 
-        col_diag1, col_diag2 = st.columns(2)
-        with col_diag1:
-            st.write("**Current State:**")
-            st.json({
-                "qp_phrase_position (app)": st.session_state.qp_phrase_position,
-                "phrase_selector_widget": st.session_state.get('phrase_selector_widget', 'Not created yet'),
-                "active_tab": st.session_state.get('active_tab', 'Unknown'),
-                "edit_mode": st.session_state.get('edit_mode', False),
-                "total_phrases": len(st.session_state.phrase_list) if st.session_state.get('phrase_list') else 0
-            })
-        with col_diag2:
-            st.write("**State Change Log (last 10):**")
-            recent_log = st.session_state.state_change_log[-10:] if st.session_state.state_change_log else ["(No changes yet)"]
-            for entry in reversed(recent_log):
-                st.text(entry)
-        if st.button("Clear Log", key="clear_state_log"):
-            st.session_state.state_change_log = []
-            st.rerun()
+            col_diag1, col_diag2 = st.columns(2)
+            with col_diag1:
+                st.write("**Current State:**")
+                st.json({
+                    "qp_phrase_position (app)": st.session_state.qp_phrase_position,
+                    "phrase_selector_widget": st.session_state.get('phrase_selector_widget', 'Not created yet'),
+                    "active_tab": st.session_state.get('active_tab', 'Unknown'),
+                    "edit_mode": st.session_state.get('edit_mode', False),
+                    "total_phrases": len(st.session_state.phrase_list) if st.session_state.get('phrase_list') else 0
+                })
+            with col_diag2:
+                st.write("**State Change Log (last 10):**")
+                recent_log = st.session_state.state_change_log[-10:] if st.session_state.state_change_log else ["(No changes yet)"]
+                for entry in reversed(recent_log):
+                    st.text(entry)
+            if st.button("Clear Log", key="clear_state_log"):
+                st.session_state.state_change_log = []
+                st.rerun()
 
     st.markdown("---")
 

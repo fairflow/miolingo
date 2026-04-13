@@ -98,7 +98,7 @@ from ui.story_tab import render_story_reader
 from ui.statistics_tab import render_statistics_tab
 from ui.history_tab import load_history, save_history, render_history_tab
 from ui.quick_practice_tab import render_quick_practice_tab
-from ui.sidebar import render_user_panel, render_settings_panel
+from ui.sidebar import render_user_panel, render_settings_panel, is_debug
 
 # Import API usage logger for cost tracking
 try:
@@ -354,31 +354,28 @@ def main():
     """Main Streamlit app"""
     initialize_session_state()
 
-    # DEBUG: Track what changed to trigger this rerun
-    import inspect
-    caller_frame = inspect.currentframe()
-    if 'last_state_snapshot' not in st.session_state:
-        st.session_state.last_state_snapshot = {}
+    # State-change tracker — only active in debug mode
+    if is_debug():
+        if 'last_state_snapshot' not in st.session_state:
+            st.session_state.last_state_snapshot = {}
 
-    # Compare key state variables
-    current_snapshot = {
-        'material_language': st.session_state.get('material_language'),
-        'story_mode': st.session_state.get('story_mode'),
-        'quick_last_result': st.session_state.get('quick_last_result') is not None,
-        'story_last_result': st.session_state.get('story_last_result') is not None,
-    }
+        current_snapshot = {
+            'material_language': st.session_state.get('material_language'),
+            'story_mode': st.session_state.get('story_mode'),
+            'quick_last_result': st.session_state.get('quick_last_result') is not None,
+            'story_last_result': st.session_state.get('story_last_result') is not None,
+        }
 
-    changes = []
-    for key, val in current_snapshot.items():
-        old_val = st.session_state.last_state_snapshot.get(key)
-        # Only report actual changes (not None → None, not missing → False)
-        if key in st.session_state.last_state_snapshot and old_val != val:
-            changes.append(f"{key}: {old_val} → {val}")
+        changes = []
+        for key, val in current_snapshot.items():
+            old_val = st.session_state.last_state_snapshot.get(key)
+            if key in st.session_state.last_state_snapshot and old_val != val:
+                changes.append(f"{key}: {old_val} → {val}")
 
-    if changes:
-        st.warning(f"🔍 State changed: {', '.join(changes)}")
+        if changes:
+            st.warning(f"🔍 State changed: {', '.join(changes)}")
 
-    st.session_state.last_state_snapshot = current_snapshot.copy()
+        st.session_state.last_state_snapshot = current_snapshot.copy()
 
     # Initialize language state BEFORE rendering title
     # Material Language selection
