@@ -175,7 +175,7 @@ def render_settings_panel():
                     else _target_options[0] if _target_options else 'fr'
                 )
             elif st.session_state.material_language not in _target_options:
-                # Current value was filtered out (e.g. source language changed)
+                # Current value no longer valid (e.g. user changed source to match target)
                 st.session_state.material_language = _target_options[0] if _target_options else 'fr'
 
             previous_material_language = st.session_state.get('material_language', None)
@@ -186,6 +186,10 @@ def render_settings_panel():
                 help="Language being learned (IPA + practice target)",
                 key="material_language"
             )
+
+            # Warn if source and target ended up the same (edge case: DB not yet saved)
+            if st.session_state.material_language == _source_code:
+                st.warning("⚠️ Source and target language are the same. Please choose a different target.")
 
             # Sync target language
             st.session_state.target_language = st.session_state.material_language
