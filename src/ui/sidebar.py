@@ -170,18 +170,13 @@ def render_settings_panel():
             if 'material_language' not in st.session_state:
                 # First render — pick from saved settings or first available
                 _saved = st.session_state.settings.get('material_language')
-                _initial = _saved if _saved in _target_options else (
-                    _target_options[0] if _target_options else 'fr'
+                st.session_state.material_language = (
+                    _saved if _saved in _target_options
+                    else _target_options[0] if _target_options else 'fr'
                 )
-                # If saved target was filtered out by source exclusion, show it anyway
-                # (e.g. source defaults to English on cookie re-attach while target is 'en')
-                if _saved and _saved not in _target_options:
-                    _target_options = list(available_materials)
-                    _initial = _saved
-                st.session_state.material_language = _initial
             elif st.session_state.material_language not in _target_options:
-                # Current value was filtered out by source exclusion — expand list to show it
-                _target_options = list(available_materials)
+                # Current value no longer valid (e.g. user changed source to match target)
+                st.session_state.material_language = _target_options[0] if _target_options else 'fr'
 
             previous_material_language = st.session_state.get('material_language', None)
             st.selectbox(
@@ -191,6 +186,10 @@ def render_settings_panel():
                 help="Language being learned (IPA + practice target)",
                 key="material_language"
             )
+
+            # Warn if source and target ended up the same (edge case: DB not yet saved)
+            if st.session_state.material_language == _source_code:
+                st.warning("⚠️ Source and target language are the same. Please choose a different target.")
 
             # Sync target language
             st.session_state.target_language = st.session_state.material_language
