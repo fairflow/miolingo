@@ -29,6 +29,11 @@ from ui.practice_tab import save_current_session
 # User panel  (version · connection · user info · logout)
 # ---------------------------------------------------------------------------
 
+def is_debug() -> bool:
+    """Return True when debug mode is enabled in settings."""
+    return st.session_state.get('settings', {}).get('debug_mode', False)
+
+
 def render_user_panel():
     """
     Render the top sidebar block shown immediately after authentication.
@@ -37,56 +42,53 @@ def render_user_panel():
     with st.sidebar:
         st.markdown(f"### 🎯 Miolingo v{__version__}")
 
-        # Connection info panel
-        conn_info = app_mysql.get_current_connection_info()
-        with st.expander("🔌 Connection Info", expanded=False):
-            if conn_info:
-                st.caption(f"**Tunnel:** `{conn_info['tunnel_id']}` (PID: {conn_info['tunnel_pid']}, Port: {conn_info['tunnel_port']})")
-                st.caption(f"**Created:** {conn_info['tunnel_created']}")
-                st.caption(f"**Connections:** {conn_info['tunnel_conn_count']} on this tunnel")
-                st.caption("---")
-                st.caption(f"**SQL Conn:** `{conn_info['connection_id'][:30]}...`")
-                st.caption(f"**MySQL ID:** {conn_info['mysql_conn_id']} ({conn_info['connection_status']})")
-                st.caption(f"**Age:** {conn_info['connection_age']} | **TTL:** {conn_info['session_ttl']}")
-                st.caption(f"**Now:** {conn_info['current_time'].strftime('%H:%M:%S')}")
-            else:
-                st.caption("⚠️ No connection info available")
+        # Connection info panel — debug mode only
+        if is_debug():
+            conn_info = app_mysql.get_current_connection_info()
+            with st.expander("🔌 Connection Info", expanded=False):
+                if conn_info:
+                    st.caption(f"**Tunnel:** `{conn_info['tunnel_id']}` (PID: {conn_info['tunnel_pid']}, Port: {conn_info['tunnel_port']})")
+                    st.caption(f"**Created:** {conn_info['tunnel_created']}")
+                    st.caption(f"**Connections:** {conn_info['tunnel_conn_count']} on this tunnel")
+                    st.caption("---")
+                    st.caption(f"**SQL Conn:** `{conn_info['connection_id'][:30]}...`")
+                    st.caption(f"**MySQL ID:** {conn_info['mysql_conn_id']} ({conn_info['connection_status']})")
+                    st.caption(f"**Age:** {conn_info['connection_age']} | **TTL:** {conn_info['session_ttl']}")
+                    st.caption(f"**Now:** {conn_info['current_time'].strftime('%H:%M:%S')}")
+                else:
+                    st.caption("⚠️ No connection info available")
 
-            # Reconnect button — always visible inside expander
-            if st.button("🔄 Reconnect", help="Get new connection from pool and swap it in"):
-                try:
-                    old_conn_id = conn_info.get('connection_id') if conn_info else None
-                    old_conn = st.session_state.get('db_connection')
+                if st.button("🔄 Reconnect", help="Get new connection from pool and swap it in"):
+                    try:
+                        old_conn_id = conn_info.get('connection_id') if conn_info else None
+                        old_conn = st.session_state.get('db_connection')
 
-                    # Clear session connection so get_connection() creates a new one
-                    if 'db_connection' in st.session_state:
-                        del st.session_state.db_connection
-                    if '_last_connection_info' in st.session_state:
-                        del st.session_state['_last_connection_info']
-                    if '_last_tunnel_info' in st.session_state:
-                        del st.session_state['_last_tunnel_info']
+                        if 'db_connection' in st.session_state:
+                            del st.session_state.db_connection
+                        if '_last_connection_info' in st.session_state:
+                            del st.session_state['_last_connection_info']
+                        if '_last_tunnel_info' in st.session_state:
+                            del st.session_state['_last_tunnel_info']
 
-                    new_conn = app_mysql.get_connection()
+                        new_conn = app_mysql.get_connection()
 
-                    # Verify connection by running a lightweight query
-                    cursor = new_conn.cursor(buffered=True)
-                    cursor.execute("SELECT 1")
-                    cursor.fetchall()
-                    cursor.close()
+                        cursor = new_conn.cursor(buffered=True)
+                        cursor.execute("SELECT 1")
+                        cursor.fetchall()
+                        cursor.close()
 
-                    # Close old connection after new one is verified
-                    if old_conn_id and old_conn:
-                        pool = app_mysql.get_connection_pool_instance()
-                        pool.close_connection(old_conn_id)
-                        try:
-                            old_conn.close()
-                        except Exception:
-                            pass
+                        if old_conn_id and old_conn:
+                            pool = app_mysql.get_connection_pool_instance()
+                            pool.close_connection(old_conn_id)
+                            try:
+                                old_conn.close()
+                            except Exception:
+                                pass
 
-                    st.success("✓ Switched to fresh connection from pool.")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Reconnect failed: {e}")
+                        st.success("✓ Switched to fresh connection from pool.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Reconnect failed: {e}")
 
         st.markdown("---")
 
@@ -290,12 +292,9 @@ def render_settings_panel():
         # Keep 'model' in sync for backwards compatibility
         st.session_state.settings['model'] = st.session_state.settings['whisper_model_size']
 
-        st.session_state.settings['comparison_algorithm'] = st.selectbox(
-            "Scoring Algorithm",
-            ["edit_distance", "positional"],
-            index=0 if st.session_state.settings.get('comparison_algorithm', 'edit_distance') == 'edit_distance' else 1,
-            help="edit_distance: Handles insertions/deletions (recommended)\npositional: Simple character-by-character matching"
-        )
+        # Only edit_distance is implemented; positional was removed.
+        st.session_state.settings['comparison_algorithm'] = 'edit_distance'
+        st.caption("Scoring algorithm: edit_distance")
 
         # ── Audio Processing ─────────────────────────────────────────────────
         st.markdown("**🎚️ Audio Processing**")
@@ -331,6 +330,16 @@ def render_settings_panel():
             _save_settings(settings_to_save)
             st.success("Settings saved!")
             st.rerun()
+
+        # ── Developer ────────────────────────────────────────────────────────
+        st.markdown("---")
+        debug_val = st.toggle(
+            "🔧 Debug Mode",
+            value=st.session_state.settings.get('debug_mode', False),
+            help="Show state diagnostics, connection info, and raw file content",
+            key="debug_mode_toggle",
+        )
+        st.session_state.settings['debug_mode'] = debug_val
 
         # ── Current Session ──────────────────────────────────────────────────
         st.markdown("---")
