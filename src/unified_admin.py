@@ -22,7 +22,7 @@ import streamlit as st
 
 import app_mysql
 
-__version__ = "1.0.0"
+__version__ = "1.0.1-claude-dev"
 
 
 REFRESH_INTERVAL_MINUTES = 5
