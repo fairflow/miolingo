@@ -24,12 +24,73 @@
             "nl",
             "pt"
         ],
-        "generated": "2026-04-09",
+        "generated": "2026-04-14",
         "generator": "merge_materials.py"
     },
     "phrases": [
         {
             "id": "scene-03-001",
+            "text": {
+                "fr": "Le soir, dans l'appartement de Sophie, ils partagent le vin et du fromage.",
+                "en": "In the evening, in Sophie's apartment, they share wine and cheese.",
+                "de": "Abends, in Sophies Wohnung, teilen sie Wein und Käse.",
+                "it": "La sera, nell'appartamento di Sophie, condividono vino e formaggio.",
+                "es": "Por la noche, en el apartamento de Sophie, comparten vino y queso.",
+                "nl": "'s Avonds, in het appartement van Sophie, delen ze wijn en kaas.",
+                "pt": "À noite, no apartamento de Sophie, eles compartilham o vinho e queijo.",
+                "en_pt": "In the evening, at Sophie's apartment, they share the wine and cheese."
+            },
+            "ipa": {
+                "fr": "lə- swˈaʁ dɑ̃ lapaʁtəmˈɑ̃ də- sɔfˈi il paʁtˈaʒ lə- vˈɛ̃ e dy- fʁɔmˈaʒ",
+                "de": "[ˈaːbənts ɪn ˈzoːfiːs ˈvɔnʊŋ ˈtaɪ̯lən ziː vaɪ̯n ʊnt keːzə]",
+                "it": "[lˌa sˈeːra\n nellˌapːartamˈento dˌɪ sˈopje\n kˌondivˈidono vˈiːno ˌe formˈadʒːo]",
+                "es": "[poɾ la ˈnoʧe en el apaɾtaˈmento ðe ˈsofi komˈpaɾten ˈβino i ˈkeso]",
+                "nl": "[s ˈaːvɔnts\n ɪn hət ˌɑpɑrtəmˈɛnt vɑn sɔphˈi\n dˈeːlən zə ʋˈɛɪn ɛn kˈaːs]",
+                "pt": "[ˌaː nˈoɪtʃy\n nʊ ˌapaɾətæmˈeɪŋtʊ dʒy sˌofˈiy\n ˌelys kˌompaɾətʃˈiljɐ̃ʊ̃ ʊ vˈiɲw i kˈeɪʒʊ]",
+                "en": "[ɪnðɪ ˈiːvnɪŋ ɪn sˈəʊfiz ɐpˈɑːtmənt ðeɪ ʃˈeə wˈaɪn and tʃˈiːz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-002",
+            "text": {
+                "fr": "La conversation devient plus profonde.",
+                "en": "The conversation becomes deeper.",
+                "de": "Das Gespräch wird tiefer.",
+                "it": "La conversazione diventa più profonda.",
+                "es": "La conversación se hace más profunda.",
+                "nl": "Het gesprek wordt dieper.",
+                "pt": "A conversa fica mais profunda."
+            },
+            "ipa": {
+                "fr": "la- kɔ̃vɛʁsasjˈɔ̃ dəvjˈɛ̃ ply pʁɔfˈɔ̃d",
+                "de": "[das ɡəˈʃpʁɛːç vɪʁt ˈtiːfɐ]",
+                "it": "[lˌa kˌonversˌatsiˈɔːne divˈɛnta pjˌʊ profˈonda]",
+                "es": "[la konβeɾsaˈθjon se aˈθe mas pɾoˈfunda]",
+                "nl": "[hət ɣəsprˈɛk ʋɔr tˈipər]",
+                "pt": "[a kˌoŋvˈɛɾəsæ fˈikæ mˈaɪs prˌofˈũŋdæ]",
+                "en": "[ðə kɒnvəsˈeɪʃən bɪkˌʌmz dˈiːpə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-003",
             "text": {
                 "fr": "Tu sais, Lucas, je suis fatigué de cette vie,",
                 "en": "You know, Lucas, I'm tired of this life,",
@@ -60,10 +121,10 @@
             }
         },
         {
-            "id": "scene-03-002",
+            "id": "scene-03-004",
             "text": {
                 "fr": "Moi aussi, tout est pareil chaque jour",
-                "en": "Me too, every day is the same.",
+                "en": "Me too, everything is the same every day",
                 "de": "Ich auch, jeden Tag ist alles gleich",
                 "it": "Anch'io, è sempre tutto uguale ogni giorno",
                 "es": "Yo también, todo es igual cada día",
@@ -78,7 +139,7 @@
                 "es": "[ʝo tamˈbjen ˈtoðo es iˈɣwal ˈkaða ˈdi.a]",
                 "nl": "[ɪk ˈoːk\n ˈɛlkə dˈɑx ɪs hˈɛtzɛlvdə]",
                 "pt": "[eʊ tɐ̃mbˈeɪŋ\n tˈudw ɛ iɡwˈaʊ tˈodʊ dʒˈiæ]",
-                "en": "[mˌiː tˈuː ˈɛvɹɪ dˈeɪ ɪz ðə sˈeɪm]"
+                "en": "[mˌiː tˈuː ˈɛvɹɪθˌɪŋ ɪz ðə sˈeɪm ˈɛvɹɪ dˈeɪ]"
             },
             "provenance": {
                 "fr": "original",
@@ -91,34 +152,22 @@
             }
         },
         {
-            "id": "scene-03-003",
+            "id": "scene-03-005",
             "text": {
-                "fr": "Métro, boulot, dodo.",
-                "en": "Tram, work, sleep.",
-                "de": "U-Bahn, Arbeit, Schlaf.",
-                "it": "Metro, lavoro, dormire.",
-                "es": "Metro, curro, cama.",
-                "nl": "Tram, werk, slaap."
+                "pt": "Trânsito, trabalho, casa.",
+                "en": "Traffic, work, home."
             },
             "ipa": {
-                "fr": "metʁˈo bulˈo dɔdˈo",
-                "de": "[ʔuːˈbaːn ˈaʁbaɪ̯t ˈʃlaːf]",
-                "it": "[mˈeːtro\n lavˈɔːro\n dormˈiːre]",
-                "es": "[ˈmetɾo ˈkur.o ˈkama]",
-                "nl": "[trˈɑm\n ʋˈɛrk\n slˈaːp]",
-                "en": "[tɹˈam wˈɜːk slˈiːp]"
+                "pt": "[trˈɐ̃ŋzitʊ\n trˌabˈaljʊ\n kˈazæ]",
+                "en": "[tɹˈafɪk wˈɜːk hˈəʊm]"
             },
             "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
+                "pt": "original",
                 "en": "original"
             }
         },
         {
-            "id": "scene-03-004",
+            "id": "scene-03-006",
             "text": {
                 "fr": "On pourrait voyager quelque part",
                 "en": "We could travel somewhere",
@@ -149,7 +198,7 @@
             }
         },
         {
-            "id": "scene-03-005",
+            "id": "scene-03-007",
             "text": {
                 "fr": "Pour de vrai, pas juste en parler.",
                 "en": "For real, not just talk about it.",
@@ -180,7 +229,38 @@
             }
         },
         {
-            "id": "scene-03-006",
+            "id": "scene-03-008",
+            "text": {
+                "fr": "Lucas se redresse sur le canapé.",
+                "en": "Lucas sits up on the couch.",
+                "de": "Lucas setzt sich aufrecht auf das Sofa.",
+                "it": "Lucas si rialza sul divano.",
+                "es": "Lucas se yergue en el sofá.",
+                "nl": "Lucas zit rechtop op de bank.",
+                "pt": "Lucas se endireita no sofá.",
+                "en_pt": "Lucas sits up straight on the sofa."
+            },
+            "ipa": {
+                "fr": "lykˈa sə- ʁədʁˈɛs syʁ lə- kanapˈe",
+                "de": "[ˈluːkas zɛt͡st zɪç ˈaʊ̯fʁɛçt aʊ̯f das ˈzoːfa]",
+                "it": "[lˈuːkas sˌɪ riˈaltsa sˌʊl divˈaːno]",
+                "es": "[ˈlukas se ˈʝeɾɡe en el soˈfa]",
+                "nl": "[lˈykɑ sˈɪt rˈɛxtɔp ɔp də bˈɑŋk]",
+                "pt": "[lˈukæs sj ˌeɪŋdʒiɾˈeɪtæ nʊ sofˈa]",
+                "en": "[lˈuːkəz sˈɪts ˌʌp ɒnðə kˈaʊtʃ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-009",
             "text": {
                 "fr": "Où veux-tu aller?",
                 "en": "Where do you want to go?",
@@ -210,7 +290,22 @@
             }
         },
         {
-            "id": "scene-03-007",
+            "id": "scene-03-010",
+            "text": {
+                "pt": "Ainda não sei.",
+                "en": "I don't know yet."
+            },
+            "ipa": {
+                "pt": "[ˌaˈiŋdæ nˌɐ̃ʊ̃ sˈeɪ]",
+                "en": "[aɪ dˈəʊnt nˈəʊ jˈɛt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-011",
             "text": {
                 "fr": "Je ne sais pas encore. Mais loin d'ici.",
                 "en": "I don't know yet. But far from here.",
@@ -241,7 +336,7 @@
             }
         },
         {
-            "id": "scene-03-008",
+            "id": "scene-03-012",
             "text": {
                 "fr": "La montagne ou la mer?",
                 "en": "The mountains or the sea?",
@@ -272,7 +367,22 @@
             }
         },
         {
-            "id": "scene-03-009",
+            "id": "scene-03-013",
+            "text": {
+                "pt": "pergunta Lucas.",
+                "en": "Lucas asks."
+            },
+            "ipa": {
+                "pt": "[pˌeɾəɡˈũŋtæ lˈukæs]",
+                "en": "[lˈuːkəz ˈasks]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-014",
             "text": {
                 "fr": "La montagne, j'adore la nature",
                 "en": "The mountains, I love nature",
@@ -303,7 +413,7 @@
             }
         },
         {
-            "id": "scene-03-010",
+            "id": "scene-03-015",
             "text": {
                 "fr": "Les arbres, l'air pur, le silence.",
                 "en": "The trees, the fresh air, the silence.",
@@ -334,34 +444,37 @@
             }
         },
         {
-            "id": "scene-03-011",
+            "id": "scene-03-016",
             "text": {
-                "fr": "Les Alpes?",
-                "en": "The Ardennes?",
-                "de": "Die Alpen?",
-                "it": "Le Alpi?",
-                "es": "¿Los Pirineos?",
-                "nl": "De Ardennen?"
+                "pt": "A Serra da Mantiqueira?",
+                "en": "The Serra da Mantiqueira?"
             },
             "ipa": {
-                "fr": "le-z ˈalp",
-                "de": "[diː ˈalpn̩]",
-                "it": "[lˌe ˈalpɪ]",
-                "es": "[los piɾiˈne.os]",
-                "nl": "[də ˈɑrdɛnən]",
-                "en": "[ðɪ ˈɑːdənz]"
+                "pt": "[a sˈɛxæ da mˌɐ̃ŋtʃikˈeɪɾæ]",
+                "en": "[ðə sˈɛɹə dˈɑː mˈantɪkwˌeəɹə]"
             },
             "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
+                "pt": "original",
                 "en": "original"
             }
         },
         {
-            "id": "scene-03-012",
+            "id": "scene-03-017",
+            "text": {
+                "pt": "Sim!",
+                "en": "Yes!"
+            },
+            "ipa": {
+                "pt": "[sˈiŋ]",
+                "en": "[jˈɛs]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-018",
             "text": {
                 "fr": "Oui! C'est une excellente idée!",
                 "en": "Yes! That's an excellent idea!",
@@ -392,10 +505,41 @@
             }
         },
         {
-            "id": "scene-03-013",
+            "id": "scene-03-019",
+            "text": {
+                "fr": "Lucas se lève avec enthousiasme.",
+                "en": "Lucas gets up with enthusiasm.",
+                "de": "Lucas steht begeistert auf.",
+                "it": "Lucas si alza con entusiasmo.",
+                "es": "Lucas se levanta con entusiasmo.",
+                "nl": "Lucas staat enthousiast op.",
+                "pt": "Lucas se levanta com entusiasmo.",
+                "en_pt": "Lucas stands up enthusiastically."
+            },
+            "ipa": {
+                "fr": "lykˈa sə- lˈɛv avˌɛkɛnθˈawzɪˌazmɪ",
+                "de": "[ˈluːkas ʃteːt bəˈɡaɪ̯stɐt aʊ̯f]",
+                "it": "[lˈuːkas sˌɪ ˈaltsa kˌon ˌentʊzjˈazmo]",
+                "es": "[ˈlukas se leˈβanta kon entuˈsjasmo]",
+                "nl": "[lˈykɑ stˈaːt ˌɛntuʒˈɑst ˈɔp]",
+                "pt": "[lˈukæs sy lˌevˈɐ̃ŋtæ koŋ ˌeɪŋtuziˈazmʊ]",
+                "en": "[lˈuːkəz ɡˈɛts ˌʌp wɪð ɛnθjˈuːzɪˌazəm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-020",
             "text": {
                 "fr": "Quand partons-nous?",
-                "en": "When are we going?",
+                "en": "When are we leaving?",
                 "de": "Wann fahren wir?",
                 "it": "Quando partiamo?",
                 "es": "¿Cuándo nos vamos?",
@@ -410,7 +554,7 @@
                 "es": "[ˈkwando nos ˈβamos]",
                 "nl": "[ʋɑnˈɪr ɣˈaːn ʋə]",
                 "pt": "[kwˈɐ̃ŋdʊ vˌɐ̃mʊs paɾətʃˈir]",
-                "en": "[wˌɛn ɑː wiː ɡˈəʊɪŋ]"
+                "en": "[wˌɛn ɑː wiː lˈiːvɪŋ]"
             },
             "provenance": {
                 "fr": "original",
@@ -423,7 +567,7 @@
             }
         },
         {
-            "id": "scene-03-014",
+            "id": "scene-03-021",
             "text": {
                 "fr": "Bientôt, très bientôt.",
                 "en": "Soon, very soon.",
@@ -441,222 +585,6 @@
                 "nl": "[bˈɪnənkˌɔrt\n hˈeːl bˈɪnənkˌɔrt]",
                 "pt": "[lˈɔɡʊ\n mwˈiŋtʊ lˈɔɡʊ]",
                 "en": "[sˈuːn vˈɛɹɪ sˈuːn]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-015",
-            "text": {
-                "fr": "J'ai un peu peur, tu sais.",
-                "en": "I'm a bit scared, you know.",
-                "de": "Ich habe ein bisschen Angst, weißt du.",
-                "it": "Ho un po' paura, sai.",
-                "es": "Tengo un poco de miedo, ya sabes.",
-                "nl": "Ik ben een beetje bang, weet je.",
-                "pt": "Estou com um pouco de medo, sabe.",
-                "en_pt": "I'm a little scared, you know."
-            },
-            "ipa": {
-                "fr": "ʒe œ̃ pø pˈœʁ ty sˈɛ",
-                "de": "[ɪç ˈhaːbə aɪ̯n ˈbɪsçən ˈaŋst vaɪst duː]",
-                "it": "[ˌo ˌʊn pˈo paˈuːra\n sˈaɪ]",
-                "es": "[ˈteŋɡo un ˈpoko ðe ˈmjeðo ʝa ˈsaβes]",
-                "nl": "[ɪk bɛn ən bˈeːtʲə bˈɑŋ\n ʋˈeːt jə]",
-                "pt": "[estˌow koŋ ũŋ pˈowkʊ dʒy mˈedʊ\n sˈaby]",
-                "en": "[aɪm ɐ bˈɪt skˈeəd juː nˈəʊ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-016",
-            "text": {
-                "fr": "N'aie pas peur, ça va bien se passer.",
-                "en": "Don't be scared, it will all be okay.",
-                "de": "Hab keine Angst, es wird alles gut.",
-                "it": "Non avere paura, andrà tutto bene.",
-                "es": "No tengas miedo, va a salir bien.",
-                "nl": "Wees niet bang, het komt allemaal goed.",
-                "pt": "Não tenha medo, vai dar tudo certo.",
-                "en_pt": "Don't be afraid, everything will be okay."
-            },
-            "ipa": {
-                "fr": "nɛ pa pˈœʁ sa vˈa bjˈɛ̃ sə- pasˈe",
-                "de": "[haːp ˈkaɪ̯nə ˈaŋst ɛs vɪʁt ˈaləs ɡuːt]",
-                "it": "[nˌon avˈeːre paˈuːra\n andrˈa tˈutːo bˈɛːne]",
-                "es": "[no ˈteŋɡas ˈmjeðo βa a saˈliɾ ˈβjen]",
-                "nl": "[ʋˈeːs nˌit bˈɑŋ\n hət kˈɔmt ˌɑləmˈaːl ɣˈut]",
-                "pt": "[nˌɐ̃ʊ̃ tˈeɲæ mˈedʊ\n vaɪ dˈar tˈudʊ sˈɛɾətʊ]",
-                "en": "[dˈəʊnt biː skˈeəd ɪt wɪl ˈɔːl biː əʊkˈeɪ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-017",
-            "text": {
-                "fr": "Tu as raison, allons-y! Qu'est-ce qu'on risque?",
-                "en": "You're right, let's go! What do we have to lose?",
-                "de": "Du hast recht, los geht's! Was haben wir zu verlieren?",
-                "it": "Hai ragione, andiamo! Cosa rischiamo?",
-                "es": "Tienes razón, ¡vamos! ¿Qué podemos perder?",
-                "nl": "Je hebt gelijk, laten we gaan! Wat hebben we te verliezen?",
-                "pt": "O que a gente tem a perder?",
-                "en_pt": "What do we have to lose?"
-            },
-            "ipa": {
-                "fr": "ty a ʁɛzˈɔ̃ alˈɔ̃ziɡʁˈɛk kɛs kɔ̃ ʁˈisk",
-                "de": "[duː hast ʁɛçt loːs ɡeːts vas ˈhaːbn̩ viːɐ̯ t͡suː fɛɐ̯ˈliːʁən]",
-                "it": "[ˌaj radʒˈoːne\n andjˈaːmo\n kˈɔːza riskjˈaːmo]",
-                "es": "[ˈtjenes raˈθon ˈbamos ˈke poˈðemos peɾˈðeɾ]",
-                "nl": "[jə hɛpt ɣəlˈɛɪk\n lˈaːtən ʋə ɣˈaːn\n ʋɑt hˌɛbən ʋə tə vərlˈizən]",
-                "pt": "[ʊ ky a ʒˈeɪŋtʃy teɪŋ a peɾədˈer]",
-                "en": "[jɔː ɹˈaɪt lˈɛts ɡˈəʊ wˌɒt dˈuː wiː hav tə lˈuːz]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-018",
-            "text": {
-                "fr": "Le soir, dans l'appartement de Sophie, ils partagent le vin et du fromage.",
-                "en": "In the evening, at Sophie's apartment, they share wine and cheese.",
-                "de": "Abends, in Sophies Wohnung, teilen sie Wein und Käse.",
-                "it": "La sera, nell'appartamento di Sophie, condividono vino e formaggio.",
-                "es": "Por la noche, en el apartamento de Sophie, comparten vino y queso.",
-                "nl": "'s Avonds, in het appartement van Sophie, delen ze wijn en kaas.",
-                "pt": "À noite, no apartamento de Sophie, eles compartilham o vinho e queijo.",
-                "en_pt": "In the evening, at Sophie's apartment, they share the wine and cheese."
-            },
-            "ipa": {
-                "fr": "lə- swˈaʁ dɑ̃ lapaʁtəmˈɑ̃ də- sɔfˈi il paʁtˈaʒ lə- vˈɛ̃ e dy- fʁɔmˈaʒ",
-                "de": "[ˈaːbənts ɪn ˈzoːfiːs ˈvɔnʊŋ ˈtaɪ̯lən ziː vaɪ̯n ʊnt keːzə]",
-                "it": "[lˌa sˈeːra\n nellˌapːartamˈento dˌɪ sˈopje\n kˌondivˈidono vˈiːno ˌe formˈadʒːo]",
-                "es": "[poɾ la ˈnoʧe en el apaɾtaˈmento ðe ˈsofi komˈpaɾten ˈβino i ˈkeso]",
-                "nl": "[s ˈaːvɔnts\n ɪn hət ˌɑpɑrtəmˈɛnt vɑn sɔphˈi\n dˈeːlən zə ʋˈɛɪn ɛn kˈaːs]",
-                "pt": "[ˌaː nˈoɪtʃy\n nʊ ˌapaɾətæmˈeɪŋtʊ dʒy sˌofˈiy\n ˌelys kˌompaɾətʃˈiljɐ̃ʊ̃ ʊ vˈiɲw i kˈeɪʒʊ]",
-                "en": "[ɪnðɪ ˈiːvnɪŋ at sˈəʊfiz ɐpˈɑːtmənt ðeɪ ʃˈeə wˈaɪn and tʃˈiːz]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-019",
-            "text": {
-                "fr": "La conversation devient plus profonde.",
-                "en": "The conversation becomes deeper.",
-                "de": "Das Gespräch wird tiefer.",
-                "it": "La conversazione diventa più profonda.",
-                "es": "La conversación se hace más profunda.",
-                "nl": "Het gesprek wordt dieper.",
-                "pt": "A conversa fica mais profunda."
-            },
-            "ipa": {
-                "fr": "la- kɔ̃vɛʁsasjˈɔ̃ dəvjˈɛ̃ ply pʁɔfˈɔ̃d",
-                "de": "[das ɡəˈʃpʁɛːç vɪʁt ˈtiːfɐ]",
-                "it": "[lˌa kˌonversˌatsiˈɔːne divˈɛnta pjˌʊ profˈonda]",
-                "es": "[la konβeɾsaˈθjon se aˈθe mas pɾoˈfunda]",
-                "nl": "[hət ɣəsprˈɛk ʋɔr tˈipər]",
-                "pt": "[a kˌoŋvˈɛɾəsæ fˈikæ mˈaɪs prˌofˈũŋdæ]",
-                "en": "[ðə kɒnvəsˈeɪʃən bɪkˌʌmz dˈiːpə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-020",
-            "text": {
-                "fr": "Lucas se redresse sur le canapé.",
-                "en": "Lucas sits upright on the couch.",
-                "de": "Lucas setzt sich aufrecht auf das Sofa.",
-                "it": "Lucas si rialza sul divano.",
-                "es": "Lucas se yergue en el sofá.",
-                "nl": "Lucas zit rechtop op de bank.",
-                "pt": "Lucas se endireita no sofá.",
-                "en_pt": "Lucas sits up straight on the sofa."
-            },
-            "ipa": {
-                "fr": "lykˈa sə- ʁədʁˈɛs syʁ lə- kanapˈe",
-                "de": "[ˈluːkas zɛt͡st zɪç ˈaʊ̯fʁɛçt aʊ̯f das ˈzoːfa]",
-                "it": "[lˈuːkas sˌɪ riˈaltsa sˌʊl divˈaːno]",
-                "es": "[ˈlukas se ˈʝeɾɡe en el soˈfa]",
-                "nl": "[lˈykɑ sˈɪt rˈɛxtɔp ɔp də bˈɑŋk]",
-                "pt": "[lˈukæs sj ˌeɪŋdʒiɾˈeɪtæ nʊ sofˈa]",
-                "en": "[lˈuːkəz sˈɪts ˈʌpɹaɪt ɒnðə kˈaʊtʃ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-021",
-            "text": {
-                "fr": "Lucas se lève avec enthousiasme.",
-                "en": "Lucas gets up enthusiastically.",
-                "de": "Lucas steht begeistert auf.",
-                "it": "Lucas si alza con entusiasmo.",
-                "es": "Lucas se levanta con entusiasmo.",
-                "nl": "Lucas staat enthousiast op.",
-                "pt": "Lucas se levanta com entusiasmo.",
-                "en_pt": "Lucas stands up enthusiastically."
-            },
-            "ipa": {
-                "fr": "lykˈa sə- lˈɛv avˌɛkɛnθˈawzɪˌazmɪ",
-                "de": "[ˈluːkas ʃteːt bəˈɡaɪ̯stɐt aʊ̯f]",
-                "it": "[lˈuːkas sˌɪ ˈaltsa kˌon ˌentʊzjˈazmo]",
-                "es": "[ˈlukas se leˈβanta kon entuˈsjasmo]",
-                "nl": "[lˈykɑ stˈaːt ˌɛntuʒˈɑst ˈɔp]",
-                "pt": "[lˈukæs sy lˌevˈɐ̃ŋtæ koŋ ˌeɪŋtuziˈazmʊ]",
-                "en": "[lˈuːkəz ɡˈɛts ˌʌp ɛnθjˌuːzɪˈastɪkli]"
             },
             "provenance": {
                 "fr": "original",
@@ -701,6 +629,36 @@
         {
             "id": "scene-03-023",
             "text": {
+                "fr": "J'ai un peu peur, tu sais.",
+                "en": "I'm a little scared, you know.",
+                "de": "Ich habe ein bisschen Angst, weißt du.",
+                "it": "Ho un po' paura, sai.",
+                "es": "Tengo un poco de miedo, ya sabes.",
+                "nl": "Ik ben een beetje bang, weet je.",
+                "pt": "Estou com um pouco de medo, sabe."
+            },
+            "ipa": {
+                "fr": "ʒe œ̃ pø pˈœʁ ty sˈɛ",
+                "de": "[ɪç ˈhaːbə aɪ̯n ˈbɪsçən ˈaŋst vaɪst duː]",
+                "it": "[ˌo ˌʊn pˈo paˈuːra\n sˈaɪ]",
+                "es": "[ˈteŋɡo un ˈpoko ðe ˈmjeðo ʝa ˈsaβes]",
+                "nl": "[ɪk bɛn ən bˈeːtʲə bˈɑŋ\n ʋˈeːt jə]",
+                "pt": "[estˌow koŋ ũŋ pˈowkʊ dʒy mˈedʊ\n sˈaby]",
+                "en": "[aɪm ɐ lˈɪtəl skˈeəd juː nˈəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-024",
+            "text": {
                 "fr": "Lucas lui prend la main.",
                 "en": "Lucas takes her hand.",
                 "de": "Lucas nimmt ihre Hand.",
@@ -729,82 +687,38 @@
             }
         },
         {
-            "id": "scene-03-024",
-            "text": {
-                "pt": "Trânsito, trabalho, casa.",
-                "en": "Traffic, work, home."
-            },
-            "ipa": {
-                "pt": "[trˈɐ̃ŋzitʊ\n trˌabˈaljʊ\n kˈazæ]",
-                "en": "[tɹˈafɪk wˈɜːk hˈəʊm]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
             "id": "scene-03-025",
             "text": {
-                "pt": "Ainda não sei.",
-                "en": "I don't know yet."
+                "fr": "N'aie pas peur, ça va bien se passer.",
+                "en": "Don't be afraid, it will be fine.",
+                "de": "Hab keine Angst, es wird alles gut.",
+                "it": "Non avere paura, andrà tutto bene.",
+                "es": "No tengas miedo, va a salir bien.",
+                "nl": "Wees niet bang, het komt allemaal goed.",
+                "pt": "Não tenha medo, vai dar tudo certo.",
+                "en_pt": "Don't be afraid, everything will be okay."
             },
             "ipa": {
-                "pt": "[ˌaˈiŋdæ nˌɐ̃ʊ̃ sˈeɪ]",
-                "en": "[aɪ dˈəʊnt nˈəʊ jˈɛt]"
+                "fr": "nɛ pa pˈœʁ sa vˈa bjˈɛ̃ sə- pasˈe",
+                "de": "[haːp ˈkaɪ̯nə ˈaŋst ɛs vɪʁt ˈaləs ɡuːt]",
+                "it": "[nˌon avˈeːre paˈuːra\n andrˈa tˈutːo bˈɛːne]",
+                "es": "[no ˈteŋɡas ˈmjeðo βa a saˈliɾ ˈβjen]",
+                "nl": "[ʋˈeːs nˌit bˈɑŋ\n hət kˈɔmt ˌɑləmˈaːl ɣˈut]",
+                "pt": "[nˌɐ̃ʊ̃ tˈeɲæ mˈedʊ\n vaɪ dˈar tˈudʊ sˈɛɾətʊ]",
+                "en": "[dˈəʊnt biː ɐfɹˈeɪd ɪt wɪl biː fˈaɪn]"
             },
             "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "pt": "original",
                 "en": "original"
             }
         },
         {
             "id": "scene-03-026",
-            "text": {
-                "pt": "pergunta Lucas.",
-                "en": "Lucas asks."
-            },
-            "ipa": {
-                "pt": "[pˌeɾəɡˈũŋtæ lˈukæs]",
-                "en": "[lˈuːkəz ˈasks]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-027",
-            "text": {
-                "pt": "A Serra da Mantiqueira?",
-                "en": "The Serra da Mantiqueira?"
-            },
-            "ipa": {
-                "pt": "[a sˈɛxæ da mˌɐ̃ŋtʃikˈeɪɾæ]",
-                "en": "[ðə sˈɛɹə dˈɑː mˈantɪkwˌeəɹə]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-028",
-            "text": {
-                "pt": "Sim!",
-                "en": "Yes!"
-            },
-            "ipa": {
-                "pt": "[sˈiŋ]",
-                "en": "[jˈɛs]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-03-029",
             "text": {
                 "pt": "Você tem razão, vamos!",
                 "en": "You're right, let's go!"
@@ -815,6 +729,91 @@
             },
             "provenance": {
                 "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-027",
+            "text": {
+                "fr": "Tu as raison, allons-y! Qu'est-ce qu'on risque?",
+                "en": "You're right, let's go! What do we have to lose?",
+                "de": "Du hast recht, los geht's! Was haben wir zu verlieren?",
+                "it": "Hai ragione, andiamo! Cosa rischiamo?",
+                "es": "Tienes razón, ¡vamos! ¿Qué podemos perder?",
+                "nl": "Je hebt gelijk, laten we gaan! Wat hebben we te verliezen?",
+                "pt": "O que a gente tem a perder?",
+                "en_pt": "What do we have to lose?"
+            },
+            "ipa": {
+                "fr": "ty a ʁɛzˈɔ̃ alˈɔ̃ziɡʁˈɛk kɛs kɔ̃ ʁˈisk",
+                "de": "[duː hast ʁɛçt loːs ɡeːts vas ˈhaːbn̩ viːɐ̯ t͡suː fɛɐ̯ˈliːʁən]",
+                "it": "[ˌaj radʒˈoːne\n andjˈaːmo\n kˈɔːza riskjˈaːmo]",
+                "es": "[ˈtjenes raˈθon ˈbamos ˈke poˈðemos peɾˈðeɾ]",
+                "nl": "[jə hɛpt ɣəlˈɛɪk\n lˈaːtən ʋə ɣˈaːn\n ʋɑt hˌɛbən ʋə tə vərlˈizən]",
+                "pt": "[ʊ ky a ʒˈeɪŋtʃy teɪŋ a peɾədˈer]",
+                "en": "[jɔː ɹˈaɪt lˈɛts ɡˈəʊ wˌɒt dˈuː wiː hav tə lˈuːz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-028",
+            "text": {
+                "fr": "Métro, boulot, dodo.",
+                "en": "Subway, work, sleep.",
+                "de": "U-Bahn, Arbeit, Schlaf.",
+                "it": "Metro, lavoro, dormire.",
+                "es": "Metro, curro, cama.",
+                "nl": "Tram, werk, slaap."
+            },
+            "ipa": {
+                "fr": "metʁˈo bulˈo dɔdˈo",
+                "de": "[ʔuːˈbaːn ˈaʁbaɪ̯t ˈʃlaːf]",
+                "it": "[mˈeːtro\n lavˈɔːro\n dormˈiːre]",
+                "es": "[ˈmetɾo ˈkur.o ˈkama]",
+                "nl": "[trˈɑm\n ʋˈɛrk\n slˈaːp]",
+                "en": "[sˈʌbweɪ wˈɜːk slˈiːp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-03-029",
+            "text": {
+                "fr": "Les Alpes?",
+                "en": "The Alps?",
+                "de": "Die Alpen?",
+                "it": "Le Alpi?",
+                "es": "¿Los Pirineos?",
+                "nl": "De Ardennen?"
+            },
+            "ipa": {
+                "fr": "le-z ˈalp",
+                "de": "[diː ˈalpn̩]",
+                "it": "[lˌe ˈalpɪ]",
+                "es": "[los piɾiˈne.os]",
+                "nl": "[də ˈɑrdɛnən]",
+                "en": "[ðɪ ˈalps]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "en": "original"
             }
         }

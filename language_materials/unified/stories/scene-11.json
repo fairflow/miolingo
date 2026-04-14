@@ -24,27 +24,29 @@
             "nl",
             "pt"
         ],
-        "generated": "2026-04-09",
+        "generated": "2026-04-14",
         "generator": "merge_materials.py"
     },
     "phrases": [
         {
             "id": "scene-11-001",
             "text": {
-                "fr": "...ne pardonne pas...enseigne.",
-                "en": "...does not forgive...teaches.",
-                "de": "...vergibt nicht...lehrt.",
-                "it": "...non perdona...insegna.",
-                "es": "...no perdona...enseña.",
-                "nl": "...vergeeft niet...onderwijst."
+                "fr": "Sophie entre dans la cabane.",
+                "en": "Sophie enters the cabin.",
+                "de": "Sophie betritt die Hütte.",
+                "it": "Sophie entra nella capanna.",
+                "es": "Sophie entra en el piso.",
+                "nl": "Sophie gaat de hut binnen.",
+                "pt": "Sophie entra na cabana."
             },
             "ipa": {
-                "fr": "nə- paʁdˈɔn pˈa ɑ̃sˈɛɲ",
-                "de": "[fɛɾɡˈiːpt nˈɪçt\n lˈeːɾt]",
-                "it": "[nˌon perdˈoːna\n insˈeɲʲa]",
-                "es": "[...no peɾˈðona...enˈseɲa]",
-                "nl": "[vərɣˈeːft nˈit\n ˈɔndərʋˌɛɪst]",
-                "en": "[dʌznˌɒt fəɡˈɪv tˈiːtʃɪz]"
+                "fr": "sɔfˈi ɑ̃tʁ dɑ̃ la- kabˈan",
+                "de": "[zoːfˈiː bətɾˈɪt diː hˈʏtə]",
+                "it": "[sˈopje ˈentra nˌɛlla kapˈanna]",
+                "es": "[ˈsofi ˈentɾa en el ˈpiso]",
+                "nl": "[sɔphˈi ɣˈaː tə hˈɵt bˈɪnən]",
+                "pt": "[sˌofˈij ˈeɪŋtræ na kˌabˈɐ̃næ]",
+                "en": "[sˈəʊfi ˈɛntəz ðə kˈabɪn]"
             },
             "provenance": {
                 "fr": "original",
@@ -52,29 +54,29 @@
                 "it": "original",
                 "es": "original",
                 "nl": "original",
+                "pt": "original",
                 "en": "original"
             }
         },
         {
             "id": "scene-11-002",
             "text": {
-                "fr": "Qui a vécu ici avant moi? Combien de solitudes cette cabane a-t-elle abritées?",
-                "en": "Who lived here before me? How much loneliness has this cabin sheltered?",
-                "de": "Wer hat hier vor mir gewohnt? Wie viele Einsamkeiten hat diese Hütte beherbergt?",
-                "it": "Chi ha vissuto qui prima di me? Quante solitudini ha ospitato questa casetta?",
-                "es": "¿Quién vivió aquí antes que yo? ¿Cuántas soledades ha albergado este piso?",
-                "nl": "Wie heeft hier voor mij gewoond? Hoeveel eenzaamheid heeft dit huisje herbergt?",
-                "pt": "Quantas solidões esta cabana abrigou?",
-                "en_pt": "How many solitudes has this cabin sheltered?"
+                "fr": "C'est une vieille structure de berger, simple mais solide.",
+                "en": "It's an old shepherd's structure, simple but solid.",
+                "de": "Es ist eine alte Schäferhütte, einfach aber stabil.",
+                "it": "È una vecchia struttura da pastore, semplice ma solida.",
+                "es": "Es una vieja estructura de pastor, simple pero sólida.",
+                "nl": "Het is een oude herdershut, eenvoudig maar stevig.",
+                "pt": "É uma velha estrutura de pastor, simples mas sólida."
             },
             "ipa": {
-                "fr": "ki a vekˈy isˈi avˌɑ̃ mwˈa kɔ̃bjˈɛ̃ də- sɔlitˈyd sɛt kabˈan atɛl abʁitˈe",
-                "de": "[vˈeːɾ hat hˈiːɾ fˌɔɾ miːɾ ɡəvˈoːnt\n viː fˈiːlə ˈaɪnzˌɑːmkaɪtən hat dˌiːzə hˈʏtə bəhˈɛɾbɜkt]",
-                "it": "[kˈi ˌa vissˈuːto kwˈi prˈiːma dˌɪ mˈe\n kwˈante sˌɔlitˈudinɪ ˌa ˌospitˈaːto kwˌɛsta kazˈetːa]",
-                "es": "[ˈkjen biˈbio aˈki ˈantes ke ˈʝo? ˈkwantas soleˈðaðes a alβeɾˈɣaðo ˈeste ˈpiso]",
-                "nl": "[ʋˈi heːft hˈir vɔːr mˈɛɪ ɣəʋˈoːnt\n huvˈeːl ˈeːnzaːmhˌɛɪt heːf tɪt hˈœysjə hɛrbˈɛrxt]",
-                "pt": "[kwˈɐ̃ŋtæs sˌolidˈõjz ˌɛstæ kˌabˈɐ̃næ ˌabriɡˈow]",
-                "en": "[hˌuː lˈɪvd hˈiə bɪfˈɔː mˌiː hˌaʊ mˈʌtʃ lˈəʊnlinəs hɐz ðɪs kˈabɪn ʃˈɛltəd]"
+                "fr": "sɛt yn vjˈɛj stʁyktˈyʁ də- bɛʁʒˈe sˈɛ̃pl mɛ sɔlˈid",
+                "de": "[ɛsɪst ˌaɪnə ˈaltə ʃˈɛːfɜhˌʏtə\n ˈaɪnfˌax ˌɑːbɜ ʃtabˈiːl]",
+                "it": "[ˌɛ ˌʊna vˈɛkːia strʊtːˈuːra dˌa pastˈoːre\n sˈemplitʃe mˌa sˈɔlida]",
+                "es": "[es ˈuna ˈβjexa estɾukˈtuɾa ðe pasˈtoɾ ˈsimple peɾo ˈsolida]",
+                "nl": "[hət ɪs ən ˈʌʊdə hˈɛrdərshˌɵt\n eːnvˈʌʊdəx maːr stˈeːvəx]",
+                "pt": "[ɛ ˌumæ vˈɛljæ ˌestrutˈuɾæ dʒy pastˈor\n sˈimplyz mas sˈɔlidæ]",
+                "en": "[ɪts ɐn ˈəʊld ʃˈɛpədz stɹˈʌktʃə sˈɪmpəl bˌʌt sˈɒlɪd]"
             },
             "provenance": {
                 "fr": "original",
@@ -89,8 +91,99 @@
         {
             "id": "scene-11-003",
             "text": {
+                "pt": "Tem uma lareira.",
+                "en": "There's a fireplace."
+            },
+            "ipa": {
+                "pt": "[teɪŋ ˌumæ lˌaɾˈeɪɾæ]",
+                "en": "[ðeəz ɐ fˈaɪəpleɪs]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-004",
+            "text": {
+                "pt": "Na parede, alguém gravou palavras quase apagadas: ...não perdoa...ensina.",
+                "en": "On the wall, someone carved nearly faded words: ...doesn't forgive...teaches."
+            },
+            "ipa": {
+                "pt": "[na pˌaɾˈedʒy\n aʊɡˈeɪŋ ɡravˈow pˌalˈavræs kwˈazj ˌapaɡˈadæs\n nˌɐ̃ʊ̃ pˌeɾədˈoæ\n ˌeɪŋsˈinæ]",
+                "en": "[ɒnðə wˈɔːl sˈʌmwɒn kˈɑːvd nˌiəli fˈeɪdɪd wˈɜːdz dˈʌzənt fəɡˈɪv tˈiːtʃɪz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-005",
+            "text": {
+                "pt": "Quem morou aqui antes de mim?",
+                "en": "Who lived here before me?"
+            },
+            "ipa": {
+                "pt": "[kˈeɪŋ moɾˈow akˈi ˈɐ̃ŋtʃyz dʒy mˈiŋ]",
+                "en": "[hˌuː lˈɪvd hˈiə bɪfˈɔː mˌiː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-006",
+            "text": {
+                "fr": "Qui a vécu ici avant moi? Combien de solitudes cette cabane a-t-elle abritées?",
+                "en": "Who lived here before me? How many solitudes has this cabin sheltered?",
+                "de": "Wer hat hier vor mir gewohnt? Wie viele Einsamkeiten hat diese Hütte beherbergt?",
+                "it": "Chi ha vissuto qui prima di me? Quante solitudini ha ospitato questa casetta?",
+                "es": "¿Quién vivió aquí antes que yo? ¿Cuántas soledades ha albergado este piso?",
+                "nl": "Wie heeft hier voor mij gewoond? Hoeveel eenzaamheid heeft dit huisje herbergt?",
+                "pt": "Quantas solidões esta cabana abrigou?",
+                "en_pt": "How many solitudes has this cabin sheltered?"
+            },
+            "ipa": {
+                "fr": "ki a vekˈy isˈi avˌɑ̃ mwˈa kɔ̃bjˈɛ̃ də- sɔlitˈyd sɛt kabˈan atɛl abʁitˈe",
+                "de": "[vˈeːɾ hat hˈiːɾ fˌɔɾ miːɾ ɡəvˈoːnt\n viː fˈiːlə ˈaɪnzˌɑːmkaɪtən hat dˌiːzə hˈʏtə bəhˈɛɾbɜkt]",
+                "it": "[kˈi ˌa vissˈuːto kwˈi prˈiːma dˌɪ mˈe\n kwˈante sˌɔlitˈudinɪ ˌa ˌospitˈaːto kwˌɛsta kazˈetːa]",
+                "es": "[ˈkjen biˈbio aˈki ˈantes ke ˈʝo? ˈkwantas soleˈðaðes a alβeɾˈɣaðo ˈeste ˈpiso]",
+                "nl": "[ʋˈi heːft hˈir vɔːr mˈɛɪ ɣəʋˈoːnt\n huvˈeːl ˈeːnzaːmhˌɛɪt heːf tɪt hˈœysjə hɛrbˈɛrxt]",
+                "pt": "[kwˈɐ̃ŋtæs sˌolidˈõjz ˌɛstæ kˌabˈɐ̃næ ˌabriɡˈow]",
+                "en": "[hˌuː lˈɪvd hˈiə bɪfˈɔː mˌiː hˌaʊ mˈɛni sˈɒlɪtjˌuːdz hɐz ðɪs kˈabɪn ʃˈɛltəd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-007",
+            "text": {
+                "pt": "Ela toca as paredes de pedra.",
+                "en": "She touches the stone walls."
+            },
+            "ipa": {
+                "pt": "[ˌɛlæ tˈɔkæ as pˌaɾˈedʒyz dʒy pˈɛdræ]",
+                "en": "[ʃiː tˈʌtʃɪz ðə stˈəʊn wˈɔːlz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-008",
+            "text": {
                 "fr": "Ces murs ont survécu à combien de tempêtes, à combien d'hivers?",
-                "en": "How many storms and winters have these walls survived?",
+                "en": "How many storms, how many winters have these walls survived?",
                 "de": "Diese Wände haben wie viele Stürme, wie viele Winter überlebt?",
                 "it": "Questi muri hanno resistito a quante tempeste, a quanti inverni?",
                 "es": "¿Estas paredes han sobrevivido a cuántas tormentas, a cuántos inviernos?",
@@ -105,7 +198,7 @@
                 "es": "[ˈestas paˈɾeðes an soβɾebiˈβiðo a ˈkwantas toɾˈmentas a ˈkwantos inˈβjeɾnos]",
                 "nl": "[huvˈeːl stˈɔrmən ɛn ʋˈɪntərs hˌɛbən dˌeːzə mˈyrən dɔːrstˈaːn]",
                 "pt": "[ˌɛstæs pˌaɾˈedʒys sobɾevˌivˈeɾɐ̃ʊ̃ a kwˈɐ̃ŋtæs tˌeɪmpestˈadʒys\n a kwˈɐ̃ŋtʊz ˌiŋvˈɛɾənʊs]",
-                "en": "[hˌaʊ mˈɛni stˈɔːmz and wˈɪntəz hav ðiːz wˈɔːlz səvˈaɪvd]"
+                "en": "[hˌaʊ mˈɛni stˈɔːmz hˌaʊ mˈɛni wˈɪntəz hav ðiːz wˈɔːlz səvˈaɪvd]"
             },
             "provenance": {
                 "fr": "original",
@@ -118,7 +211,7 @@
             }
         },
         {
-            "id": "scene-11-004",
+            "id": "scene-11-009",
             "text": {
                 "fr": "Il faudrait que j'allume un feu.",
                 "en": "I should light a fire.",
@@ -149,10 +242,40 @@
             }
         },
         {
-            "id": "scene-11-005",
+            "id": "scene-11-010",
+            "text": {
+                "fr": "Elle cherche dans ses poches.",
+                "en": "She searches in her pockets.",
+                "de": "Sie sucht in ihren Taschen.",
+                "it": "Cerca nelle sue tasche.",
+                "es": "Busca en sus bolsillos.",
+                "nl": "Ze zoekt in haar zakken.",
+                "pt": "Ela procura nos bolsos."
+            },
+            "ipa": {
+                "fr": "ɛl ʃˈɛʁʃ dɑ̃ se- pˈɔʃ",
+                "de": "[ziː zˈuːxt ɪn ˌiːrən tˈaʃən]",
+                "it": "[tʃˈeːrka nˌɛlle sˌʊe tˈaske]",
+                "es": "[ˈbuska en sus bolˈsiʎos]",
+                "nl": "[zə zˈukt ɪn haːr zˈɑkən]",
+                "pt": "[ˌɛlæ prˌokˈuɾæ nʊz bˈowsʊs]",
+                "en": "[ʃiː sˈɜːtʃɪz ɪn hɜː pˈɒkɪts]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-011",
             "text": {
                 "fr": "Heureusement, j'ai des allumettes dans ma poche.",
-                "en": "Luckily, I have matches in my pocket.",
+                "en": "Fortunately, I have matches in my pocket.",
                 "de": "Zum Glück habe ich Streichhölzer in meiner Tasche.",
                 "it": "Fortunatamente, ho dei fiammiferi in tasca.",
                 "es": "Por suerte, tengo cerillas en el bolsillo.",
@@ -167,7 +290,7 @@
                 "es": "[poɾ ˈswerte ˈteŋɣo θeˈɾiʎas en el bolˈsiʎo]",
                 "nl": "[ɣəlˈɵkəx hɛp ɪk lˈysifərs ɪn mɛɪn zˈɑk]",
                 "pt": "[fˌelizmˈeɪŋtʃy tˌeɲʊ fˈɔsfoɾʊz nʊ bˈowsʊ]",
-                "en": "[lˈʌkilɪ aɪ hav mˈatʃɪz ɪn maɪ pˈɒkɪt]"
+                "en": "[fˈɔːtʃənətli aɪ hav mˈatʃɪz ɪn maɪ pˈɒkɪt]"
             },
             "provenance": {
                 "fr": "original",
@@ -180,15 +303,47 @@
             }
         },
         {
-            "id": "scene-11-006",
+            "id": "scene-11-012",
+            "text": {
+                "fr": "Elle trouve du bois à l'intérieur de la cabane, mais il est humide.",
+                "en": "She finds wood inside the cabin, but it's damp.",
+                "de": "Sie findet Holz in der Hütte, aber es ist feucht.",
+                "it": "Trova della legna all'interno della capanna, ma è umida.",
+                "es": "Encuentra madera dentro del piso, pero está húmeda.",
+                "nl": "Ze vindt hout binnen in de hut, maar het is vochtig.",
+                "pt": "Ela encontra lenha dentro da cabana, mas está úmida.",
+                "en_pt": "She finds firewood inside the cabin, but it's damp."
+            },
+            "ipa": {
+                "fr": "ɛl tʁˈuv dy- bwˈaz a lɛ̃teʁjˈœʁ də- la- kabˈan mɛz il ɛt ymˈid",
+                "de": "[ziː fˈɪndət hˈɔlts ɪn dɛɾ hˈʏtə\n ˌɑːbɜ ɛsɪst fˈɔøçt]",
+                "it": "[trˈɔːva dˌɛlla lˈeɲʲa allintˈɛːrno dˌɛlla kapˈanna\n mˌa ˌɛ ˈumida]",
+                "es": "[enˈkwentɾa maˈðeɾa ˈðentɾo ðel ˈpiso ˈpeɾo ˈesta ˈumeda]",
+                "nl": "[zə vˈɪnt hˈʌʊt bˈɪnən ɪn də hˈɵt\n maːr hət ɪs vˈɔxtəx]",
+                "pt": "[ˌɛlæ ˌeɪŋkˈoŋtræ lˈeɲæ dˈeɪŋtrʊ da kˌabˈɐ̃næ\n maz estˌa ˈũmidæ]",
+                "en": "[ʃiː fˈaɪndz wˈʊd ɪnsˈaɪd ðə kˈabɪn bˌʌt ɪts dˈamp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-013",
             "text": {
                 "fr": "Le bois est humide, ce ne sera pas facile.",
-                "en": "The wood is damp, this won't be easy.",
+                "en": "The wood is damp, it won't be easy.",
                 "de": "Das Holz ist feucht, das wird nicht einfach.",
                 "it": "La legna è umida, non sarà facile.",
                 "es": "La leña está húmeda, no será fácil.",
                 "nl": "Het hout is vochtig, dit wordt niet makkelijk.",
-                "pt": "A lenha está úmida, não vai ser fácil."
+                "pt": "A lenha está úmida, não vai ser fácil.",
+                "en_pt": "The wood is damp, this won't be easy."
             },
             "ipa": {
                 "fr": "lə- bwˈaz ɛt ymˈid sə- nə- səʁˈa pa fasˈil",
@@ -197,7 +352,7 @@
                 "es": "[la ˈleɲa ˈesta ˈumeda no seˈɾa ˈfaθil]",
                 "nl": "[hət hˈʌʊt ɪs vˈɔxtəx\n dɪt ʋɔrt nˌit mˈɑkələk]",
                 "pt": "[a lˈeɲæ estˌa ˈũmidæ\n nˌɐ̃ʊ̃ vaɪ ser fˈasiʊ]",
-                "en": "[ðə wˈʊd ɪz dˈamp ðɪs wəʊnt biː ˈiːzi]"
+                "en": "[ðə wˈʊd ɪz dˈamp ɪt wəʊnt biː ˈiːzi]"
             },
             "provenance": {
                 "fr": "original",
@@ -210,7 +365,68 @@
             }
         },
         {
-            "id": "scene-11-007",
+            "id": "scene-11-014",
+            "text": {
+                "fr": "Elle arrange le bois, met du papier, prend une allumette.",
+                "en": "She arranges the wood, puts paper, takes a match.",
+                "de": "Sie arrangiert das Holz, legt Papier dazu und nimmt ein Streichholz.",
+                "it": "Sistema la legna, mette della carta, prende un fiammifero.",
+                "es": "Arregla la madera, pone papel, saca una cerilla.",
+                "nl": "Ze schikt het hout, legt er papier bij, pakt een lucifer.",
+                "pt": "Ela arruma a lenha, coloca papel, pega um fósforo.",
+                "en_pt": "She arranges the wood, places paper, takes a match."
+            },
+            "ipa": {
+                "fr": "ɛl aʁˈɑ̃ʒ lə- bwˈa mˈɛ dy- papjˈe pʁˈɑ̃t yn alymˈɛt",
+                "de": "[ziː ˌaraŋʒˈiːət das hˈɔlts\n lˈeːkt papˈiːɾ dɑːtsˈuː ʊnt nˈɪmt aɪn ʃtɾˈaɪçhɔlts]",
+                "it": "[sistˈɛːma lˌa lˈeɲʲa\n mˈetːe dˌɛlla kˈaːrta\n prˈɛnde ˌʊn fjammˈifero]",
+                "es": "[aˈrɾeɣla la maˈðeɾa ˈpone paˈpel ˈsaka ˈuna θeˈɾiʎa]",
+                "nl": "[zə sxˈɪkt hət hˈʌʊt\n lˈɛxt ər paːpˈir bˈɛɪ\n pˈɑkt ən lˈysifər]",
+                "pt": "[ˌɛlæ ˌaxˈumæ a lˈeɲæ\n kˌolˈɔkæ papˈɛʊ\n pˈɛɡæ ũŋ fˈɔsfoɾʊ]",
+                "en": "[ʃiː ɐɹˈeɪndʒɪz ðə wˈʊd pˌʊts pˈeɪpə tˈeɪks ɐ mˈatʃ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-015",
+            "text": {
+                "pt": "Ela risca.",
+                "en": "She strikes it."
+            },
+            "ipa": {
+                "pt": "[ˌɛlæ xˈiskæ]",
+                "en": "[ʃiː stɹˈaɪks ɪt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-016",
+            "text": {
+                "pt": "Nada.",
+                "en": "Nothing."
+            },
+            "ipa": {
+                "pt": "[nˈadæ]",
+                "en": "[nˈʌθɪŋ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-017",
             "text": {
                 "fr": "J'essaie une fois, deux fois, trois fois...",
                 "en": "I try once, twice, three times...",
@@ -240,7 +456,38 @@
             }
         },
         {
-            "id": "scene-11-008",
+            "id": "scene-11-018",
+            "text": {
+                "fr": "Dans son esprit, elle revoit sa grand-mère montrant à la petite Sophie comment allumer un feu dans la cheminée de leur maison de campagne.",
+                "en": "In her mind, she sees her grandmother showing little Sophie how to light a fire in the fireplace of their country house.",
+                "de": "In ihren Gedanken sieht sie ihre Großmutter, die der kleinen Sophie zeigt, wie man im Kamin ihres Landhauses ein Feuer anzündet.",
+                "it": "Nella sua mente, rivede sua nonna insegnare alla piccola Sophie come accendere un fuoco nel camino della loro casa di campagna.",
+                "es": "En su mente, recuerda a su abuela enseñando a la pequeña Sophie cómo encender un fuego en la chimenea de su casa de campo.",
+                "nl": "In haar gedachten ziet ze haar grootmoeder weer voor hoe ze de kleine Sophie leerde een vuur aan te maken in de open haard van hun landhuis.",
+                "pt": "Em sua mente, ela revê sua avó mostrando à pequena Sophie como acender fogo na lareira da casa de campo.",
+                "en_pt": "In her mind, she sees her grandmother showing little Sophie how to light a fire in the country house fireplace."
+            },
+            "ipa": {
+                "fr": "dɑ̃ sɔ̃n ɛspʁˈi ɛl ʁəvwˈa sa- ɡʁˈɑ̃mˈɛʁ mɔ̃tʁˈɑ̃ a la- pətˈit sɔfˈi kɔmˌɑ̃ alymˈe œ̃ fˈø dɑ̃ la- ʃəminˈe də- lœʁ mɛzˈɔ̃ də- kɑ̃pˈaɲ",
+                "de": "[ɪn ˌiːrən ɡədˈaŋkən zˈiːt ziː ˌiːrə ɡrˈɔsmʊtɜ\n diː dɛɾ klˈaɪnən zoːfˈiː tsˈaɪkt\n viː man ɪm kamˈiːn ˌiːrəs lˈanthˌaʊzəs aɪn fˈɔøɜ ˈantsˌʏndət]",
+                "it": "[nˌɛlla sˌʊa mˈente\n rivˈeːde sˌʊa nˈɔnna ˌinseɲˈaːre ˌalla pˈikːola sˈopje kˌome atʃːˈendere ˌʊn fʊˈɔːko nˌɛl kamˈiːno dˌɛlla lˌɔro kˈaːza dˌɪ kampˈaɲɲa]",
+                "es": "[en su ˈmente reˈkwɛɾða a su aˈβwela enseˈɲando a la peˈkeɲa ˈsofi ˈkomo enθenˈdeɾ un ˈfweɣo en la ʧimeˈnea ðe su ˈkasa ðe ˈkampo]",
+                "nl": "[ɪn haːr ɣədˈɑxtən zˈit zə haːr ɣrˈoːtmudər ʋˈɪːr vɔːr hˈu zə də klˈɛɪnə sɔphˈi lˈɪːrdə ən vˈyr aːn tə mˈaːkən ɪn də ˈoːpən hˈaːrt vɑn hɵn lˈɑndhˌœys]",
+                "pt": "[ˈeɪŋ sˌuæ mˈeɪŋtʃy\n ˌɛlæ xevˈe sˌuæ avˈɔ mˌostrˈɐ̃ŋdw ˌaː pˌekˈenæ sˌofˈiy kˌomʊ ˌaseɪŋdˈer fˈoɡʊ na lˌaɾˈeɪɾæ da kˈazæ dʒy kˈɐ̃mpʊ]",
+                "en": "[ɪn hɜː mˈaɪnd ʃiː sˈiːz hɜː ɡɹˈandmʌðə ʃˈəʊɪŋ lˈɪtəl sˈəʊfi hˌaʊ tə lˈaɪt ɐ fˈaɪəɹ ɪnðə fˈaɪəpleɪs ɒv ðeə kˈʌntɹi hˈaʊs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-019",
             "text": {
                 "fr": "Patience, ma chérie",
                 "en": "Patience, my dear",
@@ -271,7 +518,7 @@
             }
         },
         {
-            "id": "scene-11-009",
+            "id": "scene-11-020",
             "text": {
                 "fr": "Le feu vient à ceux qui savent attendre.",
                 "en": "Fire comes to those who know how to wait.",
@@ -301,923 +548,7 @@
             }
         },
         {
-            "id": "scene-11-010",
-            "text": {
-                "fr": "Enfin! Une petite flamme qui grandit!",
-                "en": "Finally! A small flame that grows!",
-                "de": "Endlich! Eine kleine Flamme, die wächst!",
-                "it": "Finalmente! Una piccola fiamma che cresce!",
-                "es": "¡Por fin! Una pequeña llama que crece!",
-                "nl": "Eindelijk! Een klein vlammetje dat groeit!",
-                "pt": "Uma pequena chama que cresce!",
-                "en_pt": "A small flame that's growing!"
-            },
-            "ipa": {
-                "fr": "ɑ̃fˈɛ̃ yn pətˈit flˈam ki ɡʁɑ̃dˈi",
-                "de": "[ˈɛntlɪç\n ˌaɪnə klˈaɪnə flˈamə\n diː vˈɛkst]",
-                "it": "[fˌinalmˈente\n ˌʊna pˈikːola fjˈamma kˌe krˈeːʃe]",
-                "es": "[poɾ ˈfin una peˈkeɲa ˈʎama ke ˈkɾeθe]",
-                "nl": "[ˈɛɪndələk\n ən klˈɛɪn vlˈɑmɛtʲə dɑt ɣrˈujt]",
-                "pt": "[ˌumæ pˌekˈenæ ʃˈɐ̃mæ ky krˈɛsy]",
-                "en": "[fˈaɪnəli ɐ smˈɔːl flˈeɪm ðat ɡɹˈəʊz]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-011",
-            "text": {
-                "fr": "Ce feu... c'est moi qui l'ai créé. Moi seule.",
-                "en": "This fire... I created it myself. All alone.",
-                "de": "Dieses Feuer... ich habe es selbst gemacht. Nur ich allein.",
-                "it": "Questo fuoco... l'ho creato io. Solo io.",
-                "es": "Este fuego... lo he creado yo sola.",
-                "nl": "Dit vuur... ik heb het zelf gemaakt. Helemaal alleen."
-            },
-            "ipa": {
-                "fr": "sə- fˈø sɛ mwˌa ki le kʁeˈe mwˌa sˈœl",
-                "de": "[dˌiːzəs fˈɔøɜ\n ɪç hɑːbə ɛs zˈɛlpst ɡəmˈaxt\n nˈuːɾ ɪç alˈaɪn]",
-                "it": "[kwˌɛsto fʊˈɔːko\n lˌo kreˈaːto ˈio\n sˈoːlo ˈio]",
-                "es": "[ˈeste ˈfweɣo lo e kɾeˈaðo ʝo ˈsola]",
-                "nl": "[dɪt vˈyr\n ɪk hɛp hət zˈɛlf ɣəmˈaːkt\n hˌeːləmˈaːl ɑlˈeːn]",
-                "en": "[ðɪs fˈaɪə aɪ kɹiːˈeɪtɪd ɪt maɪsˈɛlf ˈɔːl ɐlˈəʊn]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-012",
-            "text": {
-                "fr": "Le feu me donne de la chaleur et du courage.",
-                "en": "The fire gives me warmth and courage.",
-                "de": "Das Feuer gibt mir Wärme und Mut.",
-                "it": "Il fuoco mi dà calore e coraggio.",
-                "es": "El fuego me da calor y valentía.",
-                "nl": "Het vuur geeft me warmte en moed.",
-                "pt": "O fogo me dá calor e coragem."
-            },
-            "ipa": {
-                "fr": "lə- fˈø mə- dˈɔn də- la- ʃalˈœʁ e dy- kuʁˈaʒ",
-                "de": "[das fˈɔøɜ ɡˈiːpt miːɾ vˈɛɾmə ʊnt mˈuːt]",
-                "it": "[ˌil fʊˈɔːko mˌɪ dˈa kalˈoːre ˌe korˈadʒːo]",
-                "es": "[el ˈfweɣo me ða kaˈloɾ i βalenˈti.a]",
-                "nl": "[hət vˈyr ɣˈeːft mə ʋˈɑrmtə ɛn mˈut]",
-                "pt": "[ʊ fˈoɡʊ my dˈa kalˈoɾ i kˌoɾˈaʒeɪŋ]",
-                "en": "[ðə fˈaɪə ɡˈɪvz mˌiː wˈɔːmθ and kˈʌɹɪdʒ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-013",
-            "text": {
-                "fr": "Maintenant, j'ai très faim, mais je n'ai rien à manger.",
-                "en": "Now I'm very hungry, but I have nothing to eat.",
-                "de": "Jetzt habe ich großen Hunger, aber ich habe nichts zu essen.",
-                "it": "Ora ho molto fame, ma non ho nulla da mangiare.",
-                "es": "Ahora tengo mucha hambre, pero no tengo nada que comer.",
-                "nl": "Nu heb ik heel veel honger, maar ik heb niets om te eten.",
-                "pt": "Agora estou com muita fome, mas não tenho nada para comer."
-            },
-            "ipa": {
-                "fr": "mɛ̃tnˈɑ̃ ʒe tʁɛ fˈɛ̃ mɛ ʒə- ne ʁjˌɛ̃n a mɑ̃ʒˈe",
-                "de": "[jˌɛtst hɑːbə ɪç ɡrˈoːsən hˈʊŋɜ\n ˌɑːbɜ ɪç hɑːbə nˈɪçts tsuː ˈɛsən]",
-                "it": "[ˈɔːra ˌo mˈolto fˈaːme\n mˌa nˌon ˌo nˈulla dˌa mandʒˈaːre]",
-                "es": "[aˈoɾa ˈteŋɣo ˈmutʃa ˈamβɾe peɾo no ˈteŋɣo ˈnaða ke koˈmeɾ]",
-                "nl": "[nˈy hɛp ɪk hˈeːl vˈeːl hˈɔŋər\n maːr ɪk hɛp nˌits ɔm tə ˈeːtən]",
-                "pt": "[ˌaɡˈɔɾæ estˌow koŋ mwˈiŋtæ fˈomy\n maz nˌɐ̃ʊ̃ tˌeɲʊ nˈadæ pˌaɾæ komˈer]",
-                "en": "[nˈaʊ aɪm vˈɛɹɪ hˈʌŋɡɹi bˌʌt aɪ hav nˈʌθɪŋ tʊ ˈiːt]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-014",
-            "text": {
-                "fr": "Attends... ces plantes près de la cabane, je les reconnais!",
-                "en": "Wait... those plants near the cabin, I recognize them!",
-                "de": "Warte... diese Pflanzen neben der Hütte, ich erkenne sie!",
-                "it": "Aspetta... quelle piante vicino alla capanna, le riconosco!",
-                "es": "Espera... estas plantas cerca del piso, ¡las reconozco!",
-                "nl": "Wacht... die planten bij het huisje, ik herken ze!",
-                "pt": "essas plantas perto da cabana, eu reconheço!",
-                "en_pt": "these plants near the cabin, I recognize them!"
-            },
-            "ipa": {
-                "fr": "atˈɑ̃ se plˈɑ̃t pʁɛ də- la- kabˈan ʒə- le- ʁəkɔnˈɛ",
-                "de": "[vˈaɾtə\n dˌiːzə pflˈantsən nˌeːbən dɛɾ hˈʏtə\n ɪç ɛɾkˈɛnə ziː]",
-                "it": "[aspˈɛtːa\n kwˌɛlle pjˈante vitʃˈiːno ˌalla kapˈanna\n lˌe rˌikonˈosko]",
-                "es": "[esˈpeɾa ˈestas ˈplantas ˈθeɾka ðel ˈpiso las rekoˈnoθko]",
-                "nl": "[ʋˈɑxt\n di plˈɑntən bɛɪ hət hˈœysjə\n ɪk hˈɛrkən zə]",
-                "pt": "[ˈɛsæs plˈɐ̃ŋtæs pˈɛɾətʊ da kˌabˈɐ̃næ\n eʊ xˌekoɲˈesʊ]",
-                "en": "[wˈeɪt ðəʊz plˈants nˌiə ðə kˈabɪn aɪ ɹˈɛkəɡnˌaɪz ðˌɛm]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-015",
-            "text": {
-                "fr": "Regarde, Sophie",
-                "en": "Look, Sophie",
-                "de": "Schau, Sophie",
-                "it": "Guarda, Sophie",
-                "es": "Mira, Sophie",
-                "nl": "Kijk, Sophie",
-                "pt": "Olha Sophie.",
-                "en_pt": "Look Sophie."
-            },
-            "ipa": {
-                "fr": "ʁəɡˈaʁd sɔfˈi",
-                "de": "[ʃˈaʊ\n zoːfˈiː]",
-                "it": "[ɡwˈaːrda\n sˈopje]",
-                "es": "[ˈmiɾa ˈsofi]",
-                "nl": "[kˈɛɪk\n sɔphˈi]",
-                "pt": "[ˈɔljæ sˌofˈiy]",
-                "en": "[lˈʊk sˈəʊfi]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-016",
-            "text": {
-                "fr": "Les orties te piquent d'abord, mais après, elles te nourrissent",
-                "en": "Nettles sting at first, but then they nourish you",
-                "de": "Die Brennnesseln stechen erst, aber dann nähren sie dich",
-                "it": "Le ortiche prima ti pungono, poi ti nutrono",
-                "es": "Las ortigas te pican primero, pero luego te alimentan",
-                "nl": "Brandnetels prikken eerst, maar daarna voeden ze je",
-                "pt": "As urtigas picam primeiro, mas depois te alimentam.",
-                "en_pt": "Nettles sting first, but then they feed you."
-            },
-            "ipa": {
-                "fr": "le-z ɔʁtˈi tə- pˈik dabˈɔʁ mɛz apʁˈɛ ɛl tə- nuʁˈis",
-                "de": "[diː brˈɛnɛsəln ʃtˈɛçən ˈeːɾst\n ˌɑːbɜ dan nˈɛːrən ziː dˈɪç]",
-                "it": "[lˌe ˈɔrtike prˈiːma tˌɪ pˈuŋɡono\n pˈɔːɪ tˌɪ nˈutrono]",
-                "es": "[las oɾˈtiɣas te ˈpikan pɾiˈmeɾo peɾo ˈlweɣo te aliˈmentan]",
-                "nl": "[brˈɑndnətˌɛls prˈɪkən ˈɪːrst\n maːr dˈaːrnaː vˈudən zə jə]",
-                "pt": "[az ˌuɾətʃˈiɡæs pˈikɐ̃ʊ̃ prˌimˈeɪɾʊ\n maz depˈoɪs tʃj ˌalimˈeɪŋtɐ̃ʊ̃]",
-                "en": "[nˈɛtəlz stˈɪŋ at fˈɜːst bˌʌt ðˈɛn ðeɪ nˈʌɹɪʃ juː]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-017",
-            "text": {
-                "fr": "C'est comme la vie, ma petite",
-                "en": "Such is life, my little one",
-                "de": "Das ist wie das Leben, meine Kleine",
-                "it": "È come la vita, piccola mia",
-                "es": "Es como la vida, pequeña",
-                "nl": "Zo is het leven, mijn kleintje",
-                "pt": "É como a vida, minha pequena.",
-                "en_pt": "It's like life, my little one."
-            },
-            "ipa": {
-                "fr": "sɛ kɔm la- vˈi ma- pətˈit",
-                "de": "[das ɪst viː das lˈeːbən\n mˌaɪnə klˈaɪnə]",
-                "it": "[ˌɛ kˌome lˌa vˈiːta\n pˈikːola mˈia]",
-                "es": "[es ˈkomo la ˈβiða peˈkeɲa]",
-                "nl": "[zoː ɪs hət lˈeːvən\n mɛɪn klˈɛɪntʲə]",
-                "pt": "[ɛ kˌomʊ a vˈidæ\n mˌiɲæ pˌekˈenæ]",
-                "en": "[sˈʌtʃ ɪz lˈaɪf maɪ lˈɪtəl wˌɒn]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-018",
-            "text": {
-                "fr": "Les choses qui font mal nous rendent plus fortes.",
-                "en": "The things that hurt make us stronger.",
-                "de": "Die Dinge, die wehtun, machen uns stärker.",
-                "it": "Le cose che fanno male ci rendono più forti.",
-                "es": "Las cosas que duelen nos hacen más fuertes.",
-                "nl": "De dingen die pijn doen maken ons sterker.",
-                "pt": "As coisas que machucam nos tornam mais fortes.",
-                "en_pt": "The things that hurt us make us stronger."
-            },
-            "ipa": {
-                "fr": "le- ʃˈoz ki fˈɔ̃ mˈal nu ʁˈɑ̃d ply fˈɔʁt",
-                "de": "[diː dˈɪŋə\n diː vˈeːtuːn\n mˈaxən ʊns ʃtˈɛɾkɜ]",
-                "it": "[lˌe kˈɔːze kˌe fˌanno mˈaːle tʃˌɪ rˈɛndono pjˌʊ fˈɔːrtɪ]",
-                "es": "[las ˈkosas ke ˈdwelen nos ˈaθen ˈmas ˈfwertes]",
-                "nl": "[də dˈɪŋən di pˈɛɪn dˈun mˈaːkən ɔn stˈɛrkər]",
-                "pt": "[as kˈoɪzæs ky mˌaʃˈukɐ̃ʊ̃ nʊs tˈɔɾənɐ̃ʊ̃ mˈaɪs fˈɔɾətʃys]",
-                "en": "[ðə θˈɪŋz ðat hˈɜːt mˌeɪk ˌʌs stɹˈɒŋɡə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-019",
-            "text": {
-                "fr": "Ce sont des orties! Elles sont comestibles si on les fait cuire.",
-                "en": "These are nettles! They are edible if you cook them.",
-                "de": "Das sind Brennnesseln! Sie sind essbar, wenn man sie kocht.",
-                "it": "Sono ortiche! Sono commestibili se cotte.",
-                "es": "¡Son ortigas! Son comestibles si las cocinas.",
-                "nl": "Het zijn brandnetels! Ze zijn eetbaar als je ze kookt.",
-                "pt": "Elas são comestíveis se cozinhar.",
-                "en_pt": "They're edible if you cook them."
-            },
-            "ipa": {
-                "fr": "sə- sˈɔ̃ de-z ɔʁtˈi ɛl sɔ̃ kɔmɛstˈibl sˈi ɔ̃ le- fˈɛ kyˈiʁ",
-                "de": "[das zɪnt brˈɛnɛsəln\n ziː zɪnt ˈɛsbɑːɾ\n vˌɛn man ziː kˈɔxt]",
-                "it": "[sˌono ˈɔrtike\n sˌono kˌommestˈibilɪ sˌe kˈɔtːe]",
-                "es": "[son oɾˈtiɣas son komeˈstiβles si las koˈθinas]",
-                "nl": "[hət zɛɪn brˈɑndnətˌɛls\n zə zɛɪn ˈeːtbaːr ɑls jə zə kˈoːkt]",
-                "pt": "[ˌɛlæs sɐ̃ʊ̃ kˌomestʃˈiveɪs sy kˌoziɲˈar]",
-                "en": "[ðiːz ɑː nˈɛtəlz ðeɪ ɑːɹ ˈɛdəbəl ɪf juː kˈʊk ðˌɛm]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-020",
-            "text": {
-                "fr": "J'ose à peine les toucher, elles piquent.",
-                "en": "I hardly dare to touch them, they sting.",
-                "de": "Ich wage es kaum, sie zu berühren, sie stechen.",
-                "it": "Oso a malapena toccarle, pungono.",
-                "es": "Apenas me atrevo a tocarlas, pican.",
-                "nl": "Ik durf ze nauwelijks aan te raken, ze prikken.",
-                "pt": "Mal ouso tocá-las, elas picam.",
-                "en_pt": "I barely dare touch them, they sting."
-            },
-            "ipa": {
-                "fr": "ʒˈoz a pˈɛn le- tuʃˈe ɛl pˈik",
-                "de": "[ɪç vˈɑːɡə ɛs kˈaʊm\n ziː tsuː bərˈyːrən\n ziː ʃtˈɛçən]",
-                "it": "[ˈoːzo ˌa mˌalapˈeːna tokːˈaːrle\n pˈuŋɡono]",
-                "es": "[aˈpenas me aˈtɾeβo a toˈkaɾlas ˈpikan]",
-                "nl": "[ɪk dˈɵrf zə nˈʌʊələks aːn tə rˈaːkən\n zə prˈɪkən]",
-                "pt": "[mˈaʊ ˈowzʊ tokˈalæs\n ˌɛlæs pˈikɐ̃ʊ̃]",
-                "en": "[aɪ hˈɑːdli dˈeə tə tˈʌtʃ ðˌɛm ðeɪ stˈɪŋ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
             "id": "scene-11-021",
-            "text": {
-                "fr": "Mais il le faut si je veux survivre",
-                "en": "But it's necessary if I want to survive",
-                "de": "Aber ich muss es tun, wenn ich überleben will",
-                "it": "Ma devo farlo se voglio sopravvivere",
-                "es": "Pero tengo que hacerlo si quiero sobrevivir",
-                "nl": "Maar het moet, als ik wil overleven",
-                "pt": "Mas preciso se quero sobreviver.",
-                "en_pt": "But I must if I want to survive."
-            },
-            "ipa": {
-                "fr": "mɛz il lə- fo sˈi ʒə- vˈø syʁvˈivʁ",
-                "de": "[ˌɑːbɜ ɪç mˈʊs ɛs tˈuːn\n vˌɛn ɪç ˌyːbɜlˈeːbən vɪl]",
-                "it": "[mˌa dˈɛːvo fˈaːrlo sˌe vˈoːʎo sˌɔpravvˈivere]",
-                "es": "[ˈpeɾo ˈteŋɣo ke aˈθeɾlo si ˈkjeɾo soβɾeβiˈβiɾ]",
-                "nl": "[maːr hət mˈut\n ɑls ɪk ʋɪl ˌoːvərlˈeːvən]",
-                "pt": "[mas prˌesˈizʊ sy kˈɛɾʊ sobɾevivˈer]",
-                "en": "[bˌʌt ɪts nˈɛsəsəɹi ɪf aɪ wˈɒnt tə səvˈaɪv]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-022",
-            "text": {
-                "fr": "Toute vérité exige qu'on accepte d'abord sa capacité à blesser.",
-                "en": "Every truth requires that you first accept its capacity to hurt.",
-                "de": "Jede Wahrheit erfordert, dass man zuerst ihre Fähigkeit zu verletzen akzeptiert.",
-                "it": "Ogni verità richiede che si accetti prima la sua capacità di ferire.",
-                "es": "Toda verdad requiere que primero aceptemos su capacidad de hacer daño.",
-                "nl": "Elke waarheid vereist dat je eerst haar vermogen om te kwetsen accepteert.",
-                "pt": "Toda verdade exige que aceitemos primeiro sua capacidade de ferir.",
-                "en_pt": "Every truth demands that we first accept its capacity to wound."
-            },
-            "ipa": {
-                "fr": "tut veʁitˈe ɛɡzˈiʒ kɔ̃n aksˈɛpt dabˈɔʁ sa- kapasitˈe a blɛsˈe",
-                "de": "[jˈeːdə vˈɑːɾhaɪt ɛɾfˈɔɾdɜt\n das man tsuːˈeːɾst ˌiːrə fˈɛːɪçkˌaɪt tsuː fɛɾlˈɛtsən ˌaktsɛptˈiːɾt]",
-                "it": "[ˈoɲʲɪ vˌɛritˈa rikjˈeːde kˌe sˌɪ atʃːˈetːɪ prˈiːma lˌa sˌʊa kˌapatʃitˈa dˌɪ ferˈiːre]",
-                "es": "[ˈtoða βeɾˈðað reˈkjeɾe ke pɾiˈmeɾo aθepˈtemos su kapaθiˈðað de aˈθeɾ ˈdaɲo]",
-                "nl": "[ˈɛlkə ʋˈaːrhɛɪt vərˈɛɪst dɑt jə ˈɪːrst haːr vərmˌoːɣən ɔm tə kʋˈɛtsən ˌɑksɛptˈɪrt]",
-                "pt": "[tˈodæ vˌeɾədˈadʒj ˌezˈiʒy ky ˌaseɪtˈemʊs prˌimˈeɪɾʊ sˌuæ kˌapasidˈadʒy dʒy feɾˈir]",
-                "en": "[ˈɛvɹɪ tɹˈuːθ ɹɪkwˈaɪəz ðat juː fˈɜːst ɐksˈɛpt ɪts kəpˈasɪti tə hˈɜːt]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-023",
-            "text": {
-                "fr": "Où puis-je trouver de l'eau potable?",
-                "en": "Where can I find drinking water?",
-                "de": "Wo kann ich Trinkwasser finden?",
-                "it": "Dove posso trovare dell'acqua potabile?",
-                "es": "¿Dónde puedo encontrar agua potable?",
-                "nl": "Waar kan ik drinkwater vinden?",
-                "pt": "Onde posso encontrar água potável?"
-            },
-            "ipa": {
-                "fr": "u pyˈiʒ tʁuvˈe də- lˈo pɔtˈabl",
-                "de": "[vˌoː kˌan ɪç tɾˈɪŋkvasɜ fˈɪndən]",
-                "it": "[dˈoːve pˈɔsso trovˈaːre dellˈakːwa potˈabile]",
-                "es": "[ˈðonde ˈpwedo enkonˈtɾaɾ ˈaɣwa poˈtaβle]",
-                "nl": "[ʋˈaːr kɑn ɪk drˈɪŋkʋaːtər vˈɪndən]",
-                "pt": "[ˌoŋdʒy pˌɔsʊ ˌeɪŋkoŋtrˈaɾ ˈaɡwæ pˌotˈaveʊ]",
-                "en": "[wˌeə kan aɪ fˈaɪnd dɹˈɪŋkɪŋ wˈɔːtə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-024",
-            "text": {
-                "fr": "J'entends un bruit... comme de l'eau qui coule!",
-                "en": "I hear a sound... like flowing water!",
-                "de": "Ich höre ein Geräusch... wie Wasser, das fließt!",
-                "it": "Sento un rumore... come di acqua che scorre!",
-                "es": "¡Escucho un ruido... como de agua que fluye!",
-                "nl": "Ik hoor een geluid... als van stromend water!",
-                "pt": "Ouço um barulho...",
-                "en_pt": "I hear a sound..."
-            },
-            "ipa": {
-                "fr": "ʒɑ̃tˈɑ̃z œ̃ bʁyˈi kɔm də- lˈo ki kˈul",
-                "de": "[ɪç hˈøːrə aɪn ɡərˈɔøʃ\n viː vˈasɜ\n das flˈiːst]",
-                "it": "[sˈɛnto ˌʊn rʊmˈoːre\n kˌome dˌɪ ˈakːwa kˌe skˈɔrɾe]",
-                "es": "[esˈkuʧo un ˈrwiðo ˈkomo de ˈaɣwa ke ˈflwe]",
-                "nl": "[ɪk hˈoːr ən ɣəlˈœyt\n ɑls vɑn strˈoːmənt ʋˈaːtər]",
-                "pt": "[ˈowsw ũŋ bˌaɾˈuljʊ]",
-                "en": "[aɪ hˈiəɹ ɐ sˈaʊnd lˈaɪk flˈəʊɪŋ wˈɔːtə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-025",
-            "text": {
-                "fr": "Une source! Une eau claire, douce, qui jaillit des rochers!",
-                "en": "A spring! Clear, soft water that springs from the rocks!",
-                "de": "Eine Quelle! Klares, süßes Wasser, das aus den Felsen sprudelt!",
-                "it": "Una sorgente! Un'acqua chiara, dolce, che sgorga dalle rocce!",
-                "es": "¡Un manantial! Agua clara, dulce, que brota de las rocas!",
-                "nl": "Een bron! Helder, zacht water dat uit de rotsen springt!",
-                "pt": "Água clara, doce, que brota das pedras!",
-                "en_pt": "Clear, fresh water, gushing from the rocks!"
-            },
-            "ipa": {
-                "fr": "yn sˈuʁs yn ˈo klˈɛʁ dˈus ki ʒajˈi de- ʁɔʃˈe",
-                "de": "[ˌaɪnə kvˈɛlə\n klˈɑːrəs\n zˈyːsəs vˈasɜ\n das ˌaʊs deːn fˈɛlzən ʃprˈuːdəlt]",
-                "it": "[ˌʊna sordʒˈɛnte\n ʊnˈakːwa kjˈaːra\n dˈoltʃe\n kˌe zɡˈɔːrɡa dˌalle rˈɔtʃːe]",
-                "es": "[un manaŋˈtʝal ˈaɣwa ˈklaɾa ˈdulθe ke ˈbɾota ðe las ˈrokas]",
-                "nl": "[ən brˈɔn\n hˈɛldər\n zˈɑxt ʋˈaːtər dɑt œy tə rˈɔtsən sprˈɪŋt]",
-                "pt": "[ˈaɡwæ klˈaɾæ\n dˈosy\n ky brˈɔtæ das pˈɛdræs]",
-                "en": "[ɐ spɹˈɪŋ klˈiə sˈɒft wˈɔːtə ðat spɹˈɪŋz fɹʌmðə ɹˈɒks]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-026",
-            "text": {
-                "fr": "Avec le feu, l'eau de la source, et les orties, je fais une soupe.",
-                "en": "With the fire, the spring water, and the nettles, I make a soup.",
-                "de": "Mit dem Feuer, dem Wasser aus der Quelle und den Brennnesseln mache ich eine Suppe.",
-                "it": "Con il fuoco, l'acqua della sorgente e le ortiche, faccio una zuppa.",
-                "es": "Con el fuego, el agua del manantial y las ortigas, hago una sopa.",
-                "nl": "Met het vuur, het water van de bron, en de brandnetels, maak ik een soep.",
-                "pt": "Com o fogo, a água da nascente e as urtigas, faço uma sopa.",
-                "en_pt": "With the fire, the spring water and the nettles, I make a soup."
-            },
-            "ipa": {
-                "fr": "avˌɛk lə- fˈø lˈo də- la- sˈuʁs e le-z ɔʁtˈi ʒə- fˈɛz yn sˈup",
-                "de": "[mɪt deːm fˈɔøɜ\n deːm vˈasɜ ˌaʊs dɛɾ kvˈɛlə ʊnt deːn brˈɛnɛsəln mˈaxə ɪç ˌaɪnə zˈʊpə]",
-                "it": "[kˌon ˌil fʊˈɔːko\n lˈakːwa dˌɛlla sordʒˈɛnte ˌe lˌe ˈɔrtike\n fˌatʃːo ˌʊna dzˈupːa]",
-                "es": "[kon el ˈfweɣo el ˈaɣwa ðel manaŋˈtʝal i las oɾˈtiɣas ˈaɣo ˈuna ˈsopa]",
-                "nl": "[mɛt hət vˈyr\n hət ʋˈaːtər vɑn də brˈɔn\n ɛn də brˈɑndnətˌɛls\n mˈaːk ɪk ən sˈup]",
-                "pt": "[koŋ ʊ fˈoɡʊ\n a ˈaɡwæ da nˌasˈeɪŋtʃj i az ˌuɾətʃˈiɡæs\n fˌasʊ ˌumæ sˈopæ]",
-                "en": "[wɪððə fˈaɪə ðə spɹˈɪŋ wˈɔːtə and ðə nˈɛtəlz aɪ mˌeɪk ɐ sˈuːp]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-027",
-            "text": {
-                "fr": "La nature me donne exactement ce dont j'ai besoin",
-                "en": "Nature gives me exactly what I need",
-                "de": "Die Natur gibt mir genau das, was ich brauche",
-                "it": "La natura mi dà esattamente quello di cui ho bisogno",
-                "es": "La naturaleza me ofrece exactamente lo que necesito",
-                "nl": "De natuur geeft me precies wat ik nodig heb",
-                "pt": "A natureza me dá exatamente o que preciso.",
-                "en_pt": "Nature gives me exactly what I need."
-            },
-            "ipa": {
-                "fr": "la- natˈyʁ mə- dˈɔn ɛɡzaktəmˈɑ̃ sə- dɔ̃ ʒe bəzwˈɛ̃",
-                "de": "[diː nˈɑtuːɾ ɡˈiːpt miːɾ ɡənˈaʊ das\n vˈas ɪç brˈaʊxə]",
-                "it": "[lˌa natˈuːra mˌɪ dˈa ˌezatːamˈente kwˈɛllo dˌɪ kˈuj ˌo bizˈoɲʲo]",
-                "es": "[la natuˈɾaleθa me oˈfɾeθe eksakˈtamente lo ke neseˈsito]",
-                "nl": "[də naːtˈyr ɣˈeːft mə preːsˈis ʋɑt ɪk nˈoːdəx hɛp]",
-                "pt": "[a nˌatuɾˈezæ my dˈa ˌezatæmˈeɪŋtʃj ʊ ky prˌesˈizʊ]",
-                "en": "[nˈeɪtʃə ɡˈɪvz mˌiː ɛɡzˈaktli wɒt aɪ nˈiːd]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-028",
-            "text": {
-                "fr": "Ou bien..",
-                "en": "Or...",
-                "de": "Oder...",
-                "it": "O forse...",
-                "es": "O quizás...",
-                "nl": "Of..."
-            },
-            "ipa": {
-                "fr": "u bjˈɛ̃",
-                "de": "[ˈoːdɜ]",
-                "it": "[ˌo fˈoːrse]",
-                "es": "[o kiˈθas]",
-                "nl": "[ˈɔf]",
-                "en": "[ˈɔː]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-029",
-            "text": {
-                "fr": "est-ce moi qui interprète ses dons?",
-                "en": "is it me who interprets her gifts?",
-                "de": "bin ich es, die ihre Gaben interpretiert?",
-                "it": "sono io che interpreto i suoi doni?",
-                "es": "¿será que yo interpreto sus regalos?",
-                "nl": "is het dat ik haar geschenken interpreteer?",
-                "pt": "sou eu quem interpreta seus dons?",
-                "en_pt": "am I the one interpreting its gifts?"
-            },
-            "ipa": {
-                "fr": "ɛs mwˌa ki ɛ̃tɛʁpʁˈɛt se- dˈɔ̃",
-                "de": "[bɪn ɪç ˈɛs\n diː ˌiːrə ɡˈɑːbən ˌɪntɜpreːtˈiːɾt]",
-                "it": "[sˌono ˌio kˌe intˈɛrpreto ˌɪ sʊˌɔɪ dˈoːnɪ]",
-                "es": "[ˈseɾa ke ʝo inteɾˈpɾeto sus reˈɣalos]",
-                "nl": "[ɪs hət dɑt ɪk haːr ɣəsxˈɛŋkən ˌɪntərprətˈɪr]",
-                "pt": "[sow eʊ kˈeɪŋ ˌiŋteɾəprˈɛtæ seʊz dˈoŋs]",
-                "en": "[ɪz ɪt mˌiː hˌuː ɪntˈɜːpɹɪts hɜː ɡˈɪfts]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-030",
-            "text": {
-                "fr": "La montagne m'offre ces éléments, mais c'est moi qui les transforme en survie.",
-                "en": "Nature offers these elements, but it's me who transforms them into survival.",
-                "de": "Die Berge bieten mir diese Elemente, aber ich bin es, die sie in Überleben verwandelt.",
-                "it": "La montagna mi offre questi elementi, ma sono io che li trasformo in sopravvivenza.",
-                "es": "La montaña me ofrece estos elementos, pero soy yo quien los transforma en supervivencia.",
-                "nl": "De natuur biedt deze elementen, maar ik transformeer ze tot overleving.",
-                "pt": "A montanha me oferece esses elementos, mas sou eu quem os transforma em sobrevivência.",
-                "en_pt": "The mountain offers me these elements, but I'm the one who transforms them into survival."
-            },
-            "ipa": {
-                "fr": "la- mɔ̃tˈaɲ mˈɔfʁ sez elemˈɑ̃ mɛ sɛ mwˌa ki le- tʁɑ̃sfˈɔʁm ɑ̃ syʁvˈi",
-                "de": "[diː bˈɛɾɡə bˈiːtən miːɾ dˌiːzə ˌeːleːmˈɛntə\n ˈɑːbɜ ɪç bɪn ɛs\n diː ziː ɪn ˌyːbɜlˈeːbən fɛɾvˈandəlt]",
-                "it": "[lˌa montˈaɲɲa mˌɪ ˈoffre kwˌɛstɪ ˌɛlemˈentɪ\n mˌa sˌono ˌio kˌe lˌɪ trasfˈoːrmo ˌin sˌɔpravvivˈɛntsa]",
-                "es": "[la monˈtaɲa me oˈfɾeθe ˈestos eleˈmentos ˈpeɾo ˈsoʝ ʝo kjen los tɾansˈfoɾma en supeɾbiˈβenθja]",
-                "nl": "[də naːtˈyr bˈi tˌeːzə ˌeːləmˈɛntən\n maːr ɪk trˌɑnsfɔrmˈɪr zə tɔt ˌoːvərlˈeːvɪŋ]",
-                "pt": "[a mˌoŋtˈɐ̃ɲæ mj ˌofeɾˈɛsj ˌesiz ˌelemˈeɪŋtʊs\n mas sow eʊ kˈeɪŋ ʊs trˌɐ̃ŋsfˈɔɾəmæ ˈeɪŋ sobɾevˌivˈeɪŋsjæ]",
-                "en": "[nˈeɪtʃəɹ ˈɒfəz ðiːz ˈɛlɪmənts bˌʌt ɪts mˌiː hˌuː tɹansfˈɔːmz ðˌɛm ˌɪntʊ səvˈaɪvəl]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-031",
-            "text": {
-                "fr": "Cette épreuve m'apprend que je suis plus forte que je ne pensais.",
-                "en": "This challenge teaches me that I am stronger than I thought.",
-                "de": "Diese Prüfung lehrt mich, dass ich stärker bin, als ich dachte.",
-                "it": "Questa prova mi insegna che sono più forte di quanto pensassi.",
-                "es": "Esta prueba me enseña que soy más fuerte de lo que pensaba.",
-                "nl": "Deze uitdaging leert me dat ik sterker ben dan ik dacht.",
-                "pt": "Esta prova me ensina que sou mais forte do que pensava.",
-                "en_pt": "This trial teaches me that I'm stronger than I thought."
-            },
-            "ipa": {
-                "fr": "sɛt epʁˈøv mapʁˈɑ̃ kə ʒə- syˌi ply fˈɔʁt kə ʒə- nə- pɑ̃sˈɛ",
-                "de": "[dˌiːzə prˈyːfʊŋ lˈeːɾt mɪç\n das ɪç ʃtˈɛɾkɜ bɪn\n als ɪç dˈaxtə]",
-                "it": "[kwˌɛsta prˈɔːva mˌɪ insˈeɲʲa kˌe sˌono pjˌʊ fˈɔːrte dˌɪ kwˈanto pensˈassɪ]",
-                "es": "[ˈesta ˈpɾweβa me enˈseɲa ke ˈsoʝ ˈmas ˈfweɾte ðe lo ke penˈsaβa]",
-                "nl": "[dˌeːzə ˈœytdˌaːɣɪŋ lˈɪːrt mə dɑt ɪk stˈɛrkər bɛn dˈɑn ɪk dˈɑxt]",
-                "pt": "[ˌɛstæ prˈɔvæ mj ˌeɪŋsˈinæ ky sow mˈaɪs fˈɔɾətʃy dʊ ky pˌeɪŋsˈavæ]",
-                "en": "[ðɪs tʃˈalɪndʒ tˈiːtʃɪz mˌiː ðat aɪɐm stɹˈɒŋɡə ðɐn aɪ θˈɔːt]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-032",
-            "text": {
-                "fr": "Qui suis-je vraiment? Peut-être que je ne le saurai jamais complètement",
-                "en": "Who am I really? Maybe I'll never fully know.",
-                "de": "Wer bin ich wirklich? Vielleicht werde ich es nie ganz wissen.",
-                "it": "Chi sono veramente? Forse non lo saprò mai completamente.",
-                "es": "¿Quién soy realmente? Quizás nunca lo sepa completamente",
-                "nl": "Wie ben ik echt? Misschien zal ik het nooit helemaal weten.",
-                "pt": "Talvez eu nunca saiba completamente.",
-                "en_pt": "Maybe I'll never know completely."
-            },
-            "ipa": {
-                "fr": "ki syˌiʒ vʁɛmˈɑ̃ pˈøtˈɛtʁ kə ʒə- nə- lə- soʁˈe ʒamˌɛ kɔ̃plɛtmˈɑ̃",
-                "de": "[vˈeːɾ bɪn ɪç vˈɪɾklɪç\n fiːllˈaɪçt vˌɛɾdə ɪç ɛs nˈiː ɡˌants vˈɪsən]",
-                "it": "[kˈi sˌono vˌɛramˈente\n fˈoːrse nˌon lˌo saprˈɔ mˌaɪ kˌompletamˈente]",
-                "es": "[ˈkjen ˈsoʝ reˈalmente kiˈθas ˈnunka lo ˈsepa kompleˈtamente]",
-                "nl": "[ʋˈi bɛn ɪk ˈɛxt\n mɪsxˈin zɑl ɪk hət nˈoːjt hˌeːləmˈaːl ʋˈeːtən]",
-                "pt": "[taʊvˈez eʊ nˌũŋkæ sˈaɪbæ kˌompletæmˈeɪŋtʃy]",
-                "en": "[hˌuː am aɪ ɹˈiəlɪ mˈeɪbiː aɪl nˈɛvə fˈʊli nˈəʊ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-033",
-            "text": {
-                "fr": "Peut-être que c'est normal.",
-                "en": "Maybe that's normal.",
-                "de": "Vielleicht ist das normal.",
-                "it": "Forse è normale.",
-                "es": "Quizás eso es normal.",
-                "nl": "Misschien is dat normaal.",
-                "pt": "Talvez seja normal."
-            },
-            "ipa": {
-                "fr": "pˈøtˈɛtʁ kə sɛ nɔʁmˈal",
-                "de": "[fiːllˈaɪçt ɪst das nˈɔɾmɑːl]",
-                "it": "[fˈoːrse ˌɛ normˈaːle]",
-                "es": "[kiˈθas ˈeso es noɾˈmal]",
-                "nl": "[mɪsxˈin ɪs dɑt nɔrmˈaːl]",
-                "pt": "[taʊvˈes sˈeʒæ noɾəmˈaʊ]",
-                "en": "[mˈeɪbiː ðats nˈɔːməl]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-034",
-            "text": {
-                "fr": "Sophie entre dans la cabane.",
-                "en": "Sophie enters the cabin.",
-                "de": "Sophie betritt die Hütte.",
-                "it": "Sophie entra nella capanna.",
-                "es": "Sophie entra en el piso.",
-                "nl": "Sophie gaat de hut binnen.",
-                "pt": "Sophie entra na cabana."
-            },
-            "ipa": {
-                "fr": "sɔfˈi ɑ̃tʁ dɑ̃ la- kabˈan",
-                "de": "[zoːfˈiː bətɾˈɪt diː hˈʏtə]",
-                "it": "[sˈopje ˈentra nˌɛlla kapˈanna]",
-                "es": "[ˈsofi ˈentɾa en el ˈpiso]",
-                "nl": "[sɔphˈi ɣˈaː tə hˈɵt bˈɪnən]",
-                "pt": "[sˌofˈij ˈeɪŋtræ na kˌabˈɐ̃næ]",
-                "en": "[sˈəʊfi ˈɛntəz ðə kˈabɪn]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-035",
-            "text": {
-                "fr": "C'est une vieille structure de berger, simple mais solide.",
-                "en": "It's an old shepherd's hut, simple but sturdy.",
-                "de": "Es ist eine alte Schäferhütte, einfach aber stabil.",
-                "it": "È una vecchia struttura da pastore, semplice ma solida.",
-                "es": "Es una vieja estructura de pastor, simple pero sólida.",
-                "nl": "Het is een oude herdershut, eenvoudig maar stevig.",
-                "pt": "É uma velha estrutura de pastor, simples mas sólida.",
-                "en_pt": "It's an old shepherd's structure, simple but solid."
-            },
-            "ipa": {
-                "fr": "sɛt yn vjˈɛj stʁyktˈyʁ də- bɛʁʒˈe sˈɛ̃pl mɛ sɔlˈid",
-                "de": "[ɛsɪst ˌaɪnə ˈaltə ʃˈɛːfɜhˌʏtə\n ˈaɪnfˌax ˌɑːbɜ ʃtabˈiːl]",
-                "it": "[ˌɛ ˌʊna vˈɛkːia strʊtːˈuːra dˌa pastˈoːre\n sˈemplitʃe mˌa sˈɔlida]",
-                "es": "[es ˈuna ˈβjexa estɾukˈtuɾa ðe pasˈtoɾ ˈsimple peɾo ˈsolida]",
-                "nl": "[hət ɪs ən ˈʌʊdə hˈɛrdərshˌɵt\n eːnvˈʌʊdəx maːr stˈeːvəx]",
-                "pt": "[ɛ ˌumæ vˈɛljæ ˌestrutˈuɾæ dʒy pastˈor\n sˈimplyz mas sˈɔlidæ]",
-                "en": "[ɪts ɐn ˈəʊld ʃˈɛpədz hˈʌt sˈɪmpəl bˌʌt stˈɜːdi]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-036",
-            "text": {
-                "fr": "Elle cherche dans ses poches.",
-                "en": "She searches in her pockets.",
-                "de": "Sie sucht in ihren Taschen.",
-                "it": "Cerca nelle sue tasche.",
-                "es": "Busca en sus bolsillos.",
-                "nl": "Ze zoekt in haar zakken.",
-                "pt": "Ela procura nos bolsos."
-            },
-            "ipa": {
-                "fr": "ɛl ʃˈɛʁʃ dɑ̃ se- pˈɔʃ",
-                "de": "[ziː zˈuːxt ɪn ˌiːrən tˈaʃən]",
-                "it": "[tʃˈeːrka nˌɛlle sˌʊe tˈaske]",
-                "es": "[ˈbuska en sus bolˈsiʎos]",
-                "nl": "[zə zˈukt ɪn haːr zˈɑkən]",
-                "pt": "[ˌɛlæ prˌokˈuɾæ nʊz bˈowsʊs]",
-                "en": "[ʃiː sˈɜːtʃɪz ɪn hɜː pˈɒkɪts]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-037",
-            "text": {
-                "fr": "Elle trouve du bois à l'intérieur de la cabane, mais il est humide.",
-                "en": "She finds wood inside the cabin, but it is damp.",
-                "de": "Sie findet Holz in der Hütte, aber es ist feucht.",
-                "it": "Trova della legna all'interno della capanna, ma è umida.",
-                "es": "Encuentra madera dentro del piso, pero está húmeda.",
-                "nl": "Ze vindt hout binnen in de hut, maar het is vochtig.",
-                "pt": "Ela encontra lenha dentro da cabana, mas está úmida.",
-                "en_pt": "She finds firewood inside the cabin, but it's damp."
-            },
-            "ipa": {
-                "fr": "ɛl tʁˈuv dy- bwˈaz a lɛ̃teʁjˈœʁ də- la- kabˈan mɛz il ɛt ymˈid",
-                "de": "[ziː fˈɪndət hˈɔlts ɪn dɛɾ hˈʏtə\n ˌɑːbɜ ɛsɪst fˈɔøçt]",
-                "it": "[trˈɔːva dˌɛlla lˈeɲʲa allintˈɛːrno dˌɛlla kapˈanna\n mˌa ˌɛ ˈumida]",
-                "es": "[enˈkwentɾa maˈðeɾa ˈðentɾo ðel ˈpiso ˈpeɾo ˈesta ˈumeda]",
-                "nl": "[zə vˈɪnt hˈʌʊt bˈɪnən ɪn də hˈɵt\n maːr hət ɪs vˈɔxtəx]",
-                "pt": "[ˌɛlæ ˌeɪŋkˈoŋtræ lˈeɲæ dˈeɪŋtrʊ da kˌabˈɐ̃næ\n maz estˌa ˈũmidæ]",
-                "en": "[ʃiː fˈaɪndz wˈʊd ɪnsˈaɪd ðə kˈabɪn bˌʌt ɪt ɪz dˈamp]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-038",
-            "text": {
-                "fr": "Elle arrange le bois, met du papier, prend une allumette.",
-                "en": "She arranges the wood, adds some paper, takes a match.",
-                "de": "Sie arrangiert das Holz, legt Papier dazu und nimmt ein Streichholz.",
-                "it": "Sistema la legna, mette della carta, prende un fiammifero.",
-                "es": "Arregla la madera, pone papel, saca una cerilla.",
-                "nl": "Ze schikt het hout, legt er papier bij, pakt een lucifer.",
-                "pt": "Ela arruma a lenha, coloca papel, pega um fósforo.",
-                "en_pt": "She arranges the wood, places paper, takes a match."
-            },
-            "ipa": {
-                "fr": "ɛl aʁˈɑ̃ʒ lə- bwˈa mˈɛ dy- papjˈe pʁˈɑ̃t yn alymˈɛt",
-                "de": "[ziː ˌaraŋʒˈiːət das hˈɔlts\n lˈeːkt papˈiːɾ dɑːtsˈuː ʊnt nˈɪmt aɪn ʃtɾˈaɪçhɔlts]",
-                "it": "[sistˈɛːma lˌa lˈeɲʲa\n mˈetːe dˌɛlla kˈaːrta\n prˈɛnde ˌʊn fjammˈifero]",
-                "es": "[aˈrɾeɣla la maˈðeɾa ˈpone paˈpel ˈsaka ˈuna θeˈɾiʎa]",
-                "nl": "[zə sxˈɪkt hət hˈʌʊt\n lˈɛxt ər paːpˈir bˈɛɪ\n pˈɑkt ən lˈysifər]",
-                "pt": "[ˌɛlæ ˌaxˈumæ a lˈeɲæ\n kˌolˈɔkæ papˈɛʊ\n pˈɛɡæ ũŋ fˈɔsfoɾʊ]",
-                "en": "[ʃiː ɐɹˈeɪndʒɪz ðə wˈʊd ˈadz sˌʌm pˈeɪpə tˈeɪks ɐ mˈatʃ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-039",
-            "text": {
-                "fr": "Dans son esprit, elle revoit sa grand-mère montrant à la petite Sophie comment allumer un feu dans la cheminée de leur maison de campagne.",
-                "en": "In her mind, she revisits her grandmother showing young Sophie how to light a fire in the fireplace of their country house.",
-                "de": "In ihren Gedanken sieht sie ihre Großmutter, die der kleinen Sophie zeigt, wie man im Kamin ihres Landhauses ein Feuer anzündet.",
-                "it": "Nella sua mente, rivede sua nonna insegnare alla piccola Sophie come accendere un fuoco nel camino della loro casa di campagna.",
-                "es": "En su mente, recuerda a su abuela enseñando a la pequeña Sophie cómo encender un fuego en la chimenea de su casa de campo.",
-                "nl": "In haar gedachten ziet ze haar grootmoeder weer voor hoe ze de kleine Sophie leerde een vuur aan te maken in de open haard van hun landhuis.",
-                "pt": "Em sua mente, ela revê sua avó mostrando à pequena Sophie como acender fogo na lareira da casa de campo.",
-                "en_pt": "In her mind, she sees her grandmother showing little Sophie how to light a fire in the country house fireplace."
-            },
-            "ipa": {
-                "fr": "dɑ̃ sɔ̃n ɛspʁˈi ɛl ʁəvwˈa sa- ɡʁˈɑ̃mˈɛʁ mɔ̃tʁˈɑ̃ a la- pətˈit sɔfˈi kɔmˌɑ̃ alymˈe œ̃ fˈø dɑ̃ la- ʃəminˈe də- lœʁ mɛzˈɔ̃ də- kɑ̃pˈaɲ",
-                "de": "[ɪn ˌiːrən ɡədˈaŋkən zˈiːt ziː ˌiːrə ɡrˈɔsmʊtɜ\n diː dɛɾ klˈaɪnən zoːfˈiː tsˈaɪkt\n viː man ɪm kamˈiːn ˌiːrəs lˈanthˌaʊzəs aɪn fˈɔøɜ ˈantsˌʏndət]",
-                "it": "[nˌɛlla sˌʊa mˈente\n rivˈeːde sˌʊa nˈɔnna ˌinseɲˈaːre ˌalla pˈikːola sˈopje kˌome atʃːˈendere ˌʊn fʊˈɔːko nˌɛl kamˈiːno dˌɛlla lˌɔro kˈaːza dˌɪ kampˈaɲɲa]",
-                "es": "[en su ˈmente reˈkwɛɾða a su aˈβwela enseˈɲando a la peˈkeɲa ˈsofi ˈkomo enθenˈdeɾ un ˈfweɣo en la ʧimeˈnea ðe su ˈkasa ðe ˈkampo]",
-                "nl": "[ɪn haːr ɣədˈɑxtən zˈit zə haːr ɣrˈoːtmudər ʋˈɪːr vɔːr hˈu zə də klˈɛɪnə sɔphˈi lˈɪːrdə ən vˈyr aːn tə mˈaːkən ɪn də ˈoːpən hˈaːrt vɑn hɵn lˈɑndhˌœys]",
-                "pt": "[ˈeɪŋ sˌuæ mˈeɪŋtʃy\n ˌɛlæ xevˈe sˌuæ avˈɔ mˌostrˈɐ̃ŋdw ˌaː pˌekˈenæ sˌofˈiy kˌomʊ ˌaseɪŋdˈer fˈoɡʊ na lˌaɾˈeɪɾæ da kˈazæ dʒy kˈɐ̃mpʊ]",
-                "en": "[ɪn hɜː mˈaɪnd ʃiː ɹɪvˈɪzɪts hɜː ɡɹˈandmʌðə ʃˈəʊɪŋ jˈʌŋ sˈəʊfi hˌaʊ tə lˈaɪt ɐ fˈaɪəɹ ɪnðə fˈaɪəpleɪs ɒv ðeə kˈʌntɹi hˈaʊs]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-040",
             "text": {
                 "fr": "À la quatrième tentative, une petite flamme apparaît.",
                 "en": "On the fourth attempt, a small flame appears.",
@@ -1248,7 +579,53 @@
             }
         },
         {
-            "id": "scene-11-041",
+            "id": "scene-11-022",
+            "text": {
+                "pt": "Finalmente!",
+                "en": "Finally!"
+            },
+            "ipa": {
+                "pt": "[fˌinaʊmˈeɪŋtʃy]",
+                "en": "[fˈaɪnəli]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-023",
+            "text": {
+                "fr": "Enfin! Une petite flamme qui grandit!",
+                "en": "Finally! A small flame growing!",
+                "de": "Endlich! Eine kleine Flamme, die wächst!",
+                "it": "Finalmente! Una piccola fiamma che cresce!",
+                "es": "¡Por fin! Una pequeña llama que crece!",
+                "nl": "Eindelijk! Een klein vlammetje dat groeit!",
+                "pt": "Uma pequena chama que cresce!",
+                "en_pt": "A small flame that's growing!"
+            },
+            "ipa": {
+                "fr": "ɑ̃fˈɛ̃ yn pətˈit flˈam ki ɡʁɑ̃dˈi",
+                "de": "[ˈɛntlɪç\n ˌaɪnə klˈaɪnə flˈamə\n diː vˈɛkst]",
+                "it": "[fˌinalmˈente\n ˌʊna pˈikːola fjˈamma kˌe krˈeːʃe]",
+                "es": "[poɾ ˈfin una peˈkeɲa ˈʎama ke ˈkɾeθe]",
+                "nl": "[ˈɛɪndələk\n ən klˈɛɪn vlˈɑmɛtʲə dɑt ɣrˈujt]",
+                "pt": "[ˌumæ pˌekˈenæ ʃˈɐ̃mæ ky krˈɛsy]",
+                "en": "[fˈaɪnəli ɐ smˈɔːl flˈeɪm ɡɹˈəʊɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-024",
             "text": {
                 "fr": "Elle souffle doucement et la flamme grandit.",
                 "en": "She blows gently and the flame grows.",
@@ -1278,7 +655,7 @@
             }
         },
         {
-            "id": "scene-11-042",
+            "id": "scene-11-025",
             "text": {
                 "fr": "Bientôt, un vrai feu brûle dans la cheminée.",
                 "en": "Soon, a real fire burns in the fireplace.",
@@ -1308,15 +685,61 @@
             }
         },
         {
-            "id": "scene-11-043",
+            "id": "scene-11-026",
+            "text": {
+                "pt": "Este fogo...",
+                "en": "This fire..."
+            },
+            "ipa": {
+                "pt": "[ˌestʃy fˈoɡʊ]",
+                "en": "[ðɪs fˈaɪə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-027",
+            "text": {
+                "pt": "fui eu quem criei.",
+                "en": "I created it."
+            },
+            "ipa": {
+                "pt": "[fuɪ eʊ kˈeɪŋ kriˈeɪ]",
+                "en": "[aɪ kɹiːˈeɪtɪd ɪt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-028",
+            "text": {
+                "pt": "Só eu.",
+                "en": "Just me."
+            },
+            "ipa": {
+                "pt": "[sˈɔ ˈeʊ]",
+                "en": "[dʒˈʌst mˌiː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-029",
             "text": {
                 "fr": "La chaleur se répand dans la petite cabane.",
-                "en": "The warmth spreads through the small cabin.",
+                "en": "Warmth spreads through the little cabin.",
                 "de": "Die Wärme breitet sich in der kleinen Hütte aus.",
                 "it": "Il calore si diffonde nella piccola capanna.",
                 "es": "El calor se extiende por la pequeña cabaña.",
                 "nl": "De warmte verspreidt zich door de kleine hut.",
-                "pt": "O calor se espalha pela pequena cabana."
+                "pt": "O calor se espalha pela pequena cabana.",
+                "en_pt": "The warmth spreads through the small cabin."
             },
             "ipa": {
                 "fr": "la- ʃalˈœʁ sə- ʁepˈɑ̃ dɑ̃ la- pətˈit kabˈan",
@@ -1325,7 +748,7 @@
                 "es": "[el kaˈloɾ se eksˈtjen.de poɾ la peˈkeɲa kaˈβa.ɲa]",
                 "nl": "[də ʋˈɑrmtə vərsprˈɛɪt zɪx doːr də klˈɛɪnə hˈɵt]",
                 "pt": "[ʊ kalˈor sj ˌespˈaljæ pˈelæ pˌekˈenæ kˌabˈɐ̃næ]",
-                "en": "[ðə wˈɔːmθ spɹˈɛdz θɹuː ðə smˈɔːl kˈabɪn]"
+                "en": "[wˈɔːmθ spɹˈɛdz θɹuː ðə lˈɪtəl kˈabɪn]"
             },
             "provenance": {
                 "fr": "original",
@@ -1338,16 +761,45 @@
             }
         },
         {
-            "id": "scene-11-044",
+            "id": "scene-11-030",
+            "text": {
+                "fr": "Le feu me donne de la chaleur et du courage.",
+                "en": "The fire gives me warmth and courage.",
+                "de": "Das Feuer gibt mir Wärme und Mut.",
+                "it": "Il fuoco mi dà calore e coraggio.",
+                "es": "El fuego me da calor y valentía.",
+                "nl": "Het vuur geeft me warmte en moed.",
+                "pt": "O fogo me dá calor e coragem."
+            },
+            "ipa": {
+                "fr": "lə- fˈø mə- dˈɔn də- la- ʃalˈœʁ e dy- kuʁˈaʒ",
+                "de": "[das fˈɔøɜ ɡˈiːpt miːɾ vˈɛɾmə ʊnt mˈuːt]",
+                "it": "[ˌil fʊˈɔːko mˌɪ dˈa kalˈoːre ˌe korˈadʒːo]",
+                "es": "[el ˈfweɣo me ða kaˈloɾ i βalenˈti.a]",
+                "nl": "[hət vˈyr ɣˈeːft mə ʋˈɑrmtə ɛn mˈut]",
+                "pt": "[ʊ fˈoɡʊ my dˈa kalˈoɾ i kˌoɾˈaʒeɪŋ]",
+                "en": "[ðə fˈaɪə ɡˈɪvz mˌiː wˈɔːmθ and kˈʌɹɪdʒ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-031",
             "text": {
                 "fr": "Mais après quelques heures, la faim se fait sentir.",
-                "en": "But after a few hours, she starts to feel hungry.",
+                "en": "But after a few hours, hunger makes itself felt.",
                 "de": "Aber nach einigen Stunden stellt sich der Hunger ein.",
                 "it": "Ma dopo qualche ora, inizia a sentire la fame.",
                 "es": "Pero después de unas horas, el hambre empieza a notarse.",
                 "nl": "Maar na een paar uur begint ze honger te krijgen.",
-                "pt": "Mas depois de algumas horas, a fome se faz sentir.",
-                "en_pt": "But after a few hours, hunger makes itself felt."
+                "pt": "Mas depois de algumas horas, a fome se faz sentir."
             },
             "ipa": {
                 "fr": "mɛz apʁˌɛ kˌɛlkəz ˈœʁ la- fˈɛ̃ sə- fˈɛ sɑ̃tˈiʁ",
@@ -1356,7 +808,7 @@
                 "es": "[ˈpe.ɾo desˈpwes ðe ˈu.nas ˈo.ɾas el ˈam.bɾe emˈpje.θa a noˈtar.se]",
                 "nl": "[maːr naː ən pˈaːr ˈyr bəɣˈɪnt zə hˈɔŋər tə krˈɛɪɣən]",
                 "pt": "[maz depˈoɪz dʒj aʊɡˌumæs ˈɔɾæs\n a fˈomy sy fas seɪŋtʃˈir]",
-                "en": "[bˌʌt ˈaftəɹ ɐ fjˈuː ˈaʊəz ʃiː stˈɑːts tə fˈiːl hˈʌŋɡɹi]"
+                "en": "[bˌʌt ˈaftəɹ ɐ fjˈuː ˈaʊəz hˈʌŋɡə mˌeɪks ɪtsˈɛlf fˈɛlt]"
             },
             "provenance": {
                 "fr": "original",
@@ -1369,16 +821,46 @@
             }
         },
         {
-            "id": "scene-11-045",
+            "id": "scene-11-032",
+            "text": {
+                "fr": "Maintenant, j'ai très faim, mais je n'ai rien à manger.",
+                "en": "Now, I'm very hungry, but I have nothing to eat.",
+                "de": "Jetzt habe ich großen Hunger, aber ich habe nichts zu essen.",
+                "it": "Ora ho molto fame, ma non ho nulla da mangiare.",
+                "es": "Ahora tengo mucha hambre, pero no tengo nada que comer.",
+                "nl": "Nu heb ik heel veel honger, maar ik heb niets om te eten.",
+                "pt": "Agora estou com muita fome, mas não tenho nada para comer.",
+                "en_pt": "Now I'm very hungry, but I have nothing to eat."
+            },
+            "ipa": {
+                "fr": "mɛ̃tnˈɑ̃ ʒe tʁɛ fˈɛ̃ mɛ ʒə- ne ʁjˌɛ̃n a mɑ̃ʒˈe",
+                "de": "[jˌɛtst hɑːbə ɪç ɡrˈoːsən hˈʊŋɜ\n ˌɑːbɜ ɪç hɑːbə nˈɪçts tsuː ˈɛsən]",
+                "it": "[ˈɔːra ˌo mˈolto fˈaːme\n mˌa nˌon ˌo nˈulla dˌa mandʒˈaːre]",
+                "es": "[aˈoɾa ˈteŋɣo ˈmutʃa ˈamβɾe peɾo no ˈteŋɣo ˈnaða ke koˈmeɾ]",
+                "nl": "[nˈy hɛp ɪk hˈeːl vˈeːl hˈɔŋər\n maːr ɪk hɛp nˌits ɔm tə ˈeːtən]",
+                "pt": "[ˌaɡˈɔɾæ estˌow koŋ mwˈiŋtæ fˈomy\n maz nˌɐ̃ʊ̃ tˌeɲʊ nˈadæ pˌaɾæ komˈer]",
+                "en": "[nˈaʊ aɪm vˈɛɹɪ hˈʌŋɡɹi bˌʌt aɪ hav nˈʌθɪŋ tʊ ˈiːt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-033",
             "text": {
                 "fr": "Elle sort de la cabane pour explorer les environs.",
-                "en": "She goes out of the cabin to explore the surroundings.",
+                "en": "She leaves the cabin to explore the surroundings.",
                 "de": "Sie verlässt die Hütte, um die Umgebung zu erkunden.",
                 "it": "Esce dalla capanna per esplorare i dintorni.",
                 "es": "Sale de la cabaña para explorar los alrededores.",
                 "nl": "Ze gaat de hut uit om de omgeving te verkennen.",
-                "pt": "Ela sai da cabana para explorar os arredores.",
-                "en_pt": "She leaves the cabin to explore the surroundings."
+                "pt": "Ela sai da cabana para explorar os arredores."
             },
             "ipa": {
                 "fr": "ɛl sˈɔʁ də- la- kabˈan puʁ ɛksplɔʁˈe le-z ɑ̃viʁˈɔ̃",
@@ -1387,7 +869,7 @@
                 "es": "[ˈsa.le ðe la kaˈβa.ɲa ˈpa.ɾa eks.ploˈɾaɾ los al.ɾeˈðo.ɾes]",
                 "nl": "[zə ɣˈaː tə hˈɵt œyt ɔm də ɔmɣˈeːvɪŋ tə vərkˈɛnən]",
                 "pt": "[ˌɛlæ sˈaɪ da kˌabˈɐ̃næ pˌaɾæ ˌesploɾˈaɾ ʊz ˌaxedˈɔɾys]",
-                "en": "[ʃiː ɡəʊz ˌaʊtəv ðə kˈabɪn tʊ ɛksplˈɔː ðə səɹˈaʊndɪŋz]"
+                "en": "[ʃiː lˈiːvz ðə kˈabɪn tʊ ɛksplˈɔː ðə səɹˈaʊndɪŋz]"
             },
             "provenance": {
                 "fr": "original",
@@ -1400,15 +882,16 @@
             }
         },
         {
-            "id": "scene-11-046",
+            "id": "scene-11-034",
             "text": {
                 "fr": "Près de la porte, elle remarque des plantes.",
-                "en": "Near the door, she notices some plants.",
+                "en": "Near the door, she notices plants.",
                 "de": "Nahe der Tür bemerkt sie Pflanzen.",
                 "it": "Vicino alla porta, nota delle piante.",
                 "es": "Cerca de la puerta, observa algunas plantas.",
                 "nl": "Bij de deur merkt ze wat planten op.",
-                "pt": "Perto da porta, ela nota algumas plantas."
+                "pt": "Perto da porta, ela nota algumas plantas.",
+                "en_pt": "Near the door, she notices some plants."
             },
             "ipa": {
                 "fr": "pʁɛ də- la- pˈɔʁt ɛl ʁəmˈaʁk de- plˈɑ̃t",
@@ -1417,7 +900,7 @@
                 "es": "[ˈθeɾ.ka ðe la ˈpwer.ta obˈser.βa alˈɣu.nas ˈplan.tas]",
                 "nl": "[bɛɪ də dˈøːr mˈɛrkt zə ʋɑt plˈɑntən ˈɔp]",
                 "pt": "[pˈɛɾətʊ da pˈɔɾətæ\n ˌɛlæ nˈɔtæ ˌaʊɡˈumæs plˈɐ̃ŋtæs]",
-                "en": "[nˌiə ðə dˈɔː ʃiː nˈəʊtɪsɪz sˌʌm plˈants]"
+                "en": "[nˌiə ðə dˈɔː ʃiː nˈəʊtɪsɪz plˈants]"
             },
             "provenance": {
                 "fr": "original",
@@ -1430,10 +913,56 @@
             }
         },
         {
-            "id": "scene-11-047",
+            "id": "scene-11-035",
+            "text": {
+                "pt": "Espera...",
+                "en": "Wait..."
+            },
+            "ipa": {
+                "pt": "[ˌespˈɛɾæ]",
+                "en": "[wˈeɪt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-036",
+            "text": {
+                "fr": "Attends... ces plantes près de la cabane, je les reconnais!",
+                "en": "Wait... those plants near the cabin, I recognize them!",
+                "de": "Warte... diese Pflanzen neben der Hütte, ich erkenne sie!",
+                "it": "Aspetta... quelle piante vicino alla capanna, le riconosco!",
+                "es": "Espera... estas plantas cerca del piso, ¡las reconozco!",
+                "nl": "Wacht... die planten bij het huisje, ik herken ze!",
+                "pt": "essas plantas perto da cabana, eu reconheço!",
+                "en_pt": "these plants near the cabin, I recognize them!"
+            },
+            "ipa": {
+                "fr": "atˈɑ̃ se plˈɑ̃t pʁɛ də- la- kabˈan ʒə- le- ʁəkɔnˈɛ",
+                "de": "[vˈaɾtə\n dˌiːzə pflˈantsən nˌeːbən dɛɾ hˈʏtə\n ɪç ɛɾkˈɛnə ziː]",
+                "it": "[aspˈɛtːa\n kwˌɛlle pjˈante vitʃˈiːno ˌalla kapˈanna\n lˌe rˌikonˈosko]",
+                "es": "[esˈpeɾa ˈestas ˈplantas ˈθeɾka ðel ˈpiso las rekoˈnoθko]",
+                "nl": "[ʋˈɑxt\n di plˈɑntən bɛɪ hət hˈœysjə\n ɪk hˈɛrkən zə]",
+                "pt": "[ˈɛsæs plˈɐ̃ŋtæs pˈɛɾətʊ da kˌabˈɐ̃næ\n eʊ xˌekoɲˈesʊ]",
+                "en": "[wˈeɪt ðəʊz plˈants nˌiə ðə kˈabɪn aɪ ɹˈɛkəɡnˌaɪz ðˌɛm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-037",
             "text": {
                 "fr": "Des souvenirs de son enfance reviennent.",
-                "en": "Memories of her childhood come back.",
+                "en": "Memories of her childhood return.",
                 "de": "Erinnerungen an ihre Kindheit kommen zurück.",
                 "it": "I ricordi dell'infanzia tornano.",
                 "es": "Recuerdos de su infancia regresan.",
@@ -1448,7 +977,7 @@
                 "es": "[reˈkwer.ðos ðe su inˈfan.θja reˈɣɾe.san]",
                 "nl": "[hɛrˈɪnərˌɪŋən aːn haːr jˈøːxt kˈoːmən tərˈɵx]",
                 "pt": "[lˌeɪmbrˈɐ̃ŋsæz da ˌiŋfˈɐ̃ŋsjæ vˈɔltɐ̃ʊ̃]",
-                "en": "[mˈɛməɹˌiz ɒv hɜː tʃˈaɪldhʊd kˈʌm bˈak]"
+                "en": "[mˈɛməɹˌiz ɒv hɜː tʃˈaɪldhʊd ɹɪtˈɜːn]"
             },
             "provenance": {
                 "fr": "original",
@@ -1461,10 +990,10 @@
             }
         },
         {
-            "id": "scene-11-048",
+            "id": "scene-11-038",
             "text": {
                 "fr": "Elle revoit sa grand-mère dans le jardin de Normandie, ses mains ridées tenant délicatement les tiges vertes.",
-                "en": "She sees her grandmother again in the garden of Normandy, her wrinkled hands delicately holding the green stems.",
+                "en": "She sees her grandmother in the Normandy garden, her wrinkled hands delicately holding the green stems.",
                 "de": "Sie sieht ihre Großmutter im Garten in der Normandie, wie ihre runzligen Hände vorsichtig die grünen Stängel halten.",
                 "it": "Rivede sua nonna nel giardino in Normandia, le sue mani rugose che tengono delicatamente i gambi verdi.",
                 "es": "Ve a su abuela en el jardín de Normandía, sus manos arrugadas sosteniendo delicadamente los tallos verdes.",
@@ -1479,7 +1008,299 @@
                 "es": "[be a su aˈβwe.la en el xarˈðin de noɾ.manˈdi.a sus ˈma.nos aˈru.ɣa.ðas sos.teˈnjen.do ðe.li.kaˈða.men.te los ˈta.ʎos ˈβeɾ.ðes]",
                 "nl": "[zə zˈit haːr ɣrˈoːtmudər ʋˈɪːr ɪn də tˈœyn vɑn nˈɔrmɑndˌiə\n haːr ɣərˈɪmpəldə hˈɑndən hˈʌʊdən vˌɔːrzˈɪxtəx də ɣrˈunə stˈɛŋəls vˈɑst]",
                 "pt": "[ˌɛlæ xevˈe sˌuæ avˈɔ nʊ ʒaɾədʒˈiŋ dʊ ˌiŋteɾiˈor\n sˌuæz mˈɐ̃ʊ̃z ˌeɪŋxuɡˈadæs sˌeɡuɾˈɐ̃ŋdʊ dˌelikˌadæmˈeɪŋtʃj ʊs tˈalʊz vˈeɾədʒys]",
-                "en": "[ʃiː sˈiːz hɜː ɡɹˈandmʌðəɹ ɐɡˈɛn ɪnðə ɡˈɑːdən ɒv nˈɔːmandi hɜː ɹˈɪŋkəld hˈandz dˈɛlɪkətli hˈəʊldɪŋ ðə ɡɹˈiːn stˈɛmz]"
+                "en": "[ʃiː sˈiːz hɜː ɡɹˈandmʌðəɹ ɪnðə nˈɔːmandi ɡˈɑːdən hɜː ɹˈɪŋkəld hˈandz dˈɛlɪkətli hˈəʊldɪŋ ðə ɡɹˈiːn stˈɛmz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-039",
+            "text": {
+                "fr": "Regarde, Sophie",
+                "en": "Look, Sophie",
+                "de": "Schau, Sophie",
+                "it": "Guarda, Sophie",
+                "es": "Mira, Sophie",
+                "nl": "Kijk, Sophie",
+                "pt": "Olha Sophie.",
+                "en_pt": "Look Sophie."
+            },
+            "ipa": {
+                "fr": "ʁəɡˈaʁd sɔfˈi",
+                "de": "[ʃˈaʊ\n zoːfˈiː]",
+                "it": "[ɡwˈaːrda\n sˈopje]",
+                "es": "[ˈmiɾa ˈsofi]",
+                "nl": "[kˈɛɪk\n sɔphˈi]",
+                "pt": "[ˈɔljæ sˌofˈiy]",
+                "en": "[lˈʊk sˈəʊfi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-040",
+            "text": {
+                "fr": "Les orties te piquent d'abord, mais après, elles te nourrissent",
+                "en": "Nettles sting you at first, but afterwards, they nourish you",
+                "de": "Die Brennnesseln stechen erst, aber dann nähren sie dich",
+                "it": "Le ortiche prima ti pungono, poi ti nutrono",
+                "es": "Las ortigas te pican primero, pero luego te alimentan",
+                "nl": "Brandnetels prikken eerst, maar daarna voeden ze je",
+                "pt": "As urtigas picam primeiro, mas depois te alimentam.",
+                "en_pt": "Nettles sting first, but then they feed you."
+            },
+            "ipa": {
+                "fr": "le-z ɔʁtˈi tə- pˈik dabˈɔʁ mɛz apʁˈɛ ɛl tə- nuʁˈis",
+                "de": "[diː brˈɛnɛsəln ʃtˈɛçən ˈeːɾst\n ˌɑːbɜ dan nˈɛːrən ziː dˈɪç]",
+                "it": "[lˌe ˈɔrtike prˈiːma tˌɪ pˈuŋɡono\n pˈɔːɪ tˌɪ nˈutrono]",
+                "es": "[las oɾˈtiɣas te ˈpikan pɾiˈmeɾo peɾo ˈlweɣo te aliˈmentan]",
+                "nl": "[brˈɑndnətˌɛls prˈɪkən ˈɪːrst\n maːr dˈaːrnaː vˈudən zə jə]",
+                "pt": "[az ˌuɾətʃˈiɡæs pˈikɐ̃ʊ̃ prˌimˈeɪɾʊ\n maz depˈoɪs tʃj ˌalimˈeɪŋtɐ̃ʊ̃]",
+                "en": "[nˈɛtəlz stˈɪŋ juː at fˈɜːst bˌʌt ˈaftəwədz ðeɪ nˈʌɹɪʃ juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-041",
+            "text": {
+                "fr": "C'est comme la vie, ma petite",
+                "en": "It's like life, my little one",
+                "de": "Das ist wie das Leben, meine Kleine",
+                "it": "È come la vita, piccola mia",
+                "es": "Es como la vida, pequeña",
+                "nl": "Zo is het leven, mijn kleintje",
+                "pt": "É como a vida, minha pequena.",
+                "en_pt": "It's like life, my little one."
+            },
+            "ipa": {
+                "fr": "sɛ kɔm la- vˈi ma- pətˈit",
+                "de": "[das ɪst viː das lˈeːbən\n mˌaɪnə klˈaɪnə]",
+                "it": "[ˌɛ kˌome lˌa vˈiːta\n pˈikːola mˈia]",
+                "es": "[es ˈkomo la ˈβiða peˈkeɲa]",
+                "nl": "[zoː ɪs hət lˈeːvən\n mɛɪn klˈɛɪntʲə]",
+                "pt": "[ɛ kˌomʊ a vˈidæ\n mˌiɲæ pˌekˈenæ]",
+                "en": "[ɪts lˈaɪk lˈaɪf maɪ lˈɪtəl wˌɒn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-042",
+            "text": {
+                "fr": "Les choses qui font mal nous rendent plus fortes.",
+                "en": "The things that hurt us make us stronger.",
+                "de": "Die Dinge, die wehtun, machen uns stärker.",
+                "it": "Le cose che fanno male ci rendono più forti.",
+                "es": "Las cosas que duelen nos hacen más fuertes.",
+                "nl": "De dingen die pijn doen maken ons sterker.",
+                "pt": "As coisas que machucam nos tornam mais fortes."
+            },
+            "ipa": {
+                "fr": "le- ʃˈoz ki fˈɔ̃ mˈal nu ʁˈɑ̃d ply fˈɔʁt",
+                "de": "[diː dˈɪŋə\n diː vˈeːtuːn\n mˈaxən ʊns ʃtˈɛɾkɜ]",
+                "it": "[lˌe kˈɔːze kˌe fˌanno mˈaːle tʃˌɪ rˈɛndono pjˌʊ fˈɔːrtɪ]",
+                "es": "[las ˈkosas ke ˈdwelen nos ˈaθen ˈmas ˈfwertes]",
+                "nl": "[də dˈɪŋən di pˈɛɪn dˈun mˈaːkən ɔn stˈɛrkər]",
+                "pt": "[as kˈoɪzæs ky mˌaʃˈukɐ̃ʊ̃ nʊs tˈɔɾənɐ̃ʊ̃ mˈaɪs fˈɔɾətʃys]",
+                "en": "[ðə θˈɪŋz ðat hˈɜːt ˌʌs mˌeɪk ˌʌs stɹˈɒŋɡə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-043",
+            "text": {
+                "pt": "São urtigas!",
+                "en": "They're nettles!"
+            },
+            "ipa": {
+                "pt": "[sɐ̃ʊ̃ ˌuɾətʃˈiɡæs]",
+                "en": "[ðeɪə nˈɛtəlz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-044",
+            "text": {
+                "fr": "Ce sont des orties! Elles sont comestibles si on les fait cuire.",
+                "en": "They're nettles! They're edible if you cook them.",
+                "de": "Das sind Brennnesseln! Sie sind essbar, wenn man sie kocht.",
+                "it": "Sono ortiche! Sono commestibili se cotte.",
+                "es": "¡Son ortigas! Son comestibles si las cocinas.",
+                "nl": "Het zijn brandnetels! Ze zijn eetbaar als je ze kookt.",
+                "pt": "Elas são comestíveis se cozinhar.",
+                "en_pt": "They're edible if you cook them."
+            },
+            "ipa": {
+                "fr": "sə- sˈɔ̃ de-z ɔʁtˈi ɛl sɔ̃ kɔmɛstˈibl sˈi ɔ̃ le- fˈɛ kyˈiʁ",
+                "de": "[das zɪnt brˈɛnɛsəln\n ziː zɪnt ˈɛsbɑːɾ\n vˌɛn man ziː kˈɔxt]",
+                "it": "[sˌono ˈɔrtike\n sˌono kˌommestˈibilɪ sˌe kˈɔtːe]",
+                "es": "[son oɾˈtiɣas son komeˈstiβles si las koˈθinas]",
+                "nl": "[hət zɛɪn brˈɑndnətˌɛls\n zə zɛɪn ˈeːtbaːr ɑls jə zə kˈoːkt]",
+                "pt": "[ˌɛlæs sɐ̃ʊ̃ kˌomestʃˈiveɪs sy kˌoziɲˈar]",
+                "en": "[ðeɪə nˈɛtəlz ðeɪəɹ ˈɛdəbəl ɪf juː kˈʊk ðˌɛm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-045",
+            "text": {
+                "fr": "Elle les regarde avec hésitation.",
+                "en": "She looks at them with hesitation.",
+                "de": "Sie betrachtet sie zögernd.",
+                "it": "Le osserva con esitazione.",
+                "es": "Las mira con duda.",
+                "nl": "Ze kijkt er met aarzeling naar.",
+                "pt": "Ela as olha com hesitação."
+            },
+            "ipa": {
+                "fr": "ɛl le- ʁəɡˈaʁd avˌɛk ezitasjˈɔ̃",
+                "de": "[ziː bətɾˈaxtət ziː tsˈøːɡɛɾnt]",
+                "it": "[lˌe ossˈɛːrva kˌon ˌezitˌatsiˈɔːne]",
+                "es": "[las ˈmi.ɾa kon ˈðu.ða]",
+                "nl": "[zə kˈɛɪkt ər mɛt ˈaːrzəlˌɪŋ nˈaːr]",
+                "pt": "[ˌɛlæ az ˈɔljæ koŋ ˌezitasˈɐ̃ʊ̃]",
+                "en": "[ʃiː lˈʊks at ðˌɛm wɪð hˌɛsɪtˈeɪʃən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-046",
+            "text": {
+                "fr": "J'ose à peine les toucher, elles piquent.",
+                "en": "I dare barely touch them, they sting.",
+                "de": "Ich wage es kaum, sie zu berühren, sie stechen.",
+                "it": "Oso a malapena toccarle, pungono.",
+                "es": "Apenas me atrevo a tocarlas, pican.",
+                "nl": "Ik durf ze nauwelijks aan te raken, ze prikken.",
+                "pt": "Mal ouso tocá-las, elas picam.",
+                "en_pt": "I barely dare touch them, they sting."
+            },
+            "ipa": {
+                "fr": "ʒˈoz a pˈɛn le- tuʃˈe ɛl pˈik",
+                "de": "[ɪç vˈɑːɡə ɛs kˈaʊm\n ziː tsuː bərˈyːrən\n ziː ʃtˈɛçən]",
+                "it": "[ˈoːzo ˌa mˌalapˈeːna tokːˈaːrle\n pˈuŋɡono]",
+                "es": "[aˈpenas me aˈtɾeβo a toˈkaɾlas ˈpikan]",
+                "nl": "[ɪk dˈɵrf zə nˈʌʊələks aːn tə rˈaːkən\n zə prˈɪkən]",
+                "pt": "[mˈaʊ ˈowzʊ tokˈalæs\n ˌɛlæs pˈikɐ̃ʊ̃]",
+                "en": "[aɪ dˈeə bˈeəli tˈʌtʃ ðˌɛm ðeɪ stˈɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-047",
+            "text": {
+                "fr": "Mais il le faut si je veux survivre",
+                "en": "But it is necessary if I want to survive",
+                "de": "Aber ich muss es tun, wenn ich überleben will",
+                "it": "Ma devo farlo se voglio sopravvivere",
+                "es": "Pero tengo que hacerlo si quiero sobrevivir",
+                "nl": "Maar het moet, als ik wil overleven",
+                "pt": "Mas preciso se quero sobreviver.",
+                "en_pt": "But I must if I want to survive."
+            },
+            "ipa": {
+                "fr": "mɛz il lə- fo sˈi ʒə- vˈø syʁvˈivʁ",
+                "de": "[ˌɑːbɜ ɪç mˈʊs ɛs tˈuːn\n vˌɛn ɪç ˌyːbɜlˈeːbən vɪl]",
+                "it": "[mˌa dˈɛːvo fˈaːrlo sˌe vˈoːʎo sˌɔpravvˈivere]",
+                "es": "[ˈpeɾo ˈteŋɣo ke aˈθeɾlo si ˈkjeɾo soβɾeβiˈβiɾ]",
+                "nl": "[maːr hət mˈut\n ɑls ɪk ʋɪl ˌoːvərlˈeːvən]",
+                "pt": "[mas prˌesˈizʊ sy kˈɛɾʊ sobɾevivˈer]",
+                "en": "[bˌʌt ɪt ɪz nˈɛsəsəɹi ɪf aɪ wˈɒnt tə səvˈaɪv]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-048",
+            "text": {
+                "fr": "Toute vérité exige qu'on accepte d'abord sa capacité à blesser.",
+                "en": "Every truth requires that we first accept its capacity to hurt.",
+                "de": "Jede Wahrheit erfordert, dass man zuerst ihre Fähigkeit zu verletzen akzeptiert.",
+                "it": "Ogni verità richiede che si accetti prima la sua capacità di ferire.",
+                "es": "Toda verdad requiere que primero aceptemos su capacidad de hacer daño.",
+                "nl": "Elke waarheid vereist dat je eerst haar vermogen om te kwetsen accepteert.",
+                "pt": "Toda verdade exige que aceitemos primeiro sua capacidade de ferir.",
+                "en_pt": "Every truth demands that we first accept its capacity to wound."
+            },
+            "ipa": {
+                "fr": "tut veʁitˈe ɛɡzˈiʒ kɔ̃n aksˈɛpt dabˈɔʁ sa- kapasitˈe a blɛsˈe",
+                "de": "[jˈeːdə vˈɑːɾhaɪt ɛɾfˈɔɾdɜt\n das man tsuːˈeːɾst ˌiːrə fˈɛːɪçkˌaɪt tsuː fɛɾlˈɛtsən ˌaktsɛptˈiːɾt]",
+                "it": "[ˈoɲʲɪ vˌɛritˈa rikjˈeːde kˌe sˌɪ atʃːˈetːɪ prˈiːma lˌa sˌʊa kˌapatʃitˈa dˌɪ ferˈiːre]",
+                "es": "[ˈtoða βeɾˈðað reˈkjeɾe ke pɾiˈmeɾo aθepˈtemos su kapaθiˈðað de aˈθeɾ ˈdaɲo]",
+                "nl": "[ˈɛlkə ʋˈaːrhɛɪt vərˈɛɪst dɑt jə ˈɪːrst haːr vərmˌoːɣən ɔm tə kʋˈɛtsən ˌɑksɛptˈɪrt]",
+                "pt": "[tˈodæ vˌeɾədˈadʒj ˌezˈiʒy ky ˌaseɪtˈemʊs prˌimˈeɪɾʊ sˌuæ kˌapasidˈadʒy dʒy feɾˈir]",
+                "en": "[ˈɛvɹɪ tɹˈuːθ ɹɪkwˈaɪəz ðat wiː fˈɜːst ɐksˈɛpt ɪts kəpˈasɪti tə hˈɜːt]"
             },
             "provenance": {
                 "fr": "original",
@@ -1494,23 +1315,22 @@
         {
             "id": "scene-11-049",
             "text": {
-                "fr": "Elle les regarde avec hésitation.",
-                "en": "She looks at them hesitantly.",
-                "de": "Sie betrachtet sie zögernd.",
-                "it": "Le osserva con esitazione.",
-                "es": "Las mira con duda.",
-                "nl": "Ze kijkt er met aarzeling naar.",
-                "pt": "Ela as olha com hesitação.",
-                "en_pt": "She looks at them with hesitation."
+                "fr": "Elle cueille les orties avec précaution, en utilisant un bout de tissu pour protéger ses mains.",
+                "en": "She picks the nettles carefully, using a piece of cloth to protect her hands.",
+                "de": "Sie pflückt die Brennnesseln vorsichtig, indem sie ein Stück Stoff verwendet, um ihre Hände zu schützen.",
+                "it": "Raccoglie le ortiche con attenzione, usando un pezzo di stoffa per proteggere le mani.",
+                "es": "Recoge las ortigas con cuidado, usando un trozo de tela para proteger sus manos.",
+                "nl": "Ze plukt de brandnetels voorzichtig, waarbij ze een stuk stof gebruikt om haar handen te beschermen.",
+                "pt": "Ela colhe as urtigas com cuidado, usando um pedaço de pano para proteger as mãos."
             },
             "ipa": {
-                "fr": "ɛl le- ʁəɡˈaʁd avˌɛk ezitasjˈɔ̃",
-                "de": "[ziː bətɾˈaxtət ziː tsˈøːɡɛɾnt]",
-                "it": "[lˌe ossˈɛːrva kˌon ˌezitˌatsiˈɔːne]",
-                "es": "[las ˈmi.ɾa kon ˈðu.ða]",
-                "nl": "[zə kˈɛɪkt ər mɛt ˈaːrzəlˌɪŋ nˈaːr]",
-                "pt": "[ˌɛlæ az ˈɔljæ koŋ ˌezitasˈɐ̃ʊ̃]",
-                "en": "[ʃiː lˈʊks at ðˌɛm hˈɛsɪtəntli]"
+                "fr": "ɛl kˈœj le-z ɔʁtˈi avˌɛk pʁekosjˈɔ̃ ɑ̃n ytilizˈɑ̃ œ̃ bˈu də- tisˈy puʁ pʁɔteʒˈe se- mˈɛ̃",
+                "de": "[ziː pflˈʏkt diː brˈɛnɛsəln fˈoːɾzˌɪçtɪç\n ɪndˈeːm ziː aɪn ʃtˈʏk ʃtˈɔf fɛɾvˈɛndət\n ʊm ˌiːrə hˈɛndə tsuː ʃˈʏtsən]",
+                "it": "[rakːˈoːʎe lˌe ˈɔrtike kˌon ˌatːentsiˈɔːne\n ʊzˈando ˌʊn pˈɛtsːo dˌɪ stˈɔffa pˌɛr protˈedʒːere lˌe mˈaːnɪ]",
+                "es": "[reˈko.xe las oɾˈti.ɣas kon kwiˈða.ðo uˈsan.do un ˈtɾo.θo ðe ˈte.la paɾa pɾo.teˈxer sus ˈma.nos]",
+                "nl": "[zə plˈɵk tə brˈɑndnətˌɛls vˌɔːrzˈɪxtəx\n ʋaːrbˈɛɪ zə ən stˈɵk stˈɔf ɣəbrˈœykt ɔm haːr hˈɑndən tə bəsxˈɛrmən]",
+                "pt": "[ˌɛlæ kˈɔljj az ˌuɾətʃˈiɡæs koŋ kˌuɪdˈadʊ\n ˌuzˈɐ̃ŋdw ũŋ pˌedˈasʊ dʒy pˈɐ̃nʊ pˌaɾæ prˌoteʒˈeɾ az mˈɐ̃ʊ̃s]",
+                "en": "[ʃiː pˈɪks ðə nˈɛtəlz kˈeəfəlɪ jˈuːzɪŋ ɐ pˈiːs ɒv klˈɒθ tə pɹətˈɛkt hɜː hˈandz]"
             },
             "provenance": {
                 "fr": "original",
@@ -1524,37 +1344,6 @@
         },
         {
             "id": "scene-11-050",
-            "text": {
-                "fr": "Elle cueille les orties avec précaution, en utilisant un bout de tissu pour protéger ses mains.",
-                "en": "She cautiously picks the nettles, using a piece of cloth to protect her hands.",
-                "de": "Sie pflückt die Brennnesseln vorsichtig, indem sie ein Stück Stoff verwendet, um ihre Hände zu schützen.",
-                "it": "Raccoglie le ortiche con attenzione, usando un pezzo di stoffa per proteggere le mani.",
-                "es": "Recoge las ortigas con cuidado, usando un trozo de tela para proteger sus manos.",
-                "nl": "Ze plukt de brandnetels voorzichtig, waarbij ze een stuk stof gebruikt om haar handen te beschermen.",
-                "pt": "Ela colhe as urtigas com cuidado, usando um pedaço de pano para proteger as mãos.",
-                "en_pt": "She picks the nettles carefully, using a piece of cloth to protect her hands."
-            },
-            "ipa": {
-                "fr": "ɛl kˈœj le-z ɔʁtˈi avˌɛk pʁekosjˈɔ̃ ɑ̃n ytilizˈɑ̃ œ̃ bˈu də- tisˈy puʁ pʁɔteʒˈe se- mˈɛ̃",
-                "de": "[ziː pflˈʏkt diː brˈɛnɛsəln fˈoːɾzˌɪçtɪç\n ɪndˈeːm ziː aɪn ʃtˈʏk ʃtˈɔf fɛɾvˈɛndət\n ʊm ˌiːrə hˈɛndə tsuː ʃˈʏtsən]",
-                "it": "[rakːˈoːʎe lˌe ˈɔrtike kˌon ˌatːentsiˈɔːne\n ʊzˈando ˌʊn pˈɛtsːo dˌɪ stˈɔffa pˌɛr protˈedʒːere lˌe mˈaːnɪ]",
-                "es": "[reˈko.xe las oɾˈti.ɣas kon kwiˈða.ðo uˈsan.do un ˈtɾo.θo ðe ˈte.la paɾa pɾo.teˈxer sus ˈma.nos]",
-                "nl": "[zə plˈɵk tə brˈɑndnətˌɛls vˌɔːrzˈɪxtəx\n ʋaːrbˈɛɪ zə ən stˈɵk stˈɔf ɣəbrˈœykt ɔm haːr hˈɑndən tə bəsxˈɛrmən]",
-                "pt": "[ˌɛlæ kˈɔljj az ˌuɾətʃˈiɡæs koŋ kˌuɪdˈadʊ\n ˌuzˈɐ̃ŋdw ũŋ pˌedˈasʊ dʒy pˈɐ̃nʊ pˌaɾæ prˌoteʒˈeɾ az mˈɐ̃ʊ̃s]",
-                "en": "[ʃiː kˈɔːʃəsli pˈɪks ðə nˈɛtəlz jˈuːzɪŋ ɐ pˈiːs ɒv klˈɒθ tə pɹətˈɛkt hɜː hˈandz]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-051",
             "text": {
                 "fr": "Les piqûres lui rappellent que la nature n'est ni bonne ni mauvaise.",
                 "en": "The stings remind her that nature is neither good nor bad.",
@@ -1585,42 +1374,16 @@
             }
         },
         {
-            "id": "scene-11-052",
-            "text": {
-                "fr": "elle est simplement authentique.",
-                "en": "It is just authentic.",
-                "de": "sie ist einfach authentisch.",
-                "it": "È semplicemente autentica.",
-                "es": "es simplemente auténtica.",
-                "nl": "Ze is gewoon authentiek."
-            },
-            "ipa": {
-                "fr": "ɛl ɛ sɛ̃pləmˈɑ̃ɔːθɛntˈiːk",
-                "de": "[ziː ɪst ˈaɪnfˌax aʊtˈɛntɪʃ]",
-                "it": "[ˌɛ sˌemplitʃemˈente ˌaʊtˈɛntika]",
-                "es": "[es sim.pleˈmen.te awˈten.ti.ka]",
-                "nl": "[zə ɪs ɣəʋˈoːn ˌʌʊtəntˈik]",
-                "en": "[ɪt ɪz dʒˈʌst ɔːθˈɛntɪk]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-053",
+            "id": "scene-11-051",
             "text": {
                 "fr": "Maintenant, elle a besoin d'eau.",
-                "en": "Now she needs water.",
+                "en": "Now, she needs water.",
                 "de": "Jetzt braucht sie Wasser.",
                 "it": "Ora ha bisogno di acqua.",
                 "es": "Ahora necesita agua.",
                 "nl": "Nu heeft ze water nodig.",
-                "pt": "Agora ela precisa de água."
+                "pt": "Agora ela precisa de água.",
+                "en_pt": "Now she needs water."
             },
             "ipa": {
                 "fr": "mɛ̃tnˈɑ̃ ɛl a bəzwˈɛ̃ dˈo",
@@ -1642,16 +1405,45 @@
             }
         },
         {
-            "id": "scene-11-054",
+            "id": "scene-11-052",
+            "text": {
+                "fr": "Où puis-je trouver de l'eau potable?",
+                "en": "Where can I find drinking water?",
+                "de": "Wo kann ich Trinkwasser finden?",
+                "it": "Dove posso trovare dell'acqua potabile?",
+                "es": "¿Dónde puedo encontrar agua potable?",
+                "nl": "Waar kan ik drinkwater vinden?",
+                "pt": "Onde posso encontrar água potável?"
+            },
+            "ipa": {
+                "fr": "u pyˈiʒ tʁuvˈe də- lˈo pɔtˈabl",
+                "de": "[vˌoː kˌan ɪç tɾˈɪŋkvasɜ fˈɪndən]",
+                "it": "[dˈoːve pˈɔsso trovˈaːre dellˈakːwa potˈabile]",
+                "es": "[ˈðonde ˈpwedo enkonˈtɾaɾ ˈaɣwa poˈtaβle]",
+                "nl": "[ʋˈaːr kɑn ɪk drˈɪŋkʋaːtər vˈɪndən]",
+                "pt": "[ˌoŋdʒy pˌɔsʊ ˌeɪŋkoŋtrˈaɾ ˈaɡwæ pˌotˈaveʊ]",
+                "en": "[wˌeə kan aɪ fˈaɪnd dɹˈɪŋkɪŋ wˈɔːtə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-053",
             "text": {
                 "fr": "Elle écoute attentivement.",
-                "en": "She listens attentively.",
+                "en": "She listens carefully.",
                 "de": "Sie hört aufmerksam hin.",
                 "it": "Ascolta attentamente.",
                 "es": "Escucha atentamente.",
                 "nl": "Ze luistert aandachtig.",
-                "pt": "Ela escuta atentamente.",
-                "en_pt": "She listens carefully."
+                "pt": "Ela escuta atentamente."
             },
             "ipa": {
                 "fr": "ɛl ekˈut atɑ̃tivmˈɑ̃",
@@ -1660,7 +1452,38 @@
                 "es": "[esˈku.tʃa a.tenˈta.men.te]",
                 "nl": "[zə lˈœystərt ˈaːndɑxtəx]",
                 "pt": "[ˌɛlæ ˌeskˈutæ ˌateɪŋtæmˈeɪŋtʃy]",
-                "en": "[ʃiː lˈɪsənz ɐtˈɛntɪvli]"
+                "en": "[ʃiː lˈɪsənz kˈeəfəlɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-054",
+            "text": {
+                "fr": "J'entends un bruit... comme de l'eau qui coule!",
+                "en": "I hear a sound... like flowing water!",
+                "de": "Ich höre ein Geräusch... wie Wasser, das fließt!",
+                "it": "Sento un rumore... come di acqua che scorre!",
+                "es": "¡Escucho un ruido... como de agua que fluye!",
+                "nl": "Ik hoor een geluid... als van stromend water!",
+                "pt": "Ouço um barulho...",
+                "en_pt": "I hear a sound..."
+            },
+            "ipa": {
+                "fr": "ʒɑ̃tˈɑ̃z œ̃ bʁyˈi kɔm də- lˈo ki kˈul",
+                "de": "[ɪç hˈøːrə aɪn ɡərˈɔøʃ\n viː vˈasɜ\n das flˈiːst]",
+                "it": "[sˈɛnto ˌʊn rʊmˈoːre\n kˌome dˌɪ ˈakːwa kˌe skˈɔrɾe]",
+                "es": "[esˈkuʧo un ˈrwiðo ˈkomo de ˈaɣwa ke ˈflwe]",
+                "nl": "[ɪk hˈoːr ən ɣəlˈœyt\n ɑls vɑn strˈoːmənt ʋˈaːtər]",
+                "pt": "[ˈowsw ũŋ bˌaɾˈuljʊ]",
+                "en": "[aɪ hˈiəɹ ɐ sˈaʊnd lˈaɪk flˈəʊɪŋ wˈɔːtə]"
             },
             "provenance": {
                 "fr": "original",
@@ -1674,6 +1497,21 @@
         },
         {
             "id": "scene-11-055",
+            "text": {
+                "pt": "como água correndo!",
+                "en": "like running water!"
+            },
+            "ipa": {
+                "pt": "[kˌomʊ ˈaɡwæ kˌoxˈeɪŋdʊ]",
+                "en": "[lˈaɪk ɹˈʌnɪŋ wˈɔːtə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-056",
             "text": {
                 "fr": "Elle suit le son et découvre une merveille.",
                 "en": "She follows the sound and discovers a wonder.",
@@ -1704,16 +1542,61 @@
             }
         },
         {
-            "id": "scene-11-056",
+            "id": "scene-11-057",
+            "text": {
+                "pt": "Uma nascente!",
+                "en": "A spring!"
+            },
+            "ipa": {
+                "pt": "[ˌumæ nˌasˈeɪŋtʃy]",
+                "en": "[ɐ spɹˈɪŋ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-058",
+            "text": {
+                "fr": "Une source! Une eau claire, douce, qui jaillit des rochers!",
+                "en": "A spring! Clear, fresh water gushing from the rocks!",
+                "de": "Eine Quelle! Klares, süßes Wasser, das aus den Felsen sprudelt!",
+                "it": "Una sorgente! Un'acqua chiara, dolce, che sgorga dalle rocce!",
+                "es": "¡Un manantial! Agua clara, dulce, que brota de las rocas!",
+                "nl": "Een bron! Helder, zacht water dat uit de rotsen springt!",
+                "pt": "Água clara, doce, que brota das pedras!",
+                "en_pt": "Clear, fresh water, gushing from the rocks!"
+            },
+            "ipa": {
+                "fr": "yn sˈuʁs yn ˈo klˈɛʁ dˈus ki ʒajˈi de- ʁɔʃˈe",
+                "de": "[ˌaɪnə kvˈɛlə\n klˈɑːrəs\n zˈyːsəs vˈasɜ\n das ˌaʊs deːn fˈɛlzən ʃprˈuːdəlt]",
+                "it": "[ˌʊna sordʒˈɛnte\n ʊnˈakːwa kjˈaːra\n dˈoltʃe\n kˌe zɡˈɔːrɡa dˌalle rˈɔtʃːe]",
+                "es": "[un manaŋˈtʝal ˈaɣwa ˈklaɾa ˈdulθe ke ˈbɾota ðe las ˈrokas]",
+                "nl": "[ən brˈɔn\n hˈɛldər\n zˈɑxt ʋˈaːtər dɑt œy tə rˈɔtsən sprˈɪŋt]",
+                "pt": "[ˈaɡwæ klˈaɾæ\n dˈosy\n ky brˈɔtæ das pˈɛdræs]",
+                "en": "[ɐ spɹˈɪŋ klˈiə fɹˈɛʃ wˈɔːtə ɡˈʌʃɪŋ fɹʌmðə ɹˈɒks]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-059",
             "text": {
                 "fr": "Elle remplit une petite casserole qu'elle a trouvée dans la cabane.",
-                "en": "She fills a small pan she found in the cabin.",
+                "en": "She fills a small pot she found in the cabin.",
                 "de": "Sie füllt einen kleinen Topf, den sie in der Hütte gefunden hat.",
                 "it": "Riempie una piccola pentola che ha trovato nella capanna.",
                 "es": "Llena una pequeña cazuela que encontró en la cabaña.",
                 "nl": "Ze vult een kleine pan die ze in de hut heeft gevonden.",
-                "pt": "Ela enche uma panelinha que encontrou na cabana.",
-                "en_pt": "She fills a small pot she found in the cabin."
+                "pt": "Ela enche uma panelinha que encontrou na cabana."
             },
             "ipa": {
                 "fr": "ɛl ʁɑ̃plˈit yn pətˈit kasʁˈɔl kɛl a tʁuvˈe dɑ̃ la- kabˈan",
@@ -1722,7 +1605,7 @@
                 "es": "[ˈʎe.na uˈna peˈkeɲa kaˈθwe.la ke en.konˈtɾo en la kaˈβa.ɲa]",
                 "nl": "[zə vˈɵlt ən klˈɛɪnə pˈɑn di zə ɪn də hˈɵt heːft ɣəvˈɔndən]",
                 "pt": "[ˌɛlæ ˈeɪŋʃj ˌumæ pˌænelˈiɲæ ky ˌeɪŋkoŋtrˈow na kˌabˈɐ̃næ]",
-                "en": "[ʃiː fˈɪlz ɐ smˈɔːl pˈan ʃiː fˈaʊnd ɪnðə kˈabɪn]"
+                "en": "[ʃiː fˈɪlz ɐ smˈɔːl pˈɒt ʃiː fˈaʊnd ɪnðə kˈabɪn]"
             },
             "provenance": {
                 "fr": "original",
@@ -1735,15 +1618,16 @@
             }
         },
         {
-            "id": "scene-11-057",
+            "id": "scene-11-060",
             "text": {
                 "fr": "De retour près du feu, elle fait bouillir l'eau et y met les orties.",
-                "en": "Back by the fire, she boils the water and adds the nettles.",
+                "en": "Back near the fire, she boils the water and adds the nettles.",
                 "de": "Zurück beim Feuer bringt sie das Wasser zum Kochen und gibt die Brennnesseln hinein.",
                 "it": "Tornata vicino al fuoco, fa bollire l'acqua e ci mette le ortiche.",
                 "es": "De vuelta cerca del fuego, hierve el agua y añade las ortigas.",
                 "nl": "Terug bij het vuur kookt ze het water en doet de brandnetels erin.",
-                "pt": "De volta perto do fogo, ela ferve a água e coloca as urtigas."
+                "pt": "De volta perto do fogo, ela ferve a água e coloca as urtigas.",
+                "en_pt": "Back by the fire, she boils the water and adds the nettles."
             },
             "ipa": {
                 "fr": "də- ʁətˈuʁ pʁɛ dy- fˈø ɛl fˈɛ bujˈiʁ lˈo e i mˈɛ le-z ɔʁtˈi",
@@ -1752,7 +1636,7 @@
                 "es": "[de ˈβwel.ta ˈθeɾ.ka ðel ˈfwe.ɣo ˈʝeɾ.βe el ˈa.ɣwa i aˈɲa.ðe las oɾˈti.ɣas]",
                 "nl": "[tərˈɵx bɛɪ hət vˈyr kˈoːkt zə hət ʋˈaːtər ɛn dˈu tə brˈɑndnətˌɛls ɛrˈɪn]",
                 "pt": "[dʒy vˈɔltæ pˈɛɾətʊ dʊ fˈoɡʊ\n ˌɛlæ fˈɛɾəvj a ˈaɡwæ i kˌolˈɔkæ az ˌuɾətʃˈiɡæs]",
-                "en": "[bˈak baɪ ðə fˈaɪə ʃiː bˈɔɪlz ðə wˈɔːtə and ˈadz ðə nˈɛtəlz]"
+                "en": "[bˈak nˌiə ðə fˈaɪə ʃiː bˈɔɪlz ðə wˈɔːtə and ˈadz ðə nˈɛtəlz]"
             },
             "provenance": {
                 "fr": "original",
@@ -1765,7 +1649,38 @@
             }
         },
         {
-            "id": "scene-11-058",
+            "id": "scene-11-061",
+            "text": {
+                "fr": "Avec le feu, l'eau de la source, et les orties, je fais une soupe.",
+                "en": "With the fire, spring water, and nettles, I make soup.",
+                "de": "Mit dem Feuer, dem Wasser aus der Quelle und den Brennnesseln mache ich eine Suppe.",
+                "it": "Con il fuoco, l'acqua della sorgente e le ortiche, faccio una zuppa.",
+                "es": "Con el fuego, el agua del manantial y las ortigas, hago una sopa.",
+                "nl": "Met het vuur, het water van de bron, en de brandnetels, maak ik een soep.",
+                "pt": "Com o fogo, a água da nascente e as urtigas, faço uma sopa.",
+                "en_pt": "With the fire, the spring water and the nettles, I make a soup."
+            },
+            "ipa": {
+                "fr": "avˌɛk lə- fˈø lˈo də- la- sˈuʁs e le-z ɔʁtˈi ʒə- fˈɛz yn sˈup",
+                "de": "[mɪt deːm fˈɔøɜ\n deːm vˈasɜ ˌaʊs dɛɾ kvˈɛlə ʊnt deːn brˈɛnɛsəln mˈaxə ɪç ˌaɪnə zˈʊpə]",
+                "it": "[kˌon ˌil fʊˈɔːko\n lˈakːwa dˌɛlla sordʒˈɛnte ˌe lˌe ˈɔrtike\n fˌatʃːo ˌʊna dzˈupːa]",
+                "es": "[kon el ˈfweɣo el ˈaɣwa ðel manaŋˈtʝal i las oɾˈtiɣas ˈaɣo ˈuna ˈsopa]",
+                "nl": "[mɛt hət vˈyr\n hət ʋˈaːtər vɑn də brˈɔn\n ɛn də brˈɑndnətˌɛls\n mˈaːk ɪk ən sˈup]",
+                "pt": "[koŋ ʊ fˈoɡʊ\n a ˈaɡwæ da nˌasˈeɪŋtʃj i az ˌuɾətʃˈiɡæs\n fˌasʊ ˌumæ sˈopæ]",
+                "en": "[wɪððə fˈaɪə spɹˈɪŋ wˈɔːtə and nˈɛtəlz aɪ mˌeɪk sˈuːp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-062",
             "text": {
                 "fr": "La soupe est simple mais délicieuse.",
                 "en": "The soup is simple but delicious.",
@@ -1795,7 +1710,7 @@
             }
         },
         {
-            "id": "scene-11-059",
+            "id": "scene-11-063",
             "text": {
                 "fr": "Elle la boit lentement, sentant la chaleur se répandre dans son corps.",
                 "en": "She drinks it slowly, feeling the warmth spread through her body.",
@@ -1826,7 +1741,84 @@
             }
         },
         {
-            "id": "scene-11-060",
+            "id": "scene-11-064",
+            "text": {
+                "fr": "La nature me donne exactement ce dont j'ai besoin",
+                "en": "Nature gives me exactly what I need",
+                "de": "Die Natur gibt mir genau das, was ich brauche",
+                "it": "La natura mi dà esattamente quello di cui ho bisogno",
+                "es": "La naturaleza me ofrece exactamente lo que necesito",
+                "nl": "De natuur geeft me precies wat ik nodig heb",
+                "pt": "A natureza me dá exatamente o que preciso.",
+                "en_pt": "Nature gives me exactly what I need."
+            },
+            "ipa": {
+                "fr": "la- natˈyʁ mə- dˈɔn ɛɡzaktəmˈɑ̃ sə- dɔ̃ ʒe bəzwˈɛ̃",
+                "de": "[diː nˈɑtuːɾ ɡˈiːpt miːɾ ɡənˈaʊ das\n vˈas ɪç brˈaʊxə]",
+                "it": "[lˌa natˈuːra mˌɪ dˈa ˌezatːamˈente kwˈɛllo dˌɪ kˈuj ˌo bizˈoɲʲo]",
+                "es": "[la natuˈɾaleθa me oˈfɾeθe eksakˈtamente lo ke neseˈsito]",
+                "nl": "[də naːtˈyr ɣˈeːft mə preːsˈis ʋɑt ɪk nˈoːdəx hɛp]",
+                "pt": "[a nˌatuɾˈezæ my dˈa ˌezatæmˈeɪŋtʃj ʊ ky prˌesˈizʊ]",
+                "en": "[nˈeɪtʃə ɡˈɪvz mˌiː ɛɡzˈaktli wɒt aɪ nˈiːd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-065",
+            "text": {
+                "pt": "Ou será...",
+                "en": "Or is it..."
+            },
+            "ipa": {
+                "pt": "[ow seɾˈa]",
+                "en": "[ɔːɹ ɪz ˈɪt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-066",
+            "text": {
+                "fr": "est-ce moi qui interprète ses dons?",
+                "en": "Is it me who interprets these gifts?",
+                "de": "bin ich es, die ihre Gaben interpretiert?",
+                "it": "sono io che interpreto i suoi doni?",
+                "es": "¿será que yo interpreto sus regalos?",
+                "nl": "is het dat ik haar geschenken interpreteer?",
+                "pt": "sou eu quem interpreta seus dons?",
+                "en_pt": "am I the one interpreting its gifts?"
+            },
+            "ipa": {
+                "fr": "ɛs mwˌa ki ɛ̃tɛʁpʁˈɛt se- dˈɔ̃",
+                "de": "[bɪn ɪç ˈɛs\n diː ˌiːrə ɡˈɑːbən ˌɪntɜpreːtˈiːɾt]",
+                "it": "[sˌono ˌio kˌe intˈɛrpreto ˌɪ sʊˌɔɪ dˈoːnɪ]",
+                "es": "[ˈseɾa ke ʝo inteɾˈpɾeto sus reˈɣalos]",
+                "nl": "[ɪs hət dɑt ɪk haːr ɣəsxˈɛŋkən ˌɪntərprətˈɪr]",
+                "pt": "[sow eʊ kˈeɪŋ ˌiŋteɾəprˈɛtæ seʊz dˈoŋs]",
+                "en": "[ɪz ɪt mˌiː hˌuː ɪntˈɜːpɹɪts ðiːz ɡˈɪfts]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-067",
             "text": {
                 "fr": "Elle regarde le feu danser dans la cheminée.",
                 "en": "She watches the fire dance in the fireplace.",
@@ -1856,7 +1848,7 @@
             }
         },
         {
-            "id": "scene-11-061",
+            "id": "scene-11-068",
             "text": {
                 "fr": "Le feu qu'elle a allumé.",
                 "en": "The fire she lit.",
@@ -1886,7 +1878,7 @@
             }
         },
         {
-            "id": "scene-11-062",
+            "id": "scene-11-069",
             "text": {
                 "fr": "L'eau qu'elle a trouvée.",
                 "en": "The water she found.",
@@ -1916,7 +1908,7 @@
             }
         },
         {
-            "id": "scene-11-063",
+            "id": "scene-11-070",
             "text": {
                 "fr": "Les orties qu'elle a reconnues.",
                 "en": "The nettles she recognized.",
@@ -1946,16 +1938,46 @@
             }
         },
         {
-            "id": "scene-11-064",
+            "id": "scene-11-071",
+            "text": {
+                "fr": "La montagne m'offre ces éléments, mais c'est moi qui les transforme en survie.",
+                "en": "The mountain offers me these elements, but it's I who transform them into survival.",
+                "de": "Die Berge bieten mir diese Elemente, aber ich bin es, die sie in Überleben verwandelt.",
+                "it": "La montagna mi offre questi elementi, ma sono io che li trasformo in sopravvivenza.",
+                "es": "La montaña me ofrece estos elementos, pero soy yo quien los transforma en supervivencia.",
+                "nl": "De natuur biedt deze elementen, maar ik transformeer ze tot overleving.",
+                "pt": "A montanha me oferece esses elementos, mas sou eu quem os transforma em sobrevivência.",
+                "en_pt": "The mountain offers me these elements, but I'm the one who transforms them into survival."
+            },
+            "ipa": {
+                "fr": "la- mɔ̃tˈaɲ mˈɔfʁ sez elemˈɑ̃ mɛ sɛ mwˌa ki le- tʁɑ̃sfˈɔʁm ɑ̃ syʁvˈi",
+                "de": "[diː bˈɛɾɡə bˈiːtən miːɾ dˌiːzə ˌeːleːmˈɛntə\n ˈɑːbɜ ɪç bɪn ɛs\n diː ziː ɪn ˌyːbɜlˈeːbən fɛɾvˈandəlt]",
+                "it": "[lˌa montˈaɲɲa mˌɪ ˈoffre kwˌɛstɪ ˌɛlemˈentɪ\n mˌa sˌono ˌio kˌe lˌɪ trasfˈoːrmo ˌin sˌɔpravvivˈɛntsa]",
+                "es": "[la monˈtaɲa me oˈfɾeθe ˈestos eleˈmentos ˈpeɾo ˈsoʝ ʝo kjen los tɾansˈfoɾma en supeɾbiˈβenθja]",
+                "nl": "[də naːtˈyr bˈi tˌeːzə ˌeːləmˈɛntən\n maːr ɪk trˌɑnsfɔrmˈɪr zə tɔt ˌoːvərlˈeːvɪŋ]",
+                "pt": "[a mˌoŋtˈɐ̃ɲæ mj ˌofeɾˈɛsj ˌesiz ˌelemˈeɪŋtʊs\n mas sow eʊ kˈeɪŋ ʊs trˌɐ̃ŋsfˈɔɾəmæ ˈeɪŋ sobɾevˌivˈeɪŋsjæ]",
+                "en": "[ðə mˈaʊntɪn ˈɒfəz mˌiː ðiːz ˈɛlɪmənts bˌʌt ɪts aɪ hˌuː tɹansfˈɔːm ðˌɛm ˌɪntʊ səvˈaɪvəl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-072",
             "text": {
                 "fr": "Cette nuit-là, assise près du feu, Sophie réfléchit à sa vie.",
-                "en": "That night, sitting by the fire, Sophie reflected on her life.",
+                "en": "That night, sitting by the fire, Sophie reflects on her life.",
                 "de": "In jener Nacht, sitzend neben dem Feuer, reflektierte Sophie über ihr Leben.",
                 "it": "Quella notte, seduta vicino al fuoco, Sophie rifletteva sulla sua vita.",
                 "es": "Esa noche, sentada cerca del fuego, Sophie reflexiona sobre su vida.",
                 "nl": "Die avond, zittend bij het vuur, dacht Sophie na over haar leven.",
-                "pt": "Naquela noite, sentada perto do fogo, Sophie reflete sobre sua vida.",
-                "en_pt": "That night, sitting by the fire, Sophie reflects on her life."
+                "pt": "Naquela noite, sentada perto do fogo, Sophie reflete sobre sua vida."
             },
             "ipa": {
                 "fr": "sɛt nyˈilˈa asˈiz pʁɛ dy- fˈø sɔfˈi ʁefleʃˈi a sa- vˈi",
@@ -1964,7 +1986,7 @@
                 "es": "[ˈe.sa ˈno.tʃe senˈta.ða ˈθeɾ.ka ðel ˈfwe.ɣo ˈso.fi re.fleˈxjo.na ˈso.βɾe su ˈβi.ða]",
                 "nl": "[di ˈaːvɔnt\n zˈɪtənt bɛɪ hət vˈyr\n dˈɑxt sɔphˈi naː ˈoːvər haːr lˈeːvən]",
                 "pt": "[nˌakˈɛlæ nˈoɪtʃy\n sˌeɪŋtˈadæ pˈɛɾətʊ dʊ fˈoɡʊ\n sˌofˈiy xˌeflˈɛtʃy sˈobry sˌuæ vˈidæ]",
-                "en": "[ðat nˈaɪt sˈɪtɪŋ baɪ ðə fˈaɪə sˈəʊfi ɹɪflˈɛktɪd ˌɒn hɜː lˈaɪf]"
+                "en": "[ðat nˈaɪt sˈɪtɪŋ baɪ ðə fˈaɪə sˈəʊfi ɹɪflˈɛkts ˌɒn hɜː lˈaɪf]"
             },
             "provenance": {
                 "fr": "original",
@@ -1977,16 +1999,46 @@
             }
         },
         {
-            "id": "scene-11-065",
+            "id": "scene-11-073",
+            "text": {
+                "fr": "Cette épreuve m'apprend que je suis plus forte que je ne pensais.",
+                "en": "This ordeal teaches me that I'm stronger than I thought.",
+                "de": "Diese Prüfung lehrt mich, dass ich stärker bin, als ich dachte.",
+                "it": "Questa prova mi insegna che sono più forte di quanto pensassi.",
+                "es": "Esta prueba me enseña que soy más fuerte de lo que pensaba.",
+                "nl": "Deze uitdaging leert me dat ik sterker ben dan ik dacht.",
+                "pt": "Esta prova me ensina que sou mais forte do que pensava.",
+                "en_pt": "This trial teaches me that I'm stronger than I thought."
+            },
+            "ipa": {
+                "fr": "sɛt epʁˈøv mapʁˈɑ̃ kə ʒə- syˌi ply fˈɔʁt kə ʒə- nə- pɑ̃sˈɛ",
+                "de": "[dˌiːzə prˈyːfʊŋ lˈeːɾt mɪç\n das ɪç ʃtˈɛɾkɜ bɪn\n als ɪç dˈaxtə]",
+                "it": "[kwˌɛsta prˈɔːva mˌɪ insˈeɲʲa kˌe sˌono pjˌʊ fˈɔːrte dˌɪ kwˈanto pensˈassɪ]",
+                "es": "[ˈesta ˈpɾweβa me enˈseɲa ke ˈsoʝ ˈmas ˈfweɾte ðe lo ke penˈsaβa]",
+                "nl": "[dˌeːzə ˈœytdˌaːɣɪŋ lˈɪːrt mə dɑt ɪk stˈɛrkər bɛn dˈɑn ɪk dˈɑxt]",
+                "pt": "[ˌɛstæ prˈɔvæ mj ˌeɪŋsˈinæ ky sow mˈaɪs fˈɔɾətʃy dʊ ky pˌeɪŋsˈavæ]",
+                "en": "[ðɪs ɔːdˈiəl tˈiːtʃɪz mˌiː ðat aɪm stɹˈɒŋɡə ðɐn aɪ θˈɔːt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-074",
             "text": {
                 "fr": "Elle pense à tous les futurs possibles.",
-                "en": "She thinks about all possible futures.",
+                "en": "She thinks about all the possible futures.",
                 "de": "Sie denkt über alle möglichen Zukünfte nach.",
                 "it": "Pensava a tutti i futuri possibili.",
                 "es": "Piensa en todas las posibilidades futuras.",
                 "nl": "Ze denkt aan alle mogelijke toekomsten.",
-                "pt": "Ela pensa em todos os futuros possíveis.",
-                "en_pt": "She thinks about all the possible futures."
+                "pt": "Ela pensa em todos os futuros possíveis."
             },
             "ipa": {
                 "fr": "ɛl pˈɑ̃s a tu le- fytˈyʁ pɔsˈibl",
@@ -1995,7 +2047,7 @@
                 "es": "[ˈpjen.sa en ˈto.ðas las po.siβiˈli.ða.ðes fuˈtu.ɾas]",
                 "nl": "[zə dˈɛŋkt aːn ˈɑlə mˈoːɣələkə tˈukˌɔmstən]",
                 "pt": "[ˌɛlæ pˈeɪŋsæ ˈeɪŋ tˈodʊz ʊs fˌutˈuɾʊs pˌosˈiveɪs]",
-                "en": "[ʃiː θˈɪŋks ɐbˌaʊt ˈɔːl pˈɒsəbəl fjˈuːtʃəz]"
+                "en": "[ʃiː θˈɪŋks ɐbˌaʊt ˈɔːl ðə pˈɒsəbəl fjˈuːtʃəz]"
             },
             "provenance": {
                 "fr": "original",
@@ -2008,10 +2060,10 @@
             }
         },
         {
-            "id": "scene-11-066",
+            "id": "scene-11-075",
             "text": {
                 "fr": "Un futur où elle retourne à Paris et reprend sa vie d'avant.",
-                "en": "A future where she returns to Amsterdam and resumes her former life.",
+                "en": "A future where she returns to Paris and resumes her previous life.",
                 "de": "Eine Zukunft, in der sie nach Paris zurückkehrt und ihr altes Leben wieder aufnimmt.",
                 "it": "Un futuro dove torna a Roma e riprende la sua vita di prima.",
                 "es": "Un futuro donde regresa a Madrid y retoma su vida anterior.",
@@ -2026,7 +2078,7 @@
                 "es": "[un fuˈtu.ɾo ˈðon.de reˈɣɾe.sa a maˈðɾið i reˈto.ma su ˈβi.ða an.teˈɾjor]",
                 "nl": "[ən tˈukˌɔmst ʋˈaːrɪn zə tərˈɵxkˌɪːrt naːr ˈɑmstərdˌɑm ɛn haːr ˈʌʊdə lˈeːvən ʋˈɪːr ˈɔpɑkt]",
                 "pt": "[ũŋ fˌutˈuɾw ˌoŋdʒy vˈɔltæ pˌaɾæ sɐ̃ʊ̃ pˈaʊlw i xˌetˈomæ sˌuæ vˈidæ dʒj ˈɐ̃ŋtʃys]",
-                "en": "[ɐ fjˈuːtʃə wˌeə ʃiː ɹɪtˈɜːnz tʊ ˈamstədˌam and ɹɪzjˈuːmz hɜː fˈɔːmə lˈaɪf]"
+                "en": "[ɐ fjˈuːtʃə wˌeə ʃiː ɹɪtˈɜːnz tə pˈaɹɪs and ɹɪzjˈuːmz hɜː pɹˈiːvɪəs lˈaɪf]"
             },
             "provenance": {
                 "fr": "original",
@@ -2039,16 +2091,15 @@
             }
         },
         {
-            "id": "scene-11-067",
+            "id": "scene-11-076",
             "text": {
                 "fr": "Un futur où elle reste dans les montagnes.",
-                "en": "A future where she stays in the Ardennes.",
+                "en": "A future where she stays in the mountains.",
                 "de": "Eine Zukunft, in der sie in den Bergen bleibt.",
                 "it": "Un futuro dove rimane sulle montagne.",
                 "es": "Un futuro donde se queda en los Pirineos.",
                 "nl": "Een toekomst waarin ze in de Ardennen blijft.",
-                "pt": "Um futuro onde fica nas montanhas.",
-                "en_pt": "A future where she stays in the mountains."
+                "pt": "Um futuro onde fica nas montanhas."
             },
             "ipa": {
                 "fr": "œ̃ fytˈyʁ u ɛl ʁˈɛst dɑ̃ le- mɔ̃tˈanj",
@@ -2057,7 +2108,7 @@
                 "es": "[un fuˈtu.ɾo ˈðon.de se ˈke.ða en los pi.ɾiˈne.os]",
                 "nl": "[ən tˈukˌɔmst ʋˈaːrɪn zə ɪn də ˈɑrdɛnən blˈɛɪft]",
                 "pt": "[ũŋ fˌutˈuɾw ˌoŋdʒy fˈikæ naz mˌoŋtˈɐ̃ɲæs]",
-                "en": "[ɐ fjˈuːtʃə wˌeə ʃiː stˈeɪz ɪnðɪ ˈɑːdənz]"
+                "en": "[ɐ fjˈuːtʃə wˌeə ʃiː stˈeɪz ɪnðə mˈaʊntɪnz]"
             },
             "provenance": {
                 "fr": "original",
@@ -2070,16 +2121,15 @@
             }
         },
         {
-            "id": "scene-11-068",
+            "id": "scene-11-077",
             "text": {
                 "fr": "Un futur où elle et Lucas se séparent.",
-                "en": "A future where she and Lucas split up.",
+                "en": "A future where she and Lucas separate.",
                 "de": "Eine Zukunft, in der sie und Lucas sich trennen.",
                 "it": "Un futuro dove lei e Lucas si separano.",
                 "es": "Un futuro donde ella y Lucas se separan.",
                 "nl": "Een toekomst waarin zij en Lucas uit elkaar gaan.",
-                "pt": "Um futuro onde ela e Lucas se separam.",
-                "en_pt": "A future where she and Lucas separate."
+                "pt": "Um futuro onde ela e Lucas se separam."
             },
             "ipa": {
                 "fr": "œ̃ fytˈyʁ u ɛl e lykˈa sə- sepˈaʁ",
@@ -2088,7 +2138,7 @@
                 "es": "[un fuˈtu.ɾo ˈðon.de ˈe.ʎa i ˈlu.kas se se.paˈɾan]",
                 "nl": "[ən tˈukˌɔmst ʋˈaːrɪn zɛɪ ɛn lˈykɑs œyt ˈɛlkaːr ɣˈaːn]",
                 "pt": "[ũŋ fˌutˈuɾw ˌoŋdʒj ˌɛlæ i lˈukæs sy sˌepˈaɾɐ̃ʊ̃]",
-                "en": "[ɐ fjˈuːtʃə wˌeə ʃiː and lˈuːkəz splˈɪt ˈʌp]"
+                "en": "[ɐ fjˈuːtʃə wˌeə ʃiː and lˈuːkəz sˈɛpɹət]"
             },
             "provenance": {
                 "fr": "original",
@@ -2101,15 +2151,16 @@
             }
         },
         {
-            "id": "scene-11-069",
+            "id": "scene-11-078",
             "text": {
                 "fr": "Un futur où ils restent ensemble mais différents.",
-                "en": "A future where they stay together but different.",
+                "en": "A future where they stay together but changed.",
                 "de": "Eine Zukunft, in der sie zusammenbleiben, aber sich verändern.",
                 "it": "Un futuro dove restano insieme ma sono cambiati.",
                 "es": "Un futuro donde siguen juntos pero diferentes.",
                 "nl": "Een toekomst waarin ze samen blijven, maar anders.",
-                "pt": "Um futuro onde ficam juntos mas diferentes."
+                "pt": "Um futuro onde ficam juntos mas diferentes.",
+                "en_pt": "A future where they stay together but different."
             },
             "ipa": {
                 "fr": "œ̃ fytˈyʁ u il ʁˈɛstt ɑ̃sˈɑ̃bl mɛ difeʁˈɑ̃",
@@ -2118,7 +2169,7 @@
                 "es": "[un fuˈtu.ɾo ˈðon.de ˈsi.ɣen ˈxun.tos ˈpe.ro di.feˈɾen.tes]",
                 "nl": "[ən tˈukˌɔmst ʋˈaːrɪn zə sˈaːmən blˈɛɪvən\n maːr ˈɑndərs]",
                 "pt": "[ũŋ fˌutˈuɾw ˌoŋdʒy fˈikɐ̃ʊ̃ ʒˈũŋtʊz maz dʒˌifeɾˈeɪŋtʃys]",
-                "en": "[ɐ fjˈuːtʃə wˌeə ðeɪ stˈeɪ təɡˌɛðə bˌʌt dˈɪfɹənt]"
+                "en": "[ɐ fjˈuːtʃə wˌeə ðeɪ stˈeɪ təɡˌɛðə bˌʌt tʃˈeɪndʒd]"
             },
             "provenance": {
                 "fr": "original",
@@ -2131,232 +2182,7 @@
             }
         },
         {
-            "id": "scene-11-070",
-            "text": {
-                "pt": "Tem uma lareira.",
-                "en": "There's a fireplace."
-            },
-            "ipa": {
-                "pt": "[teɪŋ ˌumæ lˌaɾˈeɪɾæ]",
-                "en": "[ðeəz ɐ fˈaɪəpleɪs]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-071",
-            "text": {
-                "pt": "Na parede, alguém gravou palavras quase apagadas: ...não perdoa...ensina.",
-                "en": "On the wall, someone carved nearly faded words: ...doesn't forgive...teaches."
-            },
-            "ipa": {
-                "pt": "[na pˌaɾˈedʒy\n aʊɡˈeɪŋ ɡravˈow pˌalˈavræs kwˈazj ˌapaɡˈadæs\n nˌɐ̃ʊ̃ pˌeɾədˈoæ\n ˌeɪŋsˈinæ]",
-                "en": "[ɒnðə wˈɔːl sˈʌmwɒn kˈɑːvd nˌiəli fˈeɪdɪd wˈɜːdz dˈʌzənt fəɡˈɪv tˈiːtʃɪz]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-072",
-            "text": {
-                "pt": "Quem morou aqui antes de mim?",
-                "en": "Who lived here before me?"
-            },
-            "ipa": {
-                "pt": "[kˈeɪŋ moɾˈow akˈi ˈɐ̃ŋtʃyz dʒy mˈiŋ]",
-                "en": "[hˌuː lˈɪvd hˈiə bɪfˈɔː mˌiː]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-073",
-            "text": {
-                "pt": "Ela toca as paredes de pedra.",
-                "en": "She touches the stone walls."
-            },
-            "ipa": {
-                "pt": "[ˌɛlæ tˈɔkæ as pˌaɾˈedʒyz dʒy pˈɛdræ]",
-                "en": "[ʃiː tˈʌtʃɪz ðə stˈəʊn wˈɔːlz]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-074",
-            "text": {
-                "pt": "Ela risca.",
-                "en": "She strikes it."
-            },
-            "ipa": {
-                "pt": "[ˌɛlæ xˈiskæ]",
-                "en": "[ʃiː stɹˈaɪks ɪt]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-075",
-            "text": {
-                "pt": "Nada.",
-                "en": "Nothing."
-            },
-            "ipa": {
-                "pt": "[nˈadæ]",
-                "en": "[nˈʌθɪŋ]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-076",
-            "text": {
-                "pt": "Finalmente!",
-                "en": "Finally!"
-            },
-            "ipa": {
-                "pt": "[fˌinaʊmˈeɪŋtʃy]",
-                "en": "[fˈaɪnəli]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-077",
-            "text": {
-                "pt": "Este fogo...",
-                "en": "This fire..."
-            },
-            "ipa": {
-                "pt": "[ˌestʃy fˈoɡʊ]",
-                "en": "[ðɪs fˈaɪə]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-078",
-            "text": {
-                "pt": "fui eu quem criei.",
-                "en": "I created it."
-            },
-            "ipa": {
-                "pt": "[fuɪ eʊ kˈeɪŋ kriˈeɪ]",
-                "en": "[aɪ kɹiːˈeɪtɪd ɪt]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
             "id": "scene-11-079",
-            "text": {
-                "pt": "Só eu.",
-                "en": "Just me."
-            },
-            "ipa": {
-                "pt": "[sˈɔ ˈeʊ]",
-                "en": "[dʒˈʌst mˌiː]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-080",
-            "text": {
-                "pt": "Espera...",
-                "en": "Wait..."
-            },
-            "ipa": {
-                "pt": "[ˌespˈɛɾæ]",
-                "en": "[wˈeɪt]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-081",
-            "text": {
-                "pt": "São urtigas!",
-                "en": "They're nettles!"
-            },
-            "ipa": {
-                "pt": "[sɐ̃ʊ̃ ˌuɾətʃˈiɡæs]",
-                "en": "[ðeɪə nˈɛtəlz]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-082",
-            "text": {
-                "pt": "como água correndo!",
-                "en": "like running water!"
-            },
-            "ipa": {
-                "pt": "[kˌomʊ ˈaɡwæ kˌoxˈeɪŋdʊ]",
-                "en": "[lˈaɪk ɹˈʌnɪŋ wˈɔːtə]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-083",
-            "text": {
-                "pt": "Uma nascente!",
-                "en": "A spring!"
-            },
-            "ipa": {
-                "pt": "[ˌumæ nˌasˈeɪŋtʃy]",
-                "en": "[ɐ spɹˈɪŋ]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-084",
-            "text": {
-                "pt": "Ou será...",
-                "en": "Or is it..."
-            },
-            "ipa": {
-                "pt": "[ow seɾˈa]",
-                "en": "[ɔːɹ ɪz ˈɪt]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-11-085",
             "text": {
                 "pt": "Quem sou eu realmente?",
                 "en": "Who am I really?"
@@ -2367,6 +2193,175 @@
             },
             "provenance": {
                 "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-080",
+            "text": {
+                "fr": "Qui suis-je vraiment? Peut-être que je ne le saurai jamais complètement",
+                "en": "Who am I really? Maybe I'll never fully know",
+                "de": "Wer bin ich wirklich? Vielleicht werde ich es nie ganz wissen.",
+                "it": "Chi sono veramente? Forse non lo saprò mai completamente.",
+                "es": "¿Quién soy realmente? Quizás nunca lo sepa completamente",
+                "nl": "Wie ben ik echt? Misschien zal ik het nooit helemaal weten.",
+                "pt": "Talvez eu nunca saiba completamente.",
+                "en_pt": "Maybe I'll never know completely."
+            },
+            "ipa": {
+                "fr": "ki syˌiʒ vʁɛmˈɑ̃ pˈøtˈɛtʁ kə ʒə- nə- lə- soʁˈe ʒamˌɛ kɔ̃plɛtmˈɑ̃",
+                "de": "[vˈeːɾ bɪn ɪç vˈɪɾklɪç\n fiːllˈaɪçt vˌɛɾdə ɪç ɛs nˈiː ɡˌants vˈɪsən]",
+                "it": "[kˈi sˌono vˌɛramˈente\n fˈoːrse nˌon lˌo saprˈɔ mˌaɪ kˌompletamˈente]",
+                "es": "[ˈkjen ˈsoʝ reˈalmente kiˈθas ˈnunka lo ˈsepa kompleˈtamente]",
+                "nl": "[ʋˈi bɛn ɪk ˈɛxt\n mɪsxˈin zɑl ɪk hət nˈoːjt hˌeːləmˈaːl ʋˈeːtən]",
+                "pt": "[taʊvˈez eʊ nˌũŋkæ sˈaɪbæ kˌompletæmˈeɪŋtʃy]",
+                "en": "[hˌuː am aɪ ɹˈiəlɪ mˈeɪbiː aɪl nˈɛvə fˈʊli nˈəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-081",
+            "text": {
+                "fr": "Peut-être que c'est normal.",
+                "en": "Maybe that's normal.",
+                "de": "Vielleicht ist das normal.",
+                "it": "Forse è normale.",
+                "es": "Quizás eso es normal.",
+                "nl": "Misschien is dat normaal.",
+                "pt": "Talvez seja normal."
+            },
+            "ipa": {
+                "fr": "pˈøtˈɛtʁ kə sɛ nɔʁmˈal",
+                "de": "[fiːllˈaɪçt ɪst das nˈɔɾmɑːl]",
+                "it": "[fˈoːrse ˌɛ normˈaːle]",
+                "es": "[kiˈθas ˈeso es noɾˈmal]",
+                "nl": "[mɪsxˈin ɪs dɑt nɔrmˈaːl]",
+                "pt": "[taʊvˈes sˈeʒæ noɾəmˈaʊ]",
+                "en": "[mˈeɪbiː ðats nˈɔːməl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-082",
+            "text": {
+                "fr": "...ne pardonne pas...enseigne.",
+                "en": "...does not forgive...teaches.",
+                "de": "...vergibt nicht...lehrt.",
+                "it": "...non perdona...insegna.",
+                "es": "...no perdona...enseña.",
+                "nl": "...vergeeft niet...onderwijst."
+            },
+            "ipa": {
+                "fr": "nə- paʁdˈɔn pˈa ɑ̃sˈɛɲ",
+                "de": "[fɛɾɡˈiːpt nˈɪçt\n lˈeːɾt]",
+                "it": "[nˌon perdˈoːna\n insˈeɲʲa]",
+                "es": "[...no peɾˈðona...enˈseɲa]",
+                "nl": "[vərɣˈeːft nˈit\n ˈɔndərʋˌɛɪst]",
+                "en": "[dʌznˌɒt fəɡˈɪv tˈiːtʃɪz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-083",
+            "text": {
+                "fr": "Ce feu... c'est moi qui l'ai créé. Moi seule.",
+                "en": "This fire... I created it. Me alone.",
+                "de": "Dieses Feuer... ich habe es selbst gemacht. Nur ich allein.",
+                "it": "Questo fuoco... l'ho creato io. Solo io.",
+                "es": "Este fuego... lo he creado yo sola.",
+                "nl": "Dit vuur... ik heb het zelf gemaakt. Helemaal alleen."
+            },
+            "ipa": {
+                "fr": "sə- fˈø sɛ mwˌa ki le kʁeˈe mwˌa sˈœl",
+                "de": "[dˌiːzəs fˈɔøɜ\n ɪç hɑːbə ɛs zˈɛlpst ɡəmˈaxt\n nˈuːɾ ɪç alˈaɪn]",
+                "it": "[kwˌɛsto fʊˈɔːko\n lˌo kreˈaːto ˈio\n sˈoːlo ˈio]",
+                "es": "[ˈeste ˈfweɣo lo e kɾeˈaðo ʝo ˈsola]",
+                "nl": "[dɪt vˈyr\n ɪk hɛp hət zˈɛlf ɣəmˈaːkt\n hˌeːləmˈaːl ɑlˈeːn]",
+                "en": "[ðɪs fˈaɪə aɪ kɹiːˈeɪtɪd ɪt mˌiː ɐlˈəʊn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-084",
+            "text": {
+                "fr": "Ou bien..",
+                "en": "Or else..",
+                "de": "Oder...",
+                "it": "O forse...",
+                "es": "O quizás...",
+                "nl": "Of..."
+            },
+            "ipa": {
+                "fr": "u bjˈɛ̃",
+                "de": "[ˈoːdɜ]",
+                "it": "[ˌo fˈoːrse]",
+                "es": "[o kiˈθas]",
+                "nl": "[ˈɔf]",
+                "en": "[ɔːɹ ˈɛls]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-11-085",
+            "text": {
+                "fr": "elle est simplement authentique.",
+                "en": "She is simply authentic.",
+                "de": "sie ist einfach authentisch.",
+                "it": "È semplicemente autentica.",
+                "es": "es simplemente auténtica.",
+                "nl": "Ze is gewoon authentiek."
+            },
+            "ipa": {
+                "fr": "ɛl ɛ sɛ̃pləmˈɑ̃ɔːθɛntˈiːk",
+                "de": "[ziː ɪst ˈaɪnfˌax aʊtˈɛntɪʃ]",
+                "it": "[ˌɛ sˌemplitʃemˈente ˌaʊtˈɛntika]",
+                "es": "[es sim.pleˈmen.te awˈten.ti.ka]",
+                "nl": "[zə ɪs ɣəʋˈoːn ˌʌʊtəntˈik]",
+                "en": "[ʃiː ɪz sˈɪmpli ɔːθˈɛntɪk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "en": "original"
             }
         }

@@ -268,16 +268,70 @@ def merge_story_scenes(materials_dir, output_dir, dry_run=False, verbose=False):
             # No core languages for this scene — PT becomes the base
             pt_unmatched = list(lang_data["pt"])
 
-        # Build unified phrases: first the core set, then PT-only extras
+        # Build unified phrases: PT source order first, then unmatched FR positions.
+        # This preserves the Portuguese narrative arc rather than scrambling PT
+        # phrases to French-canonical positions via fuzzy matching.
         unified_phrases = []
+        used_fr_positions = set()
 
+        if "pt" in lang_data:
+            # Build reverse map: pt_phrase object id -> matched FR position
+            pt_entry_to_fr_pos = {id(pe): ci for ci, pe in pt_matched.items()}
+
+            for pt_entry in lang_data["pt"]:
+                fr_pos = pt_entry_to_fr_pos.get(id(pt_entry))
+                idx = len(unified_phrases) + 1
+                phrase_id = f"scene-{scene_num:02d}-{idx:03d}"
+                text = {}
+                ipa = {}
+                provenance = {}
+
+                # Add core languages from the matched FR position (if any)
+                if fr_pos is not None:
+                    used_fr_positions.add(fr_pos)
+                    for lang in CORE_LANGS:
+                        phrases = lang_data.get(lang, [])
+                        if fr_pos < len(phrases):
+                            entry = phrases[fr_pos]
+                            text[lang] = entry.get(lang, "")
+                            if entry.get("ipa"):
+                                ipa[lang] = entry["ipa"]
+                            provenance[lang] = "original"
+                            eng = entry.get("english", "")
+                            if eng and "en" not in text:  # first-wins: FR sets en
+                                text["en"] = eng
+
+                # Add PT data
+                text["pt"] = pt_entry.get("pt", "")
+                if pt_entry.get("ipa"):
+                    ipa["pt"] = pt_entry["ipa"]
+                provenance["pt"] = "original"
+                pt_en = pt_entry.get("english", "")
+                if pt_en:
+                    if "en" not in text:
+                        text["en"] = pt_en
+                    elif pt_en != text["en"]:
+                        text["en_pt"] = pt_en  # preserve PT's English variant
+
+                if "en" in text:
+                    provenance["en"] = "original"
+
+                unified_phrases.append({
+                    "id": phrase_id,
+                    "text": text,
+                    "ipa": ipa,
+                    "provenance": provenance,
+                })
+
+        # Append any FR positions not matched by any PT phrase (core-only entries)
         for i in range(core_count):
-            phrase_id = f"scene-{scene_num:02d}-{i + 1:03d}"
+            if i in used_fr_positions:
+                continue
+            idx = len(unified_phrases) + 1
+            phrase_id = f"scene-{scene_num:02d}-{idx:03d}"
             text = {}
             ipa = {}
             provenance = {}
-
-            # Add core languages by position
             for lang in CORE_LANGS:
                 phrases = lang_data.get(lang, [])
                 if i < len(phrases):
@@ -287,49 +341,14 @@ def merge_story_scenes(materials_dir, output_dir, dry_run=False, verbose=False):
                         ipa[lang] = entry["ipa"]
                     provenance[lang] = "original"
                     eng = entry.get("english", "")
-                    if eng:
+                    if eng and "en" not in text:  # first-wins: FR sets en
                         text["en"] = eng
-
-            # Add PT if it matched this core position
-            if i in pt_matched:
-                pt_entry = pt_matched[i]
-                text["pt"] = pt_entry.get("pt", "")
-                if pt_entry.get("ipa"):
-                    ipa["pt"] = pt_entry["ipa"]
-                provenance["pt"] = "original"
-                # Store PT's own English as alternate (may differ from core)
-                pt_en = pt_entry.get("english", "")
-                if pt_en and pt_en != text.get("en", ""):
-                    text["en_pt"] = pt_en  # preserve PT's English variant
-
             if "en" in text:
                 provenance["en"] = "original"
-
             unified_phrases.append({
                 "id": phrase_id,
                 "text": text,
                 "ipa": ipa,
-                "provenance": provenance,
-            })
-
-        # Append unmatched PT phrases as sparse entries (PT + EN only)
-        for j, pt_entry in enumerate(pt_unmatched):
-            idx = core_count + j + 1
-            phrase_id = f"scene-{scene_num:02d}-{idx:03d}"
-            text = {"pt": pt_entry.get("pt", "")}
-            ipa_dict = {}
-            provenance = {"pt": "original"}
-            pt_en = pt_entry.get("english", "")
-            if pt_en:
-                text["en"] = pt_en
-                provenance["en"] = "original"
-            if pt_entry.get("ipa"):
-                ipa_dict["pt"] = pt_entry["ipa"]
-
-            unified_phrases.append({
-                "id": phrase_id,
-                "text": text,
-                "ipa": ipa_dict,
                 "provenance": provenance,
             })
 
