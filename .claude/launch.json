@@ -26,6 +26,18 @@
       "autoPort": false
     },
     {
+      "name": "miolingo (public)",
+      "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
+      "runtimeArgs": [
+        "run", "src/app.py",
+        "--server.headless", "true",
+        "--server.port", "8901"
+      ],
+      "cwd": "${workspaceFolder}",
+      "port": 8901,
+      "autoPort": false
+    },
+    {
       "name": "unified-admin",
       "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
       "runtimeArgs": [
