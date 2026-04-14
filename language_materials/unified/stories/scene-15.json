@@ -24,253 +24,15 @@
             "nl",
             "pt"
         ],
-        "generated": "2026-04-09",
+        "generated": "2026-04-14",
         "generator": "merge_materials.py"
     },
     "phrases": [
         {
             "id": "scene-15-001",
             "text": {
-                "fr": "J'entends un bruit de moteur au-dessus de moi.",
-                "en": "I hear an engine noise above me.",
-                "de": "Ich höre ein Motorengeräusch über mir.",
-                "it": "Sento un rumore di motore sopra di me.",
-                "es": "Oigo un ruido de motor encima de mí.",
-                "nl": "Ik hoor een motorgeluid boven me.",
-                "pt": "Ouço um barulho de motor acima de mim."
-            },
-            "ipa": {
-                "fr": "ʒɑ̃tˈɑ̃z œ̃ bʁyˈi də- mɔtˈœʁ odəsˈy də- mwˈa",
-                "de": "[ɪ� hoːrə ʔaɪn ˈmoːtoːɐ̯ɡəˌʁɔʏ̯ʃ ˈyːbɐ miːɐ̯]",
-                "it": "[sˈɛnto ˌʊn rʊmˈoːre dˌɪ motˈoːre sˈɔːpra dˌɪ mˈe]",
-                "es": "[ˈoiɣo un ˈrwiðo ðe ˈmotoɾ enˈθima ðe ˈmi]",
-                "nl": "[ɪk hˈoːr ən mˈoːtɔrɣˌeːlœyt bˈoːvən mə]",
-                "pt": "[ˈowsw ũŋ bˌaɾˈuljʊ dʒy motˈoɾ ˌasˈimæ dʒy mˈiŋ]",
-                "en": "[aɪ hˈiəɹ ɐn ˈɛndʒɪn nˈɔɪz əbˈʌv mˌiː]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-002",
-            "text": {
-                "fr": "C'est un hélicoptère de secours!",
-                "en": "It's a rescue helicopter!",
-                "de": "Das ist ein Rettungshubschrauber!",
-                "it": "È un elicottero di soccorso!",
-                "es": "¡Es un helicóptero de rescate!",
-                "nl": "Het is een reddingshelikopter!",
-                "pt": "É um helicóptero de resgate!"
-            },
-            "ipa": {
-                "fr": "sɛt œ̃n elikɔptˈɛʁ də- səkˈuʁ",
-                "de": "[das ɪst ʔaɪn ˈʁɛtʊŋsˌhʊpʃʁaʊ̯bɐ]",
-                "it": "[ˌɛ ˌʊn ˌɛlikˈɔtːero dˌɪ sokːˈoːrso]",
-                "es": "[es un eliˈkopteɾo ðe resˈkate]",
-                "nl": "[hət ɪs ən rˈɛdɪŋshˌeːlikˌɔptər]",
-                "pt": "[ɛ ũŋ ˌelikˈɔpteɾʊ dʒy xˌezɡˈatʃy]",
-                "en": "[ɪts ɐ ɹˈɛskjuː hˈɛlɪkˌɒptə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-003",
-            "text": {
-                "fr": "Ils me cherchent, il faut que je leur fasse signe!",
-                "en": "They are looking for me, I need to wave!",
-                "de": "Sie suchen mich, ich muss ihnen Zeichen geben!",
-                "it": "Mi stanno cercando, devo far loro un segnale!",
-                "es": "¡Me están buscando, tengo que hacerles señas!",
-                "nl": "Ze zijn me aan het zoeken, ik moet zwaaien!",
-                "pt": "Eles estão me procurando, preciso fazer sinal!",
-                "en_pt": "They're looking for me, I need to signal!"
-            },
-            "ipa": {
-                "fr": "il mə- ʃˈɛʁʃ il fo kə ʒə- lœʁ fˈas sˈiɲ",
-                "de": "[ziː ˈzuːxən mɪ� ɪ� mʊs ˈiːnən ˈt͡saɪ̯çən ˈɡeːbən]",
-                "it": "[mˌɪ stˈanno tʃerkˈando\n dˈɛːvo fˈar lˌɔro ˌʊn seɲˈaːle]",
-                "es": "[me esˈtan busˈkando ˈteŋɣo ke aˈθeɾles ˈseɲas]",
-                "nl": "[zə zɛɪn mə aːn hət zˈukən\n ɪk mˈut zʋˈaːjən]",
-                "pt": "[ˌelyz estˌɐ̃ʊ̃ my prˌokuɾˈɐ̃ŋdʊ\n prˌesˈizʊ fazˌer sinˈaʊ]",
-                "en": "[ðeɪ ɑː lˈʊkɪŋ fɔː mˌiː aɪ nˈiːd tə wˈeɪv]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-004",
-            "text": {
-                "fr": "Là-haut! Je suis ici! Ici!",
-                "en": "Up there! I am here! Here!",
-                "de": "Da oben! Ich bin hier! Hier!",
-                "it": "Lassù! Sono qui! Qui!",
-                "es": "¡Allá arriba! ¡Estoy aquí! ¡Aquí!",
-                "nl": "Daarboven! Ik ben hier! Hier!"
-            },
-            "ipa": {
-                "fr": "lˈaˈo ʒə- syˌiz isˈi isˈi",
-                "de": "[da ˈoːbən ɪ� bɪn hiːɐ̯ hiːɐ̯]",
-                "it": "[lassˈu\n sˌono kwˈi\n kwˈi]",
-                "es": "[ˈaʎa aˈriβa | esˈtoj aˈki | aˈki]",
-                "nl": "[daːrbˈoːvən\n ɪk bɛn hˈir\n hˈir]",
-                "en": "[ˌʌp ðˈeə aɪɐm hˈiə hˈiə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-005",
-            "text": {
-                "fr": "Ils m'ont vue, ils descendent!",
-                "en": "They have seen me, they are coming down!",
-                "de": "Sie haben mich gesehen, sie kommen runter!",
-                "it": "Mi hanno vista, stanno scendendo!",
-                "es": "¡Me han visto, están bajando!",
-                "nl": "Ze hebben me gezien, ze komen naar beneden!",
-                "pt": "Eles me viram, estão descendo!",
-                "en_pt": "They saw me, they're coming down!"
-            },
-            "ipa": {
-                "fr": "il mɔ̃ vˈy il dɛsˈɑ̃d",
-                "de": "[ziː ˈhaːbən mɪ� ɡəˈzeːən ziː ˈkɔmən ˈʁʊntɐ]",
-                "it": "[mˌɪ ˌanno vˈista\n stˈanno ʃendˈɛndo]",
-                "es": "[me an ˈbisto | esˈtan baˈxando]",
-                "nl": "[zə hˌɛbən mə ɣəzˈin\n zə kˈoːmən naːr bənˈeːdən]",
-                "pt": "[ˌelyz my vˈiɾɐ̃ʊ̃\n estˌɐ̃ʊ̃ dˌesˈeɪŋdʊ]",
-                "en": "[ðeɪ hav sˈiːn mˌiː ðeɪ ɑː kˈʌmɪŋ dˈaʊn]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-006",
-            "text": {
-                "fr": "Que je suis soulagée!",
-                "en": "What a relief!",
-                "de": "Wie erleichtert ich bin!",
-                "it": "Che sollievo!",
-                "es": "¡Qué aliviada me siento!",
-                "nl": "Wat een opluchting!"
-            },
-            "ipa": {
-                "fr": "kə ʒə- syˌi sulaʒˈe",
-                "de": "[viː ɛɐ̯ˈlaɪ̯�ɐ̯t ɪ� bɪn]",
-                "it": "[kˌe sˌolliˈɛːvo]",
-                "es": "[ke aliˈβjaða me ˈsjento]",
-                "nl": "[ʋɑt ən ˈɔplˌɵxtɪŋ]",
-                "en": "[wˌɒt ɐ ɹɪlˈiːf]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-007",
-            "text": {
-                "fr": "Lucas doit être fou d'inquiétude.",
-                "en": "Lucas must be terribly worried.",
-                "de": "Lucas muss sich wahnsinnig Sorgen machen.",
-                "it": "Lucas deve essere impazzito dall'ansia.",
-                "es": "Lucas debe estar loco de preocupación.",
-                "nl": "Lucas moet zich rot zorgen maken.",
-                "pt": "Lucas deve estar louco de preocupação.",
-                "en_pt": "Lucas must be crazy with worry."
-            },
-            "ipa": {
-                "fr": "lykˈa dwˈa ˈɛtʁ fˈu dɛ̃kjetˈyd",
-                "de": "[ˈluːkas mʊs zɪ� ˈvaːnˈzɪnɪ� ˈzɔʁɡən ˈmaxən]",
-                "it": "[lˈuːkas dˈeːve ˈɛssere ˌimpatsːˈiːto dallˈansia]",
-                "es": "[ˈlukas ˈðeβe esˈtar ˈloko ðe pɾeokuˈpaθjon]",
-                "nl": "[lˈykɑs mˈut zɪx rˈɔt zˈɔrɣən mˈaːkən]",
-                "pt": "[lˈukæz dˈɛvj estˌar lˈowkʊ dʒy prˌeokˌupasˈɐ̃ʊ̃]",
-                "en": "[lˈuːkəz mˈʌst biː tˈɛɹəblɪ wˈʌɹɪd]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-008",
-            "text": {
-                "fr": "Bientôt, nous serons réunis.",
-                "en": "Soon, we will be reunited.",
-                "de": "Bald sind wir wieder zusammen.",
-                "it": "Presto saremo di nuovo insieme.",
-                "es": "Pronto, estaremos juntos.",
-                "nl": "Binnenkort zijn we weer samen.",
-                "pt": "Logo estaremos reunidos.",
-                "en_pt": "Soon we'll be reunited."
-            },
-            "ipa": {
-                "fr": "bjɛ̃tˈo nu səʁˈɔ̃ ʁeynˈi",
-                "de": "[balt zɪnt viːɐ̯ ˈviːdɐ t͡suˈzamən]",
-                "it": "[prˈɛsto sarˌɛmo dˌɪ nʊˈɔːvo insjˈɛːme]",
-                "es": "[ˈpɾonto | estaˈɾemos ˈxuntos]",
-                "nl": "[bˈɪnənkˌɔrt zɛɪn ʋə ʋˈɪːr sˈaːmən]",
-                "pt": "[lˈɔɡw ˌestaɾˌemʊz xˌeunˈidʊs]",
-                "en": "[sˈuːn wiː wɪl biː ɹˌiːjuːnˈaɪtɪd]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-15-009",
-            "text": {
                 "fr": "Sophie commence à descendre prudemment.",
-                "en": "Sophie starts to descend cautiously.",
+                "en": "Sophie begins to descend cautiously.",
                 "de": "Sophie beginnt vorsichtig abzusteigen.",
                 "it": "Sophie inizia a scendere con cautela.",
                 "es": "Sophie empieza a bajar con cuidado.",
@@ -285,7 +47,7 @@
                 "es": "[ˈsofi emˈpjeθa a baˈxaɾ kon kwiˈðaðo]",
                 "nl": "[sɔphˈi bəɣˈɪnt vˌɔːrzˈɪxtəx ˈɑf tə dˈaːlən]",
                 "pt": "[sˌofˈiy kˌomˈɛsæ a desˈer koŋ kˌuɪdˈadʊ]",
-                "en": "[sˈəʊfi stˈɑːts tə dɪsˈɛnd kˈɔːʃəsli]"
+                "en": "[sˈəʊfi bɪɡˈɪnz tə dɪsˈɛnd kˈɔːʃəsli]"
             },
             "provenance": {
                 "fr": "original",
@@ -298,7 +60,7 @@
             }
         },
         {
-            "id": "scene-15-010",
+            "id": "scene-15-002",
             "text": {
                 "fr": "Le brouillard s'est levé, le ciel est clair.",
                 "en": "The fog has lifted, the sky is clear.",
@@ -328,7 +90,7 @@
             }
         },
         {
-            "id": "scene-15-011",
+            "id": "scene-15-003",
             "text": {
                 "fr": "Soudain, elle entend un bruit inhabituel.",
                 "en": "Suddenly, she hears an unusual noise.",
@@ -359,16 +121,46 @@
             }
         },
         {
-            "id": "scene-15-012",
+            "id": "scene-15-004",
+            "text": {
+                "fr": "J'entends un bruit de moteur au-dessus de moi.",
+                "en": "I hear a sound of a motor above me.",
+                "de": "Ich höre ein Motorengeräusch über mir.",
+                "it": "Sento un rumore di motore sopra di me.",
+                "es": "Oigo un ruido de motor encima de mí.",
+                "nl": "Ik hoor een motorgeluid boven me.",
+                "pt": "Ouço um barulho de motor acima de mim.",
+                "en_pt": "I hear an engine noise above me."
+            },
+            "ipa": {
+                "fr": "ʒɑ̃tˈɑ̃z œ̃ bʁyˈi də- mɔtˈœʁ odəsˈy də- mwˈa",
+                "de": "[ɪ� hoːrə ʔaɪn ˈmoːtoːɐ̯ɡəˌʁɔʏ̯ʃ ˈyːbɐ miːɐ̯]",
+                "it": "[sˈɛnto ˌʊn rʊmˈoːre dˌɪ motˈoːre sˈɔːpra dˌɪ mˈe]",
+                "es": "[ˈoiɣo un ˈrwiðo ðe ˈmotoɾ enˈθima ðe ˈmi]",
+                "nl": "[ɪk hˈoːr ən mˈoːtɔrɣˌeːlœyt bˈoːvən mə]",
+                "pt": "[ˈowsw ũŋ bˌaɾˈuljʊ dʒy motˈoɾ ˌasˈimæ dʒy mˈiŋ]",
+                "en": "[aɪ hˈiəɹ ɐ sˈaʊnd əvə mˈəʊtəɹ əbˈʌv mˌiː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-005",
             "text": {
                 "fr": "Elle lève les yeux et voit quelque chose dans le ciel.",
-                "en": "She looks up and sees something in the sky.",
+                "en": "She raises her eyes and sees something in the sky.",
                 "de": "Sie blickt hoch und sieht etwas am Himmel.",
                 "it": "Alza gli occhi e vede qualcosa nel cielo.",
                 "es": "Levanta la vista y ve algo en el cielo.",
                 "nl": "Ze kijkt omhoog en ziet iets in de lucht.",
-                "pt": "Ela levanta os olhos e vê algo no céu.",
-                "en_pt": "She raises her eyes and sees something in the sky."
+                "pt": "Ela levanta os olhos e vê algo no céu."
             },
             "ipa": {
                 "fr": "ɛl lˈɛv le-z jˈøz e vwˈa kˌɛlkə ʃˈoz dɑ̃ lə- sjˈɛl",
@@ -377,7 +169,7 @@
                 "es": "[leˈβanta la ˈβista i βe ˈalɣo en el ˈθjelo]",
                 "nl": "[zə kˈɛɪkt ɔmhˈoːx ɛn zˈit ˈits ɪn də lˈɵxt]",
                 "pt": "[ˌɛlæ lˌevˈɐ̃ŋtæ ʊz ˈɔljʊz i vˈe ˈaʊɡʊ nʊ sˈɛʊ]",
-                "en": "[ʃiː lˈʊks ˌʌp and sˈiːz sˈʌmθɪŋ ɪnðə skˈaɪ]"
+                "en": "[ʃiː ɹˈeɪzɪz hɜːɹ ˈaɪz and sˈiːz sˈʌmθɪŋ ɪnðə skˈaɪ]"
             },
             "provenance": {
                 "fr": "original",
@@ -390,15 +182,77 @@
             }
         },
         {
-            "id": "scene-15-013",
+            "id": "scene-15-006",
+            "text": {
+                "fr": "C'est un hélicoptère de secours!",
+                "en": "It's a rescue helicopter!",
+                "de": "Das ist ein Rettungshubschrauber!",
+                "it": "È un elicottero di soccorso!",
+                "es": "¡Es un helicóptero de rescate!",
+                "nl": "Het is een reddingshelikopter!",
+                "pt": "É um helicóptero de resgate!"
+            },
+            "ipa": {
+                "fr": "sɛt œ̃n elikɔptˈɛʁ də- səkˈuʁ",
+                "de": "[das ɪst ʔaɪn ˈʁɛtʊŋsˌhʊpʃʁaʊ̯bɐ]",
+                "it": "[ˌɛ ˌʊn ˌɛlikˈɔtːero dˌɪ sokːˈoːrso]",
+                "es": "[es un eliˈkopteɾo ðe resˈkate]",
+                "nl": "[hət ɪs ən rˈɛdɪŋshˌeːlikˌɔptər]",
+                "pt": "[ɛ ũŋ ˌelikˈɔpteɾʊ dʒy xˌezɡˈatʃy]",
+                "en": "[ɪts ɐ ɹˈɛskjuː hˈɛlɪkˌɒptə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-007",
+            "text": {
+                "fr": "Ils me cherchent, il faut que je leur fasse signe!",
+                "en": "They are looking for me, I have to signal them!",
+                "de": "Sie suchen mich, ich muss ihnen Zeichen geben!",
+                "it": "Mi stanno cercando, devo far loro un segnale!",
+                "es": "¡Me están buscando, tengo que hacerles señas!",
+                "nl": "Ze zijn me aan het zoeken, ik moet zwaaien!",
+                "pt": "Eles estão me procurando, preciso fazer sinal!",
+                "en_pt": "They're looking for me, I need to signal!"
+            },
+            "ipa": {
+                "fr": "il mə- ʃˈɛʁʃ il fo kə ʒə- lœʁ fˈas sˈiɲ",
+                "de": "[ziː ˈzuːxən mɪ� ɪ� mʊs ˈiːnən ˈt͡saɪ̯çən ˈɡeːbən]",
+                "it": "[mˌɪ stˈanno tʃerkˈando\n dˈɛːvo fˈar lˌɔro ˌʊn seɲˈaːle]",
+                "es": "[me esˈtan busˈkando ˈteŋɣo ke aˈθeɾles ˈseɲas]",
+                "nl": "[zə zɛɪn mə aːn hət zˈukən\n ɪk mˈut zʋˈaːjən]",
+                "pt": "[ˌelyz estˌɐ̃ʊ̃ my prˌokuɾˈɐ̃ŋdʊ\n prˌesˈizʊ fazˌer sinˈaʊ]",
+                "en": "[ðeɪ ɑː lˈʊkɪŋ fɔː mˌiː aɪ hav tə sˈɪɡnəl ðˌɛm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-008",
             "text": {
                 "fr": "Elle enlève sa veste rouge et la secoue frénétiquement au-dessus de sa tête.",
-                "en": "She takes off her red jacket and waves it frantically above her head.",
+                "en": "She takes off her red jacket and shakes it frantically above her head.",
                 "de": "Sie zieht ihre rote Jacke aus und schüttelt sie verzweifelt über ihrem Kopf.",
                 "it": "Toglie la sua giacca rossa e la agita freneticamente sopra la testa.",
                 "es": "Se quita la chaqueta roja y la agita frenéticamente sobre su cabeza.",
                 "nl": "Ze trekt haar rode jas uit en zwaait er heftig mee boven haar hoofd.",
-                "pt": "Ela tira sua jaqueta vermelha e a balança freneticamente acima da cabeça."
+                "pt": "Ela tira sua jaqueta vermelha e a balança freneticamente acima da cabeça.",
+                "en_pt": "She takes off her red jacket and waves it frantically above her head."
             },
             "ipa": {
                 "fr": "ɛl ɑ̃lˈɛv sa- vˈɛst ʁˈuʒ e la- səkˈu fʁenetikmˈɑ̃ odəsˈy də- sa- tˈɛt",
@@ -407,7 +261,7 @@
                 "es": "[se ˈkita la tʃaˈketa ˈroxa i la aˈxita fɾeneˈtikamente ˈsoβɾe su kaˈβeθa]",
                 "nl": "[zə trˈɛkt haːr rˈoːdə jˈɑs œyt ɛn zʋˈaːjt ər hˈɛftəx mˈeː bˈoːvən haːr hˈoːft]",
                 "pt": "[ˌɛlæ tʃˈiɾæ sˌuæ ʒˌakˈetæ vˌeɾəmˈeljæ i a bˌalˈɐ̃ŋsæ frˌenetʃˌikæmˈeɪŋtʃj ˌasˈimæ da kˌabˈesæ]",
-                "en": "[ʃiː tˈeɪks ˈɒf hɜː ɹˈɛd dʒˈakɪt and wˈeɪvz ɪt fɹˈantɪkli əbˌʌv hɜː hˈɛd]"
+                "en": "[ʃiː tˈeɪks ˈɒf hɜː ɹˈɛd dʒˈakɪt and ʃˈeɪks ɪt fɹˈantɪkli əbˌʌv hɜː hˈɛd]"
             },
             "provenance": {
                 "fr": "original",
@@ -420,10 +274,55 @@
             }
         },
         {
-            "id": "scene-15-014",
+            "id": "scene-15-009",
+            "text": {
+                "pt": "Aqui em cima!",
+                "en": "Up here!"
+            },
+            "ipa": {
+                "pt": "[akˈi ˈeɪŋ sˈimæ]",
+                "en": "[ˌʌp hˈiə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-010",
+            "text": {
+                "pt": "Estou aqui!",
+                "en": "I'm here!"
+            },
+            "ipa": {
+                "pt": "[estˌow akˈi]",
+                "en": "[aɪm hˈiə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-011",
+            "text": {
+                "pt": "Aqui!",
+                "en": "Here!"
+            },
+            "ipa": {
+                "pt": "[akˈi]",
+                "en": "[hˈiə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-012",
             "text": {
                 "fr": "L'hélicoptère fait un cercle, puis se rapproche.",
-                "en": "The helicopter circles around and comes closer.",
+                "en": "The helicopter makes a circle, then comes closer.",
                 "de": "Der Hubschrauber macht einen Kreis, dann nähert er sich.",
                 "it": "L'elicottero fa un giro e poi si avvicina.",
                 "es": "El helicóptero hace un círculo, luego se acerca.",
@@ -438,7 +337,68 @@
                 "es": "[el eliˈkopteɾo ˈaθe un ˈθiɾkulo | ˈlweɣo se aˈθeɾka]",
                 "nl": "[də hˈeːlikˌɔptər mˈaːkt ən rˈɔntjə ɛn kˈɔm tˌɪxtərbˈɛɪ]",
                 "pt": "[ʊ ˌelikˈɔpteɾʊ faz ũŋ sˈiɾəkulʊ\n depˈoɪs sj ˌaprosˈimæ]",
-                "en": "[ðə hˈɛlɪkˌɒptə sˈɜːkəlz ɐɹˈaʊnd and kˈʌmz klˈəʊsə]"
+                "en": "[ðə hˈɛlɪkˌɒptə mˌeɪks ɐ sˈɜːkəl ðˈɛn kˈʌmz klˈəʊsə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-013",
+            "text": {
+                "fr": "Ils m'ont vue, ils descendent!",
+                "en": "They saw me, they are coming down!",
+                "de": "Sie haben mich gesehen, sie kommen runter!",
+                "it": "Mi hanno vista, stanno scendendo!",
+                "es": "¡Me han visto, están bajando!",
+                "nl": "Ze hebben me gezien, ze komen naar beneden!",
+                "pt": "Eles me viram, estão descendo!",
+                "en_pt": "They saw me, they're coming down!"
+            },
+            "ipa": {
+                "fr": "il mɔ̃ vˈy il dɛsˈɑ̃d",
+                "de": "[ziː ˈhaːbən mɪ� ɡəˈzeːən ziː ˈkɔmən ˈʁʊntɐ]",
+                "it": "[mˌɪ ˌanno vˈista\n stˈanno ʃendˈɛndo]",
+                "es": "[me an ˈbisto | esˈtan baˈxando]",
+                "nl": "[zə hˌɛbən mə ɣəzˈin\n zə kˈoːmən naːr bənˈeːdən]",
+                "pt": "[ˌelyz my vˈiɾɐ̃ʊ̃\n estˌɐ̃ʊ̃ dˌesˈeɪŋdʊ]",
+                "en": "[ðeɪ sˈɔː mˌiː ðeɪ ɑː kˈʌmɪŋ dˈaʊn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-014",
+            "text": {
+                "fr": "L'émotion la submerge.",
+                "en": "Emotion overwhelms her.",
+                "de": "Die Emotion überwältigt sie.",
+                "it": "L'emozione la travolge.",
+                "es": "La emoción la embarga.",
+                "nl": "De emotie overweldigt haar.",
+                "pt": "A emoção a domina."
+            },
+            "ipa": {
+                "fr": "lemɔsjˈɔ̃ la- sybmˈɛʁʒ",
+                "de": "[diː ʔemoˈt͡si̯oːn ˈyːbɐˌvɛltɪkt ziː]",
+                "it": "[lˌemotsiˈɔːne lˌa travˈoldʒe]",
+                "es": "[la emoˈθjon la emˈβarɣa]",
+                "nl": "[də eːmˈoːtsi ˌoːvərʋˈɛldɪxt haːr]",
+                "pt": "[a ˌemosˈɐ̃ʊ̃ a dˌomˈinæ]",
+                "en": "[ɪmˈəʊʃən ˌəʊvəwˈɛlmz hɜː]"
             },
             "provenance": {
                 "fr": "original",
@@ -453,30 +413,14 @@
         {
             "id": "scene-15-015",
             "text": {
-                "fr": "L'émotion la submerge.",
-                "en": "The emotion overwhelms her.",
-                "de": "Die Emotion überwältigt sie.",
-                "it": "L'emozione la travolge.",
-                "es": "La emoción la embarga.",
-                "nl": "De emotie overweldigt haar.",
-                "pt": "A emoção a domina.",
-                "en_pt": "Emotion overwhelms her."
+                "pt": "Que alívio!",
+                "en": "What a relief!"
             },
             "ipa": {
-                "fr": "lemɔsjˈɔ̃ la- sybmˈɛʁʒ",
-                "de": "[diː ʔemoˈt͡si̯oːn ˈyːbɐˌvɛltɪkt ziː]",
-                "it": "[lˌemotsiˈɔːne lˌa travˈoldʒe]",
-                "es": "[la emoˈθjon la emˈβarɣa]",
-                "nl": "[də eːmˈoːtsi ˌoːvərʋˈɛldɪxt haːr]",
-                "pt": "[a ˌemosˈɐ̃ʊ̃ a dˌomˈinæ]",
-                "en": "[ðɪ ɪmˈəʊʃən ˌəʊvəwˈɛlmz hɜː]"
+                "pt": "[ky ˌalˈivjʊ]",
+                "en": "[wˌɒt ɐ ɹɪlˈiːf]"
             },
             "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
                 "pt": "original",
                 "en": "original"
             }
@@ -485,12 +429,13 @@
             "id": "scene-15-016",
             "text": {
                 "fr": "Pendant que l'hélicoptère se pose dans une petite clairière, elle pense à Lucas.",
-                "en": "As the helicopter lands in a small clearing, she thinks of Lucas.",
+                "en": "While the helicopter lands in a small clearing, she thinks of Lucas.",
                 "de": "Während der Hubschrauber auf einer kleinen Lichtung landet, denkt sie an Lucas.",
                 "it": "Mentre l'elicottero atterra in una piccola radura, pensa a Lucas.",
                 "es": "Mientras el helicóptero aterriza en un pequeño claro, piensa en Lucas.",
                 "nl": "Terwijl de helikopter landt in een kleine open plek, denkt ze aan Lucas.",
-                "pt": "Enquanto o helicóptero pousa em uma pequena clareira, ela pensa em Lucas."
+                "pt": "Enquanto o helicóptero pousa em uma pequena clareira, ela pensa em Lucas.",
+                "en_pt": "As the helicopter lands in a small clearing, she thinks of Lucas."
             },
             "ipa": {
                 "fr": "pɑ̃dˈɑ̃ kə lelikɔptˈɛʁ sə- pˈoz dɑ̃z yn pətˈit klɛʁjˈɛʁ ɛl pˈɑ̃s a lykˈa",
@@ -499,7 +444,7 @@
                 "es": "[mjẽnˈtɾas el eliˈkopteɾo ateˈriθa en un peˈkeɲo ˈklaɾo | ˈpjẽnsa en ˈlukas]",
                 "nl": "[tˈɛrʋɛɪl də hˈeːlikˌɔptər lˈɑnt ɪn ən klˈɛɪnə ˈoːpən plˈɛk\n dˈɛŋkt zə aːn lˈykɑs]",
                 "pt": "[ˌeɪŋkwˈɐ̃ŋtw ʊ ˌelikˈɔpteɾʊ pˈowzæ ˈeɪŋ ˌumæ pˌekˈenæ klˌaɾˈeɪɾæ\n ˌɛlæ pˈeɪŋsæ ˈeɪŋ lˈukæs]",
-                "en": "[az ðə hˈɛlɪkˌɒptə lˈandz ɪn ɐ smˈɔːl klˈiəɹɪŋ ʃiː θˈɪŋks ɒv lˈuːkəz]"
+                "en": "[wˌaɪl ðə hˈɛlɪkˌɒptə lˈandz ɪn ɐ smˈɔːl klˈiəɹɪŋ ʃiː θˈɪŋks ɒv lˈuːkəz]"
             },
             "provenance": {
                 "fr": "original",
@@ -513,6 +458,37 @@
         },
         {
             "id": "scene-15-017",
+            "text": {
+                "fr": "Lucas doit être fou d'inquiétude.",
+                "en": "Lucas must be frantic with worry.",
+                "de": "Lucas muss sich wahnsinnig Sorgen machen.",
+                "it": "Lucas deve essere impazzito dall'ansia.",
+                "es": "Lucas debe estar loco de preocupación.",
+                "nl": "Lucas moet zich rot zorgen maken.",
+                "pt": "Lucas deve estar louco de preocupação.",
+                "en_pt": "Lucas must be crazy with worry."
+            },
+            "ipa": {
+                "fr": "lykˈa dwˈa ˈɛtʁ fˈu dɛ̃kjetˈyd",
+                "de": "[ˈluːkas mʊs zɪ� ˈvaːnˈzɪnɪ� ˈzɔʁɡən ˈmaxən]",
+                "it": "[lˈuːkas dˈeːve ˈɛssere ˌimpatsːˈiːto dallˈansia]",
+                "es": "[ˈlukas ˈðeβe esˈtar ˈloko ðe pɾeokuˈpaθjon]",
+                "nl": "[lˈykɑs mˈut zɪx rˈɔt zˈɔrɣən mˈaːkən]",
+                "pt": "[lˈukæz dˈɛvj estˌar lˈowkʊ dʒy prˌeokˌupasˈɐ̃ʊ̃]",
+                "en": "[lˈuːkəz mˈʌst biː fɹˈantɪk wɪð wˈʌɹi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-15-018",
             "text": {
                 "fr": "Les secouristes courent vers elle avec une couverture.",
                 "en": "The rescuers run towards her with a blanket.",
@@ -543,31 +519,32 @@
             }
         },
         {
-            "id": "scene-15-018",
-            "text": {
-                "pt": "Aqui em cima!",
-                "en": "Up here!"
-            },
-            "ipa": {
-                "pt": "[akˈi ˈeɪŋ sˈimæ]",
-                "en": "[ˌʌp hˈiə]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
             "id": "scene-15-019",
             "text": {
-                "pt": "Estou aqui!",
-                "en": "I'm here!"
+                "fr": "Bientôt, nous serons réunis.",
+                "en": "Soon, we will be reunited.",
+                "de": "Bald sind wir wieder zusammen.",
+                "it": "Presto saremo di nuovo insieme.",
+                "es": "Pronto, estaremos juntos.",
+                "nl": "Binnenkort zijn we weer samen.",
+                "pt": "Logo estaremos reunidos.",
+                "en_pt": "Soon we'll be reunited."
             },
             "ipa": {
-                "pt": "[estˌow akˈi]",
-                "en": "[aɪm hˈiə]"
+                "fr": "bjɛ̃tˈo nu səʁˈɔ̃ ʁeynˈi",
+                "de": "[balt zɪnt viːɐ̯ ˈviːdɐ t͡suˈzamən]",
+                "it": "[prˈɛsto sarˌɛmo dˌɪ nʊˈɔːvo insjˈɛːme]",
+                "es": "[ˈpɾonto | estaˈɾemos ˈxuntos]",
+                "nl": "[bˈɪnənkˌɔrt zɛɪn ʋə ʋˈɪːr sˈaːmən]",
+                "pt": "[lˈɔɡw ˌestaɾˌemʊz xˌeunˈidʊs]",
+                "en": "[sˈuːn wiː wɪl biː ɹˌiːjuːnˈaɪtɪd]"
             },
             "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "pt": "original",
                 "en": "original"
             }
@@ -575,30 +552,54 @@
         {
             "id": "scene-15-020",
             "text": {
-                "pt": "Aqui!",
-                "en": "Here!"
+                "fr": "Là-haut! Je suis ici! Ici!",
+                "en": "Up there! I'm here! Here!",
+                "de": "Da oben! Ich bin hier! Hier!",
+                "it": "Lassù! Sono qui! Qui!",
+                "es": "¡Allá arriba! ¡Estoy aquí! ¡Aquí!",
+                "nl": "Daarboven! Ik ben hier! Hier!"
             },
             "ipa": {
-                "pt": "[akˈi]",
-                "en": "[hˈiə]"
+                "fr": "lˈaˈo ʒə- syˌiz isˈi isˈi",
+                "de": "[da ˈoːbən ɪ� bɪn hiːɐ̯ hiːɐ̯]",
+                "it": "[lassˈu\n sˌono kwˈi\n kwˈi]",
+                "es": "[ˈaʎa aˈriβa | esˈtoj aˈki | aˈki]",
+                "nl": "[daːrbˈoːvən\n ɪk bɛn hˈir\n hˈir]",
+                "en": "[ˌʌp ðˈeə aɪm hˈiə hˈiə]"
             },
             "provenance": {
-                "pt": "original",
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "en": "original"
             }
         },
         {
             "id": "scene-15-021",
             "text": {
-                "pt": "Que alívio!",
-                "en": "What a relief!"
+                "fr": "Que je suis soulagée!",
+                "en": "How relieved I am!",
+                "de": "Wie erleichtert ich bin!",
+                "it": "Che sollievo!",
+                "es": "¡Qué aliviada me siento!",
+                "nl": "Wat een opluchting!"
             },
             "ipa": {
-                "pt": "[ky ˌalˈivjʊ]",
-                "en": "[wˌɒt ɐ ɹɪlˈiːf]"
+                "fr": "kə ʒə- syˌi sulaʒˈe",
+                "de": "[viː ɛɐ̯ˈlaɪ̯�ɐ̯t ɪ� bɪn]",
+                "it": "[kˌe sˌolliˈɛːvo]",
+                "es": "[ke aliˈβjaða me ˈsjento]",
+                "nl": "[ʋɑt ən ˈɔplˌɵxtɪŋ]",
+                "en": "[hˌaʊ ɹɪlˈiːvd aɪˈam]"
             },
             "provenance": {
-                "pt": "original",
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "en": "original"
             }
         }

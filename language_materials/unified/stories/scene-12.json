@@ -24,12 +24,42 @@
             "nl",
             "pt"
         ],
-        "generated": "2026-04-09",
+        "generated": "2026-04-14",
         "generator": "merge_materials.py"
     },
     "phrases": [
         {
             "id": "scene-12-001",
+            "text": {
+                "fr": "Pendant ce temps, Lucas cherche désespérément Sophie dans le brouillard.",
+                "en": "Meanwhile, Lucas desperately searches for Sophie in the fog.",
+                "de": "Unterdessen sucht Lucas verzweifelt im Nebel nach Sophie.",
+                "it": "Intanto, Lucas cerca disperatamente Sophie nella nebbia.",
+                "es": "Mientras tanto, Lucas busca desesperadamente a Sophie en la niebla.",
+                "nl": "Ondertussen zoekt Lucas wanhopig naar Sophie in de mist.",
+                "pt": "Enquanto isso, Lucas procura desesperadamente Sophie na neblina."
+            },
+            "ipa": {
+                "fr": "pɑ̃dˈɑ̃ sə- tˈɑ̃ lykˈa ʃˈɛʁʃ dezɛspeʁemˈɑ̃ sɔfˈi dɑ̃ lə- bʁujˈaʁ",
+                "de": "[ˌʊntɜdˈɛsən zˈuːxt lˈuːkɑːs fɛɾtsvˈaɪfəlt ɪm nˈeːbəl nɑːx zoːfˈiː]",
+                "it": "[intˈanto\n lˈuːkas tʃˈeːrka dˌisperˌatamˈente sˈopje nˌɛlla nˈebːia]",
+                "es": "[mjenˈtɾas ˈtanto | ˈlukas ˈbuska ðesezpeɾaˈðamente a ˈsofi en la ˈnjεβla]",
+                "nl": "[ˈɔndərtˌɵsən zˈukt lˈykɑs ʋɑnhˈoːpəx naːr sɔphˈi ɪn də mˈɪst]",
+                "pt": "[ˌeɪŋkwˈɐ̃ŋtw ˈisʊ\n lˈukæs prˌokˈuɾæ dˌezespˌeɾadæmˈeɪŋtʃy sˌofˈiy na nˌeblˈinæ]",
+                "en": "[mˈiːnwaɪl lˈuːkəz dˈɛspəɹətli sˈɜːtʃɪz fɔː sˈəʊfi ɪnðə fˈɒɡ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-002",
             "text": {
                 "fr": "Comment ai-je pu la perdre? Comment?",
                 "en": "How could I have lost her? How?",
@@ -60,10 +90,55 @@
             }
         },
         {
-            "id": "scene-12-002",
+            "id": "scene-12-003",
+            "text": {
+                "pt": "Como?",
+                "en": "How?"
+            },
+            "ipa": {
+                "pt": "[kˈomʊ]",
+                "en": "[hˈaʊ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-004",
+            "text": {
+                "fr": "Il se sent terriblement coupable.",
+                "en": "He feels terribly guilty.",
+                "de": "Er fühlt sich furchtbar schuldig.",
+                "it": "Si sente terribilmente in colpa.",
+                "es": "Se siente terriblemente culpable.",
+                "nl": "Hij voelt zich vreselijk schuldig.",
+                "pt": "Ele se sente terrivelmente culpado."
+            },
+            "ipa": {
+                "fr": "il sə- sˈɑ̃ tɛʁibləmˈɑ̃ kupˈabl",
+                "de": "[ɛɾ fˈyːlt zɪç fˈʊɐçtbɑːɾ ʃˈʊldɪç]",
+                "it": "[sˌɪ sˈɛnte tˌɛrɾibilmˈente ˌin kˈolpa]",
+                "es": "[se ˈsjente teɾiˈβleˈmente kulˈpaβle]",
+                "nl": "[hɛɪ vˈult zɪx vrˈeːsələk sxˈɵldəx]",
+                "pt": "[ˌely sy sˈeɪŋtʃy tˌexivɛʊmˈeɪŋtʃy kˌuwpˈadʊ]",
+                "en": "[hiː fˈiːlz tˈɛɹəblɪ ɡˈɪlti]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-005",
             "text": {
                 "fr": "Je n'aurais jamais dû la laisser continuer seule",
-                "en": "I should have never let her continue alone",
+                "en": "I should never have let her continue alone",
                 "de": "Ich hätte sie nicht alleine weitergehen lassen dürfen.",
                 "it": "Non avrei mai dovuto lasciarla andare avanti da sola.",
                 "es": "Nunca debí dejarla continuar sola",
@@ -78,7 +153,7 @@
                 "es": "[ˈnunka ðeˈβi ðeˈxaɾla kontiˈnwaɾ ˈsola]",
                 "nl": "[ɪk hˈɑt haːr nˈoːjt ɑlˈeːn mˈutən lˈaːtən dɔːrɣˈaːn]",
                 "pt": "[nˌũŋkæ dˌeveɾˈiæ tˈelæ dˌeɪʃˈadʊ kˌoŋtʃinuˈar sˌozˈiɲæ]",
-                "en": "[aɪ ʃˌʊdəv nˈɛvə lˈɛt hɜː kəntˈɪnjuː ɐlˈəʊn]"
+                "en": "[aɪ ʃˌʊd nˈɛvə hav lˈɛt hɜː kəntˈɪnjuː ɐlˈəʊn]"
             },
             "provenance": {
                 "fr": "original",
@@ -91,7 +166,7 @@
             }
         },
         {
-            "id": "scene-12-003",
+            "id": "scene-12-006",
             "text": {
                 "fr": "J'aurais dû rester avec elle.",
                 "en": "I should have stayed with her.",
@@ -121,10 +196,101 @@
             }
         },
         {
-            "id": "scene-12-004",
+            "id": "scene-12-007",
+            "text": {
+                "fr": "Il marche pendant des heures, criant son nom, mais le brouillard absorbe tous les sons.",
+                "en": "He walks for hours, shouting her name, but the fog absorbs all sounds.",
+                "de": "Er läuft stundenlang, ruft ihren Namen, aber der Nebel schluckt alle Geräusche.",
+                "it": "Cammina per ore, gridando il suo nome, ma la nebbia assorbe tutti i suoni.",
+                "es": "Camina durante horas, gritando su nombre, pero la niebla absorbe todos los sonidos.",
+                "nl": "Hij loopt urenlang, roept haar naam, maar de mist absorbeert alle geluiden.",
+                "pt": "Ele caminha por horas, gritando o nome dela, mas a neblina absorve todos os sons."
+            },
+            "ipa": {
+                "fr": "il mˈaʁʃ pɑ̃dˈɑ̃ de-z ˈœʁ kʁiˈɑ̃ sɔ̃ nˈɔ̃ mɛ lə- bʁujˈaʁ absˈɔʁb tu le- sˈɔ̃",
+                "de": "[ɛɾ lˈɔøft ʃtˈʊndənlˌaŋ\n rˈʊft ˌiːrən nˈɑːmən\n ˌɑːbɜ dɛɾ nˈeːbəl ʃlˈʊkt ˈalə ɡərˈɔøʃə]",
+                "it": "[kammˈiːna pˌɛr ˈoːre\n ɡridˈando ˌil sˌʊo nˈoːme\n mˌa lˌa nˈebːia assˈɔːrbe tˈutːɪ ˌɪ sʊˈoːnɪ]",
+                "es": "[kaˈmina ðuˈɾante ˈoɾas | ɡɾiˈtando su ˈnomβɾe | ˈpeɾo la ˈnjεβla apˈsorβe ˈtoðos los soˈniðos]",
+                "nl": "[hɛɪ lˈoːpt ˈyrənlˌɑŋ\n rˈupt haːr nˈaːm\n maːr də mˈɪst ˌɑbsɔrbˈɪrt ˈɑlə ɣəlˈœydən]",
+                "pt": "[ˌely kˌæmˈiɲæ poɾ ˈɔɾæs\n ɡrˌitˈɐ̃ŋdw ʊ nˈomy dˈɛlæ\n maz a nˌeblˈinæ ˌabsˈɔɾəvy tˈodʊz ʊs sˈoŋs]",
+                "en": "[hiː wˈɔːks fɔːɹ ˈaʊəz ʃˈaʊtɪŋ hɜː nˈeɪm bˌʌt ðə fˈɒɡ ɐbsˈɔːbz ˈɔːl sˈaʊndz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-008",
+            "text": {
+                "fr": "Dans cette blancheur épaisse, il perd toute notion de direction.",
+                "en": "In this thick whiteness, he loses all sense of direction.",
+                "de": "In dieser dichten Weiße verliert er jegliches Gefühl für Richtung.",
+                "it": "In questa bianchezza densa, perde ogni nozione di direzione.",
+                "es": "En esa blancura espesa, pierde toda noción de dirección.",
+                "nl": "In deze dikke witheid verliest hij alle gevoel voor richting.",
+                "pt": "Nesta brancura espessa, ele perde toda noção de direção."
+            },
+            "ipa": {
+                "fr": "dɑ̃ sɛt blɑ̃ʃˈœʁ epˈɛs il pˈɛʁ tut nɔsjˈɔ̃ də- diʁɛksjˈɔ̃",
+                "de": "[ɪn dˌiːzɜ dˈɪçtən vˈaɪsə fɛɾlˈiːɾt ɛɾ jˈeːklɪçəs ɡəfˈyːl fyːɾ rˈɪçtʊŋ]",
+                "it": "[ˌin kwˌɛsta bjankˈetsːa dˈɛnsa\n pˈɛːrde ˈoɲʲɪ nˌɔtsiˈɔːne dˌɪ dˌiretsiˈɔːne]",
+                "es": "[en ˈesa βlanˈkuɾa esˈpesa | ˈpjɛɾðe ˈtoða noˈθjon de ðiɾekˈθjon]",
+                "nl": "[ɪn dˌeːzə dˈɪkə ʋˈɪtɛɪt vərlˈist hɛɪ ˈɑlə ɣəvˈul vɔːr rˈɪxtɪŋ]",
+                "pt": "[nˌɛstæ brˌɐ̃ŋkˈuɾæ ˌespˈesæ\n ˌely pˈɛɾədʒy tˈodæ nosˈɐ̃ʊ̃ dʒy dʒˌiɾesˈɐ̃ʊ̃]",
+                "en": "[ɪn ðɪs θˈɪk wˈaɪtnəs hiː lˈuːzɪz ˈɔːl sˈɛns ɒv daɪɹˈɛkʃən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-009",
+            "text": {
+                "fr": "Le haut, le bas, la gauche, la droite—tout se confond.",
+                "en": "Up, down, left, right—everything blurs together.",
+                "de": "Oben, unten, links, rechts—alles verschwimmt.",
+                "it": "Su, giù, sinistra, destra—tutto si confonde.",
+                "es": "Arriba, abajo, izquierda, derecha—todo se confunde.",
+                "nl": "Boven, onder, links, rechts—alles loopt door elkaar.",
+                "pt": "O alto, o baixo, a esquerda, a direita—tudo se confunde.",
+                "en_pt": "Up, down, left, right—everything is confused."
+            },
+            "ipa": {
+                "fr": "lə- ˈo lə- bˈa la- ɡˈoʃ la- dʁwˈat tu sə- kɔ̃fˈɔ̃",
+                "de": "[ˈoːbən\n ˈʊntən\n lˈɪŋks\n rˈɛçts ˈaləs fɛɾʃvˈɪmt]",
+                "it": "[sˈu\n dʒˈu\n sinˈistra\n dˈɛstra tˈutːo sˌɪ konfˈonde]",
+                "es": "[aˈriβa | aˈβaxo | iθˈkjeɾða | ðeˈɾetʃa—ˈtoðo se konˈfunde]",
+                "nl": "[bˈoːvən\n ˈɔndər\n lˈɪŋks\n rˈɛxts ˈɑləs lˈoːpt doːr ˈɛlkaːr]",
+                "pt": "[u ˈaʊtʊ\n ʊ bˈaɪʃʊ\n a ˌeskˈeɾədæ\n a dʒˌiɾˈeɪtæ tˈudʊ sy kˌoŋfˈũŋdʒy]",
+                "en": "[ˈʌp dˈaʊn lˈɛft ɹˈaɪt ˈɛvɹɪθˌɪŋ blˈɜːz təɡˈɛðə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-010",
             "text": {
                 "fr": "Je ne vois presque plus le sentier",
-                "en": "I can hardly see the trail anymore",
+                "en": "I can barely see the trail anymore",
                 "de": "Ich kann den Weg kaum noch sehen.",
                 "it": "Vedo a malapena il sentiero.",
                 "es": "Casi no veo el sendero",
@@ -139,7 +305,7 @@
                 "es": "[ˈkasi no ˈβeo el senˈðeɾo]",
                 "nl": "[ɪk zˈi hət pˈɑt bˈɛɪnˌaː nˈit mˌeːr]",
                 "pt": "[kwˈazy nˌɐ̃ʊ̃ vˈeʒʊ mˈaɪz a trˈiljæ]",
-                "en": "[aɪ kan hˈɑːdli sˈiː ðə tɹˈeɪl ˌɛnɪmˈɔː]"
+                "en": "[aɪ kan bˈeəli sˈiː ðə tɹˈeɪl ˌɛnɪmˈɔː]"
             },
             "provenance": {
                 "fr": "original",
@@ -152,7 +318,22 @@
             }
         },
         {
-            "id": "scene-12-005",
+            "id": "scene-12-011",
+            "text": {
+                "pt": "Não é esta nossa condição humana?",
+                "en": "Isn't this our human condition?"
+            },
+            "ipa": {
+                "pt": "[nˌɐ̃ʊ̃ ɛ ˌɛstæ nˌɔsæ kˌoŋdʒisˈɐ̃ʊ̃ ˌumˈɐ̃næ]",
+                "en": "[ˌɪzənt ðɪs aʊə hjˈuːmən kəndˈɪʃən]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-012",
             "text": {
                 "fr": "N'est-ce pas notre condition humaine? Nous avançons tous dans l'incertitude.",
                 "en": "Isn't that our human condition? We all move forward in uncertainty.",
@@ -183,740 +364,10 @@
             }
         },
         {
-            "id": "scene-12-006",
-            "text": {
-                "fr": "Il faut que je trouve de l'aide.",
-                "en": "I need to find help.",
-                "de": "Ich muss Hilfe finden.",
-                "it": "Devo trovare aiuto.",
-                "es": "Tengo que encontrar ayuda.",
-                "nl": "Ik moet hulp vinden.",
-                "pt": "Preciso encontrar ajuda."
-            },
-            "ipa": {
-                "fr": "il fo kə ʒə- tʁˈuv də- lˈɛd",
-                "de": "[ɪç mˈʊs hˈɪlfə fˈɪndən]",
-                "it": "[dˈɛːvo trovˈaːre ajˈuːto]",
-                "es": "[ˈteŋɡo ke enkonˈtɾaɾ aˈʝuða]",
-                "nl": "[ɪk mˈut hˈɵlp vˈɪndən]",
-                "pt": "[prˌesˈizw ˌeɪŋkoŋtrˈaɾ ˌaʒˈudæ]",
-                "en": "[aɪ nˈiːd tə fˈaɪnd hˈɛlp]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-007",
-            "text": {
-                "fr": "Le village ne peut pas être très loin",
-                "en": "The village can't be far away",
-                "de": "Das Dorf kann nicht weit sein.",
-                "it": "Il villaggio non può essere molto lontano.",
-                "es": "El pueblo no puede estar muy lejos",
-                "nl": "Het dorp kan niet ver weg zijn",
-                "pt": "O vilarejo não pode estar muito longe.",
-                "en_pt": "The village can't be too far."
-            },
-            "ipa": {
-                "fr": "lə- vilˈaʒ nə- pˈø paz ˈɛtʁ tʁɛ lwˈɛ̃",
-                "de": "[das dˈɔɾf kˌan nˈɪçt vˈaɪt zaɪn]",
-                "it": "[ˌil villˈadʒːo nˌon pʊˈɔ ˈɛssere mˈolto lontˈaːno]",
-                "es": "[el ˈpweβlo no ˈpweðe esˈtaɾ muʝ ˈlexos]",
-                "nl": "[hə tˈɔrp kɑn nˌit vˈɛr ʋˈɛx zɛɪn]",
-                "pt": "[ʊ vˌilaɾˈeʒʊ nˌɐ̃ʊ̃ pˌɔdʒj estˌar mwˈiŋtʊ lˈoŋʒy]",
-                "en": "[ðə vˈɪlɪdʒ kˈɑːnt biː fˈɑːɹ ɐwˈeɪ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-008",
-            "text": {
-                "fr": "Si je descends, c'est par là.",
-                "en": "If I go down, it's that way.",
-                "de": "Wenn ich hinuntergehe, dann hier entlang.",
-                "it": "Se scendo, è di qua.",
-                "es": "Si bajo, es por aquí.",
-                "nl": "Als ik naar beneden ga, is het die kant op.",
-                "pt": "Se eu descer, é por ali."
-            },
-            "ipa": {
-                "fr": "sˈi ʒə- dɛsˈɑ̃ sɛ paʁ lˈa",
-                "de": "[vˌɛn ɪç hɪnˈʊntɜɡˌeːə\n dan hˈiːɾ ɛntlˈaŋ]",
-                "it": "[sˌe ʃˈɛndo\n ˌɛ dˌɪ kwˈa]",
-                "es": "[si ˈbaxo | es poɾ aˈki]",
-                "nl": "[ɑls ɪk naːr bənˈeːdən ɣˈaː\n ɪs hət di kˈɑnt ˈɔp]",
-                "pt": "[sj eʊ desˈer\n ɛ poɾ alˈi]",
-                "en": "[ɪf aɪ ɡˌəʊ dˈaʊn ɪts ðat wˈeɪ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-009",
-            "text": {
-                "fr": "Mais dans quelle direction exactement?",
-                "en": "But in which exact direction?",
-                "de": "Aber in welche Richtung genau?",
-                "it": "Ma in quale direzione esattamente?",
-                "es": "¿Pero en qué dirección exactamente?",
-                "nl": "Maar in welke richting precies?",
-                "pt": "Mas em qual direção exatamente?",
-                "en_pt": "But in which direction exactly?"
-            },
-            "ipa": {
-                "fr": "mɛ dɑ̃ kɛl diʁɛksjˈɔ̃ ɛɡzaktəmˈɑ̃",
-                "de": "[ˌɑːbɜ ɪn vˈɛlçə rˈɪçtʊŋ ɡənˈaʊ]",
-                "it": "[mˌa ˌin kwˈaːle dˌiretsiˈɔːne ˌezatːamˈente]",
-                "es": "[ˈpeɾo en ke diɾekˈθjon eksakˈtamente]",
-                "nl": "[maːr ɪn ʋˈɛlkə rˈɪxtɪŋ preːsˈis]",
-                "pt": "[maz ˈeɪŋ kwˈaʊ dʒˌiɾesˈɐ̃ʊ̃ ˌezatæmˈeɪŋtʃy]",
-                "en": "[bˌʌt ɪn wˌɪtʃ ɛɡzˈakt daɪɹˈɛkʃən]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-010",
-            "text": {
-                "fr": "Une chèvre! Elle me regarde fixement.",
-                "en": "A goat! It's staring at me.",
-                "de": "Eine Ziege! Sie starrt mich an.",
-                "it": "Una capra! Mi sta guardando fisso.",
-                "es": "¡Una cabra! Me está mirando fijamente.",
-                "nl": "Een geit! Ze kijkt me strak aan.",
-                "pt": "Ela está me olhando fixamente.",
-                "en_pt": "She's staring at me."
-            },
-            "ipa": {
-                "fr": "yn ʃˈɛvʁ ɛl mə- ʁəɡˈaʁd fiksmˈɑ̃",
-                "de": "[ˌaɪnə tsˈiːɡə\n ziː ʃtˈaɾt mɪç ˈan]",
-                "it": "[ˌʊna kˈaːpra\n mˌɪ stˈa ɡwardˈando fˈisso]",
-                "es": "[ˈuna ˈkaβɾa | me esˈta miˈɾando fixaˈmente]",
-                "nl": "[ən ɣˈɛɪt\n zə kˈɛɪkt mə strˈɑk ˈaːn]",
-                "pt": "[ˌɛlæ estˌa mj ˌoljˈɐ̃ŋdʊ fˌiksæmˈeɪŋtʃy]",
-                "en": "[ɐ ɡˈəʊt ɪts stˈeəɹɪŋ at mˌiː]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-011",
-            "text": {
-                "fr": "Elle commence à descendre un sentier que je n'avais pas vu.",
-                "en": "It starts to descend a path I hadn't seen.",
-                "de": "Sie beginnt, einen Pfad hinunterzusteigen, den ich nicht gesehen hatte.",
-                "it": "Comincia a scendere un sentiero che non avevo visto.",
-                "es": "Empieza a bajar por un sendero que no había visto.",
-                "nl": "Ze begint een pad af te dalen dat ik niet had gezien.",
-                "pt": "Ela está começando a descer por uma trilha que eu não tinha visto.",
-                "en_pt": "She's starting to descend a trail I hadn't seen."
-            },
-            "ipa": {
-                "fr": "ɛl kɔmˈɑ̃s a dɛsˈɑ̃dʁ œ̃ sɑ̃tjˈe kə ʒə- navˈɛ pa vˈy",
-                "de": "[ziː bəɡˈɪnt\n ˌaɪnən pfˈɑːt hɪnˈʊntɜtsuːʃtˌaɪɡən\n deːn ɪç nˈɪçt ɡəzˈeːən hˌatə]",
-                "it": "[komˈintʃa ˌa ʃˈendere ˌʊn sˌentiˈɛːro kˌe nˌon avˌɛvo vˈisto]",
-                "es": "[emˈpjeθa a βaˈxaɾ poɾ un senˈðeɾo ke no aˈβia ˈβisto]",
-                "nl": "[zə bəɣˈɪnt ən pˈɑt ˈɑf tə dˈaːlən dɑt ɪk nˌit hˈɑt ɣəzˈin]",
-                "pt": "[ˌɛlæ estˌa kˌomesˈɐ̃ŋdw a desˈer poɾ ˌumæ trˈiljæ ky eʊ nˌɐ̃ʊ̃ tʃˌiɲæ vˈistʊ]",
-                "en": "[ɪt stˈɑːts tə dɪsˈɛnd ɐ pˈaθ aɪ hˈadənt sˈiːn]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-012",
-            "text": {
-                "fr": "Devrais-je la suivre? Les animaux connaissent les chemins sûrs.",
-                "en": "Should I follow it? Animals know the safe paths.",
-                "de": "Sollte ich ihr folgen? Tiere kennen die sicheren Wege.",
-                "it": "Dovrei seguirla? Gli animali conoscono le vie sicure.",
-                "es": "¿Debería seguirla? Los animales conocen los caminos seguros.",
-                "nl": "Zou ik haar moeten volgen? Dieren kennen de veilige paden.",
-                "pt": "Os animais conhecem os caminhos seguros.",
-                "en_pt": "Animals know the safe paths."
-            },
-            "ipa": {
-                "fr": "dəvʁˈɛʒ la- syˈivʁ le-z animˈo kɔnˈɛs le- ʃəmˈɛ̃ sˈyːʁ",
-                "de": "[zˌɔltə ɪç iːɾ fˈɔlɡən\n tˈiːrə kˈɛnən diː zˈɪçərən vˈeːɡə]",
-                "it": "[dovrˈeːɪ seɡwˈiːrla\n ʎˌɪ ˌanimˈaːlɪ konˈoskono lˌe vˈiːe sikˈuːre]",
-                "es": "[deˈβeɾja seˈɣiɾla | los aˈnimalɛs koˈnoθen los kaˈminos seˈɣuɾos]",
-                "nl": "[zʌʊ ɪk haːr mˈutən vˈɔlɣən\n dˈirən kˈɛnən də vˈɛɪləɣə pˈaːdən]",
-                "pt": "[ʊz ˌænimˈaɪs kˌoɲˈɛseɪŋ ʊs kˌæmˈiɲʊs sˌeɡˈuɾʊs]",
-                "en": "[ʃˌʊd aɪ fˈɒləʊ ɪt ˈanɪməlz nˈəʊ ðə sˈeɪf pˈaθs]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
             "id": "scene-12-013",
             "text": {
-                "fr": "Ou bien..",
-                "en": "Or maybe..",
-                "de": "Oder...",
-                "it": "O magari...",
-                "es": "O quizás...",
-                "nl": "Of misschien.."
-            },
-            "ipa": {
-                "fr": "u bjˈɛ̃",
-                "de": "[ˈoːdɜ]",
-                "it": "[ˌo maɡˈaːrɪ]",
-                "es": "[o kiˈθas]",
-                "nl": "[ɔf mɪsxˈin]",
-                "en": "[ɔː mˈeɪbiː]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-014",
-            "text": {
-                "fr": "est-ce simplement une chèvre qui rentre à sa ferme? Est-ce que je projette une intentionnalité sur un comportement animal ordinaire?",
-                "en": "is it just a goat going back to its farm? Am I projecting intention onto ordinary animal behavior?",
-                "de": "ist es einfach nur eine Ziege, die nach Hause geht? Projiziere ich eine Absicht auf normales tierisches Verhalten?",
-                "it": "è semplicemente una capra che torna alla sua fattoria? Sto proiettando intenzioni su un comportamento animale ordinario?",
-                "es": "¿es simplemente una cabra que vuelve a su granja? ¿Estoy proyectando una intención en un comportamiento animal común?",
-                "nl": "is het gewoon een geit die naar haar boerderij terugkeert? Projecteer ik een intentie op gewoon diergedrag?",
-                "pt": "Estou projetando intenção em um comportamento animal comum?",
-                "en_pt": "Am I projecting intention onto common animal behavior?"
-            },
-            "ipa": {
-                "fr": "ɛs sɛ̃pləmˈɑ̃ yn ʃˈɛvʁ ki ʁˈɑ̃tʁ a sa- fˈɛʁm ɛs kə ʒə- pʁɔʒˈɛt yn ɛ̃tɑ̃sjɔnalitˈe syʁ œ̃ kɔ̃pɔʁtəmˈɑ̃ animˈal ɔʁdinˈɛʁ",
-                "de": "[ɪst ɛs ˈaɪnfˌax nˈuːɾ ˌaɪnə tsˈiːɡə\n diː nɑːx hˈaʊzə ɡˈeːt\n proːjiːtsˈiːrə ɪç ˌaɪnə ˈapzˌɪçt aʊf nˈɔɾmɑːləs tˈiːrɪʃəs fɛɾhˈaltən]",
-                "it": "[ˌɛ sˌemplitʃemˈente ˌʊna kˈaːpra kˌe tˈoːrna ˌalla sˌʊa fˌatːorˈiːa\n stˈo prˌɔɪetːˈando ˌintentsiˈɔːnɪ sˌʊ ˌʊn kˌomportamˈento ˌanimˈaːle ˌɔrdinˈario]",
-                "es": "[es simˈplemente ˈuna ˈkaβɾa ke ˈbwelβe a su ˈɡɾanxa | ˈestoj pɾoʝekˈtando ˈuna intenˈθjon en un kompoɾtaˈmjento aˈnimal koˈmun]",
-                "nl": "[ɪs hət ɣəʋˈoːn ən ɣˈɛɪt di naːr haːr bˌurdərˈɛɪ tərˈɵxkˌɪːrt\n prˌoːjɛktˈɪr ɪk ən ˈɪntˌɛntsi ɔp ɣəʋˈoːn dˈirɣɛdrˌɑx]",
-                "pt": "[estˌow prˌoʒetˈɐ̃ŋdw ˌiŋteɪŋsˈɐ̃ʊ̃ ˈeɪŋ ũŋ kˌompoɾətæmˈeɪŋtw ˌænimˈaʊ komˈũŋ]",
-                "en": "[ɪz ɪt dʒˈʌst ɐ ɡˈəʊt ɡˌəʊɪŋ bˈak tʊ ɪts fˈɑːm am aɪ pɹədʒˈɛktɪŋ ɪntˈɛnʃən ˌɒntʊ ˈɔːdɪnəɹi ˈanɪməl bɪhˈeɪvjə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-015",
-            "text": {
-                "fr": "J'ai l'impression qu'elle veut me montrer quelque chose.",
-                "en": "I feel like it wants to show me something.",
-                "de": "Ich habe das Gefühl, sie will mir etwas zeigen.",
-                "it": "Ho l'impressione che voglia mostrarmi qualcosa.",
-                "es": "Tengo la impresión de que quiere mostrarme algo.",
-                "nl": "Ik heb het gevoel dat ze me iets wil laten zien.",
-                "pt": "Tenho a impressão de que ela quer me mostrar algo.",
-                "en_pt": "I have the impression that she wants to show me something."
-            },
-            "ipa": {
-                "fr": "ʒe lɛ̃pʁɛsjˈɔ̃ kɛl vˈø mə- mɔ̃tʁˈe kˌɛlkə ʃˈoz",
-                "de": "[ɪç hɑːbə das ɡəfˈyːl\n ziː vɪl miːɾ ˈɛtvɑːs tsˈaɪɡən]",
-                "it": "[ˌo lˌimpressiˈoːne kˌe vˈoːʎa mostrˈaːrmɪ kwalkˈɔːza]",
-                "es": "[ˈteŋɡo la impreˈsjon de ke ˈkjeɾe mosˈtɾaɾme ˈalɡo]",
-                "nl": "[ɪk hɛp hət ɣəvˈul dɑt zə mə ˈits ʋɪl lˈaːtən zˈin]",
-                "pt": "[tˌeɲʊ a ˌimpresˈɐ̃ʊ̃ dʒy ky ˌɛlæ kˈɛr my mostrˈaɾ ˈaʊɡʊ]",
-                "en": "[aɪ fˈiːl lˈaɪk ɪt wˈɒnts tə ʃˈəʊ mˌiː sˈʌmθɪŋ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-016",
-            "text": {
-                "fr": "Peut-être que dans notre désespoir, nous voyons des signes partout",
-                "en": "Maybe in our despair, we see signs everywhere",
-                "de": "Vielleicht sehen wir in unserer Verzweiflung überall Zeichen.",
-                "it": "Forse nel nostro disperazione, vediamo segni ovunque.",
-                "es": "Quizás en nuestro desespero, vemos señales por todas partes",
-                "nl": "Misschien zien we overal tekenen in ons wanhoop",
-                "pt": "Talvez no nosso desespero vejamos sinais em todo lugar.",
-                "en_pt": "Maybe in our desperation we see signs everywhere."
-            },
-            "ipa": {
-                "fr": "pˈøtˈɛtʁ kə dɑ̃ nɔtʁ dezɛspwˈaʁ nu vwajˈɔ̃ de- sˈinj paʁtˈu",
-                "de": "[fiːllˈaɪçt zˈeːən viːɾ ɪn ˈʊnzərɜ fɛɾtsvˈaɪflʊŋ ˌyːbɜˈal tsˈaɪçən]",
-                "it": "[fˈoːrse nˌɛl nˌɔstro dˌisperˌatsiˈɔːne\n vedjˈaːmo sˈeɲʲɪ ovˈunkwe]",
-                "es": "[kiˈθas en ˈnwestɾo ðesezˈpeɾo | ˈβemos seˈɲales poɾ ˈtoðas ˈpaɾtes]",
-                "nl": "[mɪsxˈin zˈin ʋə ˌoːvərˈɑl tˈeːkənən ɪn ɔns ʋˈɑnhˌoːp]",
-                "pt": "[taʊvˈez nʊ nˌɔsʊ dˌezespˈeɾʊ vˌeʒˈɐ̃mʊs sinˈaɪz ˈeɪŋ tˈodʊ luɡˈar]",
-                "en": "[mˈeɪbiː ɪn aʊə dɪspˈeə wiː sˈiː sˈaɪnz ˈɛvɹɪwˌeə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-017",
-            "text": {
-                "fr": "Mais peu importe.",
-                "en": "But it doesn't matter.",
-                "de": "Aber das ist egal.",
-                "it": "Ma poco importa.",
-                "es": "Pero no importa.",
-                "nl": "Maar dat maakt niet uit.",
-                "pt": "Mas não importa—preciso escolher confiar.",
-                "en_pt": "But it doesn't matter—I need to choose to trust."
-            },
-            "ipa": {
-                "fr": "mɛ pø ɛ̃pˈɔʁt",
-                "de": "[ˌɑːbɜ das ɪst eːɡˈɑːl]",
-                "it": "[mˌa pˈɔːko impˈɔːrta]",
-                "es": "[ˈpeɾo no impoɾˈta]",
-                "nl": "[maːr dɑt mˈaːkt nˌit ˈœyt]",
-                "pt": "[maz nˌɐ̃ʊ̃ ˌimpˈɔɾətæ prˌesˈizw ˌeskoljˈer kˌoŋfiˈar]",
-                "en": "[bˌʌt ɪt dˈʌzənt mˈatə]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-018",
-            "text": {
-                "fr": "je dois choisir de faire confiance.",
-                "en": "I must choose to trust.",
-                "de": "ich muss mich entscheiden, zu vertrauen.",
-                "it": "devo scegliere di fidarmi.",
-                "es": "tengo que decidir confiar.",
-                "nl": "ik moet ervoor kiezen om te vertrouwen."
-            },
-            "ipa": {
-                "fr": "ʒə- dwˈa ʃwazˈiʁ də- fˈɛʁ kɔ̃fjˈɑ̃s",
-                "de": "[ɪç mˈʊs mɪç ɛntʃˈaɪdən\n tsuː fɛɾtɾˈaʊən]",
-                "it": "[dˈɛːvo ʃˈeʎere dˌɪ fidˈaːrmɪ]",
-                "es": "[ˈteŋɡo ke ðeθiˈðiɾ konˈfjaɾ]",
-                "nl": "[ɪk mˈut ɛrvˈɔːr kˈizən ɔm tə vərtrˈʌʊən]",
-                "en": "[aɪ mˈʌst tʃˈuːz tə tɹˈʌst]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-019",
-            "text": {
-                "fr": "Même si c'est étrange, je dois lui faire confiance",
-                "en": "Even if it's strange, I must trust her",
-                "de": "Selbst wenn es seltsam ist, ich muss ihr vertrauen.",
-                "it": "Anche se è strano, devo fidarmi di lei.",
-                "es": "Aunque sea extraño, tengo que confiar en ella.",
-                "nl": "Zelfs als het vreemd is, moet ik haar vertrouwen",
-                "pt": "Mesmo sendo estranho, preciso confiar nela.",
-                "en_pt": "Even though it's strange, I need to trust her."
-            },
-            "ipa": {
-                "fr": "mˈɛm sˈi sɛt etʁˈɑ̃ʒ ʒə- dwˈa lyˌi fˈɛʁ kɔ̃fjˈɑ̃s",
-                "de": "[zˈɛlpst vˌɛn ɛs zˈɛltzɑːm ɪst\n ɪç mˈʊs iːɾ fɛɾtɾˈaʊən]",
-                "it": "[ˈanke sˌe ˌɛ strˈaːno\n dˈɛːvo fidˈaːrmɪ dˌɪ lˈɛj]",
-                "es": "[ˈawŋke ˈse.a eksˈtɾaɲo | ˈteŋɡo ke konˈfjaɾ en ˈeʎa]",
-                "nl": "[zˈɛlfs ɑls hət vrˈeːmt ɪs\n mˈut ɪk haːr vərtrˈʌʊən]",
-                "pt": "[mˈezmʊ sˈeɪŋdw ˌestrˈɐ̃ɲʊ\n prˌesˈizʊ kˌoŋfiˈar nˈɛlæ]",
-                "en": "[ˈiːvən ɪf ɪts stɹˈeɪndʒ aɪ mˈʌst tɹˈʌst hɜː]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-020",
-            "text": {
-                "fr": "Je n'ai pas d'autre choix.",
-                "en": "I have no other choice.",
-                "de": "Ich habe keine andere Wahl.",
-                "it": "Non ho altra scelta.",
-                "es": "No tengo otra opción.",
-                "nl": "Ik heb geen andere keuze.",
-                "pt": "Não tenho outra escolha."
-            },
-            "ipa": {
-                "fr": "ʒə- ne pa dotʁ ʃwˈa",
-                "de": "[ɪç hɑːbə kˈaɪnə ˈandərə vˈɑːl]",
-                "it": "[nˌon ˌo ˈaltra ʃˈelta]",
-                "es": "[no ˈteŋɡo ˈotɾa opˈθjon]",
-                "nl": "[ɪk hɛp ɣˈeːn ˈɑndərə kˈøːzə]",
-                "pt": "[nˌɐ̃ʊ̃ tˌeɲʊ ˈowtræ ˌeskˈoljæ]",
-                "en": "[aɪ hav nˈəʊ ˈʌðə tʃˈɔɪs]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-021",
-            "text": {
-                "fr": "Elle s'arrête et attend que je la suive.",
-                "en": "It stops and waits for me to follow.",
-                "de": "Sie hält an und wartet darauf, dass ich ihr folge.",
-                "it": "Si ferma e aspetta che la segua.",
-                "es": "Se detiene y espera que la siga.",
-                "nl": "Ze stopt en wacht tot ik haar volg.",
-                "pt": "Ela para e espera que eu a siga.",
-                "en_pt": "She stops and waits for me to follow."
-            },
-            "ipa": {
-                "fr": "ɛl saʁˈɛt e atˈɑ̃ kə ʒə- la- syˈiv",
-                "de": "[ziː hˈɛlt an ʊnt vˈaɾtət dɑːrˈaʊf\n das ɪç iːɾ fˈɔlɡə]",
-                "it": "[sˌɪ fˈeːrma ˌe aspˈɛtːa kˌe lˌa sˈeɡwa]",
-                "es": "[se ðeˈtjene i esˈpeɾa ke la ˈsiɣa]",
-                "nl": "[zə stˈɔpt ɛn ʋˈɑx tɔt ɪk haːr vˈɔlx]",
-                "pt": "[ˌɛlæ pˌaɾæ i ˌespˈɛɾæ ky eʊ a sˈiɡæ]",
-                "en": "[ɪt stˈɒps and wˈeɪts fɔː mˌiː tə fˈɒləʊ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-022",
-            "text": {
-                "fr": "Sophie compte sur moi, je ne peux pas l'abandonner.",
-                "en": "Sophie is counting on me, I can't let her down.",
-                "de": "Sophie zählt auf mich, ich kann sie nicht im Stich lassen.",
-                "it": "Sophie conta su di me, non posso abbandonarla.",
-                "es": "Sophie cuenta conmigo, no puedo abandonarla.",
-                "nl": "Sophie rekent op mij, ik kan haar niet in de steek laten.",
-                "pt": "Sophie conta comigo, não posso abandoná-la.",
-                "en_pt": "Sophie is counting on me, I can't abandon her."
-            },
-            "ipa": {
-                "fr": "sɔfˈi kˈɔ̃t syʁ mwˈa ʒə- nə- pˈø pa labɑ̃dɔnˈe",
-                "de": "[zoːfˈiː tsˈɛːlt aʊf mɪç\n ɪç kˌan ziː nˈɪçt ɪm ʃtˈɪç lˈasən]",
-                "it": "[sˈopje kˈonta sˌʊ dˌɪ mˈe\n nˌon pˈɔsso ˌabːandonˈaːrla]",
-                "es": "[ˈsofi ˈkwenta ˈkonmiɣo | no ˈpwedo aβanðoˈnaɾla]",
-                "nl": "[sɔphˈi rˈeːkənt ɔp mˈɛɪ\n ɪk kɑn haːr nˌit ɪn də stˈeːk lˈaːtən]",
-                "pt": "[sˌofˈiy kˈoŋtæ kˌomˈiɡʊ\n nˌɐ̃ʊ̃ pˌɔsʊ ˌabɐ̃ŋdonˈalæ]",
-                "en": "[sˈəʊfi ɪz kˈaʊntɪŋ ˈɒn mˌiː aɪ kˈɑːnt lˈɛt hɜː dˈaʊn]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-023",
-            "text": {
-                "fr": "Voilà une lumière au loin! La chèvre m'a guidé!",
-                "en": "There's a light in the distance! The goat has guided me!",
-                "de": "Da ist ein Licht in der Ferne! Die Ziege hat mich geführt!",
-                "it": "Ecco una luce in lontananza! La capra mi ha guidato!",
-                "es": "¡Ahí hay una luz a lo lejos! ¡La cabra me ha guiado!",
-                "nl": "Daar is een licht in de verte! De geit heeft me geleid!",
-                "pt": "Tem uma luz lá embaixo!",
-                "en_pt": "There's a light down there!"
-            },
-            "ipa": {
-                "fr": "vwalˌa yn lymjˈɛʁ o lwˈɛ̃ la- ʃˈɛvʁ ma ɡidˈe",
-                "de": "[dɑː ɪst aɪn lˈɪçt ɪn dɛɾ fˈɛɾnə\n diː tsˈiːɡə hat mɪç ɡəfˈyːɾt]",
-                "it": "[ˈɛkːo ˌʊna lˈuːtʃe ˌin lˌontanˈantsa\n lˌa kˈaːpra mˌɪ ˌa ɡwidˈaːto]",
-                "es": "[aˈi ai ˈuna luθ a lo ˈlexos | la ˈkaβɾa me a ɣiˈaðo]",
-                "nl": "[dˈaːr ɪs ən lˈɪxt ɪn də vˈɛrtə\n də ɣˈɛɪt heːft mə ɣəlˈɛɪt]",
-                "pt": "[teɪŋ ˌumæ lˈuz lˈa ˌeɪmbˈaɪʃʊ]",
-                "en": "[ðeəz ɐ lˈaɪt ɪnðə dˈɪstəns ðə ɡˈəʊt hɐz ɡˈaɪdɪd mˌiː]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-024",
-            "text": {
-                "fr": "À l'aide! J'ai besoin d'aide!",
-                "en": "Help! I need help!",
-                "de": "Zu Hilfe! Ich brauche Hilfe!",
-                "it": "Aiuto! Ho bisogno di aiuto!",
-                "es": "¡Ayuda! ¡Necesito ayuda!",
-                "nl": "Help! Ik heb hulp nodig!",
-                "pt": "Preciso de ajuda!",
-                "en_pt": "I need help!"
-            },
-            "ipa": {
-                "fr": "a lˈɛd ʒe bəzwˈɛ̃ dˈɛd",
-                "de": "[tsuː hˈɪlfə\n ɪç brˈaʊxə hˈɪlfə]",
-                "it": "[ajˈuːto\n ˌo bizˈoɲʲo dˌɪ ajˈuːto]",
-                "es": "[aˈʝuða | neˈθesito aˈʝuða]",
-                "nl": "[hˈɛlp\n ɪk hɛp hˈɵlp nˈoːdəx]",
-                "pt": "[prˌesˈizʊ dʒj ˌaʒˈudæ]",
-                "en": "[hˈɛlp aɪ nˈiːd hˈɛlp]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-025",
-            "text": {
-                "fr": "Pendant ce temps, Lucas cherche désespérément Sophie dans le brouillard.",
-                "en": "Meanwhile, Lucas is desperately searching for Sophie in the fog.",
-                "de": "Unterdessen sucht Lucas verzweifelt im Nebel nach Sophie.",
-                "it": "Intanto, Lucas cerca disperatamente Sophie nella nebbia.",
-                "es": "Mientras tanto, Lucas busca desesperadamente a Sophie en la niebla.",
-                "nl": "Ondertussen zoekt Lucas wanhopig naar Sophie in de mist.",
-                "pt": "Enquanto isso, Lucas procura desesperadamente Sophie na neblina.",
-                "en_pt": "Meanwhile, Lucas desperately searches for Sophie in the fog."
-            },
-            "ipa": {
-                "fr": "pɑ̃dˈɑ̃ sə- tˈɑ̃ lykˈa ʃˈɛʁʃ dezɛspeʁemˈɑ̃ sɔfˈi dɑ̃ lə- bʁujˈaʁ",
-                "de": "[ˌʊntɜdˈɛsən zˈuːxt lˈuːkɑːs fɛɾtsvˈaɪfəlt ɪm nˈeːbəl nɑːx zoːfˈiː]",
-                "it": "[intˈanto\n lˈuːkas tʃˈeːrka dˌisperˌatamˈente sˈopje nˌɛlla nˈebːia]",
-                "es": "[mjenˈtɾas ˈtanto | ˈlukas ˈbuska ðesezpeɾaˈðamente a ˈsofi en la ˈnjεβla]",
-                "nl": "[ˈɔndərtˌɵsən zˈukt lˈykɑs ʋɑnhˈoːpəx naːr sɔphˈi ɪn də mˈɪst]",
-                "pt": "[ˌeɪŋkwˈɐ̃ŋtw ˈisʊ\n lˈukæs prˌokˈuɾæ dˌezespˌeɾadæmˈeɪŋtʃy sˌofˈiy na nˌeblˈinæ]",
-                "en": "[mˈiːnwaɪl lˈuːkəz ɪz dˈɛspəɹətli sˈɜːtʃɪŋ fɔː sˈəʊfi ɪnðə fˈɒɡ]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-026",
-            "text": {
-                "fr": "Il se sent terriblement coupable.",
-                "en": "He feels terribly guilty.",
-                "de": "Er fühlt sich furchtbar schuldig.",
-                "it": "Si sente terribilmente in colpa.",
-                "es": "Se siente terriblemente culpable.",
-                "nl": "Hij voelt zich vreselijk schuldig.",
-                "pt": "Ele se sente terrivelmente culpado."
-            },
-            "ipa": {
-                "fr": "il sə- sˈɑ̃ tɛʁibləmˈɑ̃ kupˈabl",
-                "de": "[ɛɾ fˈyːlt zɪç fˈʊɐçtbɑːɾ ʃˈʊldɪç]",
-                "it": "[sˌɪ sˈɛnte tˌɛrɾibilmˈente ˌin kˈolpa]",
-                "es": "[se ˈsjente teɾiˈβleˈmente kulˈpaβle]",
-                "nl": "[hɛɪ vˈult zɪx vrˈeːsələk sxˈɵldəx]",
-                "pt": "[ˌely sy sˈeɪŋtʃy tˌexivɛʊmˈeɪŋtʃy kˌuwpˈadʊ]",
-                "en": "[hiː fˈiːlz tˈɛɹəblɪ ɡˈɪlti]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-027",
-            "text": {
-                "fr": "Il marche pendant des heures, criant son nom, mais le brouillard absorbe tous les sons.",
-                "en": "He walks for hours, shouting her name, but the fog absorbs all sounds.",
-                "de": "Er läuft stundenlang, ruft ihren Namen, aber der Nebel schluckt alle Geräusche.",
-                "it": "Cammina per ore, gridando il suo nome, ma la nebbia assorbe tutti i suoni.",
-                "es": "Camina durante horas, gritando su nombre, pero la niebla absorbe todos los sonidos.",
-                "nl": "Hij loopt urenlang, roept haar naam, maar de mist absorbeert alle geluiden.",
-                "pt": "Ele caminha por horas, gritando o nome dela, mas a neblina absorve todos os sons."
-            },
-            "ipa": {
-                "fr": "il mˈaʁʃ pɑ̃dˈɑ̃ de-z ˈœʁ kʁiˈɑ̃ sɔ̃ nˈɔ̃ mɛ lə- bʁujˈaʁ absˈɔʁb tu le- sˈɔ̃",
-                "de": "[ɛɾ lˈɔøft ʃtˈʊndənlˌaŋ\n rˈʊft ˌiːrən nˈɑːmən\n ˌɑːbɜ dɛɾ nˈeːbəl ʃlˈʊkt ˈalə ɡərˈɔøʃə]",
-                "it": "[kammˈiːna pˌɛr ˈoːre\n ɡridˈando ˌil sˌʊo nˈoːme\n mˌa lˌa nˈebːia assˈɔːrbe tˈutːɪ ˌɪ sʊˈoːnɪ]",
-                "es": "[kaˈmina ðuˈɾante ˈoɾas | ɡɾiˈtando su ˈnomβɾe | ˈpeɾo la ˈnjεβla apˈsorβe ˈtoðos los soˈniðos]",
-                "nl": "[hɛɪ lˈoːpt ˈyrənlˌɑŋ\n rˈupt haːr nˈaːm\n maːr də mˈɪst ˌɑbsɔrbˈɪrt ˈɑlə ɣəlˈœydən]",
-                "pt": "[ˌely kˌæmˈiɲæ poɾ ˈɔɾæs\n ɡrˌitˈɐ̃ŋdw ʊ nˈomy dˈɛlæ\n maz a nˌeblˈinæ ˌabsˈɔɾəvy tˈodʊz ʊs sˈoŋs]",
-                "en": "[hiː wˈɔːks fɔːɹ ˈaʊəz ʃˈaʊtɪŋ hɜː nˈeɪm bˌʌt ðə fˈɒɡ ɐbsˈɔːbz ˈɔːl sˈaʊndz]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-028",
-            "text": {
-                "fr": "Dans cette blancheur épaisse, il perd toute notion de direction.",
-                "en": "In this thick whiteness, he loses all sense of direction.",
-                "de": "In dieser dichten Weiße verliert er jegliches Gefühl für Richtung.",
-                "it": "In questa bianchezza densa, perde ogni nozione di direzione.",
-                "es": "En esa blancura espesa, pierde toda noción de dirección.",
-                "nl": "In deze dikke witheid verliest hij alle gevoel voor richting.",
-                "pt": "Nesta brancura espessa, ele perde toda noção de direção."
-            },
-            "ipa": {
-                "fr": "dɑ̃ sɛt blɑ̃ʃˈœʁ epˈɛs il pˈɛʁ tut nɔsjˈɔ̃ də- diʁɛksjˈɔ̃",
-                "de": "[ɪn dˌiːzɜ dˈɪçtən vˈaɪsə fɛɾlˈiːɾt ɛɾ jˈeːklɪçəs ɡəfˈyːl fyːɾ rˈɪçtʊŋ]",
-                "it": "[ˌin kwˌɛsta bjankˈetsːa dˈɛnsa\n pˈɛːrde ˈoɲʲɪ nˌɔtsiˈɔːne dˌɪ dˌiretsiˈɔːne]",
-                "es": "[en ˈesa βlanˈkuɾa esˈpesa | ˈpjɛɾðe ˈtoða noˈθjon de ðiɾekˈθjon]",
-                "nl": "[ɪn dˌeːzə dˈɪkə ʋˈɪtɛɪt vərlˈist hɛɪ ˈɑlə ɣəvˈul vɔːr rˈɪxtɪŋ]",
-                "pt": "[nˌɛstæ brˌɐ̃ŋkˈuɾæ ˌespˈesæ\n ˌely pˈɛɾədʒy tˈodæ nosˈɐ̃ʊ̃ dʒy dʒˌiɾesˈɐ̃ʊ̃]",
-                "en": "[ɪn ðɪs θˈɪk wˈaɪtnəs hiː lˈuːzɪz ˈɔːl sˈɛns ɒv daɪɹˈɛkʃən]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-029",
-            "text": {
-                "fr": "Le haut, le bas, la gauche, la droite—tout se confond.",
-                "en": "Up, down, left, right—everything gets mixed up.",
-                "de": "Oben, unten, links, rechts—alles verschwimmt.",
-                "it": "Su, giù, sinistra, destra—tutto si confonde.",
-                "es": "Arriba, abajo, izquierda, derecha—todo se confunde.",
-                "nl": "Boven, onder, links, rechts—alles loopt door elkaar.",
-                "pt": "O alto, o baixo, a esquerda, a direita—tudo se confunde.",
-                "en_pt": "Up, down, left, right—everything is confused."
-            },
-            "ipa": {
-                "fr": "lə- ˈo lə- bˈa la- ɡˈoʃ la- dʁwˈat tu sə- kɔ̃fˈɔ̃",
-                "de": "[ˈoːbən\n ˈʊntən\n lˈɪŋks\n rˈɛçts ˈaləs fɛɾʃvˈɪmt]",
-                "it": "[sˈu\n dʒˈu\n sinˈistra\n dˈɛstra tˈutːo sˌɪ konfˈonde]",
-                "es": "[aˈriβa | aˈβaxo | iθˈkjeɾða | ðeˈɾetʃa—ˈtoðo se konˈfunde]",
-                "nl": "[bˈoːvən\n ˈɔndər\n lˈɪŋks\n rˈɛxts ˈɑləs lˈoːpt doːr ˈɛlkaːr]",
-                "pt": "[u ˈaʊtʊ\n ʊ bˈaɪʃʊ\n a ˌeskˈeɾədæ\n a dʒˌiɾˈeɪtæ tˈudʊ sy kˌoŋfˈũŋdʒy]",
-                "en": "[ˈʌp dˈaʊn lˈɛft ɹˈaɪt ˈɛvɹɪθˌɪŋ ɡˈɛts mˈɪkst ˈʌp]"
-            },
-            "provenance": {
-                "fr": "original",
-                "de": "original",
-                "it": "original",
-                "es": "original",
-                "nl": "original",
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-030",
-            "text": {
                 "fr": "Finalement, il doit prendre une décision.",
-                "en": "Eventually, he has to make a decision.",
+                "en": "Finally, he must make a decision.",
                 "de": "Schließlich muss er eine Entscheidung treffen.",
                 "it": "Alla fine, deve prendere una decisione.",
                 "es": "Finalmente, tiene que tomar una decisión.",
@@ -931,7 +382,7 @@
                 "es": "[finaˈlmente | ˈtjene ke toˈmaɾ una ðeθiˈsjon]",
                 "nl": "[ˈœytˌɛɪndələk mˈut hɛɪ ən bəslˈɪsɪŋ nˈeːmən]",
                 "pt": "[fˌinaʊmˈeɪŋtʃy\n ˌely prˌesˈizæ tomˈaɾ ˌumæ dˌesizˈɐ̃ʊ̃]",
-                "en": "[ɪvˈɛntʃuːəli hiː hɐz tə mˌeɪk ɐ dɪsˈɪʒən]"
+                "en": "[fˈaɪnəli hiː mˈʌst mˌeɪk ɐ dɪsˈɪʒən]"
             },
             "provenance": {
                 "fr": "original",
@@ -944,10 +395,41 @@
             }
         },
         {
-            "id": "scene-12-031",
+            "id": "scene-12-014",
+            "text": {
+                "fr": "Il faut que je trouve de l'aide.",
+                "en": "I must find help.",
+                "de": "Ich muss Hilfe finden.",
+                "it": "Devo trovare aiuto.",
+                "es": "Tengo que encontrar ayuda.",
+                "nl": "Ik moet hulp vinden.",
+                "pt": "Preciso encontrar ajuda.",
+                "en_pt": "I need to find help."
+            },
+            "ipa": {
+                "fr": "il fo kə ʒə- tʁˈuv də- lˈɛd",
+                "de": "[ɪç mˈʊs hˈɪlfə fˈɪndən]",
+                "it": "[dˈɛːvo trovˈaːre ajˈuːto]",
+                "es": "[ˈteŋɡo ke enkonˈtɾaɾ aˈʝuða]",
+                "nl": "[ɪk mˈut hˈɵlp vˈɪndən]",
+                "pt": "[prˌesˈizw ˌeɪŋkoŋtrˈaɾ ˌaʒˈudæ]",
+                "en": "[aɪ mˈʌst fˈaɪnd hˈɛlp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-015",
             "text": {
                 "fr": "Il essaie de s'orienter.",
-                "en": "He tries to find his way.",
+                "en": "He tries to get his bearings.",
                 "de": "Er versucht, sich zu orientieren.",
                 "it": "Sta cercando di orientarsi.",
                 "es": "Intenta orientarse.",
@@ -962,7 +444,7 @@
                 "es": "[inˈtenta oɾjenˈtaɾse]",
                 "nl": "[hɛɪ proːbˈɪrt zɛɪn ʋˈɛx tə vˈɪndən]",
                 "pt": "[ˌely tˈeɪŋtæ sj ˌoɾieɪŋtˈar]",
-                "en": "[hiː tɹˈaɪz tə fˈaɪnd hɪz wˈeɪ]"
+                "en": "[hiː tɹˈaɪz tə ɡɛt hɪz bˈeəɹɪŋz]"
             },
             "provenance": {
                 "fr": "original",
@@ -975,16 +457,107 @@
             }
         },
         {
-            "id": "scene-12-032",
+            "id": "scene-12-016",
+            "text": {
+                "fr": "Le village ne peut pas être très loin",
+                "en": "The village can't be very far",
+                "de": "Das Dorf kann nicht weit sein.",
+                "it": "Il villaggio non può essere molto lontano.",
+                "es": "El pueblo no puede estar muy lejos",
+                "nl": "Het dorp kan niet ver weg zijn",
+                "pt": "O vilarejo não pode estar muito longe.",
+                "en_pt": "The village can't be too far."
+            },
+            "ipa": {
+                "fr": "lə- vilˈaʒ nə- pˈø paz ˈɛtʁ tʁɛ lwˈɛ̃",
+                "de": "[das dˈɔɾf kˌan nˈɪçt vˈaɪt zaɪn]",
+                "it": "[ˌil villˈadʒːo nˌon pʊˈɔ ˈɛssere mˈolto lontˈaːno]",
+                "es": "[el ˈpweβlo no ˈpweðe esˈtaɾ muʝ ˈlexos]",
+                "nl": "[hə tˈɔrp kɑn nˌit vˈɛr ʋˈɛx zɛɪn]",
+                "pt": "[ʊ vˌilaɾˈeʒʊ nˌɐ̃ʊ̃ pˌɔdʒj estˌar mwˈiŋtʊ lˈoŋʒy]",
+                "en": "[ðə vˈɪlɪdʒ kˈɑːnt biː vˈɛɹɪ fˈɑː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-017",
+            "text": {
+                "fr": "Si je descends, c'est par là.",
+                "en": "If I go downhill, it's that way.",
+                "de": "Wenn ich hinuntergehe, dann hier entlang.",
+                "it": "Se scendo, è di qua.",
+                "es": "Si bajo, es por aquí.",
+                "nl": "Als ik naar beneden ga, is het die kant op.",
+                "pt": "Se eu descer, é por ali.",
+                "en_pt": "If I go down, it's that way."
+            },
+            "ipa": {
+                "fr": "sˈi ʒə- dɛsˈɑ̃ sɛ paʁ lˈa",
+                "de": "[vˌɛn ɪç hɪnˈʊntɜɡˌeːə\n dan hˈiːɾ ɛntlˈaŋ]",
+                "it": "[sˌe ʃˈɛndo\n ˌɛ dˌɪ kwˈa]",
+                "es": "[si ˈbaxo | es poɾ aˈki]",
+                "nl": "[ɑls ɪk naːr bənˈeːdən ɣˈaː\n ɪs hət di kˈɑnt ˈɔp]",
+                "pt": "[sj eʊ desˈer\n ɛ poɾ alˈi]",
+                "en": "[ɪf aɪ ɡˌəʊ dˈaʊnhɪl ɪts ðat wˈeɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-018",
+            "text": {
+                "fr": "Mais dans quelle direction exactement?",
+                "en": "But in which direction exactly?",
+                "de": "Aber in welche Richtung genau?",
+                "it": "Ma in quale direzione esattamente?",
+                "es": "¿Pero en qué dirección exactamente?",
+                "nl": "Maar in welke richting precies?",
+                "pt": "Mas em qual direção exatamente?"
+            },
+            "ipa": {
+                "fr": "mɛ dɑ̃ kɛl diʁɛksjˈɔ̃ ɛɡzaktəmˈɑ̃",
+                "de": "[ˌɑːbɜ ɪn vˈɛlçə rˈɪçtʊŋ ɡənˈaʊ]",
+                "it": "[mˌa ˌin kwˈaːle dˌiretsiˈɔːne ˌezatːamˈente]",
+                "es": "[ˈpeɾo en ke diɾekˈθjon eksakˈtamente]",
+                "nl": "[maːr ɪn ʋˈɛlkə rˈɪxtɪŋ preːsˈis]",
+                "pt": "[maz ˈeɪŋ kwˈaʊ dʒˌiɾesˈɐ̃ʊ̃ ˌezatæmˈeɪŋtʃy]",
+                "en": "[bˌʌt ɪn wˌɪtʃ daɪɹˈɛkʃən ɛɡzˈaktli]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-019",
             "text": {
                 "fr": "Le brouillard rend l'orientation impossible.",
-                "en": "The fog makes it impossible to orient.",
+                "en": "The fog makes orientation impossible.",
                 "de": "Der Nebel macht die Orientierung unmöglich.",
                 "it": "La nebbia rende impossibile orientarsi.",
                 "es": "La niebla hace imposible orientarse.",
                 "nl": "De mist maakt het onmogelijk om te oriënteren.",
-                "pt": "A neblina torna a orientação impossível.",
-                "en_pt": "The fog makes orientation impossible."
+                "pt": "A neblina torna a orientação impossível."
             },
             "ipa": {
                 "fr": "lə- bʁujˈaʁ ʁˈɑ̃ lɔʁjɑ̃tasjˈɔ̃ ɛ̃pɔsˈibl",
@@ -993,7 +566,7 @@
                 "es": "[la ˈnjεβla aˈθe impoˈsiβle oɾjenˈtaɾse]",
                 "nl": "[də mˈɪst mˈaːkt hət ɔnmˈoːɣələk ɔm tə ˌoːriəntˈɪːrən]",
                 "pt": "[a nˌeblˈinæ tˈɔɾənæ a ˌoɾiˌeɪŋtasˈɐ̃ʊ̃ ˌimposˈiveʊ]",
-                "en": "[ðə fˈɒɡ mˌeɪks ɪt ɪmpˈɒsəbəl tʊ ˈɔːɹiənt]"
+                "en": "[ðə fˈɒɡ mˌeɪks ˌɔːɹiəntˈeɪʃən ɪmpˈɒsəbəl]"
             },
             "provenance": {
                 "fr": "original",
@@ -1006,10 +579,10 @@
             }
         },
         {
-            "id": "scene-12-033",
+            "id": "scene-12-020",
             "text": {
                 "fr": "Il pourrait tourner en rond pendant des heures.",
-                "en": "He could walk around for hours.",
+                "en": "He could wander in circles for hours.",
                 "de": "Er könnte stundenlang im Kreis laufen.",
                 "it": "Potrebbe girare in tondo per ore.",
                 "es": "Podría estar dando vueltas durante horas.",
@@ -1024,7 +597,7 @@
                 "es": "[poˈðɾia esˈtaɾ ˈðando ˈbweltas ðuˈɾante ˈoɾas]",
                 "nl": "[hɛɪ zʌʊ ˈyrənlˌɑŋ rˈɔnt kˌɵnən lˈoːpən]",
                 "pt": "[ˌely pˌodeɾˈiæ fikˈaɾ ˌɐ̃ŋdˈɐ̃ŋdw ˈeɪŋ sˈiɾəkulʊs poɾ ˈɔɾæs]",
-                "en": "[hiː kʊd wˈɔːk ɐɹˈaʊnd fɔːɹ ˈaʊəz]"
+                "en": "[hiː kʊd wˈɒndəɹ ɪn sˈɜːkəlz fɔːɹ ˈaʊəz]"
             },
             "provenance": {
                 "fr": "original",
@@ -1037,7 +610,7 @@
             }
         },
         {
-            "id": "scene-12-034",
+            "id": "scene-12-021",
             "text": {
                 "fr": "Soudain, il entend un bêlement.",
                 "en": "Suddenly, he hears a bleating.",
@@ -1068,7 +641,7 @@
             }
         },
         {
-            "id": "scene-12-035",
+            "id": "scene-12-022",
             "text": {
                 "fr": "Une forme apparaît dans le brouillard.",
                 "en": "A shape appears in the fog.",
@@ -1098,25 +671,40 @@
             }
         },
         {
-            "id": "scene-12-036",
+            "id": "scene-12-023",
             "text": {
-                "fr": "L'animal ne semble pas effrayé.",
-                "en": "The animal does not seem scared.",
-                "de": "Das Tier scheint nicht ängstlich zu sein.",
-                "it": "L'animale non sembra spaventato.",
-                "es": "El animal no parece asustado.",
-                "nl": "Het dier lijkt niet bang te zijn.",
-                "pt": "O animal não parece assustado.",
-                "en_pt": "The animal doesn't seem frightened."
+                "pt": "Uma cabra!",
+                "en": "A goat!"
             },
             "ipa": {
-                "fr": "lanimˈal nə- sˈɑ̃bl paz efʁɛjˈe",
-                "de": "[das tˈiːɾ ʃˈaɪnt nˈɪçt ˈɛŋstlɪç tsuː zaɪn]",
-                "it": "[lˌanimˈaːle nˌon sˈembra spˌaventˈaːto]",
-                "es": "[el aˈnimal no paˈɾeθe asusˈtaðo]",
-                "nl": "[hə tˈir lˈɛɪkt nˌit bˈɑŋ tə zɛɪn]",
-                "pt": "[u ˌænimˈaʊ nˌɐ̃ʊ̃ pˌaɾˈɛsj ˌasustˈadʊ]",
-                "en": "[ðɪ ˈanɪməl dʌznˌɒt sˈiːm skˈeəd]"
+                "pt": "[ˌumæ kˈabræ]",
+                "en": "[ɐ ɡˈəʊt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-024",
+            "text": {
+                "fr": "Une chèvre! Elle me regarde fixement.",
+                "en": "A goat! It's staring at me.",
+                "de": "Eine Ziege! Sie starrt mich an.",
+                "it": "Una capra! Mi sta guardando fisso.",
+                "es": "¡Una cabra! Me está mirando fijamente.",
+                "nl": "Een geit! Ze kijkt me strak aan.",
+                "pt": "Ela está me olhando fixamente.",
+                "en_pt": "She's staring at me."
+            },
+            "ipa": {
+                "fr": "yn ʃˈɛvʁ ɛl mə- ʁəɡˈaʁd fiksmˈɑ̃",
+                "de": "[ˌaɪnə tsˈiːɡə\n ziː ʃtˈaɾt mɪç ˈan]",
+                "it": "[ˌʊna kˈaːpra\n mˌɪ stˈa ɡwardˈando fˈisso]",
+                "es": "[ˈuna ˈkaβɾa | me esˈta miˈɾando fixaˈmente]",
+                "nl": "[ən ɣˈɛɪt\n zə kˈɛɪkt mə strˈɑk ˈaːn]",
+                "pt": "[ˌɛlæ estˌa mj ˌoljˈɐ̃ŋdʊ fˌiksæmˈeɪŋtʃy]",
+                "en": "[ɐ ɡˈəʊt ɪts stˈeəɹɪŋ at mˌiː]"
             },
             "provenance": {
                 "fr": "original",
@@ -1129,10 +717,40 @@
             }
         },
         {
-            "id": "scene-12-037",
+            "id": "scene-12-025",
+            "text": {
+                "fr": "L'animal ne semble pas effrayé.",
+                "en": "The animal doesn't seem frightened.",
+                "de": "Das Tier scheint nicht ängstlich zu sein.",
+                "it": "L'animale non sembra spaventato.",
+                "es": "El animal no parece asustado.",
+                "nl": "Het dier lijkt niet bang te zijn.",
+                "pt": "O animal não parece assustado."
+            },
+            "ipa": {
+                "fr": "lanimˈal nə- sˈɑ̃bl paz efʁɛjˈe",
+                "de": "[das tˈiːɾ ʃˈaɪnt nˈɪçt ˈɛŋstlɪç tsuː zaɪn]",
+                "it": "[lˌanimˈaːle nˌon sˈembra spˌaventˈaːto]",
+                "es": "[el aˈnimal no paˈɾeθe asusˈtaðo]",
+                "nl": "[hə tˈir lˈɛɪkt nˌit bˈɑŋ tə zɛɪn]",
+                "pt": "[u ˌænimˈaʊ nˌɐ̃ʊ̃ pˌaɾˈɛsj ˌasustˈadʊ]",
+                "en": "[ðɪ ˈanɪməl dˈʌzənt sˈiːm fɹˈaɪtənd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-026",
             "text": {
                 "fr": "Au contraire, elle s'approche, puis se retourne et commence à descendre un sentier.",
-                "en": "On the contrary, it comes closer, then turns around and starts to descend a path.",
+                "en": "On the contrary, it approaches, then turns around and starts down a path.",
                 "de": "Im Gegenteil, es nähert sich, dreht sich dann um und beginnt, einen Pfad hinunterzusteigen.",
                 "it": "Al contrario, si avvicina, poi si gira e inizia a scendere un sentiero.",
                 "es": "Al contrario, se acerca, luego se da la vuelta y empieza a bajar un sendero.",
@@ -1147,7 +765,7 @@
                 "es": "[al konˈtɾaɾjo | se aˈθɛɾka | ˈlweɣo se ða la ˈbwelta i emˈpjeθa a βaˈxaɾ un senˈðeɾo]",
                 "nl": "[ˈɪntˌeːɣəndˌeːl\n hət kˈɔm tˌɪxtərbˈɛɪ\n drˈaːjt zɪx ɔm ɛn bəɣˈɪnt ən pˈɑt ˈɑf tə dˈaːlən]",
                 "pt": "[pˈelʊ kˌoŋtrˈaɾjʊ\n ˌɛlæ sj ˌaprosˈimæ\n depˈoɪs sy vˈiɾæ i kˌomˈɛsæ a desˈer poɾ ˌumæ trˈiljæ]",
-                "en": "[ɒnðə kˈɒntɹəɹˌɪ ɪt kˈʌmz klˈəʊsə ðˈɛn tˈɜːnz ɐɹˈaʊnd and stˈɑːts tə dɪsˈɛnd ɐ pˈaθ]"
+                "en": "[ɒnðə kˈɒntɹəɹˌɪ ɪt ɐpɹˈəʊtʃɪz ðˈɛn tˈɜːnz ɐɹˈaʊnd and stˈɑːts dˌaʊn ɐ pˈaθ]"
             },
             "provenance": {
                 "fr": "original",
@@ -1160,10 +778,163 @@
             }
         },
         {
-            "id": "scene-12-038",
+            "id": "scene-12-027",
+            "text": {
+                "fr": "Elle commence à descendre un sentier que je n'avais pas vu.",
+                "en": "It starts down a path I hadn't seen.",
+                "de": "Sie beginnt, einen Pfad hinunterzusteigen, den ich nicht gesehen hatte.",
+                "it": "Comincia a scendere un sentiero che non avevo visto.",
+                "es": "Empieza a bajar por un sendero que no había visto.",
+                "nl": "Ze begint een pad af te dalen dat ik niet had gezien.",
+                "pt": "Ela está começando a descer por uma trilha que eu não tinha visto.",
+                "en_pt": "She's starting to descend a trail I hadn't seen."
+            },
+            "ipa": {
+                "fr": "ɛl kɔmˈɑ̃s a dɛsˈɑ̃dʁ œ̃ sɑ̃tjˈe kə ʒə- navˈɛ pa vˈy",
+                "de": "[ziː bəɡˈɪnt\n ˌaɪnən pfˈɑːt hɪnˈʊntɜtsuːʃtˌaɪɡən\n deːn ɪç nˈɪçt ɡəzˈeːən hˌatə]",
+                "it": "[komˈintʃa ˌa ʃˈendere ˌʊn sˌentiˈɛːro kˌe nˌon avˌɛvo vˈisto]",
+                "es": "[emˈpjeθa a βaˈxaɾ poɾ un senˈðeɾo ke no aˈβia ˈβisto]",
+                "nl": "[zə bəɣˈɪnt ən pˈɑt ˈɑf tə dˈaːlən dɑt ɪk nˌit hˈɑt ɣəzˈin]",
+                "pt": "[ˌɛlæ estˌa kˌomesˈɐ̃ŋdw a desˈer poɾ ˌumæ trˈiljæ ky eʊ nˌɐ̃ʊ̃ tʃˌiɲæ vˈistʊ]",
+                "en": "[ɪt stˈɑːts dˌaʊn ɐ pˈaθ aɪ hˈadənt sˈiːn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-028",
+            "text": {
+                "pt": "Lucas hesita.",
+                "en": "Lucas hesitates."
+            },
+            "ipa": {
+                "pt": "[lˈukæs ˌezˈitæ]",
+                "en": "[lˈuːkəz hˈɛsɪtˌeɪts]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-029",
+            "text": {
+                "pt": "Devo segui-la?",
+                "en": "Should I follow her?"
+            },
+            "ipa": {
+                "pt": "[dˈevʊ seɡˈilæ]",
+                "en": "[ʃˌʊd aɪ fˈɒləʊ hɜː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-030",
+            "text": {
+                "fr": "Devrais-je la suivre? Les animaux connaissent les chemins sûrs.",
+                "en": "Should I follow it? Animals know the safe paths.",
+                "de": "Sollte ich ihr folgen? Tiere kennen die sicheren Wege.",
+                "it": "Dovrei seguirla? Gli animali conoscono le vie sicure.",
+                "es": "¿Debería seguirla? Los animales conocen los caminos seguros.",
+                "nl": "Zou ik haar moeten volgen? Dieren kennen de veilige paden.",
+                "pt": "Os animais conhecem os caminhos seguros.",
+                "en_pt": "Animals know the safe paths."
+            },
+            "ipa": {
+                "fr": "dəvʁˈɛʒ la- syˈivʁ le-z animˈo kɔnˈɛs le- ʃəmˈɛ̃ sˈyːʁ",
+                "de": "[zˌɔltə ɪç iːɾ fˈɔlɡən\n tˈiːrə kˈɛnən diː zˈɪçərən vˈeːɡə]",
+                "it": "[dovrˈeːɪ seɡwˈiːrla\n ʎˌɪ ˌanimˈaːlɪ konˈoskono lˌe vˈiːe sikˈuːre]",
+                "es": "[deˈβeɾja seˈɣiɾla | los aˈnimalɛs koˈnoθen los kaˈminos seˈɣuɾos]",
+                "nl": "[zʌʊ ɪk haːr mˈutən vˈɔlɣən\n dˈirən kˈɛnən də vˈɛɪləɣə pˈaːdən]",
+                "pt": "[ʊz ˌænimˈaɪs kˌoɲˈɛseɪŋ ʊs kˌæmˈiɲʊs sˌeɡˈuɾʊs]",
+                "en": "[ʃˌʊd aɪ fˈɒləʊ ɪt ˈanɪməlz nˈəʊ ðə sˈeɪf pˈaθs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-031",
+            "text": {
+                "pt": "Ou será...",
+                "en": "Or is it..."
+            },
+            "ipa": {
+                "pt": "[ow seɾˈa]",
+                "en": "[ɔːɹ ɪz ˈɪt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-032",
+            "text": {
+                "pt": "é simplesmente uma cabra voltando para sua fazenda?",
+                "en": "just a goat going back to its farm?"
+            },
+            "ipa": {
+                "pt": "[ɛ sˌimplezmˈeɪŋtʃj ˌumæ kˈabræ vˌowtˈɐ̃ŋdʊ pˌaɾæ sˌuæ fˌazˈeɪŋdæ]",
+                "en": "[dʒˈʌst ɐ ɡˈəʊt ɡˌəʊɪŋ bˈak tʊ ɪts fˈɑːm]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-033",
+            "text": {
+                "fr": "est-ce simplement une chèvre qui rentre à sa ferme? Est-ce que je projette une intentionnalité sur un comportement animal ordinaire?",
+                "en": "is it simply a goat returning to its farm? Am I projecting intentionality onto ordinary animal behavior?",
+                "de": "ist es einfach nur eine Ziege, die nach Hause geht? Projiziere ich eine Absicht auf normales tierisches Verhalten?",
+                "it": "è semplicemente una capra che torna alla sua fattoria? Sto proiettando intenzioni su un comportamento animale ordinario?",
+                "es": "¿es simplemente una cabra que vuelve a su granja? ¿Estoy proyectando una intención en un comportamiento animal común?",
+                "nl": "is het gewoon een geit die naar haar boerderij terugkeert? Projecteer ik een intentie op gewoon diergedrag?",
+                "pt": "Estou projetando intenção em um comportamento animal comum?",
+                "en_pt": "Am I projecting intention onto common animal behavior?"
+            },
+            "ipa": {
+                "fr": "ɛs sɛ̃pləmˈɑ̃ yn ʃˈɛvʁ ki ʁˈɑ̃tʁ a sa- fˈɛʁm ɛs kə ʒə- pʁɔʒˈɛt yn ɛ̃tɑ̃sjɔnalitˈe syʁ œ̃ kɔ̃pɔʁtəmˈɑ̃ animˈal ɔʁdinˈɛʁ",
+                "de": "[ɪst ɛs ˈaɪnfˌax nˈuːɾ ˌaɪnə tsˈiːɡə\n diː nɑːx hˈaʊzə ɡˈeːt\n proːjiːtsˈiːrə ɪç ˌaɪnə ˈapzˌɪçt aʊf nˈɔɾmɑːləs tˈiːrɪʃəs fɛɾhˈaltən]",
+                "it": "[ˌɛ sˌemplitʃemˈente ˌʊna kˈaːpra kˌe tˈoːrna ˌalla sˌʊa fˌatːorˈiːa\n stˈo prˌɔɪetːˈando ˌintentsiˈɔːnɪ sˌʊ ˌʊn kˌomportamˈento ˌanimˈaːle ˌɔrdinˈario]",
+                "es": "[es simˈplemente ˈuna ˈkaβɾa ke ˈbwelβe a su ˈɡɾanxa | ˈestoj pɾoʝekˈtando ˈuna intenˈθjon en un kompoɾtaˈmjento aˈnimal koˈmun]",
+                "nl": "[ɪs hət ɣəʋˈoːn ən ɣˈɛɪt di naːr haːr bˌurdərˈɛɪ tərˈɵxkˌɪːrt\n prˌoːjɛktˈɪr ɪk ən ˈɪntˌɛntsi ɔp ɣəʋˈoːn dˈirɣɛdrˌɑx]",
+                "pt": "[estˌow prˌoʒetˈɐ̃ŋdw ˌiŋteɪŋsˈɐ̃ʊ̃ ˈeɪŋ ũŋ kˌompoɾətæmˈeɪŋtw ˌænimˈaʊ komˈũŋ]",
+                "en": "[ɪz ɪt sˈɪmpli ɐ ɡˈəʊt ɹɪtˈɜːnɪŋ tʊ ɪts fˈɑːm am aɪ pɹədʒˈɛktɪŋ ɪntˌɛnʃənˈalɪti ˌɒntʊ ˈɔːdɪnəɹi ˈanɪməl bɪhˈeɪvjə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-034",
             "text": {
                 "fr": "La chèvre s'arrête et se retourne, comme pour vérifier s'il suit.",
-                "en": "The goat stops and turns around, as if to check if he is following.",
+                "en": "The goat stops and turns around, as if to check if he's following.",
                 "de": "Die Ziege hält an und dreht sich um, als wolle sie überprüfen, ob er folgt.",
                 "it": "La capra si ferma e si gira, come per verificare se lui la segue.",
                 "es": "La cabra se detiene y se vuelve, como para comprobar si la sigue.",
@@ -1178,7 +949,131 @@
                 "es": "[la ˈkaβɾa se ðeˈtjene i se ˈbwelβe | ˈkomo paɾa kompɾoˈβaɾ si la ˈsiɣe]",
                 "nl": "[də ɣˈɛɪt stˈɔpt ɛn drˈaːjt zɪx ˈɔm\n ˈɑlsɔf zə kˌɔntroːlˈɪrt ɔf hɛɪ vˈɔlxt]",
                 "pt": "[a kˈabræ pˌaɾæ i sy vˈiɾæ\n kˌomʊ pˌaɾæ vˌeɾifikˈar sj ˌely estˌa sˌeɡˈiŋdʊ]",
-                "en": "[ðə ɡˈəʊt stˈɒps and tˈɜːnz ɐɹˈaʊnd az ɪf tə tʃˈɛk ɪf hiː ɪz fˈɒləʊɪŋ]"
+                "en": "[ðə ɡˈəʊt stˈɒps and tˈɜːnz ɐɹˈaʊnd az ɪf tə tʃˈɛk ɪf hiːz fˈɒləʊɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-035",
+            "text": {
+                "fr": "J'ai l'impression qu'elle veut me montrer quelque chose.",
+                "en": "I have the feeling it wants to show me something.",
+                "de": "Ich habe das Gefühl, sie will mir etwas zeigen.",
+                "it": "Ho l'impressione che voglia mostrarmi qualcosa.",
+                "es": "Tengo la impresión de que quiere mostrarme algo.",
+                "nl": "Ik heb het gevoel dat ze me iets wil laten zien.",
+                "pt": "Tenho a impressão de que ela quer me mostrar algo.",
+                "en_pt": "I have the impression that she wants to show me something."
+            },
+            "ipa": {
+                "fr": "ʒe lɛ̃pʁɛsjˈɔ̃ kɛl vˈø mə- mɔ̃tʁˈe kˌɛlkə ʃˈoz",
+                "de": "[ɪç hɑːbə das ɡəfˈyːl\n ziː vɪl miːɾ ˈɛtvɑːs tsˈaɪɡən]",
+                "it": "[ˌo lˌimpressiˈoːne kˌe vˈoːʎa mostrˈaːrmɪ kwalkˈɔːza]",
+                "es": "[ˈteŋɡo la impreˈsjon de ke ˈkjeɾe mosˈtɾaɾme ˈalɡo]",
+                "nl": "[ɪk hɛp hət ɣəvˈul dɑt zə mə ˈits ʋɪl lˈaːtən zˈin]",
+                "pt": "[tˌeɲʊ a ˌimpresˈɐ̃ʊ̃ dʒy ky ˌɛlæ kˈɛr my mostrˈaɾ ˈaʊɡʊ]",
+                "en": "[aɪ hav ðə fˈiːlɪŋ ɪt wˈɒnts tə ʃˈəʊ mˌiː sˈʌmθɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-036",
+            "text": {
+                "fr": "Peut-être que dans notre désespoir, nous voyons des signes partout",
+                "en": "Perhaps in our despair, we see signs everywhere",
+                "de": "Vielleicht sehen wir in unserer Verzweiflung überall Zeichen.",
+                "it": "Forse nel nostro disperazione, vediamo segni ovunque.",
+                "es": "Quizás en nuestro desespero, vemos señales por todas partes",
+                "nl": "Misschien zien we overal tekenen in ons wanhoop",
+                "pt": "Talvez no nosso desespero vejamos sinais em todo lugar.",
+                "en_pt": "Maybe in our desperation we see signs everywhere."
+            },
+            "ipa": {
+                "fr": "pˈøtˈɛtʁ kə dɑ̃ nɔtʁ dezɛspwˈaʁ nu vwajˈɔ̃ de- sˈinj paʁtˈu",
+                "de": "[fiːllˈaɪçt zˈeːən viːɾ ɪn ˈʊnzərɜ fɛɾtsvˈaɪflʊŋ ˌyːbɜˈal tsˈaɪçən]",
+                "it": "[fˈoːrse nˌɛl nˌɔstro dˌisperˌatsiˈɔːne\n vedjˈaːmo sˈeɲʲɪ ovˈunkwe]",
+                "es": "[kiˈθas en ˈnwestɾo ðesezˈpeɾo | ˈβemos seˈɲales poɾ ˈtoðas ˈpaɾtes]",
+                "nl": "[mɪsxˈin zˈin ʋə ˌoːvərˈɑl tˈeːkənən ɪn ɔns ʋˈɑnhˌoːp]",
+                "pt": "[taʊvˈez nʊ nˌɔsʊ dˌezespˈeɾʊ vˌeʒˈɐ̃mʊs sinˈaɪz ˈeɪŋ tˈodʊ luɡˈar]",
+                "en": "[pəhˈaps ɪn aʊə dɪspˈeə wiː sˈiː sˈaɪnz ˈɛvɹɪwˌeə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-037",
+            "text": {
+                "fr": "Mais peu importe.",
+                "en": "But it doesn't matter.",
+                "de": "Aber das ist egal.",
+                "it": "Ma poco importa.",
+                "es": "Pero no importa.",
+                "nl": "Maar dat maakt niet uit.",
+                "pt": "Mas não importa—preciso escolher confiar.",
+                "en_pt": "But it doesn't matter—I need to choose to trust."
+            },
+            "ipa": {
+                "fr": "mɛ pø ɛ̃pˈɔʁt",
+                "de": "[ˌɑːbɜ das ɪst eːɡˈɑːl]",
+                "it": "[mˌa pˈɔːko impˈɔːrta]",
+                "es": "[ˈpeɾo no impoɾˈta]",
+                "nl": "[maːr dɑt mˈaːkt nˌit ˈœyt]",
+                "pt": "[maz nˌɐ̃ʊ̃ ˌimpˈɔɾətæ prˌesˈizw ˌeskoljˈer kˌoŋfiˈar]",
+                "en": "[bˌʌt ɪt dˈʌzənt mˈatə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-038",
+            "text": {
+                "fr": "Même si c'est étrange, je dois lui faire confiance",
+                "en": "Even if it's strange, I must trust it",
+                "de": "Selbst wenn es seltsam ist, ich muss ihr vertrauen.",
+                "it": "Anche se è strano, devo fidarmi di lei.",
+                "es": "Aunque sea extraño, tengo que confiar en ella.",
+                "nl": "Zelfs als het vreemd is, moet ik haar vertrouwen",
+                "pt": "Mesmo sendo estranho, preciso confiar nela.",
+                "en_pt": "Even though it's strange, I need to trust her."
+            },
+            "ipa": {
+                "fr": "mˈɛm sˈi sɛt etʁˈɑ̃ʒ ʒə- dwˈa lyˌi fˈɛʁ kɔ̃fjˈɑ̃s",
+                "de": "[zˈɛlpst vˌɛn ɛs zˈɛltzɑːm ɪst\n ɪç mˈʊs iːɾ fɛɾtɾˈaʊən]",
+                "it": "[ˈanke sˌe ˌɛ strˈaːno\n dˈɛːvo fidˈaːrmɪ dˌɪ lˈɛj]",
+                "es": "[ˈawŋke ˈse.a eksˈtɾaɲo | ˈteŋɡo ke konˈfjaɾ en ˈeʎa]",
+                "nl": "[zˈɛlfs ɑls hət vrˈeːmt ɪs\n mˈut ɪk haːr vərtrˈʌʊən]",
+                "pt": "[mˈezmʊ sˈeɪŋdw ˌestrˈɐ̃ɲʊ\n prˌesˈizʊ kˌoŋfiˈar nˈɛlæ]",
+                "en": "[ˈiːvən ɪf ɪts stɹˈeɪndʒ aɪ mˈʌst tɹˈʌst ɪt]"
             },
             "provenance": {
                 "fr": "original",
@@ -1193,23 +1088,22 @@
         {
             "id": "scene-12-039",
             "text": {
-                "fr": "Il suit la chèvre qui descend le sentier avec assurance.",
-                "en": "He follows the goat that descends the path with certainty.",
-                "de": "Er folgt der Ziege, die selbstsicher den Pfad hinuntergeht.",
-                "it": "Segue la capra che scende il sentiero con sicurezza.",
-                "es": "Sigue a la cabra que baja el sendero con seguridad.",
-                "nl": "Hij volgt de geit die met zekerheid het pad afdaalt.",
-                "pt": "Ele segue a cabra que desce a trilha com segurança.",
-                "en_pt": "He follows the goat as she descends the trail confidently."
+                "fr": "Je n'ai pas d'autre choix.",
+                "en": "I have no other choice.",
+                "de": "Ich habe keine andere Wahl.",
+                "it": "Non ho altra scelta.",
+                "es": "No tengo otra opción.",
+                "nl": "Ik heb geen andere keuze.",
+                "pt": "Não tenho outra escolha."
             },
             "ipa": {
-                "fr": "il syˈi la- ʃˈɛvʁ ki dɛsˈɑ̃ lə- sɑ̃tjˈe avˌɛk asyʁˈɑ̃s",
-                "de": "[ɛɾ fˈɔlkt dɛɾ tsˈiːɡə\n diː zˈɛlpstsɪçɜ deːn pfˈɑːt hɪnˈʊntɜɡˌeːt]",
-                "it": "[sˈeɡwe lˌa kˈaːpra kˌe ʃˈɛnde ˌil sˌentiˈɛːro kˌon sˌikʊrˈetsːa]",
-                "es": "[ˈsiɣe a la ˈkaβɾa ke ˈbaxa el senˈðeɾo kon seɣuɾiˈðað]",
-                "nl": "[hɛɪ vˈɔlx tə ɣˈɛɪt di mɛt zˈeːkərhˌɛɪt hət pˈɑt ˈɑfdˌaːlt]",
-                "pt": "[ˌely sˈɛɡj a kˈabræ ky dˈɛsj a trˈiljæ koŋ sˌeɡuɾˈɐ̃ŋsæ]",
-                "en": "[hiː fˈɒləʊz ðə ɡˈəʊt ðat dɪsˈɛndz ðə pˈaθ wɪð sˈɜːtənti]"
+                "fr": "ʒə- ne pa dotʁ ʃwˈa",
+                "de": "[ɪç hɑːbə kˈaɪnə ˈandərə vˈɑːl]",
+                "it": "[nˌon ˌo ˈaltra ʃˈelta]",
+                "es": "[no ˈteŋɡo ˈotɾa opˈθjon]",
+                "nl": "[ɪk hɛp ɣˈeːn ˈɑndərə kˈøːzə]",
+                "pt": "[nˌɐ̃ʊ̃ tˌeɲʊ ˈowtræ ˌeskˈoljæ]",
+                "en": "[aɪ hav nˈəʊ ˈʌðə tʃˈɔɪs]"
             },
             "provenance": {
                 "fr": "original",
@@ -1224,22 +1118,23 @@
         {
             "id": "scene-12-040",
             "text": {
-                "fr": "Ils descendent ainsi pendant une heure.",
-                "en": "They descend like this for an hour.",
-                "de": "Sie steigen so für eine Stunde ab.",
-                "it": "Scendono così per un'ora.",
-                "es": "Bajan así durante una hora.",
-                "nl": "Zo dalen ze een uur lang af.",
-                "pt": "Eles descem assim por uma hora."
+                "fr": "Il suit la chèvre qui descend le sentier avec assurance.",
+                "en": "He follows the goat as it confidently descends the path.",
+                "de": "Er folgt der Ziege, die selbstsicher den Pfad hinuntergeht.",
+                "it": "Segue la capra che scende il sentiero con sicurezza.",
+                "es": "Sigue a la cabra que baja el sendero con seguridad.",
+                "nl": "Hij volgt de geit die met zekerheid het pad afdaalt.",
+                "pt": "Ele segue a cabra que desce a trilha com segurança.",
+                "en_pt": "He follows the goat as she descends the trail confidently."
             },
             "ipa": {
-                "fr": "il dɛsˈɑ̃dt ɛ̃sˌi pɑ̃dˈɑ̃ yn ˈœʁ",
-                "de": "[ziː ʃtˈaɪɡən zoː fyːɾ ˌaɪnə ʃtˈʊndə ˈap]",
-                "it": "[ʃˈendono kozˈi pˌɛr ʊnˈɔːra]",
-                "es": "[ˈbaxan aˈsi ðuˈɾante ˈuna ˈoɾa]",
-                "nl": "[zoː dˈaːlən zə ən ˈyr lˈɑŋ ˈɑf]",
-                "pt": "[ˌelyz dˈɛseɪŋ asˈiŋ poɾ ˌumæ ˈɔɾæ]",
-                "en": "[ðeɪ dɪsˈɛnd lˈaɪk ðɪs fəɹən ˈaʊə]"
+                "fr": "il syˈi la- ʃˈɛvʁ ki dɛsˈɑ̃ lə- sɑ̃tjˈe avˌɛk asyʁˈɑ̃s",
+                "de": "[ɛɾ fˈɔlkt dɛɾ tsˈiːɡə\n diː zˈɛlpstsɪçɜ deːn pfˈɑːt hɪnˈʊntɜɡˌeːt]",
+                "it": "[sˈeɡwe lˌa kˈaːpra kˌe ʃˈɛnde ˌil sˌentiˈɛːro kˌon sˌikʊrˈetsːa]",
+                "es": "[ˈsiɣe a la ˈkaβɾa ke ˈbaxa el senˈðeɾo kon seɣuɾiˈðað]",
+                "nl": "[hɛɪ vˈɔlx tə ɣˈɛɪt di mɛt zˈeːkərhˌɛɪt hət pˈɑt ˈɑfdˌaːlt]",
+                "pt": "[ˌely sˈɛɡj a kˈabræ ky dˈɛsj a trˈiljæ koŋ sˌeɡuɾˈɐ̃ŋsæ]",
+                "en": "[hiː fˈɒləʊz ðə ɡˈəʊt az ɪt kˈɒnfɪdəntli dɪsˈɛndz ðə pˈaθ]"
             },
             "provenance": {
                 "fr": "original",
@@ -1254,8 +1149,69 @@
         {
             "id": "scene-12-041",
             "text": {
+                "fr": "Elle s'arrête et attend que je la suive.",
+                "en": "She stops and waits for me to follow.",
+                "de": "Sie hält an und wartet darauf, dass ich ihr folge.",
+                "it": "Si ferma e aspetta che la segua.",
+                "es": "Se detiene y espera que la siga.",
+                "nl": "Ze stopt en wacht tot ik haar volg.",
+                "pt": "Ela para e espera que eu a siga."
+            },
+            "ipa": {
+                "fr": "ɛl saʁˈɛt e atˈɑ̃ kə ʒə- la- syˈiv",
+                "de": "[ziː hˈɛlt an ʊnt vˈaɾtət dɑːrˈaʊf\n das ɪç iːɾ fˈɔlɡə]",
+                "it": "[sˌɪ fˈeːrma ˌe aspˈɛtːa kˌe lˌa sˈeɡwa]",
+                "es": "[se ðeˈtjene i esˈpeɾa ke la ˈsiɣa]",
+                "nl": "[zə stˈɔpt ɛn ʋˈɑx tɔt ɪk haːr vˈɔlx]",
+                "pt": "[ˌɛlæ pˌaɾæ i ˌespˈɛɾæ ky eʊ a sˈiɡæ]",
+                "en": "[ʃiː stˈɒps and wˈeɪts fɔː mˌiː tə fˈɒləʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-042",
+            "text": {
+                "fr": "Ils descendent ainsi pendant une heure.",
+                "en": "They descend this way for an hour.",
+                "de": "Sie steigen so für eine Stunde ab.",
+                "it": "Scendono così per un'ora.",
+                "es": "Bajan así durante una hora.",
+                "nl": "Zo dalen ze een uur lang af.",
+                "pt": "Eles descem assim por uma hora.",
+                "en_pt": "They descend like this for an hour."
+            },
+            "ipa": {
+                "fr": "il dɛsˈɑ̃dt ɛ̃sˌi pɑ̃dˈɑ̃ yn ˈœʁ",
+                "de": "[ziː ʃtˈaɪɡən zoː fyːɾ ˌaɪnə ʃtˈʊndə ˈap]",
+                "it": "[ʃˈendono kozˈi pˌɛr ʊnˈɔːra]",
+                "es": "[ˈbaxan aˈsi ðuˈɾante ˈuna ˈoɾa]",
+                "nl": "[zoː dˈaːlən zə ən ˈyr lˈɑŋ ˈɑf]",
+                "pt": "[ˌelyz dˈɛseɪŋ asˈiŋ poɾ ˌumæ ˈɔɾæ]",
+                "en": "[ðeɪ dɪsˈɛnd ðɪs wˈeɪ fəɹən ˈaʊə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-043",
+            "text": {
                 "fr": "Lucas pense constamment à Sophie.",
-                "en": "Lucas is constantly thinking of Sophie.",
+                "en": "Lucas constantly thinks of Sophie.",
                 "de": "Lucas denkt die ganze Zeit an Sophie.",
                 "it": "Lucas pensa costantemente a Sophie.",
                 "es": "Lucas piensa constantemente en Sophie.",
@@ -1270,7 +1226,7 @@
                 "es": "[ˈlukas ˈpjensa konstanˈtemente en ˈsofi]",
                 "nl": "[lˈykɑs dˈɛŋkt kɔnstˈɑnt aːn sɔphˈi]",
                 "pt": "[lˈukæs pˈeɪŋsæ kˌoŋstɐ̃ŋtemˈeɪŋtʃj ˈeɪŋ sˌofˈiy]",
-                "en": "[lˈuːkəz ɪz kˈɒnstəntli θˈɪŋkɪŋ ɒv sˈəʊfi]"
+                "en": "[lˈuːkəz kˈɒnstəntli θˈɪŋks ɒv sˈəʊfi]"
             },
             "provenance": {
                 "fr": "original",
@@ -1283,7 +1239,37 @@
             }
         },
         {
-            "id": "scene-12-042",
+            "id": "scene-12-044",
+            "text": {
+                "fr": "Sophie compte sur moi, je ne peux pas l'abandonner.",
+                "en": "Sophie is counting on me, I can't abandon her.",
+                "de": "Sophie zählt auf mich, ich kann sie nicht im Stich lassen.",
+                "it": "Sophie conta su di me, non posso abbandonarla.",
+                "es": "Sophie cuenta conmigo, no puedo abandonarla.",
+                "nl": "Sophie rekent op mij, ik kan haar niet in de steek laten.",
+                "pt": "Sophie conta comigo, não posso abandoná-la."
+            },
+            "ipa": {
+                "fr": "sɔfˈi kˈɔ̃t syʁ mwˈa ʒə- nə- pˈø pa labɑ̃dɔnˈe",
+                "de": "[zoːfˈiː tsˈɛːlt aʊf mɪç\n ɪç kˌan ziː nˈɪçt ɪm ʃtˈɪç lˈasən]",
+                "it": "[sˈopje kˈonta sˌʊ dˌɪ mˈe\n nˌon pˈɔsso ˌabːandonˈaːrla]",
+                "es": "[ˈsofi ˈkwenta ˈkonmiɣo | no ˈpwedo aβanðoˈnaɾla]",
+                "nl": "[sɔphˈi rˈeːkənt ɔp mˈɛɪ\n ɪk kɑn haːr nˌit ɪn də stˈeːk lˈaːtən]",
+                "pt": "[sˌofˈiy kˈoŋtæ kˌomˈiɡʊ\n nˌɐ̃ʊ̃ pˌɔsʊ ˌabɐ̃ŋdonˈalæ]",
+                "en": "[sˈəʊfi ɪz kˈaʊntɪŋ ˈɒn mˌiː aɪ kˈɑːnt ɐbˈandən hɜː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-045",
             "text": {
                 "fr": "Soudain, le brouillard devient moins dense.",
                 "en": "Suddenly, the fog becomes less dense.",
@@ -1313,16 +1299,15 @@
             }
         },
         {
-            "id": "scene-12-043",
+            "id": "scene-12-046",
             "text": {
                 "fr": "En bas, il voit quelque chose.",
-                "en": "Down below, he sees something.",
+                "en": "Below, he sees something.",
                 "de": "Unten sieht er etwas.",
                 "it": "In basso, vede qualcosa.",
                 "es": "Abajo, ve algo.",
                 "nl": "Beneden ziet hij iets.",
-                "pt": "Embaixo, ele vê algo.",
-                "en_pt": "Below, he sees something."
+                "pt": "Embaixo, ele vê algo."
             },
             "ipa": {
                 "fr": "ɑ̃ bˈa il vwˈa kˌɛlkə ʃˈoz",
@@ -1331,7 +1316,7 @@
                 "es": "[aˈβaxo | βe ˈalɡo]",
                 "nl": "[bənˈeːdən zˈit hɛɪ ˈits]",
                 "pt": "[ˌeɪmbˈaɪʃʊ\n ˌely vˈe ˈaʊɡʊ]",
-                "en": "[dˌaʊn bɪlˈəʊ hiː sˈiːz sˈʌmθɪŋ]"
+                "en": "[bɪlˈəʊ hiː sˈiːz sˈʌmθɪŋ]"
             },
             "provenance": {
                 "fr": "original",
@@ -1344,7 +1329,68 @@
             }
         },
         {
-            "id": "scene-12-044",
+            "id": "scene-12-047",
+            "text": {
+                "fr": "Voilà une lumière au loin! La chèvre m'a guidé!",
+                "en": "There's a light in the distance! The goat guided me!",
+                "de": "Da ist ein Licht in der Ferne! Die Ziege hat mich geführt!",
+                "it": "Ecco una luce in lontananza! La capra mi ha guidato!",
+                "es": "¡Ahí hay una luz a lo lejos! ¡La cabra me ha guiado!",
+                "nl": "Daar is een licht in de verte! De geit heeft me geleid!",
+                "pt": "Tem uma luz lá embaixo!",
+                "en_pt": "There's a light down there!"
+            },
+            "ipa": {
+                "fr": "vwalˌa yn lymjˈɛʁ o lwˈɛ̃ la- ʃˈɛvʁ ma ɡidˈe",
+                "de": "[dɑː ɪst aɪn lˈɪçt ɪn dɛɾ fˈɛɾnə\n diː tsˈiːɡə hat mɪç ɡəfˈyːɾt]",
+                "it": "[ˈɛkːo ˌʊna lˈuːtʃe ˌin lˌontanˈantsa\n lˌa kˈaːpra mˌɪ ˌa ɡwidˈaːto]",
+                "es": "[aˈi ai ˈuna luθ a lo ˈlexos | la ˈkaβɾa me a ɣiˈaðo]",
+                "nl": "[dˈaːr ɪs ən lˈɪxt ɪn də vˈɛrtə\n də ɣˈɛɪt heːft mə ɣəlˈɛɪt]",
+                "pt": "[teɪŋ ˌumæ lˈuz lˈa ˌeɪmbˈaɪʃʊ]",
+                "en": "[ðeəz ɐ lˈaɪt ɪnðə dˈɪstəns ðə ɡˈəʊt ɡˈaɪdɪd mˌiː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-048",
+            "text": {
+                "pt": "A cabra me guiou!",
+                "en": "The goat guided me!"
+            },
+            "ipa": {
+                "pt": "[a kˈabræ my ɡiˈow]",
+                "en": "[ðə ɡˈəʊt ɡˈaɪdɪd mˌiː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-049",
+            "text": {
+                "pt": "É uma fazenda.",
+                "en": "It's a farm."
+            },
+            "ipa": {
+                "pt": "[ɛ ˌumæ fˌazˈeɪŋdæ]",
+                "en": "[ɪts ɐ fˈɑːm]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-050",
             "text": {
                 "fr": "La chèvre bêle une dernière fois et s'en va.",
                 "en": "The goat bleats one last time and leaves.",
@@ -1375,10 +1421,10 @@
             }
         },
         {
-            "id": "scene-12-045",
+            "id": "scene-12-051",
             "text": {
                 "fr": "Lucas court vers la maison.",
-                "en": "Lucas runs towards the house.",
+                "en": "Lucas runs toward the house.",
                 "de": "Lucas läuft zum Haus.",
                 "it": "Lucas corre verso la casa.",
                 "es": "Lucas corre hacia la casa.",
@@ -1393,7 +1439,7 @@
                 "es": "[ˈlukas ˈkoɾe ˈaθja la ˈkasa]",
                 "nl": "[lˈykɑs rˈɛnt naːr hət hˈœys]",
                 "pt": "[lˈukæs kˈɔxy pˌaɾæ a kˈazæ]",
-                "en": "[lˈuːkəz ɹˈʌnz tʊwˈɔːdz ðə hˈaʊs]"
+                "en": "[lˈuːkəz ɹˈʌnz tʊwˈɔːd ðə hˈaʊs]"
             },
             "provenance": {
                 "fr": "original",
@@ -1406,7 +1452,53 @@
             }
         },
         {
-            "id": "scene-12-046",
+            "id": "scene-12-052",
+            "text": {
+                "pt": "Socorro!",
+                "en": "Help!"
+            },
+            "ipa": {
+                "pt": "[sˌokˈoxʊ]",
+                "en": "[hˈɛlp]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-053",
+            "text": {
+                "fr": "À l'aide! J'ai besoin d'aide!",
+                "en": "Help! I need help!",
+                "de": "Zu Hilfe! Ich brauche Hilfe!",
+                "it": "Aiuto! Ho bisogno di aiuto!",
+                "es": "¡Ayuda! ¡Necesito ayuda!",
+                "nl": "Help! Ik heb hulp nodig!",
+                "pt": "Preciso de ajuda!",
+                "en_pt": "I need help!"
+            },
+            "ipa": {
+                "fr": "a lˈɛd ʒe bəzwˈɛ̃ dˈɛd",
+                "de": "[tsuː hˈɪlfə\n ɪç brˈaʊxə hˈɪlfə]",
+                "it": "[ajˈuːto\n ˌo bizˈoɲʲo dˌɪ ajˈuːto]",
+                "es": "[aˈʝuða | neˈθesito aˈʝuða]",
+                "nl": "[hˈɛlp\n ɪk hɛp hˈɵlp nˈoːdəx]",
+                "pt": "[prˌesˈizʊ dʒj ˌaʒˈudæ]",
+                "en": "[hˈɛlp aɪ nˈiːd hˈɛlp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-12-054",
             "text": {
                 "fr": "Un homme sort de la maison, surpris mais prêt à aider.",
                 "en": "A man comes out of the house, surprised but ready to help.",
@@ -1436,152 +1528,56 @@
             }
         },
         {
-            "id": "scene-12-047",
-            "text": {
-                "pt": "Como?",
-                "en": "How?"
-            },
-            "ipa": {
-                "pt": "[kˈomʊ]",
-                "en": "[hˈaʊ]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-048",
-            "text": {
-                "pt": "Não é esta nossa condição humana?",
-                "en": "Isn't this our human condition?"
-            },
-            "ipa": {
-                "pt": "[nˌɐ̃ʊ̃ ɛ ˌɛstæ nˌɔsæ kˌoŋdʒisˈɐ̃ʊ̃ ˌumˈɐ̃næ]",
-                "en": "[ˌɪzənt ðɪs aʊə hjˈuːmən kəndˈɪʃən]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-049",
-            "text": {
-                "pt": "Uma cabra!",
-                "en": "A goat!"
-            },
-            "ipa": {
-                "pt": "[ˌumæ kˈabræ]",
-                "en": "[ɐ ɡˈəʊt]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-050",
-            "text": {
-                "pt": "Lucas hesita.",
-                "en": "Lucas hesitates."
-            },
-            "ipa": {
-                "pt": "[lˈukæs ˌezˈitæ]",
-                "en": "[lˈuːkəz hˈɛsɪtˌeɪts]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-051",
-            "text": {
-                "pt": "Devo segui-la?",
-                "en": "Should I follow her?"
-            },
-            "ipa": {
-                "pt": "[dˈevʊ seɡˈilæ]",
-                "en": "[ʃˌʊd aɪ fˈɒləʊ hɜː]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-052",
-            "text": {
-                "pt": "Ou será...",
-                "en": "Or is it..."
-            },
-            "ipa": {
-                "pt": "[ow seɾˈa]",
-                "en": "[ɔːɹ ɪz ˈɪt]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-053",
-            "text": {
-                "pt": "é simplesmente uma cabra voltando para sua fazenda?",
-                "en": "just a goat going back to its farm?"
-            },
-            "ipa": {
-                "pt": "[ɛ sˌimplezmˈeɪŋtʃj ˌumæ kˈabræ vˌowtˈɐ̃ŋdʊ pˌaɾæ sˌuæ fˌazˈeɪŋdæ]",
-                "en": "[dʒˈʌst ɐ ɡˈəʊt ɡˌəʊɪŋ bˈak tʊ ɪts fˈɑːm]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
-            "id": "scene-12-054",
-            "text": {
-                "pt": "A cabra me guiou!",
-                "en": "The goat guided me!"
-            },
-            "ipa": {
-                "pt": "[a kˈabræ my ɡiˈow]",
-                "en": "[ðə ɡˈəʊt ɡˈaɪdɪd mˌiː]"
-            },
-            "provenance": {
-                "pt": "original",
-                "en": "original"
-            }
-        },
-        {
             "id": "scene-12-055",
             "text": {
-                "pt": "É uma fazenda.",
-                "en": "It's a farm."
+                "fr": "Ou bien..",
+                "en": "Or perhaps..",
+                "de": "Oder...",
+                "it": "O magari...",
+                "es": "O quizás...",
+                "nl": "Of misschien.."
             },
             "ipa": {
-                "pt": "[ɛ ˌumæ fˌazˈeɪŋdæ]",
-                "en": "[ɪts ɐ fˈɑːm]"
+                "fr": "u bjˈɛ̃",
+                "de": "[ˈoːdɜ]",
+                "it": "[ˌo maɡˈaːrɪ]",
+                "es": "[o kiˈθas]",
+                "nl": "[ɔf mɪsxˈin]",
+                "en": "[ɔː pəhˈaps]"
             },
             "provenance": {
-                "pt": "original",
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "en": "original"
             }
         },
         {
             "id": "scene-12-056",
             "text": {
-                "pt": "Socorro!",
-                "en": "Help!"
+                "fr": "je dois choisir de faire confiance.",
+                "en": "I must choose to trust.",
+                "de": "ich muss mich entscheiden, zu vertrauen.",
+                "it": "devo scegliere di fidarmi.",
+                "es": "tengo que decidir confiar.",
+                "nl": "ik moet ervoor kiezen om te vertrouwen."
             },
             "ipa": {
-                "pt": "[sˌokˈoxʊ]",
-                "en": "[hˈɛlp]"
+                "fr": "ʒə- dwˈa ʃwazˈiʁ də- fˈɛʁ kɔ̃fjˈɑ̃s",
+                "de": "[ɪç mˈʊs mɪç ɛntʃˈaɪdən\n tsuː fɛɾtɾˈaʊən]",
+                "it": "[dˈɛːvo ʃˈeʎere dˌɪ fidˈaːrmɪ]",
+                "es": "[ˈteŋɡo ke ðeθiˈðiɾ konˈfjaɾ]",
+                "nl": "[ɪk mˈut ɛrvˈɔːr kˈizən ɔm tə vərtrˈʌʊən]",
+                "en": "[aɪ mˈʌst tʃˈuːz tə tɹˈʌst]"
             },
             "provenance": {
-                "pt": "original",
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
                 "en": "original"
             }
         }
