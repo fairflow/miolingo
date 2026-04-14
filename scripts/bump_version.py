@@ -177,8 +177,8 @@ def git_tag(tag_name: str, message: str) -> None:
 
 
 def git_push() -> None:
-    subprocess.run(["git", "push"], check=True)
-    subprocess.run(["git", "push", "--tags"], check=True)
+    subprocess.run(["git", "push", "origin", "HEAD"], check=True)
+    subprocess.run(["git", "push", "origin", "--tags"], check=True)
 
 
 # ---------------------------------------------------------------------------

@@ -9,7 +9,7 @@ Then open: http://localhost:8505
 Version: 2.1.0
 """
 
-__version__ = "2.2.0"
+__version__ = "2.2.1-claude-dev"
 
 # Auto-refresh interval in minutes
 REFRESH_INTERVAL_MINUTES = 5
