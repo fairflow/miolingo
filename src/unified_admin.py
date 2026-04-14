@@ -22,6 +22,8 @@ import streamlit as st
 
 import app_mysql
 
+__version__ = "1.0.0"
+
 
 REFRESH_INTERVAL_MINUTES = 5
 
@@ -110,7 +112,7 @@ if st.session_state.get('session_id'):
         pass
 
 with st.sidebar:
-    st.caption("Miolingo Admin Dashboard v2.0.5")
+    st.caption(f"Miolingo Admin Dashboard v{__version__}")
     st.caption("Local monitoring interface")
     st.divider()
     
