@@ -78,7 +78,7 @@ TARGETS = {
         "tag_prefix": "v",
     },
     "admin": {
-        "version_file": PROJECT_ROOT / "src" / "miolingo-admin.py",
+        "version_file": PROJECT_ROOT / "src" / "unified_admin.py",
         "changelog_file": PROJECT_ROOT / "ADMIN_CHANGELOG.md",
         "version_pattern": r'(__version__\s*=\s*["\'])([^"\']+)(["\'])',
         "tag_prefix": "admin-v",
