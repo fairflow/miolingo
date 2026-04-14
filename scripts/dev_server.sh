@@ -63,6 +63,40 @@ kill_port() {
 
 # ── argument parsing ────────────────────────────────────────────────────────
 ARG="${1:-}"
+
+# ── tunnel subcommand ────────────────────────────────────────────────────────
+if [[ "$ARG" == "tunnel" ]]; then
+    TUNNEL_PORT="${2:-8901}"
+    CF="$(command -v cloudflared || true)"
+    if [[ -z "$CF" ]]; then
+        echo "ERROR: cloudflared not found. Install with: sudo port install cloudflared" >&2
+        exit 1
+    fi
+    echo "Starting Cloudflare tunnel → http://localhost:$TUNNEL_PORT"
+    echo "(Ctrl-C to stop)"
+    # Stream cloudflared output; extract and optionally shorten the tunnel URL
+    "$CF" tunnel --url "http://localhost:$TUNNEL_PORT" 2>&1 | while IFS= read -r line; do
+        echo "$line"
+        if [[ "$line" =~ https://[a-zA-Z0-9-]+\.trycloudflare\.com ]]; then
+            url="${BASH_REMATCH[0]}"
+            echo ""
+            echo "🌐  Tunnel URL: $url"
+            if [[ -n "${BITLY_TOKEN:-}" ]]; then
+                short="$(curl -sf -X POST "https://api-ssl.bitly.com/v4/shorten" \
+                    -H "Authorization: Bearer $BITLY_TOKEN" \
+                    -H "Content-Type: application/json" \
+                    -d "{\"long_url\": \"$url\"}" \
+                    | python3 -c "import json,sys; print(json.load(sys.stdin).get('link',''))" 2>/dev/null || true)"
+                [[ -n "$short" ]] && echo "🔗  Short URL:  $short"
+            else
+                echo "    (set BITLY_TOKEN env var to auto-shorten via bit.ly)"
+            fi
+            echo ""
+        fi
+    done
+    exit 0
+fi
+
 if [[ "$ARG" == "stop" ]]; then
     PORT="${2:-$DEFAULT_PORT}"
     pids="$(lsof -ti tcp:"$PORT" 2>/dev/null || true)"
