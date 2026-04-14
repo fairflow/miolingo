@@ -903,6 +903,33 @@ class ConnectionPool:
         
         return cleaned
     
+    def cleanup_stale_connections(self, stale_hours: int = 12) -> int:
+        """
+        Delete rows from connection_monitor that are no longer useful:
+          - Any row with status = 'closed'
+          - Any row with status = 'active' but last_activity older than stale_hours
+
+        Returns count of rows deleted.
+        """
+        deleted = 0
+        try:
+            with self.get_bootstrap_connection() as admin_conn:
+                cursor = admin_conn.cursor()
+                cursor.execute(
+                    """
+                    DELETE FROM connection_monitor
+                    WHERE status = 'closed'
+                       OR (status = 'active' AND last_activity < NOW() - INTERVAL %s HOUR)
+                    """,
+                    (stale_hours,),
+                )
+                deleted = cursor.rowcount
+                admin_conn.commit()
+                cursor.close()
+        except Exception as e:
+            print(f"Stale connection cleanup error: {e}")
+        return deleted
+
     def init_monitoring_tables(self) -> Tuple[bool, str]:
         """
         Create database tables for connection monitoring.

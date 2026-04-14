@@ -478,8 +478,8 @@ if selected_page == "👥 Users":
             st.markdown("---")
             
             # Cleanup buttons
-            col_btn1, col_btn2 = st.columns(2)
-            
+            col_btn1, col_btn2, col_btn3 = st.columns(3)
+
             with col_btn1:
                 if expired_count > 0:
                     if st.button("🧹 Clean Up Expired Sessions", type="secondary"):
@@ -490,7 +490,18 @@ if selected_page == "👥 Users":
                             st.rerun()
                         except Exception as e:
                             st.error(f"❌ Cleanup failed: {e}")
-            
+
+            with col_btn3:
+                if st.button("🗑️ Purge Stale Connections", type="secondary",
+                             help="Delete closed and 12 h+ idle rows from connection_monitor"):
+                    try:
+                        pool = app_mysql.get_connection_pool_instance()
+                        purged = pool.cleanup_stale_connections(stale_hours=12)
+                        st.success(f"✅ Purged {purged} stale connection row(s)")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Purge failed: {e}")
+
             with col_btn2:
                 if len(active_sessions) > 0:
                     with st.popover("⚠️ Force Logout All Users"):
