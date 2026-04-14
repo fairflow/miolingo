@@ -127,12 +127,12 @@ def check_authentication():
 check_authentication()
 
 st.title("🔧 Miolingo Admin Dashboard")
-st.caption("Local monitoring and management interface • v2.0.5")
+st.caption(f"Local monitoring and management interface • v{__version__}")
 
 if not HOSTED_BY_UNIFIED_ADMIN:
     # Quick reconnect button in sidebar (standalone mode)
     with st.sidebar:
-        st.caption("Miolingo Admin Dashboard v2.0.5")
+        st.caption(f"Miolingo Admin Dashboard v{__version__}")
         st.caption("Local monitoring interface")
         st.divider()
         
