@@ -21,6 +21,8 @@ from config import (
     __version__,
     LANGUAGE_CONFIG,
     MATERIAL_TO_TRAINING,
+    SOURCE_LANGUAGE_OPTIONS,
+    get_language_code,
 )
 from ui.practice_tab import save_current_session
 
@@ -133,7 +135,7 @@ def render_settings_panel():
     Contains: language selectors, TTS settings, ASR settings,
     audio processing, current session summary, help & docs links.
     """
-    from app_language_materials import get_available_languages, format_language_name
+    from app_language_materials import format_language_name
 
     with st.sidebar:
         st.markdown("---")
@@ -142,77 +144,82 @@ def render_settings_panel():
         # ── Languages ────────────────────────────────────────────────────────
         st.markdown("**🌍 Languages**")
 
-        available_materials = get_available_languages()
-        if available_materials:
-            # ── Source language: locked for this session ─────────────────────────
-            _SOURCE_FLAGS = {
-                "English": "🇬🇧", "French": "🇫🇷", "German": "🇩🇪",
-                "Spanish": "🇪🇸", "Italian": "🇮🇹", "Dutch": "🇳🇱", "Portuguese": "🇵🇹",
-            }
-            _source = st.session_state.get("source_language", "English")
-            _sflag = _SOURCE_FLAGS.get(_source, "🌍")
-            st.markdown(
-                f"**Your language:** {_sflag}&nbsp;{_source}&emsp;"
-                f"<small style='color:gray'>*(fixed until logout)*</small>",
-                unsafe_allow_html=True,
+        # Target options: all languages in LANGUAGE_CONFIG, keyed by code.
+        # Using LANGUAGE_CONFIG (not a filesystem scan) ensures every
+        # configured language — including English — is always available.
+        _all_target_codes = [cfg['code'] for cfg in LANGUAGE_CONFIG.values()]
+
+        # ── Source language (free selectbox) ─────────────────────────────────
+        # Determine what the current target name is so we can exclude it
+        # from source options (source ≠ target).
+        _cur_target_code = st.session_state.get('material_language', 'fr')
+        _cur_target_name = MATERIAL_TO_TRAINING.get(_cur_target_code, 'French')
+        _source_options = [l for l in SOURCE_LANGUAGE_OPTIONS if l != _cur_target_name]
+
+        # Guard: current source must be a valid option
+        if st.session_state.get('source_language', 'English') not in _source_options:
+            st.session_state['source_language'] = _source_options[0]
+
+        st.selectbox(
+            "Your language (source)",
+            _source_options,
+            help="The language you speak — freely changeable",
+            key="source_language",
+        )
+        # Keep settings dict in sync so Save Settings persists the choice
+        st.session_state.settings['source_language'] = st.session_state.source_language
+
+        # ── Target language ────────────────────────────────────────────────────
+        # Exclude the selected source from target options (source ≠ target).
+        _source_code = get_language_code(st.session_state.source_language)
+        _target_options = [c for c in _all_target_codes if c != _source_code]
+
+        # Ensure material_language is set to a valid option BEFORE the
+        # widget renders.  The selectbox with key= reads its value from
+        # session state — we must NOT also pass index= or Streamlit warns
+        # about conflicting defaults.
+        if 'material_language' not in st.session_state:
+            # First render — pick from saved settings or first available
+            _saved = st.session_state.settings.get('material_language')
+            st.session_state.material_language = (
+                _saved if _saved in _target_options
+                else _target_options[0] if _target_options else 'fr'
             )
-            # ─────────────────────────────────────────────────────────────────────
+        elif st.session_state.material_language not in _target_options:
+            # Current value no longer valid (source changed to match target)
+            st.session_state.material_language = _target_options[0] if _target_options else 'fr'
 
-            # Target language — exclude the source language from options
-            from config import get_language_code
-            _source_code = get_language_code(st.session_state.get("source_language", "English"))
-            _target_options = [m for m in available_materials if m != _source_code]
+        previous_material_language = st.session_state.get('material_language', None)
+        st.selectbox(
+            "Target Language",
+            _target_options,
+            format_func=format_language_name,
+            help="Language you are practising — includes all configured languages",
+            key="material_language",
+        )
 
-            # Ensure material_language is set to a valid option BEFORE the
-            # widget renders.  The selectbox with key= reads its value from
-            # session state — we must NOT also pass index= or Streamlit warns
-            # about conflicting defaults.
-            if 'material_language' not in st.session_state:
-                # First render — pick from saved settings or first available
-                _saved = st.session_state.settings.get('material_language')
-                st.session_state.material_language = (
-                    _saved if _saved in _target_options
-                    else _target_options[0] if _target_options else 'fr'
-                )
-            elif st.session_state.material_language not in _target_options:
-                # Current value no longer valid (e.g. user changed source to match target)
-                st.session_state.material_language = _target_options[0] if _target_options else 'fr'
+        # Sync target language
+        st.session_state.target_language = st.session_state.material_language
 
-            previous_material_language = st.session_state.get('material_language', None)
-            st.selectbox(
-                "Target Language",
-                _target_options,
-                format_func=format_language_name,
-                help="Language being learned (IPA + practice target)",
-                key="material_language"
-            )
+        # Resolve full target name for display
+        _target_full = MATERIAL_TO_TRAINING.get(
+            st.session_state.material_language,
+            st.session_state.material_language,
+        )
 
-            # Warn if source and target ended up the same (edge case: DB not yet saved)
-            if st.session_state.material_language == _source_code:
-                st.warning("⚠️ Source and target language are the same. Please choose a different target.")
+        st.caption(f"Direction: {st.session_state.source_language} → {_target_full}")
 
-            # Sync target language
-            st.session_state.target_language = st.session_state.material_language
-
-            # Resolve full target name for display
-            _target_full = MATERIAL_TO_TRAINING.get(
-                st.session_state.material_language,
-                st.session_state.material_language,
-            )
-
-            st.caption(f"Direction: {st.session_state.source_language} → {_target_full}")
-
-            # Update training language if material language changed
-            training_language = MATERIAL_TO_TRAINING.get(
-                st.session_state.material_language, 'French'
-            )
-            if previous_material_language != st.session_state.material_language:
-                st.session_state.language = training_language
-                if training_language not in st.session_state.current_sessions:
-                    st.session_state.current_sessions[training_language] = {
-                        "date": datetime.now().isoformat(),
-                        "practices": []
-                    }
+        # Update training language if material language changed
+        training_language = MATERIAL_TO_TRAINING.get(
+            st.session_state.material_language, 'French'
+        )
+        if previous_material_language != st.session_state.material_language:
+            st.session_state.language = training_language
+            if training_language not in st.session_state.current_sessions:
+                st.session_state.current_sessions[training_language] = {
+                    "date": datetime.now().isoformat(),
+                    "practices": []
+                }
 
         # Safety: ensure session exists for current language
         if st.session_state.language not in st.session_state.current_sessions:
