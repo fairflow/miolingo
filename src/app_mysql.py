@@ -70,6 +70,45 @@ pwd_hasher = PasswordHasher(
 
 
 # ============================================================================
+# LOCAL vs REMOTE CONNECTION MODE
+# ============================================================================
+
+def _is_local_mode() -> bool:
+    """True when running against a local MySQL instance (no SSH tunnel needed)."""
+    try:
+        cfg = st.secrets.get("local_db", {})
+        return bool(cfg.get("enabled", False))
+    except Exception:
+        return False
+
+
+def _get_local_connection() -> mysql.connector.MySQLConnection:
+    """Direct localhost MySQL connection — no tunnel, no pool."""
+    cfg = st.secrets["local_db"]
+    conn = mysql.connector.connect(
+        host=cfg["host"],
+        port=int(cfg.get("port", 3306)),
+        database=cfg["database"],
+        user=cfg["user"],
+        password=cfg["password"],
+        autocommit=False,
+    )
+    return conn
+
+
+def _local_conn_alive(conn) -> bool:
+    """Quick health check for a local connection."""
+    try:
+        cursor = conn.cursor(buffered=True)
+        cursor.execute("SELECT 1")
+        cursor.fetchall()
+        cursor.close()
+        return True
+    except Exception:
+        return False
+
+
+# ============================================================================
 # SSH TUNNEL & CONNECTION POOLING (Secure, Optimized for Emerald Plan)
 # ============================================================================
 
@@ -225,6 +264,17 @@ def get_connection() -> mysql.connector.MySQLConnection:
     Returns:
         MySQL connection (persistent for session)
     """
+    # ── Local-mode shortcut: no tunnel, no pool ──────────────────────────
+    if _is_local_mode():
+        if 'db_connection' in st.session_state and _local_conn_alive(st.session_state.db_connection):
+            return st.session_state.db_connection
+        # Create (or replace dead) local connection
+        conn = _get_local_connection()
+        st.session_state.db_connection = conn
+        print("✓ Using local MySQL connection (no tunnel)")
+        return conn
+
+    # ── Remote mode: SSH tunnel + connection pool ──────────────────────────
     # Check if we already have a session connection
     if 'db_connection' in st.session_state:
         conn = st.session_state.db_connection
@@ -371,8 +421,25 @@ def get_current_connection_info() -> dict:
     CRITICAL: Reads from DATABASE, not memory - single source of truth.
     Returns a dict with connection and tunnel details, or empty dict if not available.
     """
+    # Local mode: return minimal info (no tunnel, no pool)
+    if _is_local_mode():
+        from datetime import datetime
+        return {
+            'tunnel_id': 'local',
+            'tunnel_pid': '-',
+            'tunnel_port': '-',
+            'tunnel_created': '-',
+            'tunnel_conn_count': '-',
+            'connection_id': 'local-direct',
+            'mysql_conn_id': '-',
+            'connection_status': 'local',
+            'connection_age': '-',
+            'session_ttl': '-',
+            'current_time': datetime.now(),
+        }
+
     conn_info = st.session_state.get('_last_connection_info', {})
-    
+
     if not conn_info:
         return {}
     
