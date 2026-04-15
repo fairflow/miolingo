@@ -14,7 +14,7 @@ DATA_DIR = Path(__file__).parent.parent / "language_materials"
 UNIFIED_DIR = DATA_DIR / "unified"
 
 # Cache version - increment when language list or structure changes
-CACHE_VERSION = "1.10.0"
+CACHE_VERSION = "1.10.1"
 
 
 @st.cache_data
@@ -78,20 +78,18 @@ def get_language_structure(language: str, _cache_version: str = CACHE_VERSION) -
         }
     """
     lang_dir = DATA_DIR / language
-    if not lang_dir.exists():
-        return {}
-    
+
     # Aggregated structure
     aggregated = {
         'phrases': [],
         'words': [],
     }
-    
+
     # Directories to exclude from category discovery (backup/deprecated)
     excluded_dirs = {'phrases-original', 'story-scenes'}
-    
-    # Scan all subdirectories
-    for category_dir in sorted(lang_dir.iterdir()):
+
+    # Scan per-language subdirectory (may not exist for unified-only languages like 'en')
+    for category_dir in sorted(lang_dir.iterdir()) if lang_dir.exists() else []:
         if not category_dir.is_dir() or category_dir.name.startswith('.'):
             continue
         
