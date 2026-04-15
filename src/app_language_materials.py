@@ -14,26 +14,48 @@ DATA_DIR = Path(__file__).parent.parent / "language_materials"
 UNIFIED_DIR = DATA_DIR / "unified"
 
 # Cache version - increment when language list or structure changes
-CACHE_VERSION = "1.9.0"
+CACHE_VERSION = "1.10.0"
 
 
 @st.cache_data
 def get_available_languages(_cache_version: str = CACHE_VERSION) -> List[str]:
     """Get list of languages with available materials.
-    
+
+    Includes languages from per-language directories AND languages declared
+    in unified multi-language files (e.g. 'en', which has no separate
+    directory but is fully present in language_materials/unified/).
+
     Args:
-        _cache_version: Version string to bust cache (leading underscore prevents it from being used)
-    
+        _cache_version: Version string to bust cache (leading underscore
+            prevents Streamlit from using it as a cache key argument)
+
     Returns:
-        List of language codes (e.g., ['fr', 'pt', 'nl'])
+        Sorted list of language codes (e.g., ['de', 'en', 'fr', 'pt', ...])
     """
     if not DATA_DIR.exists():
         return []
-    
-    return sorted([
+
+    per_lang = {
         d.name for d in DATA_DIR.iterdir()
         if d.is_dir() and not d.name.startswith('.') and d.name != 'unified'
-    ])
+    }
+
+    # Also surface languages that only exist in unified files (e.g. 'en')
+    unified_langs: set = set()
+    for subdir_name in ('phrases', 'phrasebook', 'stories'):
+        subdir = UNIFIED_DIR / subdir_name
+        if subdir.is_dir():
+            candidates = sorted(subdir.glob("*.json"))
+            if candidates:
+                try:
+                    with open(candidates[0], 'r', encoding='utf-8') as f:
+                        meta = json.load(f).get('meta', {})
+                    unified_langs.update(meta.get('languages', []))
+                    break  # one file is sufficient
+                except Exception:
+                    pass
+
+    return sorted(per_lang | unified_langs)
 
 
 @st.cache_data
