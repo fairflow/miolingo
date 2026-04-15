@@ -66,34 +66,53 @@ ARG="${1:-}"
 
 # ── tunnel subcommand ────────────────────────────────────────────────────────
 if [[ "$ARG" == "tunnel" ]]; then
-    TUNNEL_PORT="${2:-8901}"
-    CF="$(command -v cloudflared || true)"
-    if [[ -z "$CF" ]]; then
-        echo "ERROR: cloudflared not found. Install with: sudo port install cloudflared" >&2
-        exit 1
-    fi
-    echo "Starting Cloudflare tunnel → http://localhost:$TUNNEL_PORT"
-    echo "(Ctrl-C to stop)"
-    # Stream cloudflared output; extract and optionally shorten the tunnel URL
-    "$CF" tunnel --url "http://localhost:$TUNNEL_PORT" 2>&1 | while IFS= read -r line; do
-        echo "$line"
-        if [[ "$line" =~ https://[a-zA-Z0-9-]+\.trycloudflare\.com ]]; then
-            url="${BASH_REMATCH[0]}"
-            echo ""
-            echo "🌐  Tunnel URL: $url"
-            if [[ -n "${BITLY_TOKEN:-}" ]]; then
-                short="$(curl -sf -X POST "https://api-ssl.bitly.com/v4/shorten" \
-                    -H "Authorization: Bearer $BITLY_TOKEN" \
-                    -H "Content-Type: application/json" \
-                    -d "{\"long_url\": \"$url\"}" \
-                    | python3 -c "import json,sys; print(json.load(sys.stdin).get('link',''))" 2>/dev/null || true)"
-                [[ -n "$short" ]] && echo "🔗  Short URL:  $short"
-            else
-                echo "    (set BITLY_TOKEN env var to auto-shorten via bit.ly)"
-            fi
-            echo ""
+    CF_CONFIG="$HOME/.cloudflared/config.yml"
+
+    # Prefer the named tunnel (stable dev.miolingo.io URL) if config exists.
+    # Fall back to a quick tunnel if config is missing.
+    if [[ -f "$CF_CONFIG" ]]; then
+        echo "Starting named Cloudflare tunnel (dev.miolingo.io → 8901)"
+        echo "(Ctrl-C to stop)"
+        echo ""
+        # Prefer MacPorts cloudflared; fall back to Nix.
+        if command -v cloudflared &>/dev/null; then
+            exec cloudflared tunnel --config "$CF_CONFIG" run
+        else
+            exec nix run nixpkgs#cloudflared -- tunnel --config "$CF_CONFIG" run
         fi
-    done
+    else
+        # Quick tunnel fallback
+        CF="$(command -v cloudflared || true)"
+        if [[ -z "$CF" ]]; then
+            echo "ERROR: cloudflared not found. Install with: sudo port install cloudflared" >&2
+            exit 1
+        fi
+        TUNNEL_PORT="${2:-8901}"
+        echo "No named tunnel config found — starting quick tunnel → http://127.0.0.1:$TUNNEL_PORT"
+        echo "(Ctrl-C to stop)"
+        TUNNEL_TRANSPORT_PROTOCOL=http2 "$CF" tunnel \
+            --config /dev/null \
+            --no-autoupdate \
+            --url "http://127.0.0.1:$TUNNEL_PORT" 2>&1 | while IFS= read -r line; do
+            echo "$line"
+            if [[ "$line" =~ https://[a-zA-Z0-9-]+\.trycloudflare\.com ]]; then
+                url="${BASH_REMATCH[0]}"
+                echo ""
+                echo "🌐  Tunnel URL: $url"
+                if [[ -n "${BITLY_TOKEN:-}" ]]; then
+                    short="$(curl -sf -X POST "https://api-ssl.bitly.com/v4/shorten" \
+                        -H "Authorization: Bearer $BITLY_TOKEN" \
+                        -H "Content-Type: application/json" \
+                        -d "{\"long_url\": \"$url\"}" \
+                        | python3 -c "import json,sys; print(json.load(sys.stdin).get('link',''))" 2>/dev/null || true)"
+                    [[ -n "$short" ]] && echo "🔗  Short URL:  $short"
+                else
+                    echo "    (set BITLY_TOKEN env var to auto-shorten via bit.ly)"
+                fi
+                echo ""
+            fi
+        done
+    fi
     exit 0
 fi
 
