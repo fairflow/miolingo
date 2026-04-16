@@ -127,16 +127,30 @@ def open_remote_connection(secrets: dict) -> tuple[SSHTunnelForwarder, mysql.con
 
 
 def open_local_connection(secrets: dict) -> mysql.connector.MySQLConnection:
-    """Open direct connection to local MySQL."""
+    """Open direct connection to local MySQL.
+
+    Prefers Unix socket (``unix_socket`` in secrets) so it works with
+    MacPorts' default ``skip-networking``.  Falls back to TCP host/port.
+    """
     cfg = secrets["local_db"]
-    conn = mysql.connector.connect(
-        host=cfg["host"],
-        port=int(cfg.get("port", 3306)),
-        database=cfg["database"],
-        user=cfg["user"],
-        password=cfg["password"],
-        autocommit=False,
-    )
+    socket_path = cfg.get("unix_socket", "")
+    if socket_path:
+        conn = mysql.connector.connect(
+            unix_socket=socket_path,
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=False,
+        )
+    else:
+        conn = mysql.connector.connect(
+            host=cfg["host"],
+            port=int(cfg.get("port", 3306)),
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=False,
+        )
     log.info("Local: connected")
     return conn
 
@@ -478,7 +492,11 @@ def run_sync(full: bool = False, dry_run: bool = False):
             if strategy == "overwrite":
                 stats = sync_overwrite(remote_conn, local_conn, table, dry_run)
             elif strategy == "append_by_date":
-                date_col = "practice_date" if table == "user_progress" else "created_at"
+                DATE_COL_MAP = {
+                    "user_progress": "practice_date",
+                    "activity_log": "timestamp",
+                }
+                date_col = DATE_COL_MAP.get(table, "created_at")
                 stats = sync_append_by_date(
                     local_conn, remote_conn, table, last_sync_ts,
                     date_col=date_col, dry_run=dry_run,
