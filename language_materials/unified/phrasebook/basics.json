@@ -1,0 +1,80 @@
+{
+    "meta": {
+        "source": "phrasebook",
+        "topic": "basics",
+        "phrase_count": 2,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-14",
+        "generator": "merge_materials.py"
+    },
+    "phrases": [
+        {
+            "id": "phrasebook-basics-001",
+            "text": {
+                "fr": "Oui",
+                "en": "Yes",
+                "de": "Ja",
+                "pt": "Sim",
+                "it": "Sì",
+                "es": "Sí",
+                "nl": "Ja"
+            },
+            "ipa": {
+                "fr": "[wˈi]",
+                "de": "[jˈɑː]",
+                "pt": "[sˈiŋ]",
+                "it": "[sˈi]",
+                "es": "[sˈi]",
+                "nl": "[jˈaː]",
+                "en": "[jˈɛs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-basics-002",
+            "text": {
+                "fr": "Non",
+                "en": "No",
+                "de": "Nein",
+                "pt": "Não",
+                "it": "No",
+                "es": "No",
+                "nl": "Nee"
+            },
+            "ipa": {
+                "fr": "[nˈɔ̃]",
+                "de": "[nˈaɪn]",
+                "pt": "[nˈɐ̃ʊ̃]",
+                "it": "[nˈɔ]",
+                "es": "[nˈo]",
+                "nl": "[nˈeː]",
+                "en": "[nˈəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        }
+    ]
+}

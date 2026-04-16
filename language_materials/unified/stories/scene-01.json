@@ -1,0 +1,1250 @@
+{
+    "meta": {
+        "source": "story-scenes",
+        "scene_number": 1,
+        "scene_title": {
+            "en": "The Morning Café",
+            "fr": "Le Café Du Matin",
+            "de": "Das Morgencafé",
+            "pt": "O Café da Manhã",
+            "it": "Il Caffè del Mattino",
+            "es": "El Café de la Mañana",
+            "nl": "Het Ochtendcafé"
+        },
+        "phrase_count": 46,
+        "core_phrase_count": 35,
+        "pt_matched": 29,
+        "pt_unmatched": 11,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-14",
+        "generator": "merge_materials.py"
+    },
+    "phrases": [
+        {
+            "id": "scene-01-001",
+            "text": {
+                "fr": "Le soleil se lève doucement sur Paris.",
+                "en": "The sun rises gently over Paris.",
+                "de": "Die Sonne geht langsam über Berlin auf.",
+                "it": "Il sole sorge lentamente su Roma.",
+                "es": "El sol se levanta suavemente sobre Madrid.",
+                "nl": "De zon komt langzaam op over Amsterdam.",
+                "pt": "O sol nasce suavemente sobre São Paulo.",
+                "en_pt": "The sun rises gently over São Paulo."
+            },
+            "ipa": {
+                "fr": "lə- sɔlˈɛj sə- lˈɛv dusmˈɑ̃ syʁ paʁˈi",
+                "de": "[diː ˈzɔnə ɡeːt ˈlaŋzam ˈyːbɐ bɛɐ̯ˈliːn aʊ̯f]",
+                "it": "[ˌil sˈoːle sˈoːrdʒe lˌentamˈente sˌʊ rˈɔːma]",
+                "es": "[el sol se leˈβanta swaβeˈmente ˈsoβɾe maˈðɾið]",
+                "nl": "[də zˈɔn kˈɔmt lˈɑŋzaːm ɔp ˈoːvər ˈɑmstərdˌɑm]",
+                "pt": "[ʊ sˈɔl nˈasy sˌuavemˈeɪŋtʃy sˈobry sɐ̃ʊ̃ pˈaʊlʊ]",
+                "en": "[ðə sˈʌn ɹˈaɪzɪz dʒˈɛntli ˌəʊvə pˈaɹɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-002",
+            "text": {
+                "fr": "Les rues du Marais commencent à s'animer.",
+                "en": "The streets of the Marais begin to come alive.",
+                "de": "Die Straßen von Kreuzberg beginnen sich zu beleben.",
+                "it": "Le strade di Trastevere cominciano a prendere vita.",
+                "es": "Las calles de Malasaña empiezan a animarse.",
+                "nl": "De straten van De Pijp beginnen te bruisen.",
+                "pt": "As ruas da Vila Madalena começam a ganhar vida.",
+                "en_pt": "The streets of Vila Madalena begin to come alive."
+            },
+            "ipa": {
+                "fr": "le- ʁˈy dy- maʁˈɛ kɔmˈɑ̃st a sanimˈe",
+                "de": "[diː ˈʃtʁaːsn̩ fɔn ˈkʁɔɪ̯t͡sˌbɛʁk bəˈɡɪnən zɪç t͡su bəˈleːbn̩]",
+                "it": "[lˌe strˈaːde dˌɪ trastˈevere komˈintʃano ˌa prˈendere vˈiːta]",
+                "es": "[las ˈkaʎes ðe malaˈsaɲa emˈpjɛθan a aˈni.maɾse]",
+                "nl": "[də strˈaːtən vɑn də pˈɛɪ pəɣˈɪnən tə brˈœyzən]",
+                "pt": "[az xˈuæz da vˈilæ mˌadalˈenæ kˌomˈɛsɐ̃ʊ̃ a ɡɐ̃ɲˈar vˈidæ]",
+                "en": "[ðə stɹˈiːts ɒvðə mˈaɹaɪz bɪɡˈɪn tə kˈʌm ɐlˈaɪv]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-003",
+            "text": {
+                "fr": "Sophie Moreau entre dans son café préféré, un petit endroit chaleureux au coin de la rue des Rosiers.",
+                "en": "Sophie Moreau enters her favorite café, a small cozy place on the corner of Rue des Rosiers.",
+                "de": "Sophie Müller betritt ihr Lieblingscafé, eine gemütliche kleine Ecke an der Ecke der Wiener Straße.",
+                "it": "Sophie Romano entra nel suo caffè preferito, un piccolo posto accogliente all'angolo della strada.",
+                "es": "Sophie Moreno entra en su cafetería favorita, un lugar acogedor en la esquina.",
+                "nl": "Sophie de Vries loopt haar favoriete café binnen, een knus plekje op de hoek van de Albert Cuypstraat.",
+                "pt": "Sophie Moreira entra em seu café preferido, um lugar acolhedor na esquina da rua Aspicuelta.",
+                "en_pt": "Sophie Moreira enters her favorite café, a cozy place on the corner of Aspicuelta street."
+            },
+            "ipa": {
+                "fr": "sɔfˈi mɔʁˈo ɑ̃tʁ dɑ̃ sɔ̃ kafˈe pʁefeʁˈe œ̃ pətˈit ɑ̃dʁwˈa ʃaløʁˈøz o kwˈɛ̃ də- la- ʁˈy de- ʁozjˈe",
+                "de": "[ˈzoːfi ˈmʏlɐ bəˈtʁɪt iːɐ ˈliːblɪŋskaˌfeː ˈaɪ̯nə ɡəˈmyːtlɪçə ˈklaɪ̯nə ˈɛkə an dɐ ˈɛkə dɐ ˈviːnɐ ˈʃtʁaːsə]",
+                "it": "[sˈopje romˈaːno ˈentra nˌɛl sˌʊo kaffˈɛ prˌeferˈiːto\n ˌʊn pˈikːolo pˈosto ˌakːoʎˈɛnte allˈaŋɡolo dˌɛlla strˈaːda]",
+                "es": "[ˈsofi moˈɾeno ˈentɾa en su kafeˈteɾja faβoˈɾita un luˈɣaɾ akoˈxeðoɾ en la esˈkina]",
+                "nl": "[sɔphˈi də vrˈis lˈoːpt haːr fˌaːvoːrˈitə kaːfˈeː bˈɪnən\n ən knˈɵs plˈɛkjə ɔp də hˈuk vɑn də ˈɑlbɛrt kˈyɪpstrˌaːt]",
+                "pt": "[sˌofˈiy mˌoɾˈeɪɾæ ˈeɪŋtræ ˈeɪŋ seʊ kafˈɛ prˌefeɾˈidʊ\n ũŋ luɡˈaɾ ˌakoljedˈor na ˌeskˈinæ da xˈuæ ˌaspikuˈɛʊtæ]",
+                "en": "[sˈəʊfi mˈɔːɹaʊ ˈɛntəz hɜː fˈeɪvəɹɪt kafˈeɪ ɐ smˈɔːl kˈəʊzi plˈeɪs ɒnðə kˈɔːnəɹ ɒv ɹˈuː dˈɛs ɹˈəʊsiəz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-004",
+            "text": {
+                "fr": "Bonjour Sophie, ça va?",
+                "en": "Hello Sophie, how are you?",
+                "de": "Hallo Sophie, wie geht's?",
+                "it": "Ciao Sophie, come va?",
+                "es": "¡Hola Sophie! ¿Qué tal?",
+                "nl": "Hallo Sophie, hoe gaat het?",
+                "pt": "Bom dia Sophie, tudo bem?",
+                "en_pt": "Good morning Sophie, how are you?"
+            },
+            "ipa": {
+                "fr": "bɔ̃ʒˈuʁ sɔfˈi sa vˈa",
+                "de": "[ˈhalo ˈzoːfi viː ˈɡeːts]",
+                "it": "[tʃˈaʊ sˈopje\n kˌome vˈa]",
+                "es": "[ˈola ˈsofi ke ˈtal]",
+                "nl": "[hˈɑloː sɔphˈi\n hˈu ɣˈaːt hət]",
+                "pt": "[bˈoŋ dʒˈiæ sˌofˈiy\n tˈudʊ bˈeɪŋ]",
+                "en": "[həlˈəʊ sˈəʊfi hˈaʊ ɑː juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-005",
+            "text": {
+                "pt": "pergunta Marco, o garçom que a conhece bem.",
+                "en": "asks Marco, the waiter who knows her well."
+            },
+            "ipa": {
+                "pt": "[pˌeɾəɡˈũŋtæ mˈaɾəkʊ\n ʊ ɡaɾəsˈoŋ ky a kˌoɲˈɛsy bˈeɪŋ]",
+                "en": "[ˈasks mˈɑːkəʊ ðə wˈeɪtə hˌuː nˈəʊz hɜː wˈɛl]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-006",
+            "text": {
+                "fr": "Oui, bien merci. Et toi?",
+                "en": "Yes, well thank you. And you?",
+                "de": "Ja, gut danke. Und dir?",
+                "it": "Sì, bene grazie. E tu?",
+                "es": "Sí, bien gracias. ¿Y tú?",
+                "nl": "Ja, goed, dank je. En met jou?",
+                "pt": "Sim, tudo bem obrigada.",
+                "en_pt": "Yes, I'm fine thank you."
+            },
+            "ipa": {
+                "fr": "wˈi bjˈɛ̃ mɛʁsˈi e twˈa",
+                "de": "[ja ɡuːt daŋkə ʊnt diːɐ̯]",
+                "it": "[sˈi\n bˈɛːne ɡrˈatsje\n ˌe tˈu]",
+                "es": "[si βjen ˈɣɾaθjas i ˈtu]",
+                "nl": "[jˈaː\n ɣˈut\n dˈɑŋk jə\n ɛn mɛt jˈʌʊ]",
+                "pt": "[sˈiŋ\n tˈudʊ bˈeɪŋ ˌobriɡˈadæ]",
+                "en": "[jˈɛs wˈɛl θˈaŋk juː and jˈuː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-007",
+            "text": {
+                "fr": "Merci,",
+                "en": "Thank you,",
+                "de": "Danke,",
+                "it": "Grazie,",
+                "es": "Gracias,",
+                "nl": "Dank je,",
+                "pt": "E você?",
+                "en_pt": "And you?"
+            },
+            "ipa": {
+                "fr": "mɛʁsˈi",
+                "de": "[ˈdaŋkə]",
+                "it": "[ɡrˈatsje]",
+                "es": "[ˈɣɾaθjas]",
+                "nl": "[dˈɑŋk jə]",
+                "pt": "[i vosˈe]",
+                "en": "[θˈaŋk juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-008",
+            "text": {
+                "pt": "responde Sophie com um sorriso cansado.",
+                "en": "Sophie responds with a tired smile."
+            },
+            "ipa": {
+                "pt": "[xˌespˈoŋdʒy sˌofˈiy koŋ ũŋ sˌoxˈizʊ kˌɐ̃ŋsˈadʊ]",
+                "en": "[sˈəʊfi ɹɪspˈɒndz wɪð ɐ tˈaɪəd smˈaɪl]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-009",
+            "text": {
+                "pt": "Tudo certo.",
+                "en": "All good."
+            },
+            "ipa": {
+                "pt": "[tˈudʊ sˈɛɾətʊ]",
+                "en": "[ˈɔːl ɡˈʊd]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-010",
+            "text": {
+                "pt": "O que você vai querer hoje?",
+                "en": "What will you have today?"
+            },
+            "ipa": {
+                "pt": "[ʊ ky vosˌe vaɪ keɾˈeɾ ˈoʒy]",
+                "en": "[wˌɒt wɪl juː hav tədˈeɪ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-011",
+            "text": {
+                "fr": "Un café et un croissant, s'il vous plaît.",
+                "en": "A coffee and a croissant, please.",
+                "de": "Einen Kaffee und ein Brötchen, bitte.",
+                "it": "Un caffè e un cornetto, per favore.",
+                "es": "Un café y un churro, por favor.",
+                "nl": "Een koffie en een stroopwafel, alsjeblieft.",
+                "pt": "Um café e um pão na chapa, por favor.",
+                "en_pt": "A coffee and a grilled bread, please."
+            },
+            "ipa": {
+                "fr": "œ̃ kafˈe e œ̃ kʁwasˈɑ̃ sil vu plˈɛ",
+                "de": "[ˈaɪ̯nən ˈkaf.eː ʊnt aɪ̯n ˈbrœtçən ˈbɪtə]",
+                "it": "[ˌʊn kaffˈɛ ˌe ˌʊn kornˈetːo\n pˌɛr favˈoːre]",
+                "es": "[un kaˈfe i un ˈtʃuro poɾ faˈβoɾ]",
+                "nl": "[ən kɔfˈi ɛn ən strˌoːpʋaːfˈɛl\n ˌɑlʃɛblˈift]",
+                "pt": "[ũŋ kafˈɛ i ũŋ pˈɐ̃ʊ̃ na ʃˈapæ\n por favˈor]",
+                "en": "[ɐ kˈɒfɪ and ɐ kwˈɑːsɑ̃ plˈiːz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-012",
+            "text": {
+                "fr": "Sophie s'assoit près de la fenêtre.",
+                "en": "Sophie sits near the window.",
+                "de": "Sophie setzt sich ans Fenster.",
+                "it": "Sophie si siede vicino alla finestra.",
+                "es": "Sophie se sienta cerca de la ventana.",
+                "nl": "Sophie gaat bij het raam zitten.",
+                "pt": "Sophie senta perto da janela."
+            },
+            "ipa": {
+                "fr": "sɔfˈi saswˈa pʁɛ də- la- fənˈɛtʁ",
+                "de": "[ˈzoːfi zɛt͡st zɪç ans ˈfɛnstɐ]",
+                "it": "[sˈopje sˌɪ sjˈeːde vitʃˈiːno ˌalla finˈɛstra]",
+                "es": "[ˈsofi se ˈsjenta ˈθeɾka ðe la βenˈtana]",
+                "nl": "[sɔphˈi ɣˈaːt bɛɪ hət rˈaːm zˈɪtən]",
+                "pt": "[sˌofˈiy sˈeɪŋtæ pˈɛɾətʊ da ʒˌænˈɛlæ]",
+                "en": "[sˈəʊfi sˈɪts nˌiə ðə wˈɪndəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-013",
+            "text": {
+                "fr": "Elle regarde les gens qui passent dans la rue.",
+                "en": "She watches people passing in the street.",
+                "de": "Sie beobachtet die Leute, die vorbeigehen.",
+                "it": "Osserva le persone che passano per strada.",
+                "es": "Ella mira a las personas que pasan por la calle.",
+                "nl": "Ze kijkt naar de mensen die voorbij lopen op straat.",
+                "pt": "Ela observa as pessoas que passam na rua.",
+                "en_pt": "She watches the people passing by on the street."
+            },
+            "ipa": {
+                "fr": "ɛl ʁəɡˈaʁd le- ʒˈɑ̃ ki pˈas dɑ̃ la- ʁˈy",
+                "de": "[ziː bəˈʔɔptaxt diː ˈlɔɪ̯tə diː ˈfoːɐ̯baɪ̯ˌɡeːən]",
+                "it": "[ossˈɛːrva lˌe persˈoːne kˌe pˈassano pˌɛr strˈaːda]",
+                "es": "[ˈeʎa ˈmiɾa a las peɾˈsonas ke ˈpasan poɾ la ˈkaʎe]",
+                "nl": "[zə kˈɛɪkt naːr də mˈɛnsən di vˈɔːrbˌɛɪ lˈoːpən ɔp strˈaːt]",
+                "pt": "[ˌɛlæ ˌobsˈɛɾəvæ as pˌesˈoæs ky pˈasɐ̃ʊ̃ na xˈuæ]",
+                "en": "[ʃiː wˈɒtʃɪz pˈiːpəl pˈasɪŋ ɪnðə stɹˈiːt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-014",
+            "text": {
+                "fr": "Quelques minutes plus tard, Lucas Dubois arrive, son sac à dos sur l'épaule.",
+                "en": "A few minutes later, Lucas Dubois arrives, his backpack on his shoulder.",
+                "de": "Wenige Minuten später kommt Lucas Schmidt mit seinem Rucksack über der Schulter.",
+                "it": "Pochi minuti dopo, arriva Lucas Conti, con lo zaino in spalla.",
+                "es": "Unos minutos después, Lucas Ruiz llega con su mochila al hombro.",
+                "nl": "Een paar minuten later komt Lucas van der Berg aan, met zijn rugzak over zijn schouder.",
+                "pt": "Alguns minutos depois, Lucas Duarte chega, sua mochila nas costas.",
+                "en_pt": "A few minutes later, Lucas Duarte arrives, his backpack on his back."
+            },
+            "ipa": {
+                "fr": "kˌɛlkə minˈyt ply tˈaʁ lykˈa dybwˈaz aʁˈiv sɔ̃ sˈak adˈɔs syʁ lepˈol",
+                "de": "[ˈveːnɪɡə ˈmɪnʊtn̩ ˈʃpɛːtɐ kɔmt ˈluːkas ˈʃmɪt mɪt ˈzaɪ̯nəm ˈʁʊksak ˈyːbɐ dɐ ˈʃʊltɐ]",
+                "it": "[pˈoːkɪ minˈuːtɪ dˈoːpo\n arɾˈiːva lˈuːkas kˈontɪ\n kˌon lˌo dzˈaɪːno ˌin spˈalla]",
+                "es": "[ˈunos ˈminutos desˈpwes ˈlukas ˈrwiθ ˈʎeɣa kon su moˈʧila al ˈombɾo]",
+                "nl": "[ən pˈaːr mˈinytən lˈaːtər kˈɔmt lˈykɑs vɑn dˈɛr bˈɛrx ˈaːn\n mɛt zɛɪn rˈɵɣzɑk ˈoːvər zɛɪn sxˈʌʊdər]",
+                "pt": "[aʊɡˈũŋz mˌinˈutʊz depˈoɪs\n lˈukæz dˌuˈaɾətʃy ʃˈeɡæ\n sˌuæ mˌoʃˈilæ nas kˈɔstæs]",
+                "en": "[ɐ fjˈuː mˈɪnɪts lˈeɪtə lˈuːkəz djˈuːbwɑːɹ ɐɹˈaɪvz hɪz bˈakpak ˌɒn hɪz ʃˈəʊldə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-015",
+            "text": {
+                "pt": "Bom dia Lucas!",
+                "en": "Good morning Lucas!"
+            },
+            "ipa": {
+                "pt": "[bˈoŋ dʒˈiæ lˈukæs]",
+                "en": "[ɡˈʊd mˈɔːnɪŋ lˈuːkəz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-016",
+            "text": {
+                "fr": "dit Sophie spontanément.",
+                "en": "says Sophie spontanément.",
+                "de": "sagt Sophie spontan.",
+                "it": "dice Sophie spontaneamente.",
+                "es": "dice Sophie espontáneamente.",
+                "nl": "zegt Sophie spontaan.",
+                "pt": "diz Sophie.",
+                "en_pt": "says Sophie."
+            },
+            "ipa": {
+                "fr": "dˈi sɔfˈi spɔ̃tanemˈɑ̃",
+                "de": "[zaːkt ˈzoːfi ʃpɔnˈtaːn]",
+                "it": "[dˈiːtʃe sˈopje spˌontanˌɛamˈente]",
+                "es": "[ˈdiθe ˈsofi esponˈtanea.mente]",
+                "nl": "[zˈɛxt sɔphˈi spɔntˈaːn]",
+                "pt": "[dʒˈis sˌofˈiy]",
+                "en": "[sˈɛz sˈəʊfi spˌɒntɐnˈeɪmənt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-017",
+            "text": {
+                "fr": "Salut! Tu as bien dormi?",
+                "en": "Hi! Did you sleep well?",
+                "de": "Hallo! Hast du gut geschlafen?",
+                "it": "Ciao! Hai dormito bene?",
+                "es": "¡Hola! ¿Dormiste bien?",
+                "nl": "Hoi! Heb je lekker geslapen?",
+                "pt": "Você dormiu bem?",
+                "en_pt": "Did you sleep well?"
+            },
+            "ipa": {
+                "fr": "salˈy ty a bjˈɛ̃ dɔʁmˈi",
+                "de": "[ˈhalo hast duː ɡuːt ɡəˈʃlaːfn̩]",
+                "it": "[tʃˈaʊ\n ˌaj dormˈiːto bˈɛːne]",
+                "es": "[ˈola ˈdoɾmiste βjen]",
+                "nl": "[hˈoːi\n hɛp jə lˈɛkər ɣəslˈaːpən]",
+                "pt": "[vosˌe doɾəmˈiʊ bˈeɪŋ]",
+                "en": "[hˈaɪ dˈɪd juː slˈiːp wˈɛl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-018",
+            "text": {
+                "pt": "Não, não muito bem.",
+                "en": "No, not very well."
+            },
+            "ipa": {
+                "pt": "[nˈɐ̃ʊ̃\n nˌɐ̃ʊ̃ mwˈiŋtʊ bˈeɪŋ]",
+                "en": "[nˈəʊ nˌɒt vˈɛɹɪ wˈɛl]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-019",
+            "text": {
+                "fr": "Non, pas très bien. J'ai fait des rêves étranges.",
+                "en": "No, not very well. I had strange dreams.",
+                "de": "Nein, nicht besonders. Ich hatte merkwürdige Träume.",
+                "it": "No, non molto bene. Ho fatto dei sogni strani.",
+                "es": "No, no muy bien. He tenido sueños raros.",
+                "nl": "Nee, niet echt. Ik had vreemde dromen.",
+                "pt": "Tive sonhos estranhos.",
+                "en_pt": "I had strange dreams."
+            },
+            "ipa": {
+                "fr": "nˈɔ̃ pa tʁɛ bjˈɛ̃ ʒe fˈɛ de- ʁˈɛvz etʁˈɑ̃ʒ",
+                "de": "[naɪ̯n nɪçt bəˈzɔndɐs ɪç ˈhatə ˈmɛʁkvyːɐ̯dɪɡə ˈtʁɔɪ̯mə]",
+                "it": "[nˈɔ\n nˌon mˈolto bˈɛːne\n ˌo fˈatːo dˌɛj sˈoɲʲɪ strˈaːnɪ]",
+                "es": "[no no mwi ˈβjen e teˈniðo ˈsweɲos ˈraɾos]",
+                "nl": "[nˈeː\n nˌit ˈɛxt\n ɪk hˈɑt vrˈeːmdə drˈoːmən]",
+                "pt": "[tʃˌivy sˈoɲʊz ˌestrˈɐ̃ɲʊs]",
+                "en": "[nˈəʊ nˌɒt vˈɛɹɪ wˈɛl aɪ hɐd stɹˈeɪndʒ dɹˈiːmz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-020",
+            "text": {
+                "fr": "Lucas commande au comptoir.",
+                "en": "Lucas orders at the counter.",
+                "de": "Lucas bestellt am Tresen.",
+                "it": "Lucas ordina al bancone.",
+                "es": "Lucas hace su pedido en el mostrador.",
+                "nl": "Lucas bestelt aan de bar.",
+                "pt": "Lucas faz o pedido no balcão."
+            },
+            "ipa": {
+                "fr": "lykˈa kɔmˈɑ̃d o kɔ̃twˈaʁ",
+                "de": "[ˈluːkas bəˈʃtɛlt am ˈtʁeːzn̩]",
+                "it": "[lˈuːkas ˈordina ˌal bankˈoːne]",
+                "es": "[ˈlukas aˈθe su peˈðiðo en el mosˈtɾaðoɾ]",
+                "nl": "[lˈykɑs bəstˈɛlt aːn də bˈɑr]",
+                "pt": "[lˈukæs faz ʊ pˌedʒˈidʊ nʊ baʊkˈɐ̃ʊ̃]",
+                "en": "[lˈuːkəz ˈɔːdəz at ðə kˈaʊntə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-021",
+            "text": {
+                "fr": "Un café au lait et un pain au chocolat, s'il vous plaît.",
+                "en": "A coffee with milk and a chocolate croissant, please.",
+                "de": "Einen Milchkaffee und ein Schokoladenbrötchen, bitte.",
+                "it": "Un caffelatte e un cornetto al cioccolato, per favore.",
+                "es": "Un café con leche y una tostada de chocolate, por favor.",
+                "nl": "Een koffie verkeerd en een chocoladebroodje, alsjeblieft.",
+                "pt": "Um café com leite e um pão de queijo, por favor.",
+                "en_pt": "A coffee with milk and a cheese bread, please."
+            },
+            "ipa": {
+                "fr": "œ̃ kafˈe o lˈɛt e œ̃ pˈɛ̃ o ʃɔkɔlˈa sil vu plˈɛ",
+                "de": "[ˈaɪ̯nən ˈmɪlçkaf.eː ʊnt aɪ̯n ʃokoˈlaːdənˈbrœtçən ˈbɪtə]",
+                "it": "[ˌʊn kˌaffelˈatːe ˌe ˌʊn kornˈetːo ˌal tʃˌɔkːolˈaːto\n pˌɛr favˈoːre]",
+                "es": "[un kaˈfe kon ˈletʃe i ˈuna tosˈtaða ðe tʃokoˈlate poɾ faˈβoɾ]",
+                "nl": "[ən kɔfˈi vərkˈɪːrd ɛn ən ʃˈoːkoːlˌaːdɛbrˌoːtjə\n ˌɑlʃɛblˈift]",
+                "pt": "[ũŋ kafˈɛ koŋ lˈeɪtʃj i ũŋ pˈɐ̃ʊ̃ dʒy kˈeɪʒʊ\n por favˈor]",
+                "en": "[ɐ kˈɒfɪ wɪð mˈɪlk and ɐ tʃˈɒklət kwˈɑːsɑ̃ plˈiːz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-022",
+            "text": {
+                "fr": "Il vient s'asseoir en face de Sophie.",
+                "en": "He comes to sit across from Sophie.",
+                "de": "Er setzt sich gegenüber von Sophie.",
+                "it": "Poi viene a sedersi di fronte a Sophie.",
+                "es": "Luego se sienta frente a Sophie.",
+                "nl": "Hij gaat tegenover Sophie zitten.",
+                "pt": "Ele vem sentar na frente de Sophie."
+            },
+            "ipa": {
+                "fr": "il vjˈɛ̃ saswˈaʁ ɑ̃ fˈas də- sɔfˈi",
+                "de": "[ɛɐ̯ ˈzɛt͡st zɪç ɡəˈɡn̩ʏbɐ fɔn ˈzoːfi]",
+                "it": "[pˈɔːɪ vjˈɛːne ˌa sedˈeːrsɪ dˌɪ frˈonte ˌa sˈopje]",
+                "es": "[ˈlweɣo se ˈsjenta ˈfɾente a ˈsofi]",
+                "nl": "[hɛɪ ɣˈaː tˈeːɣənˌoːvər sɔphˈi zˈɪtən]",
+                "pt": "[ˌely vˈeɪŋ seɪŋtˈar na frˈeɪŋtʃy dʒy sˌofˈiy]",
+                "en": "[hiː kˈʌmz tə sˈɪt əkɹˌɒs fɹɒm sˈəʊfi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-023",
+            "text": {
+                "fr": "Marc apporte leurs commandes.",
+                "en": "Marc brings their orders.",
+                "de": "Marc bringt ihre Bestellungen.",
+                "it": "Marco porta le loro ordinazioni.",
+                "es": "Marc trae sus pedidos.",
+                "nl": "Marc brengt hun bestellingen.",
+                "pt": "Marco traz os pedidos.",
+                "en_pt": "Marco brings the orders."
+            },
+            "ipa": {
+                "fr": "mˈaʁk apˈɔʁt lœʁ kɔmˈɑ̃d",
+                "de": "[maʁk ˈbʁɪŋkt ˈiːʁə bəˈʃtɛlʊŋən]",
+                "it": "[mˈaːrko pˈɔːrta lˌe lˌɔro ˌɔrdinˌatsiˈɔːnɪ]",
+                "es": "[maɾk ˈtɾae sus peˈðiðos]",
+                "nl": "[mˈɑrk brˈɛŋt hɵn bəstˈɛlɪŋən]",
+                "pt": "[mˈaɾəkʊ trˈaz ʊs pˌedʒˈidʊs]",
+                "en": "[mˈɑːk bɹˈɪŋz ðeəɹ ˈɔːdəz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-024",
+            "text": {
+                "pt": "Aqui está para vocês.",
+                "en": "Here you are."
+            },
+            "ipa": {
+                "pt": "[akˈi estˌa pˌaɾæ vosˈes]",
+                "en": "[hˈiə juː ɑː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-025",
+            "text": {
+                "fr": "Voilà pour vous. Bon appétit!",
+                "en": "Here you are. Enjoy your meal!",
+                "de": "Hier bitte, guten Appetit!",
+                "it": "Ecco a voi. Buon appetito!",
+                "es": "Aquí tienes. ¡Buen provecho!",
+                "nl": "Alsjeblieft, eet smakelijk!",
+                "pt": "Bom apetite!",
+                "en_pt": "Enjoy your meal!"
+            },
+            "ipa": {
+                "fr": "vwalˌa puʁ vˈu bˈɔ̃n apetˈi",
+                "de": "[hiːɐ̯ ˈbɪtə ˈɡuːtn̩ aˈpeːtɪt]",
+                "it": "[ˈɛkːo ˌa vˈɔɪ\n bʊˌon ˌapːetˈiːto]",
+                "es": "[aˈki ˈtjenes ˈbwen pɾoˈβetʃo]",
+                "nl": "[ˌɑlʃɛblˈift\n ˈeːt smˈaːkələk]",
+                "pt": "[bˈoŋ ˌapetʃˈitʃy]",
+                "en": "[hˈiə juː ɑː ɛndʒˈɔɪ jɔː mˈiːl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-026",
+            "text": {
+                "pt": "Obrigado, dizem eles juntos.",
+                "en": "Thank you, they say together."
+            },
+            "ipa": {
+                "pt": "[ˌobriɡˈadʊ\n dʒˈizeɪŋ ˌelyz ʒˈũŋtʊs]",
+                "en": "[θˈaŋk juː ðeɪ sˈeɪ təɡˈɛðə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-027",
+            "text": {
+                "fr": "Lucas regarde Sophie attentivement.",
+                "en": "Lucas looks at Sophie attentively.",
+                "de": "Lucas schaut Sophie aufmerksam an.",
+                "it": "Lucas guarda attentamente Sophie.",
+                "es": "Lucas mira a Sophie atentamente.",
+                "nl": "Lucas kijkt Sophie aandachtig aan.",
+                "pt": "Lucas olha Sophie atentamente."
+            },
+            "ipa": {
+                "fr": "lykˈa ʁəɡˈaʁd sɔfˈi atɑ̃tivmˈɑ̃",
+                "de": "[ˈluːkas ʃaʊ̯t ˈzoːfi ˈaʊ̯fmɛʁkzaːm an]",
+                "it": "[lˈuːkas ɡwˈaːrda ˌatːentamˈente sˈopje]",
+                "es": "[ˈlukas ˈmiɾa a ˈsofi a.tenˈta.mente]",
+                "nl": "[lˈykɑs kˈɛɪkt sɔphˈi ˈaːndɑxtəx ˈaːn]",
+                "pt": "[lˈukæz ˈɔljæ sˌofˈij ˌateɪŋtæmˈeɪŋtʃy]",
+                "en": "[lˈuːkəz lˈʊks at sˈəʊfi ɐtˈɛntɪvli]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-028",
+            "text": {
+                "fr": "Tu veux du sucre dans ton café?",
+                "en": "Do you want sugar in your coffee?",
+                "de": "Willst du Zucker in deinem Kaffee?",
+                "it": "Vuoi dello zucchero nel tuo caffè?",
+                "es": "¿Quieres azúcar en tu café?",
+                "nl": "Wil je suiker in je koffie?",
+                "pt": "Você quer açúcar no seu café?"
+            },
+            "ipa": {
+                "fr": "ty vˈø dy- sˈykʁ dɑ̃ tɔ̃ kafˈe",
+                "de": "[vɪlst duː ˈtsʊkɐ ɪn ˈdaɪ̯nəm ˈkaf.eː]",
+                "it": "[vʊˈɔːɪ dˌɛllo dzˈukːero nˌɛl tˌʊo kaffˈɛ]",
+                "es": "[ˈkjeɾes aˈsuθaɾ en tu kaˈfe]",
+                "nl": "[ʋɪl jə sˈœykər ɪn jə kɔfˈi]",
+                "pt": "[vosˌe kˈɛɾ ˌasˈukar nʊ seʊ kafˈɛ]",
+                "en": "[dˈuː juː wˈɒnt ʃˈʊɡəɹ ɪn jɔː kˈɒfɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-029",
+            "text": {
+                "fr": "Non merci, je le prends noir.",
+                "en": "No thanks, I take it black.",
+                "de": "Nein danke, ich nehme ihn schwarz.",
+                "it": "No grazie, lo prendo nero.",
+                "es": "No gracias, lo tomo negro.",
+                "nl": "Nee bedankt, ik drink het zwart.",
+                "pt": "Não obrigada, eu tomo sem açúcar.",
+                "en_pt": "No thank you, I take it without sugar."
+            },
+            "ipa": {
+                "fr": "nɔ̃ mɛʁsˈi ʒə- lə- pʁˈɑ̃ nwˈaʁ",
+                "de": "[naɪ̯n daŋkə ɪç ˈneːmə iːn ʃvaʁts]",
+                "it": "[nˈɔ ɡrˈatsje\n lˌo prˈɛndo nˈeːro]",
+                "es": "[no ˈɣɾaθjas lo ˈtomo ˈneɣɾo]",
+                "nl": "[nˈeː bədˈɑŋkt\n ɪk drˈɪŋk hət zʋˈɑrt]",
+                "pt": "[nˌɐ̃ʊ̃ ˌobriɡˈadæ\n eʊ tˈomʊ sˈeɪŋ ˌasˈukar]",
+                "en": "[nˈəʊ θˈaŋks aɪ tˈeɪk ɪt blˈak]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-030",
+            "text": {
+                "fr": "remarque Lucas en regardant par la fenêtre.",
+                "en": "Lucas notes, looking out the window.",
+                "de": "bemerkt Lucas, während er aus dem Fenster schaut.",
+                "it": "osserva Lucas guardando fuori dalla finestra.",
+                "es": "comenta Lucas mirando por la ventana.",
+                "nl": "merkt Lucas op terwijl hij naar buiten kijkt.",
+                "pt": "Está um dia bonito hoje, observa Lucas olhando pela janela.",
+                "en_pt": "It's a beautiful day today, Lucas observes looking out the window."
+            },
+            "ipa": {
+                "fr": "ʁəmˈaʁk lykˈaz ɑ̃ ʁəɡaʁdˈɑ̃ paʁ la- fənˈɛtʁ",
+                "de": "[bəˈmɛʁkt ˈluːkas ˈveːʁənt ɛɐ̯ aʊ̯s dɛm ˈfɛnstɐ ʃaʊ̯t]",
+                "it": "[ossˈɛːrva lˈuːkas ɡwardˈando fʊˈoːrɪ dˌalla finˈɛstra]",
+                "es": "[koˈmenta ˈlukas miˈɾando poɾ la βenˈtana]",
+                "nl": "[mˈɛrkt lˈykɑs ɔp tˈɛrʋɛɪl hɛɪ naːr bˈœytən kˈɛɪkt]",
+                "pt": "[estˌa ũŋ dʒˈiæ bˌonˈitw ˈoʒy\n ˌobsˈɛɾəvæ lˈukæz ˌoljˈɐ̃ŋdʊ pˈelæ ʒˌænˈɛlæ]",
+                "en": "[lˈuːkəz nˈəʊts lˈʊkɪŋ ˈaʊt ðə wˈɪndəʊ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-031",
+            "text": {
+                "fr": "Oui, c'est une belle journée.",
+                "en": "Yes, it's a beautiful day.",
+                "de": "Ja, es ist ein schöner Tag.",
+                "it": "Sì, è una giornata bellissima.",
+                "es": "Sí, es un día precioso.",
+                "nl": "Ja, het is een prachtige dag.",
+                "pt": "Sim, é um dia lindo.",
+                "en_pt": "Yes, it's a lovely day."
+            },
+            "ipa": {
+                "fr": "wˈi sɛt yn bˈɛl ʒuʁnˈe",
+                "de": "[ja ɛs ɪst aɪ̯n ˈʃøːnɐ taːk]",
+                "it": "[sˈi\n ˌɛ ˌʊna dʒornˈaːta bellˈissima]",
+                "es": "[si es un ˈdi.a pɾeˈθjoso]",
+                "nl": "[jˈaː\n hət ɪs ən prˈɑxtəɣə dˈɑx]",
+                "pt": "[sˈiŋ\n ɛ ũŋ dʒˈiæ lˈiŋdʊ]",
+                "en": "[jˈɛs ɪts ɐ bjˈuːtɪfəl dˈeɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-032",
+            "text": {
+                "fr": "Ils boivent leur café en silence pendant quelques instants.",
+                "en": "They drink their coffee in silence for a few moments.",
+                "de": "Sie trinken ihren Kaffee eine Weile schweigend.",
+                "it": "Bevono il loro caffè in silenzio per qualche istante.",
+                "es": "Beben su café en silencio por unos instantes.",
+                "nl": "Ze drinken hun koffie in stilte voor een paar momenten.",
+                "pt": "Eles bebem o café em silêncio por alguns instantes."
+            },
+            "ipa": {
+                "fr": "il bwˈav lœʁ kafˈe ɑ̃ silˈɑ̃s pɑ̃dˈɑ̃ kˌɛlkəz ɛ̃stˈɑ̃",
+                "de": "[ziː ˈtʁɪŋkn̩ ˈiːʁən ˈkaf.eː ˈaɪ̯nə ˈvaɪ̯lə ˈʃvaɪ̯ɡənt]",
+                "it": "[bˈevono ˌil lˌɔro kaffˈɛ ˌin silˈɛntsio pˌɛr kwˈalke istˈante]",
+                "es": "[ˈβeβen su kaˈfe en siˈlenθjo poɾ ˈunos insˈtantes]",
+                "nl": "[zə drˈɪŋkən hɵn kɔfˈi ɪn stˈɪltə vɔːr ən pˈaːr moːmˈɛntən]",
+                "pt": "[ˌelyz bˈɛbeɪŋ ʊ kafˈɛ ˈeɪŋ sˌilˈeɪŋsjʊ poɾ aʊɡˌũŋs ˌiŋstˈɐ̃ŋtʃys]",
+                "en": "[ðeɪ dɹˈɪŋk ðeə kˈɒfɪ ɪn sˈaɪləns fəɹə fjˈuː mˈəʊmənts]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-033",
+            "text": {
+                "fr": "Sophie soupire profondément.",
+                "en": "Sophie sighs deeply.",
+                "de": "Sophie seufzt tief.",
+                "it": "Sophie sospira profondamente.",
+                "es": "Sophie suspira profundamente.",
+                "nl": "Sophie zucht diep.",
+                "pt": "Sophie suspira profundamente."
+            },
+            "ipa": {
+                "fr": "sɔfˈi supˈiʁ pʁɔfɔ̃demˈɑ̃",
+                "de": "[ˈzoːfi ˈzoɪ̯ft tiːf]",
+                "it": "[sˈopje sospˈiːra prˌofondamˈente]",
+                "es": "[ˈsofi susˈpiɾa pɾofunˈda.mente]",
+                "nl": "[sɔphˈi zˈɵx tˈip]",
+                "pt": "[sˌofˈiy sˌuspˈiɾæ prˌofũŋdæmˈeɪŋtʃy]",
+                "en": "[sˈəʊfi sˈaɪz dˈiːpli]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-034",
+            "text": {
+                "fr": "Tu sais, Lucas, la vie est si monotone ici.",
+                "en": "You know, Lucas, life is so monotonous here.",
+                "de": "Weißt du, Lucas, das Leben ist so eintönig hier.",
+                "it": "Sai, Lucas, la vita è così monotona qui.",
+                "es": "Sabes, Lucas, la vida es tan monótona aquí.",
+                "nl": "Weet je, Lucas, het leven is zo eentonig hier.",
+                "pt": "Sabe Lucas, a vida é tão monótona aqui.",
+                "en_pt": "You know Lucas, life is so monotonous here."
+            },
+            "ipa": {
+                "fr": "ty sˈɛ lykˈa la- vˈi ɛ sˈi mɔnɔtˈɔn isˈi",
+                "de": "[vaɪ̯st duː ˈluːkas das ˈleːbn̩ ɪst zo aɪ̯nˈtøːnɪç hiːɐ]",
+                "it": "[sˈaɪ\n lˈuːkas\n lˌa vˈiːta ˌɛ kozˈi mˌonotˈoːna kwˈi]",
+                "es": "[ˈsaβes ˈlukas la ˈβiða es tan monoˈtona aˈki]",
+                "nl": "[ʋˈeːt jə\n lˈykɑs\n hət lˈeːvən ɪ soː eːntˈoːnəx hˈir]",
+                "pt": "[sˈaby lˈukæs\n a vˈidæ ɛ tˈɐ̃ʊ̃ mˌonˈɔtonæ akˈi]",
+                "en": "[juː nˈəʊ lˈuːkəz lˈaɪf ɪz sˌəʊ mənˈɒtənəs hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-035",
+            "text": {
+                "pt": "Concordo com você.",
+                "en": "I agree with you."
+            },
+            "ipa": {
+                "pt": "[kˌoŋkˈɔɾədʊ koŋ vosˈe]",
+                "en": "[aɪ ɐɡɹˈiː wɪð juː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-036",
+            "text": {
+                "fr": "Je suis d'accord avec toi. Chaque jour est pareil.",
+                "en": "I agree with you. Every day is the same.",
+                "de": "Ich stimme dir zu. Jeder Tag ist gleich.",
+                "it": "Sono d'accordo con te. Ogni giorno è uguale.",
+                "es": "Estoy de acuerdo contigo. Cada día es igual.",
+                "nl": "Ik ben het met je eens. Elke dag is hetzelfde.",
+                "pt": "Todo dia é igual.",
+                "en_pt": "Every day is the same."
+            },
+            "ipa": {
+                "fr": "ʒə- syˌi dakˈɔʁ avˌɛk twˈa ʃak ʒˈuʁ ɛ paʁˈɛj",
+                "de": "[ɪç ˈʃtɪmə diːɐ̯ t͡suː ˈjeːdɐ taːk ɪst ɡlaɪç]",
+                "it": "[sˌono dakːˈɔːrdo kˌon tˈe\n ˈoɲʲɪ dʒˈoːrno ˌɛ ʊɡwˈaːle]",
+                "es": "[esˈtoj ðe aˈkweɾðo konˈtiɣo ˈkaða ˈdi.a es iˈɣwal]",
+                "nl": "[ɪk bɛn hət mɛt jə ˈeːns\n ˈɛlkə dˈɑx ɪs hˈɛtzɛlvdə]",
+                "pt": "[tˈodʊ dʒˈiæ ɛ iɡwˈaʊ]",
+                "en": "[aɪ ɐɡɹˈiː wɪð juː ˈɛvɹɪ dˈeɪ ɪz ðə sˈeɪm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-037",
+            "text": {
+                "pt": "A gente deveria viajar, diz Sophie espontaneamente.",
+                "en": "We should travel, Sophie says spontaneously."
+            },
+            "ipa": {
+                "pt": "[a ʒˈeɪŋtʃy dˌeveɾˈiæ vˌiaʒˈar\n dʒˈis sˌofˈij ˌespoŋtˌæneæmˈeɪŋtʃy]",
+                "en": "[wiː ʃˌʊd tɹˈavəl sˈəʊfi sˈɛz spɒntˈeɪniəsli]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-038",
+            "text": {
+                "fr": "Lucas la regarde avec surprise, puis un sourire apparaît sur son visage.",
+                "en": "Lucas looks at her with surprise, then a smile appears on his face.",
+                "de": "Lucas sieht sie überrascht an, dann erscheint ein Lächeln auf seinem Gesicht.",
+                "it": "Lucas la guarda sorpreso, poi appare un sorriso sul suo viso.",
+                "es": "Lucas la mira sorprendido, luego sonríe.",
+                "nl": "Lucas kijkt haar verrast aan, dan verschijnt er een glimlach op zijn gezicht.",
+                "pt": "Lucas a olha com surpresa, então um sorriso aparece em seu rosto."
+            },
+            "ipa": {
+                "fr": "lykˈa la- ʁəɡˈaʁd avˌɛk syʁpʁˈiz pyˈiz œ̃ suʁˈiʁ apaʁˈɛ syʁ sɔ̃ vizˈaʒ",
+                "de": "[ˈluːkas ziːt ziː ˈyːbɐˈʁaʃt an dan ɛɐ̯ˈʃaɪ̯nt aɪ̯n ˈlɛçl̩n aʊ̯f ˈzaɪ̯nəm ɡəˈzɪçt]",
+                "it": "[lˈuːkas lˌa ɡwˈaːrda sorprˈeːzo\n pˈɔːɪ apːˈaːre ˌʊn sorɾˈiːzo sˌʊl sˌʊo vˈiːzo]",
+                "es": "[ˈlukas la ˈmiɾa soɾpɾenˈðiðo ˈlweɣo sonˈrje]",
+                "nl": "[lˈykɑs kˈɛɪkt haːr vərrˈɑst ˈaːn\n dˈɑn vərsxˈɛɪnt ər ən ɣlˈɪmlɑx ɔp zɛɪn ɣəzˈɪxt]",
+                "pt": "[lˈukæz a ˈɔljæ koŋ sˌuɾəprˈezæ\n eɪŋtˈɐ̃ʊ̃ ũŋ sˌoxˈizw ˌapaɾˈɛsj ˈeɪŋ seʊ xˈostʊ]",
+                "en": "[lˈuːkəz lˈʊks at hɜː wɪð səpɹˈaɪz ðˈɛn ɐ smˈaɪl ɐpˈiəz ˌɒn hɪz fˈeɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-039",
+            "text": {
+                "fr": "Tu as raison! Pourquoi pas?",
+                "en": "You're right! Why not?",
+                "de": "Du hast recht! Warum nicht?",
+                "it": "Hai ragione! Perché no?",
+                "es": "¡Tienes razón! ¿Por qué no?",
+                "nl": "Je hebt gelijk! Waarom niet?",
+                "pt": "Você tem razão!",
+                "en_pt": "You're right!"
+            },
+            "ipa": {
+                "fr": "ty a ʁɛzˈɔ̃ puʁkwˌa pˈa",
+                "de": "[duː hast ʁɛçt vaˈʁʏm nɪçt]",
+                "it": "[ˌaj radʒˈoːne\n perkˌe nˈɔ]",
+                "es": "[ˈtjenes raˈθon poɾ ˈke no]",
+                "nl": "[jə hɛpt ɣəlˈɛɪk\n ʋˈaːrɔm nˈit]",
+                "pt": "[vosˌe teɪŋ xazˈɐ̃ʊ̃]",
+                "en": "[jɔː ɹˈaɪt wˌaɪ nˈɒt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-040",
+            "text": {
+                "pt": "Por que não?",
+                "en": "Why not?"
+            },
+            "ipa": {
+                "pt": "[por ke nˈɐ̃ʊ̃]",
+                "en": "[wˌaɪ nˈɒt]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-041",
+            "text": {
+                "fr": "Ça va. Qu'est-ce que tu prends ce matin?",
+                "en": "I'm fine. What are you having this morning?",
+                "de": "Mir geht's gut. Was wirst du heute Morgen nehmen?",
+                "it": "Bene. Cosa prendi stamattina?",
+                "es": "Bien. ¿Qué vas a tomar esta mañana?",
+                "nl": "Goed. Wat neem je vanochtend?"
+            },
+            "ipa": {
+                "fr": "sa vˈa kɛskˌə ty pʁˈɑ̃ sə- matˈɛ̃",
+                "de": "[miːɐ̯ ˈɡeːts ɡuːt vas vɪʁst duː ˈhoːtə ˈmɔʁɡn̩ ˈneːmən]",
+                "it": "[bˈɛːne\n kˈɔːza prˈɛndɪ stˌamatːˈiːna]",
+                "es": "[ˈβjen ke βas a toˈmaɾ ˈesta ˈmaɲana]",
+                "nl": "[ɣˈut\n ʋɑt nˈeːm jə vɑnˈɔxtənt]",
+                "en": "[aɪm fˈaɪn wˌɒt ɑː juː hˌavɪŋ ðɪs mˈɔːnɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-042",
+            "text": {
+                "fr": "Bonjour Lucas!",
+                "en": "Hello Lucas!",
+                "de": "Hallo Lucas!",
+                "it": "Ciao Lucas!",
+                "es": "¡Hola Lucas!",
+                "nl": "Hallo Lucas!"
+            },
+            "ipa": {
+                "fr": "bɔ̃ʒˈuʁ lykˈa",
+                "de": "[ˈhalo ˈluːkas]",
+                "it": "[tʃˈaʊ lˈuːkas]",
+                "es": "[ˈola ˈlukas]",
+                "nl": "[hˈɑloː lˈykɑs]",
+                "en": "[həlˈəʊ lˈuːkəz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-043",
+            "text": {
+                "fr": "Il fait beau aujourd'hui,",
+                "en": "It's nice today,",
+                "de": "Es ist schönes Wetter heute,",
+                "it": "Fa bel tempo oggi,",
+                "es": "Hace buen tiempo hoy,",
+                "nl": "Het is mooi weer vandaag,"
+            },
+            "ipa": {
+                "fr": "il fˈɛ bˈo oʒuʁdyˈi",
+                "de": "[ɛs ɪst ˈʃøːnəs ˈvɛtɐ ˈhoːtə]",
+                "it": "[fˌa bˈɛl tˈɛmpo ˈɔdʒːɪ]",
+                "es": "[ˈaθe βwen ˈtjempo oj]",
+                "nl": "[hət ɪs mˈoːj ʋˈɪːr vɑndˈaːx]",
+                "en": "[ɪts nˈaɪs tədˈeɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-044",
+            "text": {
+                "fr": "On devrait partir en voyage,",
+                "en": "We should go on a trip,",
+                "de": "Wir sollten verreisen,",
+                "it": "Dovremmo fare un viaggio,",
+                "es": "Deberíamos irnos de viaje,",
+                "nl": "We zouden op reis moeten gaan,"
+            },
+            "ipa": {
+                "fr": "ɔ̃ dəvʁˈɛ paʁtˈiʁ ɑ̃ vwajˈaʒ",
+                "de": "[viːɐ̯ ˈzɔltn̩ fɛɐ̯ˈʁaɪ̯zn̩]",
+                "it": "[dovrˈɛmmo fˌare ˌʊn vjˈadʒːo]",
+                "es": "[ðeβeˈɾjamos ˈiɾnos ðe ˈβjaxe]",
+                "nl": "[ʋə zˌʌʊdən ɔp rˈɛɪs mˈutən ɣˈaːn]",
+                "en": "[wiː ʃˌʊd ɡˌəʊ ˌɒn ɐ tɹˈɪp]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-045",
+            "text": {
+                "fr": "demande Marc, le serveur qui la connaît bien.",
+                "en": "asks Marc, le serveur qui la connaît bien.",
+                "de": "fragt Marc, der Kellner, der sie gut kennt.",
+                "it": "chiede Marco, il barista che la conosce bene.",
+                "es": "¿Qué deseas?, pregunta Marc, el camarero que la conoce bien.",
+                "nl": "vraagt Marc, de ober die haar goed kent."
+            },
+            "ipa": {
+                "fr": "dəmˈɑ̃d mˈaʁk lə- sɛʁvˈœʁ ki la- kɔnˈɛ bjˈɛ̃",
+                "de": "[fʁaːkt maʁk dɐ ˈkɛlnɐ dɐ ziː ɡuːt kɛnt]",
+                "it": "[kjˈeːde mˈaːrko\n ˌil barˈista kˌe lˌa konˈoːʃe bˈɛːne]",
+                "es": "[ke deˈse.as pɾeˈɣunta maɾk el kamaˈɾeɾo ke la koˈnoθe βjen]",
+                "nl": "[vrˈaːxt mˈɑrk\n də ˈoːbər di haːr ɣˈut kˈɛnt]",
+                "en": "[ˈasks mˈɑːk lə sɜːvˈɜː kwˈi lˌa kənˈeɪt baɪˈɛn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-01-046",
+            "text": {
+                "fr": "répond Sophie avec un sourire fatigué.",
+                "en": "replies Sophie avec un sourire fatigué.",
+                "de": "antwortet Sophie mit einem müden Lächeln.",
+                "it": "risponde Sophie con un sorriso stanco.",
+                "es": "responde Sophie con una sonrisa cansada.",
+                "nl": "antwoordt Sophie met een vermoeide glimlach."
+            },
+            "ipa": {
+                "fr": "ʁepˈɔ̃ sɔfˈi avˌɛk œ̃ suʁˈiʁ fatiɡˈe",
+                "de": "[ˈantvoːɐ̯tət ˈzoːfi mɪt ˈaɪ̯nəm ˈmyːdn̩ ˈlɛçl̩n]",
+                "it": "[rispˈonde sˈopje kˌon ˌʊn sorɾˈiːzo stˈanko]",
+                "es": "[resˈponde ˈsofi kon ˈuna sonˈrisa kanˈsaða]",
+                "nl": "[ˈɑntʋɔːrt sɔphˈi mɛt ən vərmˈujdə ɣlˈɪmlɑx]",
+                "en": "[ɹɪplˈaɪz sˈəʊfi ˈavɛk ˈʌn sˈaʊəɹaɪə fˌatɪɡəɹˈeɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        }
+    ]
+}

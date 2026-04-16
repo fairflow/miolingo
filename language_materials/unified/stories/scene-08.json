@@ -1,0 +1,974 @@
+{
+    "meta": {
+        "source": "story-scenes",
+        "scene_number": 8,
+        "scene_title": {
+            "en": "Encounters and Discoveries",
+            "fr": "Rencontres Et Découvertes",
+            "de": "Begegnungen und Entdeckungen",
+            "pt": "Encontros e Descobertas",
+            "it": "\"Incontri e Scoperte\"",
+            "es": "Encuentros y descubrimientos",
+            "nl": "Ontmoetingen en Ontdekkingen"
+        },
+        "phrase_count": 36,
+        "core_phrase_count": 26,
+        "pt_matched": 24,
+        "pt_unmatched": 10,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-14",
+        "generator": "merge_materials.py"
+    },
+    "phrases": [
+        {
+            "id": "scene-08-001",
+            "text": {
+                "fr": "Sophie et Lucas se promènent dans les rues étroites du village.",
+                "en": "Sophie and Lucas are walking through the narrow streets of the village.",
+                "de": "Sophie und Lucas schlendern durch die engen Gassen des Viertels.",
+                "it": "Sophie e Lucas camminano per le stradine strette del quartiere.",
+                "es": "Sophie y Lucas pasean por las calles estrechas del barrio.",
+                "nl": "Sophie en Lucas lopen door de smalle straatjes van het dorp.",
+                "pt": "Sophie e Lucas passeiam pelas ruas estreitas do vilarejo.",
+                "en_pt": "Sophie and Lucas stroll through the narrow streets of the village."
+            },
+            "ipa": {
+                "fr": "sɔfˈi e lykˈa sə- pʁɔmˈɛn dɑ̃ le- ʁˈyz etʁwˈat dy- vilˈaʒ",
+                "de": "[ˈzoːfiː ʊnt ˈluːkas ˈʃlɛndɐn dʊʁç diː ˈɛŋən ˈɡasən dɛs ˈfiːɐtəls.]",
+                "it": "[sˈopje ˌe lˈuːkas kˌamminˈaːno pˌɛr lˌe strˈadine strˈetːe dˌɛl kwˌartiˈɛːre]",
+                "es": "[ˈsofi i ˈlukas paˈse.an poɾ las ˈkaʎes esˈtɾetʃas ðel ˈβarjo]",
+                "nl": "[sɔphˈi ɛn lˈykɑs lˈoːpən doːr də smˈɑlə strˈaːtʲəs vɑn hə tˈɔrp]",
+                "pt": "[sˌofˈij i lˈukæs pˌasˈeɪɐ̃ʊ̃ pˈelæz xˈuæz ˌestrˈeɪtæz dʊ vˌilaɾˈeʒʊ]",
+                "en": "[sˈəʊfi and lˈuːkəz ɑː wˈɔːkɪŋ θɹuː ðə nˈaɹəʊ stɹˈiːts ɒvðə vˈɪlɪdʒ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-002",
+            "text": {
+                "fr": "Ils croisent un vieil homme qui promène son chien.",
+                "en": "They meet an old man walking his dog.",
+                "de": "Sie treffen einen alten Mann, der seinen Hund ausführt.",
+                "it": "Incontrano un vecchio che passeggia con il suo cane.",
+                "es": "Se cruzan con un anciano que pasea su perro.",
+                "nl": "Ze komen een oude man tegen die zijn hond uitlaat.",
+                "pt": "Eles encontram um senhor idoso que passeia com seu cachorro.",
+                "en_pt": "They meet an elderly man walking his dog."
+            },
+            "ipa": {
+                "fr": "il kʁwˈazt œ̃ vjˈɛj ˈɔm ki pʁɔmˈɛn sɔ̃ ʃjˈɛ̃",
+                "de": "[ziː ˈtʁɛfən ˈaɪ̯nən ˈaltən man, deːɐ̯ ˈzaɪ̯nən hʊnt ˈaʊ̯sfyːɐ̯t.]",
+                "it": "[inkˈontrano ˌʊn vˈekːio kˌe passˈedʒːa kˌon ˌil sˌʊo kˈaːne]",
+                "es": "[se kɾuˈθan kon un anˈθjano ke paˈsea su ˈpero]",
+                "nl": "[zə kˈoːmən ən ˈʌʊdə mˈɑn tˈeːɣən di zɛɪn hˈɔnt ˈœytlˌaːt]",
+                "pt": "[ˌelyz ˌeɪŋkˈoŋtrɐ̃ʊ̃ ũŋ seɲˈoɾ ˌidˈozʊ ky pˌasˈeɪæ koŋ seʊ kˌaʃˈoxʊ]",
+                "en": "[ðeɪ mˈiːt ɐn ˈəʊld mˈan wˈɔːkɪŋ hɪz dˈɒɡ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-003",
+            "text": {
+                "fr": "Excusez-moi, où est la boulangerie?",
+                "en": "Excuse me, where is the bakery?",
+                "de": "Entschuldige, wo ist die Bäckerei?",
+                "it": "Scusa, dove si trova la panetteria?",
+                "es": "Perdona, ¿dónde está la churrería?",
+                "nl": "Sorry, waar is de bakkerij?",
+                "pt": "Com licença, onde fica a padaria?"
+            },
+            "ipa": {
+                "fr": "ɛkskyzˈemwˈa u ɛ la- bulɑ̃ʒʁˈi",
+                "de": "[ɛntˈʃʊldɪɡə voː ɪst diː ˈbɛːkəʁaɪ̯?]",
+                "it": "[skˈuːza\n dˈoːve sˌɪ trˈɔːva lˌa pˌanetːerˈiːa]",
+                "es": "[peɾˈðona | ¿ðonˈde esˈta la tʃuˈreɾi.a?]",
+                "nl": "[sˈɔɾri\n ʋˈaːr ɪs də bˌɑkərˈɛɪ]",
+                "pt": "[koŋ lˌisˈeɪŋsæ\n ˌoŋdʒy fˈikæ a pˌadaɾˈiæ]",
+                "en": "[ɛkskjˈuːs mˌiː wˌeəɹ ɪz ðə bˈeɪkəɹɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-004",
+            "text": {
+                "pt": "pergunta Sophie.",
+                "en": "Sophie asks."
+            },
+            "ipa": {
+                "pt": "[pˌeɾəɡˈũŋtæ sˌofˈiy]",
+                "en": "[sˈəʊfi ˈasks]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-005",
+            "text": {
+                "fr": "Tournez à droite après l'église",
+                "en": "Turn right after the church",
+                "de": "Biege nach der Kirche rechts ab.",
+                "it": "Gira a destra dopo la chiesa",
+                "es": "Gira a la derecha después de la iglesia.",
+                "nl": "Sla rechtsaf na de kerk",
+                "pt": "Vira à direita depois da igreja.",
+                "en_pt": "Turn right after the church."
+            },
+            "ipa": {
+                "fr": "tuʁnˈez a dʁwˈat apʁˌɛ leɡlˈiz",
+                "de": "[ˈbiːɡə naːx deːɐ̯ ˈkɪʁçə ʁɛçts ap.]",
+                "it": "[dʒˈiːra ˌa dˈɛstra dˈoːpo lˌa kjˈɛːza]",
+                "es": "[ˈxiɾa a la ðeˈɾetʃa ðesˈpwes ðe la iˈɣle̞sja]",
+                "nl": "[slˈaː rˈɛxtsɑf naː də kˈɛrk]",
+                "pt": "[vˈiɾ ˌaː dʒˌiɾˈeɪtæ depˈoɪz da ˌiɡrˈeʒæ]",
+                "en": "[tˈɜːn ɹˈaɪt ˈaftə ðə tʃˈɜːtʃ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-006",
+            "text": {
+                "fr": "Vous ne pouvez pas la manquer.",
+                "en": "You can't miss it.",
+                "de": "Du kannst sie nicht verfehlen.",
+                "it": "Non puoi sbagliare.",
+                "es": "No te la puedes perder.",
+                "nl": "Je kunt het niet missen.",
+                "pt": "Não tem como errar."
+            },
+            "ipa": {
+                "fr": "vu nə- puvˈe pa la- mɑ̃kˈe",
+                "de": "[duː kant ziː nɪçt fɛɐ̯ˈfeːlən.]",
+                "it": "[nˌon pʊˈɔːɪ zbaʎˈaːre]",
+                "es": "[no te la ˈpwedes peɾˈðeɾ]",
+                "nl": "[jə kɵnt hət nˌit mˈɪsən]",
+                "pt": "[nˌɐ̃ʊ̃ teɪŋ kˌomʊ exˈar]",
+                "en": "[juː kˈɑːnt mˈɪs ɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-007",
+            "text": {
+                "fr": "L'homme les observe avec curiosité.",
+                "en": "The man watches them with curiosity.",
+                "de": "Der Mann betrachtet sie neugierig.",
+                "it": "L'uomo li osserva con curiosità.",
+                "es": "El hombre los mira con curiosidad.",
+                "nl": "De man kijkt hen nieuwsgierig aan.",
+                "pt": "O homem os observa com curiosidade.",
+                "en_pt": "The man observes them with curiosity."
+            },
+            "ipa": {
+                "fr": "lˈɔm le-z ɔbsˈɛʁv avˌɛk kyʁjozitˈe",
+                "de": "[deːɐ̯ man bəˈtʁaxtət ziː ˈnɔɪ̯ɡiːʁɪç.]",
+                "it": "[lwˈɔːmo lˌɪ ossˈɛːrva kˌon kˌʊriˌɔzitˈa]",
+                "es": "[el ˈom.bɾe los ˈmiɾa kon kuɾjoˈsiðað]",
+                "nl": "[də mˈɑn kˈɛɪkt hɛn nˈiwsɣˌirəx ˈaːn]",
+                "pt": "[ʊ ˈomeɪŋ ʊz ˌobsˈɛɾəvæ koŋ kˌuɾiˌozidˈadʒy]",
+                "en": "[ðə mˈan wˈɒtʃɪz ðˌɛm wɪð kjˌʊɹɪˈɒsɪti]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-008",
+            "text": {
+                "fr": "Vous êtes nouveaux ici?",
+                "en": "Are you new here?",
+                "de": "Seid ihr neu hier?",
+                "it": "Siete nuovi qui?",
+                "es": "¿Sois nuevos por aquí?",
+                "nl": "Zijn jullie nieuw hier?",
+                "pt": "Vocês são novos aqui?"
+            },
+            "ipa": {
+                "fr": "vuz ɛt nuvˈoz isˈi",
+                "de": "[zaɪ̯t ɪɐ̯ nɔɪ̯ hiːɐ̯?]",
+                "it": "[sjˌete nʊˈɔːvɪ kwˈi]",
+                "es": "[ˈsojs ˈnweβos poɾ aˈki]",
+                "nl": "[zɛɪn jɵlˌi nˈiw hˈir]",
+                "pt": "[vosˌes sɐ̃ʊ̃ nˈɔvʊs akˈi]",
+                "en": "[ɑː juː njˈuː hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-009",
+            "text": {
+                "fr": "Oui, nous venons de Paris,",
+                "en": "Yes, we come from Paris,",
+                "de": "Ja, wir kommen aus Berlin.",
+                "it": "Sì, veniamo da Parigi,",
+                "es": "Sí, acabamos de llegar de Madrid.",
+                "nl": "Ja, we komen uit Parijs,",
+                "pt": "Sim, viemos de São Paulo, responde Lucas.",
+                "en_pt": "Yes, we came from São Paulo, Lucas replies."
+            },
+            "ipa": {
+                "fr": "wˈi nu vənˈɔ̃ də- paʁˈi",
+                "de": "[jaː viːɐ̯ ˈkɔmən aʊ̯s ˈbɛʁliːn.]",
+                "it": "[sˈi\n venjˈaːmo dˌa parˈiːdʒɪ]",
+                "es": "[si | aˈkaβamos ðe ʝeˈɣaɾ ðe maˈðɾið]",
+                "nl": "[jˈaː\n ʋə kˈoːmən œyt paːrˈɛɪs]",
+                "pt": "[sˈiŋ\n vˌiˈemʊz dʒy sɐ̃ʊ̃ pˈaʊlʊ\n xˌespˈoŋdʒy lˈukæs]",
+                "en": "[jˈɛs wiː kˈʌm fɹɒm pˈaɹɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-010",
+            "text": {
+                "pt": "São Paulo!",
+                "en": "São Paulo!"
+            },
+            "ipa": {
+                "pt": "[sɐ̃ʊ̃ pˈaʊlʊ]",
+                "en": "[sˈaʊ pˈɔːləʊ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-011",
+            "text": {
+                "pt": "Bem-vindos ao nosso vilarejo!",
+                "en": "Welcome to our village!"
+            },
+            "ipa": {
+                "pt": "[bˈeɪŋvˈiŋdʊz aʊ nˌɔsʊ vˌilaɾˈeʒʊ]",
+                "en": "[wˈɛlkʌm tʊ aʊə vˈɪlɪdʒ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-012",
+            "text": {
+                "pt": "Aqui é mais calmo que em São Paulo.",
+                "en": "It's calmer here than in São Paulo."
+            },
+            "ipa": {
+                "pt": "[akˈi ɛ mˈaɪs kˈaʊmʊ ky ˈeɪŋ sɐ̃ʊ̃ pˈaʊlʊ]",
+                "en": "[ɪts kˈɑːmə hˈiə ðɐn ɪn sˈaʊ pˈɔːləʊ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-013",
+            "text": {
+                "fr": "Ils continuent leur promenade.",
+                "en": "They continue their walk.",
+                "de": "Sie setzen ihren Spaziergang fort.",
+                "it": "Continuano la loro passeggiata.",
+                "es": "Siguen su paseo.",
+                "nl": "Ze vervolgen hun wandeling.",
+                "pt": "Eles continuam o passeio."
+            },
+            "ipa": {
+                "fr": "il kɔ̃tinˈy lœʁ pʁɔmnˈad",
+                "de": "[ziː ˈzɛtsən ˈiːʁən ʃpaˈtsiːɐ̯ɡaŋ fɔʁt.]",
+                "it": "[kontˈinʊˌano lˌa lˌɔro pˌassedʒːˈaːta]",
+                "es": "[ˈsiɣen su paˈseo]",
+                "nl": "[zə vərvˈɔlɣən hɵn ʋˈɑndəlˌɪŋ]",
+                "pt": "[ˌelys kˌoŋtʃinˈuɐ̃ʊ̃ ʊ pˌasˈeɪʊ]",
+                "en": "[ðeɪ kəntˈɪnjuː ðeə wˈɔːk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-014",
+            "text": {
+                "fr": "Les gens sont très gentils ici.",
+                "en": "The people are very kind here.",
+                "de": "Die Leute sind hier sehr nett.",
+                "it": "Le persone sono molto gentili qui.",
+                "es": "La gente es muy maja por aquí.",
+                "nl": "De mensen zijn hier erg aardig.",
+                "pt": "Sophie observa: As pessoas são muito gentis aqui.",
+                "en_pt": "Sophie observes: People are very kind here."
+            },
+            "ipa": {
+                "fr": "le- ʒˈɑ̃ sˈɔ̃ tʁɛ ʒɑ̃tˈiz isˈi",
+                "de": "[diː ˈlɔɪ̯tə zɪnt hiːɐ̯ zeːɐ̯ nɛt.]",
+                "it": "[lˌe persˈoːne sˌono mˈolto dʒentˈiːlɪ kwˈi]",
+                "es": "[la ˈxente es mwi ˈmaxa poɾ aˈki]",
+                "nl": "[də mˈɛnsən zɛɪn hˈir ˈɛrx ˈaːrdəx]",
+                "pt": "[sˌofˈij ˌobsˈɛɾəvæ\n as pˌesˈoæs sɐ̃ʊ̃ mwˈiŋtʊ ʒeɪŋtʃˈiz akˈi]",
+                "en": "[ðə pˈiːpəl ɑː vˈɛɹɪ kˈaɪnd hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-015",
+            "text": {
+                "fr": "Oui, c'est différent de la grande ville",
+                "en": "Yes, it's different from the big city",
+                "de": "Ja, es ist anders als in der Großstadt.",
+                "it": "Sì, è diverso dalla grande città",
+                "es": "Sí, es diferente de la gran ciudad",
+                "nl": "Ja, het is anders dan in de grote stad",
+                "pt": "Sim, é diferente da cidade grande.",
+                "en_pt": "Yes, it's different from the big city."
+            },
+            "ipa": {
+                "fr": "wˈi sɛ difeʁˈɑ̃ də- la- ɡʁˈɑ̃d vˈil",
+                "de": "[jaː ɛs ɪst ˈandɐs als ɪn deːɐ̯ ˈɡʁoːsˌʃtat.]",
+                "it": "[sˈi\n ˌɛ divˈɛːrso dˌalla ɡrˈande tʃitːˈa]",
+                "es": "[si | es di.feˈɾente ðe la ɣɾanθi̯uˈðað]",
+                "nl": "[jˈaː\n hət ɪs ˈɑndərs dˈɑn ɪn də ɣrˈoːtə stˈɑt]",
+                "pt": "[sˈiŋ\n ɛ dʒˌifeɾˈeɪŋtʃy da sˌidˈadʒy ɡrˈɐ̃ŋdʒy]",
+                "en": "[jˈɛs ɪts dˈɪfɹənt fɹʌmðə bˈɪɡ sˈɪti]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-016",
+            "text": {
+                "fr": "Tout le monde se parle.",
+                "en": "Everyone talks to each other.",
+                "de": "Hier spricht jeder mit jedem.",
+                "it": "Qui tutti si parlano.",
+                "es": "Aquí todo el mundo se habla.",
+                "nl": "Iedereen praat hier met elkaar.",
+                "pt": "Todo mundo conversa."
+            },
+            "ipa": {
+                "fr": "tulmˈɔ̃d sə- pˈaʁl",
+                "de": "[hiːɐ̯ ˈʃpʁɪçt ˈjeːdɐ mɪt ˈjeːdəm.]",
+                "it": "[kwˈi tˈutːɪ sˌɪ pˈarlano]",
+                "es": "[aˈki ˈtoðo el ˈmun.do se ˈaβla]",
+                "nl": "[ˌidɪːrˈeːn prˈaːt hˈir mɛt ˈɛlkaːr]",
+                "pt": "[tˈodʊ mˈũŋdʊ kˌoŋvˈɛɾəsæ]",
+                "en": "[ˈɛvɹɪwˌɒn tˈɔːks tʊ ˈiːtʃ ˈʌðə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-017",
+            "text": {
+                "pt": "Eles chegam na frente da padaria.",
+                "en": "They arrive in front of the bakery."
+            },
+            "ipa": {
+                "pt": "[ˌelys ʃˈeɡɐ̃ʊ̃ na frˈeɪŋtʃy da pˌadaɾˈiæ]",
+                "en": "[ðeɪ ɐɹˈaɪv ɪn fɹˈʌnt ɒvðə bˈeɪkəɹɪ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-018",
+            "text": {
+                "fr": "L'odeur du pain frais les accueille.",
+                "en": "The smell of fresh bread welcomes them.",
+                "de": "Der Duft von frischem Brot empfängt sie.",
+                "it": "L'odore del pane fresco li accoglie.",
+                "es": "El olor a pan fresco los recibe.",
+                "nl": "De geur van vers brood verwelkomt hen.",
+                "pt": "O cheiro de pão fresco os recebe.",
+                "en_pt": "The smell of fresh bread greets them."
+            },
+            "ipa": {
+                "fr": "lɔdˈœʁ dy- pˈɛ̃ fʁˈɛ le-z akˈœj",
+                "de": "[deːɐ̯ dʊft fɔn ˈfʁɪʃəm bʁoːt ˈɛmpfɛŋt ziː.]",
+                "it": "[lodˈoːre dˌɛl pˈaːne frˈesko lˌɪ akːˈoːʎe]",
+                "es": "[el oˈloɾ a pan ˈfɾesko los reˈθiβe]",
+                "nl": "[də ɣˈøːr vɑn vˈɛrs brˈoːt vərʋˈɛlkɔmt hɛn]",
+                "pt": "[ʊ ʃˈeɪɾʊ dʒy pˈɐ̃ʊ̃ frˈeskw ʊz xˌesˈɛby]",
+                "en": "[ðə smˈɛl ɒv fɹˈɛʃ bɹˈɛd wˈɛlkʌmz ðˌɛm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-019",
+            "text": {
+                "fr": "La boulangère est bavarde.",
+                "en": "The baker is talkative.",
+                "de": "Die Bäckerin ist gesprächig.",
+                "it": "La panettiera è molto chiacchierona.",
+                "es": "La churrera es muy habladora.",
+                "nl": "De bakkerin is praatgraag.",
+                "pt": "A padeira é falante."
+            },
+            "ipa": {
+                "fr": "la- bulɑ̃ʒˈɛʁ ɛ bavˈaʁd",
+                "de": "[diː ˈbɛːkəʁɪn ɪst gəˈʃpʁɛːçɪç.]",
+                "it": "[lˌa pˌanetːiˈɛːra ˌɛ mˈolto kjˌakːjerˈoːna]",
+                "es": "[la tʃuˈreɾa es mwi aβlaˈðoɾa]",
+                "nl": "[də bˈɑkɪːrˌɪn ɪs praːtɣrˈaːx]",
+                "pt": "[a pˌadˈeɪɾæ ɛ fˌalˈɐ̃ŋtʃy]",
+                "en": "[ðə bˈeɪkəɹ ɪz tˈɔːkətˌɪv]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-020",
+            "text": {
+                "fr": "Qu'est-ce qu'on peut faire ici?",
+                "en": "  What can we do here?",
+                "de": "Was kann man hier machen?",
+                "it": "Cosa si può fare qui?",
+                "es": "¿Qué se puede hacer por aquí?",
+                "nl": "Wat kunnen we hier doen?",
+                "pt": "O que dá para fazer aqui?",
+                "en_pt": "What can you do here?"
+            },
+            "ipa": {
+                "fr": "kɛs kɔ̃ pˈø fˈɛʁ isˈi",
+                "de": "[vas kan man hiːɐ̯ ˈmaxən?]",
+                "it": "[kˈɔːza sˌɪ pʊˈɔ fˌare kwˈi]",
+                "es": "[ˈke se ˈpweðe aˈθeɾ poɾ aˈki]",
+                "nl": "[ʋɑt kˌɵnən ʋə hˈir dˈun]",
+                "pt": "[ʊ ky dˈa pˌaɾæ fazˌeɾ akˈi]",
+                "en": "[wˌɒt kan wiː dˈuː hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-021",
+            "text": {
+                "pt": "pergunta Lucas.",
+                "en": "Lucas asks."
+            },
+            "ipa": {
+                "pt": "[pˌeɾəɡˈũŋtæ lˈukæs]",
+                "en": "[lˈuːkəz ˈasks]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-022",
+            "text": {
+                "fr": "Il y a beaucoup de randonnées",
+                "en": "There are many hikes",
+                "de": "Es gibt viele Wandermöglichkeiten.",
+                "it": "Ci sono molte escursioni",
+                "es": "Hay muchas rutas de senderismo.",
+                "nl": "Er zijn veel wandelingen",
+                "pt": "Tem muitas trilhas.",
+                "en_pt": "There are many trails."
+            },
+            "ipa": {
+                "fr": "il i a bokˌu də- ʁɑ̃dɔnˈe",
+                "de": "[ɛs ɡiːpt ˈfiːlə ˈvandɐˌmøːɡlɪçkaɪ̯tən.]",
+                "it": "[tʃˌɪ sˌono mˈolte ˌeskʊrsiˈoːnɪ]",
+                "es": "[aj ˈmutʃas ˈrutas ðe senðeˈɾismo]",
+                "nl": "[ər zɛɪn vˈeːl ʋˈɑndəlˌɪŋən]",
+                "pt": "[teɪŋ mwˈiŋtæs trˈiljæs]",
+                "en": "[ðeəɹˌɑː mˈɛni hˈaɪks]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-023",
+            "text": {
+                "fr": "Les montagnes sont magnifiques.",
+                "en": "The mountains are magnificent.",
+                "de": "Die Berge sind wunderschön.",
+                "it": "Le montagne sono splendide.",
+                "es": "Las montañas son preciosas.",
+                "nl": "De heuvels zijn prachtig.",
+                "pt": "As montanhas são lindas.",
+                "en_pt": "The mountains are beautiful."
+            },
+            "ipa": {
+                "fr": "le- mɔ̃tˈanj sˈɔ̃ maɲifˈik",
+                "de": "[diː ˈbɛʁɡə zɪnt ˈvʊndɐʃøːn.]",
+                "it": "[lˌe montˈaɲɲe sˌono splˈɛndide]",
+                "es": "[las monˈtaɲas son pɾeˈθjosas]",
+                "nl": "[də hˈøːvəl sɛɪn prˈɑxtəx]",
+                "pt": "[az mˌoŋtˈɐ̃ɲæs sɐ̃ʊ̃ lˈiŋdæs]",
+                "en": "[ðə mˈaʊntɪnz ɑː maɡnˈɪfɪsənt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-024",
+            "text": {
+                "fr": "Vous aimez la montagne?",
+                "en": "Do you like the mountains?",
+                "de": "Magst du die Berge?",
+                "it": "Vi piace la montagna?",
+                "es": "¿Os gusta la montaña?",
+                "nl": "Hou je van de heuvels?",
+                "pt": "Vocês gostam de montanha?",
+                "en_pt": "Do you like mountains?"
+            },
+            "ipa": {
+                "fr": "vuz ɛmˈe la- mɔ̃tˈaɲ",
+                "de": "[maːkst duː diː ˈbɛʁɡə?]",
+                "it": "[vˌɪ pjˈaːtʃe lˌa montˈaɲɲa]",
+                "es": "[ˈos ˈɣusta la monˈtaɲa]",
+                "nl": "[hˈʌʊ jə vɑn də hˈøːvəls]",
+                "pt": "[vosˌez ɡˈɔstɐ̃ʊ̃ dʒy mˌoŋtˈɐ̃ɲæ]",
+                "en": "[dˈuː juː lˈaɪk ðə mˈaʊntɪnz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-025",
+            "text": {
+                "pt": "ela pergunta.",
+                "en": "she asks."
+            },
+            "ipa": {
+                "pt": "[ˌɛlæ pˌeɾəɡˈũŋtæ]",
+                "en": "[ʃiː ˈasks]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-026",
+            "text": {
+                "fr": "Oui, nous adorons la nature. C'est pour ça qu'on est venus.",
+                "en": "Yes, we love nature. That's why we came.",
+                "de": "Ja, wir lieben die Natur. Deshalb sind wir hierher gekommen.",
+                "it": "Sì, adoriamo la natura. È per questo che siamo venuti.",
+                "es": "Sí, nos encanta la naturaleza, por eso hemos venido.",
+                "nl": "Ja, we houden van de natuur. Daarom zijn we hier gekomen.",
+                "pt": "Sim, adoramos a natureza.",
+                "en_pt": "Yes, we love nature."
+            },
+            "ipa": {
+                "fr": "wˈi nuz adɔʁˈɔ̃ la- natˈyʁ sɛ puʁ sa kɔ̃n ɛ vənˈy",
+                "de": "[jaː viːɐ̯ ˈliːbən diː naˈtuːɐ̯. ˈdɛshalp zɪnt viːɐ̯ ˈhiːɐhɛɐ̯ gəˈkɔmən.]",
+                "it": "[sˈi\n ˌadoriˈaːmo lˌa natˈuːra\n ˌɛ pˌɛr kwˌɛsto kˌe sjˌamo venˈuːtɪ]",
+                "es": "[si | nos enˈkanta la natuˈɾaleθa | poɾ ˈeso ˈemos ˈbeniðo]",
+                "nl": "[jˈaː\n ʋə hˈʌʊdən vɑn də naːtˈyr\n dˈaːrɔm zɛɪn ʋə hˈir ɣəkˈoːmən]",
+                "pt": "[sˈiŋ\n ˌadoɾˈɐ̃mʊz a nˌatuɾˈezæ]",
+                "en": "[jˈɛs wiː lˈʌv nˈeɪtʃə ðats wˌaɪ wiː kˈeɪm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-027",
+            "text": {
+                "pt": "É por isso que viemos.",
+                "en": "That's why we came."
+            },
+            "ipa": {
+                "pt": "[ɛ poɾ ˈisʊ ky vˌiˈemʊs]",
+                "en": "[ðats wˌaɪ wiː kˈeɪm]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-028",
+            "text": {
+                "fr": "Sophie achète du pain et des pâtisseries.",
+                "en": "Sophie buys bread and pastries.",
+                "de": "Sophie kauft Brot und Gebäck.",
+                "it": "Sophie compra del pane e delle paste.",
+                "es": "Sophie compra pan y unos churros.",
+                "nl": "Sophie koopt brood en wat gebakjes.",
+                "pt": "Sophie compra pão e bolos.",
+                "en_pt": "Sophie buys bread and cakes."
+            },
+            "ipa": {
+                "fr": "sɔfˈi aʃˈɛt dy- pˈɛ̃ e de- patisəʁˈi",
+                "de": "[ˈzoːfiː kaʊ̯ft bʁoːt ʊnt gəˈbɛk.]",
+                "it": "[sˈopje kˈompra dˌɛl pˈaːne ˌe dˌɛlle pˈaste]",
+                "es": "[ˈsofi ˈkom.pɾa pan i ˈunos ˈtʃur.os]",
+                "nl": "[sɔphˈi kˈoːpt brˈoːd ɛn ʋɑt ɣəbˈɑkjəs]",
+                "pt": "[sˌofˈiy kˈompræ pˈɐ̃ʊ̃ i bˈolʊs]",
+                "en": "[sˈəʊfi bˈaɪz bɹˈɛd and pˈeɪstɹiz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-029",
+            "text": {
+                "pt": "Ao sair, ela diz: Amanhã vamos fazer uma trilha.",
+                "en": "As they leave, she says: Tomorrow we're going to do a trail."
+            },
+            "ipa": {
+                "pt": "[aʊ saˈir\n ˌɛlæ dʒˈis\n ˌæmɐ̃ɲˈɐ̃ vˌɐ̃mʊs fazˌeɾ ˌumæ trˈiljæ]",
+                "en": "[az ðeɪ lˈiːv ʃiː sˈɛz təmˈɒɹəʊ wiə ɡˌəʊɪŋ tə dˈuː ɐ tɹˈeɪl]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-030",
+            "text": {
+                "pt": "A padeira os acompanha até a porta.",
+                "en": "The baker walks them to the door."
+            },
+            "ipa": {
+                "pt": "[a pˌadˈeɪɾæ ʊz ˌakompˈɐ̃ɲæ atˌɛ a pˈɔɾətæ]",
+                "en": "[ðə bˈeɪkə wˈɔːks ðˌɛm tə ðə dˈɔː]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-031",
+            "text": {
+                "fr": "Attention, la météo change vite ici",
+                "en": "Be careful, the weather changes quickly here",
+                "de": "Achtung, das Wetter ändert sich schnell hier.",
+                "it": "Attenzione, il tempo cambia velocemente qui",
+                "es": "Cuidado, el tiempo cambia rápido aquí.",
+                "nl": "Pas op, het weer kan hier snel veranderen",
+                "pt": "Cuidado, o tempo muda rápido aqui.",
+                "en_pt": "Be careful, the weather changes quickly here."
+            },
+            "ipa": {
+                "fr": "atɑ̃sjˈɔ̃ la- meteˈo ʃˈɑ̃ʒ vˈit isˈi",
+                "de": "[ˈaxtʊŋ das ˈvɛtɐ ˈɛndɐt zɪç ʃnɛl hiːɐ̯.]",
+                "it": "[ˌatːentsiˈɔːne\n ˌil tˈɛmpo kˈambia vˌɛlotʃemˈente kwˈi]",
+                "es": "[kwiˈðaðo | el ˈtjempo ˈkambja ˈrapido aˈki]",
+                "nl": "[pˈɑs ˈɔp\n hət ʋˈɪːr kɑn hˈir snˈɛl vərˈɑndərən]",
+                "pt": "[kˌuɪdˈadʊ\n ʊ tˈeɪmpʊ mˈudæ xˈapidw akˈi]",
+                "en": "[biː kˈeəfəl ðə wˈɛðə tʃˈeɪndʒɪz kwˈɪkli hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-032",
+            "text": {
+                "fr": "Prenez toujours des vêtements chauds.",
+                "en": "Always wear warm clothes.",
+                "de": "Nimm immer warme Kleidung mit.",
+                "it": "Portate sempre con voi vestiti caldi.",
+                "es": "Lleva siempre ropa abrigada.",
+                "nl": "Neem altijd warme kleren mee.",
+                "pt": "Sempre levem roupas quentes.",
+                "en_pt": "Always bring warm clothes."
+            },
+            "ipa": {
+                "fr": "pʁənˈe tuʒˌuʁ de- vɛtmˈɑ̃ ʃˈo",
+                "de": "[nɪm ˈɪmɐ ˈvaʁmə ˈklaɪ̯dʊŋ mɪt.]",
+                "it": "[portˈaːte sˈɛmpre kˌon vˌɔɪ vestˈiːtɪ kˈaldɪ]",
+                "es": "[ˈʎeβa ˈsjempɾe ˈropa aˈβɾiɣaða]",
+                "nl": "[nˈeːm ˈɑltɛɪt ʋˈɑrmə klˈɪːrən mˈeː]",
+                "pt": "[sˌeɪmpry lˈɛveɪŋ xˈowpæs kˈeɪŋtʃys]",
+                "en": "[ˈɔːlweɪz wˈeə wˈɔːm klˈəʊðz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-033",
+            "text": {
+                "fr": "Merci pour le conseil,",
+                "en": "Thank you for the advice,",
+                "de": "Danke für den Tipp,",
+                "it": "Grazie per il consiglio,",
+                "es": "Gracias por el consejo,",
+                "nl": "Bedankt voor de tip,",
+                "pt": "Obrigado pelo conselho, diz Lucas.",
+                "en_pt": "Thanks for the advice, Lucas says."
+            },
+            "ipa": {
+                "fr": "mɛʁsˈi puʁ lə- kɔ̃sˈɛj",
+                "de": "[ˈdaŋkə fyːɐ̯ deːn ˈtɪp,]",
+                "it": "[ɡrˈatsje pˌɛr ˌil konsˈiːʎo]",
+                "es": "[ˈɣraθjas poɾ el konˈsexo]",
+                "nl": "[bədˈɑŋkt vɔːr də tˈɪp]",
+                "pt": "[ˌobriɡˈadʊ pˈelʊ kˌoŋsˈeljʊ\n dʒˈiz lˈukæs]",
+                "en": "[θˈaŋk juː fəðɪ ɐdvˈaɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-034",
+            "text": {
+                "fr": "Bonne soirée et bonne chance!",
+                "en": "Have a good evening and good luck!",
+                "de": "Schönen Abend noch und viel Glück!",
+                "it": "Buona serata e buona fortuna!",
+                "es": "Buena noche y buena suerte.",
+                "nl": "Fijne avond en succes!",
+                "pt": "Boa noite e boa sorte!",
+                "en_pt": "Good night and good luck!"
+            },
+            "ipa": {
+                "fr": "bˈɔn swaʁˈe e bˈɔn ʃˈɑ̃s",
+                "de": "[ˈʃøːnən ˈaːbənt nɔx ʊnt fiːl ˈɡlʏk!]",
+                "it": "[bʊˌona serˈaːta ˌe bʊˌona fortˈuːna]",
+                "es": "[ˈbwena ˈnotʃe i ˈbwena ˈswerte]",
+                "nl": "[fˈɛɪnə ˈaːvɔnd ɛn sɵksˈɛs]",
+                "pt": "[bˈoæ nˈoɪtʃj i bˈoæ sˈɔɾətʃy]",
+                "en": "[hav ɐ ɡˈʊd ˈiːvnɪŋ and ɡˈʊd lˈʌk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-035",
+            "text": {
+                "fr": "Paris! Bienvenue dans notre village! Ici, c'est plus calme qu'à Paris.",
+                "en": "Paris! Welcome to our village! Here, it's calmer than in Paris.",
+                "de": "Berlin! Willkommen in unserem Kiez! Hier ist es ruhiger als in Berlin.",
+                "it": "Parigi! Benvenuti nel nostro quartiere! Qui è più tranquillo rispetto a Parigi.",
+                "es": "¡Madrid! Bienvenidos a nuestro barrio, aquí es más tranquilo que en Madrid.",
+                "nl": "Parijs! Welkom in ons dorp! Hier is het rustiger dan in Parijs."
+            },
+            "ipa": {
+                "fr": "paʁˈi bjɛ̃vnˈy dɑ̃ nɔtʁ vilˈaʒ isˈi sɛ ply kˈalm ka paʁˈi",
+                "de": "[ˈbɛʁliːn! ˈvɪlkɔmən ɪn ˈʊnzəʁəm ˈkiːts! hiːɐ̯ ɪst ɛs ˈʁuːɪɡɐ als ɪn ˈbɛʁliːn.]",
+                "it": "[parˈiːdʒɪ\n bˌenvenˈuːtɪ nˌɛl nˌɔstro kwˌartiˈɛːre\n kwˈi ˌɛ pjˌʊ trankwˈillo rispˈɛtːo ˌa parˈiːdʒɪ]",
+                "es": "[maˈðɾið | ˌβjenβeˈniðos a ˈnwestɾo βaˈrjo | aˈki es mas tɾaŋˈki.lo ke en maˈðɾið]",
+                "nl": "[paːrˈɛɪs\n ʋˈɛlkɔm ɪn ɔns dˈɔrp\n hˈir ɪs hət rˈɵstəɣər dˈɑn ɪn paːrˈɛɪs]",
+                "en": "[pˈaɹɪs wˈɛlkʌm tʊ aʊə vˈɪlɪdʒ hˈiə ɪts kˈɑːmə ðɐn ɪn pˈaɹɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-08-036",
+            "text": {
+                "fr": "Demain, nous irons faire une randonnée.",
+                "en": "Tomorrow, we will go for a hike.",
+                "de": "Morgen werden wir wandern gehen.",
+                "it": "Domani andremo a fare un'escursione.",
+                "es": "Mañana, iremos a hacer una ruta de senderismo.",
+                "nl": "Morgen gaan we wandelen."
+            },
+            "ipa": {
+                "fr": "dəmˈɛ̃ nuz iʁˈɔ̃ fˈɛʁ yn ʁɑ̃dɔnˈe",
+                "de": "[ˈmɔʁɡən ˈvɛʁdən viːɐ̯ ˈvandɐn ˈɡeːən.]",
+                "it": "[domˈaːnɪ andrˈɛːmo ˌa fˌare ʊnˌeskʊrsiˈoːne]",
+                "es": "[maˈɲana | iˈɾemos a aˈθeɾ ˈuna ˈruta ðe senðeˈɾismo]",
+                "nl": "[mˈɔrɣən ɣˈaːn ʋə ʋˈɑndələn]",
+                "en": "[təmˈɒɹəʊ wiː wɪl ɡˌəʊ fəɹə hˈaɪk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        }
+    ]
+}

@@ -8,6 +8,114 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.3.11] - 2026-04-15
+
+### Changed
+
+- Version bump
+
+
+## [7.3.10] - 2026-04-15
+
+### Changed
+
+- Version bump
+
+
+## [7.3.9] - 2026-04-15
+
+### Changed
+
+- Version bump
+
+
+## [7.3.8-claude-dev] - 2026-04-14
+
+### Changed
+
+- Version bump
+
+
+## [7.3.7-claude-dev] - 2026-04-14
+
+### Changed
+
+- Version bump
+
+
+## [7.2.0-claude-dev] - 2026-04-06
+
+### Added
+
+- **Bi-directional language selection**: Users now choose both a source language (what
+  they know) and a target language (what they practise) on the login page. Source language
+  is locked for the session and persisted to the database. Returning users see their
+  saved preference pre-filled.
+- Login page shows two side-by-side language selectboxes instead of one.
+- Sidebar shows source language as a read-only badge ("fixed until logout").
+- Free-text practice mode shows the translation direction in the input label.
+- `SOURCE_LANGUAGE_OPTIONS` and `source_language` default added to `config.py`.
+- `tests/test_bilingual.py` — 10 tests covering the new config exports and UI contracts.
+
+
+## [7.1.11-claude-dev] - 2026-04-06
+
+### Fixed
+
+- **Bootstrap connection generator bug**: `get_connection()` pre-auth path called
+  `pool.get_bootstrap_connection()` without `with`, storing a `_GeneratorContextManager`
+  in session state instead of a real MySQL connection. Every subsequent `.cursor()` call
+  failed. Fixed by adding `ConnectionPool.get_direct_connection()` which returns a real
+  connection object, reusing existing tunnels when available.
+- **`write_debug_log` crash on missing SSH secrets**: On environments without `[ssh]` in
+  `st.secrets` (e.g. Streamlit Cloud), `write_debug_log()` raised `KeyError` inside its
+  own error handler, creating log noise. Added a guard that returns early when SSH secrets
+  are absent, plus a `None` check on the connection.
+- Added `tests/test_connection.py` covering both fixes.
+
+
+## [7.1.10-claude-dev] - 2026-04-06
+
+### Fixed
+
+- **Logout crash (`StreamlitDuplicateElementKey`)**: `on_logout()` previously called
+  `set_logged_out_flag()` then `clear_cookie_session_id()` separately, each invoking
+  `cookies.save()`.  The cookie component renders with the hardcoded key
+  `'CookieManager.sync_cookies.save'`; two renders in one Streamlit run raised
+  `StreamlitDuplicateElementKey`, crashing logout for any user whose previous session
+  ended without an explicit logout click.  Fixed by adding `SessionManager.logout()`
+  which applies both cookie mutations and calls `save()` exactly once.
+- Added `tests/test_session_manager.py` (9 tests) asserting the single-save invariant.
+
+
+## [7.1.9-claude-dev-phase6] - 2026-04-06
+
+### Changed
+
+- Version bump
+
+
+## [7.1.8-claude-dev-phase5] - 2026-04-05
+
+### Changed
+
+- Version bump
+
+
+## [7.1.7-claude-dev-phase4] - 2026-04-05
+
+### Changed
+
+- Version bump
+
+
+## [7.1.6-claude-dev-phase2] - 2026-04-05
+
+### Changed
+
+- Version bump
+
+
 ## [7.1.2] - 2026-01-01
 
 ### Changed

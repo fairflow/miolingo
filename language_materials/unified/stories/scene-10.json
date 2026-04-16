@@ -1,0 +1,997 @@
+{
+    "meta": {
+        "source": "story-scenes",
+        "scene_number": 10,
+        "scene_title": {
+            "en": "The Involuntary Separation",
+            "fr": "La Séparation Involontaire",
+            "de": "Die unfreiwillige Trennung",
+            "pt": "A Separação Involuntária",
+            "it": "La Separazione Involontaria",
+            "es": "La separación involuntaria.",
+            "nl": "De Onvrijwillige Scheiding"
+        },
+        "phrase_count": 36,
+        "core_phrase_count": 27,
+        "pt_matched": 27,
+        "pt_unmatched": 9,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-14",
+        "generator": "merge_materials.py"
+    },
+    "phrases": [
+        {
+            "id": "scene-10-001",
+            "text": {
+                "fr": "Sophie attend quelques minutes, puis commence à paniquer.",
+                "en": "Sophie waits a few minutes, then starts to panic.",
+                "de": "Sophie wartet ein paar Minuten, dann beginnt sie zu paniken.",
+                "it": "Sophie aspetta qualche minuto, poi inizia a panico.",
+                "es": "Sophie espera unos minutos, luego comienza a entrar en pánico.",
+                "nl": "Sophie wacht een paar minuten, dan begint ze te panikeren.",
+                "pt": "Sophie espera alguns minutos, depois começa a entrar em pânico.",
+                "en_pt": "Sophie waits a few minutes, then begins to panic."
+            },
+            "ipa": {
+                "fr": "sɔfˈi atˈɑ̃ kˌɛlkə minˈyt pyˈi kɔmˈɑ̃s a panikˈe",
+                "de": "[ˈzɔfiː ˈvaɐ̯tət aɪ̯n paːɐ̯ ˈmɪnʊtn̩, dan bəˈɡɪnt ziː t͡su paˈniːkn̩]",
+                "it": "[sˈopje aspˈɛtːa kwˈalke minˈuːto\n pˈɔːɪ inˈitsia ˌa pˈaniko]",
+                "es": "[ˈsofi esˈpeɾa ˈunos ˈminutos | ˈlweɣo komˈjensa a enˈtɾaɾ en ˈpaniko]",
+                "nl": "[sɔphˈi ʋˈɑxt ən pˈaːr mˈinytən\n dˈɑn bəɣˈɪnt zə tə pˌaːnikˈɪːrən]",
+                "pt": "[sˌofˈij ˌespˈɛɾæ aʊɡˈũŋz mˌinˈutʊs\n depˈoɪs kˌomˈɛsæ a eɪŋtrˈaɾ ˈeɪŋ pˈɐ̃nikʊ]",
+                "en": "[sˈəʊfi wˈeɪts ɐ fjˈuː mˈɪnɪts ðˈɛn stˈɑːts tə pˈanɪk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-002",
+            "text": {
+                "pt": "Lucas?",
+                "en": "Lucas?"
+            },
+            "ipa": {
+                "pt": "[lˈukæs]",
+                "en": "[lˈuːkəz]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-003",
+            "text": {
+                "fr": "Lucas? Lucas, où es-tu?",
+                "en": "Lucas? Lucas, where are you?",
+                "de": "Lucas? Lucas, wo bist du?",
+                "it": "Lucas? Lucas, dove sei?",
+                "es": "¿Lucas? ¿Lucas, dónde estás?",
+                "nl": "Lucas? Lucas, waar ben je?",
+                "pt": "Lucas, onde você está?",
+                "en_pt": "Lucas, where are you?"
+            },
+            "ipa": {
+                "fr": "lykˈa lykˈa u ɛtˈy",
+                "de": "[ˈluːkas? ˈluːkas, voː bɪst duː?]",
+                "it": "[lˈuːkas\n lˈuːkas\n dˈoːve sˈɛj]",
+                "es": "[ˈlukas | ˈlukas ˈdonde esˈtas]",
+                "nl": "[lˈykɑs\n lˈykɑs\n ʋˈaːr bɛn jə]",
+                "pt": "[lˈukæs\n ˌoŋdʒy vosˌe estˈa]",
+                "en": "[lˈuːkəz lˈuːkəz wˈeəɹ ɑː juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-004",
+            "text": {
+                "fr": "Le vent emporte sa voix.",
+                "en": "The wind carries away her voice.",
+                "de": "Der Wind trägt ihre Stimme fort.",
+                "it": "Il vento porta via la sua voce.",
+                "es": "El viento se lleva su voz.",
+                "nl": "De wind neemt haar stem mee.",
+                "pt": "O vento leva sua voz."
+            },
+            "ipa": {
+                "fr": "lə- vˈɑ̃ ɑ̃pˈɔʁt sa- vwˈa",
+                "de": "[deːɐ̯ ˈvɪnt ˈtʁɛːkt ˈiːʁə ˈʃtɪmə fɔʁt]",
+                "it": "[ˌil vˈɛnto pˈɔːrta vˈiːa lˌa sˌʊa vˈoːtʃe]",
+                "es": "[el ˈβjento se ˈʝeβa su ˈboθ]",
+                "nl": "[də ʋˈɪnt nˈeːmt haːr stˈɛm mˈeː]",
+                "pt": "[ʊ vˈeɪŋtʊ lˈɛvæ sˌuæ vˈɔs]",
+                "en": "[ðə wˈɪnd kˈaɹɪz ɐwˈeɪ hɜː vˈɔɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-005",
+            "text": {
+                "fr": "Elle crie plus fort, mais rien.",
+                "en": "She screams louder, but nothing.",
+                "de": "Sie schreit lauter, aber nichts.",
+                "it": "Lei grida più forte, ma niente.",
+                "es": "Ella grita más fuerte, pero nada.",
+                "nl": "Ze roept harder, maar niets.",
+                "pt": "Ela grita mais alto, mas nada.",
+                "en_pt": "She shouts louder, but nothing."
+            },
+            "ipa": {
+                "fr": "ɛl kʁˈi ply fˈɔʁ mɛ ʁjˈɛ̃",
+                "de": "[ziː ˈʃʁaɪ̯t ˈlaʊ̯tɐ, ˈaːbɐ nɪçts]",
+                "it": "[lˌɛj ɡrˈiːda pjˌʊ fˈɔːrte\n mˌa njˈɛnte]",
+                "es": "[ˈeʝa ˈɡɾita ˈmas ˈfweɾte | ˈpeɾo ˈnaða]",
+                "nl": "[zə rˈupt hˈɑrdər\n maːr nˈits]",
+                "pt": "[ˌɛlæ ɡrˈitæ mˈaɪz ˈaʊtʊ\n maz nˈadæ]",
+                "en": "[ʃiː skɹˈiːmz lˈaʊdə bˌʌt nˈʌθɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-006",
+            "text": {
+                "fr": "Je n'entends plus sa voix.",
+                "en": "I can't hear his voice anymore.",
+                "de": "Ich höre seine Stimme nicht mehr.",
+                "it": "Non sento più la sua voce.",
+                "es": "Ya no oigo su voz.",
+                "nl": "Ik hoor zijn stem niet meer.",
+                "pt": "Não ouço mais a voz dele."
+            },
+            "ipa": {
+                "fr": "ʒə- nɑ̃tˈɑ̃ ply sa- vwˈa",
+                "de": "[ɪç ˈhøːʁə ˈzaɪ̯nə ˈʃtɪmə nɪçt meːɐ̯]",
+                "it": "[nˌon sˈɛnto pjˌʊ lˌa sˌʊa vˈoːtʃe]",
+                "es": "[ʝa no ˈoiɣo su ˈboθ]",
+                "nl": "[ɪk hˈoːr zɛɪn stˈɛm nˈit mˌeːr]",
+                "pt": "[nˌɐ̃ʊ̃ ˈowsʊ mˈaɪz a vˈɔz dˈely]",
+                "en": "[aɪ kˈɑːnt hˈiə hɪz vˈɔɪs ˌɛnɪmˈɔː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-007",
+            "text": {
+                "fr": "Elle cherche son téléphone dans sa poche.",
+                "en": "She looks for her phone in her pocket.",
+                "de": "Sie sucht ihr Handy in ihrer Tasche.",
+                "it": "Cerca il suo telefono in tasca.",
+                "es": "Ella busca su móvil en el bolsillo.",
+                "nl": "Ze zoekt haar telefoon in haar zak.",
+                "pt": "Ela procura o celular no bolso.",
+                "en_pt": "She searches for her phone in her pocket."
+            },
+            "ipa": {
+                "fr": "ɛl ʃˈɛʁʃ sɔ̃ telefˈɔn dɑ̃ sa- pˈɔʃ",
+                "de": "[ziː zʊxt iːɐ̯ ˈhandi ɪn ˈiːʁɐ ˈtaʃə]",
+                "it": "[tʃˈeːrka ˌil sˌʊo telˈɛfono ˌin tˈaska]",
+                "es": "[ˈeʝa ˈbuska su ˈmoβil en el bolˈsiʝo]",
+                "nl": "[zə zˈukt haːr tˌeːləfˈoːn ɪn haːr zˈɑk]",
+                "pt": "[ˌɛlæ prˌokˈuɾæ ʊ sˌelulˈar nʊ bˈowsʊ]",
+                "en": "[ʃiː lˈʊks fɔː hɜː fˈəʊn ɪn hɜː pˈɒkɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-008",
+            "text": {
+                "pt": "Sem sinal.",
+                "en": "No signal."
+            },
+            "ipa": {
+                "pt": "[sˈeɪŋ sinˈaʊ]",
+                "en": "[nˈəʊ sˈɪɡnəl]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-009",
+            "text": {
+                "fr": "Si seulement j'avais mon téléphone! Mais il ne sert à rien ici.",
+                "en": "If only I had my phone! But it doesn't work here.",
+                "de": "Wenn ich nur mein Handy hätte! Aber hier bringt es nichts.",
+                "it": "Se solo avessi il mio telefono! Ma qui non serve a nulla.",
+                "es": "¡Si al menos tuviera mi móvil! Pero aquí no sirve de nada.",
+                "nl": "Had ik maar mijn telefoon! Maar hier heb ik er toch niks aan.",
+                "pt": "Se eu ao menos tivesse meu celular!",
+                "en_pt": "If only I had my phone!"
+            },
+            "ipa": {
+                "fr": "sˈi sølmˈɑ̃ ʒavˈɛ mɔ̃ telefˈɔn mɛz il nə- sˈɛʁ a ʁjˌɛ̃n isˈi",
+                "de": "[vɛn ɪç nuːɐ̯ maɪ̯n ˈhandi ˈhɛtə! ˈaːbɐ hiːɐ̯ ˈbrɪŋt ɛs nɪçts]",
+                "it": "[sˌe sˈoːlo avˌɛssɪ ˌil mˌio telˈɛfono\n mˌa kwˈi nˌon sˈɛːrve ˌa nˈulla]",
+                "es": "[si al ˈmenos tuˈβjeɾa mi ˈmoβil | peɾo aˈki no ˈsiɾβe ðe ˈnaða]",
+                "nl": "[hˈɑt ɪk maːr mɛɪn tˌeːləfˈoːn\n maːr hˈir hɛp ɪk ər tˈɔx nˈɪks ˈaːn]",
+                "pt": "[sj eʊ aʊ mˈenʊs tʃˌivˈɛsy meʊ sˌelulˈar]",
+                "en": "[ɪf ˈəʊnli aɪ hɐd maɪ fˈəʊn bˌʌt ɪt dˈʌzənt wˈɜːk hˈiə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-010",
+            "text": {
+                "pt": "Mas não serve para nada aqui.",
+                "en": "But it's useless here."
+            },
+            "ipa": {
+                "pt": "[maz nˌɐ̃ʊ̃ sˈɛɾəvy pˌaɾæ nˈadæ akˈi]",
+                "en": "[bˌʌt ɪts jˈuːsləs hˈiə]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-011",
+            "text": {
+                "fr": "Le brouillard est si dense qu'elle ne voit pas à trois mètres devant elle.",
+                "en": "The fog is so dense that she can't see three meters in front of her.",
+                "de": "Der Nebel ist so dicht, dass sie nicht drei Meter vor sich sieht.",
+                "it": "La nebbia è così densa che non vede a tre metri davanti a sé.",
+                "es": "La niebla es tan densa que no ve a tres metros delante de ella.",
+                "nl": "De mist is zo dicht dat ze geen drie meter voor zich uit kan zien.",
+                "pt": "A neblina está tão densa que ela não consegue ver a três metros à frente.",
+                "en_pt": "The fog is so thick that she can't see three meters ahead."
+            },
+            "ipa": {
+                "fr": "lə- bʁujˈaʁ ɛ sˈi dˈɑ̃s kɛl nə- vwˈa paz a tʁwˈa mˈɛtʁ dəvˈɑ̃ ˈɛl",
+                "de": "[deːɐ̯ ˈneːbl̩ ɪst zoː ˈdɪçt, das ziː nɪçt dʁaɪ̯ ˈmeːtɐ fɔʁ zɪç ziːt]",
+                "it": "[lˌa nˈebːia ˌɛ kozˈi dˈɛnsa kˌe nˌon vˈeːde ˌa trˈe mˈeːtrɪ davˈantɪ ˌa sˈe]",
+                "es": "[la ˈnjeβla es tan ˈðensa ke no βe a ˈtɾes ˈmetɾos ðeˈlante ðe ˈeʝa]",
+                "nl": "[də mˈɪst ɪ soː dˈɪxt dɑt zə ɣˈeːn drˈi mˈeːtər vɔːr zɪx œyt kɑn zˈin]",
+                "pt": "[a nˌeblˈinæ estˌa tˈɐ̃ʊ̃ dˈeɪŋsæ ky ˌɛlæ nˌɐ̃ʊ̃ kˌoŋsˈɛɡy vˈeɾ a trˈez mˈɛtrʊz ˌaː frˈeɪŋtʃy]",
+                "en": "[ðə fˈɒɡ ɪz sˌəʊ dˈɛns ðat ʃiː kˈɑːnt sˈiː θɹˈiː mˈiːtəz ɪn fɹˈʌnt ɒv hɜː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-012",
+            "text": {
+                "fr": "Je ne sais plus où je suis.",
+                "en": "I don't know where I am anymore.",
+                "de": "Ich weiß nicht mehr, wo ich bin.",
+                "it": "Non so più dove sono.",
+                "es": "Ya no sé dónde estoy.",
+                "nl": "Ik weet niet meer waar ik ben.",
+                "pt": "Não sei mais onde estou."
+            },
+            "ipa": {
+                "fr": "ʒə- nə- sˈɛ plyz u ʒə- syˈi",
+                "de": "[ɪç vaɪ̯s nɪçt meːɐ̯, voː ɪç bɪn]",
+                "it": "[nˌon sˈo pjˌʊ dˈoːve sˈono]",
+                "es": "[ʝa no se ˈdonde esˈtoj]",
+                "nl": "[ɪk ʋˈeːt nˈit mˌeːr ʋˈaːr ɪk bɛn]",
+                "pt": "[nˌɐ̃ʊ̃ sˈeɪ mˈaɪz ˌoŋdʒj estˌow]",
+                "en": "[aɪ dˈəʊnt nˈəʊ wˌeəɹ aɪɐm ˌɛnɪmˈɔː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-013",
+            "text": {
+                "fr": "Elle se reproche leur dispute.",
+                "en": "She blames herself for their argument.",
+                "de": "Sie macht sich Vorwürfe wegen ihres Streits.",
+                "it": "Si rimprovera la loro lite.",
+                "es": "Ella se reprocha su discusión.",
+                "nl": "Ze verwijt zichzelf hun ruzie.",
+                "pt": "Ela se culpa pela briga.",
+                "en_pt": "She blames herself for the argument."
+            },
+            "ipa": {
+                "fr": "ɛl sə- ʁəpʁˈɔʃ lœʁ dispˈyt",
+                "de": "[ziː maxt zɪç ˈfoːɐ̯vʏʁfə ˈveːɡn̩ ˈiːʁəs ˈʃtʁaɪ̯ts]",
+                "it": "[sˌɪ rimprˈɔvera lˌa lˌɔro lˈiːte]",
+                "es": "[ˈeʝa se repoɾˈtʃa su ðiskuˈsjon]",
+                "nl": "[zə vərʋˈɛɪt zɪxsˈɛlf hɵn ryzˈi]",
+                "pt": "[ˌɛlæ sy kˈuwpæ pˈelæ brˈiɡæ]",
+                "en": "[ʃiː blˈeɪmz hɜːsˈɛlf fɔː ðeəɹ ˈɑːɡjuːmənt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-014",
+            "text": {
+                "fr": "Il aurait fallu rester ensemble. Nous avons été stupides.",
+                "en": "We should have stayed together. We were stupid.",
+                "de": "Wir hätten zusammenbleiben sollen. Wir waren dumm.",
+                "it": "Avremmo dovuto restare insieme. Siamo stati stupidi.",
+                "es": "Deberíamos haber permanecido juntos. Hemos sido tontos.",
+                "nl": "We hadden bij elkaar moeten blijven. We waren dom.",
+                "pt": "A gente deveria ter ficado junto.",
+                "en_pt": "We should have stayed together."
+            },
+            "ipa": {
+                "fr": "il oʁˈɛ falˈy ʁɛstˈe ɑ̃sˈɑ̃bl nuz avˈɔ̃z etˈe stypˈid",
+                "de": "[viːɐ̯ ˈhɛtən ʦuˈzamənˌblaɪ̯bn̩ ˈzɔlən. viːɐ̯ ˈvaːʁən ˈdʊm]",
+                "it": "[avrˌɛmmo dovˈuːto restˈaːre insjˈɛːme\n sjˌamo stˈaːtɪ stˈupidɪ]",
+                "es": "[deβeˈɾjamos aˈβeɾ peɾmaˈneθiðo ˈxuntos | ˈemos siðo ˈtontos]",
+                "nl": "[ʋə hˌɑdən bɛɪ ˈɛlkaːr mˈutən blˈɛɪvən\n ʋə ʋˌaːrən dˈɔm]",
+                "pt": "[a ʒˈeɪŋtʃy dˌeveɾˈiæ ter fˌikˈadʊ ʒˈũŋtʊ]",
+                "en": "[wiː ʃˌʊdəv stˈeɪd təɡˈɛðə wiː wɜː stjˈuːpɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-015",
+            "text": {
+                "pt": "Fomos estúpidos.",
+                "en": "We were stupid."
+            },
+            "ipa": {
+                "pt": "[fˌomʊz ˌestˈupidʊs]",
+                "en": "[wiː wɜː stjˈuːpɪd]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-016",
+            "text": {
+                "fr": "Maintenant, je suis complètement seule.",
+                "en": "Now, I am completely alone.",
+                "de": "Jetzt bin ich völlig allein.",
+                "it": "Ora sono completamente sola.",
+                "es": "Ahora estoy completamente sola.",
+                "nl": "Nu ben ik helemaal alleen.",
+                "pt": "Agora estou completamente sozinha.",
+                "en_pt": "Now I'm completely alone."
+            },
+            "ipa": {
+                "fr": "mɛ̃tnˈɑ̃ ʒə- syˌi kɔ̃plɛtmˈɑ̃ sˈœl",
+                "de": "[jɛt͡st bɪn ɪç ˈfœlɪç aˈlaɪ̯n]",
+                "it": "[ˈɔːra sˌono kˌompletamˈente sˈoːla]",
+                "es": "[aˈoɾa esˈtoj kompletaˈmente ˈsola]",
+                "nl": "[nˈy bɛn ɪk hˌeːləmˈaːl ɑlˈeːn]",
+                "pt": "[ˌaɡˈɔɾæ estˌow kˌompletæmˈeɪŋtʃy sˌozˈiɲæ]",
+                "en": "[nˈaʊ aɪɐm kəmplˈiːtli ɐlˈəʊn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-017",
+            "text": {
+                "fr": "Le vent souffle de plus en plus fort.",
+                "en": "The wind blows stronger and stronger.",
+                "de": "Der Wind wird immer stärker.",
+                "it": "Il vento soffia sempre più forte.",
+                "es": "El viento sopla cada vez más fuerte.",
+                "nl": "De wind waait steeds harder.",
+                "pt": "O vento sopra cada vez mais forte."
+            },
+            "ipa": {
+                "fr": "lə- vˈɑ̃ sˈufl də- plyz ɑ̃ ply fˈɔʁ",
+                "de": "[deːɐ̯ ˈvɪnt vɪʁt ˈɪmɐ ˈʃtɛʁkɐ]",
+                "it": "[ˌil vˈɛnto sˈoffia sˈɛmpre pjˌʊ fˈɔːrte]",
+                "es": "[el ˈβjento ˈsopla ˈkaða βeθ ˈmas ˈfweɾte]",
+                "nl": "[də ʋˈɪnt ʋˈaːjt stˈeːts hˈɑrdər]",
+                "pt": "[ʊ vˈeɪŋtʊ sˈɔpræ kˈadæ vˈez mˈaɪs fˈɔɾətʃy]",
+                "en": "[ðə wˈɪnd blˈəʊz stɹˈɒŋɡə and stɹˈɒŋɡə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-018",
+            "text": {
+                "pt": "A temperatura cai.",
+                "en": "The temperature drops."
+            },
+            "ipa": {
+                "pt": "[a tˌeɪmpeɾatˈuɾæ kˈaɪ]",
+                "en": "[ðə tˈɛmpɹɪtʃə dɹˈɒps]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-019",
+            "text": {
+                "fr": "J'aurais dû l'écouter tout à l'heure",
+                "en": "I should have listened to him earlier.",
+                "de": "Ich hätte auf ihn hören sollen früher.",
+                "it": "Avrei dovuto ascoltarlo prima.",
+                "es": "Debí haberle escuchado antes.",
+                "nl": "Ik had eerder naar hem moeten luisteren.",
+                "pt": "Eu deveria ter escutado ele antes.",
+                "en_pt": "I should have listened to him before."
+            },
+            "ipa": {
+                "fr": "ʒoʁˈɛ dˈyː lekutˈe tut a lˈœʁ",
+                "de": "[ɪç ˈhɛtə aʊ̯f ɪn ˈhøːʁən ˈzɔlən ˈfʁyːɐ̯]",
+                "it": "[avrˈeːɪ dovˈuːto ˌaskoltˈaːrlo prˈiːma]",
+                "es": "[deˈβi aˈβeɾle eskuˈtʃaðo ˈantes]",
+                "nl": "[ɪk hˈɑt ˈɪːrdər naːr hˈɛm mˈutən lˈœystərən]",
+                "pt": "[eʊ dˌeveɾˈiæ teɾ ˌeskutˈadw ˌely ˈɐ̃ŋtʃys]",
+                "en": "[aɪ ʃˌʊdəv lˈɪsənd tə hˌɪm ˈɜːlɪə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-020",
+            "text": {
+                "fr": "Il voulait faire demi-tour.",
+                "en": "He wanted to turn back.",
+                "de": "Er wollte umkehren.",
+                "it": "Voleva tornare indietro.",
+                "es": "Quería dar la vuelta.",
+                "nl": "Hij wilde omdraaien.",
+                "pt": "Ele queria voltar."
+            },
+            "ipa": {
+                "fr": "il vulˈɛ fˈɛʁ dəmˈitˈuʁ",
+                "de": "[ʔeːɐ̯ ˈvɔltə ˈʊmkeːʁən]",
+                "it": "[volˈeːva tornˈaːre indjˈɛːtro]",
+                "es": "[keˈɾia ðaɾ la ˈβwelta]",
+                "nl": "[hɛɪ ʋˌɪldə ˈɔmdraːjən]",
+                "pt": "[ˌely kˌeɾˈiæ vowtˈar]",
+                "en": "[hiː wˈɒntɪd tə tˈɜːn bˈak]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-021",
+            "text": {
+                "fr": "Mais il est trop tard pour les regrets.",
+                "en": "But it is too late for regrets.",
+                "de": "Aber es ist zu spät für Reue.",
+                "it": "Ma ora è troppo tardi per rimpianti.",
+                "es": "Pero ya es demasiado tarde para arrepentirnos.",
+                "nl": "Maar het is te laat voor spijt.",
+                "pt": "Mas é tarde demais para arrependimentos.",
+                "en_pt": "But it's too late for regrets."
+            },
+            "ipa": {
+                "fr": "mɛz il ɛ tʁo tˈaʁ puʁ le- ʁəɡʁˈɛ",
+                "de": "[ˈaːbɐ ʔɛs ɪst t͡su ˈʃpɛːt fyːɐ̯ ˈʁɔʏ̯ə]",
+                "it": "[mˌa ˈɔːra ˌɛ trˈɔpːo tˈaːrdɪ pˌɛr rimpjˈantɪ]",
+                "es": "[ˈpeɾo ʝa es ðemaˈsjaðo ˈtaɾðe paɾa arepenˈtiɾnos]",
+                "nl": "[maːr hət ɪs tə lˈaːt vɔːr spˈɛɪt]",
+                "pt": "[maz ɛ tˈaɾədʒy demˈaɪs pˌaɾæ ˌaxepˌeɪŋdʒimˈeɪŋtʊs]",
+                "en": "[bˌʌt ɪt ɪz tˈuː lˈeɪt fɔː ɹɪɡɹˈɛts]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-022",
+            "text": {
+                "fr": "Sophie se force à réfléchir calmement.",
+                "en": "Sophie forces herself to think calmly.",
+                "de": "Sophie zwingt sich, ruhig nachzudenken.",
+                "it": "Sophie si sforza di riflettere con calma.",
+                "es": "Sophie intenta pensar con calma.",
+                "nl": "Sophie dwingt zichzelf om rustig na te denken.",
+                "pt": "Sophie se força a pensar com calma."
+            },
+            "ipa": {
+                "fr": "sɔfˈi sə- fˈɔʁs a ʁefleʃˈiʁ kalməmˈɑ̃",
+                "de": "[ˈzɔfiː ˈt͡svɪŋt zɪç, ˈʁuːɪç ˈnaxt͡suˈdɛŋkn̩]",
+                "it": "[sˈopje sˌɪ sfˈɔːrtsa dˌɪ riflˈetːere kˌon kˈalma]",
+                "es": "[ˈsofi inˈtenta penˈsaɾ kon ˈkalma]",
+                "nl": "[sɔphˈi dʋˈɪŋt zɪxsˈɛlf ɔm rˈɵstəx naː tə dˈɛŋkən]",
+                "pt": "[sˌofˈiy sy fˈɔɾəsæ a peɪŋsˈar koŋ kˈaʊmæ]",
+                "en": "[sˈəʊfi fˈɔːsɪz hɜːsˈɛlf tə θˈɪŋk kˈɑːmli]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-023",
+            "text": {
+                "fr": "Je dois trouver un abri",
+                "en": "I have to find shelter",
+                "de": "Ich muss einen Unterschlupf finden.",
+                "it": "Devo trovare un rifugio",
+                "es": "Tengo que encontrar un refugio.",
+                "nl": "Ik moet een schuilplaats vinden.",
+                "pt": "Preciso encontrar um abrigo.",
+                "en_pt": "I need to find shelter."
+            },
+            "ipa": {
+                "fr": "ʒə- dwˈa tʁuvˈe œ̃n abʁˈi",
+                "de": "[ɪç mʊs ˈaɪ̯nən ˈʊntɐʃlʊpf ˈfɪndən]",
+                "it": "[dˈɛːvo trovˈaːre ˌʊn rifˈuːdʒo]",
+                "es": "[ˈteŋɡo ke enkonˈtɾaɾ un reˈfuχjo]",
+                "nl": "[ɪk mˈut ən sxœylplˈaːts vˈɪndən]",
+                "pt": "[prˌesˈizw ˌeɪŋkoŋtrˈaɾ ũŋ ˌabrˈiɡʊ]",
+                "en": "[aɪ hav tə fˈaɪnd ʃˈɛltə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-024",
+            "text": {
+                "fr": "Je ne peux pas rester dehors cette nuit.",
+                "en": "I can't stay outside tonight.",
+                "de": "Ich kann nicht die ganze Nacht draußen bleiben.",
+                "it": "Non posso restare fuori questa notte.",
+                "es": "No puedo quedarme afuera esta noche.",
+                "nl": "Ik kan hier niet buiten blijven vannacht.",
+                "pt": "Não posso ficar aqui fora esta noite.",
+                "en_pt": "I can't stay out here tonight."
+            },
+            "ipa": {
+                "fr": "ʒə- nə- pˈø pa ʁɛstˈe dəˈɔʁ sɛt nyˈi",
+                "de": "[ɪç kan nɪçt diː ˈgantsə naxt ˈdʁaʊ̯sn̩ ˈblaɪ̯bn̩]",
+                "it": "[nˌon pˈɔsso restˈaːre fʊˈoːrɪ kwˌɛsta nˈɔtːe]",
+                "es": "[no ˈpweðo keˈðaɾme aˈfweɾa ˈesta ˈnotʃe]",
+                "nl": "[ɪk kɑn hˈir nˌit bˈœytən blˈɛɪvən vɑnnˈɑxt]",
+                "pt": "[nˌɐ̃ʊ̃ pˌɔsʊ fikˈaɾ akˈi fˈɔɾæ ˌɛstæ nˈoɪtʃy]",
+                "en": "[aɪ kˈɑːnt stˈeɪ aʊtsˈaɪd tənˈaɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-025",
+            "text": {
+                "fr": "Elle avance prudemment, les mains tendues devant elle.",
+                "en": "She moves forward cautiously, her hands stretched out in front of her.",
+                "de": "Sie geht vorsichtig weiter, die Hände vor sich ausgestreckt.",
+                "it": "Avanza con cautela, con le mani tese davanti a sé.",
+                "es": "Avanza cautelosamente, con las manos extendidas delante de sí.",
+                "nl": "Ze loopt voorzichtig vooruit, haar handen voor zich uitgestrekt.",
+                "pt": "Ela avança com cuidado, as mãos estendidas à frente.",
+                "en_pt": "She moves forward carefully, her hands stretched out in front."
+            },
+            "ipa": {
+                "fr": "ɛl avˈɑ̃s pʁydamˈɑ̃ le- mˈɛ̃ tɑ̃dˈy dəvˈɑ̃ ˈɛl",
+                "de": "[ziː geːt fɔɐ̯ˈzɪçtɪç ˈvaɪ̯tɐ, diː ˈhɛndə fɔʁ zɪç aʊ̯sɡəˈʃtrɛkt]",
+                "it": "[avˈantsa kˌon kˌaʊtˈɛːla\n kˌon lˌe mˈaːnɪ tˈeːze davˈantɪ ˌa sˈe]",
+                "es": "[aˈβanθa kawteˈlosamente | kon las ˈmanos eksˈtendiðas ðeˈlante ðe ˈsi]",
+                "nl": "[zə lˈoːpt vˌɔːrzˈɪxtəx vˈɔːrœyt\n haːr hˈɑndən vɔːr zɪx ˈœytɣəstrˌɛkt]",
+                "pt": "[ˌɛlæ ˌavˈɐ̃ŋsæ koŋ kˌuɪdˈadʊ\n az mˈɐ̃ʊ̃z ˌesteɪŋdʒˈidæz ˌaː frˈeɪŋtʃy]",
+                "en": "[ʃiː mˈuːvz fˈɔːwəd kˈɔːʃəsli hɜː hˈandz stɹˈɛtʃt ˈaʊt ɪn fɹˈʌnt ɒv hɜː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-026",
+            "text": {
+                "fr": "Dans sa tête, des souvenirs surgissent.",
+                "en": "In her head, memories arise.",
+                "de": "In ihrem Kopf tauchen Erinnerungen auf.",
+                "it": "Nella sua testa, affiorano ricordi.",
+                "es": "En su cabeza, surgen recuerdos.",
+                "nl": "In haar hoofd komen herinneringen naar boven.",
+                "pt": "Em sua cabeça, lembranças surgem.",
+                "en_pt": "In her mind, memories emerge."
+            },
+            "ipa": {
+                "fr": "dɑ̃ sa- tˈɛt de- suvnˈiʁ syʁʒˈis",
+                "de": "[ɪn ˈiːʁəm kɔpf ˈtaʊ̯xn̩ ʔɛʁɪˈnəʁʊŋən aʊ̯f]",
+                "it": "[nˌɛlla sˌʊa tˈɛsta\n ˌaffiorˈaːno rikˈɔːrdɪ]",
+                "es": "[en su kaˈβeθa | ˈsuɾxen reˈkwɛrðos]",
+                "nl": "[ɪn haːr hˈoːft kˈoːmən hɛrˈɪnərˌɪŋən naːr bˈoːvən]",
+                "pt": "[ˈeɪŋ sˌuæ kˌabˈesæ\n lˌeɪmbrˈɐ̃ŋsæs sˈuɾəʒeɪŋ]",
+                "en": "[ɪn hɜː hˈɛd mˈɛməɹˌiz ɐɹˈaɪz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-027",
+            "text": {
+                "pt": "Seu pai sempre dizia: Na dúvida, desce.",
+                "en": "Her father always said: When in doubt, go down."
+            },
+            "ipa": {
+                "pt": "[seʊ pˈaɪ sˌeɪmpry dʒˌizˈiæ\n na dˈuvidæ\n dˈɛsy]",
+                "en": "[hɜː fˈɑːðəɹ ˈɔːlweɪz sˈɛd wˌɛn ɪn dˈaʊt ɡˌəʊ dˈaʊn]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-028",
+            "text": {
+                "fr": "Dans le doute, descends. L'eau coule vers le bas.",
+                "en": "When in doubt, go down. The water flows downward.",
+                "de": "Wenn du zweifelst, geh runter. Das Wasser fließt nach unten.",
+                "it": "In caso di dubbio, scendi. L'acqua scorre verso il basso.",
+                "es": "Si tienes dudas, baja. El agua fluye hacia abajo.",
+                "nl": "Als je twijfelt, ga naar beneden. Water stroomt altijd omlaag.",
+                "pt": "A água corre para baixo.",
+                "en_pt": "Water flows downward."
+            },
+            "ipa": {
+                "fr": "dɑ̃ lə- dˈut dɛsˈɑ̃ lˈo kˈul vɛʁ lə- bˈa",
+                "de": "[vɛn du ˈt͡svaɪ̯fl̩st, geː ˈʁʊntɐ. das ˈvasɐ ˈfliːst nax ˈʊntn̩]",
+                "it": "[ˌin kˈaːzo dˌɪ dˈubːio\n ʃˈɛndɪ\n lˈakːwa skˈɔrɾe vˌɛrso ˌil bˈasso]",
+                "es": "[si ˈtjenes ˈðuðas | ˈbaxa | el ˈaɣwa ˈflwe iˈθja aˈβaxo]",
+                "nl": "[ɑls jə tʋˈɛɪfəlt\n ɣˈaː naːr bənˈeːdən\n ʋˈaːtər strˈoːmt ˈɑltɛɪt ɔmlˈaːx]",
+                "pt": "[a ˈaɡwæ kˈɔxy pˌaɾæ bˈaɪʃʊ]",
+                "en": "[wˌɛn ɪn dˈaʊt ɡˌəʊ dˈaʊn ðə wˈɔːtə flˈəʊz dˈaʊnwəd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-029",
+            "text": {
+                "pt": "Mas agora, nesta neblina, o alto e o baixo se confundem.",
+                "en": "But now, in this fog, up and down are confused."
+            },
+            "ipa": {
+                "pt": "[maz ˌaɡˈɔɾæ\n nˌɛstæ nˌeblˈinæ\n u ˈaʊtw i ʊ bˈaɪʃʊ sy kˌoŋfˈũŋdeɪŋ]",
+                "en": "[bˌʌt nˈaʊ ɪn ðɪs fˈɒɡ ˌʌp and dˌaʊn ɑː kənfjˈuːzd]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-030",
+            "text": {
+                "pt": "Onde estou realmente?",
+                "en": "Where am I really?"
+            },
+            "ipa": {
+                "pt": "[ˌoŋdʒj estˌow xˌeaʊmˈeɪŋtʃy]",
+                "en": "[wˌeəɹ am aɪ ɹˈiəlɪ]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-031",
+            "text": {
+                "fr": "Où suis-je vraiment? Qui suis-je sans Lucas à mes côtés?",
+                "en": "Where am I really? Who am I without Lucas by my side?",
+                "de": "Wo bin ich wirklich? Wer bin ich ohne Lucas an meiner Seite?",
+                "it": "Dove sono veramente? Chi sono senza Lucas al mio fianco?",
+                "es": "¿Dónde estoy realmente? ¿Quién soy sin Lucas a mi lado?",
+                "nl": "Waar ben ik echt? Wie ben ik zonder Lucas aan mijn zijde?",
+                "pt": "Quem sou eu sem Lucas ao meu lado?",
+                "en_pt": "Who am I without Lucas by my side?"
+            },
+            "ipa": {
+                "fr": "u syˈiʒ vʁɛmˈɑ̃ ki syˌiʒ sɑ̃ lykˈaz a me- kotˈe",
+                "de": "[voː bɪn ɪç ˈvɪʁklɪç? veːɐ̯ bɪn ɪç ˈoːnə ˈluːkas an ˈmaɪ̯nɐ ˈzaɪ̯tə?]",
+                "it": "[dˈoːve sˌono vˌɛramˈente\n kˈi sˌono sˌɛntsa lˈuːkas ˌal mˌio fjˈanko]",
+                "es": "[ˈdonde esˈtoj reˈalmente | ˈkjen soj sin ˈlukas a mi ˈlaðo]",
+                "nl": "[ʋˈaːr bɛn ɪk ˈɛxt\n ʋˈi bɛn ɪk zˈɔndər lˈykɑs aːn mɛɪn zˈɛɪdə]",
+                "pt": "[kˈeɪŋ sow eʊ sˈeɪŋ lˈukæz aʊ meʊ lˈadʊ]",
+                "en": "[wˌeəɹ am aɪ ɹˈiəlɪ hˌuː am aɪ wɪðˌaʊt lˈuːkəz baɪ maɪ sˈaɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-032",
+            "text": {
+                "fr": "Soudain, ses mains touchent quelque chose de solide.",
+                "en": "Suddenly, her hands touch something solid.",
+                "de": "Plötzlich berühren ihre Hände etwas Festes.",
+                "it": "All'improvviso, le sue mani toccano qualcosa di solido.",
+                "es": "De repente, sus manos tocan algo sólido.",
+                "nl": "Plotseling raken haar handen iets solides.",
+                "pt": "De repente, suas mãos tocam algo sólido."
+            },
+            "ipa": {
+                "fr": "sudˈɛ̃ se- mˈɛ̃ tˈuʃ kˌɛlkə ʃˈoz də- sɔlˈid",
+                "de": "[ˈplœt͡slɪç bəˈʁyːʁən ˈiːʁə ˈhɛndə ˈʔɛtvas ˈfɛstəs]",
+                "it": "[allˌimprovvˈiːzo\n lˌe sˌʊe mˈaːnɪ tˈɔkːano kwalkˈɔːza dˌɪ sˈɔlido]",
+                "es": "[de reˈpente | sus ˈmanos ˈtoˈkan ˈalɣo ˈsolido]",
+                "nl": "[plˈɔtsəlˌɪŋ rˈaːkən haːr hˈɑndən ˈit sˈoːlidəs]",
+                "pt": "[dʒy xˌepˈeɪŋtʃy\n sˌuæz mˈɐ̃ʊ̃s tˈɔkɐ̃ʊ̃ ˈaʊɡʊ sˈɔlidʊ]",
+                "en": "[sˈʌdənli hɜː hˈandz tˈʌtʃ sˈʌmθɪŋ sˈɒlɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-033",
+            "text": {
+                "fr": "Là-bas, il y a quelque chose!",
+                "en": "Over there, there is something!",
+                "de": "Da vorne, da ist etwas!",
+                "it": "Là, c'è qualcosa!",
+                "es": "¡Allá hay algo!",
+                "nl": "Daar is iets!",
+                "pt": "Ali tem alguma coisa!",
+                "en_pt": "There's something there!"
+            },
+            "ipa": {
+                "fr": "lˈabˈa il i a kˌɛlkə ʃˈoz",
+                "de": "[daː ˈfɔʁnə, daː ɪst ˈʔɛtvas]",
+                "it": "[lˈa\n tʃˌɛ kwalkˈɔːza]",
+                "es": "[ˈaʝa ˈai ˈalɣo]",
+                "nl": "[dˈaːr ɪs ˈits]",
+                "pt": "[alˈi teɪŋ ˌaʊɡˈumæ kˈoɪzæ]",
+                "en": "[ˌəʊvə ðˈeə ðeəɹ ɪz sˈʌmθɪŋ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-034",
+            "text": {
+                "fr": "C'est une forme sombre dans le brouillard.",
+                "en": "It is a dark shape in the fog.",
+                "de": "Es ist eine dunkle Gestalt im Nebel.",
+                "it": "È una forma scura nella nebbia.",
+                "es": "Es una forma oscura en la niebla.",
+                "nl": "Het is een donkere vorm in de mist.",
+                "pt": "É uma forma escura na neblina.",
+                "en_pt": "It's a dark shape in the fog."
+            },
+            "ipa": {
+                "fr": "sɛt yn fˈɔʁm sˈɔ̃bʁ dɑ̃ lə- bʁujˈaʁ",
+                "de": "[ʔɛs ɪst ˈaɪ̯nə ˈdʊŋklə ɡəˈʃtalt ɪm ˈneːbl̩]",
+                "it": "[ˌɛ ˌʊna fˈoːrma skˈuːra nˌɛlla nˈebːia]",
+                "es": "[es ˈuna ˈfoɾma osˈkuɾa en la ˈnjeβla]",
+                "nl": "[hət ɪs ən dˈɔŋkərə vˈɔrm ɪn də mˈɪst]",
+                "pt": "[ɛ ˌumæ fˈɔɾəmæ ˌeskˈuɾæ na nˌeblˈinæ]",
+                "en": "[ɪt ɪz ɐ dˈɑːk ʃˈeɪp ɪnðə fˈɒɡ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-035",
+            "text": {
+                "fr": "Une petite cabane abandonnée. Dieu merci!",
+                "en": "A small abandoned cabin. Thank God!",
+                "de": "Eine kleine verlassene Hütte. Gott sei Dank!",
+                "it": "Una piccola capanna abbandonata. Grazie a Dio!",
+                "es": "Una pequeña cabaña abandonada. ¡Gracias a Dios!",
+                "nl": "Een klein verlaten hutje. Godzijdank!",
+                "pt": "Uma pequena cabana abandonada.",
+                "en_pt": "A small abandoned cabin."
+            },
+            "ipa": {
+                "fr": "yn pətˈit kabˈan abɑ̃dɔnˈe djˈø mɛʁsˈi",
+                "de": "[ˈaɪ̯nə ˈklaɪ̯nə fɛɐ̯ˈlasənə ˈhʏtə. ɡɔt zaɪ̯ ˈdaŋk]",
+                "it": "[ˌʊna pˈikːola kapˈanna ˌabːandonˈaːta\n ɡrˈatsje ˌa dˈiːo]",
+                "es": "[ˈuna peˈkeɲa kaˈβaɲa aβanðoˈnaða | ˈɣraθjas a ðjos]",
+                "nl": "[ən klˈɛɪn vərlˈaːtən hˈɵtʲə\n ɣˈɔdzɛɪdˌɑŋk]",
+                "pt": "[ˌumæ pˌekˈenæ kˌabˈɐ̃næ ˌabɐ̃ŋdonˈadæ]",
+                "en": "[ɐ smˈɔːl ɐbˈandənd kˈabɪn θˈaŋk ɡˈɒd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "pt": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "scene-10-036",
+            "text": {
+                "pt": "Graças a Deus!",
+                "en": "Thank God!"
+            },
+            "ipa": {
+                "pt": "[ɡrˈasæz a dˈeʊs]",
+                "en": "[θˈaŋk ɡˈɒd]"
+            },
+            "provenance": {
+                "pt": "original",
+                "en": "original"
+            }
+        }
+    ]
+}

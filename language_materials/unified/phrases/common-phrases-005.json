@@ -1,0 +1,1369 @@
+{
+    "meta": {
+        "source": "phrases",
+        "file_number": 5,
+        "phrase_count": 50,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl"
+        ],
+        "generated": "2026-04-14",
+        "generator": "merge_materials.py"
+    },
+    "phrases": [
+        {
+            "id": "phrases-005-001",
+            "text": {
+                "fr": "Je voudrais prendre rendez-vous",
+                "en": "I would like to make an appointment",
+                "de": "Ich möchte einen Termin vereinbaren",
+                "it": "Vorrei prendere un appuntamento",
+                "es": "Me gustaría agendar una cita",
+                "nl": "Ik zou graag een afspraak willen maken"
+            },
+            "ipa": {
+                "fr": "[ʒə vudʁɛ pʁɑ̃dʁ ʁɑ̃devu]",
+                "de": "[ɪç mˈœçtə ˌaɪnən tɛɾmˈiːn fɛrˈaɪnbɑːrən]",
+                "it": "[vorɾˈeːɪ prˈendere ˌʊn ˌapːʊntamˈento]",
+                "es": "[me ɣˌustaɾˈia ˌaxɛndˈaɾ ˈuna θˈita]",
+                "nl": "[ɪk zʌʊ ɣrˈaːx ən ˈɑfsprˌaːk ʋˌɪlən mˈaːkən]",
+                "en": "[aɪ wʊd lˈaɪk tə mˌeɪk ɐn ɐpˈɔɪntmənt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-002",
+            "text": {
+                "fr": "Est-ce que vous avez de la disponibilité?",
+                "en": "Do you have availability?",
+                "de": "Haben Sie Verfügbarkeiten?",
+                "it": "Hai disponibilità?",
+                "es": "¿Tienen disponibilidad?",
+                "nl": "Heeft u beschikbaarheid?"
+            },
+            "ipa": {
+                "fr": "[ɛs kə vu‿ave də la dispɔnibilite]",
+                "de": "[hˌɑːbən ziː fɛɾfˈʏɡbaɾkˌaɪtən]",
+                "it": "[ˌaj dˌisponˌibilitˈa]",
+                "es": "[tjˈenɛn dˌisponˌiβiliðˈad]",
+                "nl": "[heːft y bəsxˈɪkbaːrhˌɛɪt]",
+                "en": "[dˈuː juː hav ɐvˌeɪləbˈɪlɪti]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-003",
+            "text": {
+                "fr": "Pourriez-vous me confirmer par email?",
+                "en": "Could you confirm by email?",
+                "de": "Können Sie das per E-Mail bestätigen?",
+                "it": "Puoi confermare via email?",
+                "es": "¿Podría confirmarme por correo electrónico?",
+                "nl": "Kunt u de bevestiging per e-mail bevestigen?"
+            },
+            "ipa": {
+                "fr": "[puʁje vu mə kɔ̃fiʁme paʁ‿imɛl]",
+                "de": "[kˌœnən ziː das pɛɾ ˈeː(en)mˈeɪl(de) bəʃtˈɛːtɪɡən]",
+                "it": "[pʊˈɔːɪ kˌonfermˈaːre vˈiːa ˈeːmaɪl]",
+                "es": "[pɔðɾˈia kˌɔmfiɾmˈaɾme pɔɾ kɔrˈeo ˌelektɾˈɔniko]",
+                "nl": "[kɵnt y də bəvˈɛstiɣˌɪŋ pˈɛr ˈiːmeːl bəvˈɛstəɣən]",
+                "en": "[kʊd juː kənfˈɜːm baɪ ˈiːmeɪl]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-004",
+            "text": {
+                "fr": "Je dois annuler ma réservation",
+                "en": "I need to cancel my reservation",
+                "de": "Ich muss meine Reservierung stornieren",
+                "it": "Devo annullare la mia prenotazione",
+                "es": "Necesito cancelar mi reserva",
+                "nl": "Ik moet mijn reservering annuleren"
+            },
+            "ipa": {
+                "fr": "[ʒə dwa‿anyle ma ʁezɛʁvasjɔ̃]",
+                "de": "[ɪç mˈʊs mˌaɪnə rˌeːzɛɾvˈiːrʊŋ ʃtɔɾnˈiːrən]",
+                "it": "[dˈɛːvo ˌannʊllˈaːre lˌa mˌia prˌenotˌatsiˈɔːne]",
+                "es": "[nˌeθesˈito kˌanθelˈaɾ mi resˈɛɾβa]",
+                "nl": "[ɪk mˈut mɛɪn rˌeːzərvˈɪːrɪŋ ˌɑnylˈɪːrən]",
+                "en": "[aɪ nˈiːd tə kˈansəl maɪ ɹˌɛzəvˈeɪʃən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-005",
+            "text": {
+                "fr": "Y a-t-il des frais d'annulation?",
+                "en": "Are there cancellation fees?",
+                "de": "Gibt es Stornogebühren?",
+                "it": "Ci sono delle spese di cancellazione?",
+                "es": "¿Hay costos de cancelación?",
+                "nl": "Zijn er annuleringskosten?"
+            },
+            "ipa": {
+                "fr": "[i a til de fʁɛ danylasjɔ̃]",
+                "de": "[ɡˈiːpt ɛs ʃtˈɔɾnoːɡˌeːbyːrən]",
+                "it": "[tʃˌɪ sˌono dˌɛlle spˈeːze dˌɪ kˌantʃellˌatsiˈɔːne]",
+                "es": "[ˈaɪ kˈɔstos ðe kˌanθelaθjˈɔn]",
+                "nl": "[zɛɪn ər ˈɑnylˌɪːrɪŋskˌɔstən]",
+                "en": "[ɑː ðeə kˌansɪlˈeɪʃən fˈiːz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-006",
+            "text": {
+                "fr": "Je n'ai pas reçu ma confirmation",
+                "en": "I didn't receive my confirmation",
+                "de": "Ich habe meine Bestätigung nicht erhalten",
+                "it": "Non ho ricevuto la mia conferma",
+                "es": "No he recibido mi confirmación",
+                "nl": "Ik heb mijn bevestiging niet ontvangen"
+            },
+            "ipa": {
+                "fr": "[ʒə nɛ pa ʁəsy ma kɔ̃fiʁmasjɔ̃]",
+                "de": "[ɪç hɑːbə mˌaɪnə bəʃtˈɛːtɪɡˌʊŋ nˈɪçt ɛɾhˈaltən]",
+                "it": "[nˌon ˌo rˌitʃevˈuːto lˌa mˌia konfˈeːrma]",
+                "es": "[nˈo ˈe rˌeθiβˈiðo mi kˌɔmfiɾmaθjˈɔn]",
+                "nl": "[ɪk hɛp mɛɪn bəvˈɛstiɣˌɪŋ nˌit ɔntvˈɑŋən]",
+                "en": "[aɪ dˈɪdnt ɹɪsˈiːv maɪ kɒnfəmˈeɪʃən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-007",
+            "text": {
+                "fr": "Pouvez-vous vérifier ma réservation?",
+                "en": "Can you check my reservation?",
+                "de": "Können Sie meine Reservierung überprüfen?",
+                "it": "Puoi controllare la mia prenotazione?",
+                "es": "¿Puede revisar mi reserva?",
+                "nl": "Kunt u mijn reservering controleren?"
+            },
+            "ipa": {
+                "fr": "[puve vu veʁifje ma ʁezɛʁvasjɔ̃]",
+                "de": "[kˌœnən ziː mˌaɪnə rˌeːzɛɾvˈiːrʊŋ ˌyːbɜprˈyːfən]",
+                "it": "[pʊˈɔːɪ kˌontrollˈaːre lˌa mˌia prˌenotˌatsiˈɔːne]",
+                "es": "[pwˈeðe rˌeβisˈaɾ mi resˈɛɾβa]",
+                "nl": "[kɵnt y mɛɪn rˌeːzərvˈɪːrɪŋ kˌɔntroːlˈɪːrən]",
+                "en": "[kan juː tʃˈɛk maɪ ɹˌɛzəvˈeɪʃən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-008",
+            "text": {
+                "fr": "Le vol a été annulé",
+                "en": "The flight has been cancelled",
+                "de": "Der Flug wurde storniert",
+                "it": "Il volo è stato cancellato",
+                "es": "El vuelo ha sido cancelado",
+                "nl": "De vlucht is geannuleerd"
+            },
+            "ipa": {
+                "fr": "[lə vɔl a ete‿anyle]",
+                "de": "[dɛɾ flˈuːk vˌʊɐdə ʃtɔɾnˈiːɾt]",
+                "it": "[ˌil vˈoːlo ˌɛ stˈaːto kˌantʃellˈaːto]",
+                "es": "[el βwˈelo ˈa sˈiðo kˌanθelˈaðo]",
+                "nl": "[də vlˈɵxt ɪs ɣəˌɑnylˈɪrt]",
+                "en": "[ðə flˈaɪt hɐzbɪn kˈansəld]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-009",
+            "text": {
+                "fr": "Quand est le prochain vol?",
+                "en": "When is the next flight?",
+                "de": "Wann ist der nächste Flug?",
+                "it": "Quando è il prossimo volo?",
+                "es": "¿Cuándo es el próximo vuelo?",
+                "nl": "Wanneer is de volgende vlucht?"
+            },
+            "ipa": {
+                "fr": "[kɑ̃t‿ɛ lə pʁɔʃɛ̃ vɔl]",
+                "de": "[vˈan ɪst dɛɾ nˈɛçstə flˈuːk]",
+                "it": "[kwˈando ˌɛ ˌil prˈɔssimo vˈoːlo]",
+                "es": "[kwˈando ˈes el pɾˈɔksimo βwˈelo]",
+                "nl": "[ʋɑnˈɪr ɪs də vˈɔlɣəndə vlˈɵxt]",
+                "en": "[wˌɛn ɪz ðə nˈɛkst flˈaɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-010",
+            "text": {
+                "fr": "Est-ce que je peux être remboursé?",
+                "en": "Can I get a refund?",
+                "de": "Kann ich eine Rückerstattung erhalten?",
+                "it": "Posso essere rimborsato?",
+                "es": "¿Puedo obtener un reembolso?",
+                "nl": "Kan ik een terugbetaling krijgen?"
+            },
+            "ipa": {
+                "fr": "[ɛs kə ʒə pø‿ɛtʁ ʁɑ̃buʁse]",
+                "de": "[kˌan ɪç ˌaɪnə rˈʏkɜstˌatʊŋ ɛɾhˈaltən]",
+                "it": "[pˈɔsso ˈɛssere rˌimborsˈaːto]",
+                "es": "[pwˈeðo ˌɔbtenˈɛɾ ˈun rˌeembˈɔlso]",
+                "nl": "[kɑn ɪk ən tərˈɵxbətˌaːlɪŋ krˈɛɪɣən]",
+                "en": "[kan aɪ ɡɛt ɐ ɹˈiːfʌnd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-011",
+            "text": {
+                "fr": "Mes bagages n'ont pas été chargés",
+                "en": "My luggage wasn't loaded",
+                "de": "Mein Gepäck wurde nicht verladen",
+                "it": "I miei bagagli non sono stati caricati",
+                "es": "No cargaron mi equipaje",
+                "nl": "Mijn bagage is niet geladen"
+            },
+            "ipa": {
+                "fr": "[me baɡaʒ nɔ̃ pa ete ʃaʁʒe]",
+                "de": "[maɪn ɡəpˈɛk vˌʊɐdə nˈɪçt fɛɾlˈɑːdən]",
+                "it": "[ˌɪ mjˌɛj baɡˈaːʎɪ nˌon sˌono stˈaːtɪ kˌarikˈaːtɪ]",
+                "es": "[nˈo kaɾɣˈaɾɔn mi ˌekipˈaxe]",
+                "nl": "[mɛɪn baːɣˈaːʒə ɪs nˌit ɣəlˈaːdən]",
+                "en": "[maɪ lˈʌɡɪdʒ wˌɒznt lˈəʊdɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-012",
+            "text": {
+                "fr": "Où est le bureau des objets trouvés?",
+                "en": "Where is the lost and found office?",
+                "de": "Wo ist das Fundbüro?",
+                "it": "Dove si trova l'ufficio oggetti smarriti?",
+                "es": "¿Dónde está la oficina de objetos perdidos?",
+                "nl": "Waar is het kantoor voor gevonden voorwerpen?"
+            },
+            "ipa": {
+                "fr": "[u ɛ lə byʁo dez‿ɔbʒɛ tʁuve]",
+                "de": "[vˌoː ɪst das fˈʊndbyːrˌoː]",
+                "it": "[dˈoːve sˌɪ trˈɔːva lʊffˈiːtʃo odʒːˈɛtːɪ zmarɾˈiːtɪ]",
+                "es": "[dˈɔnde estˈa la ˌofiθˈina ðe ɔβxˈetos pɛɾðˈiðos]",
+                "nl": "[ʋˈaːr ɪs hət kɑntˈoːr vɔːr ɣəvˈɔndən vˈɔːrʋɛrpən]",
+                "en": "[wˌeəɹ ɪz ðə lˈɒst and fˈaʊnd ˈɒfɪs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-013",
+            "text": {
+                "fr": "Je voudrais déposer une réclamation",
+                "en": "I would like to file a complaint",
+                "de": "Ich möchte eine Beschwerde einreichen",
+                "it": "Vorrei presentare un reclamo",
+                "es": "Quisiera presentar una queja",
+                "nl": "Ik zou graag een klacht willen indienen"
+            },
+            "ipa": {
+                "fr": "[ʒə vudʁɛ deposé yn ʁeklamasjɔ̃]",
+                "de": "[ɪç mˈœçtə ˌaɪnə bəʃvˈeːɾdə ˈaɪnrˌaɪçən]",
+                "it": "[vorɾˈeːɪ prˌezentˈaːre ˌʊn reklˈaːmo]",
+                "es": "[kisjˈɛɾa pɾˌesɛntˈaɾ ˈuna kˈexa]",
+                "nl": "[ɪk zʌʊ ɣrˈaːx ən klˈɑxt ʋˌɪlən ˈɪndˌinən]",
+                "en": "[aɪ wʊd lˈaɪk tə fˈaɪl ɐ kəmplˈeɪnt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-014",
+            "text": {
+                "fr": "Comment puis-je vous contacter?",
+                "en": "How can I contact you?",
+                "de": "Wie kann ich Sie kontaktieren?",
+                "it": "Come posso contattarti?",
+                "es": "¿Cómo puedo contactarlos?",
+                "nl": "Hoe kan ik contact met u opnemen?"
+            },
+            "ipa": {
+                "fr": "[kɔmɑ̃ pɥiʒ vu kɔ̃takte]",
+                "de": "[viː kˌan ɪç ziː kɔntaktˈiːrən]",
+                "it": "[kˌome pˈɔsso kˌontatːˈaːrtɪ]",
+                "es": "[kˈɔmo pwˈeðo kˌɔntaktˈaɾlos]",
+                "nl": "[hˈu kɑn ɪk kˈɔntɑkt mɛt y ɔpnˈeːmən]",
+                "en": "[hˌaʊ kan aɪ kˈɒntakt juː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-015",
+            "text": {
+                "fr": "Quel est votre numéro de téléphone?",
+                "en": "What is your phone number?",
+                "de": "Was ist Ihre Telefonnummer?",
+                "it": "Qual è il tuo numero di telefono?",
+                "es": "¿Cuál es su número de teléfono?",
+                "nl": "Wat is uw telefoonnummer?"
+            },
+            "ipa": {
+                "fr": "[kɛl‿ɛ vɔtʁə nymeʁo də telefɔn]",
+                "de": "[vˈas ɪst ˌiːrə tˌeːleːfˈɔnʊmɜ]",
+                "it": "[kwˈal ˌɛ ˌil tˌʊo nˈumero dˌɪ telˈɛfono]",
+                "es": "[kwˈal ˈes su nˈumɛɾɔ ðe telˈɛfono]",
+                "nl": "[ʋɑt ɪs yʊ tˌeːləfˈoːnɵmər]",
+                "en": "[wˌɒt ɪz jɔː fˈəʊn nˈʌmbə]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-016",
+            "text": {
+                "fr": "Quelle est votre adresse email?",
+                "en": "What is your email address?",
+                "de": "Was ist Ihre E-Mail-Adresse?",
+                "it": "Qual è il tuo indirizzo email?",
+                "es": "¿Cuál es su dirección de correo electrónico?",
+                "nl": "Wat is uw e-mailadres?"
+            },
+            "ipa": {
+                "fr": "[kɛl‿ɛ vɔtʁə‿adʁɛs imɛl]",
+                "de": "[vˈas ɪst ˌiːrə ˈeː(en)mˈeɪl(de)ˈadrɛsə]",
+                "it": "[kwˈal ˌɛ ˌil tˌʊo ˌindirˈitsːo ˈeːmaɪl]",
+                "es": "[kwˈal ˈes su ðˌiɾɛkθjˈɔn de kɔrˈeo ˌelektɾˈɔniko]",
+                "nl": "[ʋɑt ɪs yʊ ˈeːmˌeːɪlɑdrˈɛs]",
+                "en": "[wˌɒt ɪz jɔːɹ ˈiːmeɪl ɐdɹˈɛs]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-017",
+            "text": {
+                "fr": "Je cherche un appartement à louer",
+                "en": "I'm looking for an apartment to rent",
+                "de": "Ich suche eine Wohnung zur Miete",
+                "it": "Sto cercando un appartamento in affitto",
+                "es": "Estoy buscando un apartamento para alquilar",
+                "nl": "Ik zoek een appartement om te huren"
+            },
+            "ipa": {
+                "fr": "[ʒə ʃɛʁʃ œ̃n‿apaʁtəmɑ̃ a lwe]",
+                "de": "[ɪç zˈuːxə ˌaɪnə vˈoːnʊŋ tsuːɾ mˈiːtə]",
+                "it": "[stˈo tʃerkˈando ˌʊn ˌapːartamˈento ˌin affˈitːo]",
+                "es": "[estˈoɪ βuskˈando ˈun ˌapaɾtamˈɛnto pˌaɾa ˌalkilˈaɾ]",
+                "nl": "[ɪk zˈuk ən ˌɑpɑrtəmˈɛnt ɔm tə hˈyrən]",
+                "en": "[aɪm lˈʊkɪŋ fəɹən ɐpˈɑːtmənt tə ɹˈɛnt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-018",
+            "text": {
+                "fr": "Combien coûte le loyer par mois?",
+                "en": "How much is the rent per month?",
+                "de": "Wie viel kostet die Miete pro Monat?",
+                "it": "Quanto costa l'affitto al mese?",
+                "es": "¿Cuánto es el alquiler mensual?",
+                "nl": "Hoeveel kost de huur per maand?"
+            },
+            "ipa": {
+                "fr": "[kɔ̃bjɛ̃ kut lə lwaje paʁ mwa]",
+                "de": "[viː fˈiːl kˈɔstət diː mˈiːtə prˌoː moːnˈɑːt]",
+                "it": "[kwˈanto kˈɔsta laffˈitːo ˌal mˈɛːze]",
+                "es": "[kwˈanto ˈes el ˌalkilˈɛɾ mɛnswˈal]",
+                "nl": "[huvˈeːl kˈɔs tə hˈyr pˈɛr mˈaːnt]",
+                "en": "[hˌaʊ mˈʌtʃ ɪz ðə ɹˈɛnt pɜː mˈʌnθ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-019",
+            "text": {
+                "fr": "Les charges sont-elles comprises?",
+                "en": "Are utilities included?",
+                "de": "Sind Nebenkosten enthalten?",
+                "it": "Le spese sono incluse?",
+                "es": "¿Están incluidos los servicios públicos?",
+                "nl": "Zijn de kosten inclusief?"
+            },
+            "ipa": {
+                "fr": "[le ʃaʁʒ sɔ̃t‿ɛl kɔ̃pʁiz]",
+                "de": "[zɪnt nˈeːbənkˌɔstən ɛnthˈaltən]",
+                "it": "[lˌe spˈeːze sˌono inklˈuːze]",
+                "es": "[estˈan ˌinkluˈiðos los sɛɾβˈiθjos pˈuβlikos]",
+                "nl": "[zɛɪn də kˈɔstən ˈɪnklyzˌif]",
+                "en": "[ɑː juːtˈɪlɪtiz ɪnklˈuːdɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-020",
+            "text": {
+                "fr": "Y a-t-il une caution?",
+                "en": "Is there a deposit?",
+                "de": "Gibt es eine Kaution?",
+                "it": "C'è una cauzione?",
+                "es": "¿Hay algún depósito?",
+                "nl": "Is er een borg?"
+            },
+            "ipa": {
+                "fr": "[i a til yn kosjɔ̃]",
+                "de": "[ɡˈiːpt ɛs ˌaɪnə kˌaʊtsɪˈoːn]",
+                "it": "[tʃˌɛ ˌʊna kˌaʊtsiˈɔːne]",
+                "es": "[ˈaɪ alɣˈun depˈɔsito]",
+                "nl": "[ɪs ər ən bˈɔrx]",
+                "en": "[ɪz ðeəɹ ɐ dɪpˈɒsɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-021",
+            "text": {
+                "fr": "Le quartier est-il sûr?",
+                "en": "Is the neighborhood safe?",
+                "de": "Ist das Viertel sicher?",
+                "it": "Il quartiere è sicuro?",
+                "es": "¿Es seguro el barrio?",
+                "nl": "Is de buurt veilig?"
+            },
+            "ipa": {
+                "fr": "[lə kaʁtje ɛtil syʁ]",
+                "de": "[ɪst das fˈiːɾtəl zˈɪçɜ]",
+                "it": "[ˌil kwˌartiˈɛːre ˌɛ sikˈuːro]",
+                "es": "[ˈes seɣˈuɾɔ el βˈario]",
+                "nl": "[ɪs də bˈyrt vˈɛɪləx]",
+                "en": "[ɪz ðə nˈeɪbəhˌʊd sˈeɪf]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-022",
+            "text": {
+                "fr": "Y a-t-il des transports en commun à proximité?",
+                "en": "Is there public transport nearby?",
+                "de": "Gibt es öffentliche Verkehrsmittel in der Nähe?",
+                "it": "Ci sono trasporti pubblici nelle vicinanze?",
+                "es": "¿Hay transporte público cercano?",
+                "nl": "Is er openbaar vervoer in de buurt?"
+            },
+            "ipa": {
+                "fr": "[i a til de tʁɑ̃spɔʁ ɑ̃ kɔmœ̃ a pʁɔksimite]",
+                "de": "[ɡˈiːpt ɛs ˈœfəntlɪçə fɛɾkˈeːɾsmɪtəl ɪn dɛɾ nˈɛːə]",
+                "it": "[tʃˌɪ sˌono traspˈɔːrtɪ pˈubːlitʃɪ nˌɛlle vˌitʃinˈantse]",
+                "es": "[ˈaɪ tɾanspˈɔɾte pˈuβliko θɛɾkˈano]",
+                "nl": "[ɪs ər ˈoːpənbˌaːr vərvˈur ɪn də bˈyrt]",
+                "en": "[ɪz ðeə pˈʌblɪk tɹˈanspɔːt niəbˈaɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-023",
+            "text": {
+                "fr": "Je cherche du travail",
+                "en": "I'm looking for work",
+                "de": "Ich suche Arbeit",
+                "it": "Sto cercando lavoro",
+                "es": "Estoy buscando trabajo",
+                "nl": "Ik zoek werk"
+            },
+            "ipa": {
+                "fr": "[ʒə ʃɛʁʃ dy tʁavaj]",
+                "de": "[ɪç zˈuːxə ˈaɾbaɪt]",
+                "it": "[stˈo tʃerkˈando lavˈɔːro]",
+                "es": "[estˈoɪ βuskˈando tɾaβˈaxo]",
+                "nl": "[ɪk zˈuk ʋˈɛrk]",
+                "en": "[aɪm lˈʊkɪŋ fɔː wˈɜːk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-024",
+            "text": {
+                "fr": "Quelles sont les qualifications requises?",
+                "en": "What qualifications are required?",
+                "de": "Welche Qualifikationen werden benötigt?",
+                "it": "Quali sono le qualifiche richieste?",
+                "es": "¿Cuáles son las calificaciones requeridas?",
+                "nl": "Wat zijn de vereiste kwalificaties?"
+            },
+            "ipa": {
+                "fr": "[kɛl sɔ̃ le kalifikasjɔ̃ ʁəkiz]",
+                "de": "[vˈɛlçə kvˌɑliːfˌiːkatsɪˈoːnən vˌɛɾdən bənˈøːtɪçt]",
+                "it": "[kwˈaːlɪ sˌono lˌe kwalˈifike rikjˈɛste]",
+                "es": "[kwˈales sˈɔn las kˌalifˌikaθjˈones rˌekɛɾˈiðas]",
+                "nl": "[ʋɑt zɛɪn də vərˈɛɪstə kʋˌaːlifikˈaːtsis]",
+                "en": "[wˌɒt kwˌɒlɪfɪkˈeɪʃənz ɑː ɹɪkwˈaɪəd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-025",
+            "text": {
+                "fr": "Quel est le salaire proposé?",
+                "en": "What is the offered salary?",
+                "de": "Wie hoch ist das angebotene Gehalt?",
+                "it": "Qual è lo stipendio offerto?",
+                "es": "¿Cuál es el salario ofrecido?",
+                "nl": "Wat is het aangeboden salaris?"
+            },
+            "ipa": {
+                "fr": "[kɛl‿ɛ lə salɛʁ pʁopoze]",
+                "de": "[viː hˈoːx ɪst das ˈanɡəbˌoːtənə ɡəhˈalt]",
+                "it": "[kwˈal ˌɛ lˌo stipˈɛndio offˈɛːrto]",
+                "es": "[kwˈal ˈes el salˈaɾjo ˌɔfɾeθˈiðo]",
+                "nl": "[ʋɑt ɪs hət ˈaːnɣəbˌoːdən saːlˈaːrɪs]",
+                "en": "[wˌɒt ɪz ðɪ ˈɒfəd sˈaləɹi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-026",
+            "text": {
+                "fr": "Quand puis-je commencer?",
+                "en": "When can I start?",
+                "de": "Wann kann ich anfangen?",
+                "it": "Quando posso iniziare?",
+                "es": "¿Cuándo puedo empezar?",
+                "nl": "Wanneer kan ik beginnen?"
+            },
+            "ipa": {
+                "fr": "[kɑ̃ pɥiʒ kɔmɑ̃se]",
+                "de": "[vˈan kˌan ɪç ˈanfˌaŋən]",
+                "it": "[kwˈando pˈɔsso ˌinitsjˈaːre]",
+                "es": "[kwˈando pwˈeðo ˌempeθˈaɾ]",
+                "nl": "[ʋɑnˈɪr kɑn ɪk bəɣˈɪnən]",
+                "en": "[wˌɛn kan aɪ stˈɑːt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-027",
+            "text": {
+                "fr": "Y a-t-il des opportunités d'évolution?",
+                "en": "Are there opportunities for advancement?",
+                "de": "Gibt es Aufstiegsmöglichkeiten?",
+                "it": "Ci sono opportunità di carriera?",
+                "es": "¿Hay oportunidades de ascenso?",
+                "nl": "Zijn er doorgroeimogelijkheden?"
+            },
+            "ipa": {
+                "fr": "[i a til dez‿ɔpɔʁtynite devɔlysjɔ̃]",
+                "de": "[ɡˈiːpt ɛs ˈaʊfʃtˌiːksmœklˌɪçkaɪtən]",
+                "it": "[tʃˌɪ sˌono ˌopːortˌʊnitˈa dˌɪ kˌarɾiˈɛːra]",
+                "es": "[ˈaɪ ˌopɔɾtˌuniðˈaðes ðe asθˈɛnso]",
+                "nl": "[zɛɪn ər dˈɔːrɣrujmˌoːɣələkhˌeːdən]",
+                "en": "[ɑː ðeəɹ ɒpətjˈuːnɪtiz fɔːɹ ɐdvˈansmənt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-028",
+            "text": {
+                "fr": "Je dois ouvrir un compte bancaire",
+                "en": "I need to open a bank account",
+                "de": "Ich muss ein Bankkonto eröffnen",
+                "it": "Devo aprire un conto bancario",
+                "es": "Necesito abrir una cuenta bancaria",
+                "nl": "Ik moet een bankrekening openen"
+            },
+            "ipa": {
+                "fr": "[ʒə dwa‿uvʁiʁ œ̃ kɔ̃t bɑ̃kɛʁ]",
+                "de": "[ɪç mˈʊs aɪn baŋkˈɔntoː ɛɾˈœfnən]",
+                "it": "[dˈɛːvo aprˈiːre ˌʊn kˈonto bankˈario]",
+                "es": "[nˌeθesˈito aβɾˈiɾ ˈuna kwˈɛnta βankˈaɾja]",
+                "nl": "[ɪk mˈut ən bˈɑŋkrəkˌeːnɪŋ ˈoːpənən]",
+                "en": "[aɪ nˈiːd tʊ ˈəʊpən ɐ bˈaŋk ɐkˈaʊnt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-029",
+            "text": {
+                "fr": "Quels documents faut-il?",
+                "en": "What documents are needed?",
+                "de": "Welche Dokumente sind erforderlich?",
+                "it": "Quali documenti sono necessari?",
+                "es": "¿Qué documentos son necesarios?",
+                "nl": "Welke documenten zijn nodig?"
+            },
+            "ipa": {
+                "fr": "[kɛl dɔkymɑ̃ fotil]",
+                "de": "[vˈɛlçə dˌoːkuːmˈɛntə zɪnt ɛɾfˈɔɾdɜlˌɪç]",
+                "it": "[kwˈaːlɪ dˌokʊmˈentɪ sˌono nˌetʃessˈaːrɪ]",
+                "es": "[kˈɛ ðˌokumˈɛntos sˈɔn nˌeθesˈaɾjos]",
+                "nl": "[ʋˈɛlkə dˌoːkymˈɛntən zɛɪn nˈoːdəx]",
+                "en": "[wˌɒt dˈɒkjuːmənts ɑː nˈiːdɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-030",
+            "text": {
+                "fr": "Y a-t-il des frais mensuels?",
+                "en": "Are there monthly fees?",
+                "de": "Gibt es monatliche Gebühren?",
+                "it": "Ci sono delle spese mensili?",
+                "es": "¿Hay tarifas mensuales?",
+                "nl": "Zijn er maandelijkse kosten?"
+            },
+            "ipa": {
+                "fr": "[i a til de fʁɛ mɑ̃sɥɛl]",
+                "de": "[ɡˈiːpt ɛs moːnˈɑːtlɪçə ɡəbˈyːrən]",
+                "it": "[tʃˌɪ sˌono dˌɛlle spˈeːze mensˈiːlɪ]",
+                "es": "[ˈaɪ taɾˈifas mɛnswˈales]",
+                "nl": "[zɛɪn ər mˈaːndələksə kˈɔstən]",
+                "en": "[ɑː ðeə mˈʌnθli fˈiːz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-031",
+            "text": {
+                "fr": "Comment puis-je obtenir une carte bancaire?",
+                "en": "How can I get a bank card?",
+                "de": "Wie kann ich eine Bankkarte bekommen?",
+                "it": "Come posso ottenere una carta bancaria?",
+                "es": "¿Cómo puedo obtener una tarjeta bancaria?",
+                "nl": "Hoe kan ik een bankpas krijgen?"
+            },
+            "ipa": {
+                "fr": "[kɔmɑ̃ pɥiʒ‿ɔbtəniʁ yn kaʁt bɑ̃kɛʁ]",
+                "de": "[viː kˌan ɪç ˌaɪnə bˈaŋkaɾtə bəkˈɔmən]",
+                "it": "[kˌome pˈɔsso ˌotːenˈeːre ˌʊna kˈaːrta bankˈaria]",
+                "es": "[kˈɔmo pwˈeðo ˌɔbtenˈɛɾ ˈuna taɾxˈeta βankˈaɾja]",
+                "nl": "[hˈu kɑn ɪk ən bˈɑŋkpɑs krˈɛɪɣən]",
+                "en": "[hˌaʊ kan aɪ ɡɛt ɐ bˈaŋk kˈɑːd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-032",
+            "text": {
+                "fr": "Je voudrais transférer de l'argent",
+                "en": "I would like to transfer money",
+                "de": "Ich möchte Geld überweisen",
+                "it": "Vorrei trasferire dei soldi",
+                "es": "Quisiera transferir dinero",
+                "nl": "Ik wil geld overmaken"
+            },
+            "ipa": {
+                "fr": "[ʒə vudʁɛ tʁɑ̃sfeʁe də laʁʒɑ̃]",
+                "de": "[ɪç mˈœçtə ɡˈɛlt ˌyːbɜvˈaɪzən]",
+                "it": "[vorɾˈeːɪ trˌasferˈiːre dˌɛj sˈɔldɪ]",
+                "es": "[kisjˈɛɾa tɾˌansfɛɾˈiɾ ðinˈɛɾɔ]",
+                "nl": "[ɪk ʋɪl ɣˈɛlt ˌoːvərmˈaːkən]",
+                "en": "[aɪ wʊd lˈaɪk tə tɹansfˈɜː mˈʌnɪ]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-033",
+            "text": {
+                "fr": "Quel est le taux de change?",
+                "en": "What is the exchange rate?",
+                "de": "Wie ist der Wechselkurs?",
+                "it": "Qual è il tasso di cambio?",
+                "es": "¿Cuál es la tasa de cambio?",
+                "nl": "Wat is de wisselkoers?"
+            },
+            "ipa": {
+                "fr": "[kɛl‿ɛ lə to də ʃɑ̃ʒ]",
+                "de": "[viː ɪst dɛɾ vˈɛksəlkˌuːɾs]",
+                "it": "[kwˈal ˌɛ ˌil tˈasso dˌɪ kˈambio]",
+                "es": "[kwˈal ˈes la tˈasa ðe kˈambjo]",
+                "nl": "[ʋɑt ɪs də ʋˌɪsɛlkˈurs]",
+                "en": "[wˌɒt ɪz ðɪ ɛkstʃˈeɪndʒ ɹˈeɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-034",
+            "text": {
+                "fr": "Combien de temps prend le virement?",
+                "en": "How long does the transfer take?",
+                "de": "Wie lange dauert die Überweisung?",
+                "it": "Quanto tempo ci vuole per il trasferimento?",
+                "es": "¿Cuánto tarda la transferencia?",
+                "nl": "Hoe lang duurt de overboeking?"
+            },
+            "ipa": {
+                "fr": "[kɔ̃bjɛ̃ də tɑ̃ pʁɑ̃ lə viʁmɑ̃]",
+                "de": "[viː lˈaŋə dˈaʊɜt diː ˌyːbɜvˈaɪzʊŋ]",
+                "it": "[kwˈanto tˈɛmpo tʃˌɪ vʊˌole pˌɛr ˌil trˌasferimˈento]",
+                "es": "[kwˈanto tˈaɾða la tɾˌansfɛɾˈɛnθja]",
+                "nl": "[hˈu lˈɑŋ dˈyr tə ˌoːvərbˈukˌɪŋ]",
+                "en": "[hˌaʊ lˈɒŋ dˈʌz ðə tɹˈansfɜː tˈeɪk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-035",
+            "text": {
+                "fr": "J'ai un problème avec mon compte",
+                "en": "I have a problem with my account",
+                "de": "Ich habe ein Problem mit meinem Konto",
+                "it": "Ho un problema con il mio conto",
+                "es": "Tengo un problema con mi cuenta",
+                "nl": "Ik heb een probleem met mijn rekening"
+            },
+            "ipa": {
+                "fr": "[ʒɛ œ̃ pʁɔblɛm avɛk mɔ̃ kɔ̃t]",
+                "de": "[ɪç hɑːbə aɪn proːblˈeːm mɪt mˌaɪnəm kɔntˈoː]",
+                "it": "[ˌo ˌʊn problˈɛːma kˌon ˌil mˌio kˈonto]",
+                "es": "[tˈɛŋɡo ˈum pɾɔβlˈema kɔn mi kwˈɛnta]",
+                "nl": "[ɪk hɛp ən prɔblˈeːm mɛt mɛɪn rˈeːkənˌɪŋ]",
+                "en": "[aɪ hav ɐ pɹˈɒbləm wɪð maɪ ɐkˈaʊnt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-036",
+            "text": {
+                "fr": "Ma carte a été avalée par le distributeur",
+                "en": "My card was swallowed by the ATM",
+                "de": "Meine Karte wurde vom Geldautomaten eingezogen",
+                "it": "La mia carta è stata inghiottita dal bancomat",
+                "es": "Mi tarjeta fue tragada por el cajero automático",
+                "nl": "Mijn kaart is ingeslikt door de geldautomaat"
+            },
+            "ipa": {
+                "fr": "[ma kaʁt a ete‿avale paʁ lə distʁibytœʁ]",
+                "de": "[mˌaɪnə kˈaɾtə vˌʊɐdə fɔm ɡˌɛldaʊtoːmˈɑːtən ˈaɪnɡətsˌoːɡən]",
+                "it": "[lˌa mˌia kˈaːrta ˌɛ stˈaːta ˌiŋɡiotːˈiːta dˌal bˈankomat]",
+                "es": "[mi taɾxˈeta fwˈe tɾaɣˈaða pɔɾ el kaxˈɛɾɔ ˌaʊtomˈatiko]",
+                "nl": "[mɛɪn kˈaːrt ɪs ˈɪnɣəslˌɪkt doːr də ɣˌɛldʌʊtoːmˈaːt]",
+                "en": "[maɪ kˈɑːd wɒz swˈɒləʊd baɪ ðɪ ˌeɪtˌiːˈɛm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-037",
+            "text": {
+                "fr": "Je voudrais faire opposition",
+                "en": "I would like to cancel my card",
+                "de": "Ich möchte meine Karte sperren lassen",
+                "it": "Vorrei bloccare la mia carta",
+                "es": "Quiero cancelar mi tarjeta",
+                "nl": "Ik wil mijn kaart blokkeren"
+            },
+            "ipa": {
+                "fr": "[ʒə vudʁɛ fɛʁ‿ɔpozisjɔ̃]",
+                "de": "[ɪç mˈœçtə mˌaɪnə kˈaɾtə ʃpˈɛrən lˈasən]",
+                "it": "[vorɾˈeːɪ blokːˈaːre lˌa mˌia kˈaːrta]",
+                "es": "[kjˈɛɾɔ kˌanθelˈaɾ mi taɾxˈeta]",
+                "nl": "[ɪk ʋɪl mɛɪn kˈaːrt blɔkˈɪːrən]",
+                "en": "[aɪ wʊd lˈaɪk tə kˈansəl maɪ kˈɑːd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-038",
+            "text": {
+                "fr": "Quelqu'un a utilisé ma carte sans autorisation",
+                "en": "Someone used my card without authorization",
+                "de": "Jemand hat meine Karte ohne Erlaubnis benutzt",
+                "it": "Qualcuno ha usato la mia carta senza autorizzazione",
+                "es": "Alguien usó mi tarjeta sin autorización",
+                "nl": "Iemand heeft mijn kaart gebruikt zonder toestemming"
+            },
+            "ipa": {
+                "fr": "[kɛlkœ̃ a ytilize ma kaʁt sɑ̃z‿otoʁizasjɔ̃]",
+                "de": "[jˈeːmant hat mˌaɪnə kˈaɾtə ˈoːnə ɛɾlˈaʊbnɪs bənˈʊtst]",
+                "it": "[kwalkˈuːno ˌa ʊzˈaːto lˌa mˌia kˈaːrta sˌɛntsa ˌaʊtˌɔritsːˌatsiˈɔːne]",
+                "es": "[ˈalɣjɛn usˈɔ mi taɾxˈeta sin ˌaʊtɔɾˌiθaθjˈɔn]",
+                "nl": "[ˈimɑnt heːft mɛɪn kˈaːrt ɣəbrˈœykt zˈɔndər tˈustˌɛmɪŋ]",
+                "en": "[sˈʌmwɒn jˈuːzd maɪ kˈɑːd wɪðˌaʊt ˌɔːθəɹaɪzˈeɪʃən]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-039",
+            "text": {
+                "fr": "Comment puis-je porter plainte?",
+                "en": "How can I file a complaint?",
+                "de": "Wie kann ich eine Beschwerde einreichen?",
+                "it": "Come posso fare un reclamo?",
+                "es": "¿Cómo puedo presentar una denuncia?",
+                "nl": "Hoe kan ik een klacht indienen?"
+            },
+            "ipa": {
+                "fr": "[kɔmɑ̃ pɥiʒ pɔʁte plɛ̃t]",
+                "de": "[viː kˌan ɪç ˌaɪnə bəʃvˈeːɾdə ˈaɪnrˌaɪçən]",
+                "it": "[kˌome pˈɔsso fˌare ˌʊn reklˈaːmo]",
+                "es": "[kˈɔmo pwˈeðo pɾˌesɛntˈaɾ ˈuna ðenˈunθja]",
+                "nl": "[hˈu kɑn ɪk ən klˈɑxt ˈɪndˌinən]",
+                "en": "[hˌaʊ kan aɪ fˈaɪl ɐ kəmplˈeɪnt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-040",
+            "text": {
+                "fr": "Avez-vous besoin d'une pièce d'identité?",
+                "en": "Do you need an ID?",
+                "de": "Benötigen Sie einen Ausweis?",
+                "it": "Hai bisogno di un documento d'identità?",
+                "es": "¿Necesitan una identificación?",
+                "nl": "Heeft u een identiteitsbewijs nodig?"
+            },
+            "ipa": {
+                "fr": "[ave vu bəzwɛ̃ dyn pjɛs didɑ̃tite]",
+                "de": "[bənˈøːtɪɡən ziː ˌaɪnən ˈaʊsvˌaɪs]",
+                "it": "[ˌaj bizˈoɲʲo dˌɪ ˌʊn dˌokʊmˈento dˌidentitˈa]",
+                "es": "[nˌeθesˈitan ˈuna ˌiðɛntˌifikaθjˈɔn]",
+                "nl": "[heːft y ən ˌidɛntˌitɛɪtzbəʋˈɛɪs nˈoːdəx]",
+                "en": "[dˈuː juː nˈiːd ɐn ˌaɪdˈiː]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-041",
+            "text": {
+                "fr": "Je n'ai pas encore reçu ma carte",
+                "en": "I haven't received my card yet",
+                "de": "Ich habe meine Karte noch nicht erhalten",
+                "it": "Non ho ancora ricevuto la mia carta",
+                "es": "Aún no he recibido mi tarjeta",
+                "nl": "Ik heb mijn kaart nog niet ontvangen"
+            },
+            "ipa": {
+                "fr": "[ʒə nɛ pa‿ɑ̃kɔʁ ʁəsy ma kaʁt]",
+                "de": "[ɪç hɑːbə mˌaɪnə kˈaɾtə nˈɔx nˈɪçt ɛɾhˈaltən]",
+                "it": "[nˌon ˌo ankˈoːra rˌitʃevˈuːto lˌa mˌia kˈaːrta]",
+                "es": "[aˈun nˈo ˈe rˌeθiβˈiðo mi taɾxˈeta]",
+                "nl": "[ɪk hɛp mɛɪn kˈaːrt nˈɔx nˌit ɔntvˈɑŋən]",
+                "en": "[aɪ hˈavənt ɹɪsˈiːvd maɪ kˈɑːd jˈɛt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-042",
+            "text": {
+                "fr": "Le code PIN ne fonctionne pas",
+                "en": "The PIN code doesn't work",
+                "de": "Der PIN-Code funktioniert nicht",
+                "it": "Il codice PIN non funziona",
+                "es": "El código PIN no funciona",
+                "nl": "De PIN-code werkt niet"
+            },
+            "ipa": {
+                "fr": "[lə kɔd pin nə fɔ̃ksjɔn pa]",
+                "de": "[dɛɾ pˌeːˌiːˈɛnkˈoːt fˌʊŋktsɪˌoːnˈiːɾt nˈɪçt]",
+                "it": "[ˌil kˈɔditʃe pˌiˌiːˈɛnne nˌon fˌʊntsiˈɔːna]",
+                "es": "[el kˈɔðiɣo pˌeˌiˈɛne nˈo funθjˈona]",
+                "nl": "[də pˌeːˌiːˈɛnkˈoːdə ʋˈɛrkt nˈit]",
+                "en": "[ðə pˌiːˌaɪˈɛn kˈəʊd dˈʌzənt wˈɜːk]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-043",
+            "text": {
+                "fr": "Je voudrais augmenter mon plafond",
+                "en": "I would like to increase my limit",
+                "de": "Ich möchte mein Limit erhöhen",
+                "it": "Vorrei aumentare il mio limite",
+                "es": "Quisiera aumentar mi límite",
+                "nl": "Ik wil mijn limiet verhogen"
+            },
+            "ipa": {
+                "fr": "[ʒə vudʁɛ‿oɡmɑ̃te mɔ̃ plafɔ̃]",
+                "de": "[ɪç mˈœçtə maɪn liːmˈɪt ɛɾhˈøːən]",
+                "it": "[vorɾˈeːɪ ˌaʊmentˈaːre ˌil mˌio lˈimite]",
+                "es": "[kisjˈɛɾa ˌaʊmɛntˈaɾ mi lˈimite]",
+                "nl": "[ɪk ʋɪl mɛɪn limˈit vərhˈoːɣən]",
+                "en": "[aɪ wʊd lˈaɪk tʊ ɪnkɹˈiːs maɪ lˈɪmɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-044",
+            "text": {
+                "fr": "Puis-je consulter mon solde?",
+                "en": "Can I check my balance?",
+                "de": "Kann ich meinen Kontostand abfragen?",
+                "it": "Posso controllare il mio saldo?",
+                "es": "¿Puedo consultar mi saldo?",
+                "nl": "Kan ik mijn saldo controleren?"
+            },
+            "ipa": {
+                "fr": "[pɥiʒ kɔ̃sylte mɔ̃ sɔld]",
+                "de": "[kˌan ɪç mˌaɪnən kɔntˈɔstant ˈapfrˌɑːɡən]",
+                "it": "[pˈɔsso kˌontrollˈaːre ˌil mˌio sˈaldo]",
+                "es": "[pwˈeðo kˌɔnsultˈaɾ mi sˈalðo]",
+                "nl": "[kɑn ɪk mɛɪn sˈɑldoː kˌɔntroːlˈɪːrən]",
+                "en": "[kan aɪ tʃˈɛk maɪ bˈaləns]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-045",
+            "text": {
+                "fr": "Y a-t-il des frais de retrait?",
+                "en": "Are there withdrawal fees?",
+                "de": "Gibt es Abhebungsgebühren?",
+                "it": "Ci sono delle spese di prelievo?",
+                "es": "¿Hay tarifas por retiro?",
+                "nl": "Zijn er opnamekosten?"
+            },
+            "ipa": {
+                "fr": "[i a til de fʁɛ də ʁətʁɛ]",
+                "de": "[ɡˈiːpt ɛs ˈaphˌeːbʊŋsɡəbˌyːrən]",
+                "it": "[tʃˌɪ sˌono dˌɛlle spˈeːze dˌɪ prˌɛliˈɛːvo]",
+                "es": "[ˈaɪ taɾˈifas pɔɾ retˈiɾɔ]",
+                "nl": "[zɛɪn ər ˈɔpnˌaːməkˌɔstən]",
+                "en": "[ɑː ðeə wɪðdɹˈɔːl fˈiːz]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-046",
+            "text": {
+                "fr": "Je souhaiterais souscrire à une assurance",
+                "en": "I would like to take out insurance",
+                "de": "Ich möchte eine Versicherung abschließen",
+                "it": "Vorrei stipulare un'assicurazione",
+                "es": "Me gustaría contratar un seguro",
+                "nl": "Ik zou graag een verzekering willen afsluiten"
+            },
+            "ipa": {
+                "fr": "[ʒə swɛtʁɛ suskʁiʁ a yn‿asyʁɑ̃s]",
+                "de": "[ɪç mˈœçtə ˌaɪnə fɛɾzˈɪçərˌʊŋ ˈapʃlˌiːsən]",
+                "it": "[vorɾˈeːɪ stˌipʊlˈaːre ʊnˌassikˌʊratsiˈɔːne]",
+                "es": "[me ɣˌustaɾˈia kˌɔntɾatˈaɾ ˈun seɣˈuɾɔ]",
+                "nl": "[ɪk zʌʊ ɣrˈaːx ən vərzˈeːkərˌɪŋ ʋˌɪlən ˈɑfslˌœytən]",
+                "en": "[aɪ wʊd lˈaɪk tə tˈeɪk ˈaʊt ɪnʃˈʊəɹəns]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-047",
+            "text": {
+                "fr": "Qu'est-ce qui est couvert par l'assurance?",
+                "en": "What is covered by the insurance?",
+                "de": "Was ist durch die Versicherung abgedeckt?",
+                "it": "Cosa copre l'assicurazione?",
+                "es": "¿Qué cubre el seguro?",
+                "nl": "Wat is gedekt door de verzekering?"
+            },
+            "ipa": {
+                "fr": "[kɛs ki ɛ kuvɛʁ paʁ lasyʁɑ̃s]",
+                "de": "[vˈas ɪst dʊɐç diː fɛɾzˈɪçərˌʊŋ ˈapɡədˌɛkt]",
+                "it": "[kˈɔːza kˈɔːpre lˌassikˌʊratsiˈɔːne]",
+                "es": "[kˈɛ kˈuβɾe el seɣˈuɾɔ]",
+                "nl": "[ʋɑt ɪs ɣədˈɛkt doːr də vərzˈeːkərˌɪŋ]",
+                "en": "[wˌɒt ɪz kˈʌvəd baɪ ðɪ ɪnʃˈʊəɹəns]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-048",
+            "text": {
+                "fr": "Quel est le montant de la franchise?",
+                "en": "What is the deductible amount?",
+                "de": "Wie hoch ist der Selbstbehalt?",
+                "it": "Qual è l'importo della franchigia?",
+                "es": "¿Cuál es el monto del deducible?",
+                "nl": "Wat is het bedrag van het eigen risico?"
+            },
+            "ipa": {
+                "fr": "[kɛl‿ɛ lə mɔ̃tɑ̃ də la fʁɑ̃ʃiz]",
+                "de": "[viː hˈoːx ɪst dɛɾ zˈɛlpstbəhˌalt]",
+                "it": "[kwˈal ˌɛ limpˈɔːrto dˌɛlla frankˈidʒa]",
+                "es": "[kwˈal ˈes el mˈɔnto ðel ðˌeðuθˈiβle]",
+                "nl": "[ʋɑt ɪs hət bədrˈɑx vɑn hət ˈɛɪɣən rˈizikˌoː]",
+                "en": "[wˌɒt ɪz ðə dɪdˈʌktəbəl ɐmˈaʊnt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-049",
+            "text": {
+                "fr": "Comment puis-je faire une réclamation?",
+                "en": "How can I make a claim?",
+                "de": "Wie kann ich einen Anspruch geltend machen?",
+                "it": "Come posso fare una richiesta di risarcimento?",
+                "es": "¿Cómo puedo hacer una reclamación?",
+                "nl": "Hoe kan ik een claim indienen?"
+            },
+            "ipa": {
+                "fr": "[kɔmɑ̃ pɥiʒ fɛʁ yn ʁeklamasjɔ̃]",
+                "de": "[viː kˌan ɪç ˌaɪnən ˈanʃprˌʊx ɡˈɛltənt mˈaxən]",
+                "it": "[kˌome pˈɔsso fˌare ˌʊna rikjˈɛsta dˌɪ rˌizartʃimˈento]",
+                "es": "[kˈɔmo pwˈeðo aθˈɛɾ ˈuna rˌeklamaθjˈɔn]",
+                "nl": "[hˈu kɑn ɪk ən klˈɑjm ˈɪndˌinən]",
+                "en": "[hˌaʊ kan aɪ mˌeɪk ɐ klˈeɪm]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrases-005-050",
+            "text": {
+                "fr": "Combien de temps faut-il pour être remboursé?",
+                "en": "How long does it take to be reimbursed?",
+                "de": "Wie lange dauert die Erstattung?",
+                "it": "Quanto tempo ci vuole per essere rimborsato?",
+                "es": "¿Cuánto tiempo se tarda en ser reembolsado?",
+                "nl": "Hoe lang duurt het om vergoed te worden?"
+            },
+            "ipa": {
+                "fr": "[kɔ̃bjɛ̃ də tɑ̃ fotil puʁ‿ɛtʁ ʁɑ̃buʁse]",
+                "de": "[viː lˈaŋə dˈaʊɜt diː ɛɾʃtˈatʊŋ]",
+                "it": "[kwˈanto tˈɛmpo tʃˌɪ vʊˌole pˌɛr ˈɛssere rˌimborsˈaːto]",
+                "es": "[kwˈanto tjˈempo se tˈaɾða ɛn sˈɛɾ rˌeembɔlsˈaðo]",
+                "nl": "[hˈu lˈɑŋ dˈyrt hət ɔm vərɣˈud tə ʋˌɔrdən]",
+                "en": "[hˌaʊ lˈɒŋ dˈʌz ɪt tˈeɪk təbi ɹˌiːɪmbˈɜːsd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        }
+    ]
+}

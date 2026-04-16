@@ -32,6 +32,7 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any, Tuple
 import json
+import hashlib
 from sshtunnel import SSHTunnelForwarder
 from pathlib import Path
 import atexit
@@ -66,6 +67,60 @@ pwd_hasher = PasswordHasher(
     hash_len=32,        # 32-byte hash output
     salt_len=16         # 16-byte random salt per password
 )
+
+
+# ============================================================================
+# LOCAL vs REMOTE CONNECTION MODE
+# ============================================================================
+
+def _is_local_mode() -> bool:
+    """True when running against a local MySQL instance (no SSH tunnel needed)."""
+    try:
+        cfg = st.secrets.get("local_db", {})
+        return bool(cfg.get("enabled", False))
+    except Exception:
+        return False
+
+
+def _get_local_connection() -> mysql.connector.MySQLConnection:
+    """Direct localhost MySQL connection — no tunnel, no pool.
+
+    Prefers Unix socket (``unix_socket`` key in secrets) which works even when
+    MySQL's ``skip-networking`` is enabled (the MacPorts default).  Falls back
+    to TCP host/port if no socket path is configured.
+    """
+    cfg = st.secrets["local_db"]
+    socket_path = cfg.get("unix_socket", "")
+    if socket_path:
+        conn = mysql.connector.connect(
+            unix_socket=socket_path,
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=False,
+        )
+    else:
+        conn = mysql.connector.connect(
+            host=cfg["host"],
+            port=int(cfg.get("port", 3306)),
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=False,
+        )
+    return conn
+
+
+def _local_conn_alive(conn) -> bool:
+    """Quick health check for a local connection."""
+    try:
+        cursor = conn.cursor(buffered=True)
+        cursor.execute("SELECT 1")
+        cursor.fetchall()
+        cursor.close()
+        return True
+    except Exception:
+        return False
 
 
 # ============================================================================
@@ -137,13 +192,13 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
             if tunnel.is_active and tunnel.tunnel_is_up.get(tunnel.remote_bind_address):
                 # Tunnel is healthy, return it
                 return tunnel
-        except:
+        except Exception:
             pass
         
         # Tunnel died, clean it up
         try:
             tunnel.stop()
-        except:
+        except Exception:
             pass
         _global_ssh_tunnel = None
     
@@ -204,40 +259,6 @@ def get_ssh_tunnel() -> SSHTunnelForwarder:
     return _global_ssh_tunnel
 
 
-def get_connection_pool() -> pooling.MySQLConnectionPool:
-    """
-    DEPRECATED: Old connection pool function (single tunnel architecture).
-    Kept for backward compatibility during transition.
-    
-    NEW CODE SHOULD USE: get_connection() which now uses ConnectionPool internally.
-    """
-    if "mysql_pool" not in st.session_state:
-        try:
-            # Establish SSH tunnel first
-            tunnel = get_ssh_tunnel()
-            
-            st.session_state.mysql_pool = pooling.MySQLConnectionPool(
-                pool_name="miolingo_pool",
-                pool_size=10,  # Increased for Emerald plan resources
-                pool_reset_session=True,  # Reset session variables on get
-                host='127.0.0.1',  # Connect via SSH tunnel
-                port=tunnel.local_bind_port,  # Tunnel's local port
-                database=st.secrets["mysql"]["database"],
-                user=st.secrets["mysql"]["user"],
-                password=st.secrets["mysql"]["password"],
-                autocommit=False,  # Explicit transaction control
-                connection_timeout=10,
-                # Connection health parameters
-                use_pure=True,  # Use pure Python implementation (more stable)
-                # MySQL session variables to prevent timeout
-                init_command="SET SESSION wait_timeout=28800, interactive_timeout=28800"  # 8 hours
-            )
-        except Error as e:
-            st.error(f"❌ Database connection pool failed: {e}")
-            raise
-    
-    return st.session_state.mysql_pool
-
 
 def get_connection() -> mysql.connector.MySQLConnection:
     """
@@ -258,6 +279,17 @@ def get_connection() -> mysql.connector.MySQLConnection:
     Returns:
         MySQL connection (persistent for session)
     """
+    # ── Local-mode shortcut: no tunnel, no pool ──────────────────────────
+    if _is_local_mode():
+        if 'db_connection' in st.session_state and _local_conn_alive(st.session_state.db_connection):
+            return st.session_state.db_connection
+        # Create (or replace dead) local connection
+        conn = _get_local_connection()
+        st.session_state.db_connection = conn
+        print("✓ Using local MySQL connection (no tunnel)")
+        return conn
+
+    # ── Remote mode: SSH tunnel + connection pool ──────────────────────────
     # Check if we already have a session connection
     if 'db_connection' in st.session_state:
         conn = st.session_state.db_connection
@@ -318,11 +350,11 @@ def get_connection() -> mysql.connector.MySQLConnection:
     # Pre-auth: Use single bootstrap connection (untracked, temporary)
     # Post-auth: Switch to tracked connection from pool (permanent until logout)
     if not st.session_state.get('authenticated', False):
-        # Not authenticated - use bootstrap connection (unlimited, not tracked)
+        # Not authenticated - use direct connection (not tracked, not a context manager)
         # Store it for reuse until login, then it will be closed during handover
         if 'db_connection' not in st.session_state:
             print("⚠️ Creating bootstrap connection for unauthenticated user (temporary, not tracked)")
-            conn = pool.get_bootstrap_connection()
+            conn = pool.get_direct_connection()
             st.session_state.db_connection = conn
         else:
             conn = st.session_state.db_connection
@@ -336,9 +368,9 @@ def get_connection() -> mysql.connector.MySQLConnection:
                 print(f"⚠️ Bootstrap connection died, getting fresh one")
                 try:
                     conn.close()
-                except:
+                except Exception:
                     pass
-                conn = pool.get_bootstrap_connection()
+                conn = pool.get_direct_connection()
                 st.session_state.db_connection = conn
         return conn
     
@@ -404,8 +436,25 @@ def get_current_connection_info() -> dict:
     CRITICAL: Reads from DATABASE, not memory - single source of truth.
     Returns a dict with connection and tunnel details, or empty dict if not available.
     """
+    # Local mode: return minimal info (no tunnel, no pool)
+    if _is_local_mode():
+        from datetime import datetime
+        return {
+            'tunnel_id': 'local',
+            'tunnel_pid': '-',
+            'tunnel_port': '-',
+            'tunnel_created': '-',
+            'tunnel_conn_count': '-',
+            'connection_id': 'local-direct',
+            'mysql_conn_id': '-',
+            'connection_status': 'local',
+            'connection_age': '-',
+            'session_ttl': '-',
+            'current_time': datetime.now(),
+        }
+
     conn_info = st.session_state.get('_last_connection_info', {})
-    
+
     if not conn_info:
         return {}
     
@@ -487,7 +536,7 @@ def cleanup_ssh_tunnel():
             if _global_ssh_tunnel.is_active:
                 _global_ssh_tunnel.stop()
                 logging.info("SSH tunnel closed on process exit")
-        except:
+        except Exception:
             pass
         _global_ssh_tunnel = None
 
@@ -567,7 +616,7 @@ def create_guest_user(
         # Log guest account creation (non-critical, swallow errors)
         try:
             log_activity(user_id, "GUEST_CREATED", f"Guest username: {username}", "system")
-        except:
+        except Exception:
             pass  # Don't fail guest creation if logging fails
         
         # Create session immediately (stores metadata directly in `sessions`)
@@ -588,7 +637,7 @@ def create_guest_user(
         if conn:
             try:
                 conn.rollback()
-            except:
+            except Exception:
                 pass
         # Return None without calling st.error (let caller handle UI)
         return None
@@ -1194,6 +1243,109 @@ def delete_user_setting(user_id: int, key: str) -> bool:
     
 
 # ============================================================================
+# TRANSLATION CACHE
+# ============================================================================
+
+def _normalize_translation_text(text: str) -> str:
+    return " ".join(text.strip().lower().split())
+
+
+def _translation_hash(text: str) -> str:
+    normalized = _normalize_translation_text(text)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def ensure_translation_cache_table():
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS translation_cache (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                provider VARCHAR(32) NOT NULL,
+                source_lang VARCHAR(16) NOT NULL,
+                target_lang VARCHAR(16) NOT NULL,
+                source_text_hash CHAR(64) NOT NULL,
+                source_text TEXT NOT NULL,
+                translated_text TEXT NOT NULL,
+                detected_source VARCHAR(16),
+                confidence FLOAT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY uniq_translation (provider, source_lang, target_lang, source_text_hash)
+            )
+            """
+        )
+        conn.commit()
+    except Exception as e:
+        logging.error(f"Failed to ensure translation_cache table: {e}")
+
+
+def get_translation_cache(source_lang: str, target_lang: str, source_text: str, provider: str) -> Optional[Dict]:
+    try:
+        ensure_translation_cache_table()
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        source_hash = _translation_hash(source_text)
+        cursor.execute(
+            """
+            SELECT translated_text, detected_source, confidence
+            FROM translation_cache
+            WHERE provider = %s AND source_lang = %s AND target_lang = %s AND source_text_hash = %s
+            """,
+            (provider, source_lang, target_lang, source_hash),
+        )
+        row = cursor.fetchone()
+        return row
+    except Exception as e:
+        logging.error(f"Failed to read translation cache: {e}")
+        return None
+
+
+def set_translation_cache(
+    source_lang: str,
+    target_lang: str,
+    source_text: str,
+    translated_text: str,
+    provider: str,
+    detected_source: Optional[str] = None,
+    confidence: Optional[float] = None,
+):
+    try:
+        ensure_translation_cache_table()
+        conn = get_connection()
+        cursor = conn.cursor()
+        source_hash = _translation_hash(source_text)
+        cursor.execute(
+            """
+            INSERT INTO translation_cache
+                (provider, source_lang, target_lang, source_text_hash, source_text, translated_text, detected_source, confidence)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                translated_text = VALUES(translated_text),
+                detected_source = VALUES(detected_source),
+                confidence = VALUES(confidence),
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (
+                provider,
+                source_lang,
+                target_lang,
+                source_hash,
+                source_text,
+                translated_text,
+                detected_source,
+                confidence,
+            ),
+        )
+        conn.commit()
+    except Exception as e:
+        logging.error(f"Failed to write translation cache: {e}")
+
+
+# ============================================================================
 # DEBUG LOGGING (Admin troubleshooting)
 # ============================================================================
 
@@ -1219,19 +1371,25 @@ def write_debug_log(
     """
     conn = None
     try:
+        # Guard: if SSH secrets not available, skip silently
+        if 'ssh' not in st.secrets:
+            return  # graceful no-op on environments without SSH tunnel
+
         # Detect environment
         try:
             # Check if running on Streamlit Cloud
             import socket
             hostname = socket.gethostname()
             environment = 'deployed' if 'streamlit' in hostname.lower() else 'local'
-        except:
+        except Exception:
             environment = 'unknown'
-        
+
         # Extract partial session ID for correlation (privacy)
         session_id_partial = session_id[:8] if session_id else None
-        
+
         conn = get_connection()
+        if conn is None:
+            return  # no connection available pre-auth
         cursor = conn.cursor()
         
         # Insert log entry

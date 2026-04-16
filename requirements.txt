@@ -1,5 +1,6 @@
 # Core dependencies for Streamlit Miolingo Pronunciation Trainer
 streamlit>=1.39.0
+streamlit-cookies-manager>=0.2.0
 
 # Speech Recognition (Whisper is primary, wav2vec2 is optional alternative)
 openai-whisper>=20231117

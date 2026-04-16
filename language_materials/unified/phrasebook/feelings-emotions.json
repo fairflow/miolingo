@@ -1,0 +1,380 @@
+{
+    "meta": {
+        "source": "phrasebook",
+        "topic": "feelings-emotions",
+        "phrase_count": 12,
+        "languages": [
+            "de",
+            "en",
+            "es",
+            "fr",
+            "it",
+            "nl",
+            "pt"
+        ],
+        "generated": "2026-04-14",
+        "generator": "merge_materials.py"
+    },
+    "phrases": [
+        {
+            "id": "phrasebook-feelings-emotions-001",
+            "text": {
+                "fr": "J'ai faim",
+                "en": "I'm hungry",
+                "de": "Ich habe Hunger",
+                "pt": "Estou com fome",
+                "it": "Ho fame",
+                "es": "Tengo hambre",
+                "nl": "Ik heb honger"
+            },
+            "ipa": {
+                "fr": "[ʒe fˈɛ̃]",
+                "de": "[ɪç hɑːbə hˈʊŋɜ]",
+                "pt": "[estˌow koŋ fˈomy]",
+                "it": "[ˌo fˈaːme]",
+                "es": "[tˈɛŋɡo ˈambɾe]",
+                "nl": "[ɪk hɛp hˈɔŋər]",
+                "en": "[aɪm hˈʌŋɡɹi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-002",
+            "text": {
+                "fr": "J'ai soif",
+                "en": "I'm thirsty",
+                "de": "Ich habe Durst",
+                "pt": "Estou com sede",
+                "it": "Ho sete",
+                "es": "Tengo sed",
+                "nl": "Ik heb dorst"
+            },
+            "ipa": {
+                "fr": "[ʒe swˈaf]",
+                "de": "[ɪç hɑːbə dˈuːɾst]",
+                "pt": "[estˌow koŋ sˈɛdʒy]",
+                "it": "[ˌo sˈeːte]",
+                "es": "[tˈɛŋɡo sˈed]",
+                "nl": "[ɪk hɛp dˈɔrst]",
+                "en": "[aɪm θˈɜːsti]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-003",
+            "text": {
+                "fr": "J'ai chaud",
+                "en": "I'm hot",
+                "de": "Mir ist warm",
+                "pt": "Estou com calor",
+                "it": "Ho caldo",
+                "es": "Tengo calor",
+                "nl": "Ik heb het warm"
+            },
+            "ipa": {
+                "fr": "[ʒe ʃˈo]",
+                "de": "[miːɾ ɪst vˈaɾm]",
+                "pt": "[estˌow koŋ kalˈor]",
+                "it": "[ˌo kˈaldo]",
+                "es": "[tˈɛŋɡo kalˈɔɾ]",
+                "nl": "[ɪk hɛp hət ʋˈɑrm]",
+                "en": "[aɪm hˈɒt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-004",
+            "text": {
+                "fr": "J'ai froid",
+                "en": "I'm cold",
+                "de": "Mir ist kalt",
+                "pt": "Estou com frio",
+                "it": "Ho freddo",
+                "es": "Tengo frío",
+                "nl": "Ik heb het koud"
+            },
+            "ipa": {
+                "fr": "[ʒe fʁwˈa]",
+                "de": "[miːɾ ɪst kˈalt]",
+                "pt": "[estˌow koŋ frˈiʊ]",
+                "it": "[ˌo frˈedːo]",
+                "es": "[tˈɛŋɡo fɾˈio]",
+                "nl": "[ɪk hɛp hət kˈʌʊt]",
+                "en": "[aɪm kˈəʊld]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-005",
+            "text": {
+                "fr": "Je suis content",
+                "en": "I'm happy",
+                "de": "Ich bin glücklich",
+                "pt": "Estou feliz",
+                "it": "Sono felice",
+                "es": "Estoy feliz",
+                "nl": "Ik ben blij"
+            },
+            "ipa": {
+                "fr": "[ʒə- syˌi kɔ̃tˈɑ̃]",
+                "de": "[ɪç bɪn ɡlˈʏklɪç]",
+                "pt": "[estˌow felˈis]",
+                "it": "[sˌono felˈiːtʃe]",
+                "es": "[estˈoɪ felˈiθ]",
+                "nl": "[ɪk bɛn blˈɛɪ]",
+                "en": "[aɪm hˈapi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-006",
+            "text": {
+                "fr": "Je suis contente",
+                "en": "I'm happy",
+                "de": "Ich bin glücklich",
+                "pt": "Estou feliz",
+                "it": "Sono felice",
+                "es": "Estoy feliz",
+                "nl": "Ik ben blij"
+            },
+            "ipa": {
+                "fr": "[ʒə- syˌi kɔ̃tˈɑ̃t]",
+                "de": "[ɪç bɪn ɡlˈʏklɪç]",
+                "pt": "[estˌow felˈis]",
+                "it": "[sˌono felˈiːtʃe]",
+                "es": "[estˈoɪ felˈiθ]",
+                "nl": "[ɪk bɛn blˈɛɪ]",
+                "en": "[aɪm hˈapi]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-007",
+            "text": {
+                "fr": "Je suis fatigué",
+                "en": "I'm tired",
+                "de": "Ich bin müde",
+                "pt": "Estou cansada",
+                "it": "Sono stanca",
+                "es": "Estoy cansada",
+                "nl": "Ik ben moe"
+            },
+            "ipa": {
+                "fr": "[ʒə- syˌi fatiɡˈe]",
+                "de": "[ɪç bɪn mˈyːdə]",
+                "pt": "[estˌow kˌɐ̃ŋsˈadæ]",
+                "it": "[sˌono stˈanka]",
+                "es": "[estˈoɪ kansˈaða]",
+                "nl": "[ɪk bɛn mˈu]",
+                "en": "[aɪm tˈaɪəd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-008",
+            "text": {
+                "fr": "Je suis fatiguée",
+                "en": "I'm tired",
+                "de": "Ich bin müde",
+                "pt": "Estou cansado",
+                "it": "Sono stanco",
+                "es": "Estoy cansado",
+                "nl": "Ik ben moe"
+            },
+            "ipa": {
+                "fr": "[ʒə- syˌi fatiɡˈe]",
+                "de": "[ɪç bɪn mˈyːdə]",
+                "pt": "[estˌow kˌɐ̃ŋsˈadʊ]",
+                "it": "[sˌono stˈanko]",
+                "es": "[estˈoɪ kansˈaðo]",
+                "nl": "[ɪk bɛn mˈu]",
+                "en": "[aɪm tˈaɪəd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-009",
+            "text": {
+                "fr": "J'ai hâte",
+                "en": "I can't wait",
+                "de": "Ich kann es kaum erwarten",
+                "pt": "Mal posso esperar",
+                "it": "Non vedo l'ora",
+                "es": "No puedo esperar",
+                "nl": "Ik kan niet wachten"
+            },
+            "ipa": {
+                "fr": "[ʒe ˈaːt]",
+                "de": "[ɪç kˌan ɛs kˈaʊm ɛɾvˈaɾtən]",
+                "pt": "[mˈaʊ pˌɔsʊ ˌespeɾˈar]",
+                "it": "[nˌon vˈeːdo lˈɔːra]",
+                "es": "[nˈo pwˈeðo ˌespɛɾˈaɾ]",
+                "nl": "[ɪk kɑn nˌit ʋˈɑxtən]",
+                "en": "[aɪ kˈɑːnt wˈeɪt]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-010",
+            "text": {
+                "fr": "Je m'ennuie",
+                "en": "I'm bored",
+                "de": "Mir ist langweilig",
+                "pt": "Estou entediado",
+                "it": "Mi annoio",
+                "es": "Me aburro",
+                "nl": "Ik verveel me"
+            },
+            "ipa": {
+                "fr": "[ʒə- mɑ̃nyˈi]",
+                "de": "[miːɾ ɪst lˈaŋvˌaɪlɪç]",
+                "pt": "[estˌow ˌeɪŋtedʒiˈadʊ]",
+                "it": "[mˌɪ annˈoɪo]",
+                "es": "[me aβˈuro]",
+                "nl": "[ɪk vərvˈeːl mə]",
+                "en": "[aɪm bˈɔːd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-011",
+            "text": {
+                "fr": "Je suis crevé",
+                "en": "I'm exhausted",
+                "de": "Ich bin erschöpft",
+                "pt": "Estou exausto",
+                "it": "Sono esausto",
+                "es": "Estoy agotado",
+                "nl": "Ik ben uitgeput"
+            },
+            "ipa": {
+                "fr": "[ʒə- syˌi kʁəvˈe]",
+                "de": "[ɪç bɪn ɛɾʃˈœpft]",
+                "pt": "[estˌow ˌezˈaʊstʊ]",
+                "it": "[sˌono ezˈaʊsto]",
+                "es": "[estˈoɪ ˌaɣotˈaðo]",
+                "nl": "[ɪk bɛn ˈœytɣəpˌɵt]",
+                "en": "[aɪm ɛɡzˈɔːstɪd]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        },
+        {
+            "id": "phrasebook-feelings-emotions-012",
+            "text": {
+                "fr": "J'ai le cafard",
+                "en": "I'm feeling down",
+                "de": "Mir ist nicht gut",
+                "pt": "Estou meio pra baixo",
+                "it": "Mi sento giù",
+                "es": "Me siento decaído",
+                "nl": "Ik voel me rot"
+            },
+            "ipa": {
+                "fr": "[ʒe lə- kafˈaʁ]",
+                "de": "[miːɾ ɪst nˈɪçt ɡˈuːt]",
+                "pt": "[estˌow mˈeɪʊ pra bˈaɪʃʊ]",
+                "it": "[mˌɪ sˈɛnto dʒˈu]",
+                "es": "[me sjˈɛnto ðˌekaˈiðo]",
+                "nl": "[ɪk vˈul mə rˈɔt]",
+                "en": "[aɪm fˈiːlɪŋ dˈaʊn]"
+            },
+            "provenance": {
+                "fr": "original",
+                "de": "original",
+                "pt": "original",
+                "it": "original",
+                "es": "original",
+                "nl": "original",
+                "en": "original"
+            }
+        }
+    ]
+}
