@@ -83,16 +83,31 @@ def _is_local_mode() -> bool:
 
 
 def _get_local_connection() -> mysql.connector.MySQLConnection:
-    """Direct localhost MySQL connection — no tunnel, no pool."""
+    """Direct localhost MySQL connection — no tunnel, no pool.
+
+    Prefers Unix socket (``unix_socket`` key in secrets) which works even when
+    MySQL's ``skip-networking`` is enabled (the MacPorts default).  Falls back
+    to TCP host/port if no socket path is configured.
+    """
     cfg = st.secrets["local_db"]
-    conn = mysql.connector.connect(
-        host=cfg["host"],
-        port=int(cfg.get("port", 3306)),
-        database=cfg["database"],
-        user=cfg["user"],
-        password=cfg["password"],
-        autocommit=False,
-    )
+    socket_path = cfg.get("unix_socket", "")
+    if socket_path:
+        conn = mysql.connector.connect(
+            unix_socket=socket_path,
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=False,
+        )
+    else:
+        conn = mysql.connector.connect(
+            host=cfg["host"],
+            port=int(cfg.get("port", 3306)),
+            database=cfg["database"],
+            user=cfg["user"],
+            password=cfg["password"],
+            autocommit=False,
+        )
     return conn
 
 
