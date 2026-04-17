@@ -317,88 +317,14 @@ class ConnectionPool:
         tunnel.start()
         return tunnel
     
-    def get_direct_connection(self):
-        """
-        Return a real MySQL connection object (not a context manager) using
-        an available tracked tunnel from the pool, or creating one if needed.
-        For pre-auth ephemeral use where storing in session state is required.
-        Caller is responsible for closing when done.
-        """
-        # Reuse first available healthy tunnel
-        for tunnel_info in self.tunnel_pool.values():
-            if tunnel_info.status == 'active' and self._is_tunnel_healthy(tunnel_info):
-                conn = mysql.connector.connect(
-                    host='127.0.0.1',
-                    port=tunnel_info.local_port,
-                    database=self.secrets['mysql']['database'],
-                    user=self.secrets['mysql']['user'],
-                    password=self.secrets['mysql']['password'],
-                    connect_timeout=10,
-                    use_pure=True,
-                )
-                return conn
-
-        # No existing tunnel — create one and register it in pool + DB
-        tunnel = self.create_ssh_tunnel()
-        pid = self.get_tunnel_pid(tunnel)
-        now = datetime.now()
-
-        # Store tunnel in pool so it can be reused (avoid proliferation)
-        tunnel_id = f"bootstrap_{self._next_tunnel_index}"
-        self._next_tunnel_index += 1
-        self.tunnel_pool[tunnel_id] = TunnelInfo(
-            tunnel_id=tunnel_id,
-            tunnel_obj=tunnel,
-            pid=pid,
-            local_port=tunnel.local_bind_port,
-            created_at=now,
-            last_used=now,
-            status='active',
-            connection_count=0,
-        )
-
-        # Give tunnel time to stabilize
-        time.sleep(0.3)
-
-        conn = mysql.connector.connect(
-            host='127.0.0.1',
-            port=tunnel.local_bind_port,
-            database=self.secrets['mysql']['database'],
-            user=self.secrets['mysql']['user'],
-            password=self.secrets['mysql']['password'],
-            connect_timeout=10,
-            use_pure=True,
-        )
-
-        # Register in tunnel_monitor DB table so FK constraints work when
-        # this tunnel is later picked up by get_tracked_connection()
-        try:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO tunnel_monitor
-                (tunnel_id, pid, local_port, created_at, last_used, status, connection_count)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                    pid = VALUES(pid),
-                    local_port = VALUES(local_port),
-                    last_used = VALUES(last_used),
-                    status = VALUES(status)
-            """, (tunnel_id, pid, tunnel.local_bind_port, now, now, 'active', 0))
-            conn.commit()
-            cursor.close()
-        except Exception as e:
-            logging.warning(f"Could not register bootstrap tunnel {tunnel_id} in DB: {e}")
-
-        return conn
-
     @contextmanager
     def get_bootstrap_connection(self):
         """
         Context manager for TRULY EPHEMERAL MySQL connection.
         Creates temporary tunnel → connection → automatically closes both.
-
+        
         CRITICAL: Prevents tunnel proliferation (125 SSH tunnel limit).
-
+        
         Usage:
             with pool.get_bootstrap_connection() as conn:
                 cursor = conn.cursor()
@@ -903,33 +829,6 @@ class ConnectionPool:
         
         return cleaned
     
-    def cleanup_stale_connections(self, stale_hours: int = 12) -> int:
-        """
-        Delete rows from connection_monitor that are no longer useful:
-          - Any row with status = 'closed'
-          - Any row with status = 'active' but last_activity older than stale_hours
-
-        Returns count of rows deleted.
-        """
-        deleted = 0
-        try:
-            with self.get_bootstrap_connection() as admin_conn:
-                cursor = admin_conn.cursor()
-                cursor.execute(
-                    """
-                    DELETE FROM connection_monitor
-                    WHERE status = 'closed'
-                       OR (status = 'active' AND last_activity < NOW() - INTERVAL %s HOUR)
-                    """,
-                    (stale_hours,),
-                )
-                deleted = cursor.rowcount
-                admin_conn.commit()
-                cursor.close()
-        except Exception as e:
-            print(f"Stale connection cleanup error: {e}")
-        return deleted
-
     def init_monitoring_tables(self) -> Tuple[bool, str]:
         """
         Create database tables for connection monitoring.

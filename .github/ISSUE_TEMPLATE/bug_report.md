@@ -1,44 +1,32 @@
 ---
 name: Bug Report
-about: Something isn't working correctly, a warning is being exposed, or a feature is missing
+about: Something isn't working correctly
 title: '[BUG] '
 labels: bug
 assignees: ''
 ---
 
-## Classification
-**Type:** `[ ] Warning`  `[ ] Bug`  `[ ] Missing Feature`
-<!-- Warning = internal/config info exposed to users; Bug = incorrect behaviour; Missing Feature = expected functionality absent -->
+## What happened?
+<!-- Describe the problem in a few sentences -->
 
-**Severity:** `[ ] Critical`  `[ ] High`  `[ ] Medium`  `[ ] Low`
 
-**App mode when found:** `[ ] Debug/Test`  `[ ] Production`
-<!-- Note: in Debug/Test mode, severity of debug-message leakage should be one level lower than production -->
 
----
+## What were you doing?
+<!-- Tell us the steps to reproduce the issue -->
+1. I went to...
+2. I clicked on...
+3. Then I saw...
 
-## App Version & Environment
-- **Version:** (e.g. v7.1.3 — from sidebar title)
-- **TTS Engine:** (e.g. google_cloud, espeak, gtts)
-- **Target Language:** (e.g. Portuguese)
-- **Browser:** (e.g. Chrome 123)
-- **OS:** (e.g. macOS 14)
-
----
-
-## Steps to Reproduce
-1.
-2.
-3.
-
-## Expected Result
-<!-- What should have happened? -->
-
-## Actual Result
-<!-- What actually happened? -->
+## What did you expect to happen?
+<!-- What should have happened instead? -->
 
 ## Screenshots
 <!-- If helpful, paste a screenshot here -->
 
-## Notes
-<!-- Workarounds, related issues, or additional context -->
+## Device Information
+<!-- Which device and browser are you using? -->
+- Device: (iPhone, MacBook, Android, etc.)
+- Browser: (Safari, Chrome, Firefox, etc.)
+
+## Additional context
+<!-- Anything else we should know? -->

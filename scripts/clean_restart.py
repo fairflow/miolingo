@@ -60,17 +60,11 @@ APPS = {
 
 
 def get_workspace_root() -> Path:
-    """
-    Find the workspace root (directory containing the project files).
-
-    Works in both the main repo and git worktrees. The venv may live in
-    the main repo rather than the worktree, so we don't require venv/
-    to exist here — we just need the directory that has src/ and scripts/.
-    """
+    """Find the workspace root (contains venv/)"""
     current = Path(__file__).resolve().parent.parent
-    if (current / 'src').exists():
+    if (current / 'venv').exists():
         return current
-    raise RuntimeError("Could not find workspace root (no src/ directory)")
+    raise RuntimeError("Could not find workspace root (no venv/ directory)")
 
 
 def find_process_by_script(script_name: str) -> List[int]:
@@ -179,21 +173,13 @@ def start_app(app_key: str, workspace: Path, open_browser: bool = False) -> bool
     
     print(f"\n▶️  Starting {name} on port {port}...")
     
-    # Build command — use the streamlit from the active venv (already on PATH
-    # if venv is activated), or fall back to looking in workspace/venv/.
-    import shutil
-    venv_streamlit = shutil.which('streamlit')
-    if not venv_streamlit:
-        # Try explicit venv path (main repo, not worktree)
-        for candidate in [workspace / 'venv' / 'bin' / 'streamlit',
-                          workspace / '.venv' / 'bin' / 'streamlit']:
-            if candidate.exists():
-                venv_streamlit = str(candidate)
-                break
-    if not venv_streamlit:
-        print(f"  ❌ Streamlit not found. Activate venv or install streamlit.")
+    # Build command
+    venv_streamlit = workspace / 'venv' / 'bin' / 'streamlit'
+    
+    if not venv_streamlit.exists():
+        print(f"  ❌ Streamlit not found in venv: {venv_streamlit}")
         return False
-
+    
     cmd = [str(venv_streamlit), 'run', script, '--server.port', str(port)]
     if not open_browser:
         cmd.append('--server.headless=true')
