@@ -1,5 +1,46 @@
 # Miolingo — Claude Code Instructions
 
+## Git Workflow — PR Branches (read before any `git push`)
+
+All work lands via PRs targeting `claude/dev-swept`. **Never push directly to
+`claude/dev-swept` or `claude/dev`.**
+
+When `git checkout -b` or `git switch -c` derives a branch from
+`origin/claude/dev-swept`, the new local branch silently inherits
+`claude/dev-swept` as its upstream. A subsequent `git push -u` will then push
+*onto the parent branch*, bypassing PR review. Use the explicit refspec form
+on the first push.
+
+**Recipe — start a PR branch:**
+
+```bash
+git fetch origin claude/dev-swept
+git switch -c claude/<descriptive-name> origin/claude/dev-swept
+
+# ... make commits ...
+
+# First push — explicit refspec forces a NEW remote branch matching the
+# local name, regardless of inherited upstream:
+git push -u origin HEAD:refs/heads/claude/<descriptive-name>
+```
+
+**Before every first push on a new branch, verify the upstream:**
+
+```bash
+git rev-parse --abbrev-ref @{u}   # should match local branch name after push
+git symbolic-ref --short HEAD      # local branch name
+```
+
+If they don't match, use the `HEAD:refs/heads/<name>` refspec form. Never use
+bare `git push -u origin <branch>` as the first push on a branch that was
+created from another tracking branch — the inherited upstream will win.
+
+A `PreToolUse` hook in `.claude/settings.json` now blocks `git push` when the
+local branch name does not match its upstream, but the hook is a safety net,
+not a substitute for following this recipe.
+
+---
+
 ## Python Environment
 
 **Always activate the project virtual environment before running any Python, pip, or related command.**

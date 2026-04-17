@@ -60,5 +60,18 @@
       "Bash(bash -n *)",
       "Bash(zsh -n *)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command // \"\"'); case \"$cmd\" in *\"git push\"*) ;; *) exit 0 ;; esac; case \"$cmd\" in *\"HEAD:refs/heads/\"*) exit 0 ;; esac; local_branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo \"\"); upstream=$(git rev-parse --abbrev-ref \"@{u}\" 2>/dev/null || echo \"\"); if [ -z \"$upstream\" ] || [ -z \"$local_branch\" ]; then exit 0; fi; upstream_branch=${upstream#*/}; if [ \"$local_branch\" = \"$upstream_branch\" ]; then exit 0; fi; jq -n --arg local \"$local_branch\" --arg up \"$upstream\" '{hookSpecificOutput: {hookEventName: \"PreToolUse\", permissionDecision: \"deny\", permissionDecisionReason: (\"Blocked: local branch `\" + $local + \"` tracks `\" + $up + \"`. A plain `git push` would land commits on `\" + $up + \"` and bypass PR review. Use `git push origin HEAD:refs/heads/\" + $local + \"` to create/update a new remote branch matching the local name, or run `git branch --unset-upstream` first.\")}}'"
+          }
+        ]
+      }
+    ]
   }
 }
