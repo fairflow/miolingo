@@ -1,44 +1,18 @@
-# Multi-stage Dockerfile for Miolingo Pronunciation Trainer
-# Optimized for fast builds and small image size
+# Dockerfile for Miolingo Pronunciation Trainer
+# Uses Debian's prebuilt espeak-ng package instead of source build
+# (previous multi-stage build added several minutes of cold-start time
+# and ~400MB of build tooling with no functional benefit)
 
-# Stage 1: Build eSpeak NG from source
-FROM python:3.12-slim AS espeak-builder
-
-# Install build dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    autoconf \
-    automake \
-    libtool \
-    pkg-config \
-    git \
-    libsonic-dev \
-    ronn \
-    kramdown \
-    libpcaudio-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Clone and build eSpeak NG
-WORKDIR /build
-RUN git clone --depth 1 https://github.com/espeak-ng/espeak-ng.git && \
-    cd espeak-ng && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install DESTDIR=/espeak-install
-
-# Stage 2: Final runtime image
 FROM python:3.12-slim
 
-# Install runtime dependencies
+# Install runtime dependencies, including prebuilt eSpeak NG
 RUN apt-get update && apt-get install -y \
+    espeak-ng \
     ffmpeg \
     libsonic0 \
     portaudio19-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
-
-# Copy eSpeak NG from builder
-COPY --from=espeak-builder /espeak-install/usr /usr
 
 # Create app directory
 WORKDIR /app

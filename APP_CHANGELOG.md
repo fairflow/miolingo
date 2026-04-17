@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.4.2] - 2026-04-17
+
+### Changed
+
+- Dockerfile: use Debian's prebuilt `espeak-ng` package instead of a
+  multi-stage source build. Cuts Docker cold-start build time by several
+  minutes, drops the build-tooling stage entirely, and produces a smaller
+  final image. No runtime behaviour change — `get_espeak_path()` already
+  resolves `espeak-ng` on Debian.
+
+
 ## [7.3.11] - 2026-04-15
 
 ### Changed
