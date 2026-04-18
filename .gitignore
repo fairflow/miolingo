@@ -17,6 +17,9 @@
 settings.json
 *.code-workspace
 
+# Claude Code per-project local overrides (permissions, etc.)
+.claude/settings.local.json
+
 # intermediate build output:
 
 *.o
