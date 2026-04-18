@@ -8,6 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.5.0] - 2026-04-17
+
+### Added
+
+- Statistics tab: four compact charts + breakdown, replacing the previous
+  metrics-only view. Window is the last 90 days:
+  - Accuracy trend (per-practice score + rolling-10 average overlay)
+  - Practices per day (bar)
+  - Score distribution (histogram, 20 bins)
+  - Weakest phrases table (min 3 attempts, lowest average score first)
+- `app_mysql.get_user_progress_timeseries()` — time-series rows for charts
+- `app_mysql.get_user_weakest_phrases()` — GROUP BY target_phrase
+  aggregate for the breakdown table
+
+Charts use Streamlit's native Altair (no new dependency). Heights are
+fixed at 220px to keep the tab scrollable.
+
+
 ## [7.4.2] - 2026-04-17
 
 ### Changed
