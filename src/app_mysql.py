@@ -1648,6 +1648,66 @@ def get_user_stats(user_id: int, language_code: str) -> Dict:
         return {'total': 0, 'perfect_count': 0, 'avg_score': 0, 'recent_avg': 0}
     
 
+def get_user_progress_timeseries(
+    user_id: int,
+    language_code: str,
+    days: int = 90,
+) -> List[Dict]:
+    """
+    Raw time-series rows for Statistics-tab charts.
+
+    One row per practice in the window, ordered oldest-first so downstream
+    rolling averages compute correctly without a re-sort.
+    """
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT practice_date, similarity_score, perfect_match, target_phrase
+            FROM user_progress
+            WHERE user_id = %s
+              AND language_code = %s
+              AND practice_date >= DATE_SUB(NOW(), INTERVAL %s DAY)
+            ORDER BY practice_date ASC
+        """
+        cursor.execute(query, (user_id, language_code, days))
+        return cursor.fetchall()
+    except Error as e:
+        st.error(f"❌ Error fetching timeseries: {e}")
+        return []
+
+
+def get_user_weakest_phrases(
+    user_id: int,
+    language_code: str,
+    min_attempts: int = 3,
+    limit: int = 10,
+) -> List[Dict]:
+    """Phrases with the lowest average score, filtered to ones practised enough to be meaningful."""
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT target_phrase,
+                   COUNT(*) AS attempts,
+                   AVG(similarity_score) AS avg_score,
+                   MAX(practice_date) AS last_attempt
+            FROM user_progress
+            WHERE user_id = %s AND language_code = %s
+            GROUP BY target_phrase
+            HAVING attempts >= %s
+            ORDER BY avg_score ASC, attempts DESC
+            LIMIT %s
+        """
+        cursor.execute(query, (user_id, language_code, min_attempts, limit))
+        return cursor.fetchall()
+    except Error as e:
+        st.error(f"❌ Error fetching weakest phrases: {e}")
+        return []
+
+
 # ============================================================================
 # RATE LIMITING
 # ============================================================================
