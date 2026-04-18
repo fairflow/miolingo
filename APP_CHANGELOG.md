@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.5.2] - 2026-04-18
+
+### Fixed
+
+- Quick Practice: navigating to another phrase via Previous/Next/Jump-to
+  with a recording still in the widget no longer leaves Streamlit's
+  `st.audio_input` showing "An error occurred. Please try again." The
+  audio_input widget is now remounted (key rotation) and the stale
+  result cleared on every navigation event, mirroring what the Remove
+  Recording button already did. Also prevents a recording made for
+  phrase N from being submittable against phrase N+1.
+
+
 ## [7.5.1] - 2026-04-18
 
 ### Fixed
