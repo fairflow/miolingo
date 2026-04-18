@@ -120,7 +120,17 @@ def render_user_panel():
 
             on_logout()
             app_mysql.cleanup_session_resources()
+
+            # Preserve the cookie_manager across the clear so the already-queued
+            # save() in on_logout() can finish committing to the browser on
+            # the next render. Re-instantiating it mid-logout races the
+            # component and can leave the session cookie in place (auto
+            # re-login) or block the login page from rendering (blank page).
+            preserved = {}
+            if 'cookie_manager' in st.session_state:
+                preserved['cookie_manager'] = st.session_state['cookie_manager']
             st.session_state.clear()
+            st.session_state.update(preserved)
             st.session_state['voluntary_logout'] = True
             st.rerun()
 

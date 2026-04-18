@@ -8,6 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.5.1] - 2026-04-18
+
+### Fixed
+
+- Logout: clicking Logout no longer leaves the user auto-re-logged-in or
+  on a blank page. Two related races are closed:
+  - `st.session_state.clear()` used to drop the `cookie_manager`
+    reference, forcing a fresh `EncryptedCookieManager` to be built mid-
+    logout. That new instance could read the pre-logout cookie state
+    before the just-queued `cookies.save()` had committed to the
+    browser. The manager is now preserved across the clear.
+  - `check_authentication()` could run `resolve_session()` on the very
+    next rerun and re-attach the still-present session cookie. It now
+    short-circuits when `voluntary_logout` is set, deferring cookie
+    reads until the browser has had a chance to catch up.
+
+Logging in as a different user in the same browser now works without
+incognito. Tab-independent logout is not addressed — cookies are shared
+per-domain and would need a separate identity mechanism.
+
+
 ## [7.5.0] - 2026-04-17
 
 ### Added

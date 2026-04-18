@@ -419,8 +419,13 @@ def check_authentication():
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
 
-    # Attempt cookie-based reattach (feature-flagged)
-    if ENABLE_SESSION_MANAGER and not st.session_state.get('authenticated', False):
+    # Attempt cookie-based reattach (feature-flagged).
+    # Skip on the run immediately after a voluntary logout: the browser may
+    # not have committed the cleared session cookie yet, and re-attaching
+    # here would silently log the user back in.
+    if (ENABLE_SESSION_MANAGER
+            and not st.session_state.get('authenticated', False)
+            and not st.session_state.get('voluntary_logout', False)):
         if _session_manager:
             context = _session_manager.resolve_session()
             if context.authenticated and context.user:
