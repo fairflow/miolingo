@@ -549,14 +549,25 @@ def _render_guided_mode():
     in_edit_mode = st.session_state.get('edit_mode', False)
     col1, col2, col3, col4 = st.columns([1, 1, 2, 1])
 
+    def _reset_recorder():
+        # Remount the st.audio_input widget so a stale blob / MediaRecorder
+        # handle from the previous phrase can't surface as the generic
+        # "An error occurred. Please try again." in-widget message.
+        st.session_state["quick_audio_input_key"] = (
+            st.session_state.get("quick_audio_input_key", 0) + 1
+        )
+        st.session_state["quick_last_result"] = None
+
     def _on_prev():
         st.session_state.qp_phrase_position -= 1
         st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
+        _reset_recorder()
         if is_debug(): st.session_state.state_change_log.append(f"Prev button: qp_phrase_position → {st.session_state.qp_phrase_position}")
 
     def _on_next():
         st.session_state.qp_phrase_position += 1
         st.session_state.phrase_selector_widget = st.session_state.qp_phrase_position
+        _reset_recorder()
         if is_debug(): st.session_state.state_change_log.append(f"Next button: qp_phrase_position → {st.session_state.qp_phrase_position}")
 
     with col1:
@@ -591,6 +602,7 @@ def _render_guided_mode():
         # Detect user interaction with selectbox (no on_change — avoids callback conflicts)
         if selected_pos != st.session_state.qp_phrase_position:
             st.session_state.qp_phrase_position = selected_pos
+            _reset_recorder()
             if is_debug(): st.session_state.state_change_log.append(f"Dropdown: qp_phrase_position → {selected_pos} (user selected)")
             st.rerun()
 
