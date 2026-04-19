@@ -272,10 +272,13 @@ def render_vocabulary_tab():
         _render_export_csv(rows)
 
     if not rows:
-        st.info(
-            "No vocabulary yet for this language. Add words from the Story Reader, "
-            "Quick Practice, or paste a passage below."
-        )
+        if search.strip():
+            st.info(f"**"{search.strip()}"** not in your vocabulary — add it below.")
+        else:
+            st.info(
+                "No vocabulary yet for this language. Add words from the Story Reader, "
+                "Quick Practice, or paste a passage below."
+            )
     else:
         for row in rows:
             _render_entry_row(row)
