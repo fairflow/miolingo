@@ -161,6 +161,7 @@ CREATE TABLE `vocab_entries` (
   `first_seen_at` datetime NOT NULL,
   `last_seen_at` datetime NOT NULL,
   `notes` text COLLATE utf8mb4_unicode_ci,
+  `url` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`vocab_id`),
   UNIQUE KEY `uq_user_lang_word` (`user_id`,`language_code`,`word`),
   KEY `idx_user_lang_last_seen` (`user_id`,`language_code`,`last_seen_at`),

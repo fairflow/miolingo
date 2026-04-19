@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.6.5] - 2026-04-19
+
+### Changed
+
+- Vocabulary tab: paste/upload controls now appear above the entry list (no more scrolling past entries to add a word).
+- Vocabulary tab: optional URL field on paste capture and bulk import (`word | source | context | url`); clickable 🔗 Source link shown in expanded entry rows; URL column in CSV export.
+- Migration: run `python scripts/amend_db.py --file scripts/add_vocab_url.sql --execute` against local and remote MySQL.
+
 ## [7.6.4] - 2026-04-19
 
 ### Fixed
