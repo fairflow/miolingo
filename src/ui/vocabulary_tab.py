@@ -90,8 +90,6 @@ def _render_paste_capture():
         if st.button("➕ Add from passage", key="vocab_paste_btn", type="primary"):
             if not word.strip():
                 st.warning("Type a word to add.")
-            elif not passage.strip():
-                st.warning("Paste a passage first.")
             else:
                 r = _capture_from_passage(passage, word, source_label)
                 if r["ok"]:
