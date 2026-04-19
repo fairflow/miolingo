@@ -90,8 +90,6 @@ def _render_paste_capture():
         if st.button("➕ Add from passage", key="vocab_paste_btn", type="primary"):
             if not word.strip():
                 st.warning("Type a word to add.")
-            elif not passage.strip():
-                st.warning("Paste a passage first.")
             else:
                 r = _capture_from_passage(passage, word, source_label)
                 if r["ok"]:
@@ -274,10 +272,13 @@ def render_vocabulary_tab():
         _render_export_csv(rows)
 
     if not rows:
-        st.info(
-            "No vocabulary yet for this language. Add words from the Story Reader, "
-            "Quick Practice, or paste a passage below."
-        )
+        if search.strip():
+            st.info(f"**"{search.strip()}"** not in your vocabulary — add it below.")
+        else:
+            st.info(
+                "No vocabulary yet for this language. Add words from the Story Reader, "
+                "Quick Practice, or paste a passage below."
+            )
     else:
         for row in rows:
             _render_entry_row(row)

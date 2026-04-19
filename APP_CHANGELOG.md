@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.6.2] - 2026-04-19
+
+### Fixed
+
+- Vocabulary tab: empty search results now show "not in your vocabulary — add it below" instead of the misleading "no vocabulary yet" message.
+
+## [7.6.1] - 2026-04-19
+
+### Fixed
+
+- Vocabulary tab paste capture: passage and source label are now optional; only "Word to add" is required.
+
 ## [7.6.0] - 2026-04-18
 
 ### Added
