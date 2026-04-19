@@ -286,6 +286,14 @@ def _parse_import_line(line: str) -> Optional[Dict[str, str]]:
     return {"word": word, "source": source, "context": context}
 
 
+def count_import_lines(contents: str) -> int:
+    """Count non-blank, non-comment lines in a pipe-delimited import file."""
+    return sum(
+        1 for raw in contents.splitlines()
+        if raw.strip() and not raw.strip().startswith("#")
+    )
+
+
 def import_from_file_contents(
     *,
     user_id: int,
@@ -294,46 +302,55 @@ def import_from_file_contents(
     enrich: bool = False,
     source_language: str = "English",
     secrets: Any = None,
+    progress_fn=None,
 ) -> Dict[str, Any]:
     """
     Parse a pipe-delimited dictionary file and capture each valid row.
     Returns a summary dict with `added`, `updated`, `skipped_not_single`,
     `skipped_other`, and a list of skipped rows for display.
+
+    progress_fn: optional callable(current, total) called after each line.
     """
     added = 0
     updated = 0
     skipped_not_single: List[str] = []
     skipped_other: List[Tuple[str, str]] = []
 
-    for lineno, raw in enumerate(contents.splitlines(), start=1):
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        parsed = _parse_import_line(line)
+    lines = [
+        (lineno, raw)
+        for lineno, raw in enumerate(contents.splitlines(), start=1)
+        if raw.strip() and not raw.strip().startswith("#")
+    ]
+    total = len(lines)
+
+    for done, (lineno, raw) in enumerate(lines, start=1):
+        parsed = _parse_import_line(raw.strip())
         if not parsed:
             skipped_other.append((f"line {lineno}", "unparseable"))
-            continue
-        result = capture_vocab_entry(
-            user_id=user_id,
-            language=language,
-            word=parsed["word"],
-            source_name=parsed["source"] or None,
-            context_line=parsed["context"],
-            enrich=enrich,
-            source_language=source_language,
-            secrets=secrets,
-        )
-        if not result["ok"]:
-            msg = result["message"]
-            if "single" in msg:
-                skipped_not_single.append(parsed["word"])
-            else:
-                skipped_other.append((parsed["word"], msg))
-            continue
-        if result["created"]:
-            added += 1
         else:
-            updated += 1
+            result = capture_vocab_entry(
+                user_id=user_id,
+                language=language,
+                word=parsed["word"],
+                source_name=parsed["source"] or None,
+                context_line=parsed["context"],
+                enrich=enrich,
+                source_language=source_language,
+                secrets=secrets,
+            )
+            if not result["ok"]:
+                msg = result["message"]
+                if "single" in msg:
+                    skipped_not_single.append(parsed["word"])
+                else:
+                    skipped_other.append((parsed["word"], msg))
+            elif result["created"]:
+                added += 1
+            else:
+                updated += 1
+
+        if progress_fn is not None:
+            progress_fn(done, total)
 
     return {
         "added": added,
