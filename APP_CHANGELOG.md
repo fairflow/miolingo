@@ -8,6 +8,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.6.0] - 2026-04-18
+
+### Added
+
+- **Personal Vocabulary Tracker** (F2): a new "📚 Vocabulary" tab that holds a
+  per-user, per-language dictionary of single words captured from everywhere
+  they appear in Miolingo. Each entry stores the source (poem title,
+  practice material, paste label) plus ±2 lines of context around the word,
+  so you can jog your memory of where you learned it. Sortable
+  alphabetically or by recency; searchable; with per-entry notes, TTS
+  playback, and CSV export.
+- Capture routes:
+  - **Story Reader**: "Add a word from this phrase" input beside the
+    displayed line; ±2 surrounding phrases captured as context.
+  - **Quick Practice**: auto-capture on a perfect match for single-word
+    practice targets; "Add a word" input for multi-word phrases.
+  - **Paste + click**: paste a passage into the Vocabulary tab and pick a
+    word from it; the containing line + ±2 neighbours become its context.
+  - **Bulk upload**: pipe-delimited `word | source | context` `.txt` file
+    imported in one go; multi-word rows are reported and skipped.
+- Auto-enrichment: translation (via the existing cached LLM provider) and
+  IPA (via espeak) are fetched at capture time. TTS is on-demand per entry.
+- Practice-from-vocab: a new "📚 My Vocab" source in Quick Practice loads
+  your vocab list as a practice queue.
+- New `vocab_entries` table. Apply `scripts/add_vocab_entries.sql` to each
+  environment before deploying. Unique index on
+  `(user_id, language_code, word)` enforces one-entry-per-word dedup;
+  re-captures bump `times_seen` / `last_seen_at` and fill previously-NULL
+  fields without overwriting existing values (first encounter wins).
+- Integration test coverage: 11 new tests in `tests/integration/test_vocab.py`.
+
+
 ## [7.5.2] - 2026-04-18
 
 ### Fixed

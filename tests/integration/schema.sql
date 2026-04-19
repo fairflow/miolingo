@@ -145,3 +145,24 @@ CREATE TABLE `users` (
   KEY `idx_username` (`username`),
   KEY `idx_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `vocab_entries` (
+  `vocab_id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `language_code` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `word` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `display_word` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `translation` text COLLATE utf8mb4_unicode_ci,
+  `ipa` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `source_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `context_before` text COLLATE utf8mb4_unicode_ci,
+  `context_line` text COLLATE utf8mb4_unicode_ci,
+  `context_after` text COLLATE utf8mb4_unicode_ci,
+  `times_seen` int NOT NULL DEFAULT '1',
+  `first_seen_at` datetime NOT NULL,
+  `last_seen_at` datetime NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`vocab_id`),
+  UNIQUE KEY `uq_user_lang_word` (`user_id`,`language_code`,`word`),
+  KEY `idx_user_lang_last_seen` (`user_id`,`language_code`,`last_seen_at`),
+  CONSTRAINT `fk_vocab_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -24,6 +24,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 import app_mysql
+import vocab
 from audio.tts import generate_target_audio
 from scoring.phonemes import format_ipa, normalize_for_phoneme_scoring
 from scoring.practice import practice_word_from_audio as _practice_word_from_audio_core
@@ -67,6 +68,33 @@ def practice_word_from_audio(text: str, audio_bytes: bytes, settings: dict):
                 )
             except Exception as e:
                 st.warning(f"⚠️ Could not save to database: {e}")
+
+            # F2: auto-capture single-word perfect matches to the vocab tracker.
+            # Multi-word targets are handled by the "Add a word" input rendered
+            # next to the practice interface (see render_practice_results).
+            try:
+                target = (result.get('target') or '').strip()
+                if (result.get('exact_match')
+                        and target
+                        and ' ' not in target):
+                    vocab.capture_vocab_entry(
+                        user_id=user_id,
+                        language=st.session_state.language,
+                        word=target,
+                        source_name=st.session_state.get(
+                            'material_source'
+                        ) or 'Quick Practice',
+                        context_line=target,
+                        enrich=True,
+                        source_language=st.session_state.get(
+                            'source_language', 'English'
+                        ),
+                        secrets=st.secrets if hasattr(st, 'secrets') else None,
+                    )
+            except Exception as e:
+                # Never let vocab capture break the practice flow
+                import logging
+                logging.warning("vocab auto-capture failed: %s", e)
 
     return _practice_word_from_audio_core(
         text,
@@ -178,6 +206,55 @@ def render_practice_interface(text, key_prefix="practice"):
 # ---------------------------------------------------------------------------
 # render_practice_results
 # ---------------------------------------------------------------------------
+
+def _render_practice_vocab_capture(result, key_prefix):
+    """Capture a single word from a multi-word practice phrase into the vocab tracker.
+
+    Single-word targets are already auto-captured on perfect match (see
+    `practice_word_from_audio._persist_result`); we only show the input for
+    multi-word phrases so the user can pick which word is worth keeping.
+    """
+    if not st.session_state.get("authenticated", False):
+        return
+    target = (result.get("target") or "").strip()
+    if not target or " " not in target:
+        return
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        word = st.text_input(
+            "📚 Add a word from this phrase to my vocabulary",
+            key=f"{key_prefix}_vocab_word",
+            placeholder="type a single word from the phrase…",
+            label_visibility="collapsed",
+        )
+    with col2:
+        if st.button("➕ Add", key=f"{key_prefix}_vocab_btn"):
+            if not word.strip():
+                st.warning("Type a word first.")
+            else:
+                r = vocab.capture_vocab_entry(
+                    user_id=st.session_state["user"]["user_id"],
+                    language=st.session_state.language,
+                    word=word,
+                    source_name=st.session_state.get(
+                        "material_source"
+                    ) or "Quick Practice",
+                    context_line=target,
+                    enrich=True,
+                    source_language=st.session_state.get(
+                        "source_language", "English"
+                    ),
+                    secrets=st.secrets if hasattr(st, "secrets") else None,
+                )
+                if r["ok"]:
+                    st.success(
+                        f"✅ {'Added' if r['created'] else 'Already in'} vocab: "
+                        f"**{word}**"
+                    )
+                else:
+                    st.error(f"⚠️ {r['message']}")
+
 
 def render_practice_results(result, key_prefix="practice"):
     """
@@ -300,6 +377,9 @@ def render_practice_results(result, key_prefix="practice"):
             if result.get('edit_distance') is not None:
                 st.metric("Edit Distance", result['edit_distance'],
                         help="Number of edits needed to match target")
+
+    # F2: let the user capture a single word from a multi-word practice phrase.
+    _render_practice_vocab_capture(result, key_prefix)
 
     col1, col2 = st.columns(2)
     with col1:

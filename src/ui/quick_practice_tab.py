@@ -49,7 +49,7 @@ def _render_materials_loader():
         st.session_state.qp_materials_expanded = True
 
         # Use radio buttons for material source to preserve state across reruns
-        material_source_names = ["📦 Built-in Library", "📁 Upload File"]
+        material_source_names = ["📦 Built-in Library", "📁 Upload File", "📚 My Vocab"]
         material_source_index = st.radio(
             "Material Source",
             range(len(material_source_names)),
@@ -63,8 +63,53 @@ def _render_materials_loader():
             _render_builtin_materials(get_available_languages, get_language_structure,
                                       get_file_metadata, load_phrase_file,
                                       format_category_name, format_language_name)
-        else:
+        elif material_source_index == 1:
             _render_upload_materials(format_language_name)
+        else:
+            _render_vocab_materials()
+
+
+def _render_vocab_materials():
+    """Load the user's personal vocab list as a practice phrase queue."""
+    import vocab as vocab_mod
+
+    if not st.session_state.get('authenticated', False):
+        st.info("🔒 Sign in to practise from your personal vocabulary.")
+        return
+
+    language = st.session_state.get('language', 'Portuguese')
+    user_id = st.session_state['user']['user_id']
+
+    sort = st.selectbox(
+        "Order",
+        options=["alpha", "recent", "oldest"],
+        format_func=lambda s: {
+            "alpha": "Alphabetical",
+            "recent": "Most recently added",
+            "oldest": "Oldest first",
+        }[s],
+        key="qp_vocab_sort",
+    )
+
+    phrases = vocab_mod.vocab_as_practice_phrases(
+        user_id=user_id, language=language, sort=sort
+    )
+    st.caption(f"**{len(phrases)}** word(s) in your {language} vocab.")
+
+    if not phrases:
+        st.info(
+            "No vocabulary for this language yet. Add some from the Story Reader, "
+            "paste a passage, or upload a dictionary file (see the Vocabulary tab)."
+        )
+        return
+
+    if st.button("📂 Load My Vocab", type="primary", key="load_vocab"):
+        st.session_state.phrase_list = phrases
+        st.session_state.qp_phrase_position = 0
+        st.session_state.quick_last_result = None
+        st.session_state.material_source = f"My Vocab ({language})"
+        st.session_state.qp_materials_expanded = False
+        st.rerun()
 
 
 def _render_builtin_materials(get_available_languages, get_language_structure,
