@@ -273,7 +273,7 @@ def render_vocabulary_tab():
 
     if not rows:
         if search.strip():
-            st.info(f"**"{search.strip()}"** not in your vocabulary — add it below.")
+            st.info(f'**\"{search.strip()}\"** not in your vocabulary — add it below.')
         else:
             st.info(
                 "No vocabulary yet for this language. Add words from the Story Reader, "
