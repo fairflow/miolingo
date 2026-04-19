@@ -3,12 +3,8 @@
   "configurations": [
     {
       "name": "miolingo (main app)",
-      "runtimeExecutable": "/Users/matthew/Software/working/miolingo/venv/bin/streamlit",
-      "runtimeArgs": [
-        "run", "src/app.py",
-        "--server.headless", "true",
-        "--server.port", "8701"
-      ],
+      "runtimeExecutable": "scripts/dev_server.sh",
+      "runtimeArgs": ["8701"],
       "cwd": "${workspaceFolder}",
       "port": 8701,
       "autoPort": false
