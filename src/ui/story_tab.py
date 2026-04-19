@@ -15,10 +15,62 @@ import json
 import streamlit as st
 from pathlib import Path
 
+import vocab
 from app_language_materials import format_language_name
 from scoring.phonemes import format_ipa
 from translation import get_translation_from_llm
 from ui.practice_tab import render_practice_interface, render_practice_results
+
+
+def _render_vocab_capture(phrases, current_idx, scene_title):
+    """Small "add a word to my vocab" input below the displayed phrase.
+
+    Captures ±2 surrounding phrases as context so the user can jog their
+    memory later. Only visible to authenticated users.
+    """
+    if not st.session_state.get("authenticated", False):
+        return
+
+    lines = [p.get("text", "") for p in phrases]
+    context_before = "\n".join(lines[max(0, current_idx - 2):current_idx])
+    context_line = lines[current_idx] if 0 <= current_idx < len(lines) else ""
+    context_after = "\n".join(lines[current_idx + 1:current_idx + 3])
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        word = st.text_input(
+            "📚 Add a word from this phrase to my vocabulary",
+            key=f"story_vocab_word_{current_idx}",
+            placeholder="type a single word…",
+            label_visibility="collapsed",
+        )
+    with col2:
+        if st.button("➕ Add", key=f"story_vocab_btn_{current_idx}"):
+            if not word.strip():
+                st.warning("Type a word first.")
+            else:
+                user_id = st.session_state["user"]["user_id"]
+                r = vocab.capture_vocab_entry(
+                    user_id=user_id,
+                    language=st.session_state.get("language", "Portuguese"),
+                    word=word,
+                    source_name=scene_title,
+                    context_before=context_before,
+                    context_line=context_line,
+                    context_after=context_after,
+                    enrich=True,
+                    source_language=st.session_state.get(
+                        "source_language", "English"
+                    ),
+                    secrets=st.secrets if hasattr(st, "secrets") else None,
+                )
+                if r["ok"]:
+                    st.success(
+                        f"✅ {'Added' if r['created'] else 'Already in'} vocab: "
+                        f"**{word}**"
+                    )
+                else:
+                    st.error(f"⚠️ {r['message']}")
 
 # Unified materials directory
 _UNIFIED_STORIES = Path(__file__).parent.parent.parent / "language_materials" / "unified" / "stories"
@@ -215,6 +267,12 @@ def render_scene_practice_mode(scenes_dir):
                     st.caption("Compare with eSpeak IPA generated below")
 
         st.markdown(f"#### 🎯 **{current_phrase}**")
+
+        _render_vocab_capture(
+            phrases=phrases,
+            current_idx=current_idx,
+            scene_title=selected_scene_display,
+        )
 
         # Practice interface with unique key prefix for story mode
         render_practice_interface(current_phrase, key_prefix="story")

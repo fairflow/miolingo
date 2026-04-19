@@ -98,6 +98,7 @@ from ui.story_tab import render_story_reader
 from ui.statistics_tab import render_statistics_tab
 from ui.history_tab import load_history, save_history, render_history_tab
 from ui.quick_practice_tab import render_quick_practice_tab
+from ui.vocabulary_tab import render_vocabulary_tab
 from ui.sidebar import render_user_panel, render_settings_panel, is_debug
 
 # Import API usage logger for cost tracking
@@ -433,7 +434,7 @@ def main():
     render_settings_panel()
 
     # Main content - Tabs with state management
-    tab_names = ["🎯 Quick Practice", "📖 Story Reader", "📊 Statistics", "📜 History"]
+    tab_names = ["🎯 Quick Practice", "📖 Story Reader", "📚 Vocabulary", "📊 Statistics", "📜 History"]
 
     # Use radio buttons to preserve tab state across reruns
     selected_tab_index = st.radio(
@@ -453,12 +454,16 @@ def main():
     elif selected_tab_index == 1:
         render_story_reader()
 
-    # Tab 3: Statistics
+    # Tab 3: Vocabulary
     elif selected_tab_index == 2:
+        render_vocabulary_tab()
+
+    # Tab 4: Statistics
+    elif selected_tab_index == 3:
         render_statistics_tab()
 
-    # Tab 4: History
-    elif selected_tab_index == 3:
+    # Tab 5: History
+    elif selected_tab_index == 4:
         render_history_tab()
 
 if __name__ == "__main__":
