@@ -3,7 +3,7 @@
 ## Paulo Dantão
 
 um trilho leva esse trem,  
-bem longe, alem do alem,   
+bem longe, alem do alem,  
 abelha faz zunzunzum,  
 om mani padme hum.
 

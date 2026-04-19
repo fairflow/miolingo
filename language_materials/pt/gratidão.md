@@ -1,3 +1,5 @@
+# Gratidão
+
 Gostaria de expressar minha profunda  
 gratidão por algumas das muitas bênçãos  
 que recebi neste retiro na fazenda  
@@ -8,7 +10,7 @@ pois um conhecimento básico desta
 bela língua é um desses presentes.
 
 Em primeiro lugar, agradeço a Exu,  
-Senhor da Comunicação, por este dom de 
+Senhor da Comunicação, por este dom de  
 compreensão. Desejei desde a minha primeira
 cerimônia com Sonia Costa.  
 
