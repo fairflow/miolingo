@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.6.4] - 2026-04-19
+
+### Fixed
+
+- Vocabulary bulk import: show word count + estimated time before import starts; replace silent spinner with a live progress bar (N/total).
+
 ## [7.6.3] - 2026-04-19
 
 ### Fixed

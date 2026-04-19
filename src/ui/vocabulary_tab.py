@@ -118,23 +118,35 @@ def _render_bulk_upload():
             key="vocab_bulk_enrich",
             help="Slower but more useful. Uncheck for a raw import you'll enrich later.",
         )
-        if uploaded is not None and st.button(
-            "Import file", key="vocab_bulk_btn", type="primary"
-        ):
+        if uploaded is not None:
             try:
                 contents = uploaded.getvalue().decode("utf-8")
             except UnicodeDecodeError:
                 st.error("File is not UTF-8 encoded.")
                 return
-            with st.spinner("Importing..."):
-                summary = vocab.import_from_file_contents(
-                    user_id=_user_id(),
-                    language=_current_language(),
-                    contents=contents,
-                    enrich=enrich,
-                    source_language=_source_language(),
-                    secrets=st.secrets if hasattr(st, "secrets") else None,
-                )
+            n_lines = vocab.count_import_lines(contents)
+            est = f" (~{n_lines * 2}–{n_lines * 4}s with enrichment)" if enrich and n_lines > 10 else ""
+            st.caption(f"{n_lines} words to import{est}.")
+
+        if uploaded is not None and st.button(
+            "Import file", key="vocab_bulk_btn", type="primary"
+        ):
+            progress_bar = st.progress(0, text="Importing…")
+
+            def _progress(done, total):
+                pct = done / total if total else 1
+                progress_bar.progress(pct, text=f"Importing… {done}/{total}")
+
+            summary = vocab.import_from_file_contents(
+                user_id=_user_id(),
+                language=_current_language(),
+                contents=contents,
+                enrich=enrich,
+                source_language=_source_language(),
+                secrets=st.secrets if hasattr(st, "secrets") else None,
+                progress_fn=_progress,
+            )
+            progress_bar.empty()
             st.success(
                 f"✅ Imported — {summary['added']} new, "
                 f"{summary['updated']} updated."
