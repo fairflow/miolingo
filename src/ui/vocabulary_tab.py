@@ -3,7 +3,7 @@ Vocabulary tab — per-user, per-language personal dictionary (F2).
 
 Capture routes wired in this tab:
   - Paste a passage, then type a word to capture from it (source = label)
-  - Bulk upload a pipe-delimited dictionary file (word | source | context)
+  - Bulk upload a pipe-delimited dictionary file (word | source | context | url)
 Capture from Story Reader and Quick Practice hooks into `vocab.capture_vocab_entry`
 directly; this tab is the view layer + paste/upload routes + export.
 """
@@ -42,10 +42,9 @@ def _user_id() -> int:
     return st.session_state["user"]["user_id"]
 
 
-def _capture_from_passage(passage: str, word: str, source_label: str) -> dict:
+def _capture_from_passage(passage: str, word: str, source_label: str, url: str = "") -> dict:
     """Capture a single word from a pasted passage, pulling ±2 lines of context."""
     lines = [ln for ln in passage.splitlines() if ln.strip()]
-    # Find the first line containing the word (case-insensitive).
     lower_word = word.strip().lower()
     idx = next(
         (i for i, ln in enumerate(lines) if lower_word in ln.lower()),
@@ -65,6 +64,7 @@ def _capture_from_passage(passage: str, word: str, source_label: str) -> dict:
         context_before=context_before,
         context_line=context_line,
         context_after=context_after,
+        url=url or None,
         enrich=True,
         source_language=_source_language(),
         secrets=st.secrets if hasattr(st, "secrets") else None,
@@ -87,11 +87,16 @@ def _render_paste_capture():
                 key="vocab_paste_source",
                 placeholder="(pasted)",
             )
+        url = st.text_input(
+            "Source URL (optional)",
+            key="vocab_paste_url",
+            placeholder="https://…",
+        )
         if st.button("➕ Add from passage", key="vocab_paste_btn", type="primary"):
             if not word.strip():
                 st.warning("Type a word to add.")
             else:
-                r = _capture_from_passage(passage, word, source_label)
+                r = _capture_from_passage(passage, word, source_label, url)
                 if r["ok"]:
                     st.success(
                         f"✅ {r['message'].capitalize()}: **{word}** "
@@ -104,8 +109,8 @@ def _render_paste_capture():
 def _render_bulk_upload():
     with st.expander("📥 Upload a dictionary file", expanded=False):
         st.caption(
-            "Pipe-delimited `.txt`: `word | source | context` — one entry per line. "
-            "Lines starting with `#` are ignored. Multi-word entries are skipped."
+            "Pipe-delimited `.txt`: `word | source | context | url` — one entry per line. "
+            "url is optional; lines starting with `#` are ignored; multi-word entries are skipped."
         )
         uploaded = st.file_uploader(
             "Upload .txt",
@@ -168,7 +173,7 @@ def _render_export_csv(rows: List[dict]):
     writer.writerow([
         "word", "translation", "ipa", "source",
         "context_before", "context_line", "context_after",
-        "times_seen", "first_seen_at", "last_seen_at", "notes",
+        "times_seen", "first_seen_at", "last_seen_at", "notes", "url",
     ])
     for r in rows:
         writer.writerow([
@@ -183,6 +188,7 @@ def _render_export_csv(rows: List[dict]):
             r.get("first_seen_at") or "",
             r.get("last_seen_at") or "",
             r.get("notes") or "",
+            r.get("url") or "",
         ])
     st.download_button(
         "⬇️ Export CSV",
@@ -211,6 +217,9 @@ def _render_entry_row(row: dict):
                 st.markdown(f"> {row['context_line']}")
             if row.get("context_after"):
                 st.caption(row["context_after"])
+
+        if row.get("url"):
+            st.markdown(f"[🔗 Source]({row['url']})")
 
         notes = st.text_area(
             "Notes",
@@ -274,6 +283,11 @@ def render_vocabulary_tab():
             placeholder="type to filter…",
         )
 
+    st.markdown("---")
+    _render_paste_capture()
+    _render_bulk_upload()
+    st.markdown("---")
+
     rows = vocab.list_vocab(
         user_id=_user_id(), language=language, sort=sort, search=search
     )
@@ -294,7 +308,3 @@ def render_vocabulary_tab():
     else:
         for row in rows:
             _render_entry_row(row)
-
-    st.markdown("---")
-    _render_paste_capture()
-    _render_bulk_upload()

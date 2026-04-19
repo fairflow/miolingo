@@ -112,6 +112,7 @@ def capture_vocab_entry(
     context_before: str = "",
     context_line: str = "",
     context_after: str = "",
+    url: Optional[str] = None,
     enrich: bool = False,
     source_language: str = "English",
     secrets: Any = None,
@@ -145,8 +146,8 @@ def capture_vocab_entry(
             user_id, language_code, word, display_word,
             translation, ipa, source_name,
             context_before, context_line, context_after,
-            times_seen, first_seen_at, last_seen_at
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, %s, %s)
+            url, times_seen, first_seen_at, last_seen_at
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, %s, %s)
         ON DUPLICATE KEY UPDATE
             times_seen = times_seen + 1,
             last_seen_at = VALUES(last_seen_at),
@@ -155,13 +156,14 @@ def capture_vocab_entry(
             source_name   = COALESCE(source_name, VALUES(source_name)),
             context_before= COALESCE(NULLIF(context_before,''), VALUES(context_before)),
             context_line  = COALESCE(NULLIF(context_line,''),   VALUES(context_line)),
-            context_after = COALESCE(NULLIF(context_after,''),  VALUES(context_after))
+            context_after = COALESCE(NULLIF(context_after,''),  VALUES(context_after)),
+            url           = COALESCE(NULLIF(url,''), VALUES(url))
         """,
         (
             user_id, language, key, display,
             translation, ipa, source_name,
             context_before or None, context_line or None, context_after or None,
-            now, now,
+            url or None, now, now,
         ),
     )
     conn.commit()
@@ -274,16 +276,17 @@ def update_vocab_notes(*, user_id: int, vocab_id: int, notes: str) -> bool:
 
 
 def _parse_import_line(line: str) -> Optional[Dict[str, str]]:
-    """Pipe-delimited: `word | source | context`. All three required; context may be empty."""
+    """Pipe-delimited: `word | source | context | url`. Only word is required; rest may be empty."""
     parts = [p.strip() for p in line.split("|")]
-    if len(parts) < 2:
+    if len(parts) < 1:
         return None
     word = parts[0]
-    source = parts[1] if len(parts) >= 2 else ""
-    context = parts[2] if len(parts) >= 3 else ""
     if not word:
         return None
-    return {"word": word, "source": source, "context": context}
+    source = parts[1] if len(parts) >= 2 else ""
+    context = parts[2] if len(parts) >= 3 else ""
+    url = parts[3] if len(parts) >= 4 else ""
+    return {"word": word, "source": source, "context": context, "url": url}
 
 
 def count_import_lines(contents: str) -> int:
@@ -334,6 +337,7 @@ def import_from_file_contents(
                 word=parsed["word"],
                 source_name=parsed["source"] or None,
                 context_line=parsed["context"],
+                url=parsed.get("url") or None,
                 enrich=enrich,
                 source_language=source_language,
                 secrets=secrets,
