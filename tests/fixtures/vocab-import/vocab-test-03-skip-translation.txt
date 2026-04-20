@@ -1,0 +1,14 @@
+# vocab-test-03-skip-translation.txt
+# Format: word || ipa | source  (translation skipped with ||).
+# Expected: translation=NULL, ipa set from file, source set from file.
+
+Oi || [ˈoɪ] | pt-phrasebook
+Tchau || [tʃˈaʊ] | pt-phrasebook
+Obrigado || [ˌobriɡˈadʊ] | pt-phrasebook
+Perdão || [peɾədˈɐ̃ʊ̃] | pt-phrasebook
+Desculpa || [dˌeskˈuwpæ] | pt-phrasebook
+Sim || [sˈiŋ] | pt-phrasebook
+Não || [nˈɐ̃ʊ̃] | pt-phrasebook
+Reto || [xˈɛtʊ] | pt-phrasebook
+Enfim || [eɪŋfˈiŋ] | pt-phrasebook
+Nossa || [nˈɔsæ] | pt-phrasebook

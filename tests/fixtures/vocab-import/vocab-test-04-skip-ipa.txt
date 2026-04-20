@@ -1,0 +1,14 @@
+# vocab-test-04-skip-ipa.txt
+# Format: word | translation || source  (IPA skipped with ||).
+# Expected: translation set from file, ipa=NULL, source set from file.
+
+Oi | Hello || pt-phrasebook
+Tchau | Goodbye || pt-phrasebook
+Obrigado | Thank you || pt-phrasebook
+Perdão | Pardon || pt-phrasebook
+Desculpa | Sorry || pt-phrasebook
+Sim | Yes || pt-phrasebook
+Não | No || pt-phrasebook
+Reto | Straight ahead || pt-phrasebook
+Enfim | Anyway || pt-phrasebook
+Nossa | Wow! || pt-phrasebook

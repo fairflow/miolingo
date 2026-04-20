@@ -303,6 +303,10 @@ def _parse_import_line(line: str) -> Optional[Dict[str, str]]:
             "source": source, "url": url}
 
 
+IMPORT_LINE_LIMIT = 250
+"""Maximum number of words accepted per bulk upload."""
+
+
 def count_import_lines(contents: str) -> int:
     """Count non-blank, non-comment lines in a pipe-delimited import file."""
     return sum(
@@ -326,8 +330,16 @@ def import_from_file_contents(
     Returns a summary dict with `added`, `updated`, `skipped_not_single`,
     `skipped_other`, and a list of skipped rows for display.
 
+    Raises ValueError if the file exceeds IMPORT_LINE_LIMIT (250) lines.
     progress_fn: optional callable(current, total) called after each line.
     """
+    n = count_import_lines(contents)
+    if n > IMPORT_LINE_LIMIT:
+        raise ValueError(
+            f"File has {n} words — maximum is {IMPORT_LINE_LIMIT}. "
+            "Split into smaller files and import separately."
+        )
+
     added = 0
     updated = 0
     skipped_not_single: List[str] = []

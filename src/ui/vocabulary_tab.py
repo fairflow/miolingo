@@ -125,6 +125,7 @@ def _render_bulk_upload():
             key="vocab_bulk_enrich",
             help="Fills any blank translation/IPA via LLM + eSpeak. Skipped if the file already has those fields.",
         )
+        _over_limit = False
         if uploaded is not None:
             try:
                 contents = uploaded.getvalue().decode("utf-8")
@@ -132,10 +133,17 @@ def _render_bulk_upload():
                 st.error("File is not UTF-8 encoded.")
                 return
             n_lines = vocab.count_import_lines(contents)
-            est = f" (~{n_lines * 2}–{n_lines * 4}s if enrichment needed)" if enrich and n_lines > 10 else ""
-            st.caption(f"{n_lines} words to import{est}.")
+            if n_lines > vocab.IMPORT_LINE_LIMIT:
+                st.error(
+                    f"⚠️ File has **{n_lines}** words — maximum is "
+                    f"**{vocab.IMPORT_LINE_LIMIT}**. Split into smaller files and import separately."
+                )
+                _over_limit = True
+            else:
+                est = f" (~{n_lines * 2}–{n_lines * 4}s if enrichment needed)" if enrich and n_lines > 10 else ""
+                st.caption(f"{n_lines} words to import{est}.")
 
-        if uploaded is not None and st.button(
+        if uploaded is not None and not _over_limit and st.button(
             "Import file", key="vocab_bulk_btn", type="primary"
         ):
             progress_bar = st.progress(0, text="Importing…")
