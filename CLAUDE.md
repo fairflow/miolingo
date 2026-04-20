@@ -1,5 +1,13 @@
 # Miolingo — Claude Code Instructions
 
+> **Before doing anything that touches scripts, versioning, or PRs:**
+> read **[docs/dev-docs/SCRIPTS_WORKFLOW.md](docs/dev-docs/SCRIPTS_WORKFLOW.md)**.
+> It is the single source of truth for the end-to-end workflow and a reference
+> for every script in `scripts/`. If a script seems to misbehave, check that
+> document first — the scripts used to have bugs that forced workarounds, and
+> new agents have repeatedly relearned the workflow from scratch. Don't be the
+> next one: read the doc, and if you fix a script, update the doc.
+
 ## Git Workflow — PR Branches (read before any `git push`)
 
 All work lands via PRs targeting `claude/dev-swept`. **Never push directly to
