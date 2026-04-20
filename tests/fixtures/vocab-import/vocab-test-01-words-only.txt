@@ -1,0 +1,19 @@
+# vocab-test-01-words-only.txt
+# Format: word only. No pipes.
+# Expected: 15 added, translation+IPA blank (or filled if enrichment on).
+
+sol
+nasce
+suavemente
+sobre
+São
+Paulo
+ruas
+Vila
+Madalena
+começam
+ganhar
+vida
+Sophie
+Moreira
+entra

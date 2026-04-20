@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [7.6.7] - 2026-04-20
+
+### Added
+
+- Vocabulary bulk import: 250-word limit per upload. Files over the limit show an error immediately and block the Import button. (`vocab.IMPORT_LINE_LIMIT = 250`)
+- Test suite: 36 unit tests for the import parser + fixture files covering all 8 field-combination patterns + a Comet browser test plan (`tests/fixtures/vocab-import/`).
+
+## [7.6.6] - 2026-04-20
+
+### Changed
+
+- Vocabulary bulk import: new 5-field positional format `word | translation | ipa | source | url` (context field removed — impractical in plain text). Use `||` to skip a field while keeping later ones in the correct position (e.g. `word || [atˈɛ] | src`). IPA `[]` brackets stripped automatically.
+- Enrichment is now additive: LLM/eSpeak only fills fields missing from the file — pre-enriched files import instantly with no redundant API calls.
+- "Auto-fetch translation + IPA" checkbox relabelled to "Auto-fetch **missing** translation + IPA" to reflect the above.
+
 ## [7.6.5] - 2026-04-19
 
 ### Changed

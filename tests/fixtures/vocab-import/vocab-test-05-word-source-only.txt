@@ -1,0 +1,14 @@
+# vocab-test-05-word-source-only.txt
+# Format: word ||| source  (translation and IPA both skipped).
+# Expected: translation=NULL, ipa=NULL, source set.
+
+seu ||| O Café da Manhã
+café ||| O Café da Manhã
+preferido ||| O Café da Manhã
+lugar ||| O Café da Manhã
+acolhedor ||| O Café da Manhã
+esquina ||| O Café da Manhã
+rua ||| O Café da Manhã
+Aspicuelta ||| O Café da Manhã
+Bom ||| O Café da Manhã
+dia ||| O Café da Manhã

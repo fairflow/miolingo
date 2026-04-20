@@ -1,0 +1,16 @@
+# vocab-test-02-full-5-field.txt
+# Format: word | translation | ipa | source | url (all 5 fields).
+# Expected: all fields stored as-is; no enrichment needed.
+
+Oi | Hello | [ˈoɪ] | pt-phrasebook | https://example.com/pt#oi
+Tchau | Goodbye | [tʃˈaʊ] | pt-phrasebook | https://example.com/pt#tchau
+Obrigado | Thank you | [ˌobriɡˈadʊ] | pt-phrasebook | https://example.com/pt#obrigado
+Perdão | Pardon | [peɾədˈɐ̃ʊ̃] | pt-phrasebook | https://example.com/pt#perdão
+Desculpa | Sorry | [dˌeskˈuwpæ] | pt-phrasebook | https://example.com/pt#desculpa
+Sim | Yes | [sˈiŋ] | pt-phrasebook | https://example.com/pt#sim
+Não | No | [nˈɐ̃ʊ̃] | pt-phrasebook | https://example.com/pt#não
+Reto | Straight ahead | [xˈɛtʊ] | pt-phrasebook | https://example.com/pt#reto
+Enfim | Anyway | [eɪŋfˈiŋ] | pt-phrasebook | https://example.com/pt#enfim
+Nossa | Wow! | [nˈɔsæ] | pt-phrasebook | https://example.com/pt#nossa
+Caramba | Holy cow! | [kˌaɾˈɐ̃mbæ] | pt-phrasebook | https://example.com/pt#caramba
+Vamos | Come on! | [vˈɐ̃mʊs] | pt-phrasebook | https://example.com/pt#vamos

@@ -1,0 +1,19 @@
+# vocab-test-06-mixed.txt
+# Tests all patterns together + error handling.
+# Expected: see EXPECTED block below.
+
+# --- SHOULD BE ADDED (7 words) ---
+tudo
+Oi | Hello | [ˈoɪ] | pt-phrasebook
+Tchau || [tʃˈaʊ] | pt-phrasebook
+Obrigado | Thank you || pt-phrasebook
+bem ||| scene-01
+pergunta | dawn | [dˈɔːn] | scene-02 | https://example.com/scene2
+Marco
+
+# --- SHOULD BE SKIPPED (multi-word) ---
+bom dia | good morning | [bˈɔm dˈɪə] | phrasebook
+boa noite | good night || phrasebook
+
+# --- blank line above is fine ---
+# End of file
