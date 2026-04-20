@@ -109,8 +109,10 @@ def _render_paste_capture():
 def _render_bulk_upload():
     with st.expander("📥 Upload a dictionary file", expanded=False):
         st.caption(
-            "Pipe-delimited `.txt`: `word | source | context | url` — one entry per line. "
-            "url is optional; lines starting with `#` are ignored; multi-word entries are skipped."
+            "Pipe-delimited `.txt`: `word | translation | ipa | source | url` — one entry per line. "
+            "Only word is required. Use `||` to skip a field while keeping later ones in position "
+            "(e.g. `word || [atˈɛ] | src`). IPA brackets `[]` are stripped automatically. "
+            "Lines starting with `#` are ignored; multi-word entries are skipped."
         )
         uploaded = st.file_uploader(
             "Upload .txt",
@@ -118,10 +120,10 @@ def _render_bulk_upload():
             key="vocab_bulk_upload",
         )
         enrich = st.checkbox(
-            "Auto-fetch translation + IPA on import",
+            "Auto-fetch missing translation + IPA on import",
             value=True,
             key="vocab_bulk_enrich",
-            help="Slower but more useful. Uncheck for a raw import you'll enrich later.",
+            help="Fills any blank translation/IPA via LLM + eSpeak. Skipped if the file already has those fields.",
         )
         if uploaded is not None:
             try:
@@ -130,7 +132,7 @@ def _render_bulk_upload():
                 st.error("File is not UTF-8 encoded.")
                 return
             n_lines = vocab.count_import_lines(contents)
-            est = f" (~{n_lines * 2}–{n_lines * 4}s with enrichment)" if enrich and n_lines > 10 else ""
+            est = f" (~{n_lines * 2}–{n_lines * 4}s if enrichment needed)" if enrich and n_lines > 10 else ""
             st.caption(f"{n_lines} words to import{est}.")
 
         if uploaded is not None and st.button(

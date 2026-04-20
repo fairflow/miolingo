@@ -113,6 +113,8 @@ def capture_vocab_entry(
     context_line: str = "",
     context_after: str = "",
     url: Optional[str] = None,
+    translation: Optional[str] = None,
+    ipa: Optional[str] = None,
     enrich: bool = False,
     source_language: str = "English",
     secrets: Any = None,
@@ -129,10 +131,12 @@ def capture_vocab_entry(
     except VocabCaptureError as e:
         return {"ok": False, "vocab_id": None, "created": False, "message": str(e)}
 
-    translation: Optional[str] = None
-    ipa: Optional[str] = None
-    if enrich:
-        translation, ipa = _enrich(display, language, source_language, secrets)
+    if enrich and (not translation or not ipa):
+        enrich_t, enrich_i = _enrich(display, language, source_language, secrets)
+        if not translation:
+            translation = enrich_t
+        if not ipa:
+            ipa = enrich_i
 
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     conn = app_mysql.get_connection()
@@ -276,17 +280,27 @@ def update_vocab_notes(*, user_id: int, vocab_id: int, notes: str) -> bool:
 
 
 def _parse_import_line(line: str) -> Optional[Dict[str, str]]:
-    """Pipe-delimited: `word | source | context | url`. Only word is required; rest may be empty."""
+    """Pipe-delimited: `word | translation | ipa | source | url` (5 positional fields).
+
+    Only word is required.  Use `||` to leave a field blank while keeping
+    later fields in the correct position — e.g. `word || [atˈɛ] | src` sets
+    ipa but leaves translation empty.  IPA may be wrapped in `[]`; brackets
+    are stripped.  Trailing fields may be omitted.
+    """
     parts = [p.strip() for p in line.split("|")]
-    if len(parts) < 1:
+    if not parts:
         return None
     word = parts[0]
     if not word:
         return None
-    source = parts[1] if len(parts) >= 2 else ""
-    context = parts[2] if len(parts) >= 3 else ""
-    url = parts[3] if len(parts) >= 4 else ""
-    return {"word": word, "source": source, "context": context, "url": url}
+    translation = parts[1] if len(parts) >= 2 else ""
+    ipa         = parts[2] if len(parts) >= 3 else ""
+    source      = parts[3] if len(parts) >= 4 else ""
+    url         = parts[4] if len(parts) >= 5 else ""
+    if ipa.startswith("[") and ipa.endswith("]"):
+        ipa = ipa[1:-1]
+    return {"word": word, "translation": translation, "ipa": ipa,
+            "source": source, "url": url}
 
 
 def count_import_lines(contents: str) -> int:
@@ -336,8 +350,9 @@ def import_from_file_contents(
                 language=language,
                 word=parsed["word"],
                 source_name=parsed["source"] or None,
-                context_line=parsed["context"],
                 url=parsed.get("url") or None,
+                translation=parsed.get("translation") or None,
+                ipa=parsed.get("ipa") or None,
                 enrich=enrich,
                 source_language=source_language,
                 secrets=secrets,
