@@ -178,13 +178,14 @@ def test_bulk_import(db_conn, make_user):
     import vocab
 
     u = make_user(username="vocab_importer")
+    # Format: word | translation | ipa | source | url (5 positional fields)
     text = (
         "# comment line ignored\n"
         "\n"
-        "lua | Cancao da Lua | A lua cheia ilumina\n"
-        "mar | Cancao do Mar | \n"
-        "boa tarde | phrases.txt | this should be rejected\n"
-        "sol | Lesson 1 | O sol brilha\n"
+        "lua | moon | [ˈlu.ɐ] | Cancao da Lua\n"
+        "mar | sea || Cancao do Mar\n"
+        "boa tarde | good afternoon | | phrases.txt\n"
+        "sol | sun | | Lesson 1\n"
     )
     summary = vocab.import_from_file_contents(
         user_id=u["user_id"], language="Portuguese", contents=text)
@@ -195,6 +196,10 @@ def test_bulk_import(db_conn, make_user):
 
     rows = vocab.list_vocab(user_id=u["user_id"], language="Portuguese")
     assert sorted(r["word"] for r in rows) == ["lua", "mar", "sol"]
+    lua = next(r for r in rows if r["word"] == "lua")
+    assert lua["translation"] == "moon"
+    assert lua["ipa"] == "ˈlu.ɐ"
+    assert lua["source_name"] == "Cancao da Lua"
 
 
 def test_vocab_as_practice_phrases_shape(db_conn, make_user):
