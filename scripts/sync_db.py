@@ -40,6 +40,8 @@ SYNC_TABLES = {
     "translation_cache": {"direction": "bidirectional",   "strategy": "insert_ignore"},
     "announcements":     {"direction": "remote_to_local", "strategy": "overwrite"},
     "activity_log":      {"direction": "remote_to_local", "strategy": "append_by_date"},
+    # F2 Personal Vocabulary — bidirectional upsert on (user_id, language_code, word)
+    "vocab_entries":     {"direction": "bidirectional",   "strategy": "upsert_vocab"},
 }
 
 # Tables skipped (infrastructure-local)
@@ -450,6 +452,107 @@ def sync_insert_ignore(
 
 
 # ---------------------------------------------------------------------------
+# Vocab-specific upsert sync
+# ---------------------------------------------------------------------------
+
+# Non-PK data columns for vocab_entries (vocab_id is auto-increment, excluded).
+# Order must match the INSERT column list below.
+_VOCAB_COLS = [
+    "user_id", "language_code", "word", "display_word",
+    "translation", "ipa", "source_name",
+    "context_before", "context_line", "context_after",
+    "url", "times_seen", "first_seen_at", "last_seen_at", "notes",
+]
+
+_VOCAB_INSERT_SQL = """
+    INSERT INTO `vocab_entries` ({cols})
+    VALUES ({placeholders})
+    ON DUPLICATE KEY UPDATE
+        times_seen    = GREATEST(times_seen,    VALUES(times_seen)),
+        last_seen_at  = GREATEST(last_seen_at,  VALUES(last_seen_at)),
+        first_seen_at = LEAST(first_seen_at,    VALUES(first_seen_at)),
+        translation   = COALESCE(translation,   VALUES(translation)),
+        ipa           = COALESCE(ipa,            VALUES(ipa)),
+        source_name   = COALESCE(source_name,   VALUES(source_name)),
+        context_before= COALESCE(NULLIF(context_before,''), VALUES(context_before)),
+        context_line  = COALESCE(NULLIF(context_line,''),   VALUES(context_line)),
+        context_after = COALESCE(NULLIF(context_after,''),  VALUES(context_after)),
+        url           = COALESCE(NULLIF(url,''),            VALUES(url)),
+        notes         = COALESCE(NULLIF(notes,''),          VALUES(notes))
+""".format(
+    cols=", ".join(f"`{c}`" for c in _VOCAB_COLS),
+    placeholders=", ".join(["%s"] * len(_VOCAB_COLS)),
+)
+
+
+def sync_upsert_vocab(
+    local_conn, remote_conn, table: str, dry_run: bool = False
+) -> dict:
+    """Bidirectional upsert for vocab_entries.
+
+    Copies every row from each side into the other using
+    INSERT … ON DUPLICATE KEY UPDATE so that:
+      - New entries on either side are inserted on the opposite side.
+      - Existing entries (matched on unique key user_id+language_code+word)
+        are merged: times_seen = MAX, timestamps = MAX/MIN, text fields
+        = first-non-null (COALESCE), matching the logic in capture_vocab_entry.
+
+    Syncs all rows unconditionally — the table is small (< 10k rows typical)
+    and correctness is more important than bandwidth here.
+    """
+    stats = {"table": table, "strategy": "upsert_vocab",
+             "local_to_remote": 0, "remote_to_local": 0, "errors": 0}
+
+    col_list = ", ".join(f"`{c}`" for c in _VOCAB_COLS)
+
+    # ── Local → Remote ───────────────────────────────────────────────────────
+    lcur = local_conn.cursor(dictionary=True)
+    lcur.execute(f"SELECT {col_list} FROM `{table}`")
+    local_rows = lcur.fetchall()
+    lcur.close()
+
+    if dry_run:
+        log.info(f"  [DRY RUN] {table}: would upsert {len(local_rows)} rows → remote")
+    else:
+        rcur = remote_conn.cursor()
+        for row in local_rows:
+            try:
+                rcur.execute(_VOCAB_INSERT_SQL, tuple(row[c] for c in _VOCAB_COLS))
+                if rcur.rowcount >= 1:
+                    stats["local_to_remote"] += 1
+            except mysql.connector.Error as e:
+                log.warning(f"  {table} L→R error on word={row.get('word')!r}: {e}")
+                stats["errors"] += 1
+        remote_conn.commit()
+        rcur.close()
+        log.info(f"  {table}: upserted {stats['local_to_remote']} rows → remote")
+
+    # ── Remote → Local ───────────────────────────────────────────────────────
+    rcur = remote_conn.cursor(dictionary=True)
+    rcur.execute(f"SELECT {col_list} FROM `{table}`")
+    remote_rows = rcur.fetchall()
+    rcur.close()
+
+    if dry_run:
+        log.info(f"  [DRY RUN] {table}: would upsert {len(remote_rows)} rows ← remote")
+    else:
+        lcur = local_conn.cursor()
+        for row in remote_rows:
+            try:
+                lcur.execute(_VOCAB_INSERT_SQL, tuple(row[c] for c in _VOCAB_COLS))
+                if lcur.rowcount >= 1:
+                    stats["remote_to_local"] += 1
+            except mysql.connector.Error as e:
+                log.warning(f"  {table} R→L error on word={row.get('word')!r}: {e}")
+                stats["errors"] += 1
+        local_conn.commit()
+        lcur.close()
+        log.info(f"  {table}: upserted {stats['remote_to_local']} rows ← remote")
+
+    return stats
+
+
+# ---------------------------------------------------------------------------
 # Main sync orchestrator
 # ---------------------------------------------------------------------------
 
@@ -505,6 +608,8 @@ def run_sync(full: bool = False, dry_run: bool = False):
                 stats = sync_last_write_wins(local_conn, remote_conn, table, dry_run)
             elif strategy == "insert_ignore":
                 stats = sync_insert_ignore(local_conn, remote_conn, table, dry_run)
+            elif strategy == "upsert_vocab":
+                stats = sync_upsert_vocab(local_conn, remote_conn, table, dry_run)
             else:
                 log.warning(f"  Unknown strategy {strategy} for {table}")
                 continue
