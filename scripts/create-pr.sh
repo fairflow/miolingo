@@ -71,32 +71,48 @@ if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
 fi
 echo "  ✓ No open PRs on this branch"
 
-# ── Check 2: version was bumped since last tag ────────────────────────────────
+# ── Check 2: version differs from base branch ────────────────────────────────
+# We compare HEAD's __version__ against origin/$BASE_BRANCH rather than
+# "last tag", because `bump_version.py --tag` places the newest tag AT HEAD
+# (making `git describe`-based checks give an empty diff range).
 if [[ "$SKIP_VERSION_CHECK" == false ]]; then
   VERSION_FILE="$PROJECT_ROOT/src/config.py"
   if [[ -f "$VERSION_FILE" ]]; then
     echo "Checking version bump..."
-    LAST_TAG="$(git -C "$PROJECT_ROOT" describe --tags --abbrev=0 2>/dev/null || echo '')"
-    if [[ -n "$LAST_TAG" ]]; then
-      VERSION_DIFF="$(git -C "$PROJECT_ROOT" diff "$LAST_TAG"..HEAD -- src/config.py 2>/dev/null | grep '^+__version__' || true)"
-      if [[ -z "$VERSION_DIFF" ]]; then
-        echo "" >&2
-        echo "WARNING: src/config.py __version__ has not changed since $LAST_TAG." >&2
-        echo "  Run: source venv/bin/activate && python scripts/bump_version.py patch --suffix claude-dev --tag --push" >&2
-        echo "  Or re-run with --skip-version-check to bypass this check." >&2
-        echo "" >&2
-        exit 1
-      fi
-      echo "  ✓ Version bumped since $LAST_TAG"
+    # Fetch the base branch quietly so we compare against the latest state.
+    git -C "$PROJECT_ROOT" fetch origin "$BASE_BRANCH" --quiet 2>/dev/null || true
+
+    VERSION_AT_BASE="$(git -C "$PROJECT_ROOT" show "origin/$BASE_BRANCH:src/config.py" 2>/dev/null \
+                       | grep -E '^__version__' || true)"
+    VERSION_AT_HEAD="$(grep -E '^__version__' "$VERSION_FILE" || true)"
+
+    if [[ -z "$VERSION_AT_BASE" ]]; then
+      echo "  (could not read src/config.py on origin/$BASE_BRANCH — skipping version check)"
+    elif [[ "$VERSION_AT_BASE" == "$VERSION_AT_HEAD" ]]; then
+      echo "" >&2
+      echo "WARNING: src/config.py __version__ is identical on this branch and origin/$BASE_BRANCH." >&2
+      echo "  Expected a version bump for this PR." >&2
+      echo "" >&2
+      echo "  Run: source venv/bin/activate && python scripts/bump_version.py patch --suffix claude-dev --tag" >&2
+      echo "  Then re-run this script. (Do NOT pass --push to bump_version.py — create-pr.sh handles the push.)" >&2
+      echo "  Or re-run with --skip-version-check for tooling/docs-only PRs." >&2
+      echo "" >&2
+      exit 1
     else
-      echo "  (no tags found, skipping version check)"
+      echo "  ✓ $VERSION_AT_HEAD  (base: $VERSION_AT_BASE)"
     fi
   fi
 fi
 
 # ── Push branch ───────────────────────────────────────────────────────────────
+# Use the explicit `HEAD:refs/heads/<branch>` form so this push is safe even
+# when the local branch has inherited a different upstream (e.g. dev-swept).
+# The project's PreToolUse hook requires this form for the same reason.
 echo "Pushing '$CURRENT_BRANCH'..."
-git -C "$PROJECT_ROOT" push origin "$CURRENT_BRANCH"
+git -C "$PROJECT_ROOT" push origin "HEAD:refs/heads/$CURRENT_BRANCH"
+# Set the local upstream to the just-created remote branch so subsequent
+# pushes (e.g. tags, follow-up commits) don't re-trigger the hook.
+git -C "$PROJECT_ROOT" branch --set-upstream-to="origin/$CURRENT_BRANCH" "$CURRENT_BRANCH" >/dev/null 2>&1 || true
 echo "  ✓ Pushed"
 
 # ── Build auto-body if not provided ──────────────────────────────────────────
