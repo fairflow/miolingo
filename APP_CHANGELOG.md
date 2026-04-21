@@ -10,6 +10,16 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.0-claude-dev] - 2026-04-21
+
+### Added
+
+- Vocabulary search mini-language: plain text still works; new operators are ^prefix, suffix$, [bracket-class-regex], field:value (word/translation/ipa/source/url/note/context), has:FIELD and none:FIELD. All AND-combined, any order.
+- Regex triggers conservatively (^ at start, unescaped $ at end, or [...] present) so natural punctuation like 'saudade?' or 'e.g.' still searches as plain text.
+- Whitespace around ':' is collapsed outside quotes; only the first ':' splits field from value so URLs work.
+- Invalid queries surface as non-fatal warnings in the UI rather than crashing.
+
+
 ## [7.7.1-claude-dev] - 2026-04-21
 
 ### Changed
