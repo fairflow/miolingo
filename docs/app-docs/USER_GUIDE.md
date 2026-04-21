@@ -473,6 +473,130 @@ Below the results, you can:
 
 ---
 
+## 🔍 Searching your personal vocabulary
+
+The **Vocabulary** tab has a single search box that accepts a small query
+language. **Anything you type that looks like plain text still works like
+plain text** — the advanced features only kick in when you use specific
+punctuation or prefixes. You never have to learn the language to use the tab.
+
+### The four things you can do
+
+#### 1. Plain text — substring match
+
+Typing `sea` finds any entry whose **word** or **translation** contains
+those letters, case-insensitive. No surprises.
+
+#### 2. Anchor the word — simple regex on the headword
+
+Three punctuation patterns flip the search into regex-against-the-word mode:
+
+| You type | Matches | Plain-English meaning |
+|---|---|---|
+| `^s` | words **beginning with** `s` | `s` at start |
+| `o$` | words **ending with** `o` | `o` at end |
+| `[aeiou]` | words containing a vowel | any char in brackets |
+
+You can combine them: `^[aeiou]` (starts with a vowel), `ção$`
+(ends with *ção*), `^[sp].*o$` (starts with *s* or *p*, ends with *o*).
+
+The trigger is conservative: ordinary punctuation like `saudade?`,
+`well-being`, `l'amour`, `e.g.` is **never** treated as a regex. Only
+`^` at the start, an unescaped `$` at the end, or a `[...]` pair turn
+regex mode on.
+
+#### 3. Search a specific field — `field:value`
+
+Instead of searching word+translation, you can target one column:
+
+```
+source:Pessoa          # source_name contains "Pessoa"
+translation:longing    # translation contains "longing"
+url:wikipedia          # url contains "wikipedia"
+note:difficult         # notes contains "difficult"
+ipa:ɐ̃w              # ipa contains that character
+context:beach          # context (before/line/after) contains "beach"
+```
+
+Available fields: **word, translation, ipa, source, url, note, context**.
+`context` is special — it searches all three context columns (before,
+line, after) and matches if any of them contain your value.
+
+**Whitespace around the colon is flexible:** `source:Pessoa`,
+`source : Pessoa`, `source: Pessoa`, and `source :Pessoa` all mean the
+same thing.
+
+**Only the first colon splits** the field from the value. This keeps
+URLs intact:
+
+```
+url:https://example.com/a:b
+```
+
+…parses as field=`url`, value=`https://example.com/a:b`.
+
+**Values with spaces** need double quotes:
+
+```
+source:"Pessoa: Autopsicografia"
+```
+
+**Regex inside a field** works too — the same three triggers apply:
+
+```
+source:^Pess       # source starts with "Pess"
+translation:love$  # translation ends with "love"
+```
+
+#### 4. Check for presence/absence — `has:` and `none:`
+
+```
+has:url        # entries that have a URL
+has:ipa        # entries with IPA transcribed
+has:context    # entries with any context line populated
+none:source    # entries missing the source
+none:ipa       # entries where IPA hasn't been filled in yet
+```
+
+Valid presence fields: **translation, ipa, source, url, note, context**.
+(The word itself is always present, so `has:word` would be meaningless.)
+
+### Combining clauses
+
+**Every clause ANDs together.** Order doesn't matter. Some recipes:
+
+```
+has:url ^b                    # starts with "b" AND has a URL
+source:Pessoa none:ipa        # from Pessoa AND no IPA yet
+^[aeiou] ção$                 # starts with a vowel AND ends with "ção"
+has:context context:beach     # context populated AND mentions "beach"
+                              #   (the has: part is redundant but harmless)
+```
+
+There is no `OR` operator and no `NOT` other than `none:`. If you need
+either, run two searches.
+
+### Error messages
+
+Typos surface as a yellow warning under the search box — the rest of the
+page still renders with your previous results. Common ones:
+
+- *"Unknown field 'srce'"* — check the spelling against the list above.
+- *"'has:' requires a field name"* — you wrote `has:` with nothing after.
+- *"Unterminated quote"* — opened `"` but never closed it.
+
+### What's **not** supported (by design)
+
+- Full regex features like `|` (alternation), `(...)` (groups),
+  `{n,m}` (quantifiers) — the `^`, `$`, `[...]` triggers above are
+  deliberately the only three. This keeps accidental regex-mode triggers
+  from normal punctuation impossible.
+- Case-sensitive search — everything is case-insensitive, always.
+- Phrase search across multiple entries, or search over your practice
+  history — this box only filters the vocabulary list on screen.
+
+---
+
 ## 🐛 Found a Bug or Have Feedback?
 
 We'd love to hear from you!
