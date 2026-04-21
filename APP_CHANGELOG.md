@@ -10,6 +10,15 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.1-claude-dev] - 2026-04-21
+
+### Added
+
+- Add GOLDEN.md — the human-readable contract for how Matthew and Claude work together (division of labour, branch model, 8-step golden path, port convention, venv, settings layers, common failure modes).
+- Document the vocab search mini-language in USER_GUIDE.md: plain text, anchor/bracket regex triggers, field:value, has:/none:, combining clauses, errors, and explicit non-goals.
+- SCRIPTS_WORKFLOW.md: add step 7 — boot the worktree preview on 8701 after each PR push so the IDE Preview button serves the branch-under-review.
+
+
 ## [7.8.0-claude-dev] - 2026-04-21
 
 ### Added

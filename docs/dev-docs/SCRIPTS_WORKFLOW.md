@@ -43,7 +43,18 @@ bash scripts/create-pr.sh --title "fix(scope): concise subject (vX.Y.Z-claude-de
 # 6. Push the tag separately.  Safe to do AFTER create-pr.sh because
 #    step 5 set the upstream cleanly; no hook trigger.
 git push origin vX.Y.Z-claude-dev
+
+# 7. Boot the worktree preview on 8701 via the Preview MCP so
+#    Matthew's IDE Preview button points at the branch-under-review.
+#    Stop any stale dev_server first, then call preview_start with
+#    the "miolingo (main app)" entry from .claude/launch.json.
+#    DO NOT use `bash scripts/dev_server.sh 8701 &` — it binds the
+#    port and blocks preview_start from doing so.
+bash scripts/dev_server.sh stop 8701 2>/dev/null || true
+# then, via MCP:  mcp__Claude_Preview__preview_start name="miolingo (main app)"
 ```
+
+Port 8701 is, by agreed workflow (see `GOLDEN.md`), taken over by Claude from the linked worktree after each PR push. The IDE Preview button then serves the branch-under-review automatically. 8601–8699 remain available for ad-hoc Claude testing; 8702/8703 stay as IDE Preview targets for the admin apps.
 
 After the PR merges, before starting the next piece of work, **reset the worktree**:
 
