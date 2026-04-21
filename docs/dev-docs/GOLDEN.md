@@ -86,13 +86,17 @@ git reset --hard origin/claude/dev-swept
 | 8702 | IDE Preview | miolingo-admin |
 | 8703 | IDE Preview | unified-admin |
 
-**Workflow (agreed in v7.8.0 session):** after each PR push, Claude takes over
-port 8701 so the IDE Preview button always shows the branch-under-review:
+**Workflow (agreed in v7.8.0 session, refined in v7.8.1):** after each PR push,
+Claude takes over port 8701 so the IDE Preview button always shows the
+branch-under-review. The mechanics — free the port, then start via the
+Preview MCP (**not** via `bash scripts/dev_server.sh 8701 &`; that binds
+the port and prevents Preview from owning it):
 
 ```bash
 bash scripts/dev_server.sh stop 8701 2>/dev/null || true
-(cd <linked-worktree> && bash scripts/dev_server.sh 8701) &
 ```
+Then, via MCP: `mcp__Claude_Preview__preview_start name="miolingo (main app)"`
+— the config comes from `.claude/launch.json`.
 
 The previous plan (8601 worktree vs 8701 main) was dropped — it duplicated work
 without adding signal, because Matthew opens VS Code on the main clone and
