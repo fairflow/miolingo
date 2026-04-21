@@ -10,6 +10,15 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.7.1-claude-dev] - 2026-04-21
+
+### Changed
+
+- bump_version.py now requires --notes "TEXT" for any real bump; --kind selects section heading; --no-notes for emergency re-tags only.
+- APP_CHANGELOG.md backfilled for 7.6.8 / 7.6.9 / 7.7.0 from their PR bodies.
+- SCRIPTS_WORKFLOW.md golden path updated to reflect the new --notes requirement.
+
+
 ## [7.7.0-claude-dev] - 2026-04-21
 
 ### Added
