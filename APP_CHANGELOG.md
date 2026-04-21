@@ -2,31 +2,41 @@
 
 All notable changes to the Miolingo pronunciation trainer application will be documented in this file.
 
-only this broke: only the version changes are logged here
-
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+Entries are written by `scripts/bump_version.py`; the `--notes` flag is
+required for any non-tooling bump so the log captures *what* changed, not
+just that something changed.
 
 
 ## [7.7.0-claude-dev] - 2026-04-21
 
+### Added
+
+- Post-capture edit form on every vocabulary entry: ✏️ Edit opens an inline form covering display_word (casing only), translation, IPA, source_name, url, and the three context fields. Empty strings clear to NULL; lookup key stays immutable. (PR #87)
+- ✨ Auto-fill action — visible only when translation or IPA is missing — fills gaps via the existing LLM + eSpeak enrichment and never overwrites existing values.
+
 ### Changed
 
-- Version bump
+- Per-entry Streamlit session keys are pruned after deletes and logout/re-login to prevent orphan widget state.
 
 
 ## [7.6.9-claude-dev] - 2026-04-20
 
 ### Changed
 
-- Version bump
+- `scripts/create-pr.sh` version check now compares HEAD against `origin/$BASE_BRANCH:src/config.py` instead of `git describe`; the old check gave false positives because `bump_version.py --tag` places the new tag at HEAD. (PR #86)
+- `scripts/create-pr.sh` push uses explicit `HEAD:refs/heads/<branch>` form so it stays safe regardless of inherited upstream tracking, and sets the upstream cleanly so subsequent tag pushes don't trip the PreToolUse hook.
+- New authoritative workflow doc at `docs/dev-docs/SCRIPTS_WORKFLOW.md` + CLAUDE.md preamble pointing at it, so fresh sessions stop rediscovering the release workflow from scratch.
 
 
 ## [7.6.8-claude-dev] - 2026-04-20
 
-### Changed
+### Fixed
 
-- Version bump
+- Personal vocabulary sync: `vocab_entries` table was missing from `scripts/sync_db.py`'s `SYNC_TABLES`, so local captures never replicated to the remote MySQL. Added the table with an idempotent merge strategy (GREATEST/COALESCE/NULLIF) that preserves per-row history across both sides. (PR #85)
+- New `scripts/test_vocab_sync.py` round-trip harness (17 assertions) proves L→R, R→L, counter-merge, NULL-fill, and idempotency.
 
 
 ## [7.6.7] - 2026-04-20

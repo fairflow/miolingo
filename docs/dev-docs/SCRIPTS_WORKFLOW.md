@@ -29,8 +29,13 @@ git add <files>
 git commit -m "fix(scope): concise subject"
 
 # 4. Bump version + tag.  Do NOT pass --push here.
-python scripts/bump_version.py patch --suffix claude-dev --tag
-# For admin changes: python scripts/bump_version.py admin patch --suffix claude-dev --tag
+#    --notes is REQUIRED — it's what appears in APP_CHANGELOG.md.
+python scripts/bump_version.py patch --suffix claude-dev --tag \
+  --notes "One-line summary of what this PR actually changes."
+#    --kind added|changed|fixed|removed|deprecated|security (default: changed)
+#    Repeat --notes, or use '\n' in one value, for multiple bullets.
+#    --no-notes is reserved for emergency bumps only.
+# For admin changes: python scripts/bump_version.py admin patch --suffix claude-dev --tag --notes "..."
 
 # 5. Create the PR.  Script handles branch push + PR creation.
 bash scripts/create-pr.sh --title "fix(scope): concise subject (vX.Y.Z-claude-dev)"
@@ -111,6 +116,9 @@ All scripts live in `scripts/`. Paths shown are relative to the repo root.
 - command: `show | major | minor | patch | set X.Y.Z`
 - `--suffix LABEL` — appends `-LABEL` (use `claude-dev` for dev PRs)
 - `--tag` — commits the bump and creates a local annotated tag
+- `--notes "TEXT"` — **REQUIRED** for any real bump; one line per bullet. Repeatable. Accepts `\n` inside a single value. Lifted verbatim into `APP_CHANGELOG.md`; do not prefix with `-`.
+- `--kind added|changed|fixed|removed|deprecated|security` — changelog heading (default: `changed`).
+- `--no-notes` — opt out of the notes requirement. Reserved for emergency / tooling-only re-tags. **Do not use for feature or fix PRs** — the whole point of the requirement is that "Version bump" entries are useless.
 - `--push` — **avoid in normal workflow**. Runs `git push origin HEAD` which follows upstream. Use only when you know the branch upstream matches its remote name.
 
 ### Dev server

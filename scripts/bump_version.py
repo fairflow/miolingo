@@ -44,6 +44,17 @@ Usage
     --suffix LABEL        Append -LABEL to the version  (e.g. claude-dev-phase3)
     --tag                 Create annotated git tag after commit
     --push                Push commits and tags to remote (implies commit)
+    --notes "TEXT"        One-line summary written to the changelog.
+                          REQUIRED unless --no-notes is given. May be passed
+                          multiple times (each becomes a bullet).  Also accepts
+                          a single string with '\\n' — each line becomes a
+                          bullet. Bullets copy verbatim; don't prefix with '-'.
+    --kind KIND           Changelog section for the bullets.
+                          One of: added | changed | fixed | removed | deprecated
+                          | security. Default: changed.
+    --no-notes            Skip the --notes requirement. Reserved for emergency
+                          bumps / tooling-only re-tags — DO NOT use for
+                          feature/fix/refactor PRs.
 
 Examples
 --------
@@ -142,7 +153,22 @@ def write_version(target_cfg: dict, new_version: str) -> None:
     path.write_text(new_content)
 
 
-def update_changelog(target_cfg: dict, new_version: str) -> bool:
+_KIND_HEADINGS = {
+    "added": "Added",
+    "changed": "Changed",
+    "fixed": "Fixed",
+    "removed": "Removed",
+    "deprecated": "Deprecated",
+    "security": "Security",
+}
+
+
+def update_changelog(
+    target_cfg: dict,
+    new_version: str,
+    notes: list[str] | None = None,
+    kind: str = "changed",
+) -> bool:
     """Prepend a new section to the changelog. Returns True if file was updated."""
     path = target_cfg["changelog_file"]
     if not path.exists():
@@ -150,7 +176,12 @@ def update_changelog(target_cfg: dict, new_version: str) -> bool:
         return False
 
     today = date.today().isoformat()
-    entry = f"## [{new_version}] - {today}\n\n### Changed\n\n- Version bump\n\n\n"
+    heading = _KIND_HEADINGS.get(kind.lower(), "Changed")
+    if notes:
+        bullets = "\n".join(f"- {line}" for line in notes)
+    else:
+        bullets = "- Version bump"
+    entry = f"## [{new_version}] - {today}\n\n### {heading}\n\n{bullets}\n\n\n"
 
     content = path.read_text()
     # Insert before the first existing ## [ entry
@@ -187,25 +218,50 @@ def git_push() -> None:
 
 def parse_args(argv):
     """
-    Returns (target, command, set_version, suffix, do_tag, do_push).
+    Returns (target, command, set_version, suffix, do_tag, do_push,
+             notes, kind, no_notes).
     """
     args = list(argv[1:])
 
-    # Extract flags
+    # Extract boolean flags
     do_tag = "--tag" in args
     do_push = "--push" in args
-    for flag in ("--tag", "--push"):
-        if flag in args:
+    no_notes = "--no-notes" in args
+    for flag in ("--tag", "--push", "--no-notes"):
+        while flag in args:
             args.remove(flag)
 
-    suffix = ""
-    if "--suffix" in args:
-        idx = args.index("--suffix")
+    def _take_value(flag: str) -> str | None:
+        nonlocal args
+        if flag not in args:
+            return None
+        idx = args.index(flag)
         if idx + 1 >= len(args):
-            print("Error: --suffix requires a value", file=sys.stderr)
+            print(f"Error: {flag} requires a value", file=sys.stderr)
             sys.exit(1)
-        suffix = args[idx + 1]
+        val = args[idx + 1]
         args = args[:idx] + args[idx + 2:]
+        return val
+
+    suffix = _take_value("--suffix") or ""
+    kind = (_take_value("--kind") or "changed").lower()
+    if kind not in _KIND_HEADINGS:
+        print(
+            f"Error: --kind must be one of {sorted(_KIND_HEADINGS)}, got {kind!r}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Collect all --notes values (repeatable).
+    notes: list[str] = []
+    while "--notes" in args:
+        val = _take_value("--notes")
+        if val:
+            # A single --notes may carry '\n' or real newlines; split either.
+            for line in val.replace("\\n", "\n").splitlines():
+                line = line.strip().lstrip("-").strip()
+                if line:
+                    notes.append(line)
 
     if not args:
         print(__doc__)
@@ -235,7 +291,8 @@ def parse_args(argv):
             print(f"Error: {e}", file=sys.stderr)
             sys.exit(1)
 
-    return target, command, set_version, suffix, do_tag, do_push
+    return (target, command, set_version, suffix, do_tag, do_push,
+            notes, kind, no_notes)
 
 
 # ---------------------------------------------------------------------------
@@ -243,7 +300,24 @@ def parse_args(argv):
 # ---------------------------------------------------------------------------
 
 def main():
-    target_name, command, set_version, suffix, do_tag, do_push = parse_args(sys.argv)
+    (target_name, command, set_version, suffix, do_tag, do_push,
+     notes, kind, no_notes) = parse_args(sys.argv)
+
+    # Enforce --notes for any real bump (not `show`). --no-notes opts out.
+    if command != "show" and not notes and not no_notes:
+        print(
+            "Error: --notes \"summary\" is required.\n"
+            "  A changelog entry that just says 'Version bump' is useless —\n"
+            "  summarise what changed so future readers (and you) know why.\n\n"
+            "  Examples:\n"
+            "    --notes \"Post-capture edit form for vocab entries.\"\n"
+            "    --notes \"Fix: auto-fill no longer overwrites translations.\" --kind fixed\n"
+            "    --notes \"line one\" --notes \"line two\"         # two bullets\n"
+            "    --notes \"line one\\nline two\"                   # same, one arg\n\n"
+            "  For emergency bumps / tooling-only re-tags only, pass --no-notes.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     cfg = TARGETS[target_name]
 
@@ -283,7 +357,7 @@ def main():
     print(f"  ✅  {cfg['version_file'].relative_to(PROJECT_ROOT)}")
 
     # Update changelog
-    changelog_updated = update_changelog(cfg, new_full)
+    changelog_updated = update_changelog(cfg, new_full, notes=notes, kind=kind)
     if changelog_updated:
         print(f"  ✅  {cfg['changelog_file'].relative_to(PROJECT_ROOT)}")
 
