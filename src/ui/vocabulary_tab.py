@@ -456,7 +456,20 @@ def render_vocabulary_tab():
         search = st.text_input(
             "Search (word or translation)",
             key="vocab_search",
-            placeholder="type to filter…",
+            placeholder="type to filter…   try: ^a    ção$    source:Pessoa    none:ipa",
+            help=(
+                "Plain text searches word + translation.\n\n"
+                "Operators (all AND, any order):\n"
+                "- `^a` → word starts with \"a\" or \"A\"\n"
+                "- `ção$` → word ends with \"ção\"\n"
+                "- `[a-c]+ão.*` → regex on word (advanced)\n"
+                "- `source:foo` → only in that field\n"
+                "- `source:\"Foo Bar\"` → quote values with spaces\n"
+                "- `has:url` / `none:ipa` → presence tests\n\n"
+                "Fields: word, translation, ipa, source, url, note, context.\n"
+                "Whitespace around `:` is fine (`has : url` works).\n"
+                "Only the first colon splits field from value, so URLs are safe."
+            ),
         )
 
     st.markdown("---")
@@ -464,9 +477,14 @@ def render_vocabulary_tab():
     _render_bulk_upload()
     st.markdown("---")
 
-    rows = vocab.list_vocab(
-        user_id=_user_id(), language=language, sort=sort, search=search
-    )
+    import vocab_search
+    try:
+        rows = vocab.list_vocab(
+            user_id=_user_id(), language=language, sort=sort, search=search
+        )
+    except vocab_search.QueryError as e:
+        st.warning(f"🔎 {e}")
+        rows = []
     _prune_stale_session_keys(rows)
 
     st.caption(f"**{len(rows)}** entr{'y' if len(rows) == 1 else 'ies'}")
