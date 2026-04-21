@@ -351,6 +351,132 @@ def test_autofill_noop_when_enrich_returns_none(db_conn, make_user, monkeypatch)
     assert row["ipa"] is None
 
 
+# ── search mini-language (v7.8.0) ──────────────────────────────────────────
+
+def _capture(user_id, word, language="Portuguese", **kw):
+    import vocab
+    r = vocab.capture_vocab_entry(
+        user_id=user_id, language=language, word=word, **kw
+    )
+    assert r["ok"], r
+    return r["vocab_id"]
+
+
+@pytest.fixture
+def vocab_corpus(db_conn, make_user):
+    """Seed a user with a small, diverse corpus for search tests."""
+    import vocab
+    u = make_user(username="vocab_search_user")
+    uid = u["user_id"]
+    _capture(uid, "abelha", translation="bee", ipa="aˈβe.ʎɐ",
+             source_name="Apiology 101")
+    _capture(uid, "ação", translation="action", ipa="aˈsɐ̃w",
+             source_name="Notícias")
+    _capture(uid, "canção", translation="song",
+             source_name="Pessoa: Canção")
+    _capture(uid, "mar", translation="sea", ipa="ˈmaɾ",
+             url="https://example.com/mar")  # no source
+    _capture(uid, "sol", translation="sun",
+             source_name="Lesson 1")  # no ipa, no url
+    _capture(uid, "zebra", source_name="Zoo")  # no translation, no ipa
+    return u
+
+
+def test_search_prefix_anchor(vocab_corpus):
+    import vocab
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese", search="^a")}
+    assert hits == {"abelha", "ação"}
+
+
+def test_search_suffix_anchor(vocab_corpus):
+    import vocab
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese", search="ção$")}
+    assert hits == {"ação", "canção"}
+
+
+def test_search_bracket_regex(vocab_corpus):
+    import vocab
+    # [aeiou]ção → vowel immediately before 'ção'.
+    # ação matches (a+ção); canção does NOT (n+ção) — exactly what a class is for.
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="[aeiou]ção")}
+    assert hits == {"ação"}
+
+    # And a broader class to prove the operator itself works over multiple words.
+    hits2 = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="^[az]")}
+    assert hits2 == {"abelha", "ação", "zebra"}
+
+
+def test_search_field_substring(vocab_corpus):
+    import vocab
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="source:Pessoa")}
+    assert hits == {"canção"}
+
+
+def test_search_field_regex(vocab_corpus):
+    import vocab
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="source:^Lesson")}
+    assert hits == {"sol"}
+
+
+def test_search_has_url(vocab_corpus):
+    import vocab
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="has:url")}
+    assert hits == {"mar"}
+
+
+def test_search_none_ipa(vocab_corpus):
+    import vocab
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="none:ipa")}
+    assert hits == {"sol", "zebra", "canção"}
+
+
+def test_search_combined_AND(vocab_corpus):
+    import vocab
+    # ^a AND has:ipa → abelha, ação
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="^a has:ipa")}
+    assert hits == {"abelha", "ação"}
+
+
+def test_search_plain_text_backcompat(vocab_corpus):
+    import vocab
+    # Plain text still matches word OR translation substring.
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese", search="sea")}
+    assert hits == {"mar"}  # 'sea' is mar's translation
+
+
+def test_search_whitespace_around_colon(vocab_corpus):
+    import vocab
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="has : url")}
+    assert hits == {"mar"}
+
+
+def test_search_unknown_field_raises(vocab_corpus):
+    import vocab, vocab_search
+    with pytest.raises(vocab_search.QueryError):
+        vocab.list_vocab(
+            user_id=vocab_corpus["user_id"], language="Portuguese",
+            search="bogus:x")
+
+
 def test_vocab_as_practice_phrases_shape(db_conn, make_user):
     import vocab
 

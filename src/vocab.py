@@ -204,7 +204,9 @@ def list_vocab(
 
     sort: 'alpha' (default, by lookup key), 'recent' (last_seen_at DESC),
           'oldest' (first_seen_at ASC).
-    search: case-insensitive substring match over word OR translation.
+    search: mini-language query — plain text still means substring on word
+            OR translation. See src/vocab_search.py for the grammar.
+            Unknown fields, unterminated quotes, etc. raise QueryError.
     """
     order = {
         "alpha": "word ASC",
@@ -212,30 +214,29 @@ def list_vocab(
         "oldest": "first_seen_at ASC",
     }.get(sort, "word ASC")
 
+    # Build optional WHERE fragment from the query mini-language.
+    extra_sql = ""
+    extra_params: List[Any] = []
+    if search:
+        import vocab_search
+        clauses = vocab_search.parse_query(search)
+        if clauses:
+            where_sql, extra_params = vocab_search.build_where(clauses)
+            if where_sql:
+                extra_sql = " AND " + where_sql
+
     conn = app_mysql.get_connection()
     cur = conn.cursor(dictionary=True)
-    if search:
-        like = f"%{search.lower()}%"
-        cur.execute(
-            f"""
-            SELECT * FROM vocab_entries
-            WHERE user_id=%s AND language_code=%s
-              AND (LOWER(word) LIKE %s OR LOWER(COALESCE(translation,'')) LIKE %s)
-            ORDER BY {order}
-            LIMIT %s
-            """,
-            (user_id, language, like, like, limit),
-        )
-    else:
-        cur.execute(
-            f"""
-            SELECT * FROM vocab_entries
-            WHERE user_id=%s AND language_code=%s
-            ORDER BY {order}
-            LIMIT %s
-            """,
-            (user_id, language, limit),
-        )
+    cur.execute(
+        f"""
+        SELECT * FROM vocab_entries
+        WHERE user_id=%s AND language_code=%s
+          {extra_sql}
+        ORDER BY {order}
+        LIMIT %s
+        """,
+        [user_id, language, *extra_params, limit],
+    )
     rows = cur.fetchall()
     cur.close()
     return rows
