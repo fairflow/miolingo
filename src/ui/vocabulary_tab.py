@@ -209,6 +209,136 @@ def _render_export_csv(rows: List[dict]):
     )
 
 
+_EDIT_FIELDS = (
+    "display_word", "translation", "ipa", "source_name", "url",
+    "context_before", "context_line", "context_after",
+)
+
+
+def _clear_edit_state(vocab_id: int) -> None:
+    """Drop the editing flag + all per-field widget keys for one entry."""
+    st.session_state.pop(f"vocab_editing_{vocab_id}", None)
+    for field in _EDIT_FIELDS:
+        st.session_state.pop(f"vocab_edit_{field}_{vocab_id}", None)
+
+
+def _prune_stale_session_keys(rows: list) -> None:
+    """Drop vocab_editing_* / vocab_notes_* / vocab_edit_*_<id> keys whose
+    vocab_id is no longer in the current result set. Prevents a slow leak
+    of orphan widget state after deletes, and cross-user leaks after logout.
+    """
+    live_ids = {str(r["vocab_id"]) for r in rows}
+    stale: list = []
+    for key in st.session_state.keys():
+        for prefix in ("vocab_editing_", "vocab_notes_", "vocab_save_"):
+            if key.startswith(prefix):
+                if key[len(prefix):] not in live_ids:
+                    stale.append(key)
+                break
+        else:
+            if key.startswith("vocab_edit_"):
+                # key form: vocab_edit_<field>_<vocab_id>
+                vid = key.rsplit("_", 1)[-1]
+                if vid.isdigit() and vid not in live_ids:
+                    stale.append(key)
+    for key in stale:
+        st.session_state.pop(key, None)
+
+
+def _render_entry_edit_form(row: dict) -> None:
+    """Inline edit form — seven editable text fields + Save / Cancel."""
+    vocab_id = row["vocab_id"]
+
+    st.markdown("**Edit entry**")
+    c1, c2 = st.columns(2)
+    with c1:
+        display_word = st.text_input(
+            "Word (casing only — lookup key is immutable)",
+            value=row.get("display_word") or "",
+            key=f"vocab_edit_display_word_{vocab_id}",
+        )
+        translation = st.text_input(
+            "Translation",
+            value=row.get("translation") or "",
+            key=f"vocab_edit_translation_{vocab_id}",
+        )
+    with c2:
+        ipa = st.text_input(
+            "IPA",
+            value=row.get("ipa") or "",
+            key=f"vocab_edit_ipa_{vocab_id}",
+        )
+        source_name = st.text_input(
+            "Source",
+            value=row.get("source_name") or "",
+            key=f"vocab_edit_source_name_{vocab_id}",
+        )
+
+    url = st.text_input(
+        "URL",
+        value=row.get("url") or "",
+        key=f"vocab_edit_url_{vocab_id}",
+        placeholder="https://…",
+    )
+    context_before = st.text_area(
+        "Context before",
+        value=row.get("context_before") or "",
+        key=f"vocab_edit_context_before_{vocab_id}",
+        height=60,
+    )
+    context_line = st.text_area(
+        "Context line",
+        value=row.get("context_line") or "",
+        key=f"vocab_edit_context_line_{vocab_id}",
+        height=60,
+    )
+    context_after = st.text_area(
+        "Context after",
+        value=row.get("context_after") or "",
+        key=f"vocab_edit_context_after_{vocab_id}",
+        height=60,
+    )
+
+    bcol1, bcol2, _ = st.columns([1, 1, 4])
+    with bcol1:
+        save_clicked = st.button(
+            "💾 Save", key=f"vocab_edit_save_{vocab_id}", type="primary"
+        )
+    with bcol2:
+        cancel_clicked = st.button(
+            "✖ Cancel", key=f"vocab_edit_cancel_{vocab_id}"
+        )
+
+    if cancel_clicked:
+        _clear_edit_state(vocab_id)
+        st.rerun()
+
+    if save_clicked:
+        fields = {
+            "display_word":   display_word,
+            "translation":    translation,
+            "ipa":            ipa,
+            "source_name":    source_name,
+            "url":            url,
+            "context_before": context_before,
+            "context_line":   context_line,
+            "context_after":  context_after,
+        }
+        try:
+            ok = vocab.update_vocab_entry(
+                user_id=_user_id(), vocab_id=vocab_id, **fields
+            )
+        except ValueError as e:
+            st.error(f"⚠️ {e}")
+            return
+        if ok:
+            _clear_edit_state(vocab_id)
+            st.success("Saved.")
+            st.rerun()
+        else:
+            st.error("Could not save — entry no longer exists.")
+
+
 def _render_entry_row(row: dict):
     # Summary line: word · translation · IPA · source · date
     summary_bits = [f"**{row['display_word']}**"]
@@ -218,7 +348,15 @@ def _render_entry_row(row: dict):
         summary_bits.append(f"`{row['ipa']}`")
     summary_bits.append(f"· {row.get('source_name') or '—'}")
     summary_bits.append(f"· {str(row.get('last_seen_at') or '')[:16]}")
-    with st.expander(" ".join(summary_bits), expanded=False):
+
+    vocab_id = row["vocab_id"]
+    editing = st.session_state.get(f"vocab_editing_{vocab_id}", False)
+
+    with st.expander(" ".join(summary_bits), expanded=editing):
+        if editing:
+            _render_entry_edit_form(row)
+            return
+
         if row.get("context_before") or row.get("context_line") or row.get("context_after"):
             st.markdown("**Context:**")
             if row.get("context_before"):
@@ -234,21 +372,21 @@ def _render_entry_row(row: dict):
         notes = st.text_area(
             "Notes",
             value=row.get("notes") or "",
-            key=f"vocab_notes_{row['vocab_id']}",
+            key=f"vocab_notes_{vocab_id}",
             height=60,
         )
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("💾 Save notes", key=f"vocab_save_{row['vocab_id']}"):
+            if st.button("💾 Save notes", key=f"vocab_save_{vocab_id}"):
                 if vocab.update_vocab_notes(
                     user_id=_user_id(),
-                    vocab_id=row["vocab_id"],
+                    vocab_id=vocab_id,
                     notes=notes,
                 ):
                     st.success("Notes saved.")
                     st.rerun()
         with col2:
-            if st.button("🔊 Play", key=f"vocab_tts_{row['vocab_id']}"):
+            if st.button("🔊 Play", key=f"vocab_tts_{vocab_id}"):
                 try:
                     audio_bytes, fmt = generate_target_audio(
                         row["display_word"], st.session_state.settings
@@ -257,12 +395,40 @@ def _render_entry_row(row: dict):
                 except Exception as e:
                     st.warning(f"TTS failed: {e}")
         with col3:
-            if st.button("🗑️ Delete", key=f"vocab_del_{row['vocab_id']}"):
+            if st.button("🗑️ Delete", key=f"vocab_del_{vocab_id}"):
                 vocab.delete_vocab_entry(
-                    user_id=_user_id(), vocab_id=row["vocab_id"]
+                    user_id=_user_id(), vocab_id=vocab_id
                 )
                 st.success("Deleted.")
                 st.rerun()
+
+        # Secondary action row: Edit + Auto-fill (auto-fill only when needed).
+        need_autofill = not (row.get("translation") or "").strip() \
+                        or not (row.get("ipa") or "").strip()
+        acol1, acol2, _ = st.columns([1, 1, 4])
+        with acol1:
+            if st.button("✏️ Edit", key=f"vocab_edit_btn_{vocab_id}"):
+                st.session_state[f"vocab_editing_{vocab_id}"] = True
+                st.rerun()
+        with acol2:
+            if need_autofill and st.button(
+                "✨ Auto-fill", key=f"vocab_autofill_{vocab_id}",
+                help="Fill missing translation / IPA via LLM + eSpeak.",
+            ):
+                with st.spinner("Auto-filling…"):
+                    result = vocab.autofill_vocab_entry(
+                        user_id=_user_id(),
+                        vocab_id=vocab_id,
+                        language=_current_language(),
+                        source_language=_source_language(),
+                        secrets=st.secrets if hasattr(st, "secrets") else None,
+                    )
+                filled = result.get("filled", {})
+                if filled:
+                    st.toast(f"Filled: {', '.join(filled.keys())}")
+                    st.rerun()
+                else:
+                    st.info("Nothing to fill — enrichment didn't return a value.")
 
 
 def render_vocabulary_tab():
@@ -301,6 +467,7 @@ def render_vocabulary_tab():
     rows = vocab.list_vocab(
         user_id=_user_id(), language=language, sort=sort, search=search
     )
+    _prune_stale_session_keys(rows)
 
     st.caption(f"**{len(rows)}** entr{'y' if len(rows) == 1 else 'ies'}")
 

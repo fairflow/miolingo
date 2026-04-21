@@ -202,6 +202,155 @@ def test_bulk_import(db_conn, make_user):
     assert lua["source_name"] == "Cancao da Lua"
 
 
+# ── update_vocab_entry / autofill_vocab_entry (Task 2) ─────────────────────
+
+def _capture_simple(user_id, word="saudade", language="Portuguese", **kw):
+    import vocab
+    r = vocab.capture_vocab_entry(
+        user_id=user_id, language=language, word=word, **kw
+    )
+    assert r["ok"] and r["vocab_id"]
+    return r["vocab_id"]
+
+
+def test_update_vocab_entry_partial(db_conn, make_user):
+    import vocab
+    u = make_user(username="vocab_upd_partial")
+    vid = _capture_simple(
+        u["user_id"], translation="longing", ipa="sawˈdad.ʒi",
+        source_name="Pessoa",
+    )
+    assert vocab.update_vocab_entry(
+        user_id=u["user_id"], vocab_id=vid, translation="nostalgia"
+    )
+    row = vocab.get_vocab_entry(user_id=u["user_id"], vocab_id=vid)
+    assert row["translation"] == "nostalgia"
+    assert row["ipa"] == "sawˈdad.ʒi"
+    assert row["source_name"] == "Pessoa"
+
+
+def test_update_vocab_entry_cross_user_isolation(db_conn, make_user):
+    import vocab
+    u1 = make_user(username="vocab_upd_owner")
+    u2 = make_user(username="vocab_upd_intruder")
+    vid = _capture_simple(u1["user_id"], translation="orig")
+    assert vocab.update_vocab_entry(
+        user_id=u2["user_id"], vocab_id=vid, translation="hacked"
+    ) is False
+    row = vocab.get_vocab_entry(user_id=u1["user_id"], vocab_id=vid)
+    assert row["translation"] == "orig"
+
+
+def test_update_vocab_entry_clears_field_with_empty_string(db_conn, make_user):
+    import vocab
+    u = make_user(username="vocab_upd_clear")
+    vid = _capture_simple(u["user_id"], url="https://example.com")
+    assert vocab.update_vocab_entry(
+        user_id=u["user_id"], vocab_id=vid, url=""
+    )
+    row = vocab.get_vocab_entry(user_id=u["user_id"], vocab_id=vid)
+    assert row["url"] is None
+
+
+def test_update_vocab_entry_display_word_casing_accepted(db_conn, make_user):
+    import vocab
+    u = make_user(username="vocab_upd_casing")
+    vid = _capture_simple(u["user_id"], word="saudade")
+    assert vocab.update_vocab_entry(
+        user_id=u["user_id"], vocab_id=vid, display_word="Saudade"
+    )
+    row = vocab.get_vocab_entry(user_id=u["user_id"], vocab_id=vid)
+    assert row["display_word"] == "Saudade"
+    assert row["word"] == "saudade"  # lookup key unchanged
+
+
+def test_update_vocab_entry_display_word_rejects_key_change(db_conn, make_user):
+    import vocab
+    u = make_user(username="vocab_upd_keychange")
+    vid = _capture_simple(u["user_id"], word="saudade")
+    with pytest.raises(ValueError, match="lookup key"):
+        vocab.update_vocab_entry(
+            user_id=u["user_id"], vocab_id=vid, display_word="saudades"
+        )
+
+
+def test_update_vocab_entry_rejects_unknown_field(db_conn, make_user):
+    import vocab
+    u = make_user(username="vocab_upd_unknown")
+    vid = _capture_simple(u["user_id"])
+    with pytest.raises(ValueError, match="Unknown"):
+        vocab.update_vocab_entry(
+            user_id=u["user_id"], vocab_id=vid, times_seen=999
+        )
+
+
+def test_update_vocab_entry_noop_when_unchanged(db_conn, make_user):
+    import vocab
+    u = make_user(username="vocab_upd_noop")
+    vid = _capture_simple(u["user_id"], translation="x")
+    before = vocab.get_vocab_entry(user_id=u["user_id"], vocab_id=vid)
+    assert vocab.update_vocab_entry(
+        user_id=u["user_id"], vocab_id=vid, translation="x"
+    ) is True
+    after = vocab.get_vocab_entry(user_id=u["user_id"], vocab_id=vid)
+    assert before["times_seen"] == after["times_seen"]
+    assert before["translation"] == after["translation"]
+
+
+def test_autofill_only_fills_missing(db_conn, make_user, monkeypatch):
+    import vocab
+    u = make_user(username="vocab_autofill_partial")
+    vid = _capture_simple(u["user_id"], translation="already-set")
+
+    monkeypatch.setattr(vocab, "_enrich",
+                        lambda *a, **kw: ("SHOULD-NOT-OVERWRITE", "ˈstub"))
+
+    result = vocab.autofill_vocab_entry(
+        user_id=u["user_id"], vocab_id=vid,
+        language="Portuguese", source_language="English", secrets=None,
+    )
+    assert result == {"filled": {"ipa": "ˈstub"}}
+    row = vocab.get_vocab_entry(user_id=u["user_id"], vocab_id=vid)
+    assert row["translation"] == "already-set"
+    assert row["ipa"] == "ˈstub"
+
+
+def test_autofill_noop_when_complete(db_conn, make_user, monkeypatch):
+    import vocab
+    u = make_user(username="vocab_autofill_complete")
+    vid = _capture_simple(u["user_id"], translation="t", ipa="i")
+
+    called = {"n": 0}
+    def _stub(*a, **kw):
+        called["n"] += 1
+        return ("X", "Y")
+    monkeypatch.setattr(vocab, "_enrich", _stub)
+
+    result = vocab.autofill_vocab_entry(
+        user_id=u["user_id"], vocab_id=vid,
+        language="Portuguese", source_language="English", secrets=None,
+    )
+    assert result == {"filled": {}}
+    assert called["n"] == 0  # short-circuits before calling _enrich
+
+
+def test_autofill_noop_when_enrich_returns_none(db_conn, make_user, monkeypatch):
+    import vocab
+    u = make_user(username="vocab_autofill_empty")
+    vid = _capture_simple(u["user_id"])
+
+    monkeypatch.setattr(vocab, "_enrich", lambda *a, **kw: (None, None))
+
+    result = vocab.autofill_vocab_entry(
+        user_id=u["user_id"], vocab_id=vid,
+        language="Portuguese", source_language="English", secrets=None,
+    )
+    assert result == {"filled": {}}
+    row = vocab.get_vocab_entry(user_id=u["user_id"], vocab_id=vid)
+    assert row["translation"] is None
+    assert row["ipa"] is None
+
+
 def test_vocab_as_practice_phrases_shape(db_conn, make_user):
     import vocab
 
