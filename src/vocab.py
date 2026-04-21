@@ -279,6 +279,132 @@ def update_vocab_notes(*, user_id: int, vocab_id: int, notes: str) -> bool:
     return affected > 0
 
 
+# Fields that the post-capture edit form may modify. `word` (the lookup key)
+# is intentionally excluded — changing it would require re-deduplication.
+# `notes` has its own dedicated save flow. `times_seen` / `first_seen_at` /
+# `last_seen_at` are capture-side counters, not user-editable.
+_EDITABLE_FIELDS = (
+    "display_word",
+    "translation",
+    "ipa",
+    "source_name",
+    "url",
+    "context_before",
+    "context_line",
+    "context_after",
+)
+
+
+def update_vocab_entry(*, user_id: int, vocab_id: int, **fields: Any) -> bool:
+    """Update a subset of editable fields on an entry owned by ``user_id``.
+
+    - Rejects keys outside ``_EDITABLE_FIELDS`` with ``ValueError``.
+    - For ``display_word``: the new value must round-trip to the same lookup
+      key (``_normalise(new)[1] == row["word"]``); otherwise ``ValueError``.
+      This allows casing fixes but preserves the unique (user_id, language,
+      word) key.
+    - Each value is normalised with ``(x or "").strip()``; an empty string
+      is persisted as ``NULL``.
+    - A delta against the current row is computed; if nothing changed, no
+      SQL runs and ``True`` is returned.
+    - Returns ``True`` if the row exists and belongs to ``user_id``;
+      ``False`` otherwise.
+    """
+    unknown = set(fields) - set(_EDITABLE_FIELDS)
+    if unknown:
+        raise ValueError(
+            f"Unknown editable field(s): {sorted(unknown)}. "
+            f"Allowed: {list(_EDITABLE_FIELDS)}"
+        )
+
+    row = get_vocab_entry(user_id=user_id, vocab_id=vocab_id)
+    if row is None:
+        return False
+
+    # Validate display_word preserves the lookup key.
+    if "display_word" in fields:
+        new_display = (fields["display_word"] or "").strip()
+        if not new_display:
+            raise ValueError("display_word cannot be empty")
+        _, new_key = _normalise(new_display)
+        if new_key != row["word"]:
+            raise ValueError(
+                f"display_word {new_display!r} would change lookup key "
+                f"from {row['word']!r} to {new_key!r}; "
+                "editing the lookup key is not supported"
+            )
+
+    # Build delta: only columns whose normalised value differs from current.
+    delta: Dict[str, Optional[str]] = {}
+    for col, raw in fields.items():
+        new_val: Optional[str] = (raw or "").strip() or None
+        cur_val = row.get(col)
+        cur_norm: Optional[str] = (cur_val or "").strip() or None if isinstance(cur_val, str) else cur_val
+        if new_val != cur_norm:
+            delta[col] = new_val
+
+    if not delta:
+        return True  # no-op; row exists and is owned.
+
+    set_clause = ", ".join(f"{col}=%s" for col in delta)
+    params = list(delta.values()) + [vocab_id, user_id]
+
+    conn = app_mysql.get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"UPDATE vocab_entries SET {set_clause} "
+        "WHERE vocab_id=%s AND user_id=%s",
+        params,
+    )
+    conn.commit()
+    cur.close()
+    # Row existed and was owned (checked above); a 0 rowcount from MySQL
+    # just means the driver saw no byte-level change, not a failure.
+    return True
+
+
+def autofill_vocab_entry(
+    *,
+    user_id: int,
+    vocab_id: int,
+    language: str,
+    source_language: str,
+    secrets: Any,
+) -> Dict[str, Dict[str, str]]:
+    """Fill missing ``translation`` / ``ipa`` on an entry via ``_enrich``.
+
+    Only fields that are currently empty are candidates; existing values are
+    never overwritten. Returns ``{"filled": {field: value, ...}}`` describing
+    what was written. Returns ``{"filled": {}}`` when the entry is already
+    complete, when the user does not own the row, or when ``_enrich`` could
+    not produce the missing field(s).
+    """
+    row = get_vocab_entry(user_id=user_id, vocab_id=vocab_id)
+    if row is None:
+        return {"filled": {}}
+
+    need_translation = not (row.get("translation") or "").strip()
+    need_ipa = not (row.get("ipa") or "").strip()
+    if not (need_translation or need_ipa):
+        return {"filled": {}}
+
+    translation, ipa = _enrich(
+        row["display_word"], language, source_language, secrets
+    )
+
+    to_write: Dict[str, str] = {}
+    if need_translation and translation:
+        to_write["translation"] = translation
+    if need_ipa and ipa:
+        to_write["ipa"] = ipa
+
+    if not to_write:
+        return {"filled": {}}
+
+    update_vocab_entry(user_id=user_id, vocab_id=vocab_id, **to_write)
+    return {"filled": to_write}
+
+
 def _parse_import_line(line: str) -> Optional[Dict[str, str]]:
     """Pipe-delimited: `word | translation | ipa | source | url` (5 positional fields).
 
