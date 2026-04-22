@@ -10,6 +10,20 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.5-claude-dev] - 2026-04-22
+
+### Changed
+
+- Vocabulary rename + filtered-subset practice
+- Rename 'My Vocab' → 'Vocabulary' (material source, buttons, header, captions)
+- Thread 'search' parameter through vocab_as_practice_phrases()
+- Quick Practice Vocabulary source now detects the Vocabulary-tab search and
+- offers 'Load filtered (N)' alongside 'Load all (M)'
+- New 'Practise these (N)' button on Vocabulary tab jumps straight to QP
+- loaded with just the filtered entries
+- Broaden .claude/settings.json permission patterns to reduce one-off prompts
+
+
 ## [7.8.4-claude-dev] - 2026-04-22
 
 ### Changed
