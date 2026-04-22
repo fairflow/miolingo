@@ -1,6 +1,6 @@
 # Miolingo - Multi-Language Pronunciation Trainer - User Guide
 
-**Version 7.1.2** | Last Updated: 15 December 2025
+**Version 7.8.3** | Last Updated: April 2026
 
 Welcome! This guide will help you practice pronunciation in multiple languages (Portuguese, French, Dutch/Flemish, German, Spanish and Italian) using speech recognition and instant AI feedback.
 
@@ -27,6 +27,47 @@ Welcome! This guide will help you practice pronunciation in multiple languages (
 
 ## Login, register or use as a guest
 
+Before the main app loads, you'll see the **Miolingo login page**. It has three tabs.
+
+### Choose your languages (shown above the login form)
+
+Two dropdowns appear before the tabs — pick them now so the app starts in the right mode:
+
+- **Your language (source)** — the language you already speak (e.g. English)
+- **Language to practise** — the language you want to work on today (e.g. French)
+
+You can change both in the sidebar at any time after logging in.
+
+### 🔑 Login tab
+
+If you already have an account:
+
+1. Enter your **Username** and **Password**
+2. Click **Login**
+3. The app remembers your session in a browser cookie, so you'll be logged back in automatically next time on the same device
+
+### 📝 Register tab
+
+To create a free account:
+
+1. Choose a **Username** (3–20 characters, letters and numbers only)
+2. Enter your **Email Address**
+3. Choose a **Password** (minimum 8 characters) and confirm it
+4. Click **Create Account**
+5. Once registered, switch to the **Login** tab and sign in with your new credentials
+
+A registered account saves your practice history, settings, and personal vocabulary permanently.
+
+### 🎭 Guest Mode tab
+
+Want to try the app without registering?
+
+1. Click **🚀 Start as Guest**
+2. You get full access to all practice features and all supported languages
+3. **⚠️ Your progress is not saved** — when your session ends, history, settings, and vocabulary are lost
+
+Guest mode is ideal for a quick try-out. Create an account when you're ready to track your progress.
+
 ---
 
 ## Sidebar navigation
@@ -40,11 +81,20 @@ Welcome! This guide will help you practice pronunciation in multiple languages (
 
 ## Select language
 
+Two language selectors live in the sidebar under **⚙️ Settings → 🌍 Languages**:
+
+- **Your language (source)** — the language you speak. Used as the translation target when the app explains words to you.
+- **Target Language** — the language you are practising. Controls which materials load, which voice speaks, and which vocabulary list is shown.
+
+The sidebar shows the current direction, e.g. **English → French**.
+
+**Sessions and vocabulary are stored separately per target language.** Switching the target language automatically starts (or resumes) a separate practice session and shows a different vocabulary list. Your history for each language is kept independently.
+
 ---
 
 ## 🎯 How to Practice
 
-The app has **four main tabs**: Quick Practice, Story Reader, Statistics, and History.
+The app has **five main tabs**: Quick Practice, Story Reader, Vocabulary, Statistics, and History.
 
 ### Tab 1: 🎯 Quick Practice
 
@@ -52,7 +102,7 @@ This is where you practice! The app supports two modes with two material sources
 
 #### Material Sources (Tabbed Interface)
 
-You can choose between two sources for practice materials:
+You can choose between three sources for practice materials:
 
 **📚 Built-in Library:**
 
@@ -72,7 +122,15 @@ You can choose between two sources for practice materials:
 - Create personalized practice materials
 - Same functionality as before, now in a dedicated tab
 
-Both sources work with the same practice modes (Free Practice and Guided Practice) detailed below.
+**📚 My Vocab:**
+
+- Practice your personal vocabulary words for the current target language
+- Requires sign-in — guests see a lock message
+- Choose a sort order (alphabetical, most recent, oldest first), then click **Load My Vocab**
+- Words are served as a guided phrase list — use Next/Previous to move through them
+- If you haven't added any words yet, see the **Vocabulary tab** for how to build your list
+
+All three sources work with the same practice modes (Free Practice and Guided Practice) detailed below.
 
 **✨ Enrich This Material (Optional):**
 
@@ -197,7 +255,51 @@ In **Practice Mode**, you'll see a progress bar and Next/Previous navigation, pl
 
 ---
 
-### Tab 3: 📊 Statistics
+### Tab 3: 📚 Vocabulary
+
+Your personal word tracker — save words you encounter while reading or practising, then search, review, and practise them.
+
+**Requires sign-in** — guest users see a lock message. Create a free account to use this feature.
+
+**Language-specific** — the tab shows vocabulary for your current target language only. Change the target language in the sidebar to view a different language's list.
+
+#### Viewing your vocabulary
+
+Entries are listed as: **word** · *translation* · `IPA` · source · date
+
+- **Sort by**: Alphabetical, Most recent, Oldest first
+- **Search**: type to filter — see [Searching your vocabulary](#-searching-your-personal-vocabulary) below for the full query syntax
+- **⬇️ Export CSV**: download your full list as a spreadsheet (word, translation, IPA, source, context, notes, URL)
+
+Each entry expands to show:
+- **Context** — the lines surrounding where you first encountered the word (before / line / after)
+- **🔗 Source link** — if a URL was captured
+- **Notes** — free-form text; click **💾 Save notes** to persist
+- **🔊 Play** — hear the word pronounced using your current TTS engine
+- **✏️ Edit** — open an inline form to correct the word (casing only — the lookup key is immutable), translation, IPA, source, URL, or all three context lines
+- **✨ Auto-fill** — automatically fetch missing translation and/or IPA via LLM + eSpeak (only shown when one or both fields are empty)
+- **🗑️ Delete** — permanently remove the entry
+
+#### Adding words to your vocabulary
+
+**From Quick Practice or Story Reader** — a save-to-vocab button appears in the results area after you practise a phrase. Click it to capture the word along with its context.
+
+**✍️ Paste a passage** (expander on the Vocabulary tab):
+1. Paste any text — a poem, article, song lyric, or paragraph
+2. Type the word you want to save
+3. Add a source label (e.g. the poem title) and an optional URL
+4. Click **➕ Add from passage** — the app automatically extracts ±2 lines of context
+
+**📥 Upload a dictionary file** (expander on the Vocabulary tab):
+- Format: pipe-delimited `.txt`, one entry per line: `word | translation | ipa | source | url`
+- Only `word` is required; use `||` to skip a field while keeping later ones in position (e.g. `word || [aˈtɛ] | src`)
+- IPA brackets `[]` are stripped automatically; lines starting with `#` are ignored; multi-word entries are skipped
+- Tick **Auto-fetch missing translation + IPA on import** to fill blank fields via LLM + eSpeak after upload (adds a few seconds per word)
+- A progress bar shows import progress; results summarise how many entries were added or updated
+
+---
+
+### Tab 4: 📊 Statistics
 
 View your practice performance and track progress.
 
@@ -216,7 +318,7 @@ View your practice performance and track progress.
 
 ---
 
-### Tab 4: 📜 History
+### Tab 5: 📜 History
 
 Review your past practice sessions (last 10 sessions shown).
 
@@ -254,12 +356,19 @@ All settings are in the left sidebar.
 
 - When using Google voices, you can toggle slow speech (Google supports normal/slow)
 
-**Material Language** and **Voice:**
+**🌍 Languages:**
 
-- Select the language of materials/stories you want to use (Portuguese, French, Dutch, German, Italian, Spanish).
-- Choose a voice for that language (available options depend on the selected TTS engine).
-- The available voices/dialects update automatically based on your selected language.
-- All practice features work identically for every supported language.
+Two selectors control which languages you are working with:
+
+- **Your language (source)** — the language you speak (e.g. English). Used as the translation direction when the app explains words to you. Cannot be the same as the target.
+- **Target Language** — the language you are practising (e.g. French). Controls which materials, voices, and vocabulary list are shown. The sidebar displays the active direction: e.g. **English → French**.
+
+Switching the target language starts a fresh practice session for that language (your previous session is saved automatically). Vocabulary is also stored per language, so your French and Portuguese word lists are kept separately.
+
+**Voice:**
+
+- Choose a voice/dialect for the current target language (options depend on the selected TTS engine).
+- The available voices update automatically when you change the target language.
 
 ### 🎙️ Speech Recognition
 
@@ -473,7 +582,7 @@ Below the results, you can:
 
 ---
 
-## 🔍 Searching your personal vocabulary
+## 🔍 Searching your personal vocabulary (Vocabulary tab)
 
 The **Vocabulary** tab has a single search box that accepts a small query
 language. **Anything you type that looks like plain text still works like
