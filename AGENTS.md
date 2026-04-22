@@ -160,7 +160,7 @@ language_materials/
 
 ---
 
-## Key Configuration
+## Key Configuration & Reference Files
 
 | File | Purpose |
 |------|---------|
@@ -169,6 +169,9 @@ language_materials/
 | `config/.miolingo.config` | App-specific configuration |
 | `requirements.txt` | Python dependencies |
 | `docker-compose.yml` | Container deployment (port 8601) |
+| `docs/TESTING_CHECKLIST.md` | Structured manual UI test checklist (used during testing sessions) |
+| `.github/ISSUE_TEMPLATE/bug_report.md` | GitHub issue template for bug reports |
+| `APP_CHANGELOG.md` | Version history — updated by `scripts/bump_version.py` |
 
 ---
 
