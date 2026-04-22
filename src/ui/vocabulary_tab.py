@@ -511,9 +511,13 @@ def render_vocabulary_tab():
                 f"Vocabulary ({language}, filter: {search.strip()})"
             )
             st.session_state.qp_materials_expanded = False
-            # Switch tabs: active_tab=0 → Quick Practice; material_source_tab=2 → Vocabulary panel
-            st.session_state.active_tab = 0
-            st.session_state.material_source_tab = 2
+            # Switch tabs via pending flags — app.py applies them before the
+            # radio widgets are drawn on the next rerun. We can't set
+            # active_tab / material_source_tab directly here because the radios
+            # were already instantiated this rerun (Streamlit forbids post-draw
+            # mutation of widget-bound session_state keys).
+            st.session_state["pending_active_tab"] = 0
+            st.session_state["pending_material_source_tab"] = 2
             st.rerun()
 
     if rows:
