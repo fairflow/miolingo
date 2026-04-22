@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.6-claude-dev] - 2026-04-22
+
+### Changed
+
+- Fix Streamlit widget-state crash when clicking 'Practise these' on Vocabulary tab — active_tab and material_source_tab are widget-bound keys and cannot be mutated after the radios have been drawn this rerun. Switch tabs via pending_* flags applied at the top of app.py before the radios are instantiated.
+
+
 ## [7.8.5-claude-dev] - 2026-04-22
 
 ### Changed
