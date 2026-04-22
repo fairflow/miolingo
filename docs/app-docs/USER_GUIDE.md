@@ -122,13 +122,23 @@ You can choose between three sources for practice materials:
 - Create personalized practice materials
 - Same functionality as before, now in a dedicated tab
 
-**📚 My Vocab:**
+**📚 Vocabulary:**
 
-- Practice your personal vocabulary words for the current target language
+- Practise your personal vocabulary words for the current target language
 - Requires sign-in — guests see a lock message
-- Choose a sort order (alphabetical, most recent, oldest first), then click **Load My Vocab**
+- Choose a sort order (alphabetical, most recent, oldest first), then click **Load vocabulary**
 - Words are served as a guided phrase list — use Next/Previous to move through them
 - If you haven't added any words yet, see the **Vocabulary tab** for how to build your list
+
+**Practising a subset (filtered practice):**
+
+- On the **Vocabulary tab**, type a search query to narrow the list — plain text
+  substrings, or operators like `ção$` (ends with), `^a` (starts with),
+  `source:Pessoa`, `none:ipa`, etc. — then click **🎯 Practise these (N)**
+  to jump straight to Quick Practice loaded with just the filtered entries.
+- Alternatively, set the filter on the Vocabulary tab, switch manually to
+  Quick Practice → Vocabulary source. You'll see the active filter reflected
+  there with two buttons: **Load filtered (N)** or **Load all (M)**.
 
 All three sources work with the same practice modes (Free Practice and Guided Practice) detailed below.
 

@@ -487,3 +487,34 @@ def test_vocab_as_practice_phrases_shape(db_conn, make_user):
     assert len(phrases) == 1
     assert set(phrases[0].keys()) >= {"text", "translation", "ipa"}
     assert phrases[0]["text"] == "lua"
+
+
+def test_vocab_as_practice_phrases_respects_search(db_conn, make_user):
+    """vocab_as_practice_phrases should pass `search` through to list_vocab
+    so Quick Practice can load a filtered subset."""
+    import vocab
+
+    u = make_user(username="vocab_filter_practiser")
+    for word in ["canção", "nação", "menina", "livro"]:
+        vocab.capture_vocab_entry(
+            user_id=u["user_id"], language="Portuguese", word=word
+        )
+
+    # No search → all four words
+    full = vocab.vocab_as_practice_phrases(
+        user_id=u["user_id"], language="Portuguese"
+    )
+    assert len(full) == 4
+
+    # Filter to "ção$" endings → only canção + nação
+    filtered = vocab.vocab_as_practice_phrases(
+        user_id=u["user_id"], language="Portuguese", search="ção$"
+    )
+    assert len(filtered) == 2
+    assert {p["text"] for p in filtered} == {"canção", "nação"}
+
+    # Empty-string search is treated same as no search (all)
+    also_full = vocab.vocab_as_practice_phrases(
+        user_id=u["user_id"], language="Portuguese", search=""
+    )
+    assert len(also_full) == 4

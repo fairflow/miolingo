@@ -49,7 +49,7 @@ def _render_materials_loader():
         st.session_state.qp_materials_expanded = True
 
         # Use radio buttons for material source to preserve state across reruns
-        material_source_names = ["📦 Built-in Library", "📁 Upload File", "📚 My Vocab"]
+        material_source_names = ["📦 Built-in Library", "📁 Upload File", "📚 Vocabulary"]
         material_source_index = st.radio(
             "Material Source",
             range(len(material_source_names)),
@@ -91,25 +91,82 @@ def _render_vocab_materials():
         key="qp_vocab_sort",
     )
 
-    phrases = vocab_mod.vocab_as_practice_phrases(
+    all_phrases = vocab_mod.vocab_as_practice_phrases(
         user_id=user_id, language=language, sort=sort
     )
-    st.caption(f"**{len(phrases)}** word(s) in your {language} vocab.")
+    st.caption(f"**{len(all_phrases)}** word(s) in your {language} vocabulary.")
 
-    if not phrases:
+    if not all_phrases:
         st.info(
             "No vocabulary for this language yet. Add some from the Story Reader, "
             "paste a passage, or upload a dictionary file (see the Vocabulary tab)."
         )
         return
 
-    if st.button("📂 Load My Vocab", type="primary", key="load_vocab"):
-        st.session_state.phrase_list = phrases
-        st.session_state.qp_phrase_position = 0
-        st.session_state.quick_last_result = None
-        st.session_state.material_source = f"My Vocab ({language})"
-        st.session_state.qp_materials_expanded = False
-        st.rerun()
+    # Check for an active filter from the Vocabulary tab — lets the user practise
+    # a filtered subset (e.g. only "ção$" endings) without re-typing the query here.
+    active_search = (st.session_state.get("vocab_search") or "").strip()
+    filtered_phrases: list = []
+    filter_error: str = ""
+
+    if active_search:
+        import vocab_search
+        try:
+            filtered_phrases = vocab_mod.vocab_as_practice_phrases(
+                user_id=user_id, language=language, sort=sort, search=active_search
+            )
+        except vocab_search.QueryError as e:
+            filter_error = str(e)
+
+    if active_search:
+        if filter_error:
+            st.warning(
+                f"🔎 Filter from Vocabulary tab (`{active_search}`) is invalid: "
+                f"{filter_error}. Fix it on the Vocabulary tab, or load the full list below."
+            )
+        else:
+            st.caption(
+                f"🔎 Filter from Vocabulary tab: `{active_search}` "
+                f"→ **{len(filtered_phrases)}** match(es)."
+            )
+
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if active_search and not filter_error:
+            disabled = len(filtered_phrases) == 0
+            if st.button(
+                f"🎯 Load filtered ({len(filtered_phrases)})",
+                type="primary",
+                key="load_vocab_filtered",
+                disabled=disabled,
+                use_container_width=True,
+            ):
+                st.session_state.phrase_list = filtered_phrases
+                st.session_state.qp_phrase_position = 0
+                st.session_state.quick_last_result = None
+                st.session_state.material_source = (
+                    f"Vocabulary ({language}, filter: {active_search})"
+                )
+                st.session_state.qp_materials_expanded = False
+                st.rerun()
+    with col_b:
+        label = (
+            f"📂 Load all ({len(all_phrases)})"
+            if active_search
+            else f"📂 Load vocabulary ({len(all_phrases)})"
+        )
+        if st.button(
+            label,
+            type="secondary" if active_search and not filter_error else "primary",
+            key="load_vocab",
+            use_container_width=True,
+        ):
+            st.session_state.phrase_list = all_phrases
+            st.session_state.qp_phrase_position = 0
+            st.session_state.quick_last_result = None
+            st.session_state.material_source = f"Vocabulary ({language})"
+            st.session_state.qp_materials_expanded = False
+            st.rerun()
 
 
 def _render_builtin_materials(get_available_languages, get_language_structure,

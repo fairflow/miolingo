@@ -523,13 +523,18 @@ def vocab_as_practice_phrases(
     user_id: int,
     language: str,
     sort: str = "alpha",
+    search: str = "",
 ) -> List[Dict[str, Any]]:
     """
     Shape vocab entries to match the phrase-dict interface expected by the
     practice UI: {text, translation, ipa}. Used by the 'Practice from vocab'
     material source.
+
+    search: optional mini-language query to practise a filtered subset.
+            Same grammar as list_vocab's search parameter. Empty string
+            (default) returns the full vocabulary.
     """
-    rows = list_vocab(user_id=user_id, language=language, sort=sort)
+    rows = list_vocab(user_id=user_id, language=language, sort=sort, search=search)
     return [
         {
             "text": r["display_word"],
