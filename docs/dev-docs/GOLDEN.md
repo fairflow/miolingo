@@ -1,10 +1,13 @@
 # GOLDEN.md — How Matthew and Claude Work Together
 
-**Audience:** Matthew (after a pause) and any future Claude session picking up
-the project. This is the human-readable contract; `SCRIPTS_WORKFLOW.md` is the
-mechanical recipe.
+**Audience: Matthew.** This is the human-readable overview of how we work
+together. Claude: read this for context if you want, but **do not edit it** —
+your operational docs are [`CLAUDE.md`](../../CLAUDE.md) (git recipe, venv,
+testing protocol) and [`AGENTS.md`](../../AGENTS.md) (project architecture,
+module map, DB rules). The mechanical script recipe is in
+[`SCRIPTS_WORKFLOW.md`](SCRIPTS_WORKFLOW.md).
 
-Last revised: 2026-04-21 (end of v7.8.0 session).
+Last revised: 2026-04-22 (v7.8.2 docs-refactor session).
 
 ---
 
@@ -53,7 +56,7 @@ Everything lands via a PR that Matthew merges.
 
 ## The golden path — every change, start to finish
 
-Canonical mechanics live in `SCRIPTS_WORKFLOW.md`. Summary:
+Canonical mechanics live in [`SCRIPTS_WORKFLOW.md`](SCRIPTS_WORKFLOW.md). Summary:
 
 1. **Branch** from `origin/claude/dev-swept` inside a fresh linked worktree.
 2. **Code + tests**, using `venv/bin/python` directly (the main clone's venv;
@@ -169,9 +172,16 @@ delete.
 ## Out of scope for this document
 
 - Product roadmap and feature priorities — those live in
-  `docs/dev-docs/ROADMAP.md` and the various `project_*.md` memory entries.
-- How to actually use the app as an end user — `docs/app-docs/USER_GUIDE.md`.
-- Detailed script flag reference — `docs/dev-docs/SCRIPTS_WORKFLOW.md`.
+  [`docs/dev-docs/ROADMAP2026.md`](ROADMAP2026.md) and the various
+  `project_*.md` memory entries.
+- How to actually use the app as an end user —
+  [`docs/app-docs/USER_GUIDE.md`](../app-docs/USER_GUIDE.md).
+- Detailed script flag reference —
+  [`docs/dev-docs/SCRIPTS_WORKFLOW.md`](SCRIPTS_WORKFLOW.md).
+- Project architecture, module map, DB rules —
+  [`AGENTS.md`](../../AGENTS.md).
+- Claude's git/venv/testing rules —
+  [`CLAUDE.md`](../../CLAUDE.md).
 
 ---
 

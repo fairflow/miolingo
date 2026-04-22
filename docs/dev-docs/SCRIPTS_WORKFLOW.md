@@ -2,7 +2,9 @@
 
 Single source of truth for the Miolingo dev scripts and the end-to-end workflow for landing changes. **Follow this exactly** — deviations have cost multiple sessions' worth of confusion. If you find the scripts don't match this document, the scripts are wrong: fix them and update this page.
 
-Audience: AI assistants (Claude Code, other models) and humans continuing work between sessions.
+**Audience: Claude (and humans continuing work between sessions).** For the
+human-readable overview of the Matthew↔Claude collaboration contract, see
+[`GOLDEN.md`](GOLDEN.md).
 
 Last verified: 2026-04-20 with `scripts/create-pr.sh` v2 (post-bug-fix commit).
 
@@ -197,7 +199,8 @@ Port convention (memorise):
 
 ## Pointers to related docs
 
-- `CLAUDE.md` — project-root file, the entry point for any AI assistant. Contains the Git-Workflow rules that should match this document. If they diverge, update both.
-- `AGENTS.md` — canonical module map and architecture notes.
-- `docs/TESTING_CHECKLIST.md` — structured manual UI test.
+- [`CLAUDE.md`](../../CLAUDE.md) — Claude's operational rules: git recipe, venv, testing protocol. Contains the Git-Workflow rules that should match this document. If they diverge, update both.
+- [`AGENTS.md`](../../AGENTS.md) — canonical project reference: module map, architecture, DB rules, known issues.
+- [`GOLDEN.md`](GOLDEN.md) — human-readable collaboration contract (Matthew's doc; read-only for Claude).
+- [`docs/TESTING_CHECKLIST.md`](../TESTING_CHECKLIST.md) — structured manual UI test checklist.
 - `~/.claude/projects/<project>/memory/MEMORY.md` — cross-session memory index. This document should be linked there (entry: `scripts_workflow.md`).
