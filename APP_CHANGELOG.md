@@ -10,6 +10,34 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.7-claude-dev] - 2026-04-22
+
+### Changed
+
+- Fix: cross-tab vocab filter was lost when switching Vocabulary → Quick Practice. Streamlit garbage-collects widget-bound session_state keys when the widget unmounts, so QP's read of vocab_search was always empty. Mirror the search value into a persistent (non-widget) shadow key vocab_search_active on every Vocabulary-tab render; QP reads the shadow. Textbook Streamlit cross-widget persistence pattern.
+
+
+## [7.8.6-claude-dev] - 2026-04-22
+
+### Changed
+
+- Fix Streamlit widget-state crash when clicking 'Practise these' on Vocabulary tab — active_tab and material_source_tab are widget-bound keys and cannot be mutated after the radios have been drawn this rerun. Switch tabs via pending_* flags applied at the top of app.py before the radios are instantiated.
+
+
+## [7.8.5-claude-dev] - 2026-04-22
+
+### Changed
+
+- Vocabulary rename + filtered-subset practice
+- Rename 'My Vocab' → 'Vocabulary' (material source, buttons, header, captions)
+- Thread 'search' parameter through vocab_as_practice_phrases()
+- Quick Practice Vocabulary source now detects the Vocabulary-tab search and
+- offers 'Load filtered (N)' alongside 'Load all (M)'
+- New 'Practise these (N)' button on Vocabulary tab jumps straight to QP
+- loaded with just the filtered entries
+- Broaden .claude/settings.json permission patterns to reduce one-off prompts
+
+
 ## [7.8.4-claude-dev] - 2026-04-22
 
 ### Changed

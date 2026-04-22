@@ -13,7 +13,7 @@ from typing import Dict
 # Version metadata
 # ---------------------------------------------------------------------------
 
-__version__ = "7.8.4-claude-dev"
+__version__ = "7.8.7-claude-dev"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"

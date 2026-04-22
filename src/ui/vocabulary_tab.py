@@ -433,12 +433,12 @@ def _render_entry_row(row: dict):
 
 def render_vocabulary_tab():
     """Top-level entry point for the Vocabulary tab."""
-    st.header("📚 My Vocabulary")
+    st.header("📚 Vocabulary")
     if not _require_auth():
         return
 
     language = _current_language()
-    st.caption(f"Language: **{language}** — change in sidebar to view another language's vocab.")
+    st.caption(f"Language: **{language}** — change in sidebar to view another language's vocabulary.")
 
     col1, col2 = st.columns([2, 3])
     with col1:
@@ -471,6 +471,12 @@ def render_vocabulary_tab():
                 "Only the first colon splits field from value, so URLs are safe."
             ),
         )
+        # Mirror the widget's value into a persistent (non-widget-bound) key so
+        # Quick Practice can read it after the user switches tabs. Streamlit
+        # garbage-collects widget-bound keys when the widget unmounts, so
+        # without this shadow the filter would be lost the moment the user
+        # leaves the Vocabulary tab.
+        st.session_state["vocab_search_active"] = search
 
     st.markdown("---")
     _render_paste_capture()
@@ -488,6 +494,37 @@ def render_vocabulary_tab():
     _prune_stale_session_keys(rows)
 
     st.caption(f"**{len(rows)}** entr{'y' if len(rows) == 1 else 'ies'}")
+
+    if rows and search.strip():
+        # Let the user jump straight to Quick Practice with just these entries
+        # as the phrase list — handy for drilling e.g. "ção$" endings.
+        if st.button(
+            f"🎯 Practise these ({len(rows)})",
+            key="vocab_practise_filtered",
+            help="Load these filtered entries into Quick Practice",
+        ):
+            st.session_state.phrase_list = [
+                {
+                    "text": r["display_word"],
+                    "translation": r.get("translation") or "",
+                    "ipa": r.get("ipa") or "",
+                }
+                for r in rows
+            ]
+            st.session_state.qp_phrase_position = 0
+            st.session_state.quick_last_result = None
+            st.session_state.material_source = (
+                f"Vocabulary ({language}, filter: {search.strip()})"
+            )
+            st.session_state.qp_materials_expanded = False
+            # Switch tabs via pending flags — app.py applies them before the
+            # radio widgets are drawn on the next rerun. We can't set
+            # active_tab / material_source_tab directly here because the radios
+            # were already instantiated this rerun (Streamlit forbids post-draw
+            # mutation of widget-bound session_state keys).
+            st.session_state["pending_active_tab"] = 0
+            st.session_state["pending_material_source_tab"] = 2
+            st.rerun()
 
     if rows:
         _render_export_csv(rows)

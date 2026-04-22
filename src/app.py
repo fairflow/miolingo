@@ -436,6 +436,17 @@ def main():
     # Main content - Tabs with state management
     tab_names = ["🎯 Quick Practice", "📖 Story Reader", "📚 Vocabulary", "📊 Statistics", "📜 History"]
 
+    # Apply any pending tab / material-source switch requested from another tab.
+    # Streamlit forbids mutating a widget-bound session_state key AFTER the widget
+    # has been drawn this rerun, so handlers elsewhere set a `pending_*` flag and
+    # we pop-and-apply it here, BEFORE the radios are instantiated.
+    if "pending_active_tab" in st.session_state:
+        st.session_state["active_tab"] = st.session_state.pop("pending_active_tab")
+    if "pending_material_source_tab" in st.session_state:
+        st.session_state["material_source_tab"] = st.session_state.pop(
+            "pending_material_source_tab"
+        )
+
     # Use radio buttons to preserve tab state across reruns
     selected_tab_index = st.radio(
         "Select Tab",
