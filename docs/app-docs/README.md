@@ -1,6 +1,6 @@
 # Miolingo - Multi-Language Pronunciation Trainer - Documentation
 
-**Version 7.1.2** | Last Updated: 28 November 2025
+**Version 7.8.3** | Last Updated: April 2026
 
 Welcome to the documentation for Miolingo, the multi-language pronunciation trainer app!
 
@@ -12,7 +12,7 @@ Choose the guide that matches your needs:
 
 ### 👤 For App Users
 
-**[USER_GUIDE.md](USER_GUIDE.md)** - Start here if you want to practice Portuguese!
+**[USER_GUIDE.md](USER_GUIDE.md)** - Start here if you want to practice!
 
 - How to access and use the app
 - Practice modes explained
@@ -57,12 +57,12 @@ Choose the guide that matches your needs:
 
 #### Version Information
 
-- **[APP_CHANGELOG.md](../APP_CHANGELOG.md)** - Version history and changes
-- **[VERSION_WORKFLOW.md](../VERSION_WORKFLOW.md)** - Git workflow and versioning
+- **[APP_CHANGELOG.md](../../APP_CHANGELOG.md)** - Version history and changes
+- **[docs/dev-docs/SCRIPTS_WORKFLOW.md](../dev-docs/SCRIPTS_WORKFLOW.md)** - Git workflow and script reference
 
 #### Technical Testing
 
-- **[CCS_TESTING_README.md](../CCS_TESTING_README.md)** - Advanced CCS framework testing (for developers)
+- **[docs/dev-docs/archive/CCS_TESTING_README.md](../dev-docs/archive/CCS_TESTING_README.md)** - Advanced CCS framework testing (for developers)
 
 #### Archive
 
@@ -74,7 +74,7 @@ Choose the guide that matches your needs:
 
 ### Just Want to Use the App?
 
-1. **Visit:** <https://miolingo.streamlit.app/>
+1. **Visit:** <https://miolingo.io/>
 2. Read the **[USER_GUIDE.md](USER_GUIDE.md)** for help
 3. Select your language and voice/dialect in the sidebar
 4. Start practicing!
@@ -95,7 +95,7 @@ Choose the guide that matches your needs:
 
 ## 🎯 What Is This App?
 
-**Miolingo** is a web-based app that helps you practice pronunciation in multiple languages (Portuguese, French, Dutch, Flemish) with instant feedback.
+**Miolingo** is a web-based app that helps you practice pronunciation in multiple languages (Portuguese, French, Dutch/Flemish, German, Italian, Spanish) with instant feedback.
 
 
 ### Key Features
