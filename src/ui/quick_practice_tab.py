@@ -105,7 +105,12 @@ def _render_vocab_materials():
 
     # Check for an active filter from the Vocabulary tab — lets the user practise
     # a filtered subset (e.g. only "ção$" endings) without re-typing the query here.
-    active_search = (st.session_state.get("vocab_search") or "").strip()
+    # We read `vocab_search_active`, a persistent shadow of the Vocabulary tab's
+    # search widget. Reading `vocab_search` directly would fail: Streamlit
+    # garbage-collects widget-bound session_state keys when the widget unmounts,
+    # so the filter disappears the moment the user switches tabs. The shadow is
+    # maintained by vocabulary_tab.py whenever that tab renders.
+    active_search = (st.session_state.get("vocab_search_active") or "").strip()
     filtered_phrases: list = []
     filter_error: str = ""
 

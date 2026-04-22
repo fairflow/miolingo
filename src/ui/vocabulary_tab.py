@@ -471,6 +471,12 @@ def render_vocabulary_tab():
                 "Only the first colon splits field from value, so URLs are safe."
             ),
         )
+        # Mirror the widget's value into a persistent (non-widget-bound) key so
+        # Quick Practice can read it after the user switches tabs. Streamlit
+        # garbage-collects widget-bound keys when the widget unmounts, so
+        # without this shadow the filter would be lost the moment the user
+        # leaves the Vocabulary tab.
+        st.session_state["vocab_search_active"] = search
 
     st.markdown("---")
     _render_paste_capture()
