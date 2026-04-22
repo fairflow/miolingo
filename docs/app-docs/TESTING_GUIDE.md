@@ -1,6 +1,6 @@
 # Testing Guide for Miolingo Multi-Language Pronunciation Trainer
 
-**Version 7.1.2** | For App Users & Testers
+**Version 7.8.3** | For App Users & Testers
 
 Thank you for helping us improve Miolingo! This guide explains how you can help test the app and report any problems you find.
 
@@ -306,21 +306,19 @@ Want to do thorough testing? Work through this checklist:
 
 Based on feedback so far, please especially test:
 
-### Known Issue: iPhone Audio
-- WAV toggle should save automatically (v0.9.1 fix)
-- Confirm this works for you
+### Known Issue: Statistics Charts
+- The Statistics tab shows session counts and averages but detailed charts/breakdowns are not yet implemented — this is a missing feature, not a bug
+
+### Known Issue: Scene Title Encoding
+- Accented characters may be stripped in the Story Reader scene dropdown/heading (Streamlit limitation under investigation)
 
 ### Known Issue: Microphone Permission
 - First-time users might miss the permission request
 - Note if the app guides you through this clearly
 
-### Known Issue: Recording Too Short
-- Default 3 seconds might be too short for some phrases
-- Try adjusting and note if it helps
-
 ### Known Issue: Background Noise
 - Noisy environments cause poor recognition
-- Test in different noise levels, note difference
+- Test in different noise levels, note the difference
 
 ---
 
@@ -400,8 +398,8 @@ Your testing helps make the app better for all language learners. Every bug repo
 
 ---
 
-*For technical/development testing (CCS framework), see [CCS_TESTING_README.md](../CCS_TESTING_README.md)*
+*For technical/development testing (CCS framework), see [`docs/dev-docs/archive/CCS_TESTING_README.md`](../dev-docs/archive/CCS_TESTING_README.md)*
 
 *For general app usage, see [USER_GUIDE.md](USER_GUIDE.md)*
 
-*App Version 0.9.1*
+*App Version 7.8.3 (April 2026)*

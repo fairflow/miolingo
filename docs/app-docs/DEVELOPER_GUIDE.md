@@ -1,6 +1,6 @@
 # Developer Guide - Miolingo Multi-Language Pronunciation Trainer
 
-**Version 7.1.2** | Last Updated: 28 November 2025
+**Version 7.8.3** | Last Updated: April 2026
 
 This guide is for developers who want to contribute to, modify, or understand the Miolingo pronunciation trainer codebase.
 
@@ -28,44 +28,43 @@ A Streamlit web application for practicing pronunciation in multiple languages (
 
 - **Frontend**: Streamlit (Python web framework)
 - **Speech Recognition**: OpenAI Whisper (ML model)
-- **Text-to-Speech**: eSpeak NG (formant synthesis)
+- **Text-to-Speech**: Google Cloud TTS / gTTS / eSpeak NG
 - **Audio Processing**: ffmpeg, soundfile, numpy
-- **Deployment**: Streamlit Cloud (can also run locally)
+- **Database**: MySQL over SSH tunnel (auth, progress, sessions)
+- **Auth**: Argon2 password hashing
+- **Deployment**: Self-hosted (can also run locally or via Docker)
 
 ### Repository Structure
 
 ```
 miolingo/
 ├── src/                            # Python source code
-│   ├── app.py                      # Main Streamlit application
+│   ├── app.py                      # Main Streamlit application (~2800 lines)
 │   ├── miolingo-admin.py          # Admin dashboard
+│   ├── app_mysql.py               # Database layer (auth, progress, sessions)
 │   ├── app_language_materials.py  # Language materials browser
-│   ├── app_mysql.py               # Database functions
-│   └── [other modules]            # Additional app modules
+│   ├── config.py                  # Constants, LANGUAGE_CONFIG, settings
+│   ├── translation.py             # Translation providers + LLM translation
+│   ├── scoring/                   # Scoring algorithms (comparison, phonemes, practice)
+│   ├── audio/                     # TTS and ASR modules
+│   └── [other modules]            # Session manager, connection pool, etc.
 ├── docs/                           # Documentation
-│   ├── app-docs/                  # User and developer guides
-│   │   ├── README.md              # Documentation index
-│   │   ├── USER_GUIDE.md          # User guide
-│   │   ├── TESTING_GUIDE.md       # Testing guide
-│   │   └── DEVELOPER_GUIDE.md     # This file
-│   ├── admin-docs/                # Admin dashboard documentation
-│   │   └── sources/               # Admin module sources
+│   ├── app-docs/                  # User and developer guides (this dir)
 │   ├── dev-docs/                  # Development documentation
+│   │   ├── GOLDEN.md              # Matthew↔Claude collaboration overview
+│   │   └── SCRIPTS_WORKFLOW.md    # Canonical script and PR workflow
 │   └── archive/                   # Historical documentation
 ├── scripts/                        # Utility scripts
-│   ├── bump_app.py                # App version bumping
-│   ├── bump_admin.py              # Admin version bumping
-│   └── language-generation/       # Language content generation
-├── data/                           # Data files
-│   └── practice-sets/             # Practice phrases and word lists
+│   ├── bump_version.py            # App version bumping + changelog
+│   ├── create-pr.sh               # Push branch + raise PR
+│   └── language-generation/       # Language content generation pipeline
 ├── language_materials/             # Language learning content
 │   ├── pt/ fr/ nl/ de/ es/ it/   # 6 language directories
-│   └── [level]/                   # Organized by CEFR level
+│   └── [level]/                   # Organized by CEFR level (A–D)
 ├── config/                         # Configuration templates
 ├── .streamlit/                     # Streamlit configuration
+├── AGENTS.md                       # Canonical AI assistant reference
 ├── APP_CHANGELOG.md                # App version history
-├── VERSION_WORKFLOW.md             # Git workflow documentation
-├── BUMP_GUIDE.md                   # Version bump script guide
 ├── requirements.txt                # Python dependencies
 └── README.md                       # Project overview
 ```
@@ -76,12 +75,13 @@ miolingo/
 |------|---------|
 | `src/app.py` | Main Streamlit application |
 | `src/miolingo-admin.py` | Admin dashboard for monitoring |
-| `src/app_language_materials.py` | Language materials browser |
-| `scripts/bump_app.py` | Automated version bumping |
+| `src/app_mysql.py` | Database layer — always use `get_connection()`, never open new tunnels |
+| `scripts/bump_version.py` | Automated version bumping + changelog |
+| `scripts/create-pr.sh` | Push branch and raise PR to `claude/dev-swept` |
 | `requirements.txt` | Python package dependencies |
 | `APP_CHANGELOG.md` | App-specific version history |
-| `VERSION_WORKFLOW.md` | Git branching and versioning guide |
-| `BUMP_GUIDE.md` | Version bump script usage guide |
+| `AGENTS.md` | Canonical project reference for AI assistants and contributors |
+| `docs/dev-docs/SCRIPTS_WORKFLOW.md` | Git workflow and script usage reference |
 
 ---
 
@@ -335,92 +335,36 @@ def load_settings() -> Dict:
 
 ### Git Workflow
 
-We follow the workflow documented in `VERSION_WORKFLOW.md`:
+The full, authoritative workflow is in
+[`docs/dev-docs/SCRIPTS_WORKFLOW.md`](../dev-docs/SCRIPTS_WORKFLOW.md).
+Read that before making any changes.
 
-#### Branch Strategy
+**Short version:**
 
-- **`main`**: Production-ready code only
-- **`feature/feature-name`**: New features
-- **`bugfix/bug-name`**: Bug fixes
-- **`hotfix/critical-fix`**: Critical production fixes
-
-#### Making Changes
-
-1. **Fork the repository** (if you haven't already)
-   - Go to https://github.com/fairflow/miolingo
-   - Click "Fork" button
-
-2. **Clone your fork**:
-```bash
-git clone https://github.com/YOUR_USERNAME/miolingo.git
-cd miolingo
-git remote add upstream https://github.com/fairflow/miolingo.git
-```
-
-3. **Create feature branch**:
-```bash
-git checkout main
-git pull upstream main
-git checkout -b feature/new-practice-mode
-```
-
-4. **Make changes and commit**:
-```bash
-git add src/app.py
-git commit -m "Add spaced repetition practice mode"
-```
-
-5. **Push to your fork**:
-```bash
-git push origin feature/new-practice-mode
-```
-
-6. **Create Pull Request**:
-   - Go to https://github.com/fairflow/miolingo/pulls
-   - Click "New Pull Request"
-   - Select your fork and branch
-   - Fill in PR description (see guidelines below)
-   - Submit for review
-
-7. **Address review feedback** if requested
-
-8. **Merge** will be done by maintainer after approval
+- All work lands via PRs targeting `claude/dev-swept` (never push directly to it).
+- Branch from `origin/claude/dev-swept` using the explicit form:
+  ```bash
+  git switch -c claude/<descriptive-name> origin/claude/dev-swept
+  ```
+- Commit your changes, then bump the version, then create the PR via `create-pr.sh`.
+- PRs are reviewed and merged by the maintainer.
 
 ### Versioning
 
-Follow **Semantic Versioning** (MAJOR.MINOR.PATCH):
-
-- **PATCH** (3.0.1 → 3.0.2): Bug fixes only
-- **MINOR** (3.0.2 → 3.1.0): New features (backward compatible)
-- **MAJOR** (3.1.0 → 4.0.0): Breaking changes or major milestone
-
-#### Releasing a New Version (Automated)
-
-Use the bump scripts for consistent version management:
+We use **Semantic Versioning** (MAJOR.MINOR.PATCH) via `scripts/bump_version.py`:
 
 ```bash
-# Activate virtual environment
-source venv/bin/activate
+# Patch (bug fixes):
+python scripts/bump_version.py patch --suffix claude-dev --tag \
+  --notes "One-line description of what changed"
 
-# For patches (bug fixes) - no tag:
-python scripts/bump_app.py patch push
-
-# For minor releases (new features):
-python scripts/bump_app.py minor tag push
-
-# For major releases (breaking changes):
-python scripts/bump_app.py major tag push
+# Minor (new features):
+python scripts/bump_version.py minor --suffix claude-dev --tag \
+  --notes "Description"
 ```
 
-The bump script automatically:
-- Updates version in `src/app.py`
-- Updates all documentation files
-- Updates `APP_CHANGELOG.md`
-- Commits changes (if `tag` or `push` specified)
-- Creates git tag (if `tag` specified)
-- Pushes to remote (if `push` specified)
-
-See [BUMP_GUIDE.md](../../BUMP_GUIDE.md) for detailed usage.
+The script updates `src/config.py`, prepends an entry to `APP_CHANGELOG.md`,
+commits, and tags locally. See `SCRIPTS_WORKFLOW.md` for full flag reference.
 
 ### Code Style
 
@@ -453,60 +397,48 @@ streamlit run src/app.py
 
 See `app-docs/TESTING_GUIDE.md` for comprehensive testing checklist.
 
-### Automated Testing (Future)
+### Automated Testing
 
-Currently no automated tests. Potential additions:
-- Unit tests for scoring algorithms
-- Integration tests for audio pipeline
-- UI tests with Selenium/Playwright
+A unit test suite lives in `tests/`. Run with:
+
+```bash
+venv/bin/pytest tests/ -q
+```
 
 ### CCS Testing Framework
 
-For advanced state-based testing, see `CCS_TESTING_README.md`.
-
-Enables systematic testing of UI state consistency.
+For advanced state-based UI testing, the CCS (Component/Cursor/State)
+framework is integrated into the app via `src/ccs_test_framework.py` and
+`src/ccs_test_integration.py`. Reference docs are in
+`docs/dev-docs/archive/CCS_TESTING_README.md`.
 
 ---
 
 ## 🚀 Deployment
 
-### Streamlit Cloud (Recommended)
-
-**Live App**: [miolingo3.streamlit.app](https://miolingo3.streamlit.app)
-
-1. **Push code to GitHub**:
-```bash
-git push origin main
-```
-
-2. **Go to** [share.streamlit.io](https://share.streamlit.io)
-
-3. **Create new app**:
-   - Repository: `fairflow/miolingo`
-   - Branch: `main`
-   - Main file path: `src/app.py`
-
-4. **Deploy**
-
-5. **Configure settings**:
-   - Python version: 3.12 (see `runtime.txt`)
-   - System packages: `espeak-ng`, `ffmpeg` (see `packages.txt`)
-   - Secrets: MySQL database credentials (if using database features)
-
-### Local Deployment
-
-For development/testing:
+### Local Development
 
 ```bash
 source venv/bin/activate
-streamlit run app.py
+streamlit run src/app.py          # Main app on :8501
+streamlit run src/miolingo-admin.py --server.port 8505  # Admin
 ```
 
-### Docker (Future)
+Or use the helper script (handles port management):
+```bash
+bash scripts/dev_server.sh        # Start on port 8601
+bash scripts/dev_server.sh stop   # Stop
+```
 
-No Docker configuration yet. Could be added for:
-- Consistent development environment
-- Easy deployment to other hosting platforms
+### Docker
+
+A `docker-compose.yml` is included for containerised deployment (port 8601).
+
+### Production
+
+The app is self-hosted. DB credentials and SSH tunnel config go in
+`.streamlit/secrets.toml` (never committed — use `secrets_template.toml`
+as a starting point).
 
 ---
 
@@ -588,9 +520,10 @@ Fixes #42
 
 ### Internal Documentation
 
-- `VERSION_WORKFLOW.md` - Detailed git workflow
-- `CCS_TESTING_README.md` - Advanced testing framework
-- `APP_CHANGELOG.md` - Version history
+- [`AGENTS.md`](../../AGENTS.md) - Canonical project reference (module map, architecture, DB rules)
+- [`docs/dev-docs/SCRIPTS_WORKFLOW.md`](../dev-docs/SCRIPTS_WORKFLOW.md) - Git workflow and script reference
+- [`APP_CHANGELOG.md`](../../APP_CHANGELOG.md) - Version history
+- [`docs/dev-docs/archive/CCS_TESTING_README.md`](../dev-docs/archive/CCS_TESTING_README.md) - CCS testing framework reference
 
 ### External Documentation
 
@@ -647,4 +580,4 @@ GPL-3.0 (inherited from eSpeak NG)
 
 **Happy coding! 🚀**
 
-*Last updated: Version 3.0.1 (28 November 2025)*
+*Last updated: Version 7.8.3 (April 2026)*
