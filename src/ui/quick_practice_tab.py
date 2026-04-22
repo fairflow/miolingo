@@ -161,11 +161,11 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Items", metadata.get('line_count', 0))
+        st.caption(f"**Items:** {metadata.get('line_count', 0)}")
     with col2:
-        st.metric("Translations", "✓" if metadata.get('has_translations') else "✗")
+        st.caption(f"**Translations:** {'✓' if metadata.get('has_translations') else '✗'}")
     with col3:
-        st.metric("IPA", "✓" if metadata.get('has_ipa') else "✗")
+        st.caption(f"**IPA:** {'✓' if metadata.get('has_ipa') else '✗'}")
 
     if metadata.get('preview'):
         with st.expander("Preview first 3 items"):
@@ -341,11 +341,11 @@ def _render_upload_materials(format_language_name):
 
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Phrases", len(phrases))
+            st.caption(f"**Phrases:** {len(phrases)}")
         with col2:
-            st.metric("Translations", "✓" if has_translations else "✗")
+            st.caption(f"**Translations:** {'✓' if has_translations else '✗'}")
         with col3:
-            st.metric("IPA", "✓" if has_ipa else "✗")
+            st.caption(f"**IPA:** {'✓' if has_ipa else '✗'}")
 
         if st.session_state.get(f"{upload_key}_saved"):
             st.success("💾 Saved to server - showing saved version")
