@@ -27,6 +27,47 @@ Welcome! This guide will help you practice pronunciation in multiple languages (
 
 ## Login, register or use as a guest
 
+Before the main app loads, you'll see the **Miolingo login page**. It has three tabs.
+
+### Choose your languages (shown above the login form)
+
+Two dropdowns appear before the tabs — pick them now so the app starts in the right mode:
+
+- **Your language (source)** — the language you already speak (e.g. English)
+- **Language to practise** — the language you want to work on today (e.g. French)
+
+You can change both in the sidebar at any time after logging in.
+
+### 🔑 Login tab
+
+If you already have an account:
+
+1. Enter your **Username** and **Password**
+2. Click **Login**
+3. The app remembers your session in a browser cookie, so you'll be logged back in automatically next time on the same device
+
+### 📝 Register tab
+
+To create a free account:
+
+1. Choose a **Username** (3–20 characters, letters and numbers only)
+2. Enter your **Email Address**
+3. Choose a **Password** (minimum 8 characters) and confirm it
+4. Click **Create Account**
+5. Once registered, switch to the **Login** tab and sign in with your new credentials
+
+A registered account saves your practice history, settings, and personal vocabulary permanently.
+
+### 🎭 Guest Mode tab
+
+Want to try the app without registering?
+
+1. Click **🚀 Start as Guest**
+2. You get full access to all practice features and all supported languages
+3. **⚠️ Your progress is not saved** — when your session ends, history, settings, and vocabulary are lost
+
+Guest mode is ideal for a quick try-out. Create an account when you're ready to track your progress.
+
 ---
 
 ## Sidebar navigation
