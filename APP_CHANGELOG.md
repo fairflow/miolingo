@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.4-claude-dev] - 2026-04-22
+
+### Changed
+
+- Replace st.metric() with st.caption() for Items/Translations/IPA stat row in Quick Practice — metric rendered values in oversized heading font, wasting screen space
+
+
 ## [7.8.3-claude-dev] - 2026-04-22
 
 ### Changed
