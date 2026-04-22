@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.3-claude-dev] - 2026-04-22
+
+### Changed
+
+- docs: strengthen GOLDEN.md audience banner and cross-doc links; add SCRIPTS_WORKFLOW.md back-link to GOLDEN
+
+
 ## [7.8.2-claude-dev] - 2026-04-22
 
 ### Changed
