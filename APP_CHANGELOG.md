@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.2-claude-dev] - 2026-04-22
+
+### Changed
+
+- docs: make AGENTS.md the canonical project reference; slim CLAUDE.md to Claude-operational content only (git recipe, venv, testing protocol)
+
+
 ## [7.8.1-claude-dev] - 2026-04-21
 
 ### Added
