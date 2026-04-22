@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.7-claude-dev] - 2026-04-22
+
+### Changed
+
+- Fix: cross-tab vocab filter was lost when switching Vocabulary → Quick Practice. Streamlit garbage-collects widget-bound session_state keys when the widget unmounts, so QP's read of vocab_search was always empty. Mirror the search value into a persistent (non-widget) shadow key vocab_search_active on every Vocabulary-tab render; QP reads the shadow. Textbook Streamlit cross-widget persistence pattern.
+
+
 ## [7.8.6-claude-dev] - 2026-04-22
 
 ### Changed
