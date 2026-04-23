@@ -1,0 +1,29 @@
+# English words derived from pt/words/words-001.txt
+# Level: A
+# Total unique words: 22
+# 
+# Source language (translation column): Portuguese (pt)
+# Format: word | translation | [ipa]
+
+afternoon | tarde | [ˌaftənˈuːn]
+all | tudo | [ˈɔːl]
+certainty | certeza | [sˈɜːtənti]
+day | dia | [dˈeɪ]
+good | bem | [ɡˈʊd]
+goodbye | tchau | [ɡʊdbˈaɪ]
+hello | olá | [həlˈəʊ]
+license | licença | [lˈaɪsəns]
+night | noite | [nˈaɪt]
+no | não | [nˈəʊ]
+nothing | nada | [nˈʌθɪŋ]
+of | de | [ˈɒv]
+perhaps | talvez | [pəhˈaps]
+please | favor | [plˈiːz]
+put | por | [pˈʊt]
+soon | logo | [sˈuːn]
+sorry | desculpa | [sˈɒɹi]
+tomorrow | amanhã | [təmˈɒɹəʊ]
+until | até | [ʌntˈɪl]
+very | muito | [vˈɛɹɪ]
+with | com | [wˈɪð]
+yes | sim | [jˈɛs]

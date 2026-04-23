@@ -149,6 +149,7 @@ CREATE TABLE `vocab_entries` (
   `vocab_id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `language_code` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `source_language_code` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `word` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `display_word` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `translation` text COLLATE utf8mb4_unicode_ci,
@@ -165,5 +166,6 @@ CREATE TABLE `vocab_entries` (
   PRIMARY KEY (`vocab_id`),
   UNIQUE KEY `uq_user_lang_word` (`user_id`,`language_code`,`word`),
   KEY `idx_user_lang_last_seen` (`user_id`,`language_code`,`last_seen_at`),
+  KEY `idx_user_lang_src` (`user_id`,`language_code`,`source_language_code`),
   CONSTRAINT `fk_vocab_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

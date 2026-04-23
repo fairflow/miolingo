@@ -18,6 +18,7 @@ import streamlit as st
 
 import vocab
 from audio.tts import generate_target_audio
+from config import get_language_code
 
 
 def _current_language() -> str:
@@ -26,6 +27,14 @@ def _current_language() -> str:
 
 def _source_language() -> str:
     return st.session_state.get("source_language", "English")
+
+
+def _current_language_code() -> str:
+    return get_language_code(_current_language())
+
+
+def _source_language_code() -> str:
+    return get_language_code(_source_language())
 
 
 def _require_auth() -> bool:
@@ -67,6 +76,7 @@ def _capture_from_passage(passage: str, word: str, source_label: str, url: str =
         url=url or None,
         enrich=True,
         source_language=_source_language(),
+        source_language_code=_source_language_code(),
         secrets=st.secrets if hasattr(st, "secrets") else None,
     )
 
@@ -107,12 +117,21 @@ def _render_paste_capture():
 
 
 def _render_bulk_upload():
+    tgt_code = _current_language_code()
+    src_code = _source_language_code()
     with st.expander("📥 Upload a dictionary file", expanded=False):
         st.caption(
-            "Pipe-delimited `.txt`: `word | translation | ipa | source | url` — one entry per line. "
-            "Only word is required. Use `||` to skip a field while keeping later ones in position "
-            "(e.g. `word || [atˈɛ] | src`). IPA brackets `[]` are stripped automatically. "
-            "Lines starting with `#` are ignored; multi-word entries are skipped."
+            f"**First line must be `({src_code}, {tgt_code})`** — a "
+            "`(source, target)` pair confirming which languages the file "
+            "is authored in. The target must match your current practice "
+            "language (shown above) or the upload is rejected and nothing "
+            "is loaded.\n\n"
+            "Remaining lines are pipe-delimited: "
+            "`word | translation | ipa | source | url` — one entry per line. "
+            "Only word is required. Use `||` to skip a field while keeping "
+            "later ones in position (e.g. `word || [atˈɛ] | src`). IPA "
+            "brackets `[]` are stripped automatically. Lines starting with "
+            "`#` are ignored; multi-word entries are skipped."
         )
         uploaded = st.file_uploader(
             "Upload .txt",
@@ -152,15 +171,21 @@ def _render_bulk_upload():
                 pct = done / total if total else 1
                 progress_bar.progress(pct, text=f"Importing… {done}/{total}")
 
-            summary = vocab.import_from_file_contents(
-                user_id=_user_id(),
-                language=_current_language(),
-                contents=contents,
-                enrich=enrich,
-                source_language=_source_language(),
-                secrets=st.secrets if hasattr(st, "secrets") else None,
-                progress_fn=_progress,
-            )
+            try:
+                summary = vocab.import_from_file_contents(
+                    user_id=_user_id(),
+                    language=_current_language(),
+                    contents=contents,
+                    expected_target_code=tgt_code,
+                    enrich=enrich,
+                    source_language=_source_language(),
+                    secrets=st.secrets if hasattr(st, "secrets") else None,
+                    progress_fn=_progress,
+                )
+            except ValueError as e:
+                progress_bar.empty()
+                st.error(f"⚠️ {e}")
+                return
             progress_bar.empty()
             st.success(
                 f"✅ Imported — {summary['added']} new, "
@@ -181,7 +206,7 @@ def _render_export_csv(rows: List[dict]):
     buf = io.StringIO()
     writer = csv.writer(buf)
     writer.writerow([
-        "word", "translation", "ipa", "source",
+        "word", "translation", "ipa", "source_language", "source",
         "context_before", "context_line", "context_after",
         "times_seen", "first_seen_at", "last_seen_at", "notes", "url",
     ])
@@ -190,6 +215,7 @@ def _render_export_csv(rows: List[dict]):
             r.get("display_word", r.get("word", "")),
             r.get("translation") or "",
             r.get("ipa") or "",
+            r.get("source_language_code") or "",
             r.get("source_name") or "",
             r.get("context_before") or "",
             r.get("context_line") or "",
@@ -438,7 +464,12 @@ def render_vocabulary_tab():
         return
 
     language = _current_language()
-    st.caption(f"Language: **{language}** — change in sidebar to view another language's vocabulary.")
+    source_name = _source_language()
+    st.caption(
+        f"Language: **{language} ← {source_name}** — change in sidebar to "
+        "view another pair's vocabulary. Rows captured with no source are "
+        "shown under every pair."
+    )
 
     col1, col2 = st.columns([2, 3])
     with col1:
@@ -488,7 +519,11 @@ def render_vocabulary_tab():
     import vocab_search
     try:
         rows = vocab.list_vocab(
-            user_id=_user_id(), language=language, sort=sort, search=search
+            user_id=_user_id(),
+            language=language,
+            source_language_code=_source_language_code(),
+            sort=sort,
+            search=search,
         )
     except vocab_search.QueryError as e:
         st.warning(f"🔎 {e}")

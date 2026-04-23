@@ -1,0 +1,36 @@
+# English words derived from pt/words/words-002.txt
+# Level: B
+# Total unique words: 29
+# 
+# Source language (translation column): Portuguese (pt)
+# Format: word | translation | [ipa]
+
+after | depois | [ˈaftə]
+always | sempre | [ˈɔːlweɪz]
+and | é | [ˈand]
+as | como | [ˈaz]
+costs | custa | [kˈɒsts]
+english | inglês | [ˈɪŋɡlɪʃ]
+flame | chama | [flˈeɪm]
+hours | horas | [ˈaʊəz]
+i | eu | [ˈaɪ]
+if | se | [ˈɪf]
+in | em | [ˈɪn]
+little | pouco | [lˈɪtəl]
+more | mais | [mˈɔː]
+my | meu | [mˈaɪ]
+name | nome | [nˈeɪm]
+never | nunca | [nˈɛvə]
+no | não | [nˈəʊ]
+now | agora | [nˈaʊ]
+of | de | [ˈɒv]
+one | um | [wˈɒn]
+pleasure | prazer | [plˈɛʒə]
+repeat | repetir | [ɹɪpˈiːt]
+slowly | devagar | [slˈəʊli]
+today | hoje | [tədˈeɪ]
+tomorrow | amanhã | [təmˈɒɹəʊ]
+what | que | [wˈɒt]
+where | onde | [wˈeə]
+yesterday | ontem | [jˈɛstədˌeɪ]
+you | você | [jˈuː]

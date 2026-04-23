@@ -180,6 +180,7 @@ def test_bulk_import(db_conn, make_user):
     u = make_user(username="vocab_importer")
     # Format: word | translation | ipa | source | url (5 positional fields)
     text = (
+        "(en, pt)\n"
         "# comment line ignored\n"
         "\n"
         "lua | moon | [ˈlu.ɐ] | Cancao da Lua\n"
@@ -188,7 +189,9 @@ def test_bulk_import(db_conn, make_user):
         "sol | sun | | Lesson 1\n"
     )
     summary = vocab.import_from_file_contents(
-        user_id=u["user_id"], language="Portuguese", contents=text)
+        user_id=u["user_id"], language="Portuguese", contents=text,
+        expected_target_code="pt",
+    )
 
     assert summary["added"] == 3
     assert summary["updated"] == 0
@@ -518,3 +521,90 @@ def test_vocab_as_practice_phrases_respects_search(db_conn, make_user):
         user_id=u["user_id"], language="Portuguese", search=""
     )
     assert len(also_full) == 4
+
+
+# ---------------------------------------------------------------------------
+# Tier 2: source_language_code column
+# ---------------------------------------------------------------------------
+
+
+def test_capture_records_source_language_code(db_conn, make_user):
+    import vocab
+
+    u = make_user(username="vocab_src_alice")
+    vocab.capture_vocab_entry(
+        user_id=u["user_id"], language="Portuguese", word="saudade",
+        source_language_code="en",
+    )
+    rows = vocab.list_vocab(user_id=u["user_id"], language="Portuguese")
+    assert rows[0]["source_language_code"] == "en"
+
+
+def test_list_vocab_filters_by_source_null_matches(db_conn, make_user):
+    """NULL source_language_code is treated as compatible with any source."""
+    import vocab
+
+    u = make_user(username="vocab_src_bob")
+    vocab.capture_vocab_entry(
+        user_id=u["user_id"], language="Portuguese", word="canção",
+        source_language_code="en",
+    )
+    vocab.capture_vocab_entry(
+        user_id=u["user_id"], language="Portuguese", word="nação",
+        source_language_code="fr",
+    )
+    vocab.capture_vocab_entry(
+        user_id=u["user_id"], language="Portuguese", word="livro",
+        # source_language_code left as None / NULL
+    )
+
+    # No filter: all three.
+    assert len(vocab.list_vocab(user_id=u["user_id"], language="Portuguese")) == 3
+
+    # Filter by en: matches "canção" (en) + "livro" (NULL); excludes "nação" (fr).
+    rows_en = vocab.list_vocab(
+        user_id=u["user_id"], language="Portuguese",
+        source_language_code="en",
+    )
+    assert {r["word"] for r in rows_en} == {"canção", "livro"}
+
+    rows_fr = vocab.list_vocab(
+        user_id=u["user_id"], language="Portuguese",
+        source_language_code="fr",
+    )
+    assert {r["word"] for r in rows_fr} == {"nação", "livro"}
+
+
+def test_recapture_preserves_first_source_language(db_conn, make_user):
+    """ON DUPLICATE KEY UPDATE uses COALESCE: first-seen source wins, and a
+    later NULL source never clobbers an existing non-NULL value."""
+    import vocab
+
+    u = make_user(username="vocab_src_carol")
+    vocab.capture_vocab_entry(
+        user_id=u["user_id"], language="Portuguese", word="obrigado",
+        source_language_code="en",
+    )
+    vocab.capture_vocab_entry(
+        user_id=u["user_id"], language="Portuguese", word="obrigado",
+        source_language_code=None,
+    )
+    row = vocab.list_vocab(user_id=u["user_id"], language="Portuguese")[0]
+    assert row["source_language_code"] == "en"
+    assert row["times_seen"] == 2
+
+
+def test_import_tags_rows_with_header_source(db_conn, make_user):
+    """import_from_file_contents should stamp every captured row with the
+    source_language_code from the file header."""
+    import vocab
+
+    u = make_user(username="vocab_src_dave")
+    contents = "(en, pt)\nobrigado\ntchau"
+    summary = vocab.import_from_file_contents(
+        user_id=u["user_id"], language="Portuguese", contents=contents,
+        expected_target_code="pt",
+    )
+    assert summary["added"] == 2
+    rows = vocab.list_vocab(user_id=u["user_id"], language="Portuguese")
+    assert all(r["source_language_code"] == "en" for r in rows)
