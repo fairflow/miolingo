@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.10-claude-dev] - 2026-04-23
+
+### Changed
+
+- Flesh out language_materials/en/ (phrases, phrasebook-topics, story-phrases, phrasebook_complete.json, metadata, update_ipa.sh) by inverting fr/.
+
+
 ## [7.8.9-claude-dev] - 2026-04-23
 
 ### Changed
