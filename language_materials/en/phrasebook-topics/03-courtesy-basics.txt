@@ -1,0 +1,14 @@
+# English Phrasebook - Courtesy
+# Practical phrases for real-world situations
+# Difficulty levels: A:8
+# Format: english | french | [ipa]
+
+(fr, en)
+Thank you | Merci | [θˈaŋk juː]
+Thank you very much | Merci beaucoup | [θˈaŋk juː vˈɛɹɪ mˈʌtʃ]
+You're welcome | De rien | [jɔː wˈɛlkʌm]
+Please | S'il vous plaît | [plˈiːz]
+Please | S'il te plaît | [plˈiːz]
+Excuse me | Excusez-moi | [ɛkskjˈuːs mˌiː]
+Pardon | Pardon | [pˈɑːdən]
+Sorry | Désolé | [sˈɒɹi]

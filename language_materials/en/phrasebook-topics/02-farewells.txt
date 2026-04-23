@@ -1,0 +1,12 @@
+# English Phrasebook - Farewells
+# Practical phrases for real-world situations
+# Difficulty levels: A:6
+# Format: english | french | [ipa]
+
+(fr, en)
+Goodbye | Au revoir | [ɡʊdbˈaɪ]
+See you soon | À bientôt | [sˈiː juː sˈuːn]
+See you tomorrow | À demain | [sˈiː juː təmˈɒɹəʊ]
+Have a good day | Bonne journée | [hav ɐ ɡˈʊd dˈeɪ]
+Have a good evening | Bonne soirée | [hav ɐ ɡˈʊd ˈiːvnɪŋ]
+Good night | Bonne nuit | [ɡˈʊd nˈaɪt]

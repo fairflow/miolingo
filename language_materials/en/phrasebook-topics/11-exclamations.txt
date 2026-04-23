@@ -1,0 +1,16 @@
+# English Phrasebook - Exclamations
+# Practical phrases for real-world situations
+# Difficulty levels: B:3, C:7
+# Format: english | french | [ipa]
+
+(fr, en)
+Oh really! | Ah bon! | [ˈəʊ ɹˈiəlɪ]
+Come on! | Allez! | [kˈʌm ˈɒn]
+Meh | Bof | [mˈɛ]
+Whatever! | N'importe quoi! | [wɒtˈɛvə]
+That's nonsense! | C'est n'importe quoi! | [ðats nˈɒnsəns]
+Forget it | Laisse tomber | [fəɡˈɛt ɪt]
+Anyway | Bref | [ˈɛnɪwˌeɪ]
+Wow! | Dis donc! | [wˈaʊ]
+Holy cow! | La vache! | [hˈəʊli kˈaʊ]
+That sucks | C'est nul | [ðat sˈʌks]
