@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.8-claude-dev] - 2026-04-23
+
+### Changed
+
+- Add language_materials/en/words/ dictionary and per-level wordlists, with generator script.
+
+
 ## [7.8.7-claude-dev] - 2026-04-22
 
 ### Changed
