@@ -1,56 +1,52 @@
 #!/usr/bin/env python3
-"""Generate language_materials/en/words/ from unified phrases JSON.
+"""Generate language_materials/en/words/ by inverting pt/words/.
 
-Produces per-level wordlists + a complete dictionary, following the
-`word | translation | [ipa]` format used by other languages' words/ files.
+Each pt/words file already has `pt_word | english_translation | [pt_ipa]`
+triples. Inverting them yields exactly what we want for an en/words file
+when the user's source language is Portuguese:
 
-Level mapping (mirrors pt/words/ convention, chronological unified files):
-    A -> common-phrases-001.json
-    B -> common-phrases-003.json
-    C -> common-phrases-004.json
-    D -> common-phrases-005.json  (no Portuguese)
+    english_word | pt_word | [en_ipa]
 
-Translation column is left blank in every row (Option 2 semantics: NULL
-source language / translation = unspecified, to be enriched). This avoids
-baking in any particular source-language bias and mirrors the Tier 3 plan
-in project memory (`project_personal_vocab.md`) — eventually vocabulary
-rows will hold a map of translations per source language.
+Per-word English IPA is generated with espeak (the pt IPA in the input
+is the Portuguese pronunciation, not useful for English targets).
+
+If multiple Portuguese words share the same English translation
+(e.g. "bom", "boa", "bem" all → "good"), the English word gets the
+first-seen Portuguese translation; duplicates are dropped on the
+English side.
+
+Outputs:
+  words-001.txt  (from pt/words/words-001.txt, level A)
+  words-002.txt  (from pt/words/words-002.txt, level B)
+  words-003.txt  (from pt/words/words-003.txt, level C)
+  words-004.txt  (from pt/words/words-004.txt, level D)
+  dictionary-complete.txt  (from pt/words/dictionary-complete.txt)
+
+Note: source language for the translation column is Portuguese. This is
+the Tier-2-era compromise; Tier 3 will store per-source translations.
 """
 from __future__ import annotations
 
-import json
 import re
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-UNIFIED = ROOT / "language_materials" / "unified" / "phrases"
+PT_WORDS = ROOT / "language_materials" / "pt" / "words"
 OUT = ROOT / "language_materials" / "en" / "words"
 
 LEVEL_FILES = [
-    ("A", "001", "common-phrases-001.json"),
-    ("B", "002", "common-phrases-003.json"),
-    ("C", "003", "common-phrases-004.json"),
-    ("D", "004", "common-phrases-005.json"),
+    ("A", "001", "words-001.txt"),
+    ("B", "002", "words-002.txt"),
+    ("C", "003", "words-003.txt"),
+    ("D", "004", "words-004.txt"),
 ]
 
-# Cheap tokeniser: letters + apostrophes, lowercase.
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'']*")
-
-
-def tokenize(text: str) -> list[str]:
-    return [m.group(0).lower() for m in WORD_RE.finditer(text or "")]
-
-
-def load_phrases(path: Path) -> list[dict]:
-    return json.loads(path.read_text())["phrases"]
-
-
 _ipa_cache: dict[str, str] = {}
 
 
 def word_ipa(word: str) -> str:
-    """Per-word English IPA via espeak. Cached; empty string on failure."""
     if word in _ipa_cache:
         return _ipa_cache[word]
     try:
@@ -65,23 +61,44 @@ def word_ipa(word: str) -> str:
     return ipa
 
 
-def extract_level(json_path: Path) -> dict[str, dict]:
-    """Return { en_word: {translation, ipa} } for one level file.
+def parse_pt_file(path: Path) -> list[tuple[str, str]]:
+    """Read a pt/words file → list of (pt_word, english_translation)."""
+    pairs: list[tuple[str, str]] = []
+    for raw in path.read_text().splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) < 2:
+            continue
+        pt_word, english = parts[0], parts[1]
+        if not pt_word or not english:
+            continue
+        pairs.append((pt_word, english))
+    return pairs
 
-    - Tokenises every English phrase in the file, collecting all unique words.
-    - IPA is generated per-word via espeak (not the containing-phrase IPA).
-    - Translation is left blank: phrase-level pt translations don't cleanly
-      map onto single English tokens, and blank is the Option-2-correct
-      value meaning "unspecified, enrich me".
+
+def invert(pairs: list[tuple[str, str]]) -> dict[str, dict]:
+    """Invert pt→en pairs into { en_word: {translation (pt), ipa (en)} }.
+
+    English translations may contain multiple words or whitespace + casing
+    variants ("Of course", "good"). We take the first token of the English
+    translation, lowercased, as the key — this is what a single-word
+    dictionary entry should be. Multi-word English translations (e.g.
+    "thank you") are skipped in the per-level files but kept in the
+    complete dictionary by collapsing them onto their first token.
     """
     out: dict[str, dict] = {}
-    for ph in load_phrases(json_path):
-        en = (ph.get("text", {}).get("en") or "").strip()
-        if not en:
+    for pt_word, english in pairs:
+        # Whole-English-phrase → single-token key is lossy, so instead we
+        # keep only entries whose English side is itself a single token.
+        toks = WORD_RE.findall(english)
+        if len(toks) != 1:
             continue
-        for tok in tokenize(en):
-            if tok not in out:
-                out[tok] = {"translation": "", "ipa": word_ipa(tok)}
+        key = toks[0].lower()
+        if key in out:
+            continue  # first seen wins
+        out[key] = {"translation": pt_word, "ipa": word_ipa(key)}
     return out
 
 
@@ -98,41 +115,40 @@ def write_wordlist(path: Path, words: dict[str, dict], header: list[str]) -> Non
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
 
-    seen: dict[str, dict] = {}
     for level, num, fname in LEVEL_FILES:
-        words = extract_level(UNIFIED / fname)
-        # Merge into running dictionary (first-seen wins, matches level ordering).
-        for w, info in words.items():
-            seen.setdefault(w, info)
-        out_path = OUT / f"words-{num}.txt"
+        src = PT_WORDS / fname
+        pairs = parse_pt_file(src)
+        words = invert(pairs)
         write_wordlist(
-            out_path,
+            OUT / f"words-{num}.txt",
             words,
             [
-                f"English words from {fname}",
+                f"English words derived from pt/words/{fname}",
                 f"Level: {level}",
                 f"Total unique words: {len(words)}",
                 "",
-                "Translation column blank by design (Option 2 semantics).",
+                "Source language (translation column): Portuguese (pt)",
                 "Format: word | translation | [ipa]",
             ],
         )
-        print(f"wrote {out_path} ({len(words)} words)")
+        print(f"wrote words-{num}.txt ({len(words)} words)")
 
-    dict_path = OUT / "dictionary-complete.txt"
+    src = PT_WORDS / "dictionary-complete.txt"
+    pairs = parse_pt_file(src)
+    words = invert(pairs)
     write_wordlist(
-        dict_path,
-        seen,
+        OUT / "dictionary-complete.txt",
+        words,
         [
             "Complete English Dictionary",
-            "Generated from unified common-phrases files",
-            f"Total words: {len(seen)}",
+            "Derived from pt/words/dictionary-complete.txt",
+            f"Total words: {len(words)}",
             "",
-            "Translation column blank by design (Option 2 semantics).",
+            "Source language (translation column): Portuguese (pt)",
             "Format: word | translation | [ipa]",
         ],
     )
-    print(f"wrote {dict_path} ({len(seen)} words)")
+    print(f"wrote dictionary-complete.txt ({len(words)} words)")
 
 
 if __name__ == "__main__":
