@@ -31,11 +31,11 @@ just that something changed.
 - Add language_materials/en/words/ dictionary and per-level wordlists, with generator script.
 
 
-## [7.8.8-claude-dev] - 2026-04-23
+## [7.8.8-claude-dev] - 2026-04-22
 
 ### Changed
 
-- Add language_materials/en/words/ dictionary and per-level wordlists, with generator script.
+- Fix: cross-tab vocab filter still not surviving tab switch in PR #96. The shadow-key approach from #96 assumed Streamlit garbage-collects widget-bound session_state keys on widget unmount — but in the running Streamlit version, the widget-bound key 'vocab_search' actually persists across tab switches while the shadow sometimes does not. Belt-and-braces read in Quick Practice now tries the shadow first, then falls back to the widget key; either one surviving is enough. Shadow write kept as defensive insurance against future Streamlit lifecycle changes.
 
 
 ## [7.8.7-claude-dev] - 2026-04-22

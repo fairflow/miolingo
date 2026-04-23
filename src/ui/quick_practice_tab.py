@@ -116,7 +116,17 @@ def _render_vocab_materials():
     # garbage-collects widget-bound session_state keys when the widget unmounts,
     # so the filter disappears the moment the user switches tabs. The shadow is
     # maintained by vocabulary_tab.py whenever that tab renders.
-    active_search = (st.session_state.get("vocab_search_active") or "").strip()
+    # Read from the persistent shadow first, fall back to the widget-bound key.
+    # Observed on Streamlit 1.x: contrary to the "widget state is cleared on
+    # unmount" documentation, the widget-bound key `vocab_search` actually
+    # survives tab switches, while the shadow sometimes does not. Reading
+    # either one that's present makes the cross-tab hand-off resilient to
+    # whichever lifecycle behaviour the current Streamlit version exhibits.
+    active_search = (
+        st.session_state.get("vocab_search_active")
+        or st.session_state.get("vocab_search")
+        or ""
+    ).strip()
     filtered_phrases: list = []
     filter_error: str = ""
 
