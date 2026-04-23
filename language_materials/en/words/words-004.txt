@@ -4,7 +4,7 @@
 # 
 # Source language (translation column): Portuguese (pt)
 # Format: word | translation | [ipa]
-
+(pt, en)
 accepted | aceita | [ɐksˈɛptɪd]
 account | conta | [ɐkˈaʊnt]
 afternoon | tarde | [ˌaftənˈuːn]
