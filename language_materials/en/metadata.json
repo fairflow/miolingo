@@ -1,0 +1,30 @@
+{
+  "language_code": "en",
+  "language_name": "English",
+  "structure": {
+    "difficulty_levels": 4,
+    "files_per_level": 5,
+    "phrases_per_file": 50,
+    "total_capacity": 1000
+  },
+  "current_content": {
+    "source": "Derived from fr/ by inverting french/english columns.",
+    "note": "Translation column is French. Tier 3 will add multi-source translations (project memory: project_personal_vocab.md).",
+    "populated": [
+      "phrases/phrases-00{1,3,4,5}.txt",
+      "phrasebook-topics/*.txt",
+      "phrasebook_complete.json",
+      "phrasebook_raw.json",
+      "story-phrases.txt",
+      "words/ (derived separately from pt/words/)"
+    ],
+    "not_populated": [
+      "story.md (no English source story)",
+      "story-scenes-json/ (depends on en story)",
+      "story-critical-analysis.md (French-specific analysis)"
+    ]
+  },
+  "format": "phrase | translation | [ipa]",
+  "ipa_source": "espeak -v en --ipa",
+  "version": "1.0"
+}

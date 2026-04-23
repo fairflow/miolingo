@@ -1,0 +1,758 @@
+{
+  "metadata": {
+    "source": "Derived from fr/phrasebook_complete.json by inverting french/english columns.",
+    "organization": "by situation/context",
+    "levels": {
+      "A": "Beginner - basic greetings, simple questions",
+      "B": "Elementary - common situations, basic conversations",
+      "C": "Intermediate - complex situations, nuanced expressions",
+      "D": "Advanced - idiomatic, literary, formal"
+    }
+  },
+  "phrases": [
+    {
+      "english": "Hello",
+      "situation": "greetings",
+      "level": "A",
+      "id": 1,
+      "french": "Bonjour",
+      "ipa": "həlˈəʊ"
+    },
+    {
+      "english": "Good evening",
+      "situation": "greetings",
+      "level": "A",
+      "id": 2,
+      "french": "Bonsoir",
+      "ipa": "ɡˈʊd ˈiːvnɪŋ"
+    },
+    {
+      "english": "Hi",
+      "situation": "greetings",
+      "level": "A",
+      "id": 3,
+      "french": "Salut",
+      "ipa": "hˈaɪ"
+    },
+    {
+      "english": "Goodbye",
+      "situation": "farewells",
+      "level": "A",
+      "id": 4,
+      "french": "Au revoir",
+      "ipa": "ɡʊdbˈaɪ"
+    },
+    {
+      "english": "See you soon",
+      "situation": "farewells",
+      "level": "A",
+      "id": 5,
+      "french": "À bientôt",
+      "ipa": "sˈiː juː sˈuːn"
+    },
+    {
+      "english": "See you tomorrow",
+      "situation": "farewells",
+      "level": "A",
+      "id": 6,
+      "french": "À demain",
+      "ipa": "sˈiː juː təmˈɒɹəʊ"
+    },
+    {
+      "english": "Have a good day",
+      "situation": "farewells",
+      "level": "A",
+      "id": 7,
+      "french": "Bonne journée",
+      "ipa": "hav ɐ ɡˈʊd dˈeɪ"
+    },
+    {
+      "english": "Have a good evening",
+      "situation": "farewells",
+      "level": "A",
+      "id": 8,
+      "french": "Bonne soirée",
+      "ipa": "hav ɐ ɡˈʊd ˈiːvnɪŋ"
+    },
+    {
+      "english": "Good night",
+      "situation": "farewells",
+      "level": "A",
+      "id": 9,
+      "french": "Bonne nuit",
+      "ipa": "ɡˈʊd nˈaɪt"
+    },
+    {
+      "english": "Thank you",
+      "situation": "courtesy",
+      "level": "A",
+      "id": 10,
+      "french": "Merci",
+      "ipa": "θˈaŋk juː"
+    },
+    {
+      "english": "Thank you very much",
+      "situation": "courtesy",
+      "level": "A",
+      "id": 11,
+      "french": "Merci beaucoup",
+      "ipa": "θˈaŋk juː vˈɛɹɪ mˈʌtʃ"
+    },
+    {
+      "english": "You're welcome",
+      "situation": "courtesy",
+      "level": "A",
+      "id": 12,
+      "french": "De rien",
+      "ipa": "jɔː wˈɛlkʌm"
+    },
+    {
+      "english": "Please",
+      "situation": "courtesy",
+      "level": "A",
+      "id": 13,
+      "french": "S'il vous plaît",
+      "ipa": "plˈiːz"
+    },
+    {
+      "english": "Excuse me",
+      "situation": "courtesy",
+      "level": "A",
+      "id": 15,
+      "french": "Excusez-moi",
+      "ipa": "ɛkskjˈuːs mˌiː"
+    },
+    {
+      "english": "Pardon",
+      "situation": "courtesy",
+      "level": "A",
+      "id": 16,
+      "french": "Pardon",
+      "ipa": "pˈɑːdən"
+    },
+    {
+      "english": "Sorry",
+      "situation": "courtesy",
+      "level": "A",
+      "id": 17,
+      "french": "Désolé",
+      "ipa": "sˈɒɹi"
+    },
+    {
+      "english": "Yes",
+      "situation": "basics",
+      "level": "A",
+      "id": 18,
+      "french": "Oui",
+      "ipa": "jˈɛs"
+    },
+    {
+      "english": "No",
+      "situation": "basics",
+      "level": "A",
+      "id": 19,
+      "french": "Non",
+      "ipa": "nˈəʊ"
+    },
+    {
+      "english": "How are you?",
+      "situation": "greetings",
+      "level": "A",
+      "id": 20,
+      "french": "Comment allez-vous?",
+      "ipa": "hˈaʊ ɑː juː"
+    },
+    {
+      "english": "I'm fine",
+      "situation": "greetings",
+      "level": "A",
+      "id": 22,
+      "french": "Ça va",
+      "ipa": "aɪm fˈaɪn"
+    },
+    {
+      "english": "I'm doing well",
+      "situation": "greetings",
+      "level": "A",
+      "id": 23,
+      "french": "Ça va bien",
+      "ipa": "aɪm dˌuːɪŋ wˈɛl"
+    },
+    {
+      "english": "I'm fine, thank you",
+      "situation": "greetings",
+      "level": "A",
+      "id": 24,
+      "french": "Je vais bien, merci",
+      "ipa": "aɪm fˈaɪn θˈaŋk juː"
+    },
+    {
+      "english": "And you?",
+      "situation": "greetings",
+      "level": "A",
+      "id": 25,
+      "french": "Et vous?",
+      "ipa": "and jˈuː"
+    },
+    {
+      "english": "My name is...",
+      "situation": "introductions",
+      "level": "A",
+      "id": 26,
+      "french": "Je m'appelle...",
+      "ipa": "maɪ nˈeɪm ɪz"
+    },
+    {
+      "english": "What is your name?",
+      "situation": "introductions",
+      "level": "A",
+      "id": 27,
+      "french": "Comment vous appelez-vous?",
+      "ipa": "wˌɒt ɪz jɔː nˈeɪm"
+    },
+    {
+      "english": "Nice to meet you",
+      "situation": "introductions",
+      "level": "A",
+      "id": 28,
+      "french": "Enchanté",
+      "ipa": "nˈaɪs tə mˈiːt juː"
+    },
+    {
+      "english": "Pleased to meet you",
+      "situation": "introductions",
+      "level": "B",
+      "id": 30,
+      "french": "Ravi de faire votre connaissance",
+      "ipa": "plˈiːzd tə mˈiːt juː"
+    },
+    {
+      "english": "Where are you from?",
+      "situation": "introductions",
+      "level": "A",
+      "id": 31,
+      "french": "D'où venez-vous?",
+      "ipa": "wˈeəɹ ɑː juː fɹɒm"
+    },
+    {
+      "english": "I come from...",
+      "situation": "introductions",
+      "level": "A",
+      "id": 32,
+      "french": "Je viens de...",
+      "ipa": "aɪ kˈʌm fɹɒm"
+    },
+    {
+      "english": "I don't understand",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 33,
+      "french": "Je ne comprends pas",
+      "ipa": "aɪ dˈəʊnt ˌʌndəstˈand"
+    },
+    {
+      "english": "I don't speak French",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 34,
+      "french": "Je ne parle pas français",
+      "ipa": "aɪ dˈəʊnt spˈiːk fɹˈɛntʃ"
+    },
+    {
+      "english": "I speak a little French",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 35,
+      "french": "Je parle un peu français",
+      "ipa": "aɪ spˈiːk ɐ lˈɪtəl fɹˈɛntʃ"
+    },
+    {
+      "english": "Do you speak English?",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 36,
+      "french": "Parlez-vous anglais?",
+      "ipa": "dˈuː juː spˈiːk ˈɪŋɡlɪʃ"
+    },
+    {
+      "english": "Slower, please",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 37,
+      "french": "Plus lentement, s'il vous plaît",
+      "ipa": "slˈəʊə plˈiːz"
+    },
+    {
+      "english": "Can you repeat?",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 38,
+      "french": "Pouvez-vous répéter?",
+      "ipa": "kan juː ɹɪpˈiːt"
+    },
+    {
+      "english": "How do you say... in French?",
+      "situation": "asking_for_help",
+      "level": "B",
+      "id": 39,
+      "french": "Comment dit-on... en français?",
+      "ipa": "hˌaʊ dˈuː juː sˈeɪ ɪn fɹˈɛntʃ"
+    },
+    {
+      "english": "What does that mean?",
+      "situation": "asking_for_help",
+      "level": "B",
+      "id": 40,
+      "french": "Qu'est-ce que ça veut dire?",
+      "ipa": "wˌɒt dˈʌz ðat mˈiːn"
+    },
+    {
+      "english": "I need help",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 41,
+      "french": "J'ai besoin d'aide",
+      "ipa": "aɪ nˈiːd hˈɛlp"
+    },
+    {
+      "english": "Can you help me?",
+      "situation": "asking_for_help",
+      "level": "A",
+      "id": 42,
+      "french": "Pouvez-vous m'aider?",
+      "ipa": "kan juː hˈɛlp mˌiː"
+    },
+    {
+      "english": "Where is...?",
+      "situation": "directions",
+      "level": "A",
+      "id": 43,
+      "french": "Où est...?",
+      "ipa": "wˈeəɹ ɪz"
+    },
+    {
+      "english": "Where is the bathroom?",
+      "situation": "directions",
+      "level": "A",
+      "id": 45,
+      "french": "Où sont les toilettes?",
+      "ipa": "wˌeəɹ ɪz ðə bˈaθɹuːm"
+    },
+    {
+      "english": "Is it far from here?",
+      "situation": "directions",
+      "level": "A",
+      "id": 46,
+      "french": "C'est loin d'ici?",
+      "ipa": "ɪz ɪt fˈɑː fɹɒm hˈiə"
+    },
+    {
+      "english": "Is it near here?",
+      "situation": "directions",
+      "level": "A",
+      "id": 47,
+      "french": "C'est près d'ici?",
+      "ipa": "ɪz ɪt nˌiə hˈiə"
+    },
+    {
+      "english": "To the left",
+      "situation": "directions",
+      "level": "A",
+      "id": 48,
+      "french": "À gauche",
+      "ipa": "tə ðə lˈɛft"
+    },
+    {
+      "english": "To the right",
+      "situation": "directions",
+      "level": "A",
+      "id": 49,
+      "french": "À droite",
+      "ipa": "tə ðə ɹˈaɪt"
+    },
+    {
+      "english": "Straight ahead",
+      "situation": "directions",
+      "level": "A",
+      "id": 50,
+      "french": "Tout droit",
+      "ipa": "stɹˈeɪt ɐhˈɛd"
+    },
+    {
+      "english": "I'm looking for...",
+      "situation": "directions",
+      "level": "A",
+      "id": 51,
+      "french": "Je cherche...",
+      "ipa": "aɪm lˈʊkɪŋ fɔː"
+    },
+    {
+      "english": "How much does it cost?",
+      "situation": "shopping",
+      "level": "A",
+      "id": 52,
+      "french": "Combien ça coûte?",
+      "ipa": "hˌaʊ mˈʌtʃ dˈʌz ɪt kˈɒst"
+    },
+    {
+      "english": "How much is it?",
+      "situation": "shopping",
+      "level": "A",
+      "id": 53,
+      "french": "C'est combien?",
+      "ipa": "hˌaʊ mˈʌtʃ ɪz ɪt"
+    },
+    {
+      "english": "It's too expensive",
+      "situation": "shopping",
+      "level": "A",
+      "id": 54,
+      "french": "C'est trop cher",
+      "ipa": "ɪts tˈuː ɛkspˈɛnsɪv"
+    },
+    {
+      "english": "I would like...",
+      "situation": "shopping",
+      "level": "A",
+      "id": 55,
+      "french": "Je voudrais...",
+      "ipa": "aɪ wʊd lˈaɪk"
+    },
+    {
+      "english": "Do you have...?",
+      "situation": "shopping",
+      "level": "A",
+      "id": 57,
+      "french": "Avez-vous...?",
+      "ipa": "dˈuː juː hˈav"
+    },
+    {
+      "english": "What size?",
+      "situation": "shopping",
+      "level": "A",
+      "id": 58,
+      "french": "Quelle taille?",
+      "ipa": "wˌɒt sˈaɪz"
+    },
+    {
+      "english": "Can I try it?",
+      "situation": "shopping",
+      "level": "B",
+      "id": 59,
+      "french": "Puis-je essayer?",
+      "ipa": "kan aɪ tɹˈaɪ ɪt"
+    },
+    {
+      "english": "I'll take this",
+      "situation": "shopping",
+      "level": "A",
+      "id": 60,
+      "french": "Je vais prendre ça",
+      "ipa": "aɪl tˈeɪk ðˈɪs"
+    },
+    {
+      "english": "Can I pay by card?",
+      "situation": "shopping",
+      "level": "A",
+      "id": 61,
+      "french": "Puis-je payer par carte?",
+      "ipa": "kan aɪ pˈeɪ baɪ kˈɑːd"
+    },
+    {
+      "english": "A table for two, please",
+      "situation": "restaurant",
+      "level": "A",
+      "id": 62,
+      "french": "Une table pour deux, s'il vous plaît",
+      "ipa": "ɐ tˈeɪbəl fɔː tˈuː plˈiːz"
+    },
+    {
+      "english": "The menu, please",
+      "situation": "restaurant",
+      "level": "A",
+      "id": 63,
+      "french": "Le menu, s'il vous plaît",
+      "ipa": "ðə mˈɛnjuː plˈiːz"
+    },
+    {
+      "english": "The bill, please",
+      "situation": "restaurant",
+      "level": "A",
+      "id": 65,
+      "french": "L'addition, s'il vous plaît",
+      "ipa": "ðə bˈɪl plˈiːz"
+    },
+    {
+      "english": "It was delicious",
+      "situation": "restaurant",
+      "level": "A",
+      "id": 66,
+      "french": "C'était délicieux",
+      "ipa": "ɪt wɒz dɪlˈɪʃəs"
+    },
+    {
+      "english": "What do you recommend?",
+      "situation": "restaurant",
+      "level": "B",
+      "id": 67,
+      "french": "Qu'est-ce que vous recommandez?",
+      "ipa": "wˌɒt dˈuː juː ɹˌɛkəmˈɛnd"
+    },
+    {
+      "english": "I'm vegetarian",
+      "situation": "restaurant",
+      "level": "A",
+      "id": 68,
+      "french": "Je suis végétarien",
+      "ipa": "aɪm vˌɛdʒɪtˈeəɹiən"
+    },
+    {
+      "english": "I'm allergic to...",
+      "situation": "restaurant",
+      "level": "B",
+      "id": 69,
+      "french": "Je suis allergique à...",
+      "ipa": "aɪm ɐlˈɜːdʒɪk tuː"
+    },
+    {
+      "english": "A coffee, please",
+      "situation": "restaurant",
+      "level": "A",
+      "id": 70,
+      "french": "Un café, s'il vous plaît",
+      "ipa": "ɐ kˈɒfɪ plˈiːz"
+    },
+    {
+      "english": "A carafe of water, please",
+      "situation": "restaurant",
+      "level": "A",
+      "id": 71,
+      "french": "Une carafe d'eau, s'il vous plaît",
+      "ipa": "ɐ kɐɹˈaf ɒv wˈɔːtə plˈiːz"
+    },
+    {
+      "english": "What are you doing?",
+      "situation": "conversation",
+      "level": "B",
+      "id": 73,
+      "french": "Qu'est-ce que tu fais?",
+      "ipa": "wˌɒt ɑː juː dˈuːɪŋ"
+    },
+    {
+      "english": "How about it?",
+      "situation": "conversation",
+      "level": "B",
+      "id": 75,
+      "french": "Ça te dit?",
+      "ipa": "hˌaʊ ɐbˈaʊt ɪt"
+    },
+    {
+      "english": "I feel like...",
+      "situation": "conversation",
+      "level": "B",
+      "id": 76,
+      "french": "J'ai envie de...",
+      "ipa": "aɪ fˈiːl lˈaɪk"
+    },
+    {
+      "english": "Want to get a drink?",
+      "situation": "conversation",
+      "level": "B",
+      "id": 77,
+      "french": "Tu veux prendre un verre?",
+      "ipa": "wˈɒnt tə ɡɛt ɐ dɹˈɪŋk"
+    },
+    {
+      "english": "How's work?",
+      "situation": "conversation",
+      "level": "B",
+      "id": 78,
+      "french": "Comment va le travail?",
+      "ipa": "hˌaʊz wˈɜːk"
+    },
+    {
+      "english": "How's your family?",
+      "situation": "conversation",
+      "level": "B",
+      "id": 79,
+      "french": "Comment va ta famille?",
+      "ipa": "hˌaʊz jɔː fˈamɪli"
+    },
+    {
+      "english": "Keep me updated",
+      "situation": "conversation",
+      "level": "C",
+      "id": 80,
+      "french": "Tiens-moi au courant",
+      "ipa": "kˈiːp mˌiː ʌpdˈeɪtɪd"
+    },
+    {
+      "english": "Are you managing?",
+      "situation": "conversation",
+      "level": "C",
+      "id": 81,
+      "french": "Tu t'en sors?",
+      "ipa": "ɑː juː mˈanɪdʒɪŋ"
+    },
+    {
+      "english": "I'm happy",
+      "situation": "feelings",
+      "level": "B",
+      "id": 82,
+      "french": "Je suis content",
+      "ipa": "aɪm hˈapi"
+    },
+    {
+      "english": "I'm tired",
+      "situation": "feelings",
+      "level": "B",
+      "id": 84,
+      "french": "Je suis fatigué",
+      "ipa": "aɪm tˈaɪəd"
+    },
+    {
+      "english": "I'm hungry",
+      "situation": "feelings",
+      "level": "A",
+      "id": 86,
+      "french": "J'ai faim",
+      "ipa": "aɪm hˈʌŋɡɹi"
+    },
+    {
+      "english": "I'm thirsty",
+      "situation": "feelings",
+      "level": "A",
+      "id": 87,
+      "french": "J'ai soif",
+      "ipa": "aɪm θˈɜːsti"
+    },
+    {
+      "english": "I'm hot",
+      "situation": "feelings",
+      "level": "A",
+      "id": 88,
+      "french": "J'ai chaud",
+      "ipa": "aɪm hˈɒt"
+    },
+    {
+      "english": "I'm cold",
+      "situation": "feelings",
+      "level": "A",
+      "id": 89,
+      "french": "J'ai froid",
+      "ipa": "aɪm kˈəʊld"
+    },
+    {
+      "english": "I'm exhausted",
+      "situation": "feelings",
+      "level": "C",
+      "id": 90,
+      "french": "Je suis crevé",
+      "ipa": "aɪm ɛɡzˈɔːstɪd"
+    },
+    {
+      "english": "I'm feeling down",
+      "situation": "feelings",
+      "level": "C",
+      "id": 91,
+      "french": "J'ai le cafard",
+      "ipa": "aɪm fˈiːlɪŋ dˈaʊn"
+    },
+    {
+      "english": "I can't wait",
+      "situation": "feelings",
+      "level": "B",
+      "id": 92,
+      "french": "J'ai hâte",
+      "ipa": "aɪ kˈɑːnt wˈeɪt"
+    },
+    {
+      "english": "I'm bored",
+      "situation": "feelings",
+      "level": "B",
+      "id": 93,
+      "french": "Je m'ennuie",
+      "ipa": "aɪm bˈɔːd"
+    },
+    {
+      "english": "Oh really!",
+      "situation": "exclamations",
+      "level": "B",
+      "id": 94,
+      "french": "Ah bon!",
+      "ipa": "ˈəʊ ɹˈiəlɪ"
+    },
+    {
+      "english": "Whatever!",
+      "situation": "exclamations",
+      "level": "C",
+      "id": 95,
+      "french": "N'importe quoi!",
+      "ipa": "wɒtˈɛvə"
+    },
+    {
+      "english": "That's nonsense!",
+      "situation": "exclamations",
+      "level": "C",
+      "id": 96,
+      "french": "C'est n'importe quoi!",
+      "ipa": "ðats nˈɒnsəns"
+    },
+    {
+      "english": "Forget it",
+      "situation": "exclamations",
+      "level": "C",
+      "id": 97,
+      "french": "Laisse tomber",
+      "ipa": "fəɡˈɛt ɪt"
+    },
+    {
+      "english": "Anyway",
+      "situation": "exclamations",
+      "level": "C",
+      "id": 98,
+      "french": "Bref",
+      "ipa": "ˈɛnɪwˌeɪ"
+    },
+    {
+      "english": "Wow!",
+      "situation": "exclamations",
+      "level": "C",
+      "id": 99,
+      "french": "Dis donc!",
+      "ipa": "wˈaʊ"
+    },
+    {
+      "english": "Holy cow!",
+      "situation": "exclamations",
+      "level": "C",
+      "id": 100,
+      "french": "La vache!",
+      "ipa": "hˈəʊli kˈaʊ"
+    },
+    {
+      "english": "That sucks",
+      "situation": "exclamations",
+      "level": "C",
+      "id": 101,
+      "french": "C'est nul",
+      "ipa": "ðat sˈʌks"
+    },
+    {
+      "english": "Come on!",
+      "situation": "exclamations",
+      "level": "B",
+      "id": 102,
+      "french": "Allez!",
+      "ipa": "kˈʌm ˈɒn"
+    },
+    {
+      "english": "Meh",
+      "situation": "exclamations",
+      "level": "B",
+      "id": 103,
+      "french": "Bof",
+      "ipa": "mˈɛ"
+    }
+  ]
+}

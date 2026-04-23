@@ -1,0 +1,13 @@
+# English Phrasebook (from French) - Greetings
+# Practical phrases for real-world situations
+# Difficulty levels: A:9
+# Format: english | french | [ipa]
+
+Hello | Bonjour | [həlˈəʊ]
+Good evening | Bonsoir | [ɡˈʊd ˈiːvnɪŋ]
+Hi | Salut | [hˈaɪ]
+How are you? | Comment allez-vous? | [hˈaʊ ɑː juː]
+I'm fine | Ça va | [aɪm fˈaɪn]
+I'm doing well | Ça va bien | [aɪm dˌuːɪŋ wˈɛl]
+I'm fine, thank you | Je vais bien, merci | [aɪm fˈaɪn θˈaŋk juː]
+And you? | Et vous? | [and jˈuː]

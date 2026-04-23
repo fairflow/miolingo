@@ -1,0 +1,14 @@
+# English Phrasebook (from French) - Conversation
+# Practical phrases for real-world situations
+# Difficulty levels: B:8, C:2
+# Format: english | french | [ipa]
+
+How are you? | Comment vas-tu? | [hˈaʊ ɑː juː]
+What are you doing? | Qu'est-ce que tu fais? | [wˌɒt ɑː juː dˈuːɪŋ]
+How about it? | Ça te dit? | [hˌaʊ ɐbˈaʊt ɪt]
+I feel like... | J'ai envie de... | [aɪ fˈiːl lˈaɪk]
+Want to get a drink? | Tu veux prendre un verre? | [wˈɒnt tə ɡɛt ɐ dɹˈɪŋk]
+How's work? | Comment va le travail? | [hˌaʊz wˈɜːk]
+How's your family? | Comment va ta famille? | [hˌaʊz jɔː fˈamɪli]
+Keep me updated | Tiens-moi au courant | [kˈiːp mˌiː ʌpdˈeɪtɪd]
+Are you managing? | Tu t'en sors? | [ɑː juː mˈanɪdʒɪŋ]
