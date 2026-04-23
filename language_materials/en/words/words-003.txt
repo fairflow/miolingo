@@ -5,6 +5,7 @@
 # Source language (translation column): Portuguese (pt)
 # Format: word | translation | [ipa]
 
+(pt, en)
 all | tudo | [ˈɔːl]
 and | é | [ˈand]
 as | como | [ˈaz]
