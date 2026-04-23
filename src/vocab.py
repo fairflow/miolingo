@@ -211,8 +211,9 @@ def list_vocab(
         When None (default), no source filter is applied.
     sort: 'alpha' (default, by lookup key), 'recent' (last_seen_at DESC),
           'oldest' (first_seen_at ASC).
-    search: mini-language query — plain text still means substring on word
-            OR translation. See src/vocab_search.py for the grammar.
+    search: mini-language query — plain text matches substring on word
+            (target language) only; use `translation:<value>` to search
+            the source/translation column. See src/vocab_search.py for the grammar.
             Unknown fields, unterminated quotes, etc. raise QueryError.
     """
     order = {

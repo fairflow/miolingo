@@ -191,11 +191,12 @@ def test_build_where_empty():
     assert build_where([]) == ("", [])
 
 
-def test_build_where_plain_text_uses_like_on_word_and_translation():
+def test_build_where_plain_text_uses_like_on_word_only():
     clauses = parse_query("sea")
     sql, params = build_where(clauses)
-    assert "word) LIKE" in sql and "translation" in sql
-    assert params == ["%sea%", "%sea%"]
+    assert "word) LIKE" in sql
+    assert "translation" not in sql
+    assert params == ["%sea%"]
 
 
 def test_build_where_word_regex_uses_regexp():

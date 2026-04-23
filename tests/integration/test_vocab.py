@@ -456,12 +456,18 @@ def test_search_combined_AND(vocab_corpus):
     assert hits == {"abelha", "ação"}
 
 
-def test_search_plain_text_backcompat(vocab_corpus):
+def test_search_plain_text_target_only(vocab_corpus):
     import vocab
-    # Plain text still matches word OR translation substring.
+    # Plain text matches the target-language word column only.
+    # 'sea' is the English translation of 'mar' — should NOT match.
     hits = {r["word"] for r in vocab.list_vocab(
         user_id=vocab_corpus["user_id"], language="Portuguese", search="sea")}
-    assert hits == {"mar"}  # 'sea' is mar's translation
+    assert hits == set()  # no Portuguese word contains 'sea'
+    # Explicit translation: prefix still works.
+    hits = {r["word"] for r in vocab.list_vocab(
+        user_id=vocab_corpus["user_id"], language="Portuguese",
+        search="translation:sea")}
+    assert hits == {"mar"}
 
 
 def test_search_whitespace_around_colon(vocab_corpus):

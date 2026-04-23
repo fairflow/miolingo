@@ -11,7 +11,7 @@ Grammar (informal)
     present     := ("has" | "none") ":" field_name
     field_clause:= field_name ":" value
     regex_clause:= value-that-triggers-regex  (against `word`)
-    text_clause := value                       (substring on word + translation)
+    text_clause := value                       (substring on word / target language only)
 
 Whitespace around `:` is collapsed so `has : url`, `has: url`, `has :url`
 all parse identically. Only the FIRST colon in a token separates field
@@ -286,12 +286,11 @@ def build_where(clauses: List[Dict[str, object]]) -> Tuple[str, List[object]]:
             parts.append("(word REGEXP %s)")
             params.append(cl["value"])
         elif kind == "text":
-            # Back-compat behaviour: substring match across word + translation.
-            parts.append(
-                "(LOWER(word) LIKE %s OR LOWER(COALESCE(translation,'')) LIKE %s)"
-            )
+            # Plain text matches the target-language word only.
+            # Use `translation:<value>` to search the source/translation column.
+            parts.append("(LOWER(word) LIKE %s)")
             like = f"%{str(cl['value']).lower()}%"
-            params.extend([like, like])
+            params.append(like)
         else:  # pragma: no cover — defensive
             raise QueryError(f"Internal: unhandled clause kind {kind!r}")
 
