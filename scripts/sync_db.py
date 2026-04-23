@@ -458,7 +458,7 @@ def sync_insert_ignore(
 # Non-PK data columns for vocab_entries (vocab_id is auto-increment, excluded).
 # Order must match the INSERT column list below.
 _VOCAB_COLS = [
-    "user_id", "language_code", "word", "display_word",
+    "user_id", "language_code", "source_language_code", "word", "display_word",
     "translation", "ipa", "source_name",
     "context_before", "context_line", "context_after",
     "url", "times_seen", "first_seen_at", "last_seen_at", "notes",
@@ -471,6 +471,7 @@ _VOCAB_INSERT_SQL = """
         times_seen    = GREATEST(times_seen,    VALUES(times_seen)),
         last_seen_at  = GREATEST(last_seen_at,  VALUES(last_seen_at)),
         first_seen_at = LEAST(first_seen_at,    VALUES(first_seen_at)),
+        source_language_code = COALESCE(source_language_code, VALUES(source_language_code)),
         translation   = COALESCE(translation,   VALUES(translation)),
         ipa           = COALESCE(ipa,            VALUES(ipa)),
         source_name   = COALESCE(source_name,   VALUES(source_name)),

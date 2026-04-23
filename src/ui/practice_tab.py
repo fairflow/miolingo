@@ -77,6 +77,8 @@ def practice_word_from_audio(text: str, audio_bytes: bytes, settings: dict):
                 if (result.get('exact_match')
                         and target
                         and ' ' not in target):
+                    from config import get_language_code
+                    _src = st.session_state.get('source_language', 'English')
                     vocab.capture_vocab_entry(
                         user_id=user_id,
                         language=st.session_state.language,
@@ -86,9 +88,8 @@ def practice_word_from_audio(text: str, audio_bytes: bytes, settings: dict):
                         ) or 'Quick Practice',
                         context_line=target,
                         enrich=True,
-                        source_language=st.session_state.get(
-                            'source_language', 'English'
-                        ),
+                        source_language=_src,
+                        source_language_code=get_language_code(_src),
                         secrets=st.secrets if hasattr(st, 'secrets') else None,
                     )
             except Exception as e:
@@ -233,6 +234,8 @@ def _render_practice_vocab_capture(result, key_prefix):
             if not word.strip():
                 st.warning("Type a word first.")
             else:
+                from config import get_language_code
+                _src = st.session_state.get("source_language", "English")
                 r = vocab.capture_vocab_entry(
                     user_id=st.session_state["user"]["user_id"],
                     language=st.session_state.language,
@@ -242,9 +245,8 @@ def _render_practice_vocab_capture(result, key_prefix):
                     ) or "Quick Practice",
                     context_line=target,
                     enrich=True,
-                    source_language=st.session_state.get(
-                        "source_language", "English"
-                    ),
+                    source_language=_src,
+                    source_language_code=get_language_code(_src),
                     secrets=st.secrets if hasattr(st, "secrets") else None,
                 )
                 if r["ok"]:

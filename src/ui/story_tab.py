@@ -49,7 +49,9 @@ def _render_vocab_capture(phrases, current_idx, scene_title):
             if not word.strip():
                 st.warning("Type a word first.")
             else:
+                from config import get_language_code
                 user_id = st.session_state["user"]["user_id"]
+                source_lang = st.session_state.get("source_language", "English")
                 r = vocab.capture_vocab_entry(
                     user_id=user_id,
                     language=st.session_state.get("language", "Portuguese"),
@@ -59,9 +61,8 @@ def _render_vocab_capture(phrases, current_idx, scene_title):
                     context_line=context_line,
                     context_after=context_after,
                     enrich=True,
-                    source_language=st.session_state.get(
-                        "source_language", "English"
-                    ),
+                    source_language=source_lang,
+                    source_language_code=get_language_code(source_lang),
                     secrets=st.secrets if hasattr(st, "secrets") else None,
                 )
                 if r["ok"]:

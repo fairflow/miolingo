@@ -77,7 +77,10 @@ def _render_vocab_materials():
         st.info("🔒 Sign in to practise from your personal vocabulary.")
         return
 
+    from config import get_language_code
     language = st.session_state.get('language', 'Portuguese')
+    source_language = st.session_state.get('source_language', 'English')
+    source_language_code = get_language_code(source_language)
     user_id = st.session_state['user']['user_id']
 
     sort = st.selectbox(
@@ -92,7 +95,10 @@ def _render_vocab_materials():
     )
 
     all_phrases = vocab_mod.vocab_as_practice_phrases(
-        user_id=user_id, language=language, sort=sort
+        user_id=user_id,
+        language=language,
+        source_language_code=source_language_code,
+        sort=sort,
     )
     st.caption(f"**{len(all_phrases)}** word(s) in your {language} vocabulary.")
 
@@ -118,7 +124,11 @@ def _render_vocab_materials():
         import vocab_search
         try:
             filtered_phrases = vocab_mod.vocab_as_practice_phrases(
-                user_id=user_id, language=language, sort=sort, search=active_search
+                user_id=user_id,
+                language=language,
+                source_language_code=source_language_code,
+                sort=sort,
+                search=active_search,
             )
         except vocab_search.QueryError as e:
             filter_error = str(e)
