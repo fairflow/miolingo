@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.12] - 2026-04-23
+
+### Changed
+
+- Add apply_sql.py helper for password-safe DB migrations
+
+
 ## [7.8.11-claude-dev] - 2026-04-23
 
 ### Changed
