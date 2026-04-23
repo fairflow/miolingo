@@ -170,20 +170,24 @@ class TestImportLineLimit:
         assert _vocab.count_import_lines(contents) == 250
 
     def test_251_lines_raises_value_error(self):
-        contents = "\n".join([f"word{i}" for i in range(251)])
+        body = "\n".join([f"word{i}" for i in range(251)])
+        contents = "(en, pt)\n" + body
         with pytest.raises(ValueError, match="251"):
             _vocab.import_from_file_contents(
-                user_id=1, language="Portuguese", contents=contents
+                user_id=1, language="Portuguese", contents=contents,
+                expected_target_code="pt",
             )
 
     def test_250_lines_does_not_raise_value_error(self):
         # import_from_file_contents will proceed past the limit check;
         # it will then fail trying to reach MySQL — but a DB error is
         # NOT a ValueError, so we confirm the limit guard passed.
-        contents = "\n".join([f"word{i}" for i in range(250)])
+        body = "\n".join([f"word{i}" for i in range(250)])
+        contents = "(en, pt)\n" + body
         try:
             _vocab.import_from_file_contents(
-                user_id=1, language="Portuguese", contents=contents
+                user_id=1, language="Portuguese", contents=contents,
+                expected_target_code="pt",
             )
         except ValueError as e:
             pytest.fail(f"Limit guard incorrectly raised ValueError: {e}")
@@ -255,12 +259,71 @@ def test_fixture_04_ipa_is_empty():
         assert r["translation"], f"Expected non-empty translation in: {line!r}"
 
 
+# ---------------------------------------------------------------------------
+# Tier 2: (source, target) header
+# ---------------------------------------------------------------------------
+
+
+class TestParseImportHeader:
+    """parse_import_header: accept/reject cases and edge forms."""
+
+    def test_bare_tuple_on_first_line(self):
+        assert _vocab.parse_import_header("(pt, en)\nlua | moon") == ("pt", "en")
+
+    def test_commented_tuple(self):
+        assert _vocab.parse_import_header("# (pt, en)\nlua | moon") == ("pt", "en")
+
+    def test_leading_blank_and_comment_lines_allowed(self):
+        contents = "\n# some note\n\n(fr, en)\ndata"
+        assert _vocab.parse_import_header(contents) == ("fr", "en")
+
+    def test_case_insensitive(self):
+        assert _vocab.parse_import_header("(PT, EN)\n") == ("pt", "en")
+
+    def test_missing_header_raises(self):
+        with pytest.raises(ValueError, match="header"):
+            _vocab.parse_import_header("lua | moon\nsol | sun")
+
+    def test_malformed_header_raises(self):
+        with pytest.raises(ValueError, match="header"):
+            _vocab.parse_import_header("source:pt target:en\n")
+
+    def test_empty_file_raises(self):
+        with pytest.raises(ValueError, match="header"):
+            _vocab.parse_import_header("")
+
+
+class TestImportHeaderIntegration:
+    def test_target_mismatch_rejected_before_db(self):
+        # expected target is "fr" but header says "pt" → reject, no DB call.
+        contents = "(en, pt)\nlua\nmar"
+        with pytest.raises(ValueError, match="target"):
+            _vocab.import_from_file_contents(
+                user_id=1, language="French", contents=contents,
+                expected_target_code="fr",
+            )
+
+    def test_missing_header_rejected_before_db(self):
+        contents = "lua\nmar"
+        with pytest.raises(ValueError, match="header"):
+            _vocab.import_from_file_contents(
+                user_id=1, language="Portuguese", contents=contents,
+                expected_target_code="pt",
+            )
+
+    def test_count_excludes_header(self):
+        contents = "(en, pt)\nlua\nsol\nmar"
+        assert _vocab.count_import_lines(contents) == 3
+
+
 def test_fixture_07_over_limit_raises():
     path = FIXTURE_DIR / "vocab-test-07-over-limit.txt"
     if not path.exists():
         pytest.skip("Fixture not found")
-    contents = path.read_text(encoding="utf-8")
+    # Fixture predates the (source, target) header requirement; prepend one.
+    contents = "(en, pt)\n" + path.read_text(encoding="utf-8")
     with pytest.raises(ValueError, match="251"):
         _vocab.import_from_file_contents(
-            user_id=1, language="Portuguese", contents=contents
+            user_id=1, language="Portuguese", contents=contents,
+            expected_target_code="pt",
         )

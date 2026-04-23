@@ -117,6 +117,7 @@ def capture_vocab_entry(
     ipa: Optional[str] = None,
     enrich: bool = False,
     source_language: str = "English",
+    source_language_code: Optional[str] = None,
     secrets: Any = None,
 ) -> Dict[str, Any]:
     """
@@ -147,14 +148,15 @@ def capture_vocab_entry(
     cur.execute(
         """
         INSERT INTO vocab_entries (
-            user_id, language_code, word, display_word,
+            user_id, language_code, source_language_code, word, display_word,
             translation, ipa, source_name,
             context_before, context_line, context_after,
             url, times_seen, first_seen_at, last_seen_at
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, %s, %s)
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, %s, %s)
         ON DUPLICATE KEY UPDATE
             times_seen = times_seen + 1,
             last_seen_at = VALUES(last_seen_at),
+            source_language_code = COALESCE(source_language_code, VALUES(source_language_code)),
             translation   = COALESCE(translation, VALUES(translation)),
             ipa           = COALESCE(ipa, VALUES(ipa)),
             source_name   = COALESCE(source_name, VALUES(source_name)),
@@ -164,7 +166,7 @@ def capture_vocab_entry(
             url           = COALESCE(NULLIF(url,''), VALUES(url))
         """,
         (
-            user_id, language, key, display,
+            user_id, language, source_language_code, key, display,
             translation, ipa, source_name,
             context_before or None, context_line or None, context_after or None,
             url or None, now, now,
@@ -195,6 +197,7 @@ def list_vocab(
     *,
     user_id: int,
     language: str,
+    source_language_code: Optional[str] = None,
     sort: str = "alpha",
     search: str = "",
     limit: int = 500,
@@ -202,6 +205,10 @@ def list_vocab(
     """
     List the user's vocabulary for a language.
 
+    source_language_code: optional — when provided, only rows whose
+        stored ``source_language_code`` matches OR is NULL are returned
+        (NULL = unspecified, treated as compatible with any source).
+        When None (default), no source filter is applied.
     sort: 'alpha' (default, by lookup key), 'recent' (last_seen_at DESC),
           'oldest' (first_seen_at ASC).
     search: mini-language query — plain text still means substring on word
@@ -225,17 +232,24 @@ def list_vocab(
             if where_sql:
                 extra_sql = " AND " + where_sql
 
+    src_sql = ""
+    src_params: List[Any] = []
+    if source_language_code:
+        src_sql = " AND (source_language_code = %s OR source_language_code IS NULL)"
+        src_params = [source_language_code]
+
     conn = app_mysql.get_connection()
     cur = conn.cursor(dictionary=True)
     cur.execute(
         f"""
         SELECT * FROM vocab_entries
         WHERE user_id=%s AND language_code=%s
+          {src_sql}
           {extra_sql}
         ORDER BY {order}
         LIMIT %s
         """,
-        [user_id, language, *extra_params, limit],
+        [user_id, language, *src_params, *extra_params, limit],
     )
     rows = cur.fetchall()
     cur.close()
@@ -434,12 +448,69 @@ IMPORT_LINE_LIMIT = 250
 """Maximum number of words accepted per bulk upload."""
 
 
-def count_import_lines(contents: str) -> int:
-    """Count non-blank, non-comment lines in a pipe-delimited import file."""
-    return sum(
-        1 for raw in contents.splitlines()
-        if raw.strip() and not raw.strip().startswith("#")
+_HEADER_RE = re.compile(
+    r"^\s*#?\s*\(\s*([a-z]{2,5})\s*,\s*([a-z]{2,5})\s*\)\s*$",
+    re.IGNORECASE,
+)
+
+
+def parse_import_header(contents: str) -> Tuple[str, str]:
+    """Extract the mandatory ``(source, target)`` header from an upload.
+
+    Scans leading blank/comment-only lines until it finds a bare
+    ``(src, tgt)`` tuple (optionally preceded by ``#`` and whitespace).
+    The two codes are returned lowercased. The first non-comment data line
+    encountered before a valid header raises ``ValueError``.
+
+    Examples accepted:
+        ``(pt, en)``           ← preferred form, first line
+        ``# (pt, en)``         ← commented form
+        (blank lines and other ``#`` comments may precede it)
+
+    Rejects anything else, including a missing header — loading proceeds
+    only when the caller has established which source/target pair the
+    file is authored in.
+    """
+    for raw in contents.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        m = _HEADER_RE.match(raw)
+        if m:
+            return m.group(1).lower(), m.group(2).lower()
+        # First non-blank line that isn't the header and isn't a plain
+        # comment → reject. Plain "# foo" comments are allowed to precede
+        # the header.
+        if line.startswith("#"):
+            continue
+        raise ValueError(
+            "Upload rejected: the first non-blank line must be a "
+            "(source, target) header, e.g. `(pt, en)`. Found: "
+            f"{line!r}."
+        )
+    raise ValueError(
+        "Upload rejected: no (source, target) header found. "
+        "Add a line like `(pt, en)` at the top of the file."
     )
+
+
+def count_import_lines(contents: str) -> int:
+    """Count non-blank, non-comment lines in a pipe-delimited import file.
+
+    The ``(source, target)`` header is counted as a comment (it starts with
+    either ``(`` or ``#``) and not as a data row.
+    """
+    n = 0
+    for raw in contents.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if line.startswith("#"):
+            continue
+        if _HEADER_RE.match(raw):
+            continue
+        n += 1
+    return n
 
 
 def import_from_file_contents(
@@ -447,6 +518,7 @@ def import_from_file_contents(
     user_id: int,
     language: str,
     contents: str,
+    expected_target_code: str,
     enrich: bool = False,
     source_language: str = "English",
     secrets: Any = None,
@@ -454,12 +526,29 @@ def import_from_file_contents(
 ) -> Dict[str, Any]:
     """
     Parse a pipe-delimited dictionary file and capture each valid row.
+
+    The file MUST begin with a ``(source, target)`` header line (e.g.
+    ``(pt, en)``) — see :func:`parse_import_header`. The target code is
+    checked against ``expected_target_code`` (the user's current practice
+    language code); mismatch aborts the whole import with ``ValueError``
+    and no rows are captured. The source code is stored on each row.
+
     Returns a summary dict with `added`, `updated`, `skipped_not_single`,
     `skipped_other`, and a list of skipped rows for display.
 
-    Raises ValueError if the file exceeds IMPORT_LINE_LIMIT (250) lines.
+    Raises ValueError if the file exceeds IMPORT_LINE_LIMIT (250) lines,
+    if the header is missing/malformed, or if the header target does not
+    match ``expected_target_code``.
     progress_fn: optional callable(current, total) called after each line.
     """
+    src_code, tgt_code = parse_import_header(contents)
+    if tgt_code != expected_target_code.lower():
+        raise ValueError(
+            f"Upload rejected: header says target is {tgt_code!r} but the "
+            f"current practice language is {expected_target_code!r}. "
+            "Switch language (or edit the file) before importing."
+        )
+
     n = count_import_lines(contents)
     if n > IMPORT_LINE_LIMIT:
         raise ValueError(
@@ -475,7 +564,9 @@ def import_from_file_contents(
     lines = [
         (lineno, raw)
         for lineno, raw in enumerate(contents.splitlines(), start=1)
-        if raw.strip() and not raw.strip().startswith("#")
+        if raw.strip()
+        and not raw.strip().startswith("#")
+        and not _HEADER_RE.match(raw)
     ]
     total = len(lines)
 
@@ -494,6 +585,7 @@ def import_from_file_contents(
                 ipa=parsed.get("ipa") or None,
                 enrich=enrich,
                 source_language=source_language,
+                source_language_code=src_code,
                 secrets=secrets,
             )
             if not result["ok"]:
@@ -522,6 +614,7 @@ def vocab_as_practice_phrases(
     *,
     user_id: int,
     language: str,
+    source_language_code: Optional[str] = None,
     sort: str = "alpha",
     search: str = "",
 ) -> List[Dict[str, Any]]:
@@ -530,11 +623,19 @@ def vocab_as_practice_phrases(
     practice UI: {text, translation, ipa}. Used by the 'Practice from vocab'
     material source.
 
+    source_language_code: optional — forwarded to :func:`list_vocab` so
+        practice from vocabulary respects the current session source.
     search: optional mini-language query to practise a filtered subset.
             Same grammar as list_vocab's search parameter. Empty string
             (default) returns the full vocabulary.
     """
-    rows = list_vocab(user_id=user_id, language=language, sort=sort, search=search)
+    rows = list_vocab(
+        user_id=user_id,
+        language=language,
+        source_language_code=source_language_code,
+        sort=sort,
+        search=search,
+    )
     return [
         {
             "text": r["display_word"],
