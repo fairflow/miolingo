@@ -27,6 +27,7 @@ from config import (
     SOURCE_LANGUAGE_OPTIONS,
     load_settings as _config_load_settings,
 )
+from ui.language_state import assert_sidebar_owner
 
 # ---------------------------------------------------------------------------
 # Session manager (auth infrastructure)
@@ -101,6 +102,7 @@ def _resolve_and_lock_languages():
         # conflicting with English as the target language)
         _chosen_source = st.session_state.get('settings', {}).get('source_language', 'English')
 
+    assert_sidebar_owner('source_language')
     st.session_state['source_language'] = _chosen_source
     st.session_state.setdefault('settings', {})['source_language'] = _chosen_source
 
@@ -108,8 +110,11 @@ def _resolve_and_lock_languages():
     _login_target = st.session_state.get('_login_target_lang')
     if _login_target and _login_target in LANGUAGE_CONFIG:
         target_code = LANGUAGE_CONFIG[_login_target]['code']
+        assert_sidebar_owner('material_language')
         st.session_state['material_language'] = target_code
+        assert_sidebar_owner('language')
         st.session_state['language'] = MATERIAL_TO_TRAINING.get(target_code, _login_target)
+        assert_sidebar_owner('target_language')
         st.session_state['target_language'] = target_code
 
 
@@ -216,6 +221,7 @@ def show_login_page():
         selected_language_name = st.session_state.get('_login_target_lang', 'Portuguese')
         selected_code = LANGUAGE_CONFIG[selected_language_name]['code']
         if st.session_state.get('material_language') != selected_code:
+            assert_sidebar_owner('material_language')
             st.session_state.material_language = selected_code
     except Exception:
         pass

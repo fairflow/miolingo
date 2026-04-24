@@ -215,20 +215,30 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
         st.info(f"No materials found for {format_language_name(material_lang)}")
         return
 
-    # Category and file selectors
+    # Category and file selectors.
+    # Explicit widget keys stabilise identity across reruns so a shape
+    # change in `structure` (e.g. a category disappearing for a new
+    # language) cannot silently void selectbox state. Stale values are
+    # cleared before the widget reads session_state.
     categories = list(structure.keys())
+    if st.session_state.get("qp_builtin_category") not in categories:
+        st.session_state.pop("qp_builtin_category", None)
     category = st.selectbox(
         "Category",
         categories,
         format_func=format_category_name,
-        help="Select difficulty level: Beginner (A) → Expert (D)"
+        help="Select difficulty level: Beginner (A) → Expert (D)",
+        key="qp_builtin_category",
     )
 
     files = structure[category]
+    if st.session_state.get("qp_builtin_file") not in files:
+        st.session_state.pop("qp_builtin_file", None)
     selected_file = st.selectbox(
         "File",
         files,
-        help="Select a specific file from this category"
+        help="Select a specific file from this category",
+        key="qp_builtin_file",
     )
 
     source_code = get_language_code(st.session_state.get('source_language', 'English'))

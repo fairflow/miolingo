@@ -25,6 +25,7 @@ from config import (
     get_language_code,
 )
 from ui.practice_tab import save_current_session
+from ui.language_state import assert_sidebar_owner, drain_tripwire_messages
 
 
 # ---------------------------------------------------------------------------
@@ -168,6 +169,7 @@ def render_settings_panel():
 
         # Guard: current source must be a valid option
         if st.session_state.get('source_language', 'English') not in _source_options:
+            assert_sidebar_owner('source_language')
             st.session_state['source_language'] = _source_options[0]
 
         st.selectbox(
@@ -191,12 +193,14 @@ def render_settings_panel():
         if 'material_language' not in st.session_state:
             # First render — pick from saved settings or first available
             _saved = st.session_state.settings.get('material_language')
+            assert_sidebar_owner('material_language')
             st.session_state.material_language = (
                 _saved if _saved in _target_options
                 else _target_options[0] if _target_options else 'fr'
             )
         elif st.session_state.material_language not in _target_options:
             # Current value no longer valid (source changed to match target)
+            assert_sidebar_owner('material_language')
             st.session_state.material_language = _target_options[0] if _target_options else 'fr'
 
         previous_material_language = st.session_state.get('material_language', None)
@@ -209,6 +213,7 @@ def render_settings_panel():
         )
 
         # Sync target language
+        assert_sidebar_owner('target_language')
         st.session_state.target_language = st.session_state.material_language
 
         # Resolve full target name for display
@@ -219,11 +224,21 @@ def render_settings_panel():
 
         st.caption(f"Direction: {st.session_state.source_language} → {_target_full}")
 
+        # Debug-mode diagnostic: surface any unexpected writes to the
+        # sidebar-owned language keys detected during this render cycle.
+        if is_debug():
+            _tripwire_msgs = drain_tripwire_messages()
+            if _tripwire_msgs:
+                with st.expander("⚠️ Sidebar-ownership tripwire", expanded=True):
+                    for _msg in _tripwire_msgs:
+                        st.warning(_msg)
+
         # Update training language if material language changed
         training_language = MATERIAL_TO_TRAINING.get(
             st.session_state.material_language, 'French'
         )
         if previous_material_language != st.session_state.material_language:
+            assert_sidebar_owner('language')
             st.session_state.language = training_language
             if training_language not in st.session_state.current_sessions:
                 st.session_state.current_sessions[training_language] = {

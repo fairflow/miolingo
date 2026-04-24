@@ -100,6 +100,7 @@ from ui.history_tab import load_history, save_history, render_history_tab
 from ui.quick_practice_tab import render_quick_practice_tab
 from ui.vocabulary_tab import render_vocabulary_tab
 from ui.sidebar import render_user_panel, render_settings_panel, is_debug
+from ui.language_state import assert_sidebar_owner
 
 # Import API usage logger for cost tracking
 try:
@@ -254,13 +255,16 @@ def initialize_session_state():
 
     # Initialize language - will be set correctly in main() based on material_language
     if 'language' not in st.session_state:
+        assert_sidebar_owner('language')
         st.session_state.language = 'French'  # Safe default
 
     # Two-way language settings
     if 'source_language' not in st.session_state:
         # Source language is session-only (not read from DB settings)
+        assert_sidebar_owner('source_language')
         st.session_state.source_language = "English"
     if 'target_language' not in st.session_state:
+        assert_sidebar_owner('target_language')
         st.session_state.target_language = st.session_state.language
     if 'translation_direction' not in st.session_state:
         st.session_state.translation_direction = 'source_to_target'
@@ -393,6 +397,7 @@ def main():
         # Don't set material_language directly - it will be set by the selectbox widget
         # Instead, just update training language to match
         if saved_lang in material_to_training:
+            assert_sidebar_owner('language')
             st.session_state.language = material_to_training[saved_lang]
             # Validate voice is appropriate for this language
             lang_cfg = LANGUAGE_CONFIG[st.session_state.language]
@@ -406,10 +411,13 @@ def main():
     # This runs after the selectbox has set material_language
     if 'material_language' in st.session_state:
         if st.session_state.material_language in material_to_training:
+            assert_sidebar_owner('language')
             st.session_state.language = material_to_training[st.session_state.material_language]
         else:
+            assert_sidebar_owner('language')
             st.session_state.language = 'French'
     elif 'language' not in st.session_state:
+        assert_sidebar_owner('language')
         st.session_state.language = 'French'
 
     # NOW we can safely render the title with correct language
