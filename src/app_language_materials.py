@@ -10,6 +10,8 @@ from typing import Dict, List
 import streamlit as st
 import json
 
+from import_header import is_header_line
+
 DATA_DIR = Path(__file__).parent.parent / "language_materials"
 UNIFIED_DIR = DATA_DIR / "unified"
 
@@ -274,10 +276,16 @@ def get_file_metadata(language: str, category: str, filename: str,
         with open(file_path, 'r', encoding='utf-8') as f:
             all_lines = f.readlines()
         
-        # Filter out comments and empty lines for analysis
+        # Filter out comments, empty lines, and the (source, target)
+        # language-pair header line for analysis. The header is not a
+        # data row — leaving it in inflates line_count by 1 and makes
+        # `sample = content_lines[0]` inspect the header instead of a
+        # real entry, breaking has_translations / has_ipa detection.
         content_lines = [
-            line.strip() for line in all_lines 
-            if line.strip() and not line.strip().startswith('#')
+            s for line in all_lines
+            if (s := line.strip())
+            and not s.startswith('#')
+            and not is_header_line(line)
         ]
         
         if not content_lines:

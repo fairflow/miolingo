@@ -10,6 +10,16 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.16-claude-dev] - 2026-04-24
+
+### Changed
+
+- Sidebar-ownership tripwire: new src/ui/language_state.py exposes assert_sidebar_owner() which in debug mode flags any write to source_language/material_language/target_language/language from a non-sidebar module. Wired into sidebar.py, app.py, auth.py at every existing write site.
+- Quick Practice Built-in Library: Category and File selectboxes now have explicit keys (qp_builtin_category, qp_builtin_file) with stale-value guards, preventing the widget-identity drop that could indirectly reset the sidebar language selector.
+- Shared (source, target) header parser in new src/import_header.py; get_file_metadata now strips header lines from content analysis so line_count and has_translations/has_ipa are correct for files authored with the new (fr, en)-style language-pair header.
+- 219 unit tests passing (194 existing + 25 new).
+
+
 ## [7.8.15-claude-dev] - 2026-04-24
 
 ### Changed

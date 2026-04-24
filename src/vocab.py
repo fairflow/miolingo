@@ -448,10 +448,9 @@ IMPORT_LINE_LIMIT = 250
 """Maximum number of words accepted per bulk upload."""
 
 
-_HEADER_RE = re.compile(
-    r"^\s*#?\s*\(\s*([a-z]{2,5})\s*,\s*([a-z]{2,5})\s*\)\s*$",
-    re.IGNORECASE,
-)
+# Canonical (source, target) header regex lives in import_header so
+# language-material metadata and vocab imports share one source of truth.
+from import_header import HEADER_RE as _HEADER_RE  # noqa: E402
 
 
 def parse_import_header(contents: str) -> Tuple[str, str]:
