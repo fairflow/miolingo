@@ -10,6 +10,15 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.15-claude-dev] - 2026-04-24
+
+### Changed
+
+- IPA font legibility: format_ipa() default bumped from 1.0em/400 to 1.2em/500 so diacritics (nasal tildes, stress marks) are legible at a glance; all downstream IPA renderings pick this up automatically.
+- Add docs/dev-docs/IPA_LEARNING_DESIGN.md — preliminary proposal for a small, reuse-first Learn-IPA feature (primer, sidebar expander, minimal-pairs drill from user's own vocab).
+- Add docs/app-docs/IPA_PRIMER.md — user-facing primer with per-target-language symbol handfuls for BR Portuguese, French, English, Italian, Spanish, Dutch, German.
+
+
 ## [7.8.14-claude-dev] - 2026-04-23
 
 ### Changed

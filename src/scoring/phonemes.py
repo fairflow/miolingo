@@ -129,9 +129,17 @@ def get_ipa_from_espeak(text: str, lang_code: str) -> str:
         return f'[error: {str(e)}]'
 
 
-def format_ipa(ipa_text: str, size: str = "1.0em", weight: int = 400,
+def format_ipa(ipa_text: str, size: str = "1.2em", weight: int = 500,
                brackets: bool = True) -> str:
-    """Format IPA text with consistent delimiters and HTML styling."""
+    """Format IPA text with consistent delimiters and HTML styling.
+
+    Default size is slightly larger than body text (1.2em) and slightly
+    heavier (weight 500) because IPA symbols — especially diacritics such
+    as the tilde on nasal vowels (ɐ̃, ẽ, ĩ) and length markers (ˈ, ː) — are
+    visually dense and hard to read at body size for learners. Callers can
+    still pass ``size="1.0em"`` for contexts where IPA is incidental
+    (tooltips, dense tables).
+    """
     if not ipa_text:
         return ""
 
