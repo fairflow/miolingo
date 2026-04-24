@@ -36,7 +36,6 @@ Seven things to know. That's it for the grammar of IPA itself.
 | You see | It means |
 |---|---|
 | `[…]` | a phonetic transcription — what sounds actually come out |
-| `/…/` | a phoneme transcription — the abstract sound the language uses |
 | `ˈ`  | **stress mark** — the syllable immediately *after* it is stressed |
 | `ˌ` | secondary stress |
 | `ː` | the preceding sound is held longer |
@@ -106,28 +105,31 @@ closely. Four symbols cover most of what's new:
 
 ### Spanish 🇪🇸
 
-Like Italian, Spanish pronunciation is close to its spelling; the IPA
-mostly confirms what you already read.
-
-- `β ð ɣ` — the *b d g* between vowels go soft (*saber* [saˈβeɾ]),
-- `ɲ` — *ñ* (*año* [ˈaɲo]),
-- `x` — Spanish *j* (*jamón* [xaˈmon]) — like German *ch* in *Bach*,
-- `ɾ r` — tapped vs rolled *r* (*pero* vs *perro*),
-- `ʎ` or `ʝ` — *ll* (depending on dialect).
+| Symbol | Sound | Example | Notes |
+|--------|-------|---------|-------|
+| β ð ɣ | between vowels go soft | [saˈβeɾ] | softer *b d g* |
+| ɲ | palatal | [maˈɲana] | Spanish *ñ* |
+| x | fricative | [xaˈmon] | like German *ch* |
+| ɾ vs r | tapped vs rolled | [ˈpeɾo] vs [ˈpeɾːo] | *pero* vs *perro* |
+| ʎ | palatal | [ˈaʎo] | regional; *ll* |
 
 ### Dutch 🇳🇱
 
-- `ɣ x` — Dutch *g* / *ch* (*goed* [ɣut], *nacht* [nɑxt]),
-- `ø y` — rounded front vowels (*deur*, *nu*),
-- `œy ɛi ʌu` — diphthongs (*huis*, *mijn*, *koud*),
-- `ə` — schwa in unstressed syllables.
+| Symbol | Sound | Example | Notes |
+|--------|-------|---------|-------|
+| ɣ x | fricatives | [ɣut], [nɑxt] | Dutch *g*, *ch* |
+| ø y | rounded front vowels | [dœɾ], [nʏ] | unique to Dutch |
+| œy ɛi ʌu | diphthongs | [hœɪs], [mɛɪn], [kʌut] | *huis*, *mijn*, *koud* |
+| ə | schwa | in unstressed syllables |  |
 
 ### German 🇩🇪
 
-- `ç x` — *ich* vs *ach* "ch" sounds (different sounds, same spelling),
-- `ʏ œ ø y` — rounded front vowels (*München*, *können*, *schön*, *über*),
-- `ʔ` — glottal stop before vowels (*ein Apfel* = *ein* | *Apfel*),
-- `ə ɐ` — schwa and the *-er* reduction (*bitter* [ˈbɪtɐ]).
+| Symbol | Sound | Example | Notes |
+|--------|-------|---------|-------|
+| ç x | *ich* vs *ach* sounds | different mouth positions | *ich*, *ach* |
+| ʏ œ ø y | rounded front vowels | [ˈmʏnçən], [ˈkœnən] | *München*, *können*, *schön*, *über* |
+| ʔ | glottal stop | [ʔaɪnʔapfəl] | before vowels; *ein Apfel* |
+| ə ɐ | schwa reduction | [ˈbɪtɐ] | *-er* ending; *bitter* |
 
 ---
 
