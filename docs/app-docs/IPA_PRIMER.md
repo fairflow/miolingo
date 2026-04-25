@@ -67,7 +67,7 @@ with one of them and the brackets will start talking to you.
 | `ʁ` vs `ɾ` | strong R / tapped R | *carro* [ˈkaʁu] car, *caro* [ˈkaɾu] dear | French *r* vs Spanish *r* |
 
 There's a much deeper BR Portuguese reference at
-[`language_materials/Portuguese-Grammar-IPA.md.md`](../../language_materials/Portuguese-Grammar-IPA.md.md)
+[`language_materials/Portuguese-Grammar-IPA.md`](../../language_materials/Portuguese-Grammar-IPA.md)
 if you want stress rules, unstressed-vowel reduction, and the full vowel
 table.
 
@@ -155,7 +155,7 @@ noticing:
 
 - Interactive IPA chart with audio — [ipachart.app](https://www.ipachart.app/)
 - BR Portuguese deep reference (in this repo) —
-  [`language_materials/Portuguese-Grammar-IPA.md.md`](../../language_materials/Portuguese-Grammar-IPA.md.md)
+  [`language_materials/Portuguese-Grammar-IPA.md`](../../language_materials/Portuguese-Grammar-IPA.md)
 - Wikipedia's *Help:IPA for …* pages are reliable per-language guides.
 
 ---
