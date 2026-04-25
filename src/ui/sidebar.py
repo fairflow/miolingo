@@ -446,6 +446,10 @@ def render_settings_panel():
         # ── Help & Docs ──────────────────────────────────────────────────────
         st.markdown("---")
         st.header("📚 Help & Docs")
+
+        with st.expander("📖 About IPA — read the brackets next to every word", expanded=False):
+            _render_ipa_primer()
+
         st.markdown("""
         **📖 Guides:**
         - [User Guide](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/USER_GUIDE.md) - How to use the app
@@ -463,6 +467,31 @@ def render_settings_panel():
         - Email: io@miolingo.io
         - Discord: [Coming soon]
         """)
+
+
+def _render_ipa_primer():
+    """Render the local IPA primer inside the sidebar expander.
+
+    Reads ``docs/app-docs/IPA_PRIMER.md`` and shows it via
+    ``st.markdown``. The primer is the canonical user-facing
+    explanation of the bracketed transcriptions shown across the app
+    (Quick Practice, Story Reader, vocabulary). Falling back to a
+    short message if the file is missing keeps the expander useful
+    in stripped-down deployments.
+    """
+    from pathlib import Path
+
+    primer_path = Path(__file__).resolve().parent.parent.parent / "docs" / "app-docs" / "IPA_PRIMER.md"
+    try:
+        text = primer_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        st.info(
+            "IPA primer not found in this deployment. See "
+            "[`docs/app-docs/IPA_PRIMER.md`](https://github.com/fairflow/miolingo/blob/feature/admin-fusion/docs/app-docs/IPA_PRIMER.md) "
+            "in the repo."
+        )
+        return
+    st.markdown(text)
 
 
 def _render_story_link(lang_code: str):
