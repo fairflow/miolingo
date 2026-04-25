@@ -19,6 +19,46 @@ curriculum.
 from difflib import SequenceMatcher
 from typing import List, Tuple, Optional
 import functools
+import re
+
+
+def _highlight_ipa_difference(ipa1: str, ipa2: str) -> Tuple[str, str]:
+    """
+    Highlight the differing phoneme in two IPA strings.
+    
+    Args:
+        ipa1: First IPA string (stripped of brackets)
+        ipa2: Second IPA string (stripped of brackets)
+    
+    Returns:
+        Tuple of (highlighted_ipa1, highlighted_ipa2) with **bold** markers
+        around the differing phoneme(s)
+    
+    Example:
+        >>> _highlight_ipa_difference('ˌakoljedˈoɾ', 'ˌakoŋsˈeljæ')
+        ('ˌak**o**ljedˈoɾ', 'ˌak**oŋ**sˈeljæ')
+    """
+    # Simple character-level diff to find where they diverge
+    matcher = SequenceMatcher(None, ipa1, ipa2)
+    opcodes = matcher.get_opcodes()
+    
+    highlighted1 = []
+    highlighted2 = []
+    
+    for tag, i1, i2, j1, j2 in opcodes:
+        if tag == 'equal':
+            highlighted1.append(ipa1[i1:i2])
+            highlighted2.append(ipa2[j1:j2])
+        elif tag == 'replace':
+            # Highlight the differing parts
+            highlighted1.append(f"**{ipa1[i1:i2]}**")
+            highlighted2.append(f"**{ipa2[j1:j2]}**")
+        elif tag == 'delete':
+            highlighted1.append(f"**{ipa1[i1:i2]}**")
+        elif tag == 'insert':
+            highlighted2.append(f"**{ipa2[j1:j2]}**")
+    
+    return ''.join(highlighted1), ''.join(highlighted2)
 
 
 def find_minimal_pairs(
@@ -180,17 +220,24 @@ def format_minimal_pair_for_practice(pair: Tuple[dict, dict, str], lang_code: st
     # Build practice prompt — use language-appropriate 'or' for natural pausing
     text = f"{word1['text']} {separator} {word2['text']}"
 
-    # Build translation/explanation with clearer phoneme difference
+    # Build translation/explanation with highlighted IPA difference
     trans_parts = []
     if word1.get('translation'):
         trans_parts.append(f"{word1['text']} = {word1['translation']}")
     if word2.get('translation'):
         trans_parts.append(f"{word2['text']} = {word2['translation']}")
     
-    # Extract actual phonemes from diff_desc for clearer explanation
-    # diff_desc format: "phoneme1→phoneme2 at position N"
-    phoneme_diff = diff_desc.split(' at position ')[0] if ' at position ' in diff_desc else diff_desc
-    trans_parts.append(f"🎯 Sound difference: {phoneme_diff}")
+    # Use proper IPA with highlighting instead of espeak phonemes
+    if word1.get('ipa') and word2.get('ipa'):
+        ipa1_clean = word1['ipa'].strip('[]')
+        ipa2_clean = word2['ipa'].strip('[]')
+        ipa1_highlighted, ipa2_highlighted = _highlight_ipa_difference(ipa1_clean, ipa2_clean)
+        trans_parts.append(f"🎯 Sound difference: [{ipa1_highlighted}] → [{ipa2_highlighted}]")
+    else:
+        # Fallback to espeak phoneme description if no IPA available
+        phoneme_diff = diff_desc.split(' at position ')[0] if ' at position ' in diff_desc else diff_desc
+        trans_parts.append(f"🎯 Sound difference: {phoneme_diff}")
+    
     translation = " · ".join(trans_parts)
 
     # Combine IPA if available — no separator, just space between brackets
