@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.7-claude-dev] - 2026-04-25
+
+### Fixed
+
+- Minimal pairs: 10/20/40 count selector, randomised pairs each session, min 4 phonemes per word (excludes single-vowel words), debug prints removed
+
+
 ## [7.9.6-claude-dev] - 2026-04-25
 
 ### Fixed

@@ -202,6 +202,20 @@ def _render_vocab_materials():
         "for pronunciation training. Generated automatically from your vocabulary."
     )
 
+    # How many pairs to generate — persisted so the choice survives reruns
+    MP_COUNT_OPTIONS = [10, 20, 40]
+    if 'mp_max_pairs' not in st.session_state:
+        st.session_state.mp_max_pairs = 20
+    mp_max_pairs = st.radio(
+        "Number of pairs",
+        options=MP_COUNT_OPTIONS,
+        index=MP_COUNT_OPTIONS.index(st.session_state.mp_max_pairs),
+        format_func=lambda n: str(n),
+        key='mp_max_pairs_radio',
+        horizontal=True,
+    )
+    st.session_state.mp_max_pairs = mp_max_pairs
+
     # Generate minimal pairs on demand
     minimal_pairs_count = 0
     minimal_pairs_phrases = []
@@ -228,16 +242,14 @@ def _render_vocab_materials():
         for phrase in all_phrases:
             phrase_copy = dict(phrase)
             if 'phonemes' not in phrase_copy or not phrase_copy['phonemes']:
-                # Generate phonemes on the fly
                 phrase_copy['phonemes'] = get_phonemes(phrase['text'], voice=voice)
             if 'ipa' not in phrase_copy or not phrase_copy['ipa']:
-                # Generate IPA for highlighting in minimal pairs
                 phrase_copy['ipa'] = get_ipa(phrase['text'], voice=voice)
             vocab_with_phonemes.append(phrase_copy)
 
         minimal_pairs_phrases = generate_minimal_pair_practice_list(
             vocab_with_phonemes,
-            max_pairs=20,
+            max_pairs=mp_max_pairs,
             lang_code=lang_code
         )
         minimal_pairs_count = len(minimal_pairs_phrases)
