@@ -42,7 +42,7 @@ Seven things to know. That's it for the grammar of IPA itself.
 | `.` | syllable boundary |
 | `̃` (tilde above a vowel) | the vowel is **nasalised** |
 
-So `[sawˈdadʒi]` tells you: four sounds before the stress, the stress
+So `[sawˈdadʒi]` tells you: three sounds before the stress, the stress
 falls on *da*, and the final *-de* is pronounced *dʒi* (like English
 "jee"), not *dee*.
 
@@ -118,16 +118,16 @@ closely. Four symbols cover most of what's new:
 | Symbol | Sound | Example | Notes |
 |--------|-------|---------|-------|
 | ɣ x | fricatives | [ɣut] *goed* good, [nɑxt] *nacht* night | Dutch *g*, *ch* |
-| ø y | rounded front vowels | [dœɾ] *deur* door, [nʏ] *nu* now | unique to Dutch |
-| œy ɛi ʌu | diphthongs | [hœɪs] *huis* house, [mɛɪn] *mijn* my, [kʌut] *koud* cold | *huis*, *mijn*, *koud* |
+| ø y | rounded front vowels | [dœɾ] *deur* door, [nʏ] *nu* now | ø unique to Dutch |
+| œy ɛi ʌu | diphthongs | [hœɪs] *huis* house, [mɛɪn] *mijn* my, [kʌut] *koud* cold | |
 | ə | schwa | in unstressed syllables |  |
 
 ### German 🇩🇪
 
 | Symbol | Sound | Example | Notes |
 |--------|-------|---------|-------|
-| ç x | "ch" — two sounds, one spelling | [ˈmʏnçən] München, [ˈbaχ] Bach | ç = soft (after *i/e*, like "hue"); x = hard (after *a/o/u*, like "loch") |
-| ʏ œ ø y | rounded front vowels | [ˈmʏnçən] München, [ˈkœnən]  | *München*, *können*, *schön*, *über* |
+| ç x | "ch" — two sounds, one spelling | [ˈmʏnçən] *München* Munich, [ˈbaχ] *Bach* | ç = soft (after *i/e*, like "hue"); x = hard (after *a/o/u*, like "loch") |
+| ʏ œ ø y | rounded front vowels | [ˈmʏnçən] München, [ˈkœnən] *können* to be able, [] *schön* beautiful, [ybə] *über* over  | |
 | ʔ | glottal stop | [ʔaɪnʔapfəl] *ein Apfel* an apple | hard reset before each vowel-initial word |
 | ə ɐ | schwa / reduced *-er* | [ˈbɪtɐ] *bitter* bitter | unstressed syllables and *-er* endings |
 
