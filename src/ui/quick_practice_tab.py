@@ -873,6 +873,8 @@ def _render_guided_mode():
         target_lang = st.session_state.target_language
 
         translation_text = None
+        is_minimal_pair = current_phrase_obj.get('minimal_pair', False) if isinstance(current_phrase_obj, dict) else False
+        
         if source_lang == "English" and phrase_translation:
             translation_text = phrase_translation
         elif source_lang != target_lang:
@@ -881,7 +883,11 @@ def _render_guided_mode():
         if translation_text or phrase_ipa:
             with st.expander("📖 Translation & Reference", expanded=False):
                 if translation_text and not translation_text.startswith('[error'):
-                    st.markdown(f"**{source_lang}:** {translation_text}")
+                    # For minimal pairs, don't prefix with source language
+                    if is_minimal_pair:
+                        st.markdown(translation_text)
+                    else:
+                        st.markdown(f"**{source_lang}:** {translation_text}")
                 if phrase_ipa:
                     st.markdown(f"**📚 Reference IPA ({target_lang}):** {format_ipa(phrase_ipa)}", unsafe_allow_html=True)
                     st.caption("Compare with eSpeak IPA generated below")

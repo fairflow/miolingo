@@ -155,38 +155,44 @@ def format_minimal_pair_for_practice(pair: Tuple[dict, dict, str]) -> dict:
     Returns:
         Dictionary suitable for Quick Practice phrase list format:
         {
-            'text': combined prompt,
-            'translation': explanation,
+            'text': combined prompt (words separated by newline),
+            'translation': explanation with actual phoneme difference,
             'ipa': combined IPA (if available),
-            'pair': (word1_text, word2_text) for specialized scoring
+            'pair': (word1_text, word2_text) for specialized scoring,
+            'minimal_pair': True flag to signal special handling
         }
     """
     word1, word2, diff_desc = pair
 
-    # Build practice prompt
-    text = f"{word1['text']} vs {word2['text']}"
+    # Build practice prompt — use newline to avoid "vs" being transcribed
+    text = f"{word1['text']}\n{word2['text']}"
 
-    # Build translation/explanation
+    # Build translation/explanation with clearer phoneme difference
     trans_parts = []
     if word1.get('translation'):
         trans_parts.append(f"{word1['text']} = {word1['translation']}")
     if word2.get('translation'):
         trans_parts.append(f"{word2['text']} = {word2['translation']}")
-    trans_parts.append(f"Difference: {diff_desc}")
+    
+    # Extract actual phonemes from diff_desc for clearer explanation
+    # diff_desc format: "phoneme1→phoneme2 at position N"
+    phoneme_diff = diff_desc.split(' at position ')[0] if ' at position ' in diff_desc else diff_desc
+    trans_parts.append(f"🎯 Sound difference: {phoneme_diff}")
     translation = " · ".join(trans_parts)
 
-    # Combine IPA if available
+    # Combine IPA if available — no separator, just space between brackets
     ipa_parts = []
     if word1.get('ipa'):
         ipa_parts.append(word1['ipa'].strip('[]'))
     if word2.get('ipa'):
         ipa_parts.append(word2['ipa'].strip('[]'))
-    ipa = f"[{' vs '.join(ipa_parts)}]" if ipa_parts else None
+    ipa = f"[{ipa_parts[0]}] / [{ipa_parts[1]}]" if len(ipa_parts) == 2 else None
 
     return {
         'text': text,
         'translation': translation,
         'ipa': ipa,
+        'minimal_pair': True,  # Flag for special UI handling
         'pair': (word1['text'], word2['text']),
         'minimal_pair': True,  # Flag for specialized rendering
     }
