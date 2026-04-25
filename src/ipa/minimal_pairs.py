@@ -161,6 +161,15 @@ def _is_minimal_pair(phonemes1: str, phonemes2: str) -> Optional[str]:
 
     tag, i1, i2, j1, j2 = non_equal_ops[0]
 
+    # DEBUG: Log what we're comparing
+    import sys
+    print(f"[MINIMAL PAIR DEBUG] Phoneme comparison:", file=sys.stderr)
+    print(f"  P1: {phonemes1}", file=sys.stderr)
+    print(f"  P2: {phonemes2}", file=sys.stderr)
+    print(f"  Split P1: {p1}", file=sys.stderr)
+    print(f"  Split P2: {p2}", file=sys.stderr)
+    print(f"  Operation: {tag}, spans: p1[{i1}:{i2}]={p1[i1:i2]}, p2[{j1}:{j2}]={p2[j1:j2]}", file=sys.stderr)
+
     # Ensure it's a single-phoneme difference
     if tag == 'replace':
         # Must be single phoneme → single phoneme
