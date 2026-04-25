@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.4-claude-dev] - 2026-04-25
+
+### Added
+
+- English dictionary (905 words, (en, pt) header) split into 4 x 250-word files in en/words for IPA and vocabulary testing
+
+
 ## [7.9.1] - 2026-04-25
 
 ### Changed
