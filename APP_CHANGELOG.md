@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.3-claude-dev] - 2026-04-25
+
+### Fixed
+
+- Language-pair header line (e.g. (pt, en)) no longer appears as a practice phrase when loading built-in or uploaded phrase files
+
+
 ## [7.9.1] - 2026-04-25
 
 ### Changed
