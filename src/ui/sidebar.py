@@ -164,11 +164,33 @@ def render_settings_panel():
         # Determine what the current target name is so we can exclude it
         # from source options (source ≠ target).
         _cur_target_code = st.session_state.get('material_language', 'fr')
+        # Guard: if the target code isn't recognised in LANGUAGE_CONFIG (a
+        # transient corruption mid-rerun, or a stale value from a saved
+        # setting referencing a removed language), skip the source-filter
+        # exclusion entirely. Resetting source on the basis of a phantom
+        # target was Stage 1 / route 1 of the "language keeps reverting"
+        # regression — never reset on the basis of a stale lookup.
+        _target_known = _cur_target_code in MATERIAL_TO_TRAINING
         _cur_target_name = MATERIAL_TO_TRAINING.get(_cur_target_code, 'French')
-        _source_options = [l for l in SOURCE_LANGUAGE_OPTIONS if l != _cur_target_name]
+        if _target_known:
+            _source_options = [l for l in SOURCE_LANGUAGE_OPTIONS if l != _cur_target_name]
+        else:
+            _source_options = list(SOURCE_LANGUAGE_OPTIONS)
 
-        # Guard: current source must be a valid option
-        if st.session_state.get('source_language', 'English') not in _source_options:
+        # Guard: current source must be a valid option AND _source_options
+        # must be non-empty. A momentarily empty option list (config
+        # half-loaded mid-rerun) is NOT a reason to overwrite the user's
+        # saved choice — that's the bug Stage 1 was hunting. Only reset
+        # when the source is unambiguously not in a non-empty list.
+        _cur_source = st.session_state.get('source_language', 'English')
+        if _source_options and _cur_source not in _source_options:
+            import logging as _logging
+            _logging.getLogger(__name__).info(
+                "[sidebar] resetting source_language %r → %r "
+                "(not in options=%r, target=%r)",
+                _cur_source, _source_options[0], _source_options,
+                _cur_target_code,
+            )
             assert_sidebar_owner('source_language')
             st.session_state['source_language'] = _source_options[0]
 
@@ -190,18 +212,45 @@ def render_settings_panel():
         # widget renders.  The selectbox with key= reads its value from
         # session state — we must NOT also pass index= or Streamlit warns
         # about conflicting defaults.
+        #
+        # Guard discipline (Stage 2 step 3):
+        #   - Compute the candidate replacement BEFORE deciding whether to
+        #     overwrite, so an empty/stale `_target_options` list never
+        #     silently picks 'fr' and clobbers a valid saved choice.
+        #   - Skip the reset entirely when `_target_options` is empty —
+        #     that means the source filter ate every option, which can
+        #     happen transiently on a rerun where settings is half-loaded.
+        #   - Log every reset on info so the next regression names itself.
+        import logging as _logging
+        _log_sb = _logging.getLogger(__name__)
+
         if 'material_language' not in st.session_state:
             # First render — pick from saved settings or first available
             _saved = st.session_state.settings.get('material_language')
-            assert_sidebar_owner('material_language')
-            st.session_state.material_language = (
-                _saved if _saved in _target_options
-                else _target_options[0] if _target_options else 'fr'
+            if _saved in _target_options:
+                _candidate = _saved
+            elif _target_options:
+                _candidate = _target_options[0]
+            else:
+                _candidate = 'fr'
+            _log_sb.info(
+                "[sidebar] seeding material_language=%r (saved=%r, options=%r)",
+                _candidate, _saved, _target_options,
             )
-        elif st.session_state.material_language not in _target_options:
-            # Current value no longer valid (source changed to match target)
             assert_sidebar_owner('material_language')
-            st.session_state.material_language = _target_options[0] if _target_options else 'fr'
+            st.session_state.material_language = _candidate
+        elif _target_options and st.session_state.material_language not in _target_options:
+            # Current value not valid AND we have a real options list to
+            # pick from. (If options list is empty, leave the value alone
+            # — overwriting based on a momentarily-empty list is the
+            # original "sidebar reverts to default" bug.)
+            _candidate = _target_options[0]
+            _log_sb.info(
+                "[sidebar] resetting material_language %r → %r (options=%r)",
+                st.session_state.material_language, _candidate, _target_options,
+            )
+            assert_sidebar_owner('material_language')
+            st.session_state.material_language = _candidate
 
         previous_material_language = st.session_state.get('material_language', None)
         st.selectbox(

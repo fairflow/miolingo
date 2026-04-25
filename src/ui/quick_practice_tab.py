@@ -232,6 +232,19 @@ def _render_builtin_materials(get_available_languages, get_language_structure,
     )
 
     files = structure[category]
+    # Stage 2 step 5: guard the empty-structure case explicitly. A
+    # category that resolves to no files would otherwise hit
+    # st.selectbox("File", []) — historically a source of exceptions
+    # and downstream sidebar-state churn (the rerun unmounted the
+    # sidebar's language widget, which then re-seeded from default).
+    if not files:
+        st.info(
+            f"No files available in **{format_category_name(category)}** "
+            f"for **{format_language_name(material_lang)}**. "
+            "Pick another category, or check `language_materials/` "
+            "for that language."
+        )
+        return
     if st.session_state.get("qp_builtin_file") not in files:
         st.session_state.pop("qp_builtin_file", None)
     selected_file = st.selectbox(
