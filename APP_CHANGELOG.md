@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.18-claude-dev] - 2026-04-25
+
+### Changed
+
+- Stage 2 sidebar-ownership: hardened source/target guards (skip unknown-target filter, log every reset, never reset against empty options), empty-structure guard in Quick Practice Built-in Library, and a static regression test banning non-sidebar writes to language-pair session keys.
+
+
 ## [7.8.17-claude-dev] - 2026-04-25
 
 ### Changed
