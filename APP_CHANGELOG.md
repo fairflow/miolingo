@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.20] - 2026-04-25
+
+### Changed
+
+- Fix minimal pairs phoneme tokenization
+
+
 ## [7.8.19-claude-dev] - 2026-04-25
 
 ### Added
