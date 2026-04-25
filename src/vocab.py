@@ -268,6 +268,37 @@ def get_vocab_entry(*, user_id: int, vocab_id: int) -> Optional[Dict[str, Any]]:
     return row
 
 
+def list_vocab_source_breakdown(
+    *, user_id: int, language: str
+) -> List[Dict[str, Any]]:
+    """Return per-source-pairing row counts for (user_id, language_code).
+
+    Used by the vocab tab to explain "0 entries" when rows exist under a
+    different source pairing than the user's current sidebar source.
+
+    Returns rows like::
+
+        [{"source_language_code": "pt", "cnt": 22},
+         {"source_language_code": None, "cnt": 261}]
+
+    Sorted by count desc. Empty list if the user has no rows for the
+    language at all.
+    """
+    conn = app_mysql.get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute(
+        "SELECT source_language_code, COUNT(*) AS cnt "
+        "FROM vocab_entries "
+        "WHERE user_id=%s AND language_code=%s "
+        "GROUP BY source_language_code "
+        "ORDER BY cnt DESC",
+        (user_id, language),
+    )
+    rows = cur.fetchall()
+    cur.close()
+    return rows
+
+
 def delete_vocab_entry(*, user_id: int, vocab_id: int) -> bool:
     conn = app_mysql.get_connection()
     cur = conn.cursor()
@@ -606,6 +637,8 @@ def import_from_file_contents(
         "updated": updated,
         "skipped_not_single": skipped_not_single,
         "skipped_other": skipped_other,
+        "header_src_code": src_code,
+        "header_tgt_code": tgt_code,
     }
 
 
