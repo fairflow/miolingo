@@ -193,6 +193,70 @@ def _render_vocab_materials():
             st.session_state.qp_materials_expanded = False
             st.rerun()
 
+    # Minimal pairs practice option
+    st.markdown("---")
+    st.markdown("**🎓 IPA Ear Training: Minimal Pairs**")
+    st.caption(
+        "Practice word pairs that differ by exactly one sound — the gold standard "
+        "for pronunciation training. Generated automatically from your vocabulary."
+    )
+
+    # Generate minimal pairs on demand
+    minimal_pairs_count = 0
+    minimal_pairs_phrases = []
+
+    if len(all_phrases) >= 2:
+        from ipa.minimal_pairs import generate_minimal_pair_practice_list
+        from scoring.phonemes import get_phonemes
+        from config import get_language_code
+
+        # Enrich phrases with phonemes if needed
+        lang_code = get_language_code(language)
+        voice_map = {
+            'Portuguese': 'pt-br',
+            'French': 'fr-fr',
+            'Dutch': 'nl',
+            'German': 'de',
+            'Italian': 'it',
+            'Spanish': 'es',
+            'English': 'en',
+        }
+        voice = voice_map.get(language, 'pt-br')
+
+        vocab_with_phonemes = []
+        for phrase in all_phrases:
+            phrase_copy = dict(phrase)
+            if 'phonemes' not in phrase_copy or not phrase_copy['phonemes']:
+                # Generate phonemes on the fly
+                phrase_copy['phonemes'] = get_phonemes(phrase['text'], voice=voice)
+            vocab_with_phonemes.append(phrase_copy)
+
+        minimal_pairs_phrases = generate_minimal_pair_practice_list(
+            vocab_with_phonemes,
+            max_pairs=20
+        )
+        minimal_pairs_count = len(minimal_pairs_phrases)
+
+    if minimal_pairs_count > 0:
+        if st.button(
+            f"🎯 Load minimal pairs ({minimal_pairs_count})",
+            type="secondary",
+            key="load_minimal_pairs",
+            use_container_width=True,
+            help="Practice word pairs that sound almost identical"
+        ):
+            st.session_state.phrase_list = minimal_pairs_phrases
+            st.session_state.qp_phrase_position = 0
+            st.session_state.quick_last_result = None
+            st.session_state.material_source = f"Minimal Pairs ({language})"
+            st.session_state.qp_materials_expanded = False
+            st.rerun()
+    else:
+        st.info(
+            "No minimal pairs found. Add more vocabulary (at least 2 words) "
+            "to generate minimal pair drills."
+        )
+
 
 def _render_builtin_materials(get_available_languages, get_language_structure,
                                get_file_metadata, load_phrase_file,
@@ -821,6 +885,14 @@ def _render_guided_mode():
                 if phrase_ipa:
                     st.markdown(f"**📚 Reference IPA ({target_lang}):** {format_ipa(phrase_ipa)}", unsafe_allow_html=True)
                     st.caption("Compare with eSpeak IPA generated below")
+                    
+                    # IPA learning tooltip — show key symbols for this language
+                    from ipa.symbols import format_ipa_tooltip
+                    target_code = st.session_state.get('material_language', 'fr')
+                    tooltip_text = format_ipa_tooltip(target_code, max_symbols=5)
+                    if tooltip_text and not tooltip_text.startswith('No quick reference'):
+                        with st.expander("ℹ️ What's this? — IPA symbols explained"):
+                            st.markdown(tooltip_text)
 
         st.markdown(f"#### 🎯 **{current_phrase}**")
         text = current_phrase
