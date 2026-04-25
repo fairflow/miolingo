@@ -10,6 +10,16 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.8.17-claude-dev] - 2026-04-25
+
+### Changed
+
+- Sync FK-cascade fix: stop wiping local-only vocab on every sync.
+- Vocab-tab hint when zero rows match current source pairing.
+- Bulk-upload confirmation now names the (src, tgt) pairing.
+- Tripwire allowlist + markdown escape so __main__ writes don't false-positive.
+
+
 ## [7.8.16-claude-dev] - 2026-04-24
 
 ### Changed
