@@ -1,4 +1,4 @@
-(en, pt)
+(pt, en)
 story | história | [stˈɔːɹɪ]
 straighten | endireita | [stɹˈeɪtən]
 strange | estranha | [stɹˈeɪndʒ]

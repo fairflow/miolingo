@@ -1,4 +1,4 @@
-(en, pt)
+(pt, en)
 erased | apagadas | [ɪɹˈeɪzd]
 escape | fugir | [ɛskˈeɪp]
 essential | essencial | [ɪsˈɛnʃəl]

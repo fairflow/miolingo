@@ -1,4 +1,4 @@
-(en, pt)
+(pt, en)
 mountainous | montanhosa | [mˈaʊntɪnəs]
 mountains | montanhas | [mˈaʊntɪnz]
 much | muita | [mˈʌtʃ]
