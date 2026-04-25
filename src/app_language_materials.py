@@ -431,11 +431,13 @@ def load_phrase_file(file_path_str: str) -> List[Dict]:
     
     phrases = []
     for line in content.split('\n'):
-        line = line.strip()
-        
-        # Skip comments and empty lines
-        if not line or line.startswith('#'):
+        stripped = line.strip()
+
+        # Skip comments, empty lines, and the (source, target) language-pair
+        # header — it is metadata, not a practice phrase.
+        if not stripped or stripped.startswith('#') or is_header_line(stripped):
             continue
+        line = stripped
         
         # Parse format: "phrase | translation | [ipa]"
         if '|' in line:
