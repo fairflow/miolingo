@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.5-claude-dev] - 2026-04-25
+
+### Fixed
+
+- English dictionary files (en/words): corrected header from (en, pt) to (pt, en) — source/target were swapped
+
+
 ## [7.9.4-claude-dev] - 2026-04-25
 
 ### Added
