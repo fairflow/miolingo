@@ -54,16 +54,16 @@ Each section below is **the five-to-ten symbols that will unlock 80% of
 the IPA you see in Miolingo for that target language**. Spend ten minutes
 with one of them and the brackets will start talking to you.
 
-### Brazilian Portuguese 🇧🇷 (the language Miolingo was built for)
+### Brazilian Portuguese 🇧🇷
 
 | Symbol | Sound | Example | English hint |
 |---|---|---|---|
-| `ɐ̃ ẽ ĩ õ ũ` | nasal vowels | *bem* [bẽj̃], *bom* [bõ] | like French *bon*; English has nothing quite like them |
+| `ɐ̃ ẽ ĩ õ ũ` | nasal vowels | *bem* [bẽj̃] well, *bom* [bõ] good | like French *bon*; English has nothing quite like them |
 | `ɛ` vs `e` | open vs closed *e* | *pé* [pɛ] foot, *pês* [pes] | "bed" vs "bay" (ish) |
 | `ɔ` vs `o` | open vs closed *o* | *pó* [pɔ] dust, *pôs* [pos] | "thought" vs "note" |
-| `ʒ` `ʃ` | zh, sh | *já* [ʒa], *chá* [ʃa] | "measure", "shoe" |
-| `dʒ` `tʃ` | palatalised *d*/*t* before *i* | *dia* [ˈdʒiɐ], *tia* [ˈtʃiɐ] | "jeans", "cheap" |
-| `ɲ` `ʎ` | palatal *nh* / *lh* | *manhã* [maˈɲɐ̃], *olho* [ˈoʎu] | Spanish *ñ*, Italian *gl* |
+| `ʒ` `ʃ` | zh, sh | *já* [ʒa] already, *chá* [ʃa] | "measure", "shoe" |
+| `dʒ` `tʃ` | soft *d*/*t* before *i* | *dia* [ˈdʒiɐ] day, *tia* [ˈtʃiɐ] | "jeans", "cheap" |
+| `ɲ` `ʎ` | soft *nh* / *lh* | *manhã* [maˈɲɐ̃] tomorrow, *olho* [ˈoʎu] | Spanish *ñ*, Italian *gl* |
 | `ʁ` vs `ɾ` | strong R / tapped R | *carro* [ˈkaʁu] car, *caro* [ˈkaɾu] dear | French *r* vs Spanish *r* |
 
 There's a much deeper BR Portuguese reference at
@@ -76,7 +76,7 @@ table.
 | Symbol | Sound | Example | Notes |
 |---|---|---|---|
 | `ɑ̃ ɛ̃ ɔ̃ œ̃` | nasal vowels | *blanc*, *vin*, *bon*, *un* | different mouth shapes — not the same vowel nasalised |
-| `ʁ` | French *r* (uvular) | *rouge* [ʁuʒ] | gargled, not rolled |
+| `ʁ` | French *r* (uvular) | *rouge* [ʁuʒ] red | gargled, not rolled |
 | `y` | tight "ee" with rounded lips | *tu* [ty] | say English "ee" then purse lips |
 | `ø` `œ` | rounded front vowels | *peu* [pø], *peur* [pœʁ] | "uh" with rounded lips |
 | `ə` | schwa | *le* [lə] | like the *e* in English "the" |
@@ -118,7 +118,7 @@ closely. Four symbols cover most of what's new:
 | Symbol | Sound | Example | Notes |
 |--------|-------|---------|-------|
 | ɣ x | fricatives | [ɣut], [nɑxt] | Dutch *g*, *ch* |
-| ø y | rounded front vowels | [dœɾ], [nʏ] | unique to Dutch |
+| ø y | rounded front vowels | [dœɾ] *deur* door, [nʏ] *nu* now | unique to Dutch |
 | œy ɛi ʌu | diphthongs | [hœɪs], [mɛɪn], [kʌut] | *huis*, *mijn*, *koud* |
 | ə | schwa | in unstressed syllables |  |
 
@@ -127,7 +127,7 @@ closely. Four symbols cover most of what's new:
 | Symbol | Sound | Example | Notes |
 |--------|-------|---------|-------|
 | ç x | *ich* vs *ach* sounds | different mouth positions | *ich*, *ach* |
-| ʏ œ ø y | rounded front vowels | [ˈmʏnçən], [ˈkœnən] | *München*, *können*, *schön*, *über* |
+| ʏ œ ø y | rounded front vowels | [ˈmʏnçən] München, [ˈkœnən]  | *München*, *können*, *schön*, *über* |
 | ʔ | glottal stop | [ʔaɪnʔapfəl] | before vowels; *ein Apfel* |
 | ə ɐ | schwa reduction | [ˈbɪtɐ] | *-er* ending; *bitter* |
 
