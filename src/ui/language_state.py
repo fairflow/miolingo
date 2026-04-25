@@ -41,9 +41,13 @@ SIDEBAR_OWNED_KEYS: frozenset[str] = frozenset({
 
 # Modules allowed to write these keys. Names compared against the caller's
 # `__name__`, normalised by stripping a leading "src." if present.
+#
+# "__main__" covers `streamlit run src/app.py` — Streamlit assigns
+# ``__name__ = "__main__"`` to the entry script, so writes that live
+# directly in app.py appear under that module rather than "app".
 _LEGITIMATE_WRITERS: frozenset[str] = frozenset({
     "ui.sidebar", "sidebar",
-    "app",
+    "app", "__main__",
     "auth",
 })
 
@@ -115,9 +119,13 @@ def assert_sidebar_owner(key: str) -> None:
     if short in _LEGITIMATE_WRITERS:
         return
 
+    # Wrap both strings in backticks so st.warning()'s markdown renderer
+    # does not mangle underscores — without this, "__main__" shows up in
+    # the banner as "main" (double underscore = bold), which is actively
+    # misleading when diagnosing a tripwire.
     msg = (
-        f"Unexpected write to session key {key!r} from module "
-        f"{caller_mod!r}. The sidebar is the sole owner of language "
+        f"Unexpected write to session key `{key}` from module "
+        f"`{caller_mod}`. The sidebar is the sole owner of language "
         "keys; see the sidebar-ownership plan for details."
     )
     log.warning("[language_state] %s", msg)

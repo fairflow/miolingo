@@ -33,8 +33,17 @@ from sshtunnel import SSHTunnelForwarder
 SYNC_STATE_FILE = Path.home() / ".miolingo" / "last_sync.json"
 
 # Tables and their sync strategies
+#
+# IMPORTANT: never use the ``overwrite`` strategy on a table that other
+# tables reference with ``ON DELETE CASCADE``. ``overwrite`` does
+# ``DELETE FROM <table>`` before re-inserting; the cascade fires during
+# the DELETE and silently nukes child rows. ``users`` is the canonical
+# example — vocab_entries.user_id has ``ON DELETE CASCADE`` referencing
+# users(user_id), so an ``overwrite`` of users wipes every vocab row
+# before the bidirectional vocab sync gets a chance to push local-only
+# rows up. Use ``upsert_remote_to_local`` for parent tables instead.
 SYNC_TABLES = {
-    "users":             {"direction": "remote_to_local", "strategy": "overwrite"},
+    "users":             {"direction": "remote_to_local", "strategy": "upsert_remote_to_local"},
     "user_progress":     {"direction": "bidirectional",   "strategy": "append_by_date"},
     "user_settings":     {"direction": "bidirectional",   "strategy": "last_write_wins"},
     "translation_cache": {"direction": "bidirectional",   "strategy": "insert_ignore"},
@@ -207,10 +216,75 @@ def _get_all_columns(conn, table: str) -> list[str]:
     return [c["Field"] for c in cols]
 
 
+def sync_upsert_remote_to_local(
+    source_conn, dest_conn, table: str, dry_run: bool = False
+) -> dict:
+    """Remote → Local upsert: copy every remote row into local using
+    INSERT … ON DUPLICATE KEY UPDATE. NO ``DELETE`` — this is the safe
+    counterpart to :func:`sync_overwrite` for parent tables that have
+    children referencing them via ``ON DELETE CASCADE``.
+
+    Local-only rows survive (which for ``users`` is exactly what we
+    want during testing — fluffy's local user_id is not a problem if
+    it ever drifts ahead of remote).
+    """
+    stats = {"table": table, "strategy": "upsert_remote_to_local",
+             "rows_upserted": 0, "errors": 0}
+
+    all_cols = _get_all_columns(source_conn, table)
+    col_list = ", ".join(f"`{c}`" for c in all_cols)
+    placeholders = ", ".join(["%s"] * len(all_cols))
+    update_clause = ", ".join(
+        f"`{c}` = VALUES(`{c}`)" for c in all_cols
+    )
+    insert_sql = (
+        f"INSERT INTO `{table}` ({col_list}) "
+        f"VALUES ({placeholders}) "
+        f"ON DUPLICATE KEY UPDATE {update_clause}"
+    )
+
+    src_cur = source_conn.cursor(dictionary=True)
+    src_cur.execute(f"SELECT {col_list} FROM `{table}`")
+    rows = src_cur.fetchall()
+    src_cur.close()
+
+    if dry_run:
+        log.info(f"  [DRY RUN] {table}: would upsert {len(rows)} rows ← remote")
+        return stats
+
+    dest_cur = dest_conn.cursor()
+    for row in rows:
+        try:
+            dest_cur.execute(insert_sql, tuple(row[c] for c in all_cols))
+            if dest_cur.rowcount >= 1:
+                stats["rows_upserted"] += 1
+        except mysql.connector.Error as e:
+            log.warning(
+                f"  {table} upsert error on row "
+                f"{ {k: row.get(k) for k in all_cols[:2]} }: {e}"
+            )
+            stats["errors"] += 1
+    dest_conn.commit()
+    dest_cur.close()
+
+    log.info(
+        f"  {table}: upserted {stats['rows_upserted']} rows ← remote "
+        f"(no DELETE — FK-cascade safe)"
+    )
+    return stats
+
+
 def sync_overwrite(
     source_conn, dest_conn, table: str, dry_run: bool = False
 ) -> dict:
-    """Remote → Local overwrite: truncate dest, copy all from source."""
+    """Remote → Local overwrite: truncate dest, copy all from source.
+
+    DESTRUCTIVE: issues ``DELETE FROM <table>`` before re-inserting.
+    Do NOT use on tables that other tables reference with
+    ``ON DELETE CASCADE`` — the cascade fires during the DELETE and
+    silently wipes child rows. See ``sync_upsert_remote_to_local``
+    for the safe alternative for parent tables.
+    """
     stats = {"table": table, "strategy": "overwrite", "rows_copied": 0}
 
     all_cols = _get_all_columns(source_conn, table)
@@ -595,6 +669,8 @@ def run_sync(full: bool = False, dry_run: bool = False):
 
             if strategy == "overwrite":
                 stats = sync_overwrite(remote_conn, local_conn, table, dry_run)
+            elif strategy == "upsert_remote_to_local":
+                stats = sync_upsert_remote_to_local(remote_conn, local_conn, table, dry_run)
             elif strategy == "append_by_date":
                 DATE_COL_MAP = {
                     "user_progress": "practice_date",

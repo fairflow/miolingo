@@ -187,10 +187,27 @@ def _render_bulk_upload():
                 st.error(f"⚠️ {e}")
                 return
             progress_bar.empty()
-            st.success(
-                f"✅ Imported — {summary['added']} new, "
-                f"{summary['updated']} updated."
-            )
+            # The import stores rows tagged with the file's header source
+            # code (not the sidebar's). When those disagree, the list view
+            # below filters out the fresh rows — which historically looked
+            # like "vocab vanished." Name the stored pairing so the user
+            # can spot the mismatch immediately.
+            header_src = summary.get("header_src_code") or src_code
+            session_src = src_code
+            pairing = f"`({header_src}, {tgt_code})`"
+            if header_src != session_src:
+                st.warning(
+                    f"✅ Imported {summary['added']} new + "
+                    f"{summary['updated']} updated under pairing {pairing}. "
+                    f"Your sidebar source is `{session_src}` — the imported "
+                    "rows will be hidden until you switch the sidebar "
+                    f"source to `{header_src}`."
+                )
+            else:
+                st.success(
+                    f"✅ Imported {summary['added']} new + "
+                    f"{summary['updated']} updated under pairing {pairing}."
+                )
             if summary["skipped_not_single"]:
                 st.warning(
                     f"⚠️ {len(summary['skipped_not_single'])} multi-word rows skipped: "
@@ -568,12 +585,43 @@ def render_vocabulary_tab():
 
     if not rows:
         if search.strip():
-            st.info(f'**\"{search.strip()}\"** not in your vocabulary — add it below.')
+            st.info(f'**\"{search.strip()}\"** not in your vocabulary — add it above.')
         else:
-            st.info(
-                "No vocabulary yet for this language. Add words from the Story Reader, "
-                "Quick Practice, or paste a passage below."
-            )
+            # Before showing the generic empty-state, check whether there
+            # ARE entries for this (user, language) that the current source
+            # filter is hiding. If so, name them — "0 entries" without
+            # explanation is how vocab appears to vanish after a sidebar
+            # source change or a differently-tagged bulk upload.
+            try:
+                breakdown = vocab.list_vocab_source_breakdown(
+                    user_id=_user_id(), language=language
+                )
+            except Exception:
+                breakdown = []
+            current_src = _source_language_code()
+            other = [
+                r for r in breakdown
+                if r["source_language_code"] not in (current_src, None)
+            ]
+            if other:
+                lines = [
+                    f"- **{r['cnt']}** under source `{r['source_language_code']}` → `{_current_language_code()}`"
+                    for r in other
+                ]
+                st.warning(
+                    "No entries match your current source pairing "
+                    f"(**{source_name}** → **{language}**), but other "
+                    "pairings exist for this target language:\n\n"
+                    + "\n".join(lines)
+                    + "\n\nChange the source language in the sidebar to view "
+                    "them, or re-import with a matching `(source, target)` "
+                    "header."
+                )
+            else:
+                st.info(
+                    "No vocabulary yet for this language. Add words from the Story Reader, "
+                    "Quick Practice, or paste a passage above."
+                )
     else:
         for row in rows:
             _render_entry_row(row)
