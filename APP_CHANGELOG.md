@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.1] - 2026-04-25
+
+### Changed
+
+- Debug logging for minimal pairs detection
+
+
 ## [7.9.0] - 2026-04-25
 
 ### Changed
