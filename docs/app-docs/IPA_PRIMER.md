@@ -67,7 +67,7 @@ with one of them and the brackets will start talking to you.
 | `ʁ` vs `ɾ` | strong R / tapped R | *carro* [ˈkaʁu] car, *caro* [ˈkaɾu] dear | French *r* vs Spanish *r* |
 
 There's a much deeper BR Portuguese reference at
-[`language_materials/Portuguese-Grammar-IPA.md`](../../language_materials/Portuguese-Grammar-IPA.md)
+[`language_materials/Portuguese-Grammar-IPA.md.md`](../../language_materials/Portuguese-Grammar-IPA.md.md)
 if you want stress rules, unstressed-vowel reduction, and the full vowel
 table.
 
@@ -75,12 +75,12 @@ table.
 
 | Symbol | Sound | Example | Notes |
 |---|---|---|---|
-| `ɑ̃ ɛ̃ ɔ̃ œ̃` | nasal vowels | *blanc*, *vin*, *bon*, *un* | different mouth shapes — not the same vowel nasalised |
+| `ɑ̃ ɛ̃ ɔ̃ œ̃` | nasal vowels | *blanc* white, *vin* wine, *bon* good, *un* a/one | different mouth shapes — not the same vowel nasalised |
 | `ʁ` | French *r* (uvular) | *rouge* [ʁuʒ] red | gargled, not rolled |
-| `y` | tight "ee" with rounded lips | *tu* [ty] | say English "ee" then purse lips |
-| `ø` `œ` | rounded front vowels | *peu* [pø], *peur* [pœʁ] | "uh" with rounded lips |
+| `y` | tight "ee" with rounded lips | *tu* [ty] you | say English "ee" then purse lips |
+| `ø` `œ` | rounded front vowels | *peu* [pø] a little, *peur* [pœʁ] fear | "uh" with rounded lips |
 | `ə` | schwa | *le* [lə] | like the *e* in English "the" |
-| `ɲ` | palatal *gn* | *gagner* [gaˈɲe] | Italian *gn*, Spanish *ñ* |
+| `ɲ` | palatal *gn* | *gagner* [gaˈɲe] | like "ny" in *canyon*; Italian *gn*, Spanish *ñ* |
 
 ### English 🇬🇧 / 🇺🇸
 
@@ -90,7 +90,7 @@ table.
 | `θ` `ð` | "th" unvoiced / voiced | *think* [θɪŋk], *this* [ðɪs] | different letters in IPA! |
 | `ʃ` `ʒ` | sh / zh | *she* [ʃiː], *measure* [ˈmɛʒə] | |
 | `tʃ` `dʒ` | ch / j | *cheap* [tʃiːp], *job* [dʒɒb] | |
-| `ɪ` `ʊ` | lax *i* / *u* | *kit* [kɪt], *foot* [fʊt] | different from tense `iː uː` |
+| `ɪ` `ʊ` | lax *i* / *u* | *kit* [kɪt], *foot* [fʊt] | shorter and laxer than *ee* / *oo*: *kit* ≠ *key*, *foot* ≠ *food* |
 | `eɪ aɪ aʊ oʊ ɔɪ` | diphthongs | *face, price, mouth, goat, choice* | two vowels in one syllable |
 
 ### Italian 🇮🇹
@@ -107,29 +107,29 @@ closely. Four symbols cover most of what's new:
 
 | Symbol | Sound | Example | Notes |
 |--------|-------|---------|-------|
-| β ð ɣ | between vowels go soft | [saˈβeɾ] | softer *b d g* |
-| ɲ | palatal | [maˈɲana] | Spanish *ñ* |
-| x | fricative | [xaˈmon] | like German *ch* |
-| ɾ vs r | tapped vs rolled | [ˈpeɾo] vs [ˈpeɾːo] | *pero* vs *perro* |
-| ʎ | palatal | [ˈaʎo] | regional; *ll* |
+| β ð ɣ | between vowels go soft | [saˈβeɾ] *saber* to know | softer *b d g* |
+| ɲ | palatal | [maˈɲana] mañana | like "ny" in *canyon*; Spanish *ñ* |
+| x | fricative | [xaˈmon] *jamón* ham | like German *ch* |
+| ɾ vs r | tapped vs rolled | [ˈpeɾo] *pero* but, [ˈperːo] *perro* dog | one tap vs trill |
+| ʎ | palatal *ll* | [ˈaʎo] *allo* garlic | like "lli" in *million*; regional Spain |
 
 ### Dutch 🇳🇱
 
 | Symbol | Sound | Example | Notes |
 |--------|-------|---------|-------|
-| ɣ x | fricatives | [ɣut], [nɑxt] | Dutch *g*, *ch* |
+| ɣ x | fricatives | [ɣut] *goed* good, [nɑxt] *nacht* night | Dutch *g*, *ch* |
 | ø y | rounded front vowels | [dœɾ] *deur* door, [nʏ] *nu* now | unique to Dutch |
-| œy ɛi ʌu | diphthongs | [hœɪs], [mɛɪn], [kʌut] | *huis*, *mijn*, *koud* |
+| œy ɛi ʌu | diphthongs | [hœɪs] *huis* house, [mɛɪn] *mijn* my, [kʌut] *koud* cold | *huis*, *mijn*, *koud* |
 | ə | schwa | in unstressed syllables |  |
 
 ### German 🇩🇪
 
 | Symbol | Sound | Example | Notes |
 |--------|-------|---------|-------|
-| ç x | *ich* vs *ach* sounds | different mouth positions | *ich*, *ach* |
+| ç x | "ch" — two sounds, one spelling | [ˈmʏnçən] München, [ˈbaχ] Bach | ç = soft (after *i/e*, like "hue"); x = hard (after *a/o/u*, like "loch") |
 | ʏ œ ø y | rounded front vowels | [ˈmʏnçən] München, [ˈkœnən]  | *München*, *können*, *schön*, *über* |
-| ʔ | glottal stop | [ʔaɪnʔapfəl] | before vowels; *ein Apfel* |
-| ə ɐ | schwa reduction | [ˈbɪtɐ] | *-er* ending; *bitter* |
+| ʔ | glottal stop | [ʔaɪnʔapfəl] *ein Apfel* an apple | hard reset before each vowel-initial word |
+| ə ɐ | schwa / reduced *-er* | [ˈbɪtɐ] *bitter* bitter | unstressed syllables and *-er* endings |
 
 ---
 
@@ -155,7 +155,7 @@ noticing:
 
 - Interactive IPA chart with audio — [ipachart.app](https://www.ipachart.app/)
 - BR Portuguese deep reference (in this repo) —
-  [`language_materials/Portuguese-Grammar-IPA.md`](../../language_materials/Portuguese-Grammar-IPA.md)
+  [`language_materials/Portuguese-Grammar-IPA.md.md`](../../language_materials/Portuguese-Grammar-IPA.md.md)
 - Wikipedia's *Help:IPA for …* pages are reliable per-language guides.
 
 ---
