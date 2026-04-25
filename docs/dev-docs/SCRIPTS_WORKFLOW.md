@@ -30,9 +30,10 @@ scripts/test_app_starts.sh 8601   # smoke test the app boots
 git add <files>
 git commit -m "fix(scope): concise subject"
 
-# 4. Bump version + tag.  Do NOT pass --push here.
+# 4. Bump version.  Do NOT pass --push here.
 #    --notes is REQUIRED — it's what appears in APP_CHANGELOG.md.
-python scripts/bump_version.py patch --suffix claude-dev --tag \
+#    --tag is for major/minor releases ONLY — never use it for patch bumps.
+python scripts/bump_version.py patch --suffix claude-dev \
   --notes "One-line summary of what this PR actually changes."
 #    --kind added|changed|fixed|removed|deprecated|security (default: changed)
 #    Repeat --notes, or use '\n' in one value, for multiple bullets.
@@ -42,8 +43,9 @@ python scripts/bump_version.py patch --suffix claude-dev --tag \
 # 5. Create the PR.  Script handles branch push + PR creation.
 bash scripts/create-pr.sh --title "fix(scope): concise subject (vX.Y.Z-claude-dev)"
 
-# 6. Push the tag separately.  Safe to do AFTER create-pr.sh because
-#    step 5 set the upstream cleanly; no hook trigger.
+# 6. Push the tag separately — major/minor releases only, not patches.
+#    Must be its own Bash call (not chained with &&) to avoid the
+#    git-push upstream hook mis-firing on the tag push command.
 git push origin vX.Y.Z-claude-dev
 
 # 7. Boot the worktree preview on 8701 via the Preview MCP so
@@ -128,7 +130,7 @@ All scripts live in `scripts/`. Paths shown are relative to the repo root.
 - positional: `app` (default) or `admin` — selects which version file to edit
 - command: `show | major | minor | patch | set X.Y.Z`
 - `--suffix LABEL` — appends `-LABEL` (use `claude-dev` for dev PRs)
-- `--tag` — commits the bump and creates a local annotated tag
+- `--tag` — commits the bump and creates a local annotated tag. **Major/minor only — script will error on patch versions.**
 - `--notes "TEXT"` — **REQUIRED** for any real bump; one line per bullet. Repeatable. Accepts `\n` inside a single value. Lifted verbatim into `APP_CHANGELOG.md`; do not prefix with `-`.
 - `--kind added|changed|fixed|removed|deprecated|security` — changelog heading (default: `changed`).
 - `--no-notes` — opt out of the notes requirement. Reserved for emergency / tooling-only re-tags. **Do not use for feature or fix PRs** — the whole point of the requirement is that "Version bump" entries are useless.
