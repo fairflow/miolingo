@@ -233,7 +233,8 @@ def _render_vocab_materials():
 
         minimal_pairs_phrases = generate_minimal_pair_practice_list(
             vocab_with_phonemes,
-            max_pairs=20
+            max_pairs=20,
+            lang_code=lang_code
         )
         minimal_pairs_count = len(minimal_pairs_phrases)
 

@@ -145,17 +145,18 @@ def _is_minimal_pair(phonemes1: str, phonemes2: str) -> Optional[str]:
     return None
 
 
-def format_minimal_pair_for_practice(pair: Tuple[dict, dict, str]) -> dict:
+def format_minimal_pair_for_practice(pair: Tuple[dict, dict, str], lang_code: str = 'pt') -> dict:
     """
     Format a minimal pair for the practice interface.
 
     Args:
         pair: (word1_dict, word2_dict, difference_description) tuple
+        lang_code: Language code for selecting appropriate 'or' word
 
     Returns:
         Dictionary suitable for Quick Practice phrase list format:
         {
-            'text': combined prompt (words separated by newline),
+            'text': combined prompt (words separated by language-specific 'or'),
             'translation': explanation with actual phoneme difference,
             'ipa': combined IPA (if available),
             'pair': (word1_text, word2_text) for specialized scoring,
@@ -164,8 +165,20 @@ def format_minimal_pair_for_practice(pair: Tuple[dict, dict, str]) -> dict:
     """
     word1, word2, diff_desc = pair
 
-    # Build practice prompt — use newline to avoid "vs" being transcribed
-    text = f"{word1['text']}\n{word2['text']}"
+    # Language-specific 'or' words for natural separation
+    or_words = {
+        'pt': 'ou',
+        'fr': 'ou',
+        'de': 'oder',
+        'es': 'o',
+        'it': 'o',
+        'nl': 'of',
+        'en': 'or',
+    }
+    separator = or_words.get(lang_code, 'ou')
+
+    # Build practice prompt — use language-appropriate 'or' for natural pausing
+    text = f"{word1['text']} {separator} {word2['text']}"
 
     # Build translation/explanation with clearer phoneme difference
     trans_parts = []
@@ -198,7 +211,7 @@ def format_minimal_pair_for_practice(pair: Tuple[dict, dict, str]) -> dict:
     }
 
 
-def generate_minimal_pair_practice_list(vocab_list: List[dict], max_pairs: int = 20) -> List[dict]:
+def generate_minimal_pair_practice_list(vocab_list: List[dict], max_pairs: int = 20, lang_code: str = 'pt') -> List[dict]:
     """
     Generate a ready-to-use practice list from minimal pairs.
 
@@ -207,9 +220,10 @@ def generate_minimal_pair_practice_list(vocab_list: List[dict], max_pairs: int =
     Args:
         vocab_list: User's vocabulary (each entry must have 'text' and 'phonemes')
         max_pairs: Maximum number of pairs to include
+        lang_code: Language code for selecting appropriate 'or' word
 
     Returns:
         List of dicts in Quick Practice phrase format
     """
     pairs = find_minimal_pairs(vocab_list, max_pairs=max_pairs)
-    return [format_minimal_pair_for_practice(pair) for pair in pairs]
+    return [format_minimal_pair_for_practice(pair, lang_code=lang_code) for pair in pairs]
