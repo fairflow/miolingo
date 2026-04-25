@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.6-claude-dev] - 2026-04-25
+
+### Fixed
+
+- bump_version.py now errors if --tag is used on a patch version; SCRIPTS_WORKFLOW.md updated accordingly
+
+
 ## [7.9.5-claude-dev] - 2026-04-25
 
 ### Fixed
