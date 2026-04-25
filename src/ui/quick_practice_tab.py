@@ -207,10 +207,10 @@ def _render_vocab_materials():
 
     if len(all_phrases) >= 2:
         from ipa.minimal_pairs import generate_minimal_pair_practice_list
-        from scoring.phonemes import get_phonemes
+        from scoring.phonemes import get_phonemes, get_ipa
         from config import get_language_code
 
-        # Enrich phrases with phonemes if needed
+        # Enrich phrases with phonemes and IPA if needed
         lang_code = get_language_code(language)
         voice_map = {
             'Portuguese': 'pt-br',
@@ -229,6 +229,9 @@ def _render_vocab_materials():
             if 'phonemes' not in phrase_copy or not phrase_copy['phonemes']:
                 # Generate phonemes on the fly
                 phrase_copy['phonemes'] = get_phonemes(phrase['text'], voice=voice)
+            if 'ipa' not in phrase_copy or not phrase_copy['ipa']:
+                # Generate IPA for highlighting in minimal pairs
+                phrase_copy['ipa'] = get_ipa(phrase['text'], voice=voice)
             vocab_with_phonemes.append(phrase_copy)
 
         minimal_pairs_phrases = generate_minimal_pair_practice_list(
