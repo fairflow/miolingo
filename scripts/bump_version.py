@@ -348,6 +348,16 @@ def main():
     new_full = make_version(new_major, new_minor, new_patch, suffix)
     tag_name = f"{cfg['tag_prefix']}{new_full}"
 
+    # Tags are for major and minor releases only — never patch bumps.
+    if do_tag and new_patch != 0:
+        print(
+            f"Error: --tag is not allowed for patch versions (got {new_full}).\n"
+            "  Tags are reserved for major and minor releases only.\n"
+            "  Remove --tag and push the tag manually after a minor/major bump.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     print(f"📦  {target_name}: {current_full} → {new_full}")
     if suffix:
         print(f"    suffix: -{suffix}")
