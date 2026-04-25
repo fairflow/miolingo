@@ -1,4 +1,4 @@
-(en, pt)
+(pt, en)
 a | uma | [ˈeɪ]
 abandoned | abandonada | [ɐbˈandənd]
 about | cerca | [ɐbˈaʊt]
