@@ -455,6 +455,8 @@ def render_practice_results(result, key_prefix="practice"):
         if target_ipa_no_space and target_ipa_no_space == user_ipa_no_space:
             st.success("🎯 IPA is identical!")
         elif target_ipa_no_space or user_ipa_no_space:
+            # Legend for color-coded diff
+            st.caption("**Legend:** 🟦 Different sound · 🟩 Sound you added · 🟥 Sound missing from target")
 
             def _colorize_diff(target: str, user: str) -> tuple[str, str]:
                 # replace: light blue, insert: light green, delete: light pink.
