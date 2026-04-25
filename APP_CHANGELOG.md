@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.0] - 2026-04-25
+
+### Changed
+
+- Add IPA learning features: quick reference tooltips, color legend in practice results, minimal pairs generation with highlighted phoneme differences
+
+
 ## [7.8.19-claude-dev] - 2026-04-25
 
 ### Added
