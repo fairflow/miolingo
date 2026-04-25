@@ -20,6 +20,7 @@ from scoring.phonemes import format_ipa, get_ipa_from_espeak
 from translation import get_translation_from_llm
 from translation import enrich_material_file
 from config import get_language_code
+from import_header import is_header_line
 from ui.practice_tab import render_practice_interface, render_practice_results
 from ui.sidebar import is_debug
 
@@ -475,7 +476,10 @@ def _render_upload_materials(format_language_name):
         else:
             content = st.session_state[upload_key]
 
-        raw_lines = [line.strip() for line in content.split('\n') if line.strip() and not line.strip().startswith('#')]
+        raw_lines = [
+            s for line in content.split('\n')
+            if (s := line.strip()) and not s.startswith('#') and not is_header_line(s)
+        ]
 
         if len(raw_lines) > MAX_UPLOAD_LINES:
             st.error(f"❌ File too large: {len(raw_lines)} lines (max {MAX_UPLOAD_LINES})")

@@ -15,6 +15,11 @@ just that something changed.
 ### Added
 
 - English dictionary (905 words, (en, pt) header) split into 4 x 250-word files in en/words for IPA and vocabulary testing
+## [7.9.3-claude-dev] - 2026-04-25
+
+### Fixed
+
+- Language-pair header line (e.g. (pt, en)) no longer appears as a practice phrase when loading built-in or uploaded phrase files
 
 
 ## [7.9.1] - 2026-04-25
