@@ -24,6 +24,13 @@ just that something changed.
 - Add IPA learning features: quick reference tooltips, color legend in practice results, minimal pairs generation with highlighted phoneme differences
 
 
+## [7.8.20] - 2026-04-25
+
+### Changed
+
+- Fix minimal pairs phoneme tokenization
+
+
 ## [7.8.19-claude-dev] - 2026-04-25
 
 ### Added
