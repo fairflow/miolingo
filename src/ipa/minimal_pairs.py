@@ -22,6 +22,47 @@ import functools
 import re
 
 
+def _tokenize_espeak_phonemes(phonemes: str) -> List[str]:
+    """
+    Split espeak phoneme string into individual phoneme tokens.
+    
+    Espeak phonemes are not space-separated. We need to tokenize them properly
+    for minimal pair detection. This handles multi-character phonemes and
+    special symbols.
+    
+    Args:
+        phonemes: Espeak phoneme string (e.g. ",akoljed'or")
+    
+    Returns:
+        List of phoneme tokens (e.g. [",", "a", "k", "o", "l", "j", "e", "d", "'", "o", "r"])
+    
+    Examples:
+        >>> _tokenize_espeak_phonemes(",akoljed'or")
+        [',', 'a', 'k', 'o', 'l', 'j', 'e', 'd', "'", 'o', 'r']
+        >>> _tokenize_espeak_phonemes("tS'igUs")
+        ['tS', "'", 'i', 'g', 'U', 's']
+    """
+    if not phonemes:
+        return []
+    
+    tokens = []
+    i = 0
+    while i < len(phonemes):
+        # Multi-character phonemes: tS, dZ, @-, etc.
+        if i + 1 < len(phonemes):
+            two_char = phonemes[i:i+2]
+            if two_char in ('tS', 'dZ', 'dz', 'ts', '@-', '~N', '~n'):
+                tokens.append(two_char)
+                i += 2
+                continue
+        
+        # Single character phoneme
+        tokens.append(phonemes[i])
+        i += 1
+    
+    return tokens
+
+
 def _highlight_ipa_difference(ipa1: str, ipa2: str) -> Tuple[str, str]:
     """
     Highlight the differing phoneme in two IPA strings.
@@ -129,21 +170,21 @@ def _is_minimal_pair(phonemes1: str, phonemes2: str) -> Optional[str]:
     Check if two phoneme strings form a minimal pair (differ by exactly one phoneme).
 
     Args:
-        phonemes1: First phoneme string (whitespace-separated)
-        phonemes2: Second phoneme string (whitespace-separated)
+        phonemes1: First espeak phoneme string (e.g. ",akoljed'or")
+        phonemes2: Second espeak phoneme string (e.g. ",akoljed'ur")
 
     Returns:
         Description of the difference if it's a minimal pair, None otherwise.
 
     Examples:
-        >>> _is_minimal_pair('k a z a', 'k a m a')
-        'z→m at position 3'
-        >>> _is_minimal_pair('k a z a', 'k a m')
+        >>> _is_minimal_pair(",akoljed'or", ",akoljed'ur")
+        'o→u at position 9'
+        >>> _is_minimal_pair(",akoljed'or", ",a'iNd&")
         None  # Length differs by more than 1
     """
-    # Split into phoneme tokens
-    p1 = phonemes1.split()
-    p2 = phonemes2.split()
+    # Tokenize espeak phoneme strings into individual phonemes
+    p1 = _tokenize_espeak_phonemes(phonemes1)
+    p2 = _tokenize_espeak_phonemes(phonemes2)
 
     # Quick length check: must differ by at most 1 phoneme
     if abs(len(p1) - len(p2)) > 1:
