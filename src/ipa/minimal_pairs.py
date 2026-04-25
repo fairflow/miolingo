@@ -16,10 +16,10 @@ The clever part: zero new data authoring — the user's own word list is the
 curriculum.
 """
 
+import random
+import re
 from difflib import SequenceMatcher
 from typing import List, Tuple, Optional
-import functools
-import re
 
 
 def _tokenize_espeak_phonemes(phonemes: str) -> List[str]:
@@ -133,8 +133,24 @@ def find_minimal_pairs(
     pairs = []
     seen_pair_signatures = set()  # Avoid duplicates (A, B) and (B, A)
 
-    # Pre-filter: skip entries without phonemes
-    valid_vocab = [v for v in vocab_list if v.get(phoneme_key)]
+    # Pre-filter: skip entries without phonemes, and require a minimum number
+    # of real phonemes (excluding stress/boundary markers ' , -) so that
+    # single-vowel words like 'a', 'i', 'o' never form a pair.
+    # 4 real phonemes ≈ 2 syllables (CV-CV), which Whisper can recognise.
+    MIN_REAL_PHONEMES = 4
+    PROSODIC = set("',- ")
+
+    def _real_phoneme_count(phoneme_str: str) -> int:
+        return sum(1 for t in _tokenize_espeak_phonemes(phoneme_str) if t not in PROSODIC)
+
+    valid_vocab = [
+        v for v in vocab_list
+        if v.get(phoneme_key) and _real_phoneme_count(v[phoneme_key]) >= MIN_REAL_PHONEMES
+    ]
+
+    # Shuffle so each session surfaces a different random subset of pairs
+    valid_vocab = list(valid_vocab)
+    random.shuffle(valid_vocab)
 
     for i, word1 in enumerate(valid_vocab):
         if len(pairs) >= max_pairs:
@@ -201,15 +217,6 @@ def _is_minimal_pair(phonemes1: str, phonemes2: str) -> Optional[str]:
         return None
 
     tag, i1, i2, j1, j2 = non_equal_ops[0]
-
-    # DEBUG: Log what we're comparing
-    import sys
-    print(f"[MINIMAL PAIR DEBUG] Phoneme comparison:", file=sys.stderr)
-    print(f"  P1: {phonemes1}", file=sys.stderr)
-    print(f"  P2: {phonemes2}", file=sys.stderr)
-    print(f"  Split P1: {p1}", file=sys.stderr)
-    print(f"  Split P2: {p2}", file=sys.stderr)
-    print(f"  Operation: {tag}, spans: p1[{i1}:{i2}]={p1[i1:i2]}, p2[{j1}:{j2}]={p2[j1:j2]}", file=sys.stderr)
 
     # Ensure it's a single-phoneme difference
     if tag == 'replace':
@@ -302,9 +309,8 @@ def format_minimal_pair_for_practice(pair: Tuple[dict, dict, str], lang_code: st
         'text': text,
         'translation': translation,
         'ipa': ipa,
-        'minimal_pair': True,  # Flag for special UI handling
         'pair': (word1['text'], word2['text']),
-        'minimal_pair': True,  # Flag for specialized rendering
+        'minimal_pair': True,
     }
 
 
