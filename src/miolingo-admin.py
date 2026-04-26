@@ -22,6 +22,9 @@ import pandas as pd
 from collections import defaultdict
 import time
 import app_mysql
+import admin_users
+import admin_db_health
+import admin_migrations
 from contextlib import contextmanager
 
 
@@ -183,7 +186,7 @@ if not HOSTED_BY_UNIFIED_ADMIN:
             st.rerun()
 
 # Navigation (tabs deprecated)
-_admin_pages = ["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
+_admin_pages = ["📊 Resource Usage", "👥 Users", "🗄️ DB Health", "🚦 Migrations", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
 if HOSTED_BY_UNIFIED_ADMIN:
     selected_page = st.session_state.get('ua_admin_page', _admin_pages[0])
     if selected_page not in _admin_pages:
@@ -657,6 +660,222 @@ if selected_page == "👥 Users":
             st.cache_resource.clear()
             st.rerun()
 
+    # ========================================================================
+    # User Management — edit / reset password / force-logout / delete / role
+    # ========================================================================
+    st.divider()
+    st.header("🛠️ User Management")
+    st.caption("All actions are logged to ``activity_log`` and (in local mode) "
+               "mirrored to remote.")
+
+    admin_user_id = st.session_state.get('admin_user_id')
+    admin_username = st.session_state.get('admin_username', 'admin')
+
+    search = st.text_input("Search by username or email",
+                           key="admin_user_search",
+                           placeholder="leave blank to list all users")
+    try:
+        all_users = admin_users.list_users(search=search.strip())
+    except Exception as e:
+        st.error(f"Could not list users: {e}")
+        all_users = []
+
+    if not all_users:
+        st.info("No users matched.")
+    else:
+        st.caption(f"{len(all_users)} user(s) shown.")
+        # User picker
+        picker_options = {
+            f"{u['user_id']:>4}  {u['username']}  ({u['email']})": u['user_id']
+            for u in all_users
+        }
+        picked_label = st.selectbox(
+            "Select a user to manage",
+            options=list(picker_options.keys()),
+            key="admin_user_picker",
+        )
+        target_user_id = picker_options[picked_label]
+        u = admin_users.get_user(target_user_id)
+        if not u:
+            st.warning("User not found (may have been deleted).")
+        else:
+            # Status header
+            st.markdown(
+                f"### 👤 {u['username']}  "
+                f"<small style='opacity:0.6'>id={u['user_id']}</small>",
+                unsafe_allow_html=True,
+            )
+            badge_cols = st.columns(4)
+            badge_cols[0].metric("Role", u['role'])
+            badge_cols[1].metric("Active", "yes" if u['is_active'] else "no")
+            badge_cols[2].metric("Email verified",
+                                 "yes" if u['email_verified'] else "no")
+            badge_cols[3].metric("Last login",
+                                 u['last_login'].strftime("%Y-%m-%d %H:%M")
+                                 if u['last_login'] else "never")
+
+            # ── Edit fields ──
+            with st.expander("✏️ Edit fields", expanded=False):
+                new_username = st.text_input("Username", value=u['username'],
+                                             key=f"edit_username_{u['user_id']}")
+                new_email = st.text_input("Email", value=u['email'],
+                                          key=f"edit_email_{u['user_id']}")
+                new_role = st.selectbox(
+                    "Role",
+                    options=["user", "admin"],
+                    index=0 if u['role'] == 'user' else 1,
+                    key=f"edit_role_{u['user_id']}",
+                )
+                new_active = st.checkbox(
+                    "Active", value=bool(u['is_active']),
+                    key=f"edit_active_{u['user_id']}",
+                )
+                new_verified = st.checkbox(
+                    "Email verified", value=bool(u['email_verified']),
+                    key=f"edit_verified_{u['user_id']}",
+                )
+                if st.button("💾 Save changes", key=f"save_edits_{u['user_id']}"):
+                    try:
+                        if new_username != u['username']:
+                            admin_users.update_user_field(
+                                u['user_id'], "username", new_username,
+                                admin_user_id=admin_user_id,
+                                admin_username=admin_username)
+                        if new_email != u['email']:
+                            admin_users.update_user_field(
+                                u['user_id'], "email", new_email,
+                                admin_user_id=admin_user_id,
+                                admin_username=admin_username)
+                        if new_role != u['role']:
+                            admin_users.set_role(
+                                u['user_id'], new_role,
+                                admin_user_id=admin_user_id,
+                                admin_username=admin_username)
+                        if bool(new_active) != bool(u['is_active']):
+                            admin_users.set_active(
+                                u['user_id'], new_active,
+                                admin_user_id=admin_user_id,
+                                admin_username=admin_username)
+                        if bool(new_verified) != bool(u['email_verified']):
+                            admin_users.update_user_field(
+                                u['user_id'], "email_verified",
+                                1 if new_verified else 0,
+                                admin_user_id=admin_user_id,
+                                admin_username=admin_username)
+                        st.success("✅ Saved.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Save failed: {e}")
+
+            # ── Reset password ──
+            with st.popover("🔑 Reset password"):
+                st.warning(f"Reset {u['username']}'s password to a new value?")
+                custom = st.text_input(
+                    "Optional: choose a specific password "
+                    "(leave blank to auto-generate)",
+                    type="password",
+                    key=f"pw_custom_{u['user_id']}",
+                )
+                if st.button("Confirm reset", key=f"pw_confirm_{u['user_id']}",
+                             type="primary"):
+                    try:
+                        new_pw = admin_users.reset_password(
+                            u['user_id'],
+                            admin_user_id=admin_user_id,
+                            admin_username=admin_username,
+                            new_plaintext=custom or None,
+                        )
+                        st.session_state[f"pw_shown_{u['user_id']}"] = new_pw
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Reset failed: {e}")
+
+            shown_pw = st.session_state.get(f"pw_shown_{u['user_id']}")
+            if shown_pw:
+                st.success(
+                    f"🔓 New password for **{u['username']}**: "
+                    f"`{shown_pw}` — copy now, it will not be shown again."
+                )
+                if st.button("Dismiss", key=f"pw_dismiss_{u['user_id']}"):
+                    del st.session_state[f"pw_shown_{u['user_id']}"]
+                    st.rerun()
+
+            # ── Force logout ──
+            with st.popover("🚪 Force logout this user"):
+                st.warning(f"Invalidate every active session for {u['username']}?")
+                if st.button("Confirm force logout",
+                             key=f"flo_confirm_{u['user_id']}",
+                             type="primary"):
+                    try:
+                        n = admin_users.force_logout_user(
+                            u['user_id'],
+                            admin_user_id=admin_user_id,
+                            admin_username=admin_username,
+                        )
+                        st.success(f"✅ Invalidated {n} session(s).")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Force logout failed: {e}")
+
+            # ── Soft delete (deactivate) ──
+            if u['is_active']:
+                with st.popover("⏸️ Deactivate (soft delete)"):
+                    st.info(
+                        f"Deactivate {u['username']}? They keep their data "
+                        "but cannot log in. Reversible."
+                    )
+                    if st.button("Confirm deactivate",
+                                 key=f"sd_confirm_{u['user_id']}",
+                                 type="primary"):
+                        try:
+                            admin_users.soft_delete(
+                                u['user_id'],
+                                admin_user_id=admin_user_id,
+                                admin_username=admin_username,
+                            )
+                            st.success(f"✅ Deactivated {u['username']}.")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"❌ Deactivate failed: {e}")
+            else:
+                if st.button("▶️ Reactivate", key=f"react_{u['user_id']}"):
+                    try:
+                        admin_users.set_active(
+                            u['user_id'], True,
+                            admin_user_id=admin_user_id,
+                            admin_username=admin_username,
+                        )
+                        st.success(f"✅ Reactivated {u['username']}.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Reactivate failed: {e}")
+
+            # ── Hard delete (cascade) ──
+            with st.popover("🗑️ DELETE permanently (cascade)"):
+                st.error(
+                    f"⚠️ This permanently deletes **{u['username']}** and "
+                    "ALL of their data: vocab, progress, settings, sessions, "
+                    "activity log. **NOT REVERSIBLE.**"
+                )
+                hd_acknowledged = st.checkbox(
+                    "I understand this is irreversible",
+                    key=f"hd_ack_{u['user_id']}",
+                )
+                if st.button("Confirm permanent delete",
+                             key=f"hd_confirm_{u['user_id']}",
+                             type="primary",
+                             disabled=not hd_acknowledged):
+                    try:
+                        counts = admin_users.hard_delete(
+                            u['user_id'],
+                            admin_user_id=admin_user_id,
+                            admin_username=admin_username,
+                        )
+                        st.success(f"✅ Deleted {u['username']}. Rows purged: {counts}")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Delete failed: {e}")
+
 # TAB 3: Logs
 if selected_page == "📝 Logs":
     st.header("📝 Recent Logs")
@@ -1011,6 +1230,192 @@ if selected_page == "📢 Announcements":
     
     st.markdown("---")
     st.info("💡 Announcements are cached for 60 seconds. Users will see updates within 1 minute.")
+
+# TAB 6a: DB Health
+if selected_page == "🗄️ DB Health":
+    st.header("🗄️ Database Health")
+    st.caption(
+        "Compares LOCAL and REMOTE schemas, filtering version cosmetics "
+        "(`int` vs `int(11)`, CURRENT_TIMESTAMP, NULL string defaults). "
+        "Real differences mean missing columns/indexes or genuine type drift."
+    )
+
+    if not admin_db_health.local_enabled():
+        st.info(
+            "ℹ️ Local DB is disabled (`local_db.enabled = false` in secrets.toml). "
+            "Showing remote-only view."
+        )
+
+    # Schema diff
+    st.subheader("Schema diff")
+    if st.button("🔍 Run schema comparison", key="db_health_run_diff"):
+        with st.spinner("Comparing schemas..."):
+            try:
+                diffs, n_local, n_remote = admin_db_health.full_diff()
+                st.session_state["db_health_diffs"] = diffs
+                st.session_state["db_health_n_local"] = n_local
+                st.session_state["db_health_n_remote"] = n_remote
+            except Exception as e:
+                st.error(f"❌ Diff failed: {e}")
+
+    if "db_health_diffs" in st.session_state:
+        n_local = st.session_state.get("db_health_n_local", 0)
+        n_remote = st.session_state.get("db_health_n_remote", 0)
+        diffs = st.session_state["db_health_diffs"]
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Tables (local)", n_local)
+        c2.metric("Tables (remote)", n_remote)
+        c3.metric("Real differences", len(diffs),
+                  delta="↻" if len(diffs) == 0 else None,
+                  delta_color="off")
+        if not diffs:
+            st.success("✅ Schemas are functionally identical.")
+        else:
+            df_diffs = pd.DataFrame(diffs)
+            st.dataframe(df_diffs, hide_index=True, use_container_width=True)
+
+    # Row counts
+    st.subheader("Row counts")
+    if st.button("📊 Refresh row counts", key="db_health_run_counts"):
+        with st.spinner("Counting rows..."):
+            try:
+                st.session_state["db_health_counts"] = admin_db_health.row_counts()
+            except Exception as e:
+                st.error(f"❌ Row counts failed: {e}")
+
+    if "db_health_counts" in st.session_state:
+        rows = st.session_state["db_health_counts"]
+        df_rows = pd.DataFrame(rows)
+        st.dataframe(df_rows, hide_index=True, use_container_width=True)
+
+    # Per-user audit
+    st.subheader("Per-user audit")
+    audit_uid = st.number_input("User ID to audit", min_value=1, value=1,
+                                key="db_health_audit_uid")
+    if st.button("🔬 Audit user", key="db_health_run_audit"):
+        with st.spinner(f"Auditing user_id={audit_uid}..."):
+            try:
+                rows = admin_db_health.per_user_audit(int(audit_uid))
+                df_audit = pd.DataFrame(rows)
+                st.dataframe(df_audit, hide_index=True, use_container_width=True)
+            except Exception as e:
+                st.error(f"❌ Audit failed: {e}")
+
+
+# TAB 6b: Migrations
+if selected_page == "🚦 Migrations":
+    st.header("🚦 Migration Runner")
+    st.caption(
+        "Apply `.sql` files from `scripts/` to local, remote, or both. "
+        "Every successful apply is logged to `schema_migrations` on the "
+        "target DB so the same migration isn't run twice unknowingly."
+    )
+
+    sql_files = admin_migrations.list_sql_files()
+    if not sql_files:
+        st.warning("No `.sql` files found under `scripts/`.")
+    else:
+        # File picker
+        labels = {
+            p.relative_to(admin_migrations.SCRIPTS_DIR.parent).as_posix(): p
+            for p in sql_files
+        }
+        chosen_label = st.selectbox(
+            "Migration file",
+            options=list(labels.keys()),
+            key="migr_file_picker",
+        )
+        chosen_path = labels[chosen_label]
+        statements = admin_migrations.split_statements(chosen_path.read_text())
+        checksum = admin_migrations.file_checksum(chosen_path)
+        st.caption(f"Statements: **{len(statements)}** · "
+                   f"checksum: `{checksum[:12]}…`")
+
+        # Already-applied indicators
+        try:
+            applied_local = (
+                admin_migrations.already_applied(chosen_path, "local")
+                if admin_db_health.local_enabled() else False
+            )
+            applied_remote = admin_migrations.already_applied(chosen_path, "remote")
+        except Exception:
+            applied_local = applied_remote = False
+
+        cap_l, cap_r = st.columns(2)
+        cap_l.caption("✅ Applied to local" if applied_local
+                      else "⏳ Not applied to local"
+                      if admin_db_health.local_enabled()
+                      else "— (local disabled)")
+        cap_r.caption("✅ Applied to remote" if applied_remote
+                      else "⏳ Not applied to remote")
+
+        # Dry run
+        with st.expander("👀 Dry run — preview statements", expanded=False):
+            for i, stmt in enumerate(statements, 1):
+                st.code(f"-- [{i}/{len(statements)}]\n{stmt};", language="sql")
+
+        # Target picker
+        target_options = ["remote"]
+        if admin_db_health.local_enabled():
+            target_options = ["both", "local", "remote"]
+        target = st.radio("Target", target_options, horizontal=True,
+                          key="migr_target")
+
+        notes = st.text_input("Optional notes for the audit log",
+                              key="migr_notes")
+
+        # Apply (with popover confirmation)
+        with st.popover("▶️ Apply migration"):
+            st.warning(
+                f"Apply `{chosen_label}` to **{target}**? "
+                "This is real work on the database. Make sure you've "
+                "previewed the statements above."
+            )
+            if st.button("Confirm apply", key="migr_confirm",
+                         type="primary"):
+                applied_by = st.session_state.get('admin_username', 'admin')
+                results = []
+                targets = (
+                    ["local", "remote"] if target == "both" else [target]
+                )
+                for t in targets:
+                    try:
+                        result = admin_migrations.apply_migration(
+                            chosen_path,
+                            target=t,
+                            applied_by=applied_by,
+                            notes=notes or None,
+                        )
+                    except Exception as e:
+                        result = {"target": t, "ok": False, "error": str(e)}
+                    results.append(result)
+                # Render
+                for r in results:
+                    if r.get("ok"):
+                        st.success(
+                            f"✅ {r['target']}: {r.get('count', 0)} statement(s) applied."
+                        )
+                    else:
+                        st.error(f"❌ {r['target']}: {r.get('error')}")
+                # Force re-render of "already applied" badges
+                st.rerun()
+
+        # History
+        st.divider()
+        st.subheader("Recent history")
+        hist_target = st.radio("History target", ["remote", "local"],
+                               horizontal=True, key="migr_hist_target")
+        try:
+            hist = admin_migrations.applied_history(target=hist_target,
+                                                    limit=50)
+        except Exception as e:
+            st.error(f"Could not read history: {e}")
+            hist = []
+        if hist:
+            df_hist = pd.DataFrame(hist)
+            st.dataframe(df_hist, hide_index=True, use_container_width=True)
+        else:
+            st.info("No migrations recorded yet on this target.")
 
 # TAB 6: Settings
 if selected_page == "⚙️ Settings":

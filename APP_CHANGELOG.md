@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.11-claude-dev] - 2026-04-26
+
+### Changed
+
+- Admin app: user CRUD/reset-password/force-logout/delete on Users page; new DB Health tab (schema diff with cosmetic filter, row counts, per-user audit); new Migrations tab (dry-run, apply local/remote/both, schema_migrations audit log).
+
+
 ## [7.9.10-claude-dev] - 2026-04-26
 
 ### Changed

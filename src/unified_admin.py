@@ -162,7 +162,7 @@ with st.sidebar:
 
     # Per-tool navigation lives here (hosted tools read from session state)
     if tool == "Admin Dashboard":
-        admin_pages = ["📊 Resource Usage", "👥 Users", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
+        admin_pages = ["📊 Resource Usage", "👥 Users", "🗄️ DB Health", "🚦 Migrations", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
         st.session_state.ua_admin_page = st.radio(
             "Admin Pages",
             admin_pages,
