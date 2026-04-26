@@ -156,7 +156,6 @@ def capture_vocab_entry(
         ON DUPLICATE KEY UPDATE
             times_seen = times_seen + 1,
             last_seen_at = VALUES(last_seen_at),
-            source_language_code = COALESCE(source_language_code, VALUES(source_language_code)),
             translation   = COALESCE(translation, VALUES(translation)),
             ipa           = COALESCE(ipa, VALUES(ipa)),
             source_name   = COALESCE(source_name, VALUES(source_name)),

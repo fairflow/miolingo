@@ -53,7 +53,9 @@
       "Bash(gh run list *)",
       "Bash(gh run view *)",
       "Bash(bash -n *)",
-      "Bash(zsh -n *)"
+      "Bash(zsh -n *)",
+      "Bash(source * && python scripts/apply_sql.py *)",
+      "Bash(python scripts/apply_sql.py *)"
     ]
   },
   "hooks": {

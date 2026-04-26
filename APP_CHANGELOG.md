@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.9-claude-dev] - 2026-04-26
+
+### Fixed
+
+- vocab_entries unique key now includes source_language_code — (fr, en) and (pt, en) imports of the same word create separate rows instead of colliding
+
+
 ## [7.9.8-claude-dev] - 2026-04-25
 
 ### Added

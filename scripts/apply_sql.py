@@ -77,7 +77,17 @@ def _split_statements(sql: str) -> list[str]:
 
 def _connect_local(secrets: dict):
     import mysql.connector
-    db = secrets["mysql_local"]
+    # Support both [local_db] (current name) and legacy [mysql_local].
+    db = secrets.get("local_db") or secrets["mysql_local"]
+    socket_path = db.get("unix_socket", "")
+    if socket_path:
+        return mysql.connector.connect(
+            unix_socket=socket_path,
+            user=db["user"],
+            password=db["password"],
+            database=db["database"],
+            autocommit=True,
+        )
     return mysql.connector.connect(
         host=db.get("host", "127.0.0.1"),
         port=int(db.get("port", 3306)),
