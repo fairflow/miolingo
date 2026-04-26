@@ -74,6 +74,11 @@
       "Bash(bash -n *)",
       "Bash(zsh -n *)",
 
+      "Bash(/Users/matthew/Software/working/miolingo/venv/bin/pip *)",
+      "Bash(/Users/matthew/Software/working/miolingo/venv/bin/python3 *)",
+      "Bash(/Users/matthew/Software/working/miolingo/venv/bin/python *)",
+      "Bash(/Users/matthew/Software/working/miolingo/venv/bin/pytest *)",
+
       "Bash(/opt/local/bin/gh *)",
       "Bash(gh pr *)",
       "Bash(gh run *)",
