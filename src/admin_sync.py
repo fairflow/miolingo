@@ -34,6 +34,16 @@ class SyncSpec:
     unique_columns:    Tuple[str, ...]
     freshness_column:  Optional[str]   # ``None`` => merge-by-timestamp not supported
     description:       str
+    pk_column:         Optional[str] = None
+    """Auto-increment primary key column to **exclude** from sync.
+
+    When set, this column's values are local to each DB and must not be
+    copied (auto_increment counters drift independently). The sync also
+    falls back to plain ``INSERT`` instead of ``INSERT ... ON DUPLICATE
+    KEY UPDATE``, because tables that need this exclusion typically have
+    no DB-level UNIQUE on ``unique_columns`` — Python-side dedup is the
+    only mechanism, so only the ``skip`` policy is meaningful.
+    """
 
 
 SYNCABLE_TABLES: Dict[str, SyncSpec] = {
@@ -56,6 +66,19 @@ SYNCABLE_TABLES: Dict[str, SyncSpec] = {
         freshness_column="updated_at",
         description="Per-user settings. Already dual-written by the app; "
                     "this is a recovery tool for drift.",
+    ),
+    "user_progress": SyncSpec(
+        table="user_progress",
+        # No DB-level UNIQUE on this combo; Python-side dedup only. Two
+        # practice events at the exact same second by the same user on
+        # the same phrase are treated as identical (vanishingly rare in
+        # practice).
+        unique_columns=("user_id", "language_code", "practice_date", "target_phrase"),
+        freshness_column=None,
+        description="Practice history (immutable events). Append-only — "
+                    "skip policy only. Stats are derived from this table, "
+                    "so syncing practice history brings stats with it.",
+        pk_column="progress_id",
     ),
 }
 
@@ -168,11 +191,20 @@ def preview(table: str, source: str, target: str) -> Dict[str, Any]:
 # ----------------------------------------------------------------------------
 
 def _column_names(conn, table: str) -> List[str]:
+    """Return ordered column names for a table.
+
+    Uses ``SHOW COLUMNS`` so the result set is fully consumed before the
+    cursor closes. The previous ``SELECT * FROM tbl LIMIT 0`` trick read
+    only ``cur.description`` and left an empty result set unconsumed,
+    which mysql-connector treats as "Unread result found" on the next
+    query against the same connection.
+    """
     cur = conn.cursor()
-    cur.execute(f"SELECT * FROM `{table}` LIMIT 0")
-    cols = [d[0] for d in cur.description]
-    cur.close()
-    return cols
+    try:
+        cur.execute(f"SHOW COLUMNS FROM `{table}`")
+        return [row[0] for row in cur.fetchall()]
+    finally:
+        cur.close()
 
 
 def _fetch_all(conn, table: str, columns: List[str]) -> List[Dict[str, Any]]:
@@ -219,6 +251,36 @@ def _executemany_upsert(
         cur.close()
 
 
+def _executemany_insert(
+    conn,
+    table: str,
+    columns: List[str],
+    rows: List[Dict[str, Any]],
+    chunk_size: int = 500,
+) -> None:
+    """Plain ``INSERT`` for tables without a usable DB-level UNIQUE.
+
+    Used by tables registered with a ``pk_column`` in ``SyncSpec``
+    (e.g. ``user_progress``): the auto-increment PK is excluded from the
+    column list so the target assigns its own; duplicates have already
+    been filtered in Python by the caller.
+    """
+    if not rows:
+        return
+    cols_csv = ", ".join(f"`{c}`" for c in columns)
+    placeholders = ", ".join(["%s"] * len(columns))
+    sql = f"INSERT INTO `{table}` ({cols_csv}) VALUES ({placeholders})"
+    cur = conn.cursor()
+    try:
+        for i in range(0, len(rows), chunk_size):
+            chunk = rows[i : i + chunk_size]
+            params = [tuple(r[c] for c in columns) for r in chunk]
+            cur.executemany(sql, params)
+        conn.commit()
+    finally:
+        cur.close()
+
+
 def sync_table(
     table: str,
     *,
@@ -244,6 +306,12 @@ def sync_table(
             f"Table {table!r} has no freshness column; merge-by-timestamp "
             "is not supported for it."
         )
+    if spec.pk_column is not None and policy != "skip":
+        raise ValueError(
+            f"Table {table!r} only supports the 'skip' policy: it has no "
+            "DB-level UNIQUE constraint, so duplicate detection is "
+            "Python-side only and overwrite/merge would create duplicates."
+        )
 
     src = _open(source)
     tgt = _open(target)
@@ -258,6 +326,12 @@ def sync_table(
                 f"Schema drift: unique columns {spec.unique_columns} not all "
                 "present on both sides. Run a schema diff first."
             )
+
+        # Auto-increment PKs (e.g. user_progress.progress_id) are local to
+        # each DB and must NOT be copied — drop them from common_cols so
+        # the target assigns its own value.
+        if spec.pk_column and spec.pk_column in common_cols:
+            common_cols = [c for c in common_cols if c != spec.pk_column]
 
         src_rows = _fetch_all(src, table, common_cols)
 
@@ -280,7 +354,13 @@ def sync_table(
                         to_apply.append(r)
                 # ``skip``: existing row → drop
 
-        _executemany_upsert(tgt, table, common_cols, to_apply)
+        if spec.pk_column is not None:
+            # Append-only path: target has no UNIQUE for the dedup key, so
+            # ON DUPLICATE KEY UPDATE is meaningless. We rely entirely on
+            # the Python-side filter above to keep duplicates out.
+            _executemany_insert(tgt, table, common_cols, to_apply)
+        else:
+            _executemany_upsert(tgt, table, common_cols, to_apply)
 
     finally:
         _close(src)
