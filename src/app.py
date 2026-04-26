@@ -212,8 +212,7 @@ check_authentication()
 # ========================================
 # Show capacity warning to users if system is under high load
 try:
-    pool = app_mysql.get_connection_pool_instance()
-    with pool.get_bootstrap_connection() as capacity_conn:
+    with app_mysql.bootstrap_connection() as capacity_conn:
         cursor = capacity_conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM connection_monitor WHERE status = 'active'")
         active_count = cursor.fetchone()[0]

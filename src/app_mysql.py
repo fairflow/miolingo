@@ -33,6 +33,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any, Tuple
 import json
 import hashlib
+from contextlib import contextmanager
 from sshtunnel import SSHTunnelForwarder
 from pathlib import Path
 import atexit
@@ -72,14 +73,29 @@ pwd_hasher = PasswordHasher(
 # ============================================================================
 # LOCAL vs REMOTE CONNECTION MODE
 # ============================================================================
+#
+# Read once at import time, cached for the process lifetime. Flipping
+# `local_db.enabled` in secrets.toml therefore requires a Streamlit restart
+# — that's intentional. Mid-process flips would silently leave cached
+# connections, pools, and dual-write paths pointing at the wrong DB.
 
-def _is_local_mode() -> bool:
-    """True when running against a local MySQL instance (no SSH tunnel needed)."""
+def _read_local_mode_flag() -> bool:
     try:
         cfg = st.secrets.get("local_db", {})
         return bool(cfg.get("enabled", False))
     except Exception:
         return False
+
+
+_LOCAL_MODE: bool = _read_local_mode_flag()
+
+
+def _is_local_mode() -> bool:
+    """True when running against a local MySQL instance (no SSH tunnel needed).
+
+    Cached at process start — see ``_LOCAL_MODE``.
+    """
+    return _LOCAL_MODE
 
 
 def _get_local_connection() -> mysql.connector.MySQLConnection:
@@ -121,6 +137,66 @@ def _local_conn_alive(conn) -> bool:
         return True
     except Exception:
         return False
+
+
+# ----------------------------------------------------------------------------
+# Dual-write helper (LOCAL → REMOTE mirror)
+# ----------------------------------------------------------------------------
+#
+# When local mode is on, certain tables (`users`, `user_settings`) must be
+# kept in sync with remote so that:
+#   1. Accounts created locally can also log in if local is later disabled.
+#   2. The remote DB remains the canonical user store the app falls back to.
+#
+# Strategy: write to local first (caller does this via the normal session
+# connection), then call ``_mirror_to_remote`` which opens an ephemeral SSH
+# tunnel + connection and runs the same statement. Best-effort — failures
+# log a warning but don't fail the parent operation. If a mirror diverges,
+# the admin tab (PR-2) will surface the discrepancy.
+#
+# In remote mode this function is a no-op.
+
+def _mirror_to_remote(query: str, params: tuple) -> None:
+    """Mirror a write to the remote DB. No-op in remote mode.
+
+    Opens a fresh SSH tunnel + ephemeral connection regardless of the
+    cached `_LOCAL_MODE` flag — that's the whole point of mirroring.
+    Errors are swallowed (warning logged) so the caller's primary write
+    is not affected by remote-side issues.
+    """
+    if not _LOCAL_MODE:
+        return
+
+    tunnel = None
+    conn = None
+    try:
+        pool = get_connection_pool_instance()
+        tunnel = pool.create_ssh_tunnel()
+        conn = mysql.connector.connect(
+            host="127.0.0.1",
+            port=tunnel.local_bind_port,
+            database=pool.secrets["mysql"]["database"],
+            user=pool.secrets["mysql"]["user"],
+            password=pool.secrets["mysql"]["password"],
+            connect_timeout=10,
+        )
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        cursor.close()
+    except Exception as e:
+        logging.warning(f"Dual-write mirror to remote failed (query={query[:60]!r}): {e}")
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        if tunnel is not None:
+            try:
+                tunnel.stop()
+            except Exception:
+                pass
 
 
 # ============================================================================
@@ -430,6 +506,42 @@ def get_connection() -> mysql.connector.MySQLConnection:
     return conn
 
 
+@contextmanager
+def bootstrap_connection():
+    """Local-aware ephemeral MySQL connection.
+
+    Local mode: opens a direct localhost connection (Unix socket if
+    configured, else TCP) and closes it on exit. No tunnel.
+    Remote mode: delegates to ``ConnectionPool.get_bootstrap_connection``,
+    which opens an ephemeral SSH tunnel + MySQL connection.
+
+    Use this — not ``pool.get_bootstrap_connection()`` — anywhere outside
+    the ``ConnectionPool`` itself. Auth, session writes, activity log, and
+    similar short-lived operations need to follow the local-mode flag, and
+    routing them through ``pool.get_bootstrap_connection`` would always hit
+    remote, producing a split-brain (user written locally, session written
+    remotely, login then can't find them).
+
+    Usage:
+        with bootstrap_connection() as conn:
+            cursor = conn.cursor()
+            ...
+    """
+    if _LOCAL_MODE:
+        conn = _get_local_connection()
+        try:
+            yield conn
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+    else:
+        pool = get_connection_pool_instance()
+        with pool.get_bootstrap_connection() as conn:
+            yield conn
+
+
 def get_current_connection_info() -> dict:
     """
     Get information about the current connection and tunnel for display.
@@ -440,6 +552,7 @@ def get_current_connection_info() -> dict:
     if _is_local_mode():
         from datetime import datetime
         return {
+            'db_target': 'LOCAL',
             'tunnel_id': 'local',
             'tunnel_pid': '-',
             'tunnel_port': '-',
@@ -456,7 +569,7 @@ def get_current_connection_info() -> dict:
     conn_info = st.session_state.get('_last_connection_info', {})
 
     if not conn_info:
-        return {}
+        return {'db_target': 'REMOTE'}
     
     from datetime import datetime
     now = datetime.now()
@@ -488,6 +601,7 @@ def get_current_connection_info() -> dict:
         ttl_str = "unknown"
     
     return {
+        'db_target': 'REMOTE',
         'tunnel_id': tunnel_info.get('tunnel_id', 'unknown'),
         'tunnel_pid': tunnel_info.get('pid', 'unknown'),
         'tunnel_port': tunnel_info.get('local_port', 'unknown'),
@@ -610,9 +724,18 @@ def create_guest_user(
         """
         cursor.execute(query, (username, email, password_hash))
         conn.commit()
-        
+
         user_id = cursor.lastrowid
-        
+
+        # Mirror new guest user to remote DB (no-op in remote mode).
+        # Explicit user_id keeps auto_increment in sync across DBs.
+        _mirror_to_remote(
+            "INSERT INTO users (user_id, username, email, password_hash, "
+            "created_at, is_active) VALUES (%s, %s, %s, %s, NOW(), TRUE) "
+            "ON DUPLICATE KEY UPDATE user_id=user_id",
+            (user_id, username, email, password_hash),
+        )
+
         # Log guest account creation (non-critical, swallow errors)
         try:
             log_activity(user_id, "GUEST_CREATED", f"Guest username: {username}", "system")
@@ -673,12 +796,21 @@ def create_user(username: str, email: str, password: str) -> Optional[int]:
         """
         cursor.execute(query, (username, email, password_hash))
         conn.commit()
-        
+
         user_id = cursor.lastrowid
-        
+
+        # Mirror new user to remote (no-op in remote mode). Explicit user_id
+        # keeps auto_increment counters aligned across DBs.
+        _mirror_to_remote(
+            "INSERT INTO users (user_id, username, email, password_hash, "
+            "created_at, is_active) VALUES (%s, %s, %s, %s, NOW(), TRUE) "
+            "ON DUPLICATE KEY UPDATE user_id=user_id",
+            (user_id, username, email, password_hash),
+        )
+
         # Log account creation
         log_activity(user_id, "USER_CREATED", f"Username: {username}, Email: {email}", "system")
-        
+
         return user_id
         
     except Error as e:
@@ -713,11 +845,10 @@ def authenticate_user(username: str, password: str) -> Optional[Dict]:
         User dict {user_id, username, email} if successful, None if failed
     """
     # CRITICAL: Use bootstrap connection for authentication
-    # This prevents creating tracked connections for failed login attempts
-    pool = get_connection_pool_instance()
-    
+    # This prevents creating tracked connections for failed login attempts.
+    # Local-aware: routes to LOCAL DB when local mode is on.
     try:
-        with pool.get_bootstrap_connection() as conn:
+        with bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             
             query = """
@@ -747,6 +878,12 @@ def authenticate_user(username: str, password: str) -> Optional[Dict]:
                 cursor.execute("UPDATE users SET last_login = NOW() WHERE user_id = %s", (user['user_id'],))
                 conn.commit()
                 cursor.close()
+
+                # Mirror last_login to remote (no-op in remote mode).
+                _mirror_to_remote(
+                    "UPDATE users SET last_login = NOW() WHERE user_id = %s",
+                    (user['user_id'],),
+                )
                 
                 # Log successful login
                 log_activity(user['user_id'], "LOGIN_SUCCESS", f"Username: {username}", "system", use_bootstrap=True)
@@ -851,9 +988,8 @@ def touch_session(session_id: str) -> bool:
             cursor.close()
             return True
 
-        # Otherwise use a bootstrap connection.
-        pool = get_connection_pool_instance()
-        with pool.get_bootstrap_connection() as bootstrap:
+        # Otherwise use a bootstrap connection (local-aware).
+        with bootstrap_connection() as bootstrap:
             cursor = bootstrap.cursor()
             cursor.execute(
                 """
@@ -887,18 +1023,16 @@ def create_session(
     Returns:
         session_id (32-byte secure token) if successful, None if failed
     """
-    # CRITICAL: Use bootstrap connection for session creation
-    # User doesn't have a tracked connection yet at this point
-    pool = get_connection_pool_instance()
-    
+    # CRITICAL: Use bootstrap connection for session creation (local-aware).
+    # User doesn't have a tracked connection yet at this point.
     try:
         # Generate cryptographically secure session ID
         session_id = secrets.token_urlsafe(32)
-        
+
         # Sliding expiration (inactivity window)
         expires_at = datetime.now() + timedelta(days=get_session_inactivity_days())
-        
-        with pool.get_bootstrap_connection() as conn:
+
+        with bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
 
             # Get username if not provided
@@ -967,12 +1101,10 @@ def validate_session(session_id: str, ip_address: str = "unknown") -> Optional[D
     Returns:
         User dict if session valid, None if invalid/expired
     """
-    # CRITICAL: Use bootstrap connection for session validation
-    # We don't want to create a tracked connection if session is invalid
-    pool = get_connection_pool_instance()
-    
+    # CRITICAL: Use bootstrap connection for session validation (local-aware).
+    # We don't want to create a tracked connection if session is invalid.
     try:
-        with pool.get_bootstrap_connection() as conn:
+        with bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             
             query = """
@@ -1212,15 +1344,18 @@ def save_user_setting(user_id: int, key: str, value: Any) -> bool:
         """
         cursor.execute(query, (user_id, key, value_json, value_json))
         conn.commit()
-        
+
+        # Mirror to remote (no-op in remote mode).
+        _mirror_to_remote(query, (user_id, key, value_json, value_json))
+
         return True
-        
+
     except Error as e:
         if conn:
             conn.rollback()
         st.error(f"❌ Failed to save setting: {e}")
         return False
-    
+
 
 def delete_user_setting(user_id: int, key: str) -> bool:
     """Delete a specific setting for a user."""
@@ -1228,13 +1363,16 @@ def delete_user_setting(user_id: int, key: str) -> bool:
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        
+
         query = "DELETE FROM user_settings WHERE user_id = %s AND setting_key = %s"
         cursor.execute(query, (user_id, key))
         conn.commit()
-        
+
+        # Mirror to remote (no-op in remote mode).
+        _mirror_to_remote(query, (user_id, key))
+
         return True
-        
+
     except Error as e:
         if conn:
             conn.rollback()
@@ -1793,8 +1931,8 @@ def log_activity(
     try:
         if use_bootstrap:
             # Use bootstrap connection for authentication-related logging
-            pool = get_connection_pool_instance()
-            with pool.get_bootstrap_connection() as conn:
+            # (local-aware).
+            with bootstrap_connection() as conn:
                 cursor = conn.cursor()
                 query = """
                     INSERT INTO activity_log (user_id, action, details, ip_address, timestamp)
@@ -1861,9 +1999,9 @@ def get_active_announcements(location: str = 'both') -> Dict[str, Optional[str]]
         Dict with 'system' and 'feature' keys containing message strings or None
     """
     try:
-        # Use bootstrap connection - this is called from login page before authentication
-        pool = get_connection_pool_instance()
-        with pool.get_bootstrap_connection() as conn:
+        # Use bootstrap connection (local-aware) — called from login page
+        # before authentication.
+        with bootstrap_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             
             # Query for system announcement
