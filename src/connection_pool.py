@@ -397,6 +397,12 @@ class ConnectionPool:
         Context manager for TRULY EPHEMERAL MySQL connection.
         Creates temporary tunnel → connection → automatically closes both.
 
+        REMOTE-ONLY by design — for local-aware ephemeral connections use
+        ``app_mysql.bootstrap_connection()`` instead. This pool method
+        always opens an SSH tunnel; it must remain that way so internal
+        pool bookkeeping (tunnel/connection registries on remote) keeps
+        working regardless of the app's local-mode flag.
+
         CRITICAL: Prevents tunnel proliferation (125 SSH tunnel limit).
 
         Usage:
@@ -407,7 +413,7 @@ class ConnectionPool:
         """
         tunnel = self.create_ssh_tunnel()
         conn = None
-        
+
         try:
             conn = mysql.connector.connect(
                 host='127.0.0.1',

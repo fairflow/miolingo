@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.10-claude-dev] - 2026-04-26
+
+### Changed
+
+- Auth local-routing fix: bootstrap_connection() context manager (local-aware), dual-write users/user_settings to remote in local mode, debug-only LOCAL/REMOTE indicator.
+
+
 ## [7.9.9-claude-dev] - 2026-04-26
 
 ### Fixed

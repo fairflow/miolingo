@@ -49,6 +49,15 @@ def render_user_panel():
         if is_debug():
             conn_info = app_mysql.get_current_connection_info()
             with st.expander("🔌 Connection Info", expanded=False):
+                # DB target indicator (LOCAL vs REMOTE) — first thing shown
+                # so split-brain bugs are spotted at a glance.
+                db_target = (conn_info or {}).get('db_target', 'REMOTE')
+                if db_target == 'LOCAL':
+                    st.success(f"🏠 **DB target:** {db_target} (Unix socket, no tunnel)")
+                else:
+                    st.info(f"🌐 **DB target:** {db_target} (SSH tunnel)")
+                st.caption("---")
+
                 if conn_info:
                     st.caption(f"**Tunnel:** `{conn_info['tunnel_id']}` (PID: {conn_info['tunnel_pid']}, Port: {conn_info['tunnel_port']})")
                     st.caption(f"**Created:** {conn_info['tunnel_created']}")
