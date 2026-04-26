@@ -22,7 +22,7 @@ import streamlit as st
 
 import app_mysql
 
-__version__ = "1.0.1-claude-dev"
+__version__ = "1.0.2-claude-dev"
 
 
 REFRESH_INTERVAL_MINUTES = 5
@@ -162,7 +162,7 @@ with st.sidebar:
 
     # Per-tool navigation lives here (hosted tools read from session state)
     if tool == "Admin Dashboard":
-        admin_pages = ["📊 Resource Usage", "👥 Users", "🗄️ DB Health", "🚦 Migrations", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
+        admin_pages = ["📊 Resource Usage", "👥 Users", "🗄️ DB Health", "🔁 Sync", "🚦 Migrations", "🔌 Connections", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
         st.session_state.ua_admin_page = st.radio(
             "Admin Pages",
             admin_pages,

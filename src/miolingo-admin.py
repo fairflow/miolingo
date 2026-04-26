@@ -25,6 +25,8 @@ import app_mysql
 import admin_users
 import admin_db_health
 import admin_migrations
+import admin_sync
+import admin_connections
 from contextlib import contextmanager
 
 
@@ -186,7 +188,7 @@ if not HOSTED_BY_UNIFIED_ADMIN:
             st.rerun()
 
 # Navigation (tabs deprecated)
-_admin_pages = ["📊 Resource Usage", "👥 Users", "🗄️ DB Health", "🚦 Migrations", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
+_admin_pages = ["📊 Resource Usage", "👥 Users", "🗄️ DB Health", "🔁 Sync", "🚦 Migrations", "🔌 Connections", "📝 Logs", "📧 Email", "📢 Announcements", "⚙️ Settings"]
 if HOSTED_BY_UNIFIED_ADMIN:
     selected_page = st.session_state.get('ua_admin_page', _admin_pages[0])
     if selected_page not in _admin_pages:
@@ -1416,6 +1418,229 @@ if selected_page == "🚦 Migrations":
             st.dataframe(df_hist, hide_index=True, use_container_width=True)
         else:
             st.info("No migrations recorded yet on this target.")
+
+# TAB 6c: Sync
+if selected_page == "🔁 Sync":
+    st.header("🔁 Selective Table Sync")
+    st.caption(
+        "Copy rows between LOCAL and REMOTE for whitelisted tables only. "
+        "Three policies: **skip** (only insert missing rows), **overwrite** "
+        "(replace existing rows), **merge-by-timestamp** (apply only when "
+        "the source row's freshness column is newer)."
+    )
+
+    if not admin_db_health.local_enabled():
+        st.info(
+            "ℹ️ Local DB is disabled (`local_db.enabled = false` in secrets.toml). "
+            "Sync needs both DBs."
+        )
+    else:
+        # Pickers
+        sync_table_choice = st.selectbox(
+            "Table",
+            options=list(admin_sync.SYNCABLE_TABLES.keys()),
+            format_func=lambda t: f"{t} — {admin_sync.SYNCABLE_TABLES[t].description}",
+            key="sync_table",
+        )
+        sync_dir = st.radio(
+            "Direction",
+            options=["LOCAL → REMOTE", "REMOTE → LOCAL"],
+            horizontal=True,
+            key="sync_dir",
+        )
+        source = "local" if sync_dir.startswith("LOCAL") else "remote"
+        target = "remote" if source == "local" else "local"
+
+        spec = admin_sync.SYNCABLE_TABLES[sync_table_choice]
+        policy_options = ["skip", "overwrite"]
+        if spec.freshness_column:
+            policy_options.append("merge-by-timestamp")
+        sync_policy = st.radio(
+            "Conflict policy",
+            options=policy_options,
+            horizontal=True,
+            key="sync_policy",
+        )
+        if sync_policy == "merge-by-timestamp":
+            st.caption(f"Freshness column for `{sync_table_choice}`: "
+                       f"`{spec.freshness_column}`")
+
+        # Preview
+        if st.button("👀 Preview", key="sync_preview"):
+            with st.spinner("Counting rows + overlap..."):
+                try:
+                    p = admin_sync.preview(
+                        sync_table_choice,
+                        source=source, target=target,
+                    )
+                    st.session_state["sync_preview_data"] = p
+                except Exception as e:
+                    st.error(f"❌ Preview failed: {e}")
+
+        if "sync_preview_data" in st.session_state:
+            p = st.session_state["sync_preview_data"]
+            cols = st.columns(5)
+            cols[0].metric(f"{source.upper()} rows",  p["source_count"])
+            cols[1].metric(f"{target.upper()} rows",  p["target_count"])
+            cols[2].metric("Overlap (UK match)",     p["overlap"])
+            cols[3].metric(f"{source.upper()}-only", p["source_only"])
+            cols[4].metric(f"{target.upper()}-only", p["target_only"])
+
+        # Apply
+        with st.popover("🔁 Run sync"):
+            st.warning(
+                f"Sync `{sync_table_choice}` from **{source.upper()}** to "
+                f"**{target.upper()}** with policy **{sync_policy}**?"
+            )
+            sync_ack = st.checkbox(
+                "I've previewed the counts above and want to proceed",
+                key=f"sync_ack_{sync_table_choice}_{source}_{target}_{sync_policy}",
+            )
+            if st.button("Confirm sync", key="sync_confirm",
+                         type="primary",
+                         disabled=not sync_ack):
+                with st.spinner(f"Syncing {sync_table_choice}..."):
+                    try:
+                        result = admin_sync.sync_table(
+                            sync_table_choice,
+                            source=source, target=target,
+                            policy=sync_policy,
+                        )
+                        st.success(
+                            f"✅ {result['table']}: selected {result['selected']}, "
+                            f"applied {result['applied']}, skipped "
+                            f"{result['skipped']} ({result['policy']})."
+                        )
+                        # Clear stale preview
+                        if "sync_preview_data" in st.session_state:
+                            del st.session_state["sync_preview_data"]
+                    except Exception as e:
+                        st.error(f"❌ Sync failed: {e}")
+
+
+# TAB 6d: Connections
+if selected_page == "🔌 Connections":
+    st.header("🔌 Connection Diagnostics")
+    st.caption(
+        "Live view of SSH tunnels, MySQL connections, and active sessions. "
+        "Reads from `tunnel_monitor`, `connection_monitor`, `sessions` on "
+        "the **remote** DB."
+    )
+
+    if admin_db_health.local_enabled():
+        st.info(
+            "ℹ️ Local mode is on, so the app isn't using SSH tunnels for its "
+            "regular work. Diagnostics still query remote — what you see "
+            "here is whoever else (8501, other admins) is connected to remote."
+        )
+
+    # Pool capacity snapshot
+    if st.button("📊 Refresh pool snapshot", key="conn_refresh_pool"):
+        try:
+            st.session_state["conn_pool_snapshot"] = admin_connections.pool_capacity()
+        except Exception as e:
+            st.error(f"❌ Snapshot failed: {e}")
+
+    if "conn_pool_snapshot" in st.session_state:
+        s = st.session_state["conn_pool_snapshot"]
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric(
+            "Active connections",
+            f"{s['active_connections']}/{s['max_total']}",
+            delta=f"{s['capacity_pct']:.0f}% capacity",
+            delta_color="off" if s["capacity_pct"] < 75 else "normal",
+        )
+        c2.metric("Active tunnels", s["active_tunnels"])
+        c3.metric("Sessions w/ conns", s["sessions_with_connections"])
+        c4.metric(
+            "Status",
+            "⚠️ HIGH" if s["over_soft_limit"]
+            else ("⚡ BUSY" if s["capacity_pct"] > 75 else "✅ OK"),
+            delta=f"{s['headroom']} available",
+            delta_color="inverse" if s["over_soft_limit"] else "off",
+        )
+
+    # Tunnels
+    st.subheader("SSH tunnels")
+    if st.button("Refresh tunnels", key="conn_refresh_tunnels"):
+        try:
+            st.session_state["conn_tunnels"] = admin_connections.list_tunnels()
+        except Exception as e:
+            st.error(f"❌ Tunnel list failed: {e}")
+    if "conn_tunnels" in st.session_state:
+        tunnels = st.session_state["conn_tunnels"]
+        if tunnels:
+            st.dataframe(pd.DataFrame(tunnels), hide_index=True,
+                         use_container_width=True)
+        else:
+            st.info("No tunnels recorded.")
+
+    # Sessions per user/app
+    st.subheader("Active sessions per (user, app)")
+    if st.button("Refresh sessions", key="conn_refresh_sessions"):
+        try:
+            st.session_state["conn_sessions"] = admin_connections.sessions_per_user()
+        except Exception as e:
+            st.error(f"❌ Session list failed: {e}")
+    if "conn_sessions" in st.session_state:
+        sessions = st.session_state["conn_sessions"]
+        if sessions:
+            st.dataframe(pd.DataFrame(sessions), hide_index=True,
+                         use_container_width=True)
+        else:
+            st.info("No active sessions.")
+
+    # Live connections
+    with st.expander("All active MySQL connections (raw)", expanded=False):
+        if st.button("Refresh connections", key="conn_refresh_active"):
+            try:
+                st.session_state["conn_active"] = admin_connections.list_active_connections()
+            except Exception as e:
+                st.error(f"❌ Active connection list failed: {e}")
+        if "conn_active" in st.session_state:
+            active = st.session_state["conn_active"]
+            if active:
+                st.dataframe(pd.DataFrame(active), hide_index=True,
+                             use_container_width=True)
+            else:
+                st.info("No active connections.")
+
+    # Cleanup actions
+    st.subheader("Cleanup")
+    cleanup_col1, cleanup_col2 = st.columns(2)
+
+    with cleanup_col1:
+        with st.popover("🧹 Purge stale connection rows"):
+            st.warning(
+                "Delete rows from `connection_monitor` that are **closed** "
+                "or have been idle for the last 12 hours."
+            )
+            if st.button("Confirm purge", key="conn_purge_confirm",
+                         type="primary"):
+                try:
+                    n = admin_connections.cleanup_stale_connections(stale_hours=12)
+                    st.success(f"✅ Deleted {n} stale connection row(s).")
+                except Exception as e:
+                    st.error(f"❌ Purge failed: {e}")
+
+    with cleanup_col2:
+        with st.popover("⚰️ Mark dead tunnels"):
+            st.warning(
+                "Check every active/idle tunnel's PID; mark `tunnel_monitor` "
+                "rows whose process no longer exists as `dead`. Does NOT "
+                "touch live tunnels."
+            )
+            if st.button("Confirm scan", key="conn_dead_confirm",
+                         type="primary"):
+                try:
+                    r = admin_connections.kill_dead_tunnels()
+                    st.success(
+                        f"✅ Checked {r['checked']} tunnel(s); "
+                        f"marked {r['marked_dead']} as dead."
+                    )
+                except Exception as e:
+                    st.error(f"❌ Scan failed: {e}")
+
 
 # TAB 6: Settings
 if selected_page == "⚙️ Settings":
