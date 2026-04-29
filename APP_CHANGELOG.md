@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.12-claude-dev] - 2026-04-26
+
+### Changed
+
+- fix(admin-sync): unread-result + add user_progress
+
+
 ## [7.9.11-claude-dev] - 2026-04-26
 
 ### Changed
