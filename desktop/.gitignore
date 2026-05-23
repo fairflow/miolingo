@@ -17,3 +17,9 @@ dist/
 *.sqlite3
 secrets.toml
 .env
+
+# The repo-root .gitignore has a broad `config.*` pattern (for the Streamlit
+# app's practice_config.json etc.) which silently swallows our source module
+# desktop/miolingo_desktop/core/config.py. Re-include it explicitly here so it
+# is tracked. (gitignore: a more specific negation can re-include a file.)
+!miolingo_desktop/core/config.py

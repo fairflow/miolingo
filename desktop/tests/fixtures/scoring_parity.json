@@ -1,0 +1,10 @@
+{
+  "_doc": "Regression fixtures locking the ported scoring to known-good output. Each case: (user_phonemes_normalized, correct_phonemes_normalized) -> [exact_match, similarity, edit_distance]. Values use the edit-distance algorithm copied verbatim from src/scoring/comparison.py. Only cases with hand-verifiable, certain values are hardcoded here; the companion test ALSO cross-checks the ported algorithm against an independent reference Levenshtein over a broader (incl. multi-edit / unicode) set, so parity is provable without trusting hand-computed edit distances. Audio->phoneme extraction is covered by manual tests (needs espeak + a recording).",
+  "cases": [
+    {"user": "bcurz", "correct": "bcurz", "exact": true, "similarity": 1.0, "distance": 0},
+    {"user": "bcur", "correct": "bcurz", "exact": false, "similarity": 0.8, "distance": 1},
+    {"user": "kat", "correct": "kut", "exact": false, "similarity": 0.6666666666666667, "distance": 1},
+    {"user": "", "correct": "abc", "exact": false, "similarity": 0.0, "distance": 3},
+    {"user": "obrigadu", "correct": "obrigado", "exact": false, "similarity": 0.875, "distance": 1}
+  ]
+}
