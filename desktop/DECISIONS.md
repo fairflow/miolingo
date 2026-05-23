@@ -261,6 +261,19 @@ selects material codes but ASR/TTS key on names).
 **Reasoning:** One normaliser at the seam beats threading the distinction
 through the UI.
 
+### 2026-05-23 (M6) — Statistics: pure aggregators + QtCharts (graceful fallback)
+**Decision:** Aggregation lives in pure `core/statistics.py`
+(`summarise_by_language`, `accuracy_trend`, `overall_average`) returning
+NamedTuples; the view turns them into a summary table + a QtCharts line chart.
+QtCharts is imported lazily and, if absent (it's an optional Qt module), the
+trend degrades to a table.
+**Reasoning:** Pure aggregators are fully unit-testable headlessly (the chance
+to actually build the stats Streamlit never finished); QtCharts ships with
+PySide6 and avoids a matplotlib dependency, but the fallback keeps the smoke
+test and packaging robust if a given build lacks the module.
+**Alternatives:** matplotlib canvas (extra heavy dep); compute in the widget
+(untestable).
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.
