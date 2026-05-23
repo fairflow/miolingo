@@ -61,9 +61,10 @@ SQLite persistence, sync-ready schema. No UI yet.
 The proof-of-concept PR. One language, the full loop, real audio, persisted.
 
 - `ui/practice_view.py`: select language + phrase, play target audio (Piper —
-  bundle at least one voice now, M5 completes coverage), record mic input,
-  run Whisper transcription **off the UI thread**, show score + edit feedback,
-  save the attempt to SQLite.
+  bundle at least one voice now, M7 completes coverage), record mic input,
+  run Whisper transcription (default model **`medium`**, downloaded on first
+  run with progress) **off the UI thread**, show score + edit feedback, save
+  the attempt to SQLite.
 - Wire `core/` + `data/` together behind a small app controller.
 - Threading: `QThreadPool`/worker for transcription + TTS; progress + cancel.
 - **Tests:** Qt smoke test of the view (offscreen); an integration test that
@@ -118,9 +119,11 @@ Build what Streamlit never finished.
 
 - `packaging/build_macos.py` + PyInstaller spec. Bundle Python, Qt, Whisper
   `base` model, ffmpeg, Piper voices, and `language_materials/`.
-- Signing/notarization scripted but **gated on Apple Developer ID**: if absent,
-  produce an unsigned `.app`/`.dmg` and document the exact signing/notarize
-  steps in `packaging/SIGNING.md` + QUESTIONS.md.
+- Whisper `medium` is **not** bundled (~1.5 GB); it downloads on first run with
+  a progress UI and caches locally. Bundle ffmpeg, Qt, Piper voices, content.
+- Signing/notarization scripted; Matthew expects to provide an Apple Developer
+  ID. If absent at build time, produce an unsigned `.app`/`.dmg` and document
+  the exact signing/notarize steps in `packaging/SIGNING.md` + QUESTIONS.md.
 - **Tests:** a build smoke check that the produced bundle launches and the DB
   initializes (best-effort in cloud; document if it must be verified on a Mac).
 - **Acceptance:** `python packaging/build_macos.py` yields a launchable bundle;
@@ -134,7 +137,9 @@ Build what Streamlit never finished.
   scaffolding makes it cheap; otherwise post-v1. Confirm with Matthew.
 - **Online premium TTS** (Google Cloud) beyond the fallback hook in M7.
 - **LLM/DeepL translation** aid.
-- **Cloud sync** — schema is sync-ready (M2); mechanism unresolved (QUESTIONS).
+- **Cloud sync (fast-follow)** — schema is sync-ready (M2); target is Matthew's
+  own remote DB via an **end-of-session batch push**. v1 may stub a session-end
+  export; full push needs the endpoint/credentials (QUESTIONS).
 - **Auto-update (Sparkle)**, **Windows/Linux builds**.
 
 ## Sequencing rationale

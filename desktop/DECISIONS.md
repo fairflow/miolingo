@@ -76,6 +76,35 @@ Phase 1 a clean, self-contained working directory; avoids clobbering the
 critical Streamlit/DB rules in the root `CLAUDE.md`.
 **Made by planning agent (Phase 0).**
 
+### 2026-05-23 (rev) — Whisper default = `medium`, downloaded on first run
+**Decision:** Default Whisper model is **`medium`** (not `base`). Not bundled
+(~1.5 GB); downloaded on first run with progress and cached locally so the app
+is offline thereafter. Model size adjustable in settings (down to `base`).
+**Reasoning:** Matthew uses `medium` — `base` accuracy is not good enough, and
+an inaccurate transcript compromises the whole practice/scoring cycle. Accuracy
+beats size/speed here. Bundling 1.5 GB would bloat the `.dmg`, so
+download-on-first-run is the better trade. Use Apple-Silicon accel where
+possible to offset the slower model.
+**Alternatives:** bundle `medium` (huge `.dmg`); keep `base` (rejected on
+accuracy). **Supersedes the earlier `base` decision; chosen by Matthew.**
+
+### 2026-05-23 (rev) — Cloud sync target = Matthew's own DB, end-of-session push
+**Decision:** Sync (a fast-follow, not core v1) pushes local data to Matthew's
+own existing remote DB as a **batch at the end of a session**, not live. v1
+keeps the schema sync-ready and may stub a session-end export.
+**Reasoning:** Matthew confirmed syncing to his own DB at session end is
+feasible — resolves the "no custom backend" concern (he already has the DB).
+Batch-at-session-end is simpler and avoids per-write coupling.
+**Alternatives:** live sync (more complex); BaaS/WordPress endpoint (unneeded —
+he has his own DB). **Chosen by Matthew.**
+
+### 2026-05-23 (rev) — Apple Developer ID expected to be available
+**Decision:** Plan for a signed/notarized `.dmg`; build scripts assume an Apple
+Developer ID is provided. Keep an unsigned-build fallback + documented signing
+steps if the cert isn't present at build time.
+**Reasoning:** Matthew says he can likely obtain a signed Apple ID.
+**Chosen by Matthew (tentative — "possibly").**
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.

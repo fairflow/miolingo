@@ -85,8 +85,9 @@ Python sidecar = most moving parts, hardest to run autonomously); Flutter
 - The admin dashboard (`src/miolingo-admin.py`, `src/admin_mysql.py`) — server
   ops, not relevant to a distributed desktop app.
 - wav2vec2 ASR (Portuguese-only, heavy) — Whisper covers all languages.
-- Cloud sync **implementation** (schema must be sync-ready; sync itself is
-  post-v1 — see §6 and QUESTIONS.md).
+- Full cloud-sync **implementation** is a fast-follow, not core v1 (schema must
+  be sync-ready; target is Matthew's own DB via end-of-session batch push — see
+  §6 and QUESTIONS.md). v1 may stub a session-end export.
 - Auto-update (manual download for v1).
 - Windows/Linux builds.
 
@@ -101,8 +102,13 @@ Python sidecar = most moving parts, hardest to run autonomously); Flutter
   supplies credentials and is online. Off by default.
 - The TTS dispatcher must degrade gracefully: Piper (offline) → Google Cloud
   (if configured + online) → espeak (last resort).
-- **ASR: Whisper**, default model `base`, running locally. Requires `ffmpeg`
-  bundled in the app. wav2vec2 dropped.
+- **ASR: Whisper**, default model **`medium`**, running locally. Transcription
+  accuracy is load-bearing — an inaccurate transcript compromises the entire
+  practice/scoring cycle, so we favour accuracy over model size/speed. Model
+  size is user-adjustable in settings (down to `base` for slow machines).
+  Requires `ffmpeg` bundled. Use Apple-Silicon acceleration where available.
+  wav2vec2 dropped. (`medium` is ~1.5 GB → handled via download-on-first-run,
+  not bundled — see §8.)
 
 ---
 
@@ -112,11 +118,12 @@ Python sidecar = most moving parts, hardest to run autonomously); Flutter
   vocabulary — lives in a **local SQLite database** in the macOS app-support
   directory (`~/Library/Application Support/Miolingo/`). No network needed.
 - **No login/auth in v1.** Single implicit local user.
-- **Sync-ready schema (but no sync in v1):** design tables with stable UUID
-  primary keys, `created_at`/`updated_at` timestamps, and soft-delete flags so
-  optional cloud sync can be added later without a migration. The *mechanism*
-  for sync (given Matthew can't host custom backends) is unresolved — see
-  QUESTIONS.md. Do not build sync in v1.
+- **Sync-ready schema:** design tables with stable UUID primary keys,
+  `created_at`/`updated_at` timestamps, and soft-delete flags. Sync target is
+  **Matthew's own (existing remote) database**, as a **batch push at the end of
+  a session** (not live per-write). v1 keeps the schema sync-ready and may stub
+  a session-end export; the full sync push is a fast-follow, not core v1 — see
+  QUESTIONS.md for the exact endpoint/credentials.
 - **No in-app state framework reruns.** UI state is held in Qt
   models/view-state, not by re-executing the whole program. Settings persist to
   SQLite (mirrors `config.load_settings`/`save_settings`, DB path).
@@ -181,8 +188,9 @@ is checkable without Matthew.
       time, per language. Renders from local data with no network.
 
 **Offline**
-- [ ] With networking disabled, the full core loop (select → Piper audio →
-      record → Whisper score → save → History → Stats) works end to end.
+- [ ] After the one-time Whisper-model download, with networking disabled the
+      full core loop (select → Piper audio → record → Whisper score → save →
+      History → Stats) works end to end.
 
 **Quality gates**
 - [ ] `pytest -q` green headless (`QT_QPA_PLATFORM=offscreen`), including unit
@@ -191,9 +199,12 @@ is checkable without Matthew.
 
 **Packaging**
 - [ ] `python packaging/build_macos.py` produces a launchable `.app`/`.dmg`
-      bundling Python, Qt, Whisper `base`, ffmpeg, Piper voices, and
-      `language_materials/`. (Signing/notarization gated on Apple ID — if
-      absent, an unsigned bundle + documented signing steps satisfy this.)
+      bundling Python, Qt, ffmpeg, Piper voices, and `language_materials/`. The
+      Whisper `medium` model is fetched on first run (with progress UI) and
+      cached locally; offline works after that one-time download.
+      (Signing/notarization gated on Apple ID — Matthew expects to provide one;
+      if absent at build time, an unsigned bundle + documented signing steps
+      satisfy this.)
 
 **Non-goals respected**
 - [ ] No login UI, no remote DB/tunnel code, no admin dashboard, no Windows/
