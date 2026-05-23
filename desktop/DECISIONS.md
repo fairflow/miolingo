@@ -172,6 +172,38 @@ mic/model, so it's marked manual rather than faked.
 **Alternatives:** bundle a real audio fixture + model (huge, still needs a
 Mac/mic to capture) — deferred to M3's manual acceptance.
 
+### 2026-05-23 (M2) — Migrations: PRAGMA user_version runner (no alembic/yoyo)
+**Decision:** A ~30-line migration runner keyed on SQLite's
+`PRAGMA user_version`, with migrations as ordered `(version, sql)` pairs applied
+idempotently on every `Database` open. No alembic/yoyo dependency.
+**Reasoning:** A single local SQLite file doesn't justify a migration framework;
+`user_version` is the idiomatic SQLite mechanism, dependency-free, trivially
+bundles under PyInstaller, and is easy to test.
+**Alternatives:** alembic/yoyo (heavier deps, overkill for one local DB).
+
+### 2026-05-23 (M2) — Sync-ready schema shape
+**Decision:** Tables `settings`, `practice_attempts`, `vocabulary`. Every row
+has a UUID-text `id` PK, `created_at`/`updated_at` (ISO-8601 UTC), and a
+`deleted_at` soft-delete column (NULL = live; reads exclude deleted by default).
+A nullable `user_id` column anticipates the future batch sync (NULL in v1 —
+single local user). Vocabulary keeps a unique `(language_code, word)` index and
+re-capture resurrects a soft-deleted row + bumps `times_seen`, mirroring the
+source `vocab.py` upsert.
+**Reasoning:** SPEC §6 / DECISIONS sync-readiness; data shapes mirror
+`app_mysql`/`vocab` so the ported core fits without translation. Stored
+similarity is 0..100 (source convention) while the core pipeline uses 0..1 —
+`save_from_result` does the ×100 mapping.
+**Alternatives:** integer autoincrement PKs (collide across devices on sync);
+hard deletes (lose sync tombstones).
+
+### 2026-05-23 (M2) — DB location via $MIOLINGO_DB_PATH or app-support dir
+**Decision:** `paths.default_db_path()` returns `$MIOLINGO_DB_PATH` if set, else
+`~/Library/Application Support/Miolingo/miolingo.db` on macOS (with XDG/APPDATA
+fallbacks for cross-platform cleanliness). WAL journal mode; `foreign_keys=ON`.
+**Reasoning:** Tests/packaging override the path via env without touching call
+sites; WAL lets the UI thread read while a worker writes.
+**Alternatives:** hardcode the path (untestable, breaks under sandboxing).
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.
