@@ -1,0 +1,19 @@
+# Desktop app local artifacts
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+*.dmg
+*.app/
+
+# Local databases / model caches / secrets (never commit)
+*.db
+*.sqlite
+*.sqlite3
+secrets.toml
+.env
