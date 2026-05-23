@@ -60,3 +60,20 @@ quality/size tiers; you have strong opinions on TTS quality.
 **Interim assumption:** Phase 1 picks a reasonable medium-quality voice per
 language and produces sample clips (M7) for you to spot-check; weak ones get
 flagged here for replacement.
+
+### 2026-05-23 — FYI: root `.gitignore` `config.*` swallowed core/config.py
+**What happened:** The repo-root `.gitignore` line `config.*` (intended for the
+Streamlit app's `practice_config.json` etc.) silently excluded the desktop
+source module `desktop/miolingo_desktop/core/config.py` from `git add`, so it
+was missing from PRs M1-M3 — the package couldn't import. Fixed by adding a
+re-include negation in `desktop/.gitignore` and tracking the file; the fix was
+merged down the stack (M1 #124 force-updated; M2 #125, M3 #126 re-pushed).
+**Possible follow-up for you:** consider narrowing the root `.gitignore`
+`config.*` pattern (e.g. `/practice_config.json`) so it can't catch source
+modules elsewhere. Out of scope to change the root file during this migration.
+
+### 2026-05-23 — Translation autofill for Vocabulary (deferred)
+**Why it matters:** Vocabulary "autofill" currently fills IPA (offline, espeak)
+but not translation — translation needs an online LLM/DeepL provider + key.
+**Interim assumption:** v1 ships IPA autofill only; the user types translations.
+If you want offline-capable translation autofill, we need a provider decision.

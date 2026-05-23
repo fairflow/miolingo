@@ -63,3 +63,20 @@ def test_recent_history_filters_language(controller: PracticeController) -> None
 def test_available_languages_nonempty(controller: PracticeController) -> None:
     langs = controller.available_languages()
     assert "pt" in langs
+
+
+def test_resolve_language_name_accepts_code_or_name() -> None:
+    assert PracticeController.resolve_language_name("pt") == "Portuguese"
+    assert PracticeController.resolve_language_name("Portuguese") == "Portuguese"
+    assert PracticeController.resolve_language_name("zz") == "zz"
+
+
+def test_run_practice_accepts_material_code(controller: PracticeController) -> None:
+    # Practice view passes material codes ('pt'); the controller maps to a name
+    # so ASR/LANGUAGE_CONFIG lookups succeed; history stores the code.
+    result = controller.run_practice(
+        target_text="ola", audio_bytes=b"x", language="pt",
+        transcribe_fn=lambda *a, **k: "ola",
+    )
+    assert result is not None
+    assert controller.recent_history(language="pt")[0]["language_code"] == "pt"
