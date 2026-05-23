@@ -228,6 +228,18 @@ asserting the worker callable runs on a non-GUI thread.
 **Alternatives:** put logic in the widget (untestable, risks UI-thread work);
 QThread subclassing (heavier than QRunnable for fire-and-forget tasks).
 
+### 2026-05-23 (M4) — History/Settings views + option lists live in core.config
+**Decision:** `HistoryView` is a read-only `QTableWidget` refreshed from
+`PracticeRepository` (and re-refreshed when its tab is shown). `SettingsView` is
+a form bound to `SettingsRepository`, loading effective settings on construct
+and persisting on save. The choice lists (`WHISPER_MODEL_SIZES`, `TTS_ENGINES`,
+`COMPARISON_ALGORITHMS`, `voices_for_language`) live in `core/config.py`, not in
+the widgets.
+**Reasoning:** Keeps domain choices testable and out of the UI; refresh-on-show
+avoids cross-view signal wiring while guaranteeing new attempts appear.
+**Alternatives:** a live model/signal from practice->history (more coupling than
+needed for v1); hardcode choices in the widget (untestable, drifts from config).
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.

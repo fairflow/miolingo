@@ -14,7 +14,9 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget
 from . import APP_NAME, __version__
 from .core.controller import PracticeController
 from .data import Database
+from .ui.history_view import HistoryView
 from .ui.practice_view import PracticeView
+from .ui.settings_view import SettingsView
 
 
 class MainWindow(QMainWindow):
@@ -36,8 +38,18 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.setObjectName("mainTabs")
         self.practice_view = PracticeView(self.controller)
+        self.history_view = HistoryView(self.controller)
+        self.settings_view = SettingsView(self.controller)
         self.tabs.addTab(self.practice_view, "Quick Practice")
+        self.tabs.addTab(self.history_view, "History")
+        self.tabs.addTab(self.settings_view, "Settings")
+        self.tabs.currentChanged.connect(self._on_tab_changed)
         self.setCentralWidget(self.tabs)
+
+    def _on_tab_changed(self, index: int) -> None:
+        # Refresh History when it becomes visible so new attempts show up.
+        if self.tabs.widget(index) is self.history_view:
+            self.history_view.refresh()
 
     def closeEvent(self, event: object) -> None:  # noqa: N802 - Qt override
         self.db.close()

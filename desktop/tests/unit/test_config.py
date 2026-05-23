@@ -29,3 +29,16 @@ def test_get_language_code() -> None:
 def test_language_config_covers_supported_languages() -> None:
     codes = {cfg["code"] for cfg in config.LANGUAGE_CONFIG.values()}
     assert {"en", "pt", "fr", "de", "es", "it", "nl"} <= codes
+
+
+def test_voices_for_language_dedupes() -> None:
+    voices = config.voices_for_language("Portuguese")
+    assert "pt-br" in voices
+    assert len(voices) == len(set(voices))
+    assert config.voices_for_language("Klingon") == []
+
+
+def test_option_lists_present() -> None:
+    assert "medium" in config.WHISPER_MODEL_SIZES
+    assert config.TTS_ENGINES[0] == "piper"
+    assert "edit_distance" in config.COMPARISON_ALGORITHMS
