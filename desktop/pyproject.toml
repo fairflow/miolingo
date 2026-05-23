@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "miolingo-desktop"
+version = "0.1.0"
+description = "Native macOS desktop port of the Miolingo pronunciation trainer (PySide6 + Whisper + Piper)."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+authors = [{ name = "Matthew Fairtlough" }]
+
+# Runtime dependencies. Heavy ML/audio deps (openai-whisper, soundfile, numpy)
+# are already present in the shared repo venv; pinned loosely here so the
+# desktop package is installable standalone too.
+dependencies = [
+    "PySide6>=6.6",
+    "openai-whisper>=20231117",
+    "soundfile>=0.13.1",
+    "numpy>=2.0.2",
+    "piper-tts>=1.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-qt>=4.4",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+miolingo-desktop = "miolingo_desktop.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["miolingo_desktop*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["miolingo_desktop", "tests"]
+
+[tool.ruff.lint]
+# Sensible default set; expand as the codebase grows.
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]  # line length handled by formatter / line-length above
+
+[tool.mypy]
+python_version = "3.12"
+files = ["miolingo_desktop", "tests"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+# Kept lenient at the start so ported logic doesn't block early milestones;
+# tighten in later milestones.
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "manual: tests requiring a display, microphone, or network (excluded from the required pre-PR run)",
+]

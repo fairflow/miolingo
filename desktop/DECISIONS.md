@@ -105,6 +105,28 @@ steps if the cert isn't present at build time.
 **Reasoning:** Matthew says he can likely obtain a signed Apple ID.
 **Chosen by Matthew (tentative — "possibly").**
 
+### 2026-05-23 (M0) — Use the shared repo venv; Python 3.12 baseline
+**Decision:** Use the existing shared repo venv at
+`/Users/matthew/Software/working/miolingo/venv` (Python 3.12, per `pip3.12`)
+rather than a dedicated `desktop/.venv`. Target Python 3.12 in `pyproject.toml`.
+**Reasoning:** The shared venv already has numpy/openai-whisper/soundfile/gtts
+installed (visible in `venv/bin/`), so most desktop deps are present; a separate
+venv would duplicate ~GBs of torch/whisper. Desktop-only deps (PySide6,
+piper-tts, pytest-qt) are added via `pip install -e "desktop[dev]"`.
+**Alternatives:** dedicated `desktop/.venv` (cleaner isolation but heavy
+duplication and slower to provision autonomously). Reversible — switching to a
+private venv later is just a re-create + reinstall.
+
+### 2026-05-23 (M0) — Tooling config: ruff + mypy in desktop/pyproject.toml
+**Decision:** Scope ruff and mypy to `desktop/miolingo_desktop` and
+`desktop/tests` via config in `desktop/pyproject.toml`. Line length 100.
+mypy runs in non-strict-but-typed mode initially (warn on untyped defs off for
+ported third-party-touching code) to keep early milestones unblocked.
+**Reasoning:** Keeps gates meaningful for new code without forcing full strict
+typing on logic ported from an untyped Streamlit app on day one.
+**Alternatives:** full strict mypy (too much churn up front, reversible to
+tighten later).
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.
