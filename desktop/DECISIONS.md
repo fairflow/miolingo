@@ -292,6 +292,25 @@ Matthew's Mac. Code + tests are in place; artifact generation is documented.
 **Alternatives:** commit voices via git-lfs (heavier workflow); espeak-only
 (rejected on quality per Phase 0).
 
+### 2026-05-23 (M8) — Packaging: PyInstaller spec + build_macos.py; signing gated
+**Decision:** `packaging/miolingo.spec` bundles Python/Qt, the app,
+`language_materials/`, fetched Piper voices, and (if dropped in) ffmpeg; Whisper
+`medium` is NOT bundled (downloads on first run, cached in `~/.cache/whisper`).
+`packaging/build_macos.py` orchestrates fetch-voices → PyInstaller → .dmg →
+(optional) codesign+notarize+staple. Signing is gated on
+`MIOLINGO_CODESIGN_IDENTITY`/notary creds; absent → unsigned bundle + the exact
+steps in `packaging/SIGNING.md`. `core/model_download.py` adds first-run
+download-with-progress + cache check.
+**Reasoning:** Mirrors SPEC §8 exactly; the build step plan (`build_steps`) is a
+pure function so it's unit-testable, and the artifacts (spec/script/entitlements/
+SIGNING.md) are checkable headlessly even though the real build needs a Mac.
+**Constraint encountered:** this sandbox can't run PyInstaller, `hdiutil`,
+`codesign`, or download models — the actual `.app`/`.dmg` must be produced on a
+Mac. Tooling + tests are in place; the build smoke test verifies structure, not
+a produced bundle (documented).
+**Alternatives:** py2app (PyInstaller is better-trodden for Qt+torch); briefcase
+(less control over the heavy ML bundling).
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.
