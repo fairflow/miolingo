@@ -9,16 +9,19 @@ from __future__ import annotations
 
 import pytest
 
-from miolingo_desktop.core import tts
+from miolingo_desktop.core import piper_voices, tts
 
 
-def test_resolve_piper_voice_missing_raises() -> None:
-    with pytest.raises(tts.PiperUnavailable):
-        tts.resolve_piper_voice("pt-BR", voices={})
+def test_voice_id_missing_raises() -> None:
+    with pytest.raises(piper_voices.PiperUnavailable):
+        piper_voices.voice_id_for_locale("pt-BR", registry={})
 
 
-def test_resolve_piper_voice_present() -> None:
-    assert tts.resolve_piper_voice("pt-BR", voices={"pt-BR": "pt_BR-faber"}) == "pt_BR-faber"
+def test_voice_id_present() -> None:
+    assert (
+        piper_voices.voice_id_for_locale("pt-BR", registry={"pt-BR": "pt_BR-faber"})
+        == "pt_BR-faber"
+    )
 
 
 def test_dispatch_prefers_piper(monkeypatch: pytest.MonkeyPatch) -> None:

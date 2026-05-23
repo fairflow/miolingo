@@ -274,6 +274,24 @@ test and packaging robust if a given build lacks the module.
 **Alternatives:** matplotlib canvas (extra heavy dep); compute in the widget
 (untestable).
 
+### 2026-05-23 (M7) — Piper voice registry + fetch script (voices not in git)
+**Decision:** `core/piper_voices.py` maps every supported locale to one vetted
+medium-quality Piper voice id (rhasspy/piper-voices naming) and resolves it to
+an on-disk `.onnx` under `resources/piper_voices/` (env-overridable). Synthesis
+loads the local model via the `piper` package (fully offline). The large voice
+`.onnx`/`.onnx.json` files are **not committed** — `packaging/fetch_piper_voices.py`
+downloads them and `packaging/generate_voice_samples.py` produces spot-check
+clips; both are gitignored. Dispatcher order stays Piper -> Google Cloud (key) ->
+espeak.
+**Reasoning:** Bundling voices in git would bloat the repo; fetch-then-bundle
+(M8) keeps git lean while shipping offline voices in the app. One voice/language
+satisfies the M7 goal; weak ones get swapped after Matthew's spot-check.
+**Constraint encountered:** this Phase-1 sandbox can't execute Python/network,
+so I cannot actually fetch voices or generate sample clips — those run in CI/on
+Matthew's Mac. Code + tests are in place; artifact generation is documented.
+**Alternatives:** commit voices via git-lfs (heavier workflow); espeak-only
+(rejected on quality per Phase 0).
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.

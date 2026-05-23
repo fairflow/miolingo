@@ -27,15 +27,16 @@ from collections.abc import Callable
 from pathlib import Path
 
 from .config import GOOGLE_CLOUD_VOICES, VOICE_LOCALE_NORMALIZATION
+# Re-export PiperUnavailable so the dispatcher (and existing callers/tests) keep
+# using ``tts.PiperUnavailable``; Piper itself lives in core/piper_voices.py.
+from .piper_voices import PiperUnavailable
 
 logger = logging.getLogger(__name__)
 
 WarnFn = Callable[[str], None]
 AudioResult = tuple[bytes, str]
 
-
-class PiperUnavailable(RuntimeError):
-    """Raised when a Piper voice for the requested locale cannot be resolved."""
+__all__ = ["PiperUnavailable"]
 
 
 def _default_warn(msg: str) -> None:
@@ -46,19 +47,6 @@ def _default_warn(msg: str) -> None:
 # Engine: Piper (local, offline neural) — default
 # ---------------------------------------------------------------------------
 
-# Locale -> Piper voice model name. Populated/bundled in Milestone 7. Empty for
-# now so M1 can prove the fallback path; M7 fills this and ships the .onnx files.
-PIPER_VOICES: dict[str, str] = {}
-
-
-def resolve_piper_voice(locale: str, voices: dict[str, str] | None = None) -> str:
-    """Return the Piper voice model name for *locale*, or raise PiperUnavailable."""
-    table = PIPER_VOICES if voices is None else voices
-    name = table.get(locale)
-    if not name:
-        raise PiperUnavailable(f"No bundled Piper voice for locale '{locale}'")
-    return name
-
 
 def synthesize_piper(
     text: str,
@@ -67,18 +55,17 @@ def synthesize_piper(
     voices: dict[str, str] | None = None,
     use_wav: bool = True,
 ) -> AudioResult:
-    """Synthesize *text* with Piper for *locale*.
+    """Synthesize *text* with the locale's bundled Piper voice.
 
-    Raises :class:`PiperUnavailable` if no voice is registered for the locale
-    (the normal case until Milestone 7 bundles voices). The actual Piper
-    invocation is implemented in M7; this signature is stable so the dispatcher
-    and tests can rely on it now.
+    Delegates to ``core.piper_voices.synthesize`` (loads the local ``.onnx``
+    voice, fully offline). Raises :class:`PiperUnavailable` when the voice or the
+    piper package isn't available, so the dispatcher falls back. ``voices``, if
+    given, overrides the locale->voice-id registry (used by tests).
     """
-    resolve_piper_voice(locale, voices)
-    # Implemented in Milestone 7 (loads the .onnx voice + runs piper).
-    raise PiperUnavailable(
-        "Piper synthesis is not wired until Milestone 7 (no bundled voices yet)"
-    )
+    from . import piper_voices
+
+    audio = piper_voices.synthesize(text, locale, registry=voices)
+    return audio, "audio/wav"
 
 
 # ---------------------------------------------------------------------------

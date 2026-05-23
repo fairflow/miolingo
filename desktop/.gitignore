@@ -18,6 +18,13 @@ dist/
 secrets.toml
 .env
 
+# Large Piper voice models + generated sample clips (fetched/generated, never
+# committed — see packaging/fetch_piper_voices.py).
+miolingo_desktop/resources/piper_voices/
+packaging/voice_samples/
+*.onnx
+*.onnx.json
+
 # The repo-root .gitignore has a broad `config.*` pattern (for the Streamlit
 # app's practice_config.json etc.) which silently swallows our source module
 # desktop/miolingo_desktop/core/config.py. Re-include it explicitly here so it
