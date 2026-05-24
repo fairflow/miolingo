@@ -60,6 +60,14 @@ quality/size tiers; you have strong opinions on TTS quality.
 **Interim assumption:** Phase 1 picks a reasonable medium-quality voice per
 language and produces sample clips (M7) for you to spot-check; weak ones get
 flagged here for replacement.
+**M7 chosen voices (in `core/piper_voices.PIPER_VOICE_IDS`):** en_US-amy-medium,
+en_GB-alan-medium, pt_BR-faber-medium, pt_PT-tugão-medium, fr_FR-siwis-medium,
+de_DE-thorsten-medium, es_ES-davefx-medium, it_IT-riccardo-x_low (no medium
+it_IT voice exists in piper-voices v1.0.0 — flag if x_low quality is too weak),
+nl_NL-mls-medium, nl_BE-rdh-medium. Run `packaging/fetch_piper_voices.py` then
+`packaging/generate_voice_samples.py` to produce clips. **Note:** this sandbox
+can't run Python/network, so I could not fetch voices or generate the clips —
+please run those two scripts (or CI does) and tell me which voices to swap.
 
 ### 2026-05-23 — FYI: root `.gitignore` `config.*` swallowed core/config.py
 **What happened:** The repo-root `.gitignore` line `config.*` (intended for the
