@@ -17,6 +17,7 @@ from .data import Database
 from .ui.history_view import HistoryView
 from .ui.practice_view import PracticeView
 from .ui.settings_view import SettingsView
+from .ui.vocabulary_view import VocabularyView
 
 
 class MainWindow(QMainWindow):
@@ -39,17 +40,25 @@ class MainWindow(QMainWindow):
         self.tabs.setObjectName("mainTabs")
         self.practice_view = PracticeView(self.controller)
         self.history_view = HistoryView(self.controller)
+        self.vocabulary_view = VocabularyView(self.controller)
         self.settings_view = SettingsView(self.controller)
         self.tabs.addTab(self.practice_view, "Quick Practice")
         self.tabs.addTab(self.history_view, "History")
+        self.tabs.addTab(self.vocabulary_view, "Vocabulary")
         self.tabs.addTab(self.settings_view, "Settings")
         self.tabs.currentChanged.connect(self._on_tab_changed)
+        self.vocabulary_view.practiceRequested.connect(self._on_practice_requested)
         self.setCentralWidget(self.tabs)
 
     def _on_tab_changed(self, index: int) -> None:
         # Refresh History when it becomes visible so new attempts show up.
         if self.tabs.widget(index) is self.history_view:
             self.history_view.refresh()
+
+    def _on_practice_requested(self, language_code: str, word: str) -> None:
+        # Practice-from-vocab: hand the word to the Practice tab and switch to it.
+        self.practice_view.set_adhoc_phrase(language_code, word)
+        self.tabs.setCurrentWidget(self.practice_view)
 
     def closeEvent(self, event: object) -> None:  # noqa: N802 - Qt override
         self.db.close()

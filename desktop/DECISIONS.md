@@ -240,6 +240,27 @@ avoids cross-view signal wiring while guaranteeing new attempts appear.
 **Alternatives:** a live model/signal from practice->history (more coupling than
 needed for v1); hardcode choices in the widget (untestable, drifts from config).
 
+### 2026-05-23 (M5) — Vocabulary: IPA autofill offline; translation deferred
+**Decision:** "Autofill" fills **IPA** offline via espeak (`vocab_service.
+autofill_ipa`). Translation autofill (LLM/DeepL) is deferred — it needs an
+online provider + key (see QUESTIONS); v1 lets the user type translations. CSV
+export is a UI-free `rows_to_csv` (the view writes the string).
+Practice-from-vocab is a Qt `practiceRequested(code, word)` signal the main
+window routes to `PracticeView.set_adhoc_phrase` (prepends the word, switches
+tabs).
+**Reasoning:** Fully offline for v1; CSV-as-string is trivially testable; a
+signal avoids coupling Vocabulary directly to Practice.
+**Alternatives:** bundle an offline translator (heavy/low quality); reuse the
+source app's online LLM translation (out of scope for offline v1).
+
+### 2026-05-23 (M5/bugfix) — Controller normalises language code-or-name
+**Decision:** `PracticeController.resolve_language_name` maps material codes
+('pt') to LANGUAGE_CONFIG names ('Portuguese') and passes names through; used by
+`run_practice`/`recent_history`. Fixes a latent M3 mismatch (the practice view
+selects material codes but ASR/TTS key on names).
+**Reasoning:** One normaliser at the seam beats threading the distinction
+through the UI.
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.

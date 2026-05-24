@@ -22,7 +22,12 @@ from typing import Any
 from . import config, materials
 from .asr import ProgressFn
 from .practice import practice_word_from_audio
-from ..data import Database, PracticeRepository, SettingsRepository
+from ..data import (
+    Database,
+    PracticeRepository,
+    SettingsRepository,
+    VocabularyRepository,
+)
 
 
 class PracticeController:
@@ -32,6 +37,7 @@ class PracticeController:
         self._db = db
         self.settings_repo = SettingsRepository(db)
         self.practice_repo = PracticeRepository(db)
+        self.vocab_repo = VocabularyRepository(db)
 
     # -- settings ----------------------------------------------------------
 
@@ -59,6 +65,19 @@ class PracticeController:
     def language_categories(self, language: str) -> dict[str, list[str]]:
         return materials.get_language_structure(language)
 
+    # -- language normalisation -------------------------------------------
+
+    @staticmethod
+    def resolve_language_name(language: str) -> str:
+        """Accept either a material code ('pt') or a name ('Portuguese').
+
+        Materials expose short codes while ASR/TTS/`LANGUAGE_CONFIG` key on the
+        full name. Map codes -> names; pass names through; default to the input.
+        """
+        if language in config.LANGUAGE_CONFIG:
+            return language
+        return config.MATERIAL_TO_TRAINING.get(language, language)
+
     # -- practice ----------------------------------------------------------
 
     def run_practice(
@@ -78,7 +97,8 @@ class PracticeController:
         runs without a Whisper model.
         """
         settings = self.effective_settings()
-        language_code = config.get_language_code(language)
+        language_name = self.resolve_language_name(language)
+        language_code = config.get_language_code(language_name)
 
         saved_id: dict[str, str] = {}
 
@@ -89,7 +109,7 @@ class PracticeController:
             target_text,
             audio_bytes,
             settings,
-            language=language,
+            language=language_name,
             on_result=_persist,
             warn_fn=warn_fn,
             progress_fn=progress_fn,
@@ -104,5 +124,9 @@ class PracticeController:
     def recent_history(
         self, *, language: str | None = None, limit: int = 50
     ) -> list[dict[str, Any]]:
-        code = config.get_language_code(language) if language else None
+        code = (
+            config.get_language_code(self.resolve_language_name(language))
+            if language
+            else None
+        )
         return self.practice_repo.list_history(language_code=code, limit=limit)

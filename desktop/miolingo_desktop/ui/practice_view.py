@@ -156,6 +156,24 @@ class PracticeView(QWidget):
         phrase = item.data(Qt.UserRole)
         return phrase.get("text") if isinstance(phrase, dict) else None
 
+    def set_adhoc_phrase(self, language_code: str, word: str) -> None:
+        """Insert *word* as a one-off phrase and select it (practice-from-vocab).
+
+        Selects the matching language in the combo if present, then prepends the
+        word to the phrase list and selects it so the user can immediately
+        play/record it.
+        """
+        idx = self.language_combo.findText(language_code)
+        if idx >= 0:
+            self.language_combo.setCurrentIndex(idx)
+        phrase = {"text": word, "translation": None}
+        self._phrases.insert(0, phrase)
+        item = QListWidgetItem(word)
+        item.setData(Qt.UserRole, phrase)
+        self.phrase_list.insertItem(0, item)
+        self.phrase_list.setCurrentRow(0)
+        self.status_label.setText(f"Ready to practice '{word}'.")
+
     def _set_busy(self, busy: bool, message: str = "") -> None:
         self.progress.setVisible(busy)
         self.play_button.setDisabled(busy)
