@@ -204,6 +204,30 @@ fallbacks for cross-platform cleanliness). WAL journal mode; `foreign_keys=ON`.
 sites; WAL lets the UI thread read while a worker writes.
 **Alternatives:** hardcode the path (untestable, breaks under sandboxing).
 
+### 2026-05-23 (M3) — Audio capture via sounddevice; QtMultimedia for playback
+**Decision:** Record the mic with `sounddevice` (16 kHz mono WAV bytes, matching
+the source app + Whisper). Play target audio with `PySide6.QtMultimedia`
+(`QMediaPlayer`), imported lazily so a missing QtMultimedia degrades gracefully
+(status message) rather than crashing import.
+**Reasoning:** sounddevice is what the source app uses and is simple/cross-
+platform; capture returns in-memory bytes (no temp files for the user path).
+Lazy QtMultimedia keeps the offscreen smoke tests runnable even if the module
+isn't present in a given environment.
+**Alternatives:** Qt's QAudioSource for capture (more boilerplate, no benefit).
+
+### 2026-05-23 (M3) — UI-free PracticeController as the seam; QThreadPool workers
+**Decision:** A `core/controller.PracticeController` (no PySide6) wires
+materials + the practice pipeline + storage; Qt views call it. Blocking work
+(TTS, capture, transcription) runs on `QThreadPool` via a generic `Worker`
+(`QRunnable` + signals), which optionally injects a `progress_fn` that emits a
+Qt signal.
+**Reasoning:** Keeps all logic headlessly testable (the full
+record(stub)->transcribe(stub)->score->save flow is asserted without Qt or a
+model) and guarantees the UI thread never blocks (SPEC §7) — proven by a test
+asserting the worker callable runs on a non-GUI thread.
+**Alternatives:** put logic in the widget (untestable, risks UI-thread work);
+QThread subclassing (heavier than QRunnable for fire-and-forget tasks).
+
 ### 2026-05-23 — Story Reader deferred to post-v1
 **Decision:** Story Reader (full + scene-by-scene) is not a v1 must-keep; slot
 it in only if cheap after M3, else post-v1.

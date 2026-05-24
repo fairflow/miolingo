@@ -1,37 +1,47 @@
 """PySide6 entry point for the Miolingo desktop app.
 
-Milestone 0: an empty-but-runnable main window. Later milestones add the
-Practice / History / Vocabulary / Statistics / Settings views.
+Opens the main window with a tab bar; Milestone 3 wires the Quick Practice
+vertical slice. History / Vocabulary / Statistics / Settings tabs are added in
+later milestones.
 """
 
 from __future__ import annotations
 
 import sys
 
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget
 
 from . import APP_NAME, __version__
+from .core.controller import PracticeController
+from .data import Database
+from .ui.practice_view import PracticeView
 
 
 class MainWindow(QMainWindow):
     """The application's top-level window.
 
-    Kept deliberately minimal in M0 — it must construct without a display
-    (``QT_QPA_PLATFORM=offscreen``) so it can be smoke-tested headlessly.
+    Owns the SQLite ``Database`` and the ``PracticeController`` shared by views.
+    Constructs without a display (``QT_QPA_PLATFORM=offscreen``) so it can be
+    smoke-tested headlessly; the DB path may be overridden via ``MIOLINGO_DB_PATH``.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, db: Database | None = None) -> None:
         super().__init__()
         self.setWindowTitle(APP_NAME)
         self.resize(1024, 720)
 
-        placeholder = QLabel(
-            f"{APP_NAME} desktop — scaffold (v{__version__})\n"
-            "Practice, History, Vocabulary, and Statistics arrive in later milestones."
-        )
-        placeholder.setObjectName("scaffoldPlaceholder")
-        placeholder.setContentsMargins(24, 24, 24, 24)
-        self.setCentralWidget(placeholder)
+        self.db = db if db is not None else Database()
+        self.controller = PracticeController(self.db)
+
+        self.tabs = QTabWidget()
+        self.tabs.setObjectName("mainTabs")
+        self.practice_view = PracticeView(self.controller)
+        self.tabs.addTab(self.practice_view, "Quick Practice")
+        self.setCentralWidget(self.tabs)
+
+    def closeEvent(self, event: object) -> None:  # noqa: N802 - Qt override
+        self.db.close()
+        super().closeEvent(event)  # type: ignore[arg-type]
 
 
 def create_app(argv: list[str] | None = None) -> QApplication:
