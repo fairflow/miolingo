@@ -29,23 +29,66 @@
    - VIEW PORT (read-only projection): an OUTPUT action carrying a
      projection of state, that loops back to the SAME state (no state
      change). The partner may read it; it cannot write back.
+   - CHOICE IS BINARY: transNamed[choice[p_, q_]] takes exactly two
+     summands. For 3+ offered actions, NEST: choice[a, choice[b, c]].
+     A flat choice[a, b, c] matches no rule and silently mis-steps.
 
-   PORT SIGNATURE (the sort of the Practice Session family)
+   MODELLING DISCIPLINE — every agent carries two standing ports
+   ---------------------------------------------------------------------
+   On top of its domain ports, EVERY agent (in every observable state)
+   offers two output-only ports, always in the ready set:
+
+     view!      a projection f(state) of the agent's current state — the
+                read-only view. State-dependent: it shows whatever is
+                relevant now. A "display" lives here without breaking
+                encapsulation (data crosses only at ports).
+
+     afforded!  the agent's OWN ready set — the list of ports it currently
+                affords (its init(P)). This makes the methodology's
+                "afforded-ports operation" a first-class declared port:
+                the skin synchronises on afforded! to learn what to
+                enable, rather than reaching into the agent. Its value is
+                portsOf[self] — a deferred thunk realised on query.
+
+   Both are self-loops (reading them never advances the protocol), so both
+   sit in every state's ready set beside the domain ports.
+
+   PORT SIGNATURE (the sort of the Practice Session agent)
    ---------------------------------------------------------------------
        attempt_made          in    user submits a pronunciation attempt
-       evaluation            out   view port: projection of the score
        next_item_requested   in    user asks to advance to the next item
+       view!                 out   state projection (the discipline view)
+       afforded!             out   the current ready set (the discipline)
 
-   READY SETS (the point of the whole exercise — enablement is derived
-   here, not invented in the skin). For any state p:
-       afforded ports of p  ==  First /@ transNamed[p]
-   so the executor already gives us the "afforded-ports operation" the
-   methodology docs flag as an open problem / mandatory introspection.
+   There is NO separate `evaluation` port and NO separate `prompt` port:
+   each is just what view! projects in a given state — the evaluation
+   while Evaluated, the current item while Prompting (see OPEN Q1/Q4).
 
-       Prompting[item,rest]  ready = { attempt_made }
-       Evaluated[ev,rest]    ready = { evaluation, next_item_requested }
-       Finished              ready = { }            (quiescent)
+   READY SETS (enablement is derived here, not invented in the skin).
+   For any state p:  afforded ports of p  ==  First /@ transNamed[p].
+       Prompting[items]    ready = { view, afforded, attempt_made }
+       Evaluated[ev,items] ready = { view, afforded, next_item_requested }
+       Finished            ready = { view, afforded }   (no domain port)
    ===================================================================== *)
+
+
+(* ---------------------------------------------------------------------
+   Binding-layer realisation of the afforded! port.
+   portsOf[s] is an inert deferred thunk carrying a STATE term. It holds
+   its argument (HoldAll) and has no value of its own, so it (a) survives
+   the engine's ReleaseHold of the agent body and (b) does NOT trigger
+   transNamed while transitions are being computed — which would recurse,
+   since afforded! is itself one of those transitions. The afforded-ports
+   operation is realised on query by affordedNames, which runs transNamed
+   on the carried state and extracts the port names: the very
+   First /@ transNamed[p] the methodology calls the afforded-ports
+   operation, here exported through a declared port.
+   --------------------------------------------------------------------- *)
+SetAttributes[portsOf, HoldAll];
+portName[label[n_, ___]]   := n;
+portName[coLabel[n_, ___]] := n;
+portName[a_]               := a;             (* tau / any bare action *)
+affordedNames[portsOf[s_]] := portName /@ (First /@ transNamed[s]);
 
 
 (* ---------------------------------------------------------------------
@@ -68,37 +111,57 @@ defineAgent["Practice", {items},
 
 (* ---------------------------------------------------------------------
    Prompting[items] — an item is on offer, awaiting the user's attempt.
-   Only attempt_made is ready. Carries the whole non-empty list; the
-   head First[items] is the current item. The attempt value `a` is bound
-   and scored against it; score[...] is a STUB pure function standing in
-   for the real (e.g. IPA-distance) evaluation. First[items] sits in a
-   precede-successor, reached only with a non-empty list, so it never
-   errors (see FINDING F2).
+   Carries the whole non-empty list; the head First[items] is the current
+   item. The attempt value `a` is bound and scored against it; score[...]
+   is a STUB pure function for the real (e.g. IPA-distance) evaluation.
+   First[items] sits in precede-successors, reached only with a non-empty
+   list, so it never errors (see FINDING F2).
+   Discipline ports: view! projects the current item — THE PROMPT that was
+   "missing" — and afforded! exports this state's ready set.
    --------------------------------------------------------------------- *)
 defineAgent["Prompting", {items},
-  precede[coLabel["attempt_made", binding[a]],
-    call["Evaluated", score[First[items], a], items]]]
+  choice[
+    precede[label["view", param[First[items]]],
+      call["Prompting", items]],
+    choice[
+      precede[label["afforded", param[portsOf[call["Prompting", items]]]],
+        call["Prompting", items]],
+      precede[coLabel["attempt_made", binding[a]],
+        call["Evaluated", score[First[items], a], items]]]]]
 
 
 (* ---------------------------------------------------------------------
-   Evaluated[ev, items] — the attempt has been scored. Two ports ready:
-     - evaluation!(ev)   : a VIEW PORT. Publishes the score projection
-                           and loops back to the same state, so it may
-                           be read repeatedly without advancing.
+   Evaluated[ev, items] — the attempt has been scored.
+     - view!(ev)           : projects the evaluation — this IS the former
+                             `evaluation` port, now just the view in this
+                             state; re-readable (self-loop).
+     - afforded!           : exports this state's ready set.
      - next_item_requested : advances; re-enters Practice on Rest[items]
                              (the head is dropped here, in a successor).
    --------------------------------------------------------------------- *)
 defineAgent["Evaluated", {ev, items},
   choice[
-    precede[label["evaluation", param[ev]], call["Evaluated", ev, items]],
-    precede[coLabel["next_item_requested"], call["Practice", Rest[items]]]]]
+    precede[label["view", param[ev]],
+      call["Evaluated", ev, items]],
+    choice[
+      precede[label["afforded", param[portsOf[call["Evaluated", ev, items]]]],
+        call["Evaluated", ev, items]],
+      precede[coLabel["next_item_requested"],
+        call["Practice", Rest[items]]]]]]
 
 
 (* ---------------------------------------------------------------------
-   Finished — no items remain. Quiescent (nil). See OPEN QUESTION 5:
-   should this terminate, loop, or offer a restart port instead?
+   Finished — no items remain. NOT a deadlock: per the discipline it
+   still offers view! (a session-complete projection) and afforded!. Its
+   domain ready set is empty, which is exactly how completion shows — the
+   skin sees only {view, afforded} and renders "session over".
    --------------------------------------------------------------------- *)
-defineAgent["Finished", {}, nil]
+defineAgent["Finished", {},
+  choice[
+    precede[label["view", param[sessionComplete]],
+      call["Finished"]],
+    precede[label["afforded", param[portsOf[call["Finished"]]]],
+      call["Finished"]]]]
 
 
 (* =====================================================================
@@ -113,11 +176,11 @@ defineAgent["Finished", {}, nil]
 (* =====================================================================
    OPEN QUESTIONS / FLAGGED ASSUMPTIONS (for the architect)
    ---------------------------------------------------------------------
-   1. MISSING PROMPT PORT. The user must see the item to attempt it, but
-      ARCHITECTURE.md lists only the three ports above. Is there an
-      undeclared `current_item!` view port on this agent, or is the
-      prompt a projection of VocabStore shown alongside? Decide where it
-      lives — it is currently absent from the sort.
+   1. [SETTLED] MISSING PROMPT PORT. Resolved by the modelling discipline:
+      the prompt is not a separate port, it is what view! projects in the
+      Prompting state (the current item). Likewise `evaluation` is just
+      view! in the Evaluated state. One state-dependent view! per agent,
+      always afforded, replaces both bespoke projections.
 
    2. SCORING. score[item, a] is a placeholder. The real evaluation
       (what an "attempt" value is, how it is compared to the target,
@@ -127,13 +190,18 @@ defineAgent["Finished", {}, nil]
       agent is standalone and executable. In a fuller spec they would
       arrive across a port from VocabStore; this couples nothing yet.
 
-   4. VIEW-PORT SEMANTICS. evaluation is modelled as repeatedly readable
-      (loops to same state). Is re-reading meaningful, or is it one-shot?
-      This choice is exactly what determines its membership in the ready
-      set over time.
+   4. VIEW-PORT SEMANTICS. view! is modelled as repeatedly readable (self-
+      loop), in every state. Is re-reading always meaningful, or should
+      some projections be one-shot? The self-loop is what keeps view! in
+      the ready set over time. (The richer question — should view! project
+      a structured record, e.g. {item, score}, rather than a single value
+      — is open; f[state] can return whatever the designer wants.)
 
-   5. END OF SESSION. Finished = nil (deadlock). Should a session loop,
-      offer a restart, or report a summary projection before ending?
+   5. [PARTLY SETTLED] END OF SESSION. Finished is no longer a deadlock:
+      it offers view!(sessionComplete) + afforded!, with an empty domain
+      ready set. Still open: should it also offer a `restart` domain port,
+      and what should the completion projection actually carry (score
+      summary, item count)?
 
    6. NO ABANDON. There is no mid-session quit/abandon port. Likely a
       real port; deliberately omitted from this first cut.
