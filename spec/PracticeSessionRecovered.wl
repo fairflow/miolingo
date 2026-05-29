@@ -59,10 +59,16 @@ defineAgent["PS", {phrases, pos, rec, res},
       choice[
         precede[coLabel["load_material", binding[ps]],
           call["PS", ps, 0, none, none]],
-        (* domain ports only when the queue is non-empty (F2: inert branches) *)
-        if[Length[phrases] == 0,
-           nil,
-           call["PSActive", phrases, pos, rec, res]]]]]]
+        choice[
+          (* CROSS-COMPONENT (composition refinement): receive a phrase list
+             relayed from VocabStore's "Practise these" on internal channel
+             pLoad. Restricted in the MioCore composition. *)
+          precede[coLabel["pLoad", binding[ps]],
+            call["PS", ps, 0, none, none]],
+          (* domain ports only when the queue is non-empty (F2: inert branches) *)
+          if[Length[phrases] == 0,
+             nil,
+             call["PSActive", phrases, pos, rec, res]]]]]]]
 
 
 (* --- the domain ports, reached only with a non-empty queue.
@@ -112,7 +118,11 @@ defineAgent["PSActive", {phrases, pos, rec, res},
                    the function-recovery pass; modelled here on the
                    resolvable `result present` condition.)
                    Cross-component: composes with VocabStore.add. *)
+                (* CROSS-COMPONENT (composition refinement): the user gives a
+                   word (capture_vocab), which is then relayed to VocabStore
+                   on internal channel vAdd. Restricted in MioCore. *)
                 if[res =!= none,
                    precede[coLabel["capture_vocab", binding[word]],
-                     call["PS", phrases, pos, rec, res]],
+                     precede[label["vAdd", param[word]],
+                       call["PS", phrases, pos, rec, res]]],
                    nil]]]]]]]]]

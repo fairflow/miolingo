@@ -65,6 +65,12 @@ defineAgent["VSAuthed", {entries, sort, filter, editing},
     precede[coLabel["add", binding[w]],
       call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
     choice[
+      (* CROSS-COMPONENT (composition refinement): receive a word relayed
+         from PracticeSession's capture_vocab on internal channel vAdd.
+         Restricted in MioCore. *)
+      precede[coLabel["vAdd", binding[w]],
+        call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
+      choice[
       precede[coLabel["import_bulk", binding[f]],
         call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
       choice[
@@ -76,7 +82,7 @@ defineAgent["VSAuthed", {entries, sort, filter, editing},
           (* per-entry ops + export + practise only when non-empty *)
           if[Length[entries] == 0,
              nil,
-             call["VSNonEmpty", entries, sort, filter, editing]]]]]]]
+             call["VSNonEmpty", entries, sort, filter, editing]]]]]]]]
 
 
 (* --- non-empty: export, guarded practise, and the edit-mode swap --- *)
@@ -85,10 +91,14 @@ defineAgent["VSNonEmpty", {entries, sort, filter, editing},
     precede[label["export", param[exportCsv[entries]]],
       call["VS", signedIn, entries, sort, filter, editing]],
     choice[
-      (* "Practise these" — guard: a filter is set *)
+      (* "Practise these" — guard: a filter is set. CROSS-COMPONENT
+         (composition refinement): on the user's click, relay the filtered
+         phrase list to PracticeSession on internal channel pLoad.
+         Restricted in MioCore. *)
       if[filter =!= none,
          precede[coLabel["practise_filtered"],
-           call["VS", signedIn, entries, sort, filter, editing]],
+           precede[label["pLoad", param[practiseList[entries, filter]]],
+             call["VS", signedIn, entries, sort, filter, editing]]],
          nil],
       (* per-entry actions, swapped by edit-mode *)
       if[editing === none,
