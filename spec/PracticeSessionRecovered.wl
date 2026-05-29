@@ -31,6 +31,10 @@
      rec     : none | recorded[audio]        (a recording is present?)
      res     : none | scored[r]              (a result is present?)
 
+   VERIFIED on the engine (2026-05-30): every row below confirmed —
+   bounds flip next/prev, recording-presence flips recording_made <->
+   attempt_made/clear_recording, a result reveals capture_vocab.
+
    RECOVERED READY SETS (view!, afforded! present in every mode):
      PS[{},      _,_,_ ]            NoMaterial : load_material
      PS[ne, p, none,    none   ]    Prompting  : +clear_material,
