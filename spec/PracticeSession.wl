@@ -50,37 +50,48 @@
 
 (* ---------------------------------------------------------------------
    Practice[items] — drive a session over a list of practice items.
-   When the list is empty the session is Finished; otherwise the head
-   item is put on offer and the tail is carried forward.
+   When the list is empty the session is Finished; otherwise the whole
+   (now guaranteed non-empty) list is handed to Prompting.
+
+   IDIOM (see FINDING F2): the `if` branches are inert call[...]
+   continuations — no partial op (First/Rest) appears in a branch.
+   `if` is eager, so a First[{}] sitting in the dead branch would error
+   on the empty case; keeping branches inert defers all destructuring to
+   agents reached only when the precondition (non-empty) holds. This is
+   exactly the discipline ABP follows.
    --------------------------------------------------------------------- *)
 defineAgent["Practice", {items},
   if[Length[items] == 0,
      call["Finished"],
-     call["Prompting", First[items], Rest[items]]]]
+     call["Prompting", items]]]
 
 
 (* ---------------------------------------------------------------------
-   Prompting[item, rest] — an item is on offer, awaiting the user's
-   attempt. Only attempt_made is ready. The attempt value `a` is bound
-   and scored against the current item; score[...] is a STUB pure
-   function standing in for the real (e.g. IPA-distance) evaluation.
+   Prompting[items] — an item is on offer, awaiting the user's attempt.
+   Only attempt_made is ready. Carries the whole non-empty list; the
+   head First[items] is the current item. The attempt value `a` is bound
+   and scored against it; score[...] is a STUB pure function standing in
+   for the real (e.g. IPA-distance) evaluation. First[items] sits in a
+   precede-successor, reached only with a non-empty list, so it never
+   errors (see FINDING F2).
    --------------------------------------------------------------------- *)
-defineAgent["Prompting", {item, rest},
+defineAgent["Prompting", {items},
   precede[coLabel["attempt_made", binding[a]],
-    call["Evaluated", score[item, a], rest]]]
+    call["Evaluated", score[First[items], a], items]]]
 
 
 (* ---------------------------------------------------------------------
-   Evaluated[ev, rest] — the attempt has been scored. Two ports ready:
+   Evaluated[ev, items] — the attempt has been scored. Two ports ready:
      - evaluation!(ev)   : a VIEW PORT. Publishes the score projection
                            and loops back to the same state, so it may
                            be read repeatedly without advancing.
-     - next_item_requested : advances; re-enters Practice on the tail.
+     - next_item_requested : advances; re-enters Practice on Rest[items]
+                             (the head is dropped here, in a successor).
    --------------------------------------------------------------------- *)
-defineAgent["Evaluated", {ev, rest},
+defineAgent["Evaluated", {ev, items},
   choice[
-    precede[label["evaluation", param[ev]], call["Evaluated", ev, rest]],
-    precede[coLabel["next_item_requested"], call["Practice", rest]]]]
+    precede[label["evaluation", param[ev]], call["Evaluated", ev, items]],
+    precede[coLabel["next_item_requested"], call["Practice", Rest[items]]]]]
 
 
 (* ---------------------------------------------------------------------
@@ -159,8 +170,17 @@ defineAgent["Finished", {}, nil]
        RECOMMENDATION: leave `if` alone. Follow the ABP idiom instead —
        `if` branches are inert call[...] continuations; never place a
        partial op (First/Rest) directly in a branch. Destructure inside a
-       sub-agent reached only by the non-empty branch (see below), or
-       carry the whole list as a parameter. If a lazy data-guard is ever
-       wanted as L1 vocabulary, add a NEW combinator (e.g. ifL, HoldRest)
-       used only by data-destructuring agents, leaving `if` untouched.
+       sub-agent reached only by the non-empty branch, or carry the whole
+       list as a parameter. If a lazy data-guard is ever wanted as L1
+       vocabulary, add a NEW combinator (e.g. ifL, HoldRest) used only by
+       data-destructuring agents, leaving `if` untouched.
+       STATUS: idiom APPLIED above and VERIFIED on the engine — Practice's
+       branch is the inert call["Prompting", items]; First/Rest moved into
+       Prompting/Evaluated successors, reached only with a non-empty list.
+       Confirmed: no First/Rest messages on any state (incl. Practice[{}]),
+       live-state ready sets unchanged, and a full session walk cycles
+       Practice -> Evaluated -> ... -> Practice[{}] correctly.
+       NB: verification must load RCA_core.wl from the F1 worktree
+       (claude/defineagent-hold-body, PR #31), not feature-work, until
+       that PR merges — the spec depends on the F1 fix.
    ===================================================================== *)
