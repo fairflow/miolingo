@@ -11,11 +11,12 @@
    defineAgent (the "agent equation registry" in RCA_core.wl), with
    recursion through call[...]. It is NOT a single mu-term.
 
-   LOAD DEPENDENCY: requires RCA_core.wl to be loaded first, which
-   provides defineAgent, agentDefs, transNamed, and the combinators
-   (precede, choice, par, restrict, call, label, coLabel, param,
-   binding, if, nil, ...).  RCA_core.wl lives in the RCA project; run
-   the executor with that directory available.
+   LOAD DEPENDENCY: load RCA_core.wl first (provides defineAgent,
+   agentDefs, transNamed, and the combinators precede, choice, par,
+   restrict, call, label, coLabel, param, binding, if, nil, ...), THEN
+   discipline.wl (provides the view!/afforded! discipline helpers:
+   portsOf, portName, affordedNames). RCA_core.wl lives in the RCA
+   project; run the executor with that directory available.
    =====================================================================
 
    CONVENTIONS (mirroring the ABP example in RCA_core.wl)
@@ -72,23 +73,8 @@
    ===================================================================== *)
 
 
-(* ---------------------------------------------------------------------
-   Binding-layer realisation of the afforded! port.
-   portsOf[s] is an inert deferred thunk carrying a STATE term. It holds
-   its argument (HoldAll) and has no value of its own, so it (a) survives
-   the engine's ReleaseHold of the agent body and (b) does NOT trigger
-   transNamed while transitions are being computed — which would recurse,
-   since afforded! is itself one of those transitions. The afforded-ports
-   operation is realised on query by affordedNames, which runs transNamed
-   on the carried state and extracts the port names: the very
-   First /@ transNamed[p] the methodology calls the afforded-ports
-   operation, here exported through a declared port.
-   --------------------------------------------------------------------- *)
-SetAttributes[portsOf, HoldAll];
-portName[label[n_, ___]]   := n;
-portName[coLabel[n_, ___]] := n;
-portName[a_]               := a;             (* tau / any bare action *)
-affordedNames[portsOf[s_]] := portName /@ (First /@ transNamed[s]);
+(* The view!/afforded! discipline helpers (portsOf, portName,
+   affordedNames) now live in discipline.wl — load it before this file. *)
 
 
 (* ---------------------------------------------------------------------
