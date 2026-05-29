@@ -133,21 +133,34 @@ defineAgent["Finished", {}, nil]
    Surfaced by being the first equation-based agent to do real data
    computation on its parameters; the ABP example never exercised this.
 
-   F1. defineAgent evaluates the body at STORE time, with parameters
-       still symbolic. Length[symbolicItems] -> 0, so a guard written
-       Length[items] == 0 freezes to True and never resolves after
-       substitution. Worked around here with `items == {}` (inert
-       against a symbol). A robust fix would have defineAgent hold the
-       body unevaluated until params are substituted.
+   F1. [RESOLVED in executor] defineAgent evaluated the body at STORE
+       time, with parameters still symbolic. Length[symbolicItems] -> 0,
+       so a guard written Length[items] == 0 froze to True and never
+       resolved after substitution; First/Rest on the symbol also errored
+       at load. FIX: defineAgent now stores "body" -> Hold[body]; readers
+       substitute concrete params into the held body and ReleaseHold only
+       then (transNamed, transSymbolic, buildAgent, buildSystemRec).
+       VERIFIED: the natural guard Length[items] == 0 now routes correctly
+       and the load-time noise is gone; the ABP example is byte-identical
+       before/after the fix.
 
-   F2. The CCS `if` symbol is eager in its branches: if[g, p, q]
-       evaluates BOTH p and q before transNamed's real If selects one.
-       Harmless to routing (the dead branch only errors and freezes),
-       but it emits First::nofirst / Rest::norest noise on e.g.
-       Practice[{}]. A HoldRest (or HoldAll) attribute on `if` would
-       make the conditional lazy and silence this.
-
-   Both fixes belong in the executor (RCA_core.wl, the other project),
-   so they are reported here rather than applied. VERIFIED: the ready
-   sets above were produced by transNamed on the live engine.
+   F2. [ANALYSED — do NOT fix in executor] The CCS `if` symbol is eager
+       in its branches: if[g, p, q] evaluates BOTH p and q before
+       transNamed's real If selects one. This emits First::nofirst /
+       Rest::norest noise on e.g. Practice[{}] (routing stays correct).
+       BUT the eager evaluation is LOAD-BEARING: it normalises in-branch
+       value expressions into canonical form. Evidence from the ABP
+       baseline: SendingN[0] yields successor call[AcceptN, 1], i.e.
+       negate[0] was eagerly reduced to 1. A Hold attribute on `if` would
+       leave call[AcceptN, negate[0]] unreduced, so the weak-bisimulation
+       game (which compares states by structural === ) would see the same
+       semantic state under two syntactic forms — state blow-up and very
+       likely a broken abpN ~w BuffN result.
+       RECOMMENDATION: leave `if` alone. Follow the ABP idiom instead —
+       `if` branches are inert call[...] continuations; never place a
+       partial op (First/Rest) directly in a branch. Destructure inside a
+       sub-agent reached only by the non-empty branch (see below), or
+       carry the whole list as a parameter. If a lazy data-guard is ever
+       wanted as L1 vocabulary, add a NEW combinator (e.g. ifL, HoldRest)
+       used only by data-destructuring agents, leaving `if` untouched.
    ===================================================================== *)
