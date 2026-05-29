@@ -180,7 +180,6 @@ defineAgent["Finished", {}, nil]
        Confirmed: no First/Rest messages on any state (incl. Practice[{}]),
        live-state ready sets unchanged, and a full session walk cycles
        Practice -> Evaluated -> ... -> Practice[{}] correctly.
-       NB: verification must load RCA_core.wl from the F1 worktree
-       (claude/defineagent-hold-body, PR #31), not feature-work, until
-       that PR merges — the spec depends on the F1 fix.
+       NB: the spec depends on the F1 fix, now merged into feature-work
+       via PR #31, so RCA_core.wl loads from the normal checkout.
    ===================================================================== *)
