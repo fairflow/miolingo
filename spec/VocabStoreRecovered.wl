@@ -16,7 +16,10 @@
 
    STATE: VS[auth, entries, sort, filter, editing]
      auth : anon | signedIn     entries : list     sort : alpha|recent|oldest
-     filter : none | filterBy[q]   editing : none | editing[id]
+     filter : none | filterBy[q]   editing : none | editingRow[id]
+     (the edit-mode tag head `editingRow` must DIFFER from the `editing`
+      parameter name, else mu-term substitution of the editing binder
+      captures the tag head: editing[id] /. {editing->none} -> none[id].)
 
    READY SETS (analysis; readyPorts, not declared):
      VS[anon,      _,_,_,_]            : view
@@ -25,7 +28,7 @@
      VS[signedIn, ne, _,none,none]     : + export, delete, update_notes,
                                            autofill, begin_edit
      VS[signedIn, ne, _,filterBy,none] : + practise_filtered
-     VS[signedIn, ne, _,_,editing[id]] : update, cancel_edit replace the
+     VS[signedIn, ne, _,_,editingRow[id]] : update, cancel_edit replace the
                                            per-entry set (export stays)
 
    MU-TERM VIEW: buildSystem[call["VS", auth, entries, sort, filter, editing]].
@@ -87,7 +90,7 @@ defineAgent["VSEntryActions", {entries, sort, filter},
     precede[coLabel["autofill", binding[id]],
       call["VS", signedIn, autofillIn[entries, id], sort, filter, none]],
     precede[coLabel["begin_edit", binding[id]],
-      call["VS", signedIn, entries, sort, filter, editing[id]]]]]
+      call["VS", signedIn, entries, sort, filter, editingRow[id]]]]]
 
 
 (* --- per-entry actions WHILE editing a row --- *)
