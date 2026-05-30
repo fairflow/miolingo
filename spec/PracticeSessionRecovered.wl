@@ -13,7 +13,7 @@
      - FREE NAVIGATION over a bounded queue (prev/next/select), not a
        linear consume-to-Finished. No deadlock end state; next/prev are
        merely DISABLED at the ends (a ready-set guard).
-     - RECORD then CHECK are two steps: Check/Remove are afforded only
+     - RECORD then CHECK are two steps: Check/Remove are available only
        when a recording exists (the Streamlit `if audio_data:` guard).
      - capture_vocab is a CROSS-COMPONENT port to VocabStore.add.
 
@@ -35,7 +35,7 @@
    bounds flip next/prev, recording-presence flips recording_made <->
    attempt_made/clear_recording, a result reveals capture_vocab.
 
-   RECOVERED READY SETS (view!, afforded! present in every mode):
+   RECOVERED READY SETS (analysis only; not explicit channels in the process):
      PS[{},      _,_,_ ]            NoMaterial : load_material
      PS[ne, p, none,    none   ]    Prompting  : +clear_material,
                                       recording_made, select, next†, prev‡
@@ -44,17 +44,26 @@
      PS[ne, p, recorded,scored ]    Evaluated  : +attempt_made,
                                       clear_recording, capture_vocab,
                                       select, next†, prev‡
-       † next afforded iff pos < Length-1   ‡ prev afforded iff pos > 0
+       † next available iff pos < Length-1   ‡ prev available iff pos > 0
    ===================================================================== *)
 
 
-(* --- top level: discipline ports + always-on load + dispatch to active *)
+(* --- top level: view + always-on load + dispatch to active --- *)
 defineAgent["PS", {phrases, pos, rec, res},
-  choice[
-    precede[label["view", param[sessionView[phrases, pos, rec, res]]],
-      call["PS", phrases, pos, rec, res]],
+  if[Length[phrases] == 0,
     choice[
-      precede[label["afforded", param[portsOf[call["PS", phrases, pos, rec, res]]]],
+      precede[label["view", param[sessionView[phrases, pos, rec, res]]],
+        call["PS", phrases, pos, rec, res]],
+      choice[
+        precede[coLabel["load_material", binding[ps]],
+          call["PS", ps, 0, none, none]],
+        (* CROSS-COMPONENT (composition refinement): receive a phrase list
+           relayed from VocabStore's "Practise these" on internal channel
+           pLoad. Restricted in the MioCore composition. *)
+        precede[coLabel["pLoad", binding[ps]],
+          call["PS", ps, 0, none, none]]]],
+    choice[
+      precede[label["view", param[sessionView[phrases, pos, rec, res]]],
         call["PS", phrases, pos, rec, res]],
       choice[
         precede[coLabel["load_material", binding[ps]],
@@ -65,64 +74,201 @@ defineAgent["PS", {phrases, pos, rec, res},
              pLoad. Restricted in the MioCore composition. *)
           precede[coLabel["pLoad", binding[ps]],
             call["PS", ps, 0, none, none]],
-          (* domain ports only when the queue is non-empty (F2: inert branches) *)
-          if[Length[phrases] == 0,
-             nil,
-             call["PSActive", phrases, pos, rec, res]]]]]]]
+          call["PSActive", phrases, pos, rec, res]]])])]
 
 
 (* --- the domain ports, reached only with a non-empty queue.
-   Each conditional port is `if[guard, precede[...], nil]` — the guard IS
-   the recovered Streamlit conditional; the branches stay inert. *)
+   Presented in guard-partitioned normal form: no afforded channel, and
+   no degenerate if[guard, P, nil] branches in the written spec. *)
 defineAgent["PSActive", {phrases, pos, rec, res},
-  choice[
-    precede[coLabel["clear_material"], call["PS", {}, 0, none, none]],
-    choice[
-      (* record — only when no recording yet *)
-      if[rec === none,
-         precede[coLabel["recording_made", binding[audio]],
-           call["PS", phrases, pos, recorded[audio], none]],
-         nil],
-      choice[
-        (* check — only when a recording exists *)
-        if[rec =!= none,
-           precede[coLabel["attempt_made"],
-             call["PS", phrases, pos, rec,
-               scored[evaluate[targetOf[phrases, pos], rec]]]],
-           nil],
+  if[rec === none,
+    if[pos < Length[phrases] - 1,
+      if[pos > 0,
         choice[
-          (* remove recording (and result) — only when a recording exists *)
-          if[rec =!= none,
-             precede[coLabel["clear_recording"],
-               call["PS", phrases, pos, none, none]],
-             nil],
+          precede[coLabel["clear_material"],
+            call["PS", {}, 0, none, none]],
           choice[
-            (* next — guarded by upper bound *)
-            if[pos < Length[phrases] - 1,
-               precede[coLabel["next_item_requested"],
-                 call["PS", phrases, pos + 1, none, none]],
-               nil],
+            precede[coLabel["recording_made", binding[audio]],
+              call["PS", phrases, pos, recorded[audio], none]],
             choice[
-              (* prev — guarded by lower bound *)
-              if[pos > 0,
-                 precede[coLabel["prev_item_requested"],
-                   call["PS", phrases, pos - 1, none, none]],
-                 nil],
+              precede[coLabel["next_item_requested"],
+                call["PS", phrases, pos + 1, none, none]],
               choice[
-                (* jump to any item the selectbox offers *)
+                precede[coLabel["prev_item_requested"],
+                  call["PS", phrases, pos - 1, none, none]],
                 precede[coLabel["select_item", binding[i]],
-                  call["PS", phrases, i, none, none]],
-                (* capture a word to vocab when a result exists.
-                   (multi-word & authenticated is a STUBBED guard
-                   refinement — isMultiWord[targetOf[...]] — deferred to
-                   the function-recovery pass; modelled here on the
-                   resolvable `result present` condition.)
-                   Cross-component: composes with VocabStore.add. *)
-                (* CROSS-COMPONENT (composition refinement): the user gives a
-                   word (capture_vocab), which is then relayed to VocabStore
-                   on internal channel vAdd. Restricted in MioCore. *)
-                if[res =!= none,
-                   precede[coLabel["capture_vocab", binding[word]],
-                     precede[label["vAdd", param[word]],
-                       call["PS", phrases, pos, rec, res]]],
-                   nil]]]]]]]]]
+                  call["PS", phrases, i, none, none]]]]]],
+        choice[
+          precede[coLabel["clear_material"],
+            call["PS", {}, 0, none, none]],
+          choice[
+            precede[coLabel["recording_made", binding[audio]],
+              call["PS", phrases, pos, recorded[audio], none]],
+            choice[
+              precede[coLabel["next_item_requested"],
+                call["PS", phrases, pos + 1, none, none]],
+              precede[coLabel["select_item", binding[i]],
+                call["PS", phrases, i, none, none]]]]],
+      if[pos > 0,
+        choice[
+          precede[coLabel["clear_material"],
+            call["PS", {}, 0, none, none]],
+          choice[
+            precede[coLabel["recording_made", binding[audio]],
+              call["PS", phrases, pos, recorded[audio], none]],
+            choice[
+              precede[coLabel["prev_item_requested"],
+                call["PS", phrases, pos - 1, none, none]],
+              precede[coLabel["select_item", binding[i]],
+                call["PS", phrases, i, none, none]]]]],
+        choice[
+          precede[coLabel["clear_material"],
+            call["PS", {}, 0, none, none]],
+          choice[
+            precede[coLabel["recording_made", binding[audio]],
+              call["PS", phrases, pos, recorded[audio], none]],
+            precede[coLabel["select_item", binding[i]],
+              call["PS", phrases, i, none, none]]]])),
+    if[res === none,
+      if[pos < Length[phrases] - 1,
+        if[pos > 0,
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                choice[
+                  precede[coLabel["next_item_requested"],
+                    call["PS", phrases, pos + 1, none, none]],
+                  choice[
+                    precede[coLabel["prev_item_requested"],
+                      call["PS", phrases, pos - 1, none, none]],
+                    precede[coLabel["select_item", binding[i]],
+                      call["PS", phrases, i, none, none]]]]]],
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                choice[
+                  precede[coLabel["next_item_requested"],
+                    call["PS", phrases, pos + 1, none, none]],
+                  precede[coLabel["select_item", binding[i]],
+                    call["PS", phrases, i, none, none]]]]]),
+        if[pos > 0,
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                choice[
+                  precede[coLabel["prev_item_requested"],
+                    call["PS", phrases, pos - 1, none, none]],
+                  precede[coLabel["select_item", binding[i]],
+                    call["PS", phrases, i, none, none]]]]]),
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                precede[coLabel["select_item", binding[i]],
+                  call["PS", phrases, i, none, none]]]]])),
+      if[pos < Length[phrases] - 1,
+        if[pos > 0,
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                choice[
+                  precede[coLabel["capture_vocab", binding[word]],
+                    precede[label["vAdd", param[word]],
+                      call["PS", phrases, pos, rec, res]]],
+                  choice[
+                    precede[coLabel["next_item_requested"],
+                      call["PS", phrases, pos + 1, none, none]],
+                    choice[
+                      precede[coLabel["prev_item_requested"],
+                        call["PS", phrases, pos - 1, none, none]],
+                      precede[coLabel["select_item", binding[i]],
+                        call["PS", phrases, i, none, none]]]]]]],
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                choice[
+                  precede[coLabel["capture_vocab", binding[word]],
+                    precede[label["vAdd", param[word]],
+                      call["PS", phrases, pos, rec, res]]],
+                  choice[
+                    precede[coLabel["next_item_requested"],
+                      call["PS", phrases, pos + 1, none, none]],
+                    precede[coLabel["select_item", binding[i]],
+                      call["PS", phrases, i, none, none]]]]]]),
+        if[pos > 0,
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                choice[
+                  precede[coLabel["capture_vocab", binding[word]],
+                    precede[label["vAdd", param[word]],
+                      call["PS", phrases, pos, rec, res]]],
+                  choice[
+                    precede[coLabel["prev_item_requested"],
+                      call["PS", phrases, pos - 1, none, none]],
+                    precede[coLabel["select_item", binding[i]],
+                      call["PS", phrases, i, none, none]]]]]]),
+          choice[
+            precede[coLabel["clear_material"],
+              call["PS", {}, 0, none, none]],
+            choice[
+              precede[coLabel["attempt_made"],
+                call["PS", phrases, pos, rec,
+                  scored[evaluate[targetOf[phrases, pos], rec]]]],
+              choice[
+                precede[coLabel["clear_recording"],
+                  call["PS", phrases, pos, none, none]],
+                choice[
+                  precede[coLabel["capture_vocab", binding[word]],
+                    precede[label["vAdd", param[word]],
+                      call["PS", phrases, pos, rec, res]]],
+                  precede[coLabel["select_item", binding[i]],
+                    call["PS", phrases, i, none, none]]]]]))))]
