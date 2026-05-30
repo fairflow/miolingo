@@ -3,39 +3,39 @@
 (* =====================================================================
    miolingo / L1 — MioCore: PracticeSession || VocabStore (composed)
    ---------------------------------------------------------------------
-   The two recovered agents composed in parallel with the cross-component
-   channels restricted, so the inter-component links synchronise into
-   internal tau steps and are hidden from the outside. This is the single
-   unit to reason about from now on (until the next refinement).
+   The merged unit. The two recovered agents are composed in parallel,
+   their cross-component channels restricted (so the inter-component links
+   become internal tau steps), AND each agent's view! port is RENAMED to a
+   qualified {AgentName}View! so the per-agent view ports do not clash.
+
+   view! is a per-agent discipline port, so a naive par would expose two
+   `view` ports. The merge resolves this with `relabel` — renaming happens
+   at COMPOSITION time; the reusable agents keep the bare `view`. Renaming
+   needs the port name visible, which it is in a mu-term but NOT in a bare
+   call[...], so the merge composes the buildSystem MU-TERMS (the canonical
+   form). Hence MioCore is a mu-term, stepped with transVP[MioCore] (not a
+   call-based agent / transNamed).
+
+   viewAs[name, muTerm] := relabel[muTerm, {"view" -> name<>"View"}].
+
+   Cross-component links (each a complementary output/input pair, restricted):
+     vAdd  : PS.capture_vocab(word)  --vAdd!(word)-->   VS adds the word
+     pLoad : VS.practise_filtered    --pLoad!(phrases)--> PS loads them
 
    LOAD ORDER: RCA_core.wl, discipline.wl, PracticeSessionRecovered.wl,
-   VocabStoreRecovered.wl, then this file.
+   VocabStoreRecovered.wl, then this file. Initial state: Practice with no
+   material; VocabStore signed-in, empty.
 
-   Cross-component links (composition refinement, see the two recovered
-   specs), each a complementary output/input pair on an internal channel:
-     vAdd   : PS.capture_vocab(word)      --vAdd!(word)-->   VS receives, adds
-     pLoad  : VS.practise_filtered        --pLoad!(phrases)--> PS receives, loads
-
-   restrict {vAdd, pLoad} makes those channels internal: the matching
-   output/input become a single tau synchronisation, and the unsynced
-   half-actions are removed from the external interface. Everything else
-   (the user-facing ports of both agents, and both agents' view!/afforded!
-   discipline ports) stays external.
-
-   NOTE: MioCore inherits BOTH agents' view!/afforded! ports (you can view
-   and query each sub-agent). A single unified view!/afforded! projecting
-   the joint state is a future refinement.
-
-   Initial state: Practice with no material; VocabStore signed-in, empty.
-
-   VERIFIED on the engine (2026-05-30): MioCore's external ready set hides
-   vAdd/pLoad; the relays synchronise into tau with the value passing
-   across — tag[τ, vAdd, {w->w0}] and tag[τ, pLoad, {ps->{x1,x2}}].
+   VERIFIED on the engine (2026-05-31): external ready set is
+   {add, import_bulk, load_material, PSView, set_filter, set_sort, VSView}
+   — no bare `view` clash; vAdd/pLoad restricted (internal tau).
    ===================================================================== *)
 
-defineAgent["MioCore", {},
+viewAs[name_String, muTerm_] := relabel[muTerm, {"view" -> name <> "View"}];
+
+MioCore =
   restrict[
     par[
-      call["PS", {}, 0, none, none],
-      call["VS", signedIn, {}, alpha, none, none]],
-    {label["vAdd"], label["pLoad"]}]]
+      viewAs["PS", buildSystem[call["PS", {}, 0, none, none]]],
+      viewAs["VS", buildSystem[call["VS", signedIn, {}, alpha, none, none]]]],
+    {label["vAdd"], label["pLoad"]}];

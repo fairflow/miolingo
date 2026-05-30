@@ -34,7 +34,9 @@ Print[bar];
 Print["1. AGENT REGISTRATION (agentDefs)"];
 Print[bar];
 need = {"PS", "PSActive", "VS", "VSAuthed", "VSNonEmpty",
-        "VSEntryActions", "VSEditActions", "MioCore"};
+        "VSEntryActions", "VSEditActions"};
+(* MioCore is now a composed MU-TERM value (relabeled view!), not a
+   defineAgent; it is stepped with transVP[MioCore], not call["MioCore"]. *)
 Do[Print["   ", StringPadRight[n, 16], KeyExistsQ[agentDefs, n] // ok], {n, need}];
 Print["   discipline helper portsOf has HoldAll? ",
       ok[MemberQ[Attributes[portsOf], HoldAll]]];
@@ -51,12 +53,11 @@ tPS  = transNamed[ps0];   Print["   transNamed[PS]            evaluated? ", ok[e
 tVS  = transNamed[vs0];   Print["   transNamed[VS]            evaluated? ", ok[evaluatedQ[tVS]]];
 tPar = transNamed[parTerm]; Print["   transNamed[par[PS,VS]]    evaluated? ", ok[evaluatedQ[tPar]]];
 tRes = transNamed[resTerm]; Print["   transNamed[restrict[...]] evaluated? ", ok[evaluatedQ[tRes]]];
-tMio = transNamed[call["MioCore"]];
-Print["   transNamed[call[MioCore]] evaluated? ", ok[evaluatedQ[tMio]]];
+tMio = transVP[MioCore];   (* composed mu-term: step with transVP *)
+Print["   transVP[MioCore] evaluated? ", ok[evaluatedQ[tMio]]];
 If[! evaluatedQ[tMio],
   Print["   >>> MioCore did not evaluate. Head of result: ", Head[tMio]];
-  Print["   >>> Likely cause: a sub-agent above shows FAIL (not loaded), or"];
-  Print["   >>> this engine's transNamed lacks the par/restrict clauses."];
+  Print["   >>> Likely cause: a sub-agent above shows FAIL (not loaded)."];
 ];
 
 Print[bar];
@@ -64,7 +65,7 @@ Print["3. EXTERNAL READY SET (vAdd / pLoad must be hidden by restriction)"];
 Print[bar];
 nm[s_] := Sort[portName /@ (First /@ transNamed[s])];
 If[evaluatedQ[tMio],
-  Module[{ns = nm[call["MioCore"]]},
+  Module[{ns = Sort[portName /@ (First /@ transVP[MioCore])]},
     Print["   ", InputForm[ns]];
     Print["   vAdd hidden?  ", ok[! MemberQ[ns, "vAdd"]]];
     Print["   pLoad hidden? ", ok[! MemberQ[ns, "pLoad"]]]]];
