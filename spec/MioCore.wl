@@ -17,7 +17,10 @@
    `mioCore` (only "MioCore" as an agent NAME would be capitalised) — stepped
    with transVP[mioCore], not a call-based agent / transNamed.
 
-   viewAs[name, muTerm] relabels view -> decap[name]<>"View" (Agent->agentView).
+   viewAs (defined in discipline.wl) relabels view -> decap[name]<>"View"
+   (Agent->agentView, so PS->pSView, VS->vSView). It is NOT redefined here:
+   doing so would shadow discipline.wl's decap version and re-expose the
+   capitalised PSView/VSView.
 
    Cross-component links (each a complementary output/input pair, restricted):
      vAdd  : PS.capture_vocab(word)  --vAdd!(word)-->   VS adds the word
@@ -31,8 +34,6 @@
    {add, import_bulk, load_material, pSView, set_filter, set_sort, vSView}
    — no bare `view` clash; vAdd/pLoad restricted (internal tau).
    ===================================================================== *)
-
-viewAs[name_String, muTerm_] := relabel[muTerm, {"view" -> name <> "View"}];
 
 mioCore =
   merge[
