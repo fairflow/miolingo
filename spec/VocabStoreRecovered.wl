@@ -31,7 +31,7 @@
      editing : none | editing[id]   (which row is in inline edit-mode)
 
    VERIFIED on the engine (2026-05-30): ready sets track every mode.
-   RECOVERED READY SETS (view!, afforded! in every mode):
+   RECOVERED READY SETS (analysis only; not explicit channels in the process):
      VS[anon,      _, _,_,_ ]          Anon     : (none)
      VS[signedIn, {}, _,none,none]     Empty    : add, import_bulk,
                                                   set_sort, set_filter
@@ -45,65 +45,95 @@
    ===================================================================== *)
 
 
-(* --- discipline ports + auth gate --- *)
+(* --- top level: view + auth gate --- *)
 defineAgent["VS", {auth, entries, sort, filter, editing},
-  choice[
-    precede[label["view", param[vocabView[auth, entries, sort, filter, editing]]],
-      call["VS", auth, entries, sort, filter, editing]],
+  if[auth === signedIn,
     choice[
-      precede[label["afforded", param[portsOf[call["VS", auth, entries, sort, filter, editing]]]],
+      precede[label["view", param[vocabView[auth, entries, sort, filter, editing]]],
         call["VS", auth, entries, sort, filter, editing]],
-      (* AUTH gate: no domain ports until signed in *)
-      if[auth === signedIn,
-         call["VSAuthed", entries, sort, filter, editing],
-         nil]]]]
+      call["VSAuthed", entries, sort, filter, editing]],
+    precede[label["view", param[vocabView[auth, entries, sort, filter, editing]]],
+      call["VS", auth, entries, sort, filter, editing]])]
 
 
-(* --- always-available CRUD-in + non-empty dispatch (signed in) --- *)
+(* --- signed in: always-available CRUD-in, then non-empty refinement --- *)
 defineAgent["VSAuthed", {entries, sort, filter, editing},
-  choice[
-    precede[coLabel["add", binding[w]],
-      call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
+  if[Length[entries] == 0,
     choice[
-      (* CROSS-COMPONENT (composition refinement): receive a word relayed
-         from PracticeSession's capture_vocab on internal channel vAdd.
-         Restricted in MioCore. *)
-      precede[coLabel["vAdd", binding[w]],
+      precede[coLabel["add", binding[w]],
         call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
       choice[
-      precede[coLabel["import_bulk", binding[f]],
-        call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
-      choice[
-        precede[coLabel["set_sort", binding[s]],
-          call["VS", signedIn, entries, s, filter, editing]],
+        (* CROSS-COMPONENT (composition refinement): receive a word relayed
+           from PracticeSession's capture_vocab on internal channel vAdd.
+           Restricted in MioCore. *)
+        precede[coLabel["vAdd", binding[w]],
+          call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
         choice[
-          precede[coLabel["set_filter", binding[q]],
-            call["VS", signedIn, entries, sort, filterBy[q], editing]],
-          (* per-entry ops + export + practise only when non-empty *)
-          if[Length[entries] == 0,
-             nil,
-             call["VSNonEmpty", entries, sort, filter, editing]]]]]]]]
-
-
-(* --- non-empty: export, guarded practise, and the edit-mode swap --- *)
-defineAgent["VSNonEmpty", {entries, sort, filter, editing},
-  choice[
-    precede[label["export", param[exportCsv[entries]]],
-      call["VS", signedIn, entries, sort, filter, editing]],
+          precede[coLabel["import_bulk", binding[f]],
+            call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
+          choice[
+            precede[coLabel["set_sort", binding[s]],
+              call["VS", signedIn, entries, s, filter, editing]],
+            precede[coLabel["set_filter", binding[q]],
+              call["VS", signedIn, entries, sort, filterBy[q], editing]])]]],
     choice[
-      (* "Practise these" — guard: a filter is set. CROSS-COMPONENT
-         (composition refinement): on the user's click, relay the filtered
-         phrase list to PracticeSession on internal channel pLoad.
-         Restricted in MioCore. *)
-      if[filter =!= none,
-         precede[coLabel["practise_filtered"],
-           precede[label["pLoad", param[practiseList[entries, filter]]],
-             call["VS", signedIn, entries, sort, filter, editing]]],
-         nil],
-      (* per-entry actions, swapped by edit-mode *)
-      if[editing === none,
-         call["VSEntryActions", entries, sort, filter],
-         call["VSEditActions", entries, sort, filter, editing]]]]]
+      precede[coLabel["add", binding[w]],
+        call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
+      choice[
+        (* CROSS-COMPONENT (composition refinement): receive a word relayed
+           from PracticeSession's capture_vocab on internal channel vAdd.
+           Restricted in MioCore. *)
+        precede[coLabel["vAdd", binding[w]],
+          call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
+        choice[
+          precede[coLabel["import_bulk", binding[f]],
+            call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
+          choice[
+            precede[coLabel["set_sort", binding[s]],
+              call["VS", signedIn, entries, s, filter, editing]],
+            choice[
+              precede[coLabel["set_filter", binding[q]],
+                call["VS", signedIn, entries, sort, filterBy[q], editing]],
+              call["VSNonEmpty", entries, sort, filter, editing]]])])])]
+
+
+(* --- non-empty: export always; filter and edit-mode refine the branch --- *)
+defineAgent["VSNonEmpty", {entries, sort, filter, editing},
+  if[filter === none,
+    if[editing === none,
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        call["VSEntryActions", entries, sort, filter]],
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        call["VSEditActions", entries, sort, filter, editing]]),
+    if[editing === none,
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        choice[
+          (* "Practise these" — guard: a filter is set. CROSS-COMPONENT
+             (composition refinement): on the user's click, relay the filtered
+             phrase list to PracticeSession on internal channel pLoad.
+             Restricted in MioCore. *)
+          precede[coLabel["practise_filtered"],
+            precede[label["pLoad", param[practiseList[entries, filter]]],
+              call["VS", signedIn, entries, sort, filter, editing]]],
+          call["VSEntryActions", entries, sort, filter]]],
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        choice[
+          (* "Practise these" — guard: a filter is set. CROSS-COMPONENT
+             (composition refinement): on the user's click, relay the filtered
+             phrase list to PracticeSession on internal channel pLoad.
+             Restricted in MioCore. *)
+          precede[coLabel["practise_filtered"],
+            precede[label["pLoad", param[practiseList[entries, filter]]],
+              call["VS", signedIn, entries, sort, filter, editing]]],
+          call["VSEditActions", entries, sort, filter, editing]])))]
 
 
 (* --- per-entry actions when NOT editing --- *)
@@ -121,7 +151,7 @@ defineAgent["VSEntryActions", {entries, sort, filter},
         precede[coLabel["autofill", binding[id]],
           call["VS", signedIn, autofillIn[entries, id], sort, filter, none]],
         precede[coLabel["begin_edit", binding[id]],
-          call["VS", signedIn, entries, sort, filter, editing[id]]]]]]]
+          call["VS", signedIn, entries, sort, filter, editing[id]]]]]])]
 
 
 (* --- per-entry actions WHILE editing a row --- *)
@@ -130,4 +160,4 @@ defineAgent["VSEditActions", {entries, sort, filter, editing},
     precede[coLabel["update", binding[fields]],
       call["VS", signedIn, updateEntry[entries, editing, fields], sort, filter, none]],
     precede[coLabel["cancel_edit"],
-      call["VS", signedIn, entries, sort, filter, none]]]]
+      call["VS", signedIn, entries, sort, filter, none]])]
