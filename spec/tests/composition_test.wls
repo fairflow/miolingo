@@ -53,8 +53,8 @@ tPS  = transNamed[ps0];   Print["   transNamed[PS]            evaluated? ", ok[e
 tVS  = transNamed[vs0];   Print["   transNamed[VS]            evaluated? ", ok[evaluatedQ[tVS]]];
 tPar = transNamed[parTerm]; Print["   transNamed[par[PS,VS]]    evaluated? ", ok[evaluatedQ[tPar]]];
 tRes = transNamed[resTerm]; Print["   transNamed[restrict[...]] evaluated? ", ok[evaluatedQ[tRes]]];
-tMio = transVP[MioCore];   (* composed mu-term: step with transVP *)
-Print["   transVP[MioCore] evaluated? ", ok[evaluatedQ[tMio]]];
+tMio = transVP[mioCore];   (* composed mu-term: step with transVP *)
+Print["   transVP[mioCore] evaluated? ", ok[evaluatedQ[tMio]]];
 If[! evaluatedQ[tMio],
   Print["   >>> MioCore did not evaluate. Head of result: ", Head[tMio]];
   Print["   >>> Likely cause: a sub-agent above shows FAIL (not loaded)."];
@@ -65,7 +65,7 @@ Print["3. EXTERNAL READY SET (vAdd / pLoad must be hidden by restriction)"];
 Print[bar];
 nm[s_] := Sort[portName /@ (First /@ transNamed[s])];
 If[evaluatedQ[tMio],
-  Module[{ns = Sort[portName /@ (First /@ transVP[MioCore])]},
+  Module[{ns = Sort[portName /@ (First /@ transVP[mioCore])]},
     Print["   ", InputForm[ns]];
     Print["   vAdd hidden?  ", ok[! MemberQ[ns, "vAdd"]]];
     Print["   pLoad hidden? ", ok[! MemberQ[ns, "pLoad"]]]]];

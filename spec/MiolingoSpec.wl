@@ -21,14 +21,14 @@
      discipline.wl                view!/readyPorts + viewAs/merge helpers
      PracticeSessionRecovered.wl  PS / PSActive  (recovered, canonical)
      VocabStoreRecovered.wl       VS / VSAuthed / ...  (recovered)
-     MioCore.wl                   MioCore = merge[...]  (composed mu-term)
+     MioCore.wl                   mioCore = merge[...]  (composed mu-term value)
    The invented strawmen PracticeSession.wl / VocabStore.wl are NOT loaded
    here — they are kept only for the invented-vs-recovered contrast.
 
    USAGE after loading:
      transNamed[call["PS", {p1,p2}, 0, none, none]]   (* simulate an agent *)
      readyPorts[call["VS", signedIn, {e1}, alpha, none, none]]
-     transVP[MioCore]                                  (* step the merged unit *)
+     transVP[mioCore]                                  (* step the merged unit *)
      buildSystem[call["PS", {p1,p2}, 0, none, none]]   (* canonical mu-term *)
    ===================================================================== *)
 

@@ -77,24 +77,29 @@ readyPorts[s_] := portName /@ (First /@ transNamed[s]);
    ---------------------------------------------------------------------
    view! is a per-agent discipline port, so a naive parallel composition
    exposes one `view` per agent — a name clash. merge resolves it by
-   relabelling each agent's view! to a qualified {Name}View! at COMPOSITION
-   time (the reusable agents keep the bare `view`). relabel renames inside a
-   mu-term but no-ops on a bare call[...], so merge buildSystems each agent
-   to its mu-term first — the result is the canonical composed MU-TERM,
-   stepped with transVP.
+   relabelling each agent's view! to a qualified {agent}View! (first letter
+   downcased: "PS" -> pSView, "Agent" -> agentView) at COMPOSITION time (the
+   reusable agents keep the bare `view`; agent NAMES stay capitalised).
+   relabel renames inside a mu-term but no-ops on a bare call[...], so merge
+   buildSystems each agent to its mu-term first — the result is the canonical
+   composed MU-TERM, stepped with transVP.
 
-     viewAs[name, muTerm]   relabel view -> name<>"View" in a mu-term.
+     viewAs[name, muTerm]   relabel view -> decap[name]<>"View" in a mu-term.
      merge[{name -> agentCall, ...}, {restrictChans}]
                             buildSystem each agent, view-qualify it, compose
                             in parallel (nested binary par), and restrict the
                             given cross-component channels (-> internal tau).
 
-   Example:
-     MioCore = merge[{"PS" -> call["PS", {}, 0, none, none],
+   Example (note the lowercase WL symbol mioCore; "MioCore" stays capitalised
+   only as an agent NAME in call[...]):
+     mioCore = merge[{"PS" -> call["PS", {}, 0, none, none]],
                       "VS" -> call["VS", signedIn, {}, alpha, none, none]},
                      {label["vAdd"], label["pLoad"]}];
    ===================================================================== *)
-viewAs[name_String, muTerm_] := relabel[muTerm, {"view" -> name <> "View"}];
+(* decapitalise the first letter (Agent -> agentView): WL convention is
+   that user actions start lc; agent NAMES in call["..."] stay capitalised. *)
+decap[s_String] := ToLowerCase[StringTake[s, 1]] <> StringDrop[s, 1];
+viewAs[name_String, muTerm_] := relabel[muTerm, {"view" -> decap[name] <> "View"}];
 merge[agents : {(_String -> _) ..}, restrictChans_List] :=
   restrict[
     Fold[par, (viewAs[First[#], buildSystem[Last[#]]] &) /@ agents],
