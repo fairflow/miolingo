@@ -34,8 +34,7 @@
 viewAs[name_String, muTerm_] := relabel[muTerm, {"view" -> name <> "View"}];
 
 MioCore =
-  restrict[
-    par[
-      viewAs["PS", buildSystem[call["PS", {}, 0, none, none]]],
-      viewAs["VS", buildSystem[call["VS", signedIn, {}, alpha, none, none]]]],
+  merge[
+    {"PS" -> call["PS", {}, 0, none, none],
+     "VS" -> call["VS", signedIn, {}, alpha, none, none]},
     {label["vAdd"], label["pLoad"]}];

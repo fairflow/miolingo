@@ -70,3 +70,32 @@ readyPorts[s_] := portName /@ (First /@ transNamed[s]);
    REQUIRES the native engine (PR #33). Until it is merged into feature-work,
    load RCA_core.wl from the native-guard-choice worktree.
    ===================================================================== *)
+
+
+(* =====================================================================
+   Composition with view-disambiguation
+   ---------------------------------------------------------------------
+   view! is a per-agent discipline port, so a naive parallel composition
+   exposes one `view` per agent — a name clash. merge resolves it by
+   relabelling each agent's view! to a qualified {Name}View! at COMPOSITION
+   time (the reusable agents keep the bare `view`). relabel renames inside a
+   mu-term but no-ops on a bare call[...], so merge buildSystems each agent
+   to its mu-term first — the result is the canonical composed MU-TERM,
+   stepped with transVP.
+
+     viewAs[name, muTerm]   relabel view -> name<>"View" in a mu-term.
+     merge[{name -> agentCall, ...}, {restrictChans}]
+                            buildSystem each agent, view-qualify it, compose
+                            in parallel (nested binary par), and restrict the
+                            given cross-component channels (-> internal tau).
+
+   Example:
+     MioCore = merge[{"PS" -> call["PS", {}, 0, none, none],
+                      "VS" -> call["VS", signedIn, {}, alpha, none, none]},
+                     {label["vAdd"], label["pLoad"]}];
+   ===================================================================== *)
+viewAs[name_String, muTerm_] := relabel[muTerm, {"view" -> name <> "View"}];
+merge[agents : {(_String -> _) ..}, restrictChans_List] :=
+  restrict[
+    Fold[par, (viewAs[First[#], buildSystem[Last[#]]] &) /@ agents],
+    restrictChans];
