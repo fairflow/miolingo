@@ -55,10 +55,14 @@ readyPorts[s_] := portName /@ (First /@ transNamed[s]);
    if[c, P]     2-arg overload of the conditional = if[c, P, nil]: a
                 guarded summand, fewer characters than a `when`. The 3-arg
                 if[c, P, Q] is unaffected (it does not match the 2-arg
-                rule). Use the merge law where complementary guards carry
-                disjoint actions:  if[c, p.P] + if[!c, q.Q] == if[c, p.P, q.Q]
-                — an optional optimisation, applied per-agent, never a
-                forced 2^n hoist.
+                rule). Merge law for complementary guards (ANY actions):
+                  if[c, A] + if[!c, B] == if[c, A, B]
+                with corollaries if[c,p.P]+if[!c,p.Q] == if[c,p.P,p.Q]
+                (mergeable; may prefix-factor to p.if[c,P,Q]) and
+                if[c,A]+if[!c,A] == A (vacuous guard collapses). Optional
+                optimisation, applied per-agent, never a forced 2^n hoist.
+                (The duplication caution is for splits whose branches share
+                an UNGUARDED summand — not for this complement-merge.)
 
    choice[a,b,c,...]  VARIADIC choice, desugared to right-nested binary
                 so the engine's binary choice rules (transNamed, transVP,
