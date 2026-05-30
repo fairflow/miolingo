@@ -43,3 +43,26 @@ portName[label[n_, ___]]   := n;
 portName[coLabel[n_, ___]] := n;
 portName[a_]               := a;             (* tau / any bare action *)
 affordedNames[portsOf[s_]] := portName /@ (First /@ transNamed[s]);
+
+(* readyPorts[s]: the ANALYSIS-ONLY readiness query (the role the removed
+   `afforded` port used to play, now where it belongs — derived from the
+   live state, not a channel in the process). *)
+readyPorts[s_] := portName /@ (First /@ transNamed[s]);
+
+(* =====================================================================
+   Syntactic sugar (candidate for promotion into RCA_core.wl)
+   ---------------------------------------------------------------------
+   when[g, P]   guarded summand: the readable form of if[g, P, nil].
+                Lets published specs carry guarded choices without the
+                degenerate if[g, P, nil] / if[g, nil, Q] forms.
+
+   choice[a,b,c,...]  VARIADIC choice, desugared to right-nested binary
+                so the engine's binary choice rules (transNamed, transVP,
+                substVv, substRv, fAD, scRules) are untouched. Binary
+                choice[p,q] is unaffected (it does not match the 3+ rule);
+                ABP and all existing terms keep their behaviour.
+                choice[a] (cong a) and choice[] (cong nil) may be normed
+                away separately; not forced here.
+   ===================================================================== *)
+when[g_, p_] := if[g, p, nil];
+choice[a_, b_, c__] := choice[a, choice[b, c]];
