@@ -50,26 +50,23 @@ affordedNames[portsOf[s_]] := portName /@ (First /@ transNamed[s]);
 readyPorts[s_] := portName /@ (First /@ transNamed[s]);
 
 (* =====================================================================
-   Syntactic sugar (candidate for promotion into RCA_core.wl)
+   Core-language forms (NATIVE in RCA_core.wl via the native-guard-choice
+   change, PR #33). No desugaring here — the written syntax is preserved
+   into transitions and buildSystem mu-terms.
    ---------------------------------------------------------------------
-   if[c, P]     2-arg overload of the conditional = if[c, P, nil]: a
-                guarded summand, fewer characters than a `when`. The 3-arg
-                if[c, P, Q] is unaffected (it does not match the 2-arg
-                rule). Merge law for complementary guards (ANY actions):
+   if[c, P]     guarded summand (= if[c, P, nil] semantically), handled
+                directly by transNamed/transVP/transSymbolic/substVv/substRv.
+                Merge law for complementary guards (ANY actions):
                   if[c, A] + if[!c, B] == if[c, A, B]
-                with corollaries if[c,p.P]+if[!c,p.Q] == if[c,p.P,p.Q]
-                (mergeable; may prefix-factor to p.if[c,P,Q]) and
-                if[c,A]+if[!c,A] == A (vacuous guard collapses). Optional
-                optimisation, applied per-agent, never a forced 2^n hoist.
-                (The duplication caution is for splits whose branches share
-                an UNGUARDED summand — not for this complement-merge.)
+                corollaries: if[c,p.P]+if[!c,p.Q] == if[c,p.P,p.Q] (may
+                prefix-factor to p.if[c,P,Q]); if[c,A]+if[!c,A] == A
+                (vacuous guard collapses). Optional, never a forced 2^n
+                hoist. (Duplication caution is for splits sharing an
+                UNGUARDED summand, not this merge.)
 
-   choice[a,b,c,...]  VARIADIC choice, desugared to right-nested binary
-                so the engine's binary choice rules (transNamed, transVP,
-                substVv, substRv, fAD, scRules) are untouched. Binary
-                choice[p,q] is unaffected; ABP and all existing terms keep
-                their behaviour. choice[a] (cong a) / choice[] (cong nil)
-                may be normed away separately; not forced here.
+   choice[a,b,c,...]  variadic choice (binary is the 2-arg case; ABP
+                unaffected).
+
+   REQUIRES the native engine (PR #33). Until it is merged into feature-work,
+   load RCA_core.wl from the native-guard-choice worktree.
    ===================================================================== *)
-if[c_, p_] := if[c, p, nil];
-choice[a_, b_, c__] := choice[a, choice[b, c]];
