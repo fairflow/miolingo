@@ -52,17 +52,20 @@ readyPorts[s_] := portName /@ (First /@ transNamed[s]);
 (* =====================================================================
    Syntactic sugar (candidate for promotion into RCA_core.wl)
    ---------------------------------------------------------------------
-   when[g, P]   guarded summand: the readable form of if[g, P, nil].
-                Lets published specs carry guarded choices without the
-                degenerate if[g, P, nil] / if[g, nil, Q] forms.
+   if[c, P]     2-arg overload of the conditional = if[c, P, nil]: a
+                guarded summand, fewer characters than a `when`. The 3-arg
+                if[c, P, Q] is unaffected (it does not match the 2-arg
+                rule). Use the merge law where complementary guards carry
+                disjoint actions:  if[c, p.P] + if[!c, q.Q] == if[c, p.P, q.Q]
+                — an optional optimisation, applied per-agent, never a
+                forced 2^n hoist.
 
    choice[a,b,c,...]  VARIADIC choice, desugared to right-nested binary
                 so the engine's binary choice rules (transNamed, transVP,
                 substVv, substRv, fAD, scRules) are untouched. Binary
-                choice[p,q] is unaffected (it does not match the 3+ rule);
-                ABP and all existing terms keep their behaviour.
-                choice[a] (cong a) and choice[] (cong nil) may be normed
-                away separately; not forced here.
+                choice[p,q] is unaffected; ABP and all existing terms keep
+                their behaviour. choice[a] (cong a) / choice[] (cong nil)
+                may be normed away separately; not forced here.
    ===================================================================== *)
-when[g_, p_] := if[g, p, nil];
+if[c_, p_] := if[c, p, nil];
 choice[a_, b_, c__] := choice[a, choice[b, c]];
