@@ -76,31 +76,52 @@ readyPorts[s_] := portName /@ (First /@ transNamed[s]);
    Composition with view-disambiguation
    ---------------------------------------------------------------------
    view! is a per-agent discipline port, so a naive parallel composition
-   exposes one `view` per agent — a name clash. merge resolves it by
+   exposes one `view` per agent — a name clash. Both helpers resolve it by
    relabelling each agent's view! to a qualified {agent}View! (first letter
    downcased: "PS" -> pSView, "Agent" -> agentView) at COMPOSITION time (the
    reusable agents keep the bare `view`; agent NAMES stay capitalised).
-   relabel renames inside a mu-term but no-ops on a bare call[...], so merge
-   buildSystems each agent to its mu-term first — the result is the canonical
-   composed MU-TERM, stepped with transVP.
 
-     viewAs[name, muTerm]   relabel view -> decap[name]<>"View" in a mu-term.
-     merge[{name -> agentCall, ...}, {restrictChans}]
-                            buildSystem each agent, view-qualify it, compose
-                            in parallel (nested binary par), and restrict the
-                            given cross-component channels (-> internal tau).
+   TWO composition helpers, differing only in the representation they leave:
+
+     merge         buildSystems each agent to a mu-term FIRST, then composes.
+                   Result is the canonical composed MU-TERM, stepped with
+                   transVP. relabel under transVP is a STATIC rewrite, which
+                   needs the literal "view" present — hence buildSystem. The
+                   cost: the term and every successor are bulky mu-terms.
+
+     mergeDefined  composes the call[...] equations directly (NO buildSystem):
+                   successors stay compact, restrict[par[<call>,<call>],chans].
+                   Stepped with transNamed. REQUIRES the transition-time
+                   transNamed[relabel] engine change (RCA_core, branch
+                   relabel-transition-time) — under the old static rule the
+                   view-rename would no-op on a bare call. Use this for
+                   simulation / trace work; merge stays for the canonical form.
+
+     viewAs[name, term]   relabel view -> decap[name]<>"View" (term = mu-term
+                          for merge, or a bare call for mergeDefined).
 
    Example (note the lowercase WL symbol mioCore; "MioCore" stays capitalised
    only as an agent NAME in call[...]):
-     mioCore = merge[{"PS" -> call["PS", {}, 0, none, none]],
-                      "VS" -> call["VS", signedIn, {}, alpha, none, none]},
-                     {label["vAdd"], label["pLoad"]}];
+     mioCore  = merge[       {"PS" -> call["PS", {}, 0, none, none],
+                              "VS" -> call["VS", signedIn, {}, alpha, none, none]},
+                             {label["vAdd"], label["pLoad"]}];
+     mioCoreD = mergeDefined[ ... same args ... ];   (* compact, transNamed *)
    ===================================================================== *)
 (* decapitalise the first letter (Agent -> agentView): WL convention is
    that user actions start lc; agent NAMES in call["..."] stay capitalised. *)
 decap[s_String] := ToLowerCase[StringTake[s, 1]] <> StringDrop[s, 1];
-viewAs[name_String, muTerm_] := relabel[muTerm, {"view" -> decap[name] <> "View"}];
+viewAs[name_String, term_] := relabel[term, {"view" -> decap[name] <> "View"}];
+
+(* canonical mu-term composition (transVP); buildSystem exposes "view" for
+   the static relabel. *)
 merge[agents : {(_String -> _) ..}, restrictChans_List] :=
   restrict[
     Fold[par, (viewAs[First[#], buildSystem[Last[#]]] &) /@ agents],
+    restrictChans];
+
+(* compact equation composition (transNamed); needs transition-time
+   transNamed[relabel] so viewAs renames the view! emitted by a bare call. *)
+mergeDefined[agents : {(_String -> _) ..}, restrictChans_List] :=
+  restrict[
+    Fold[par, (viewAs[First[#], Last[#]] &) /@ agents],
     restrictChans];

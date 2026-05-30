@@ -40,3 +40,15 @@ mioCore =
     {"PS" -> call["PS", {}, 0, none, none],
      "VS" -> call["VS", signedIn, {}, alpha, none, none]},
     {label["vAdd"], label["pLoad"]}];
+
+(* Compact call-based twin (mergeDefined): same composition, but stepped with
+   transNamed and with call-based successors — no mu-term bulk. Use this for
+   simulation / trace work; mioCore stays as the canonical mu-term. Requires
+   the transition-time transNamed[relabel] engine change (RCA_core branch
+   relabel-transition-time); under the old static rule the view-rename no-ops
+   on the bare calls and the views would clash. *)
+mioCoreD =
+  mergeDefined[
+    {"PS" -> call["PS", {}, 0, none, none],
+     "VS" -> call["VS", signedIn, {}, alpha, none, none]},
+    {label["vAdd"], label["pLoad"]}];
