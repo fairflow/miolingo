@@ -321,6 +321,46 @@ eventLogForm[log_List] := StringRiffle[
           " " <> ToString[e["value"], InputForm]]]] &) /@ log,
   "\n"];
 
+(* parseEventLog[text] : INVERSE of eventLogForm — recover an EXECUTABLE plan
+   (a list of vis["port"] | tau["chan"] entries) from a rendered text trace.
+   Logged values are IGNORED: walkSteps re-derives them from the labels alone,
+   so the parser only needs the port/channel and the [vis]/[TAU] prefix.
+     - split on newlines, drop blank lines (tolerant of surrounding whitespace);
+     - "[vis] ..." : take the next whitespace token, keep its LEADING run of
+                     word chars (drops the trailing ! / ? polarity tag),
+                     emit vis[port];
+     - "[TAU] ..." : likewise, keep the leading word-char run (drops the
+                     trailing \[Tau] polarity tag), emit tau[chan];
+     - lines NOT starting with "[vis]"/"[TAU]" (e.g. wrapped value text, or a
+       bare \[Tau] event with no named channel) are skipped — the dual-tau
+       plan uses named channels so that edge does not arise there.
+   The port token is matched as a leading run of word characters rather than
+   by stripping a specific glyph, so it is robust to the \[Tau] polarity tag
+   surviving a text-file round-trip as multi-byte (UTF-8) bytes.
+   Round-trip target: parseEventLog[eventLogForm[condense[tf,s0,plan]]] === plan. *)
+(* port/channel names are ASCII [A-Za-z0-9_]+; matching the LEADING ASCII-word
+   run drops any trailing polarity glyph, INCLUDING a \[Tau] that survived a
+   text round-trip as raw UTF-8 bytes (which a Unicode \w would wrongly keep). *)
+leadingPort[tok_String] := First[StringCases[tok, RegularExpression["^[A-Za-z0-9_]+"]], ""];
+parseEventLog[text_String] := Module[
+  {lines, parseLine},
+  lines = Select[StringTrim /@ StringSplit[text, "\n"], # =!= "" &];
+  parseLine[line_] := Module[{rest, port},
+    Which[
+      StringStartsQ[line, "[vis]"],
+        rest = StringTrim[StringDrop[line, StringLength["[vis]"]]];
+        port = leadingPort[First[StringSplit[rest], ""]];
+        If[port === "", {}, {vis[port]}],
+      StringStartsQ[line, "[TAU]"],
+        rest = StringTrim[StringDrop[line, StringLength["[TAU]"]]];
+        port = leadingPort[First[StringSplit[rest], ""]];
+        If[port === "", {}, {tau[port]}],
+      True, {}]];
+  Flatten[parseLine /@ lines, 1]];
+
+(* importTrace[file] : parseEventLog of a text-trace file's contents. *)
+importTrace[file_String] := parseEventLog[ReadString[file]];
+
 (* replay[init, ops] : DERIVE a cumulative snapshot from a log of value-function
    OPERATIONS by folding them onto an initial state term. Each op is a function
    that maps the running term to the next (e.g. (addEntry[#, w] &)). This makes
