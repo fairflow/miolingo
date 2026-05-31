@@ -13,31 +13,19 @@
      D. cross-engine parity: the same plan run through mioCore/transVP
         and mioCoreD/transNamed yields identical event logs
 
-   NB: $rca points at the canonical RCA_core.wl. replayTrace / walk were
-   merged to feature-work (PR #36); if a LOCAL checkout is behind and
-   replayTrace is undefined, FALL BACK to the verified merged copy below.
-   Remove the fallback block once feature-work is pulled into the
-   canonical checkout.
+   replayTrace / walk need engine PR #36; loadEngine[] (spec/paths.wl) asserts
+   the engine checkout contains it via the $minEngineSha guard and aborts with
+   a clear message if not — replacing the old hand-rolled fallback that reached
+   into a feature worktree.
 
    Run headless:  wolframscript -file spec/tests/trace_io_test.wls
    ===================================================================== *)
 
-$rca  = "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl";
-$spec = "/Users/matthew/Software/working/miolingo/.claude/worktrees/trace-io/spec/";
+Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "paths.wl"}]];
 
-Quiet[Get[$rca]];
-
-(* ---- replayTrace fallback (REMOVE once feature-work is canonical) ---- *)
-If[DownValues[replayTrace] === {},
-  $rcaFallback = "/Users/matthew/Projects/private/Mathematica/.claude/worktrees/walk-interactive-replay/RCA/RCA_core.wl";
-  Print["NOTE: replayTrace not in canonical $rca; loading fallback ", $rcaFallback];
-  Quiet[Get[$rcaFallback]]];
-(* --------------------------------------------------------------------- *)
-
-Get[$spec <> "discipline.wl"];
-Get[$spec <> "PracticeSessionRecovered.wl"];
-Get[$spec <> "VocabStoreRecovered.wl"];
-Get[$spec <> "MioCore.wl"];
+loadEngine[];
+loadRecoveredBase[];
+mioGet["MioCore.wl"];
 
 hr      = StringRepeat["=", 70];
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
