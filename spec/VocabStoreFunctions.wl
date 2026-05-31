@@ -24,14 +24,21 @@
    ===================================================================== *)
 
 
-(* --- oracles / impurity isolation -------------------------------------
-   vsNow[]   : wall-clock at capture (datetime.now, vocab.py:142). Left
-               uninterpreted: timestamps are IO, used only as opaque CSV
-               fillers here. (Comparable-time sorts noted below.)
-   vsNewId   : DB autoincrement vocab_id. Modelled DETERMINISTICALLY from
-               the current list (max existing id + 1) so the pure model is
-               testable; the real id is assigned by the store at L3. *)
-vsNewId[entries_List] := 1 + Max[Append[Cases[entries, e_ /; KeyExistsQ[e, "id"] :> e["id"]], 0]];
+(* --- derived identity + LOGICAL clock ---------------------------------
+   vsNewId    : DB autoincrement vocab_id. Modelled DETERMINISTICALLY from
+                the current list (max existing id + 1) so the pure model is
+                testable; the real id is assigned by the store at L3.
+   vsNextSeq  : the LOGICAL clock — a monotonic capture-event counter
+                derived purely from state (max last_seq + 1). It captures
+                the ONLY temporal fact miolingo actually uses: the
+                happens-before of capture events (for recent/oldest sorts).
+                NO wall-clock: no guard reads time, so the sidereal stamp
+                (datetime.now, vocab.py:142) is deliberately UNMODELLED at
+                L1 — see spec/docs/function-recovery.md §"time". Real
+                timestamps, if ever wanted, belong as annotations on stored
+                action sequences (trace coordination), not on domain state. *)
+vsNewId[entries_List]   := 1 + Max[Append[Cases[entries, e_ /; KeyExistsQ[e, "id"] :> e["id"]], 0]];
+vsNextSeq[entries_List] := 1 + Max[Append[Cases[entries, e_ /; KeyExistsQ[e, "last_seq"] :> e["last_seq"]], 0]];
 
 emptyToNull[x_]   := If[x === "" || x === Null || MissingQ[x], Null, x];
 coalesce[old_, new_] := If[old === Null || old === "" || MissingQ[old], emptyToNull[new], old];
@@ -93,12 +100,13 @@ addEntry[entries_List, w_] := Module[
       "context_before" -> emptyToNull[Lookup[a, "context_before", Null]],
       "context_line" -> emptyToNull[Lookup[a, "context_line", Null]],
       "context_after" -> emptyToNull[Lookup[a, "context_after", Null]],
-      "times_seen" -> 1, "first_seen_at" -> vsNow[], "last_seen_at" -> vsNow[],
+      "times_seen" -> 1,
+      "first_seq" -> vsNextSeq[entries], "last_seq" -> vsNextSeq[entries],
       "notes" -> Null|>],
     MapAt[
       Function[e, Module[{m = e},
-        m["times_seen"]    = m["times_seen"] + 1;
-        m["last_seen_at"]  = vsNow[];
+        m["times_seen"] = m["times_seen"] + 1;
+        m["last_seq"]   = vsNextSeq[entries];   (* advance the logical clock *)
         Scan[(m[#] = coalesce[m[#], Lookup[a, #, Null]]) &,
           {"translation", "ipa", "source_name", "url",
            "context_before", "context_line", "context_after"}];
@@ -236,20 +244,26 @@ exportCsv[entries_List] := StringRiffle[
        r["translation"], r["ipa"],
        Lookup[r, "source_language_code", Null], r["source_name"],
        r["context_before"], r["context_line"], r["context_after"],
-       Lookup[r, "times_seen", 1], r["first_seen_at"], r["last_seen_at"],
+       (* first_seen_at / last_seen_at columns kept for CSV interop with the
+          real app, but emitted empty: wall-clock is unmodelled at L1 (the
+          ordering they serve lives in first_seq/last_seq instead). *)
+       Lookup[r, "times_seen", 1], "", "",
        r["notes"], r["url"]}]]) /@ entries,
     exportCsvRow[exportCsvHeader]],
   "\n"];
 
 
 (* --- sort + filter (list_vocab order map + search; vocab.py:195) ------
-   alpha is fully recovered (by lookup key). recent/oldest order by
-   last_seen_at / first_seen_at, which are the wall-clock oracle vsNow[];
-   absent a comparable clock in the pure model they fall back to insertion
-   order (newest-last), documented as the clock-IO abstraction. *)
+   All three orders are now FAITHFUL via the logical clock (no abstraction):
+     alpha  : by lookup key (word ASC)
+     recent : last_seq DESC  (= last_seen_at DESC; a re-captured old word
+              correctly jumps to the front via its bumped last_seq)
+     oldest : first_seq ASC  (= first_seen_at ASC)
+   first_seq/last_seq are vsNextSeq capture-event counters, so this matches
+   list_vocab's ORDER BY without any wall-clock. *)
 sortEntries[entries_List, "alpha"]  := SortBy[entries, #["word"] &];
-sortEntries[entries_List, "recent"] := Reverse[entries];
-sortEntries[entries_List, "oldest"] := entries;
+sortEntries[entries_List, "recent"] := SortBy[entries, -Lookup[#, "last_seq", 0] &];
+sortEntries[entries_List, "oldest"] := SortBy[entries, Lookup[#, "first_seq", 0] &];
 sortEntries[entries_List, _]        := SortBy[entries, #["word"] &];
 
 (* filterMatch: the DEFAULT search branch (plain text = substring on word

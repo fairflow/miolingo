@@ -1,9 +1,11 @@
 #!/usr/bin/env wolframscript
 (* function-recovery pass — golden cases for VS + PS value-functions,
    checked against behaviour stated in the Python docstrings (NOT a live DB).
-   Loads the WORKTREE copies directly. *)
+   Spec files load RELATIVE to this test's location (tests/.. = spec/), so the
+   test runs unchanged in a worktree OR after merge into the canonical spec.
+   Only the shared engine path is absolute. *)
 
-$wt = "/Users/matthew/Software/working/miolingo/.claude/worktrees/function-recovery/spec/";
+$wt = ParentDirectory[DirectoryName[$InputFileName]] <> "/";
 Quiet[Get["/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl"]];
 Get[$wt <> "discipline.wl"];
 Get[$wt <> "PracticeSessionRecovered.wl"];
@@ -88,6 +90,20 @@ Print["  importInto target mismatch -> no-op? ",
 (* missing header -> no-op *)
 Print["  importInto missing header -> no-op? ",
   ok[importInto[{}, <|"contents" -> "chat|cat", "expectedTarget" -> "en"|>] === {}]];
+
+(* logical clock: recent/oldest order by last_seq/first_seq, bump-aware *)
+lc0 = addEntry[addEntry[{}, "alpha"], "beta"];   (* alpha older, beta newer *)
+Print["  oldest = capture order [alpha,beta]? ",
+  ok[#["word"] & /@ sortEntries[lc0, "oldest"] === {"alpha", "beta"}]];
+Print["  recent = reverse [beta,alpha]? ",
+  ok[#["word"] & /@ sortEntries[lc0, "recent"] === {"beta", "alpha"}]];
+lc1 = addEntry[lc0, "alpha"];                    (* re-capture alpha: bump *)
+Print["  recent after re-capturing alpha -> [alpha,beta]? ",
+  ok[#["word"] & /@ sortEntries[lc1, "recent"] === {"alpha", "beta"}]];
+Print["  oldest unchanged after bump -> [alpha,beta]? ",
+  ok[#["word"] & /@ sortEntries[lc1, "oldest"] === {"alpha", "beta"}]];
+Print["  no wall-clock keys on entries? ",
+  ok[FreeQ[lc1, "first_seen_at" | "last_seen_at" | _vsNow]]];
 
 (* practiseList: filter + shape to {text,translation,ipa} *)
 pl = practiseList[ei, none];
