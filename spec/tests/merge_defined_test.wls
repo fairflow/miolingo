@@ -22,7 +22,7 @@
    Run headless:  wolframscript -file spec/tests/merge_defined_test.wls
    ===================================================================== *)
 
-$rca  = "/Users/matthew/Projects/private/Mathematica/.claude/worktrees/relabel-transition-time/RCA/RCA_core.wl";
+$rca  = "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl";
 $spec = "/Users/matthew/Software/working/miolingo/spec/";
 
 Quiet[Get[$rca]];
