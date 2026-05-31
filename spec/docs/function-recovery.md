@@ -88,6 +88,17 @@ encodes a Python NULL column. A practice `phrase` is `<|"text","translation",
 `practiseList` (VS) directly produces a PS `phrases` queue: that is the `pLoad`
 relay made concrete.
 
+**`word` vs `text` — two interfaces, not an inconsistency.** A VocabStore entry
+is keyed by `"word"` (the lowercased dedup/lookup key; `"display_word"` keeps the
+original casing) — it is a *dictionary of words*. A PracticeSession phrase carries
+`"text"` — *something to pronounce*, a word OR a multi-word phrase, so it is the
+more general field. They are different domains and deliberately do not share a
+field name; **`practiseList` is the bridge** (`"display_word" -> "text"`). Hence
+the capture ports (`add`, `vAdd`, and `addEntry`) require a payload with `"word"`:
+handing them a practice-phrase `<|"text"->…|>` is a no-op, because `addEntry`
+validates `Lookup[w,"word",""]` and an absent key fails `validateWord`. This
+mirrors the Python source (`vocab.word` vs the practice payload's `text`).
+
 ### Documented abstractions (where the pure model is honestly weaker)
 - **Time — LOGICAL clock, no wall clock.** No guard in the spec reads time:
   it is passive data (stored, sorted-by, exported), never a control input. So
