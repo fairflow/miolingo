@@ -175,7 +175,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                     Button[showAction[act],
                       Module[{taken},
                         taken = If[valueInputQ[act] && KeyExistsQ[inVals, nm] &&
-                                   inVals[nm] =!= Null && inVals[nm] =!= "",
+                                   !MatchQ[inVals[nm], Null | "" | Nothing],
                                  supplyValue[tr, inVals[nm]], tr];
                         AppendTo[hist, cur];
                         AppendTo[trace, eventOf[First[taken]]];
@@ -186,9 +186,9 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                       Row[{Spacer[6],
                            Style["\[LeftArrow] " <> ToString[First[inputBinderOf[act]]] <> " = ",
                              GrayLevel[0.5]],
-                           (* default to "" (not Missing[KeyAbsent]) when the
-                              port has no value yet; write inVals[nm] on edit *)
-                           InputField[Dynamic[Lookup[inVals, nm, ""], (inVals[nm] = #) &],
+                           (* default to Nothing (a clean-empty field, not
+                              Missing[KeyAbsent] or ""); write inVals[nm] on edit *)
+                           InputField[Dynamic[Lookup[inVals, nm, Nothing], (inVals[nm] = #) &],
                              Expression, FieldSize -> 20, ContinuousAction -> False]}],
                       Nothing]}]]],
                 trans]]],
