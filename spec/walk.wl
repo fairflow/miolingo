@@ -86,3 +86,112 @@ supplyValue[trans_List, val_] := Module[{binders = inputBinderOf[First[trans]]},
 --------------------------------------------------------------------- *)
 walkResolve[tf_, s_, vis[nm_, val_]] := Module[{t = walkResolve[tf, s, vis[nm]]},
   If[MissingQ[t], t, supplyValue[t, val]]];
+
+
+(* =====================================================================
+   DYNAMIC WIDGETS  (notebook front end — drive these; not headless)
+   ---------------------------------------------------------------------
+   Composable Dynamic pieces, plus walkUI[] that assembles them. Each
+   reuses the substrate above + discipline.wl's data-compaction display
+   (linearizeGrid) + the engine's action rendering (showAction). They need
+   a notebook front end to render; loading this file headlessly only
+   DEFINES them (a useful syntax check).
+   ===================================================================== *)
+
+(* viewProjections[tf, s] : the published read-only projections at s, as
+   <|"portName" -> projectionValue|>. A view port is an OUTPUT (label[...])
+   whose name ends in "View" (vSView, pSView), carrying param[projection]. *)
+viewProjections[tf_, s_] := Association[
+  (ToString[portName[First[#]]] ->
+     First[Cases[First[#], param[p_] :> p, Infinity], None]) & /@
+  Select[readyTransitions[tf, s],
+    MatchQ[First[#], label[_, param[_]]] &&
+    StringEndsQ[ToString[portName[First[#]]], "View"] &]];
+
+(* dataView[tf, s] : the state's DATA through the compaction grid — one
+   linearizeGrid per published projection. The "visual data compression". *)
+dataView[tf_, s_] := Module[{projs = viewProjections[tf, s]},
+  If[projs === <||>,
+    Style["(no view ports ready)", Italic, GrayLevel[0.5]],
+    Column[KeyValueMap[
+      Function[{nm, p},
+        Column[{Style[nm, Bold, Darker[Blue]], linearizeGrid[p]}, Spacings -> 0.4]],
+      projs], Spacings -> 1]]];
+
+(* traceView[traceDyn] : condensed event-log rendering of the trace held in
+   the Dynamic-tracked symbol passed by reference, + a Copy button. *)
+SetAttributes[traceView, HoldFirst];
+traceView[trace_] := Column[{
+  Style["Trace (condensed event log)", Bold],
+  Pane[Dynamic[If[trace === {},
+        Style["(no steps yet)", Italic, GrayLevel[0.5]],
+        Style[eventLogForm[trace], FontFamily -> "Courier", FontSize -> 12]]],
+    {Automatic, 110}, Scrollbars -> Automatic],
+  Button["Copy trace \[SelectionPlaceholder]", CopyToClipboard[trace],
+    Enabled -> Dynamic[trace =!= {}]]}];
+
+(* ---------------------------------------------------------------------
+   walkUI[agent, opts] : the integrated harness. Drive the sim, PLAY THE
+   USER by typing a real value into any ready input port (the InputField
+   beside it), watch the data-compaction view + condensed trace update,
+   step / back / reset. Untouched input ports step symbolically (binder
+   left free), so it degrades to the plain symbolic walk.
+
+   Value entry uses InputField[..., Expression]: type a WL value, e.g.
+       "happy"                         (a string, for set_filter)
+       <|"word"->"chat","translation"->"cat"|>   (for add)
+   Option "TransitionFunction" -> transVP (mioCore) | transNamed (mioCoreD).
+--------------------------------------------------------------------- *)
+Options[walkUI] = {"TransitionFunction" -> transVP};
+walkUI[agent_, opts : OptionsPattern[]] := With[
+  {tf = OptionValue["TransitionFunction"]},
+  DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>},
+    Dynamic[
+      Module[{trans = readyTransitions[tf, cur]},
+        Framed[Column[{
+
+          Style["Data view \[LongDash] published projections", Bold, 13],
+          dataView[tf, cur],
+
+          Style["Transitions \[LongDash] click to step; type into input ports", Bold, 13],
+          If[trans === {},
+            Style["(deadlocked \[LongDash] no transitions)", Italic, GrayLevel[0.5]],
+            Column[
+              Map[Function[tr,
+                With[{act = First[tr], nm = ToString[portName[First[tr]]]},
+                  Row[{
+                    Button[showAction[act],
+                      Module[{taken},
+                        taken = If[valueInputQ[act] && KeyExistsQ[inVals, nm] &&
+                                   inVals[nm] =!= Null && inVals[nm] =!= "",
+                                 supplyValue[tr, inVals[nm]], tr];
+                        AppendTo[hist, cur];
+                        AppendTo[trace, eventOf[First[taken]]];
+                        cur = Last[taken]; inVals = <||>],
+                      Appearance -> "Frameless",
+                      ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}],
+                    If[valueInputQ[act],
+                      Row[{Spacer[6], Style["\[LeftArrow] ", GrayLevel[0.5]],
+                           InputField[Dynamic[inVals[nm]], Expression,
+                             FieldSize -> 20, ContinuousAction -> False,
+                             FieldHint -> ToString[First[inputBinderOf[act]]]]}],
+                      Nothing]}]]],
+                trans]]],
+
+          Row[{
+            Button["\[LeftArrow] Back",
+              If[hist =!= {}, cur = Last[hist]; hist = Most[hist];
+                 trace = Most[trace]; inVals = <||>],
+              Enabled -> Dynamic[hist =!= {}]],
+            Spacer[6],
+            Button["Reset \[CenterDot]", cur = agent; hist = {}; trace = {};
+               inVals = <||>]}],
+
+          traceView[trace]
+
+        }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
+      TrackedSymbols :> {cur, inVals}]]];
+
+(* NB: the engine binds `walk = interactiveVP` (an OwnValue), so we do NOT
+   reuse that name here — call walkUI[mioCore] for the richer spec harness.
+   Whether to rebind `walk` to walkUI is left until the UX settles. *)
