@@ -42,11 +42,12 @@ it as a named stub *records the recovered fact* that the operation is IO-bound.
 ### The oracles (the IO boundary, kept as stubs)
 | oracle | meaning | source |
 |---|---|---|
-| `vsNow[]` | capture wall-clock | `vocab.py:142` `datetime.now` |
 | `enrichOracle[word]` | translation + IPA enrichment | `vocab.py:70` `_enrich` (LLM + espeak) |
 | `recognisePhonemes[audio]` | ASR: audio → phoneme string | the speech-recognition step feeding `compare_phonemes` |
 
-`vsNewId[entries]` is a borderline case: the real id is a DB autoincrement (IO),
+The **wall clock** (`datetime.now`, `vocab.py:142`) was an oracle in the first
+draft but is now **eliminated**, not deferred — see §3 "time". `vsNewId[entries]`
+is a borderline case: the real id is a DB autoincrement (IO),
 but its *only* semantic requirement is uniqueness, so it is modelled
 **deterministically** as `max(existing ids)+1` — pure and testable. The store
 assigns the real id at L3; nothing in L1 depends on its value, only its
@@ -58,7 +59,7 @@ freshness.
 
 | stub (in `*Recovered.wl`) | Python source | pure core recovered | oracle / IO |
 |---|---|---|---|
-| `addEntry[entries,w]` | `capture_vocab_entry` `vocab.py:106` | upsert by lookup key: dedup, `times_seen+1`, COALESCE fill-don't-overwrite, else append | `enrichOracle` (skipped — `enrich=False` path), `vsNow`, `vsNewId` |
+| `addEntry[entries,w]` | `capture_vocab_entry` `vocab.py:106` | upsert by lookup key: dedup, `times_seen+1`, COALESCE fill-don't-overwrite, else append; stamps `first_seq`/`last_seq` (logical clock) | `enrichOracle` (skipped — `enrich=False` path); `vsNewId`/`vsNextSeq` are pure |
 | `deleteFrom[entries,id]` | `delete_vocab_entry:301` | delete by id | — |
 | `updateNotesIn[entries,idn]` | `update_vocab_notes:314` | set `notes` on id | — |
 | `updateEntry[entries,editingRow[id],fields]` | `update_vocab_entry:343` | reject non-editable keys; `display_word` must preserve lookup key; delta-merge | — |
@@ -79,17 +80,33 @@ An `entry` is an `Association` whose keys are the `vocab_entries` columns the
 domain touches, traceable to `list_vocab`'s `SELECT *` and `_render_export_csv`'s
 column list: `"id" "word"(lookup key) "display_word" "translation" "ipa"
 "source_name" "url" "context_before|line|after" "times_seen"
-"first_seen_at" "last_seen_at" "notes"`. `entries` is a `List[entry]`. `Null`
+"first_seq" "last_seq" "notes"`. (`first_seq`/`last_seq` are the logical-clock
+counters that REPLACE the schema's `first_seen_at`/`last_seen_at` wall-clock
+columns — see §"time".) `entries` is a `List[entry]`. `Null`
 encodes a Python NULL column. A practice `phrase` is `<|"text","translation",
 "ipa"|>` — exactly `vocab_as_practice_phrases`'s output, which is why
 `practiseList` (VS) directly produces a PS `phrases` queue: that is the `pLoad`
 relay made concrete.
 
 ### Documented abstractions (where the pure model is honestly weaker)
-- **Time.** `first_seen_at`/`last_seen_at` are `vsNow[]` (opaque). The `recent`/
-  `oldest` sorts therefore fall back to insertion order (newest-last) rather
-  than a real clock comparison; `alpha` is fully faithful. Recorded here, not
-  silently dropped (SPEC-RECOVERY §1).
+- **Time — LOGICAL clock, no wall clock.** No guard in the spec reads time:
+  it is passive data (stored, sorted-by, exported), never a control input. So
+  rather than model a wall clock (an async clock *agent* would force a
+  request/block/receive/resume handshake and a train of τ's to fetch a value
+  that only lands in a data field; timed CCS is for when *delay/deadline*
+  gates behaviour — it doesn't here), we keep only the one temporal fact the
+  app actually uses: the **happens-before of capture events**. That is a
+  **logical clock** — `vsNextSeq` (monotonic `max(last_seq)+1`, derived purely
+  from state, like `vsNewId`). `addEntry` stamps a new entry
+  `first_seq=last_seq=next` and, on a re-capture bump, advances `last_seq`.
+  Then `recent` = `last_seq DESC` and `oldest` = `first_seq ASC` — **fully
+  faithful** to `list_vocab`'s ordering (a re-seen old word correctly jumps to
+  "recent" via its bumped `last_seq`), with no IO. This is more faithful AND
+  cheaper than the wall clock, which is *eliminated*. The sidereal timestamp is
+  reserved for a possible future use — annotating **stored action sequences**
+  (trace coordination / replay for testing) — never domain state. `exportCsv`
+  keeps the `first_seen_at`/`last_seen_at` columns for CSV interop with the real
+  app but emits them empty.
 - **Search.** `practiseList`/`vocabView` filtering implements only the default
   branch (plain text = substring on word OR translation). The `vocab_search`
   mini-language is a separate module and a separate recovery task.
