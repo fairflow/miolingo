@@ -31,7 +31,7 @@ Get[$spec <> "PracticeSessionRecovered.wl"];
 Get[$spec <> "VocabStoreRecovered.wl"];
 Get[$spec <> "MioCore.wl"];
 
-bar = StringRepeat["=", 70];
+hr = StringRepeat["=", 70];
 ok[b_]      := If[TrueQ[b], "OK", "*** FAIL ***"];
 isTau[a_]   := MatchQ[a, tag[\[Tau], ___]] || a === \[Tau];
 names[tr_]  := Sort[portName /@ (First /@ tr)];
@@ -42,13 +42,13 @@ de0 = transNamed[mioCoreD];
 expected = {"add", "import_bulk", "load_material", "pSView",
             "set_filter", "set_sort", "vSView"};
 
-Print[bar]; Print["1. EXTERNAL READY-SET PARITY"]; Print[bar];
+Print[hr]; Print["1. EXTERNAL READY-SET PARITY"]; Print[hr];
 Print["   merge       (transVP)   : ", InputForm[names[mu0]]];
 Print["   mergeDefined (transNamed): ", InputForm[names[de0]]];
 Print["   agree?             ", ok[names[mu0] === names[de0]]];
 Print["   equals documented? ", ok[names[de0] === expected]];
 
-Print[bar]; Print["2. COMPACTNESS / CALL-BASED SUCCESSORS"]; Print[bar];
+Print[hr]; Print["2. COMPACTNESS / CALL-BASED SUCCESSORS"]; Print[hr];
 Print["   LeafCount mioCore  (mu-term)   : ", LeafCount[mioCore]];
 Print["   LeafCount mioCoreD (call-based): ", LeafCount[mioCoreD]];
 Print["   mioCoreD much smaller? ", ok[LeafCount[mioCoreD] < LeafCount[mioCore]/2]];
@@ -70,16 +70,16 @@ walk[tf_, s0_] := Module[{s = s0, labs = {}, t, stuck = False},
      s = Last[t], {p, plan}];
   <|"labels" -> labs, "stuck" -> stuck|>];
 
-Print[bar]; Print["3. DUAL-TAU WALK on mioCoreD (transNamed)"]; Print[bar];
+Print[hr]; Print["3. DUAL-TAU WALK on mioCoreD (transNamed)"]; Print[hr];
 wd = walk[transNamed, mioCoreD];
 Print["   trace: ", InputForm[wd["labels"]]];
 Print["   ran to completion? ", ok[! wd["stuck"]]];
 Print["   pLoad tau fired?   ", ok[MemberQ[wd["labels"], "pLoad"]]];
 Print["   vAdd  tau fired?   ", ok[MemberQ[wd["labels"], "vAdd"]]];
 
-Print[bar]; Print["4. TRACE PARITY  merge(transVP) vs mergeDefined(transNamed)"]; Print[bar];
+Print[hr]; Print["4. TRACE PARITY  merge(transVP) vs mergeDefined(transNamed)"]; Print[hr];
 wm = walk[transVP, mioCore];
 Print["   merge        trace: ", InputForm[wm["labels"]]];
 Print["   mergeDefined trace: ", InputForm[wd["labels"]]];
 Print["   agree? ", ok[wm["labels"] === wd["labels"]]];
-Print[bar]; Print["done."];
+Print[hr]; Print["done."];
