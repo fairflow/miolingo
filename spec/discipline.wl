@@ -125,3 +125,208 @@ mergeDefined[agents : {(_String -> _) ..}, restrictChans_List] :=
   restrict[
     Fold[par, (viewAs[First[#], Last[#]] &) /@ agents],
     restrictChans];
+
+
+(* =====================================================================
+   DATA-VIEW COMPACTION
+   ---------------------------------------------------------------------
+   The domain value-functions (addEntry, importInto, deleteFrom, updateEntry,
+   updateNotesIn, autofillIn, exportCsv, sessionView, vocabView, practiseList,
+   evaluate, targetOf, ...) are uninterpreted STUBS (no downvalues). A state
+   projection is therefore the whole applicative history, e.g.
+
+     exportCsv[autofillIn[updateEntry[updateNotesIn[deleteFrom[
+       addEntry[addEntry[addEntry[importInto[{}, f], w], w], w],
+       id], idn], editingRow[id], fields], id]]
+
+   These nested terms balloon along a trace. TWO complementary compactions
+   are provided, both PURE Wolfram (no engine change), both LOSSLESS:
+
+     linearize / linearizeForm  — let-form (A-normal-form) pretty-printer:
+         name each distinct compound subterm ONCE (CSE via structural
+         equality), in bottom-up evaluation order.
+
+     eventLog / condense        — condensed trace export: per step keep only
+         {port, polarity, isVisible, boundValue}, NOT the cumulative state.
+         The full snapshot is DERIVED on demand, never stored.
+   ===================================================================== *)
+
+(* ---------------------------------------------------------------------
+   linearize[term] — common-subexpression-eliminating let-form.
+
+   nameableQ decides which subterms get a binding. The rule names exactly the
+   "state-threading spine": a compound application that either is the root, or
+   sits in the FIRST-argument position of another named compound (where the
+   value-functions thread the collection/state), PLUS any compound shared 2+
+   times (genuine CSE). Tag/constructor leaves whose arguments are all atoms
+   (editingRow[id], filterBy[q], scored[r], param[v], binding[x]) stay INLINE,
+   matching the documented inline-leaf set; a tag that happens to wrap a
+   compound (scored[evaluate[...]]) still names the inner compound.
+
+   compoundQ: a non-atomic application h_Symbol[args__] with >=1 argument.
+   Bare lists ({}, {a,b}) are treated as inline leaves (state seeds / literals).
+--------------------------------------------------------------------- *)
+compoundQ[t_] := !AtomQ[t] && Head[t] =!= List && Head[Head[t]] === Symbol &&
+                 Length[t] >= 1;
+
+(* spineNodes[term]: positions whose subterm is on the first-argument spine
+   (reachable from the root by repeatedly descending into argument 1 of a
+   compound). Returned as the set of those subterms (structural). *)
+ClearAll[linearizeNameSet];
+linearizeNameSet[term_] :=
+  Module[{spine = {}, shared, counts, t = term},
+    (* walk the first-argument spine from the root *)
+    While[compoundQ[t],
+      AppendTo[spine, t];
+      t = First[t]];
+    (* genuine CSE: any compound occurring 2+ times anywhere *)
+    counts = Counts[Cases[term, x_ /; compoundQ[x], {0, Infinity}]];
+    shared = Keys[Select[counts, # >= 2 &]];
+    DeleteDuplicates[Join[spine, shared]]];
+
+(* linearize[term] -> <|"bindings" -> {name -> rhs, ...}, "root" -> name|>
+   bindings are in bottom-up (dependency) order; "root" is the name of the
+   last (whole-term) binding, rendered as `out` by linearizeForm. Names are
+   s1, s2, ... in bottom-up order. In each binding's rhs every OTHER named
+   subterm is replaced by sym[itsName] (a printable let-variable reference);
+   re-substituting (linearizeExpand) reproduces `term` exactly (LOSSLESS). *)
+ClearAll[linearize];
+linearize[term_] := Module[
+  {named, ordered, names, i = 0, rhsOf, bindings},
+  named = linearizeNameSet[term];
+  If[named === {} || !compoundQ[term],
+    Return[<|"bindings" -> {}, "root" -> term, "isAtomic" -> True|>]];
+  (* bottom-up order: a node must follow every named node it contains. Sorting
+     by LeafCount ascending guarantees a contained (smaller) node comes first.
+     Ties broken stably; structurally-equal duplicates already collapsed. *)
+  ordered = SortBy[named, LeafCount];
+  names = Association[(# -> "s" <> ToString[++i]) & /@ ordered];
+  (* refsIn[expr, self]: top-down replace each named PROPER subterm of expr by
+     sym[name]; once a subterm is named, do NOT descend into it. `self` is the
+     node being defined (never replaced by its own name). Recurse on arguments
+     only, so the node's own head/structure is preserved. *)
+  bindings = Map[
+    Function[node,
+      Module[{nameRefs},
+        nameRefs[e_] := If[e =!= node && KeyExistsQ[names, e],
+          sym[names[e]],
+          If[compoundQ[e], Head[e] @@ (nameRefs /@ List @@ e), e]];
+        names[node] -> nameRefs[node]]],
+    ordered];
+  <|"bindings" -> bindings, "root" -> names[term], "isAtomic" -> False|>];
+
+(* sym[name] is the printable placeholder for a let-variable inside a binding's
+   right-hand side. linearizeForm renders it as the bare variable name. *)
+Format[sym[s_String], OutputForm] := s;
+
+(* linearizeExpand[lin] : re-substitute the bindings to recover the ORIGINAL
+   term (round-trip / losslessness check). *)
+linearizeExpand[lin_Association] := Module[
+  {env = <||>, bindings = lin["bindings"]},
+  If[TrueQ[lin["isAtomic"]], Return[lin["root"]]];
+  Do[env[First[b]] = (Last[b] /. sym[s_] :> env[s]), {b, bindings}];
+  env[lin["root"]]];
+
+(* linearizeForm[term] : a printable straight-line block. Headless-friendly
+   String of "name = rhs;" lines (root line shown as "out = rhs"). The bindings
+   are also returned by linearize for machine use. *)
+linearizeForm[term_] := Module[{lin = linearize[term]},
+  If[TrueQ[lin["isAtomic"]],
+    Return["out = " <> ToString[lin["root"], InputForm]]];
+  StringRiffle[
+    (Module[{nm = First[#], rhs = Last[#], lbl},
+       lbl = If[nm === lin["root"], "out", nm];
+       lbl <> " = " <> StringReplace[ToString[rhs, InputForm],
+                "sym[\"" ~~ s : (Except["\""] ..) ~~ "\"]" :> s] <>
+       If[nm === lin["root"], "", ";"]] &) /@ lin["bindings"],
+    "\n"]];
+
+(* linearizeGrid[term] : notebook display (Grid of name | rhs). *)
+linearizeGrid[term_] := Module[{lin = linearize[term], rows},
+  If[TrueQ[lin["isAtomic"]],
+    Return[Grid[{{"out", lin["root"]}}, Frame -> All]]];
+  rows = (Module[{nm = First[#], rhs = Last[#]},
+            {If[nm === lin["root"], "out", nm], "=",
+             rhs /. sym[s_] :> s}] &) /@ lin["bindings"];
+  Grid[rows, Alignment -> Left, Frame -> All]];
+
+
+(* ---------------------------------------------------------------------
+   Condensed event log.  An engine transition's ACTION is one of:
+     label[name, param[v]]          OUTPUT (visible)   value v
+     coLabel[name, binding[x]]      INPUT  (visible)   binds x
+     coLabel[name]                  INPUT  (visible)   no binding
+     tag[\[Tau], chan, subst]       internal SYNC tau  subst (a rule list)
+     tag[\[Tau], chan]              internal tau       (no subst)
+     \[Tau]                         plain tau
+
+   eventOf[action] -> <|"port", "polarity", "isVisible", "value"|>
+     polarity : "out" | "in" | "tau"
+     value    : the param value (out), the binder(s) (in), the subst (tau),
+                or None.
+--------------------------------------------------------------------- *)
+eventOf[label[nm_, param[v___]]] :=
+  <|"port" -> nm, "polarity" -> "out", "isVisible" -> True, "value" -> {v}|>;
+eventOf[label[nm_]] :=
+  <|"port" -> nm, "polarity" -> "out", "isVisible" -> True, "value" -> None|>;
+eventOf[coLabel[nm_, binding[x___]]] :=
+  <|"port" -> nm, "polarity" -> "in", "isVisible" -> True, "value" -> {x}|>;
+eventOf[coLabel[nm_]] :=
+  <|"port" -> nm, "polarity" -> "in", "isVisible" -> True, "value" -> None|>;
+eventOf[tag[\[Tau], ch_, subst_]] :=
+  <|"port" -> ch, "polarity" -> "tau", "isVisible" -> False, "value" -> subst|>;
+eventOf[tag[\[Tau], ch_]] :=
+  <|"port" -> ch, "polarity" -> "tau", "isVisible" -> False, "value" -> None|>;
+eventOf[\[Tau]] :=
+  <|"port" -> \[Tau], "polarity" -> "tau", "isVisible" -> False, "value" -> None|>;
+eventOf[a_] :=
+  <|"port" -> portName[a], "polarity" -> "tau", "isVisible" -> False,
+    "value" -> None|>;          (* fallback for any other bare action *)
+
+(* walkSteps[tf, s0, plan] : generalises internal_transitions_test's label
+   list. `plan` is a list of plan-entries vis["port"] | tau["chan"]. Returns
+   <|"actions" -> {action...}, "states" -> {s0, s1, ...}, "stuck" -> bool|>.
+   tf is the transition function (transNamed for mioCoreD, transVP for mioCore).
+   The plan-entry resolver mirrors the test's findStep. *)
+isTauAct[a_] := MatchQ[a, tag[\[Tau], ___]] || a === \[Tau];
+walkResolve[tf_, s_, vis[nm_]] :=
+  SelectFirst[tf[s], !isTauAct[First[#]] && portName[First[#]] === nm &];
+walkResolve[tf_, s_, tau[ch_]] :=
+  SelectFirst[tf[s], MatchQ[First[#], tag[\[Tau], ch, ___]] &];
+
+walkSteps[tf_, s0_, plan_List] := Module[
+  {s = s0, acts = {}, states = {s0}, t, stuck = False},
+  Do[t = walkResolve[tf, s, p];
+     If[MissingQ[t], stuck = True; Break[]];
+     AppendTo[acts, First[t]];
+     s = Last[t];
+     AppendTo[states, s], {p, plan}];
+  <|"actions" -> acts, "states" -> states, "stuck" -> stuck|>];
+
+(* eventLog[walk] : the COMPACT event log — one eventOf per action taken. *)
+eventLog[walk_Association] := eventOf /@ walk["actions"];
+
+(* condense[tf, s0, plan] : run the walk and return only the event log
+   (the cumulative state terms are discarded — recoverable by replay). *)
+condense[tf_, s0_, plan_List] := eventLog[walkSteps[tf, s0, plan]];
+
+(* eventLogForm[log] : printable one-line-per-event rendering. *)
+eventLogForm[log_List] := StringRiffle[
+  (Module[{e = #, polTag},
+     polTag = Switch[e["polarity"], "out", "!", "in", "?", _, "\[Tau]"];
+     StringJoin[
+       If[e["isVisible"], "[vis] ", "[TAU] "],
+       ToString[e["port"]], polTag,
+       If[e["value"] === None, "",
+          " " <> ToString[e["value"], InputForm]]]] &) /@ log,
+  "\n"];
+
+(* replay[init, ops] : DERIVE a cumulative snapshot from a log of value-function
+   OPERATIONS by folding them onto an initial state term. Each op is a function
+   that maps the running term to the next (e.g. (addEntry[#, w] &)). This makes
+   the snapshot derived-on-demand rather than stored. For the engine event log,
+   the per-step value-function is symbolic (it lives in the agent equation, not
+   the action), so replay is offered for the EXPLICIT-op form; the engine path
+   documents that the snapshot equals Fold[apply, init, ops]. *)
+replay[init_, ops_List] := Fold[#2[#1] &, init, ops];
+snapshot[init_, ops_List] := replay[init, ops];
