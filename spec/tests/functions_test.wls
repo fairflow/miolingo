@@ -1,17 +1,14 @@
 #!/usr/bin/env wolframscript
 (* function-recovery pass — golden cases for VS + PS value-functions,
    checked against behaviour stated in the Python docstrings (NOT a live DB).
-   Spec files load RELATIVE to this test's location (tests/.. = spec/), so the
-   test runs unchanged in a worktree OR after merge into the canonical spec.
-   Only the shared engine path is absolute. *)
+   Paths + engine version come from spec/paths.wl, located relative to this
+   test, so it runs unchanged in any worktree or the canonical spec. *)
 
-$wt = ParentDirectory[DirectoryName[$InputFileName]] <> "/";
-Quiet[Get["/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl"]];
-Get[$wt <> "discipline.wl"];
-Get[$wt <> "PracticeSessionRecovered.wl"];
-Get[$wt <> "VocabStoreRecovered.wl"];
-Get[$wt <> "VocabStoreFunctions.wl"];
-Get[$wt <> "PracticeSessionFunctions.wl"];
+Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "paths.wl"}]];
+loadEngine[];
+loadRecoveredBase[];
+mioGet["VocabStoreFunctions.wl"];
+mioGet["PracticeSessionFunctions.wl"];
 
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 

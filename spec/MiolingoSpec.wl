@@ -3,8 +3,8 @@
 (* =====================================================================
    MiolingoSpec.wl — single entry point: load the whole L1 spec in order.
    ---------------------------------------------------------------------
-   ONE Get loads everything:
-       Get["/Users/matthew/Software/working/miolingo/spec/MiolingoSpec.wl"]
+   ONE Get loads everything (from anywhere — it self-locates):
+       Get[".../spec/MiolingoSpec.wl"]
 
    It (re)loads the ENGINE first, then the spec files in dependency order.
    Loading the engine first is deliberate: it pins the NATIVE engine
@@ -14,7 +14,10 @@
    embedded engine would fail to step them. Getting RCA_core also resets
    agentDefs, so this is a clean full reload every time.
 
-   NB: nested Gets are fine in WL. Adjust $rca if RCA_core.wl moves.
+   Paths + engine version come from spec/paths.wl (loaded relative to this
+   file). The engine path is $RCA_CORE (env) or its canonical default, and
+   loadEngine[] aborts if the engine checkout is behind the version this
+   spec requires — see paths.wl. NB: nested Gets are fine in WL.
 
    What is loaded (and what is NOT):
      RCA_core.wl                  the CCS engine (feature-work, native)
@@ -32,16 +35,13 @@
      buildSystem[call["PS", {p1,p2}, 0, none, none]]   (* canonical mu-term *)
    ===================================================================== *)
 
-$rca   = "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl";
-$mlspec = "/Users/matthew/Software/working/miolingo/spec/";
+Get[FileNameJoin[{DirectoryName[$InputFileName], "paths.wl"}]];
 
-Get[$rca];
-Get[$mlspec <> "discipline.wl"];
-Get[$mlspec <> "PracticeSessionRecovered.wl"];
-Get[$mlspec <> "VocabStoreRecovered.wl"];
+loadEngine[];
+loadRecoveredBase[];
 (* function-recovery pass: give the stubbed value-functions bodies recovered
    from the Python. ADDITIVE — loaded after the recovered agents, attaches
    downvalues only. See spec/docs/function-recovery.md. *)
-Get[$mlspec <> "VocabStoreFunctions.wl"];
-Get[$mlspec <> "PracticeSessionFunctions.wl"];
-Get[$mlspec <> "MioCore.wl"];
+mioGet["VocabStoreFunctions.wl"];
+mioGet["PracticeSessionFunctions.wl"];
+mioGet["MioCore.wl"];

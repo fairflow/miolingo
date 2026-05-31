@@ -15,16 +15,13 @@
    so always reload the spec files after, exactly as below).
    ===================================================================== *)
 
-$rca = "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl";
-$spec = "/Users/matthew/Software/working/miolingo/spec/";
+Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "paths.wl"}]];
 
 Print["Loading engine + spec (order matters: discipline before components,",
       " components before MioCore) ..."];
-Quiet[Get[$rca]];
-Get[$spec <> "discipline.wl"];
-Get[$spec <> "PracticeSessionRecovered.wl"];
-Get[$spec <> "VocabStoreRecovered.wl"];
-Get[$spec <> "MioCore.wl"];
+loadEngine[];
+loadRecoveredBase[];
+mioGet["MioCore.wl"];
 
 bar = StringRepeat["=", 64];
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];

@@ -20,14 +20,11 @@
    Run headless:  wolframscript -file spec/tests/data_view_test.wls
    ===================================================================== *)
 
-$rca  = "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl";
-$spec = "/Users/matthew/Software/working/miolingo/spec/";
+Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "paths.wl"}]];
 
-Quiet[Get[$rca]];
-Get[$spec <> "discipline.wl"];
-Get[$spec <> "PracticeSessionRecovered.wl"];
-Get[$spec <> "VocabStoreRecovered.wl"];
-Get[$spec <> "MioCore.wl"];
+loadEngine[];
+loadRecoveredBase[];
+mioGet["MioCore.wl"];
 
 hr = StringRepeat["=", 70];
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];

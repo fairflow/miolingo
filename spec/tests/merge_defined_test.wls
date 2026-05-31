@@ -15,21 +15,18 @@
         both vAdd and pLoad internal syncs fire
      4. the visible+tau label trace agrees with merge's (transVP)
 
-   NB: $rca points at the relabel-transition-time WORKTREE (the engine
-   change is not yet merged to feature-work). After the engine PR merges,
-   revert $rca to the canonical RCA_core.wl path.
+   Engine + paths come from spec/paths.wl; loadEngine[] asserts the engine
+   checkout has the transNamed[relabel] change (#35) this test needs, via
+   the $minEngineSha guard — no more hand-pointing $rca at a worktree.
 
    Run headless:  wolframscript -file spec/tests/merge_defined_test.wls
    ===================================================================== *)
 
-$rca  = "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl";
-$spec = "/Users/matthew/Software/working/miolingo/spec/";
+Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "paths.wl"}]];
 
-Quiet[Get[$rca]];
-Get[$spec <> "discipline.wl"];
-Get[$spec <> "PracticeSessionRecovered.wl"];
-Get[$spec <> "VocabStoreRecovered.wl"];
-Get[$spec <> "MioCore.wl"];
+loadEngine[];
+loadRecoveredBase[];
+mioGet["MioCore.wl"];
 
 hr = StringRepeat["=", 70];
 ok[b_]      := If[TrueQ[b], "OK", "*** FAIL ***"];
