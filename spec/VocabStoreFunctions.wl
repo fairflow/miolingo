@@ -260,11 +260,14 @@ exportCsv[entries_List] := StringRiffle[
               correctly jumps to the front via its bumped last_seq)
      oldest : first_seq ASC  (= first_seen_at ASC)
    first_seq/last_seq are vsNextSeq capture-event counters, so this matches
-   list_vocab's ORDER BY without any wall-clock. *)
-sortEntries[entries_List, "alpha"]  := SortBy[entries, #["word"] &];
-sortEntries[entries_List, "recent"] := SortBy[entries, -Lookup[#, "last_seq", 0] &];
-sortEntries[entries_List, "oldest"] := SortBy[entries, Lookup[#, "first_seq", 0] &];
-sortEntries[entries_List, _]        := SortBy[entries, #["word"] &];
+   list_vocab's ORDER BY without any wall-clock.
+   The sort key is an uninterpreted Enum SYMBOL (alpha | recent | oldest), not
+   a string — matched directly, so callers pass the symbol the state carries
+   (no ToString bridge, which froze under the engine's held derivation). *)
+sortEntries[entries_List, alpha]  := SortBy[entries, #["word"] &];
+sortEntries[entries_List, recent] := SortBy[entries, -Lookup[#, "last_seq", 0] &];
+sortEntries[entries_List, oldest] := SortBy[entries, Lookup[#, "first_seq", 0] &];
+sortEntries[entries_List, _]      := SortBy[entries, #["word"] &];
 
 (* filterMatch: the DEFAULT search branch (plain text = substring on word
    OR translation, lowercased). The full vocab_search mini-language grammar
@@ -297,4 +300,4 @@ vocabView[auth_, entries_, sort_, filter_, editing_] := <|
   "sort" -> sort,
   "filter" -> filter,
   "editing" -> editing,
-  "entries" -> sortEntries[applyFilter[entries, filter], ToString[sort]]|>;
+  "entries" -> sortEntries[applyFilter[entries, filter], sort]|>;
