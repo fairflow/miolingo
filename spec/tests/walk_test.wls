@@ -3,80 +3,79 @@
    spec/tests/walk_test.wls
    ---------------------------------------------------------------------
    Headless smoke test for the PURE SUBSTRATE of the walk harness
-   (spec/walk.wl): the port-input mechanic by which a human, as the open
-   environment, supplies REAL data into a ready input port and watches it
-   thread through the spec. The Dynamic widgets that sit on top are driven
-   manually in a notebook; here we prove the substrate they call.
+   (spec/walk.wl): the port-input mechanic by which the user, as the open
+   environment, inserts a REAL value into a ready input port's binder via
+   substVv (the engine's scope-aware value substitution), so the value
+   threads into the derivative and the spec computes. The Dynamic widgets
+   on top are driven manually in a notebook.
 
-   Loads the FULL spec (MiolingoSpec.wl) so the recovered value-functions
-   (addEntry, exportCsv, ...) have bodies — otherwise inputs would thread
-   inert stubs and there would be no real data to walk through.
+   The user supplies the value; the simulator does NOT validate it — the
+   spec's own functions judge it if/when the term is concrete. So these
+   tests check the INSERTION mechanism (correct placement, scope-respect,
+   data preserved), not data validity.
+
+   Loads the FULL spec (MiolingoSpec.wl) so the value-functions have bodies.
 
    Run headless:  wolframscript -file spec/tests/walk_test.wls
    ===================================================================== *)
 
 $dir = ParentDirectory[DirectoryName[$InputFileName]] <> "/";
-Get[$dir <> "MiolingoSpec.wl"];   (* engine + discipline + recovered + Functions + MioCore *)
+Get[$dir <> "MiolingoSpec.wl"];
 Get[$dir <> "walk.wl"];
 
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 allOk = True;
 assert[lbl_, b_] := (allOk = allOk && TrueQ[b]; Print["   ", lbl, " ", ok[b]]);
 byName[tf_, s_, nm_] := SelectFirst[readyTransitions[tf, s], portName[First[#]] === nm &];
-eventNamed[log_, nm_] := SelectFirst[log, ToString[#["port"]] === nm &];
 hr = StringRepeat["=", 70];
 
-Print[hr]; Print["0. full spec loaded -> value-functions compute real data"]; Print[hr];
-assert["addEntry has a body (Functions loaded)", DownValues[addEntry] =!= {}];
-assert["exportCsv of a capture yields a real data row (word 'Chat')",
-  StringContainsQ[exportCsv[addEntry[{}, <|"word" -> "Chat", "translation" -> "cat"|>]], "Chat,cat"]];
-
 Print[hr]; Print["1. readyInputs : the value-carrying ports a user can drive"]; Print[hr];
-ri = readyInputs[transVP, mioCore];
+ri = readyInputs[transNamed, call["VS", signedIn, ent, alpha, none, none]];
 assert["every readyInput is a value-carrying input (has a binder)",
   AllTrue[ri, valueInputQ[First[#]] &]];
-assert["the canonical input ports are present",
-  SubsetQ[ToString /@ portName /@ First /@ ri,
-          {"add", "set_filter", "set_sort", "import_bulk", "load_material"}]];
+assert["the canonical VS input ports are present",
+  SubsetQ[ToString /@ portName /@ First /@ ri, {"add", "set_filter", "set_sort", "import_bulk"}]];
 
-Print[hr]; Print["2. supplyValue : a string value flows into set_filter"]; Print[hr];
-sf  = byName[transVP, mioCore, "set_filter"];
-qsym = First[inputBinderOf[First[sf]]];
-sfv = supplyValue[sf, "happy"];
-assert["action becomes coLabel[set_filter, binding[\"happy\"]]",
-  MatchQ[First[sfv], coLabel[_, binding["happy"]]]];
-assert["eventOf reads the concrete value {\"happy\"}", eventOf[First[sfv]]["value"] === {"happy"}];
-assert["binder symbol no longer in successor", FreeQ[Last[sfv], qsym]];
-assert["\"happy\" threaded into successor", !FreeQ[Last[sfv], "happy"]];
+Print[hr]; Print["2. supplyValue : slot binder (load_material on PS) inserts cleanly"]; Print[hr];
+lm  = byName[transNamed, call["PS", {}, 0, none, none], "load_material"];
+phr = {<|"text" -> "chat", "translation" -> "cat"|>};
+lmv = supplyValue[lm, phr];
+assert["value inserted into the PS state slot",
+  Last[lmv] === call["PS", phr, 0, none, none]];
+assert["eventOf reads the concrete value", eventOf[First[lmv]]["value"] === {phr}];
 
-Print[hr]; Print["3. supplyValue : a structured value flows into add"]; Print[hr];
-ad  = byName[transVP, mioCore, "add"];
-wsym = First[inputBinderOf[First[ad]]];
-wv  = <|"word" -> "Chat", "translation" -> "cat"|>;
+Print[hr]; Print["3. supplyValue : data preserved on a value-function port (add)"]; Print[hr];
+ad  = byName[transNamed, call["VS", signedIn, ent, alpha, none, none], "add"];
+wv  = <|"word" -> "Chat"|>;
 adv = supplyValue[ad, wv];
-assert["word assoc threaded into successor", !FreeQ[Last[adv], wv]];
-assert["binder symbol no longer in successor", FreeQ[Last[adv], wsym]];
-assert["eventOf reads the concrete assoc value", eventOf[First[adv]]["value"] === {wv}];
+assert["binder w replaced by the value inside addEntry (data preserved)",
+  Last[adv] === call["VS", signedIn, addEntry[ent, wv], alpha, none, none]];
+assert["addEntry kept (not collapsed); entries left symbolic", !FreeQ[Last[adv], addEntry[ent, wv]]];
 
-Print[hr]; Print["4. supplyValue is a no-op where there is nothing to supply"]; Print[hr];
+Print[hr]; Print["4. substVv is SCOPE-AWARE where ReplaceAll would leak"]; Print[hr];
+(* the mu-term add derivative re-unfolds clauses that REBIND w; the supplied
+   value must NOT land in those rebound occurrences. *)
+deriv = Last[byName[transVP, mioCore, "add"]];
+assert["derivative does re-unfold clauses that rebind w (precondition)",
+  Length[Cases[deriv, binding[w], Infinity]] > 0];
+assert["substVv does NOT leak into a rebound binding",
+  Quiet[FreeQ[substVv[deriv, w -> supplied], binding[supplied]]]];
+assert["ReplaceAll WOULD leak (why we use substVv, not /.)",
+  Quiet[!FreeQ[deriv /. w -> supplied, binding[supplied]]]];
+
+Print[hr]; Print["5. supplyValue is a no-op where there is nothing to supply"]; Print[hr];
 assert["value-free input (coLabel[nm]) unchanged",
   supplyValue[{coLabel[ping], stateX}, "v"] === {coLabel[ping], stateX}];
 assert["output action unchanged",
   supplyValue[{label[out, param[7]], stateX}, "v"] === {label[out, param[7]], stateX}];
 
-Print[hr]; Print["5. value-driven plan via walkSteps + condensed event log"]; Print[hr];
-valPlan = {vis["set_filter", "happy"], vis["add", wv]};
-symPlan = {vis["set_filter"], vis["add"]};
-valLog  = condense[transVP, mioCore, valPlan];
-symLog  = condense[transVP, mioCore, symPlan];
-assert["value plan runs to completion (not stuck)",
-  !walkSteps[transVP, mioCore, valPlan]["stuck"]];
-assert["set_filter event records \"happy\" (concrete)",
-  eventNamed[valLog, "set_filter"]["value"] === {"happy"}];
-assert["add event records the word assoc (concrete)",
-  eventNamed[valLog, "add"]["value"] === {wv}];
-assert["symbolic plan leaves set_filter value as a free symbol (contrast)",
-  MatchQ[eventNamed[symLog, "set_filter"]["value"], {_Symbol}]];
+Print[hr]; Print["6. value-driven plan via walkSteps (vis[nm, val])"]; Print[hr];
+w1 = walkSteps[transNamed, call["PS", {}, 0, none, none], {vis["load_material", phr]}];
+assert["plan ran to completion (not stuck)", !w1["stuck"]];
+assert["final state carries the supplied value",
+  Last[w1["states"]] === call["PS", phr, 0, none, none]];
+assert["recorded event carries the concrete value",
+  eventOf[First[w1["actions"]]]["value"] === {phr}];
 
 Print[hr];
 Print["ALL ASSERTIONS: ", ok[allOk]];

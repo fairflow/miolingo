@@ -60,21 +60,33 @@ readyInputs[tf_, s_] := Select[readyTransitions[tf, s], valueInputQ[First[#]] &]
 
 (* ---------------------------------------------------------------------
    supplyValue[trans, val] : THE PORT-INPUT MECHANIC.  Given a transition
-   {action, succ} whose action is coLabel[nm, binding[x]], bind x := val
-   throughout BOTH the action and the successor, so the real value flows in
-   and threads through every later state. The action becomes
-   coLabel[nm, binding[val]], from which eventOf reads the concrete value
-   for the trace automatically.
+   {action, succ} whose action is coLabel[nm, binding[x]], insert the
+   user-supplied value into the binder x of the DERIVATIVE using the engine's
+   substVv (NOT ReplaceAll): substVv is scope-aware (filterSubst drops the
+   binder when it re-enters a rebinding), so the value lands only at the genuine
+   free occurrence and does NOT leak into the re-unfolded continuation clauses
+   that rebind the same name. The action's binding is set to val too, so eventOf
+   reads the concrete value for the trace.
+
+   The value is the USER's responsibility: the simulator does NOT validate it —
+   the spec's own functions (validateWord, the _List match, ...) judge it if and
+   when the term becomes concrete. This is the deliberate blend of transition
+   function and simulator that lets the user, as the open environment, inject
+   real data while navigating the symbolic<->concrete interzone.
 
    - value-free input or non-input: returned unchanged (nothing to supply).
-   - single binder (every port in the current spec): substitute x -> val.
-   - multi-binder: val is taken as a list, zipped onto the binders.
+   - single binder (every port in the current spec): substVv x -> val.
+   - multi-binder: val is a list, zipped onto the binders.
 --------------------------------------------------------------------- *)
 supplyValue[trans_List, val_] := Module[{binders = inputBinderOf[First[trans]]},
   Which[
-    binders === {},          trans,
-    Length[binders] === 1,   trans /. First[binders] -> val,
-    True,                    trans /. MapThread[Rule, {binders, val}]]];
+    binders === {}, trans,
+    Length[binders] === 1,
+      {First[trans] /. binding[_] :> binding[val],
+       substVv[Last[trans], First[binders] -> val]},
+    True,
+      {First[trans] /. binding[__] :> (binding @@ val),
+       substVv[Last[trans], MapThread[Rule, {binders, val}]]}]];
 
 (* ---------------------------------------------------------------------
    Value-carrying plan entry: vis[nm, val] resolves the input port `nm`
