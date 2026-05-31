@@ -161,6 +161,11 @@ traceView[trace_] := Column[{
        <|"word"->"chat","translation"->"cat"|>   (for add)
    Option "TransitionFunction" -> transVP (mioCore) | transNamed (mioCoreD).
 --------------------------------------------------------------------- *)
+(* stateDisplay[s] : compact render of a process STATE (the derivative) — where
+   you are / where a transition leads — via the engine's foldAgentDisplay. This
+   is the CCS term, complementing dataView's published data projections. *)
+stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Short[s, 3]];
+
 Options[walkUI] = {"TransitionFunction" -> transVP};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"]},
@@ -168,6 +173,9 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
         Framed[Column[{
+
+          Style["Current state \[LongDash] where you are (process term)", Bold, 13],
+          Pane[stateDisplay[cur], {Automatic, 140}, Scrollbars -> Automatic],
 
           Style["Data view \[LongDash] published projections", Bold, 13],
           dataView[tf, cur],
@@ -179,7 +187,8 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
               Map[Function[tr,
                 With[{act = First[tr], nm = ToString[portName[First[tr]]]},
                   Row[{
-                    Button[showAction[act],
+                    Tooltip[
+                     Button[showAction[act],
                       Module[{taken},
                         taken = If[valueInputQ[act] && KeyExistsQ[inVals, nm] &&
                                    inVals[nm] =!= Null && inVals[nm] =!= "",
@@ -189,6 +198,11 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                         cur = Last[taken]; inVals = <||>],
                       Appearance -> "Frameless",
                       ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}],
+                     (* hover: the derivative this transition leads to (symbolic,
+                        i.e. before any supplied value — so e.g. add's collapse to
+                        entries {} is visible here) *)
+                     Column[{Style["\[RightArrow] goes to:", Bold, GrayLevel[0.4]],
+                             stateDisplay[Last[tr]]}]],
                     If[valueInputQ[act],
                       Row[{Spacer[6],
                            Style["\[LeftArrow] " <> ToString[First[inputBinderOf[act]]] <> " = ",
