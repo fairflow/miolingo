@@ -91,14 +91,14 @@ Print["  importInto missing header -> no-op? ",
 (* logical clock: recent/oldest order by last_seq/first_seq, bump-aware *)
 lc0 = addEntry[addEntry[{}, "alpha"], "beta"];   (* alpha older, beta newer *)
 Print["  oldest = capture order [alpha,beta]? ",
-  ok[#["word"] & /@ sortEntries[lc0, "oldest"] === {"alpha", "beta"}]];
+  ok[#["word"] & /@ sortEntries[lc0, oldest] === {"alpha", "beta"}]];
 Print["  recent = reverse [beta,alpha]? ",
-  ok[#["word"] & /@ sortEntries[lc0, "recent"] === {"beta", "alpha"}]];
+  ok[#["word"] & /@ sortEntries[lc0, recent] === {"beta", "alpha"}]];
 lc1 = addEntry[lc0, "alpha"];                    (* re-capture alpha: bump *)
 Print["  recent after re-capturing alpha -> [alpha,beta]? ",
-  ok[#["word"] & /@ sortEntries[lc1, "recent"] === {"alpha", "beta"}]];
+  ok[#["word"] & /@ sortEntries[lc1, recent] === {"alpha", "beta"}]];
 Print["  oldest unchanged after bump -> [alpha,beta]? ",
-  ok[#["word"] & /@ sortEntries[lc1, "oldest"] === {"alpha", "beta"}]];
+  ok[#["word"] & /@ sortEntries[lc1, oldest] === {"alpha", "beta"}]];
 Print["  no wall-clock keys on entries? ",
   ok[FreeQ[lc1, "first_seen_at" | "last_seen_at" | _vsNow]]];
 
