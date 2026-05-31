@@ -149,12 +149,9 @@ traceView[trace_] := Column[{
    step / back / reset. Untouched input ports step symbolically (binder
    left free), so it degrades to the plain symbolic walk.
 
-   Value entry is a TEXT field parsed with ToExpression (so an empty field is
-   a genuinely blank box, not the literal "" / Null an Expression field shows).
-   Type a WL value, e.g.
-       "happy"                                   (a string, for set_filter)
+   Value entry uses InputField[..., Expression]: type a WL value, e.g.
+       "happy"                         (a string, for set_filter)
        <|"word"->"chat","translation"->"cat"|>   (for add)
-   string values keep their quotes.
    Option "TransitionFunction" -> transVP (mioCore) | transNamed (mioCoreD).
 --------------------------------------------------------------------- *)
 Options[walkUI] = {"TransitionFunction" -> transVP};
@@ -178,8 +175,8 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                     Button[showAction[act],
                       Module[{taken},
                         taken = If[valueInputQ[act] && KeyExistsQ[inVals, nm] &&
-                                   StringQ[inVals[nm]] && StringTrim[inVals[nm]] =!= "",
-                                 supplyValue[tr, ToExpression[inVals[nm]]], tr];
+                                   inVals[nm] =!= Null && inVals[nm] =!= "",
+                                 supplyValue[tr, inVals[nm]], tr];
                         AppendTo[hist, cur];
                         AppendTo[trace, eventOf[First[taken]]];
                         cur = Last[taken]; inVals = <||>],
@@ -189,11 +186,10 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                       Row[{Spacer[6],
                            Style["\[LeftArrow] " <> ToString[First[inputBinderOf[act]]] <> " = ",
                              GrayLevel[0.5]],
-                           (* TEXT field: default "" renders as a blank box
-                              (an Expression field would show "" / Null / Nothing
-                              as literal text). Parsed with ToExpression on step. *)
+                           (* default to "" (not Missing[KeyAbsent]) when the
+                              port has no value yet; write inVals[nm] on edit *)
                            InputField[Dynamic[Lookup[inVals, nm, ""], (inVals[nm] = #) &],
-                             String, FieldSize -> 20, ContinuousAction -> False]}],
+                             Expression, FieldSize -> 20, ContinuousAction -> False]}],
                       Nothing]}]]],
                 trans]]],
 
