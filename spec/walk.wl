@@ -121,13 +121,19 @@ viewProjections[tf_, s_] := Association[
     StringEndsQ[ToString[portName[First[#]]], "View"] &]];
 
 (* dataView[tf, s] : the state's DATA through the compaction grid — one
-   linearizeGrid per published projection. The "visual data compression". *)
+   linearizeGrid per published projection. The "visual data compression".
+   The projection comes out of the engine's held `param` with its values
+   UNEVALUATED (the recipe, e.g. sortEntries[applyFilter[...]]); Map[Identity, ·]
+   rebuilds the association forcing each value, so we linearize the COMPUTED
+   data (entries -> {} when empty, the actual rows when populated). *)
+forceProj[p_Association] := Map[Identity, p];
+forceProj[p_] := p;
 dataView[tf_, s_] := Module[{projs = viewProjections[tf, s]},
   If[projs === <||>,
     Style["(no view ports ready)", Italic, GrayLevel[0.5]],
     Column[KeyValueMap[
       Function[{nm, p},
-        Column[{Style[nm, Bold, Darker[Blue]], linearizeGrid[p]}, Spacings -> 0.4]],
+        Column[{Style[nm, Bold, Darker[Blue]], linearizeGrid[forceProj[p]]}, Spacings -> 0.4]],
       projs], Spacings -> 1]]];
 
 (* traceView[traceDyn] : condensed event-log rendering of the trace held in
