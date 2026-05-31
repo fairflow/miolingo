@@ -83,7 +83,7 @@ validateWord[_] := $Failed;
    enrich (translation/IPA via _enrich) is IO and is NOT performed here —
    it is the enrich=False path the hermetic tests use. Any translation/ipa
    already present on w (e.g. from an import line) is carried in. *)
-addEntry[entries_List, w_] := Module[
+addEntry[entries_List, w : (_String | _Association)] := Module[
   {a = If[AssociationQ[w], w, <|"word" -> w|>], v, display, key, pos},
   v = validateWord[Lookup[a, "word", ""]];
   If[v === $Failed, Return[entries]];
