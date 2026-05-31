@@ -183,10 +183,13 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                       Appearance -> "Frameless",
                       ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}],
                     If[valueInputQ[act],
-                      Row[{Spacer[6], Style["\[LeftArrow] ", GrayLevel[0.5]],
-                           InputField[Dynamic[inVals[nm]], Expression,
-                             FieldSize -> 20, ContinuousAction -> False,
-                             FieldHint -> ToString[First[inputBinderOf[act]]]]}],
+                      Row[{Spacer[6],
+                           Style["\[LeftArrow] " <> ToString[First[inputBinderOf[act]]] <> " = ",
+                             GrayLevel[0.5]],
+                           (* default to "" (not Missing[KeyAbsent]) when the
+                              port has no value yet; write inVals[nm] on edit *)
+                           InputField[Dynamic[Lookup[inVals, nm, ""], (inVals[nm] = #) &],
+                             Expression, FieldSize -> 20, ContinuousAction -> False]}],
                       Nothing]}]]],
                 trans]]],
 
