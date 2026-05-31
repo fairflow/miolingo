@@ -39,4 +39,9 @@ Get[$rca];
 Get[$mlspec <> "discipline.wl"];
 Get[$mlspec <> "PracticeSessionRecovered.wl"];
 Get[$mlspec <> "VocabStoreRecovered.wl"];
+(* function-recovery pass: give the stubbed value-functions bodies recovered
+   from the Python. ADDITIVE — loaded after the recovered agents, attaches
+   downvalues only. See spec/docs/function-recovery.md. *)
+Get[$mlspec <> "VocabStoreFunctions.wl"];
+Get[$mlspec <> "PracticeSessionFunctions.wl"];
 Get[$mlspec <> "MioCore.wl"];
