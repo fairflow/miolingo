@@ -83,7 +83,8 @@ supplyValue[trans_List, val_] := Module[{binders = inputBinderOf[First[trans]]},
     binders === {}, trans,
     Length[binders] === 1,
       {First[trans] /. binding[_] :> binding[val],
-       substVv[Last[trans], First[binders] -> val]},
+       substVv[Last[trans], {First[binders] -> val}]},   (* subst is a LIST of
+         rules: filterSubst does #[[1]] per element, so a bare rule -> ps[[1]] *)
     True,
       {First[trans] /. binding[__] :> (binding @@ val),
        substVv[Last[trans], MapThread[Rule, {binders, val}]]}]];
