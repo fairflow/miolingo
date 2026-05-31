@@ -32,7 +32,7 @@ Get[$spec <> "PracticeSessionRecovered.wl"];
 Get[$spec <> "VocabStoreRecovered.wl"];
 Get[$spec <> "MioCore.wl"];
 
-bar = StringRepeat["=", 70];
+hr = StringRepeat["=", 70];
 isTau[a_] := MatchQ[a, tag[\[Tau], ___]] || a === \[Tau];
 
 (* a plan entry is  vis["port"]  (an external action, visible)
@@ -45,9 +45,9 @@ plan = {
   vis["recording_made"], vis["attempt_made"], vis["capture_vocab"], tau["vAdd"]
 };
 
-Print[bar];
+Print[hr];
 Print["DETERMINISTIC WALK over mioCore  (visible triggers + internal taus)"];
-Print[bar];
+Print[hr];
 
 state = mioCore;
 sawPLoad = False; sawVAdd = False; failed = False;
@@ -70,8 +70,8 @@ Do[
   ],
   {k, Length[plan]}];
 
-Print[bar];
+Print[hr];
 Print["pLoad tau taken (VS --practiseList--> PS) ? ", If[sawPLoad, "OK", "*** FAIL ***"]];
 Print["vAdd  tau taken (PS --word--> VS)         ? ", If[sawVAdd,  "OK", "*** FAIL ***"]];
 Print["walk completed without a stuck step       ? ", If[!failed, "OK", "*** FAIL ***"]];
-Print[bar];
+Print[hr];
