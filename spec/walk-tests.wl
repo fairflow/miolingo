@@ -26,6 +26,11 @@
      ps-*    : PracticeSession-only ports (load, navigate, record/score)
      sync-*  : a single cross-component synchronisation (pLoad / vAdd) —
                only meaningful in the COMPOSED system, not VS/PS alone
+     helm-*  : Helm session/language settings. Thin in ISOLATION (a lone Helm
+               just flips a field); meaningful only in the COMPOSED system,
+               where the (source, target) pair Helm owns is the data the vocab/
+               practice sides and the oracles read — so these set the pair and
+               then drive a VS/PS step across that seam.
      full-*  : an end-to-end run touching both syncs
    Add new sequences under the same prefixes.
    ===================================================================== *)
@@ -102,6 +107,22 @@ walkTests = <|
     vis["attempt_made"],
     vis["capture_vocab", "chat"],
     tau["vAdd"]},
+
+  (* --- Helm: settings tour + the espeak-only set_speed guard ---------- *)
+  "helm-settings" -> {
+    vis["set_source", "Italian"],
+    vis["set_target", "pt"],          (* language now Portuguese in helmView *)
+    vis["set_tts", espeak],           (* unlocks the wpm slider (set_speed) *)
+    vis["set_speed", 300],
+    vis["set_tts", google]},          (* set_speed disappears again *)
+
+  (* --- Helm -> VocabStore: set the language pair, THEN capture --------- *)
+  "helm-then-capture" -> {
+    vis["set_target", "pt"],          (* choose the material language code *)
+    vis["set_source", "English"],
+    vis["add", <|"word" -> "casa", "translation" -> "house"|>],
+    vis["set_sort", recent],
+    vis["export"]},
 
   (* --- full end-to-end: both syncs in one run ------------------------- *)
   "full-roundtrip" -> {

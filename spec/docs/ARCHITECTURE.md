@@ -57,12 +57,41 @@ Location: `/spec/interaction-forms.md`. Governed by: human designer.
 |---|---|---|---|
 | Practice Session | `PracticeSession` | Stateful agent — tight interaction loop | High — **recovered** (PS) |
 | Vocabulary Manager | `VocabStore` | Stateful agent — CRUD with IPA | High — **recovered** (VS) |
-| Session / language | `Helm` | Stateful agent — finite-choice settings; **owns the (source, target) language pair** | **recovered** |
+| Session / language | `Helm` | Stateful agent — finite-choice settings; **owns the (source, target) language pair** | **recovered + composed** ‡ |
 | Stats Display † | (projection of `PracticeSession`/`VocabStore`) | Read-only view port — **not** a standalone agent | Medium |
 | History Browser † | (projection of a session/store agent) | Read-only view port — **not** a standalone agent | Medium |
 | Mode Navigation | `ModeSelector` | Stateful agent — finite-choice | Low |
 
 Correction from the previous draft: the read-only "displays" are most likely *view ports on* the stateful agents (a published `view!` projection rendered by a skin), not agents in their own right. Promote one to a standalone agent only if it genuinely owns state; otherwise it is a presentation of another agent's projection. Decide this deliberately per component.
+
+**‡ Helm and how the language reaches its consumers.** Helm is composed into
+`mioCore` as a **pure parallel** agent (no restricted sync): it *owns* the
+`(source, target, tts, speed)` tuple and *publishes* it as `helmView`, exactly
+mirroring `language_state.py` (the sidebar is the sole owner; everyone else
+reads via `read_source_lang` / `read_target_code` / `read_training_lang`). That
+owner→reader split **is** the `view!` discipline.
+
+Crucially, VS and PS do **not** receive the language through any port. No
+**control guard** in VS/PS branches on it (logical-clock precedent: a value no
+guard reads is *data*, not control), so it is not threaded as a sync. It
+reaches the vocab/practice sides **indirectly, through the oracle boundary**:
+the g2p/IPA, translation/enrich and TTS oracles (live oracles, not modelled
+agents) read `helmView` for the `(source, target)` pair, and the *result* of
+that — an IPA string, a translation, audio — enters VS/PS baked into the value
+of an ordinary input port (`add` already carries an `ipa`; `load_material`
+already carries translations). The language selects *which* oracle output,
+upstream of the port.
+
+The honest gap: today that oracle→`helmView` read is **implicit** (test data
+carries pre-baked `ipa`/`translation` values, correct by fiat). Making it
+explicit — the oracle call reading `(source, target)` from `helmView` — is a
+deliberate **`rig`** decision of the same shape as the external-store question
+below: does the read-edge stay *ambient* (oracle reads the projection at its
+boundary) or *enter the model* (an explicit parameter/sync)? The one place a
+setting already gates a port is `set_speed` (`if[tts === espeak, …]`) — a genuine
+**control** dependency, but on Helm's *own* state, so internal. The day a VS/PS
+port's *readiness* comes to depend on the language, **that** edge must enter the
+model as a restricted sync.
 
 **† Stats / History and the external store (a rigging issue).** Treating these as *view ports* is correct only under the current modelling assumption that each component stores its own domain data in-process. In any sensible implementation, stats and history are retrieved from an **external store**, not held by the component. Rigging that external store into the system — where the data lives, who reads/writes it, how a view port is backed by a *query* rather than in-process state — is a key **rig** concern, and the question of *how* it is done may itself need to enter the model (an external-store agent / port), not be left wholly to L3. Flagged for when stats/history (and persistence generally) are recovered.
 

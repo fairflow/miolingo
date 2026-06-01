@@ -26,19 +26,31 @@
      vAdd  : PS.capture_vocab(word)  --vAdd!(word)-->   VS adds the word
      pLoad : VS.practise_filtered    --pLoad!(phrases)--> PS loads them
 
-   LOAD ORDER: RCA_core.wl, discipline.wl, PracticeSessionRecovered.wl,
-   VocabStoreRecovered.wl, then this file. Initial state: Practice with no
-   material; VocabStore signed-in, empty.
+   Helm is composed in as a PURE PARALLEL agent (2026-06-01): NO control guard
+   in PS/VS reads the language, so there is no new restricted channel — Helm
+   just rides alongside, contributing its helmView projection (the source/target
+   pair the oracles read) and its set_source/set_target/set_tts/set_speed inputs
+   to the system's ready set. Its `view` relabels to helmView (third view port,
+   beside pSView/vSView). Standalone was only justified WHILE nothing synced on
+   the language; composing it in costs nothing and surfaces its viewport.
 
-   VERIFIED on the engine (2026-05-31): transVP[mioCore] external ready set is
-   {add, import_bulk, load_material, pSView, set_filter, set_sort, vSView}
-   — no bare `view` clash; vAdd/pLoad restricted (internal tau).
+   LOAD ORDER: RCA_core.wl, discipline.wl, PracticeSessionRecovered.wl,
+   VocabStoreRecovered.wl, HelmRecovered.wl, then this file. Initial state:
+   Practice with no material; VocabStore signed-in, empty; Helm English/fr,
+   google TTS, 250 wpm.
+
+   VERIFIED on the engine (2026-06-01): transVP[mioCore] external ready set is
+   {add, helmView, import_bulk, load_material, pSView, set_filter, set_source,
+   set_sort, set_target, set_tts, vSView} — three view ports, no bare `view`
+   clash; vAdd/pLoad restricted (internal tau). (set_speed appears once tts is
+   set to espeak.)
    ===================================================================== *)
 
 mioCore =
   merge[
     {"PS" -> call["PS", {}, 0, none, none],
-     "VS" -> call["VS", signedIn, {}, alpha, none, none]},
+     "VS" -> call["VS", signedIn, {}, alpha, none, none],
+     "Helm" -> call["Helm", "English", "fr", google, 250]},
     {label["vAdd"], label["pLoad"]}];
 
 (* Compact call-based twin (mergeDefined): same composition, but stepped with
@@ -50,5 +62,6 @@ mioCore =
 mioCoreD =
   mergeDefined[
     {"PS" -> call["PS", {}, 0, none, none],
-     "VS" -> call["VS", signedIn, {}, alpha, none, none]},
+     "VS" -> call["VS", signedIn, {}, alpha, none, none],
+     "Helm" -> call["Helm", "English", "fr", google, 250]},
     {label["vAdd"], label["pLoad"]}];

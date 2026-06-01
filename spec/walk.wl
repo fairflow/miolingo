@@ -136,21 +136,60 @@ viewProjections[tf_, s_] := Association[
     MatchQ[First[#], label[_, param[_]]] &&
     StringEndsQ[ToLowerCase[ToString[portName[First[#]]]], "view"] &]];
 
-(* dataView[tf, s] : the state's DATA through the compaction grid — one
-   linearizeGrid per published projection. The "visual data compression".
-   The projection comes out of the engine's held `param` with its values
-   UNEVALUATED (the recipe, e.g. sortEntries[applyFilter[...]]); Map[Identity, ·]
-   rebuilds the association forcing each value, so we linearize the COMPUTED
-   data (entries -> {} when empty, the actual rows when populated). *)
+(* dataView[tf, s] : the state's DATA as one compact PANEL per published
+   projection. The "visual data compression". The projection comes out of the
+   engine's held `param` with its values UNEVALUATED (the recipe, e.g.
+   sortEntries[applyFilter[...]]); Map[Identity, ·] rebuilds the association
+   forcing each value, so we render the COMPUTED data.
+
+   Panel layout (chosen 2026-06-01): an agent's view Association is almost
+   always SCALARS + one COLLECTION (entries / history), and that collection is
+   a list of homogeneous Associations — which IS a table. So:
+     scalar keys           -> a tight "key=value" strip;
+     a list-of-Associations -> a column-headed table (columns = union of the
+                               records' keys, one row per record).
+   This is the most compact LOSSLESS form and stacks cleanly as N view ports
+   grow (pSView / vSView / helmView, then more). *)
 forceProj[p_Association] := Map[Identity, p];
 forceProj[p_] := p;
+
+(* scalarForm[v] : a value as compact display text (strings unquoted, sym[]
+   unwrapped, None spelled out). *)
+scalarForm[s_String] := s;
+scalarForm[None] := "None";
+scalarForm[v_] := ToString[v /. sym[z_] :> z];
+
+(* recordTable[rows] : a list of Associations as a column-headed Grid. Columns
+   are the union of the records' keys (so heterogeneous rows still align). *)
+recordTable[rows : {__Association}] := Module[{cols = DeleteDuplicates[Join @@ (Keys /@ rows)]},
+  Grid[
+    Prepend[
+      (Function[r, scalarForm[Lookup[r, #, ""]] & /@ cols] /@ rows),
+      (Style[ToString[#], Italic, GrayLevel[0.45]] & /@ cols)],
+    Frame -> All, FrameStyle -> GrayLevel[0.85], Alignment -> Left,
+    Spacings -> {1.2, 0.3}]];
+
+(* viewPanel[nm, p] : one agent's projection as a compact panel. *)
+tabularKeyQ[v_] := MatchQ[v, {__Association}];
+viewPanel[nm_String, p_Association] := Module[
+  {tabKeys = Select[Keys[p], tabularKeyQ[p[#]] &], scalKeys, strip, tables},
+  scalKeys = Complement[Keys[p], tabKeys];
+  strip = Row[Riffle[
+      (Row[{Style[ToString[#], GrayLevel[0.45]], "=", scalarForm[p[#]]}] & /@ scalKeys),
+      Spacer[14]]];
+  tables = recordTable[p[#]] & /@ tabKeys;
+  Framed[
+    Column[Join[{Style[nm, Bold, Darker[Blue]]}, {strip}, tables], Spacings -> 0.5],
+    RoundingRadius -> 5, FrameStyle -> GrayLevel[0.8], FrameMargins -> 8,
+    Background -> GrayLevel[0.99]]];
+viewPanel[nm_String, other_] := Framed[
+  Column[{Style[nm, Bold, Darker[Blue]], linearizeGrid[other]}, Spacings -> 0.5],
+  RoundingRadius -> 5, FrameStyle -> GrayLevel[0.8], FrameMargins -> 8];
+
 dataView[tf_, s_] := Module[{projs = viewProjections[tf, s]},
   If[projs === <||>,
     Style["(no view ports ready)", Italic, GrayLevel[0.5]],
-    Column[KeyValueMap[
-      Function[{nm, p},
-        Column[{Style[nm, Bold, Darker[Blue]], linearizeGrid[forceProj[p]]}, Spacings -> 0.4]],
-      projs], Spacings -> 1]]];
+    Column[KeyValueMap[viewPanel[#1, forceProj[#2]] &, projs], Spacings -> 0.8]]];
 
 (* traceView[traceDyn] : condensed event-log rendering of the trace held in
    the Dynamic-tracked symbol passed by reference, + a Copy button. *)

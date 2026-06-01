@@ -26,11 +26,14 @@
      set_speed     ONLY when tts === espeak  (the wpm slider shows only for
                    espeak in sidebar.py — a genuine guard)
 
-   COMPOSITION (decision — see helm-recovery / the PR): Helm is STANDALONE.
-   No control guard in VS/PS reads the language (it is passive data the oracles
-   consume, like the logical clock), so Helm is not synced into mioCore; its
-   projection feeds the oracles at their boundary. Promote to a synced agent
-   only if a guard ever comes to depend on a setting.
+   COMPOSITION (updated 2026-06-01): Helm is composed into mioCore as a PURE
+   PARALLEL agent — NO control guard in VS/PS reads the language (it is passive
+   data the oracles consume, like the logical clock), so there is no restricted
+   channel: Helm rides alongside, contributing its helmView projection and its
+   set_* inputs to the system ready set. (Originally kept standalone for exactly
+   that reason; merging it in costs nothing and surfaces its viewport beside
+   pSView/vSView.) If a guard ever comes to depend on a setting, add the
+   corresponding restricted sync at that point.
 
    LEAF agent (every branch loops back to Helm) — no sub-agent expansion.
    LOAD ORDER: RCA_core.wl, discipline.wl, then this (+ HelmFunctions.wl).

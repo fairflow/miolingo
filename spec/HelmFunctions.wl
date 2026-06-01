@@ -32,7 +32,15 @@ helmTrainingNames = <|
   "de" -> "German", "es" -> "Spanish", "it" -> "Italian"|>;
 trainingNameOf[code_] := Lookup[helmTrainingNames, ToString[code], ToString[code]];
 
-helmView[source_, target_, tts_, speed_] := <|
+(* target_String (not target_): the SAME held-until-concrete discipline as
+   vocabView[entries_List] / sessionView[phrases_List]. In merge[], buildSystem
+   expands Helm into a mu-term EAGERLY; an unrestricted target_ lets helmView
+   fire while `target` is still the formal binder SYMBOL, so trainingNameOf[target]
+   collapses to trainingNameOf["target"] -> "target" BEFORE substitution puts the
+   real "fr" in (the language-stuck-on-the-binder bug, surfaced by composing Helm
+   into mioCore). Gating on target_String keeps the whole projection symbolic
+   until the concrete code lands, then computes consistently. *)
+helmView[source_, target_String, tts_, speed_] := <|
   "source"   -> source,                  (* native language NAME *)
   "target"   -> target,                  (* target language CODE *)
   "language" -> trainingNameOf[target],  (* target's training-map name *)
