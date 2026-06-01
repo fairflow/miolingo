@@ -20,6 +20,9 @@
 
    PORTS (sidebar controls):
      view!         always — the helmView projection everyone reads
+     langRead!     always — INTERNAL read port (restricted in mioCore): emits
+                   {source, target} for a borrower that pulls it at point of use
+                   (VS.autofill; PS scoring to follow). Not a UI control.
      set_source    set the source (native) language name
      set_target    set the target language code (target_language mirrors it)
      set_tts       set the TTS engine
@@ -42,6 +45,14 @@
 defineAgent["Helm", {source, target, tts, speed},
   choice[
     precede[label["view", param[helmView[source, target, tts, speed]]],
+      call["Helm", source, target, tts, speed]],
+    (* internal READ port (restricted in mioCore): borrowers PULL the
+       (source, target) pair fresh at the point of use. A self-loop — always
+       offered, never changing Helm — so a consumer waiting at langRead?(lp)
+       is forced (by its own sequencing) to take it and gets Helm's CURRENT
+       value; no cached copy, no staleness. See ARCHITECTURE.md "Borrowed vs
+       owned data". Distinct from the external `view` projection. *)
+    precede[label["langRead", param[{source, target}]],
       call["Helm", source, target, tts, speed]],
     precede[coLabel["set_source", binding[s]],
       call["Helm", s, target, tts, speed]],

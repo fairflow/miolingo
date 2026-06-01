@@ -139,6 +139,11 @@ progress). Helm remains the **sole owner**; oracles stay boundary functions
 (decision-A) but are now called *with* the language the read delivered.
 `espeakG2P[word, voice]` already has this shape (`voice` = the target read).
 
+*Status:* implemented for **VS `autofill`** (`autofillIn[entries, id, lang]` →
+`enrichOracle[word, source, target]`), with Helm's `langRead!` restricted in
+`mioCore`. **PS scoring** (`recognisePhonemes` needs the target ASR language) is
+the next borrower to wire, by the identical prefix-read.
+
 **The one escape hatch.** Pull-on-use covers a *data* dependency (the value is
 needed when an action runs). It does **not** cover a *control* dependency over
 borrowed data — a guard whose ready set must change the instant Helm changes,

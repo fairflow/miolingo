@@ -19,8 +19,8 @@
 $dir = ParentDirectory[DirectoryName[$InputFileName]] <> "/";
 Get[$dir <> "MiolingoSpec.wl"];
 
-enrichOracle[_]      := <|"translation" -> "ORC", "ipa" -> "ɔrk"|>;
-recognisePhonemes[_] := "abc";
+enrichOracle[_, _, _] := <|"translation" -> "ORC", "ipa" -> "ɔrk"|>;  (* word, source, target *)
+recognisePhonemes[_]  := "abc";
 
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 allOk = True; n = 0;
@@ -108,12 +108,13 @@ assert["bare-id clause delegates to editingRow",
 (* ---------------- autofillIn ---------------------------------------- *)
 sec["autofillIn (oracle fills only empty fields)"];
 af0 = addEntry[{}, "chat"];   (* translation/ipa Null *)
-af1 = autofillIn[af0, 1];
+afL = {"English", "fr"};       (* the borrowed (source, target) pair *)
+af1 = autofillIn[af0, 1, afL];
 assert["fills empty translation + ipa via oracle",
   af1[[1]]["translation"] === "ORC" && af1[[1]]["ipa"] === "ɔrk"];
-af2 = autofillIn[updateEntry[af0, 1, <|"translation" -> "keep"|>], 1];
+af2 = autofillIn[updateEntry[af0, 1, <|"translation" -> "keep"|>], 1, afL];
 assert["does NOT overwrite existing translation", af2[[1]]["translation"] === "keep"];
-assert["missing id -> unchanged", autofillIn[af0, 99] === af0];
+assert["missing id -> unchanged", autofillIn[af0, 99, afL] === af0];
 
 (* ---------------- import parser ------------------------------------- *)
 sec["parseImportLine / parseImportHeader / isImportDataLine / importInto"];

@@ -144,9 +144,16 @@ defineAgent["VSEntryActions", {entries, sort, filter},
       choice[
         (* autofill \[LongDash] the missing-fields guard needsAutofill[entries,id] is
            a STUBBED value predicate, deferred; modelled as available per
-           entry when non-empty *)
+           entry when non-empty.
+           BORROWED DATA: enrichment needs the (source, target) language pair,
+           which Helm OWNS. So autofill PULLS it fresh as a PREFIX \[LongDash] langRead?(lp)
+           sits on the critical path of the action, restricted to Helm's langRead!
+           in mioCore (an internal tau). No cached language => no staleness; the
+           value read is always Helm's current pair. See ARCHITECTURE.md
+           "Borrowed vs owned data". lp = {source, target}. *)
         precede[coLabel["autofill", binding[id]],
-          call["VS", signedIn, autofillIn[entries, id], sort, filter, none]],
+          precede[coLabel["langRead", binding[lp]],
+            call["VS", signedIn, autofillIn[entries, id, lp], sort, filter, none]]],
         precede[coLabel["begin_edit", binding[id]],
           call["VS", signedIn, entries, sort, filter, editingRow[id]]]]]]]
 

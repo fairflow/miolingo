@@ -69,6 +69,7 @@ walkTests = <|
     vis["cancel_edit"],
     vis["update_notes", <|"id" -> 1, "notes" -> "seen in a book"|>],
     vis["autofill", 1],
+    tau["langRead"],                                (* autofill PULLS the language *)
     vis["delete", 1]},
 
   (* --- PracticeSession: load + navigate ------------------------------- *)
@@ -99,6 +100,15 @@ walkTests = <|
     vis["practise_filtered"],
     tau["pLoad"],
     vis["select_item", 0]},
+
+  (* --- sync: VS autofill PULLS the language from Helm (langRead) ------
+     The first BORROWED-DATA read: autofill needs the (source, target) pair to
+     enrich, so it reads Helm's langRead as a prefix (internal tau in mioCore).
+     Only meaningful in the COMPOSED system (Helm must be present to answer). *)
+  "sync-langread" -> {
+    vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
+    vis["autofill", 1],
+    tau["langRead"]},
 
   (* --- sync: PS capture_vocab -> VS add (vAdd) ----------------------- *)
   "sync-vadd" -> {
