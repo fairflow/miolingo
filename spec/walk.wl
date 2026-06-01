@@ -113,13 +113,16 @@ walkResolve[tf_, s_, vis[nm_, val_]] := Module[{t = walkResolve[tf, s, vis[nm]]}
 
 (* viewProjections[tf, s] : the published read-only projections at s, as
    <|"portName" -> projectionValue|>. A view port is an OUTPUT (label[...])
-   whose name ends in "View" (vSView, pSView), carrying param[projection]. *)
+   carrying param[projection] whose name is a read-only view: the bare agent's
+   "view" port, OR a composition-relabelled "{Agent}View" (vSView, pSView).
+   Matched case-insensitively on the "view" suffix so BOTH forms are picked up
+   (the bare "view" was previously dropped by a literal "View" test). *)
 viewProjections[tf_, s_] := Association[
   (ToString[portName[First[#]]] ->
      First[Cases[First[#], param[p_] :> p, Infinity], None]) & /@
   Select[readyTransitions[tf, s],
     MatchQ[First[#], label[_, param[_]]] &&
-    StringEndsQ[ToString[portName[First[#]]], "View"] &]];
+    StringEndsQ[ToLowerCase[ToString[portName[First[#]]]], "view"] &]];
 
 (* dataView[tf, s] : the state's DATA through the compaction grid — one
    linearizeGrid per published projection. The "visual data compression".
