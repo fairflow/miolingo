@@ -71,7 +71,13 @@ defineAgent["PSActive", {phrases, pos, rec, res},
     if[pos > 0,
       precede[coLabel["prev_item_requested"],
         call["PS", phrases, pos - 1, none, none]]],
-    (* capture_vocab relays to VocabStore on vAdd (restricted in MioCore) *)
+    (* capture_vocab relays to VocabStore on vAdd (restricted in MioCore).
+       NB — modelling artifact, NOT a behaviour to implement: this is a precede
+       chain capture_vocab . vAdd! . PS, so between the capture and the vAdd
+       emit, PS is mid-handoff and offers no `view` (the pSView panel momentarily
+       disappears in the simulator until the vAdd tau fires). An L3 implementation
+       must treat capture-and-relay as ATOMIC — no view flicker. The split exists
+       only because CCS makes the synchronous handoff explicit as two events. *)
     if[res =!= none,
       precede[coLabel["capture_vocab", binding[word]],
         precede[label["vAdd", param[word]],
