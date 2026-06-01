@@ -45,6 +45,13 @@ The panel shows, top to bottom:
   space; the open/closed state persists across steps.
 - **Data view** — the published `view!` projections (`vSView`/`pSView`, or the
   bare `view`), rendered as the *computed* data through `linearizeGrid`.
+- **Outside the model** — a collapsible *incompleteness inventory* (`$walkCloud`):
+  data the agents **read but don't own** because its owner isn't modelled yet
+  (`enrichOracle` / `recognisePhonemes` knowledge, vocab persistence, stats /
+  history). A standing reminder the agents aren't complete in themselves; it
+  **shrinks** as owners are modelled (the language left it once `langRead`
+  brought it in-model). Each item **lights up (●)** when a currently-ready action
+  would consult it — so the cloud changes as you walk.
 - **Transitions** — one clickable row each; hover shows *→ goes to:* the
   derivative. Value-carrying input ports get an inline field. Under `walkMio[]`
   (or any `"Components"`) they are **grouped into a frame per providing

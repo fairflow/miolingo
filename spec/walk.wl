@@ -309,6 +309,48 @@ inputsFirst[ts_List] := Join[
   Select[ts, MatchQ[First[#], label[___]] &],
   Select[ts, ! MatchQ[First[#], coLabel[___] | label[___]] &]];
 
+(* --- the "cloud": an honest INVENTORY of what the simulated agents read but
+   do NOT own — data whose owner is not (yet) modelled. A standing reminder that
+   the agents are not complete in themselves (ARCHITECTURE.md "Borrowed vs owned
+   data" / the Stats-History note). It SHRINKS as each owner is modelled: the
+   language used to be here, but pull-on-use (langRead) brought it into the model,
+   so it is gone — what remains is the genuinely external world (oracle knowledge,
+   persistence). Hand-maintained in lockstep with the spec, like the ARCHITECTURE
+   notes. Each item lights up when a ready action would CONSULT it, so the cloud
+   visibly changes as you walk. *)
+$walkCloud = {
+  <|"item" -> "enrichOracle", "owner" -> "external translation / G2P service",
+    "why" -> "VS.autofill's translation + IPA are produced OUTSIDE the model; only the (source,target) pull (langRead) is in it.",
+    "ports" -> {"autofill"}|>,
+  <|"item" -> "recognisePhonemes", "owner" -> "external ASR / acoustic model",
+    "why" -> "PS scoring recognises audio -> phonemes outside the model; only the target-language pull (langRead) is in it.",
+    "ports" -> {"attempt_made"}|>,
+  <|"item" -> "vocab persistence", "owner" -> "external store (DB)",
+    "why" -> "entries are modelled in VS state in-process; really an external store. To become a DB agent (ARCHITECTURE \[Dagger]).",
+    "ports" -> {"add", "import_bulk", "delete", "update", "update_notes", "autofill"}|>,
+  <|"item" -> "stats / history", "owner" -> "external store (query-backed views)",
+    "why" -> "not yet recovered; will be queries/views on the external store, not in-process state.",
+    "ports" -> {}|>};
+cloudActiveQ[item_Association, readyNames_List] := IntersectingQ[item["ports"], readyNames];
+cloudActiveQ::usage = "cloudActiveQ[item, readyPortNames] is True iff a currently-ready port would consult this external item (so the cloud panel highlights it).";
+cloudRow[item_Association, ready_List] := With[{active = cloudActiveQ[item, ready]},
+  Framed[
+    Column[{
+      Row[{If[active, Style["\[FilledCircle] ", Darker[Orange]], Style["\[EmptyCircle] ", GrayLevel[0.75]]],
+           Style[item["item"], Bold, If[active, Darker[Orange], GrayLevel[0.4]]],
+           Style["  \[LongDash] owned by " <> item["owner"], Italic, GrayLevel[0.55], 10]}],
+      Style[item["why"], GrayLevel[0.5], 10]}, Spacings -> 0.2],
+    FrameStyle -> If[active, Darker[Orange], GrayLevel[0.88]], RoundingRadius -> 3,
+    FrameMargins -> 5, Background -> If[active, RGBColor[1, 0.97, 0.88], White]]];
+cloudPanel::usage = "cloudPanel[tf, s] renders the external-dependency inventory ($walkCloud) as a collapsible panel; items a ready port would consult are highlighted.";
+cloudPanel[tf_, s_] := With[
+  {ready = ToString /@ portName /@ First /@ readyTransitions[tf, s]},
+  OpenerView[{
+    Style[Row[{"Outside the model \[LongDash] read but not owned (",
+               Length[$walkCloud], " items; \[FilledCircle] = consulted by a ready action)"}],
+      Bold, 12, GrayLevel[0.45]],
+    Column[cloudRow[#, ready] & /@ $walkCloud, Spacings -> 0.4]}, False]];
+
 Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> Automatic};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"],
@@ -332,6 +374,10 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
 
           Style["Data view \[LongDash] published projections", Bold, 13],
           dataView[tf, cur],
+
+          (* the cloud: external data the agents read but don't own (collapsible);
+             items light up when a ready action would consult them *)
+          cloudPanel[tf, cur],
 
           Style["Transitions \[LongDash] click to step; type into input ports", Bold, 13],
           (* maximal-progress toggle: a SIMULATION strategy (auto-fire internal
