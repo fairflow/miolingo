@@ -32,7 +32,7 @@ ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 
 (* the known dual-tau deterministic plan (see merge_defined_test.wls) *)
 plan = {vis["set_filter"], vis["add"], vis["practise_filtered"], tau["pLoad"],
-        vis["recording_made"], vis["attempt_made"], vis["capture_vocab"], tau["vAdd"]};
+        vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
 
 (* NB: do NOT name any variable `w` — the spec's agent equations use the
    bare symbol `w` as a value binder (binding[w]); assigning to w here would

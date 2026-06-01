@@ -61,7 +61,7 @@ assert["editingRow[id] kept inline (not a binding)?",
 Print[hr]; Print["2. linearize a LIVE projection from the dual-tau walk"]; Print[hr];
 
 plan = {vis["set_filter"], vis["add"], vis["practise_filtered"], tau["pLoad"],
-        vis["recording_made"], vis["attempt_made"], vis["capture_vocab"], tau["vAdd"]};
+        vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
 wlk = walkSteps[transNamed, mioCoreD, plan];
 assert["walk ran to completion (not stuck)?", ! wlk["stuck"]];
 

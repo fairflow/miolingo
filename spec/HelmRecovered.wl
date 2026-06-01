@@ -22,7 +22,7 @@
      view!         always — the helmView projection everyone reads
      langRead!     always — INTERNAL read port (restricted in mioCore): emits
                    {source, target} for a borrower that pulls it at point of use
-                   (VS.autofill; PS scoring to follow). Not a UI control.
+                   (VS.autofill, PS.attempt_made scoring). Not a UI control.
      set_source    set the source (native) language name
      set_target    set the target language code (target_language mirrors it)
      set_tts       set the TTS engine

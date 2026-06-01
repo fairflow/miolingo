@@ -20,7 +20,7 @@ $dir = ParentDirectory[DirectoryName[$InputFileName]] <> "/";
 Get[$dir <> "MiolingoSpec.wl"];
 
 enrichOracle[_, _, _] := <|"translation" -> "ORC", "ipa" -> "ɔrk"|>;  (* word, source, target *)
-recognisePhonemes[_]  := "abc";
+recognisePhonemes[_, _]  := "abc";   (* audio, lang *)
 
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 allOk = True; n = 0;
@@ -206,7 +206,7 @@ assert["comparePhonemes 1 edit: dist 1, sim 1.0-1/3 (Real), not exact",
 cp0 = comparePhonemes["abc", ""];
 assert["comparePhonemes empty correct: sim 0.0, dist = len(user)",
   cp0["similarity"] === 0.0 && cp0["distance"] === 3];
-ev = evaluate[<|"ipa" -> "abd"|>, recorded["x"]];   (* recognise->"abc" vs "abd" *)
+ev = evaluate[<|"ipa" -> "abd"|>, recorded["x"], {"English", "fr"}];   (* recognise->"abc" vs "abd" *)
 assert["evaluate composes oracle+compare (dist 1)", ev["distance"] === 1];
 sv = sessionView[phr, 1, recorded["x"], scored[<|"distance" -> 1|>]];
 assert["sessionView total/pos/item/hasRecording/score",

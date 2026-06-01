@@ -39,7 +39,7 @@ findStep[s_, tau[ch_]] := SelectFirst[transVP[s], MatchQ[First[#], tag[\[Tau], c
 
 plan = {
   vis["set_filter"], vis["add"], vis["practise_filtered"], tau["pLoad"],
-  vis["recording_made"], vis["attempt_made"], vis["capture_vocab"], tau["vAdd"]
+  vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]
 };
 
 Print[hr];

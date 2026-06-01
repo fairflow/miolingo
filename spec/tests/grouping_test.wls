@@ -36,7 +36,7 @@ Print[hr]; Print["2. transGroup / inputsFirst"]; Print[hr];
 (* a real tau transition: drive capture_vocab so vAdd is pending *)
 sV = Last[walkSteps[transVP, mioCore,
    {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "S"|>}],
-    vis["recording_made", "audio"], vis["attempt_made"], vis["capture_vocab", "chat"]}]["states"]];
+    vis["recording_made", "audio"], vis["attempt_made"], tau["langRead"], vis["capture_vocab", "chat"]}]["states"]];
 tauTr = SelectFirst[readyTransitions[transVP, sV], isTauAct[First[#]] &];
 assert["a tau transition groups into internal (tau)",
   transGroup[pm, tauTr] === "internal (\[Tau])"];
