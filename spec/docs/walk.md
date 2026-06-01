@@ -22,18 +22,19 @@ In a notebook, from **your own checkout** (not a worktree):
 Get[".../spec/MiolingoSpec.wl"];   (* engine + spec, in order *)
 Get[".../spec/walk.wl"];           (* the harness + walkTests *)
 
-walkMio[]                                             (* RECOMMENDED: grouped by component *)
-walkMioD[]                                             (* the transNamed/mioCoreD twin *)
-
-walkUI[mioCore]                                       (* mu-term, transVP default; ungrouped *)
-walkUI[mioCoreD, "TransitionFunction" -> transNamed]  (* compact call form *)
-walkUI[call["VS", signedIn, {}, alpha, none, none], "TransitionFunction" -> transNamed]  (* a bare agent *)
-walkUI[mioCore, "Components" -> mioComponents]         (* what walkMio[] expands to *)
+walkUI[mioCore]                                       (* GROUPED by component (auto) *)
+walkUI[mioCoreD, "TransitionFunction" -> transNamed]  (* grouped; compact call form *)
+walkMio[]   walkMioD[]                                 (* shorthands for the two above *)
+walkUI[call["VS", signedIn, {}, alpha, none, none], "TransitionFunction" -> transNamed]  (* bare agent: flat *)
 ```
 
-`walkMio[]` is the usual entry point: it groups the transitions by component
-(below). `walkUI[mioCore]` alone gives one flat list. The `"Components"` option
-takes the same decomposition `merge` uses (`mioComponents` in `MioCore.wl`).
+Grouping is **automatic**: `walkUI[term]` groups by component whenever `term` is
+a **registered composed system** (the registry maps a system term to its
+decomposition; `mioCore`/`mioCoreD` register themselves). A bare/unregistered
+agent falls back to one flat list. To group your own composed system, either
+register it (`registerWalkComponents[term, components]`) or pass
+`"Components" -> components` explicitly (the same `{name->call,...}` list `merge`
+uses; `"Components" -> {}` forces a flat list).
 
 `MiolingoSpec.wl` self-locates the rest (see `paths.wl`), so loading from any
 checkout works; just point the entry `Get` at the checkout you want to test.

@@ -53,6 +53,14 @@ grp = GroupBy[readyTransitions[transVP, mioCore], transGroup[pm, #] &];
 assert["groups are exactly {VS, PS, Helm}", Sort[Keys[grp]] === {"Helm", "PS", "VS"}];
 assert["no port falls into 'other'", ! KeyExistsQ[grp, "other"]];
 
+Print[hr]; Print["4. auto-grouping registry — walkUI groups known systems by default"]; Print[hr];
+assert["defaultComponents[mioCore] === mioComponents",
+  defaultComponents[mioCore] === mioComponents];
+assert["defaultComponents[mioCoreD] === mioComponents",
+  defaultComponents[mioCoreD] === mioComponents];
+assert["a bare agent resolves to {} (flat, ungrouped)",
+  defaultComponents[call["VS", signedIn, {}, alpha, none, none]] === {}];
+
 Print[hr];
 Print["ALL ASSERTIONS: ", ok[allOk]];
 Print[hr];
