@@ -34,7 +34,7 @@
      entries : the collection (list)
      sort    : ordering value (alpha | recent | oldest)
      filter  : none | filterBy[q]
-     editing : none | editing[id]   (which row is in inline edit-mode)
+     editing : none | editingRow[id]   (which row is in inline edit-mode)
 
    RECOVERED READY SETS (analysis only; derived from the guards below,
    not explicit channels in the process):
@@ -45,7 +45,7 @@
                                                   update_notes, autofill,
                                                   begin_edit
      VS[signedIn, ne, _,filterBy,none] +search  : + practise_filtered
-     VS[signedIn, ne, _,_,editing[id]] Editing  : per-row -> update,
+     VS[signedIn, ne, _,_,editingRow[id]] Editing  : per-row -> update,
                                                   cancel_edit (no delete/
                                                   begin_edit); export stays
 
@@ -148,7 +148,7 @@ defineAgent["VSEntryActions", {entries, sort, filter},
         precede[coLabel["autofill", binding[id]],
           call["VS", signedIn, autofillIn[entries, id], sort, filter, none]],
         precede[coLabel["begin_edit", binding[id]],
-          call["VS", signedIn, entries, sort, filter, editing[id]]]]]]]
+          call["VS", signedIn, entries, sort, filter, editingRow[id]]]]]]]
 
 
 (* --- per-entry actions WHILE editing a row --- *)
