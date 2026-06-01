@@ -72,33 +72,33 @@ defineAgent["VSAuthed", {entries, sort, filter, editing},
   if[Length[entries] == 0,
     choice[
       precede[coLabel["add", binding[w]],
-        call["VSAuthed", addEntry[entries, w], sort, filter, editing]],
+        call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
       choice[
         precede[coLabel["vAdd", binding[w]],
-          call["VSAuthed", addEntry[entries, w], sort, filter, editing]],
+          call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
         choice[
           precede[coLabel["import_bulk", binding[f]],
-            call["VSAuthed", importInto[entries, f], sort, filter, editing]],
+            call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
           choice[
             precede[coLabel["set_sort", binding[s]],
-              call["VSAuthed", entries, s, filter, editing]],
+              call["VS", signedIn, entries, s, filter, editing]],
             precede[coLabel["set_filter", binding[q]],
-              call["VSAuthed", entries, sort, filterBy[q], editing]]]]]],
+              call["VS", signedIn, entries, sort, filterBy[q], editing]]]]]],
     choice[
       precede[coLabel["add", binding[w]],
-        call["VSAuthed", addEntry[entries, w], sort, filter, editing]],
+        call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
       choice[
         precede[coLabel["vAdd", binding[w]],
-          call["VSAuthed", addEntry[entries, w], sort, filter, editing]],
+          call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
         choice[
           precede[coLabel["import_bulk", binding[f]],
-            call["VSAuthed", importInto[entries, f], sort, filter, editing]],
+            call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
           choice[
             precede[coLabel["set_sort", binding[s]],
-              call["VSAuthed", entries, s, filter, editing]],
+              call["VS", signedIn, entries, s, filter, editing]],
             choice[
               precede[coLabel["set_filter", binding[q]],
-                call["VSAuthed", entries, sort, filterBy[q], editing]],
+                call["VS", signedIn, entries, sort, filterBy[q], editing]],
               call["VSNonEmpty", entries, sort, filter, editing]]]]]]]]
 
 
