@@ -160,14 +160,28 @@ scalarForm[None] := "None";
 scalarForm[v_] := ToString[v /. sym[z_] :> z];
 
 (* recordTable[rows] : a list of Associations as a column-headed Grid. Columns
-   are the union of the records' keys (so heterogeneous rows still align). *)
-recordTable[rows : {__Association}] := Module[{cols = DeleteDuplicates[Join @@ (Keys /@ rows)]},
-  Grid[
-    Prepend[
-      (Function[r, scalarForm[Lookup[r, #, ""]] & /@ cols] /@ rows),
-      (Style[ToString[#], Italic, GrayLevel[0.45]] & /@ cols)],
-    Frame -> All, FrameStyle -> GrayLevel[0.85], Alignment -> Left,
-    Spacings -> {1.2, 0.3}]];
+   are the union of the records' keys (so heterogeneous rows align), but EMPTY
+   columns are dropped: a single freshly-added entry carries the full DB schema
+   (~14 keys, most Null), so without pruning the table is mostly empty columns
+   with long headings (the casa-row display problem). A column empty in every
+   row carries no information — dropping it is lossless. Empty cells blank, and
+   a still-wide table scrolls horizontally rather than breaking the layout. *)
+emptyCellQ[v_] := MatchQ[v, Null | "" | None | _Missing];
+cellForm[v_] := If[emptyCellQ[v], "", scalarForm[v]];
+recordTable[rows : {__Association}] := Module[
+  {allCols = DeleteDuplicates[Join @@ (Keys /@ rows)], cols},
+  cols = Select[allCols, Function[c, AnyTrue[rows, ! emptyCellQ[Lookup[#, c, Null]] &]]];
+  If[cols === {},
+    Style["(entries present, all fields empty)", Italic, GrayLevel[0.6]],
+    Pane[
+      Grid[
+        Prepend[
+          (Function[r, cellForm[Lookup[r, #, Null]] & /@ cols] /@ rows),
+          (Style[ToString[#], Italic, GrayLevel[0.45]] & /@ cols)],
+        Frame -> All, FrameStyle -> GrayLevel[0.85], Alignment -> Left,
+        Spacings -> {1.2, 0.3}],
+      {UpTo[760], Automatic}, Scrollbars -> {Automatic, False},
+      AppearanceElements -> None]]];
 
 (* viewPanel[nm, p] : one agent's projection as a compact panel. *)
 tabularKeyQ[v_] := MatchQ[v, {__Association}];
