@@ -287,6 +287,18 @@ componentPortMap[components : {(_String -> _) ..}] := Association @@
         (Replace[#, "view" -> decap[name] <> "View"] -> name) & /@
           sortOf[buildSystem[Last[nc]]]]] /@ components];
 
+(* Auto-grouping registry: a composed-system term -> its component decomposition,
+   so walkUI with "Components" -> Automatic (the default) groups a KNOWN system
+   without being told each time. Generic — any composed system can register; the
+   miolingo systems (mioCore/mioCoreD) register at the bottom of this file. An
+   unregistered / bare agent resolves to {} (a flat, ungrouped list). *)
+$walkComponents = {};
+registerWalkComponents::usage = "registerWalkComponents[term, components] records that the composed term `term` decomposes into `components` ({name->call,...}), so walkUI[term] groups its transitions automatically.";
+registerWalkComponents[term_, comps_] := AppendTo[$walkComponents, {term, comps}];
+defaultComponents[agent_] := Replace[
+  SelectFirst[$walkComponents, First[#] === agent &],
+  {{_, c_} :> c, _Missing -> {}}];
+
 (* transGroup: the frame a ready transition belongs in (its providing agent, or
    an internal-tau group for a sync). inputsFirst: order a group's rows inputs
    (coLabel) before outputs (label). *)
@@ -297,10 +309,12 @@ inputsFirst[ts_List] := Join[
   Select[ts, MatchQ[First[#], label[___]] &],
   Select[ts, ! MatchQ[First[#], coLabel[___] | label[___]] &]];
 
-Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> {}};
+Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> Automatic};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"],
-   components = OptionValue["Components"]},
+   (* Automatic (the default): group if `agent` is a registered composed system,
+      else flat. An explicit list / {} overrides. *)
+   components = Replace[OptionValue["Components"], Automatic :> defaultComponents[agent]]},
   With[{pmap = If[components === {}, <||>, componentPortMap[components]]},
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
      maxprog = False, stateOpen = False,
@@ -431,13 +445,17 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
       TrackedSymbols :> {cur, inVals, testSel, future, maxprog}]]]];
 
 
-(* --- convenience entry points: the miolingo harness with transitions GROUPED
-   by component (a Helm / PS / VS frame each, inputs before outputs). Plain
-   walkUI[mioCore] still gives the ungrouped flat list. mioComponents is the
-   single source of truth for the decomposition (MioCore.wl). --- *)
-walkMio::usage = "walkMio[] = walkUI[mioCore, \"Components\"->mioComponents]: the grouped harness (one frame per component). walkMioD[] is the transNamed/mioCoreD twin.";
-walkMio[]  := walkUI[mioCore,  "Components" -> mioComponents, "TransitionFunction" -> transVP];
-walkMioD[] := walkUI[mioCoreD, "Components" -> mioComponents, "TransitionFunction" -> transNamed];
+(* --- register the miolingo systems so walkUI[mioCore] / walkUI[mioCoreD] GROUP
+   by component automatically (no "Components" option needed). mioComponents is
+   the single source of truth for the decomposition (MioCore.wl). --- *)
+If[ValueQ[mioCore]  && ValueQ[mioComponents], registerWalkComponents[mioCore,  mioComponents]];
+If[ValueQ[mioCoreD] && ValueQ[mioComponents], registerWalkComponents[mioCoreD, mioComponents]];
+
+(* convenience entry points. walkUI[mioCore] now groups on its own (via the
+   registry); walkMioD[] additionally wires transNamed for the call-based twin. *)
+walkMio::usage = "walkMio[] = walkUI[mioCore] (grouped by component via the registry). walkMioD[] is the transNamed/mioCoreD twin.";
+walkMio[]  := walkUI[mioCore];
+walkMioD[] := walkUI[mioCoreD, "TransitionFunction" -> transNamed];
 
 (* --- the value-carrying test sequences (walkTests), loaded relative to
    this file so walkUI's "Run test" menu and walkSteps both have them. --- *)
