@@ -54,12 +54,18 @@
    scoring is the next borrower to wire (b2).
    ===================================================================== *)
 
-mioCore =
-  merge[
-    {"PS" -> call["PS", {}, 0, none, none],
-     "VS" -> call["VS", signedIn, {}, alpha, none, none],
-     "Helm" -> call["Helm", "English", "fr", google, 250]},
-    {label["vAdd"], label["pLoad"], label["langRead"]}];
+(* The component decomposition, named once and reused: by merge/mergeDefined to
+   compose, and by the walk harness (walkUI's "Components" option) to GROUP the
+   ready transitions per providing agent. One source of truth for "who the
+   components are" — see walk.wl componentPortMap. *)
+mioComponents =
+  {"PS"   -> call["PS", {}, 0, none, none],
+   "VS"   -> call["VS", signedIn, {}, alpha, none, none],
+   "Helm" -> call["Helm", "English", "fr", google, 250]};
+
+mioRestricted = {label["vAdd"], label["pLoad"], label["langRead"]};
+
+mioCore = merge[mioComponents, mioRestricted];
 
 (* Compact call-based twin (mergeDefined): same composition, but stepped with
    transNamed and with call-based successors — no mu-term bulk. Use this for
@@ -67,9 +73,4 @@ mioCore =
    the transition-time transNamed[relabel] engine change (RCA_core branch
    relabel-transition-time); under the old static rule the view-rename no-ops
    on the bare calls and the views would clash. *)
-mioCoreD =
-  mergeDefined[
-    {"PS" -> call["PS", {}, 0, none, none],
-     "VS" -> call["VS", signedIn, {}, alpha, none, none],
-     "Helm" -> call["Helm", "English", "fr", google, 250]},
-    {label["vAdd"], label["pLoad"], label["langRead"]}];
+mioCoreD = mergeDefined[mioComponents, mioRestricted];
