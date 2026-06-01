@@ -36,6 +36,17 @@ assert["every readyInput is a value-carrying input (has a binder)",
 assert["the canonical VS input ports are present",
   SubsetQ[ToString /@ portName /@ First /@ ri, {"add", "set_filter", "set_sort", "import_bulk"}]];
 
+(* regression: viewProjections must pick up the BARE agent's "view" port, not
+   only the composition-relabelled "{Agent}View" (vSView/pSView). A literal
+   "View" suffix test silently dropped "view", so the data view was empty when
+   driving a bare agent (e.g. walkUI[call["VS", ...]]) and add never showed. *)
+assert["viewProjections finds the bare \"view\" port (case-insensitive)",
+  KeyExistsQ[viewProjections[transNamed, call["VS", signedIn, {}, alpha, none, none]], "view"]];
+assert["after add on a bare VS agent, the view projection shows the entry",
+  Map[Identity, viewProjections[transNamed,
+      Last[supplyValue[byName[transNamed, call["VS", signedIn, {}, alpha, none, none], "add"],
+                       <|"word" -> "souris"|>]]]["view"]]["count"] === 1];
+
 Print[hr]; Print["2. supplyValue : slot binder (load_material on PS) inserts cleanly"]; Print[hr];
 lm  = byName[transNamed, call["PS", {}, 0, none, none], "load_material"];
 phr = {<|"text" -> "chat", "translation" -> "cat"|>};
