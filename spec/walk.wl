@@ -266,18 +266,55 @@ traceView[trace_] := Column[{
    is the CCS term, complementing dataView's published data projections. *)
 stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Short[s, 3]];
 
-Options[walkUI] = {"TransitionFunction" -> transVP};
+(* --- grouping the ready transitions by the agent that provides each port ---
+   sortOf[term] : the port NAMES (as strings) a process term offers, by a pure
+   SYNTACTIC scan (Cases over label/coLabel) — no execution, so guards and
+   infinite data state never bite. componentPortMap inverts the per-agent sorts
+   into <|"port" -> "Agent"|>. The merge decomposition is passed in (the same
+   {"PS"->call[...], ...} list merge uses); each agent's sort is scanned from its
+   built term, with the bare "view" renamed to decap[name]<>"View" to match the
+   composition's relabelled pSView/vSView/helmView (relabel is a lazy wrapper
+   under transVP, so we rename the name set directly). Dual (restricted) actions
+   vAdd/pLoad/langRead live in two
+   sorts, but they are internal taus in the composed system and never queried as
+   named ports here, so the overlap is harmless. *)
+sortOf::usage = "sortOf[term] gives the set of port names (strings) appearing syntactically in a process term — a pure scan, no execution.";
+componentPortMap::usage = "componentPortMap[{name->call,...}] gives <|portName -> agentName|> for grouping ready transitions by the component that provides each port (sort scanned from each agent's view-relabelled built term).";
+sortOf[term_] := Union[Cases[term, (label | coLabel)[nm_, ___] :> ToString[nm], Infinity]];
+componentPortMap[components : {(_String -> _) ..}] := Association @@
+  Flatten[Function[nc,
+      With[{name = First[nc]},
+        (Replace[#, "view" -> decap[name] <> "View"] -> name) & /@
+          sortOf[buildSystem[Last[nc]]]]] /@ components];
+
+(* transGroup: the frame a ready transition belongs in (its providing agent, or
+   an internal-tau group for a sync). inputsFirst: order a group's rows inputs
+   (coLabel) before outputs (label). *)
+transGroup[pmap_Association, tr_] := If[isTauAct[First[tr]], "internal (\[Tau])",
+  Lookup[pmap, ToString[portName[First[tr]]], "other"]];
+inputsFirst[ts_List] := Join[
+  Select[ts, MatchQ[First[#], coLabel[___]] &],
+  Select[ts, MatchQ[First[#], label[___]] &],
+  Select[ts, ! MatchQ[First[#], coLabel[___] | label[___]] &]];
+
+Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> {}};
 walkUI[agent_, opts : OptionsPattern[]] := With[
-  {tf = OptionValue["TransitionFunction"]},
+  {tf = OptionValue["TransitionFunction"],
+   components = OptionValue["Components"]},
+  With[{pmap = If[components === {}, <||>, componentPortMap[components]]},
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
-     maxprog = False,
+     maxprog = False, stateOpen = False,
      testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
         Framed[Column[{
 
-          Style["Current state \[LongDash] where you are (process term)", Bold, 13],
-          Pane[stateDisplay[cur], {Automatic, 140}, Scrollbars -> Automatic],
+          (* collapsible (default closed) so the process term doesn't eat space;
+             open state persists across steps via stateOpen *)
+          OpenerView[{
+            Style["Current state \[LongDash] where you are (process term)", Bold, 13],
+            Pane[stateDisplay[cur], {Automatic, 140}, Scrollbars -> Automatic]},
+            Dynamic[stateOpen]],
 
           Style["Data view \[LongDash] published projections", Bold, 13],
           dataView[tf, cur],
@@ -297,8 +334,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                  GrayLevel[0.35], 11]}],
           If[trans === {},
             Style["(deadlocked \[LongDash] no transitions)", Italic, GrayLevel[0.5]],
-            Column[
-              Map[Function[tr,
+            With[{row = Function[tr,
                 With[{act = First[tr], nm = ToString[portName[First[tr]]]},
                   Row[{
                     Tooltip[
@@ -335,8 +371,25 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                              Dynamic[Lookup[inVals, nm, First[inputBinderOf[act], ""]],
                                      (inVals[nm] = #) &],
                              Expression, FieldSize -> 20, ContinuousAction -> False]}],
-                      Nothing]}]]],
-                trans]]],
+                      Nothing]}]]]},
+            (* GROUP the ready transitions by the agent that provides each (a
+               frame per component, inputs before outputs). Flat list when no
+               "Components" option is given. Internal syncs (taus) fall into
+               their own "internal (tau)" frame. *)
+            If[pmap === <||>,
+              Column[row /@ trans],
+              With[{grp = GroupBy[trans, transGroup[pmap, #] &]},
+                Column[
+                  Function[k,
+                    Framed[
+                      Column[{Style[k, Bold, Darker[Blue], 11],
+                              Column[row /@ inputsFirst[grp[k]], Spacings -> 0.2]},
+                        Spacings -> 0.4],
+                      FrameStyle -> GrayLevel[0.82], RoundingRadius -> 4,
+                      FrameMargins -> 6]] /@
+                  Select[Join[Keys[components], {"other", "internal (\[Tau])"}],
+                    KeyExistsQ[grp, #] &],
+                  Spacings -> 0.5]]]]],
 
           (* Back / Forward scrub the run: Back pushes the current step onto a
              `future` stack; Forward replays it. A fresh step or Run test clears
@@ -375,8 +428,16 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
           traceView[trace]
 
         }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
-      TrackedSymbols :> {cur, inVals, testSel, future, maxprog}]]];
+      TrackedSymbols :> {cur, inVals, testSel, future, maxprog}]]]];
 
+
+(* --- convenience entry points: the miolingo harness with transitions GROUPED
+   by component (a Helm / PS / VS frame each, inputs before outputs). Plain
+   walkUI[mioCore] still gives the ungrouped flat list. mioComponents is the
+   single source of truth for the decomposition (MioCore.wl). --- *)
+walkMio::usage = "walkMio[] = walkUI[mioCore, \"Components\"->mioComponents]: the grouped harness (one frame per component). walkMioD[] is the transNamed/mioCoreD twin.";
+walkMio[]  := walkUI[mioCore,  "Components" -> mioComponents, "TransitionFunction" -> transVP];
+walkMioD[] := walkUI[mioCoreD, "Components" -> mioComponents, "TransitionFunction" -> transNamed];
 
 (* --- the value-carrying test sequences (walkTests), loaded relative to
    this file so walkUI's "Run test" menu and walkSteps both have them. --- *)

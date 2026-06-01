@@ -22,20 +22,36 @@ In a notebook, from **your own checkout** (not a worktree):
 Get[".../spec/MiolingoSpec.wl"];   (* engine + spec, in order *)
 Get[".../spec/walk.wl"];           (* the harness + walkTests *)
 
-walkUI[mioCore]                                       (* mu-term, transVP default *)
+walkMio[]                                             (* RECOMMENDED: grouped by component *)
+walkMioD[]                                             (* the transNamed/mioCoreD twin *)
+
+walkUI[mioCore]                                       (* mu-term, transVP default; ungrouped *)
 walkUI[mioCoreD, "TransitionFunction" -> transNamed]  (* compact call form *)
 walkUI[call["VS", signedIn, {}, alpha, none, none], "TransitionFunction" -> transNamed]  (* a bare agent *)
+walkUI[mioCore, "Components" -> mioComponents]         (* what walkMio[] expands to *)
 ```
+
+`walkMio[]` is the usual entry point: it groups the transitions by component
+(below). `walkUI[mioCore]` alone gives one flat list. The `"Components"` option
+takes the same decomposition `merge` uses (`mioComponents` in `MioCore.wl`).
 
 `MiolingoSpec.wl` self-locates the rest (see `paths.wl`), so loading from any
 checkout works; just point the entry `Get` at the checkout you want to test.
 
 The panel shows, top to bottom:
 - **Current state** — the CCS process term (`foldAgentDisplay`), *where you are*.
+  **Collapsible** (an `OpenerView`, closed by default) so the term doesn't eat
+  space; the open/closed state persists across steps.
 - **Data view** — the published `view!` projections (`vSView`/`pSView`, or the
   bare `view`), rendered as the *computed* data through `linearizeGrid`.
 - **Transitions** — one clickable row each; hover shows *→ goes to:* the
-  derivative. Value-carrying input ports get an inline field.
+  derivative. Value-carrying input ports get an inline field. Under `walkMio[]`
+  (or any `"Components"`) they are **grouped into a frame per providing
+  component** (Helm / PS / VS), **inputs before outputs** in each frame; internal
+  syncs go in an *internal (τ)* frame. The port→component map is a pure syntactic
+  scan of each agent's sort (`componentPortMap`), so it needs no execution and
+  can't be fooled by guards; dual restricted actions (`vAdd`/`pLoad`/`langRead`)
+  only ever appear as τ, so they never split across frames.
 - **Back / Forward / Reset**, a **`Test:` menu + `Run test`** (see below), and
   the **condensed trace** (with Copy). **Back** and **Forward** scrub a run: step
   back through the states you've visited and forward again — handy after
