@@ -45,3 +45,7 @@ loadRecoveredBase[];
 mioGet["VocabStoreFunctions.wl"];
 mioGet["PracticeSessionFunctions.wl"];
 mioGet["MioCore.wl"];
+(* Helm — session/language settings (the source/target pair the oracles read).
+   Standalone (not composed into mioCore): no control guard reads the language. *)
+mioGet["HelmRecovered.wl"];
+mioGet["HelmFunctions.wl"];

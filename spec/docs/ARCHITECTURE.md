@@ -55,13 +55,16 @@ Location: `/spec/interaction-forms.md`. Governed by: human designer.
 
 | Component | CCS agent family | Kind | Priority |
 |---|---|---|---|
-| Practice Session | `PracticeSession` | Stateful agent — tight interaction loop | High |
-| Vocabulary Manager | `VocabStore` | Stateful agent — CRUD with IPA | High |
-| Stats Display | (projection of `PracticeSession`/`VocabStore`) | Read-only view port — **not** a standalone agent | Medium |
-| History Browser | (projection of a session/store agent) | Read-only view port — **not** a standalone agent | Medium |
+| Practice Session | `PracticeSession` | Stateful agent — tight interaction loop | High — **recovered** (PS) |
+| Vocabulary Manager | `VocabStore` | Stateful agent — CRUD with IPA | High — **recovered** (VS) |
+| Session / language | `Helm` | Stateful agent — finite-choice settings; **owns the (source, target) language pair** | **recovered** |
+| Stats Display † | (projection of `PracticeSession`/`VocabStore`) | Read-only view port — **not** a standalone agent | Medium |
+| History Browser † | (projection of a session/store agent) | Read-only view port — **not** a standalone agent | Medium |
 | Mode Navigation | `ModeSelector` | Stateful agent — finite-choice | Low |
 
 Correction from the previous draft: the read-only "displays" are most likely *view ports on* the stateful agents (a published `view!` projection rendered by a skin), not agents in their own right. Promote one to a standalone agent only if it genuinely owns state; otherwise it is a presentation of another agent's projection. Decide this deliberately per component.
+
+**† Stats / History and the external store (a rigging issue).** Treating these as *view ports* is correct only under the current modelling assumption that each component stores its own domain data in-process. In any sensible implementation, stats and history are retrieved from an **external store**, not held by the component. Rigging that external store into the system — where the data lives, who reads/writes it, how a view port is backed by a *query* rather than in-process state — is a key **rig** concern, and the question of *how* it is done may itself need to enter the model (an external-store agent / port), not be left wholly to L3. Flagged for when stats/history (and persistence generally) are recovered.
 
 ## Execution Model
 
