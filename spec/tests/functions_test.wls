@@ -128,8 +128,8 @@ Print["  comparePhonemes exact -> similarity 1.0? ",
 phr = practiseList[ei, none];
 tgt = targetOf[plf, 0];
 Print["  targetOf[_,0] is first phrase? ", ok[tgt["text"] === "chien"]];
-recognisePhonemes[aud_] := "dxg";          (* stub the IO oracle *)
-ev = evaluate[<|"ipa" -> "dog"|>, recorded["audio-blob"]];
+recognisePhonemes[aud_, _] := "dxg";       (* stub the IO oracle (audio, lang) *)
+ev = evaluate[<|"ipa" -> "dog"|>, recorded["audio-blob"], {"English", "fr"}];
 Print["  evaluate composes oracle+compare (dist 1)? ",
   ok[ev["distance"] === 1 && ev["exact_match"] === False]];
 

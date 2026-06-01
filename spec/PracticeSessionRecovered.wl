@@ -60,9 +60,16 @@ defineAgent["PSActive", {phrases, pos, rec, res},
       precede[coLabel["recording_made", binding[audio]],
         call["PS", phrases, pos, recorded[audio], none]],
       choice[
+        (* BORROWED DATA: scoring's ASR (recognisePhonemes) needs the target
+           language, which Helm OWNS. So attempt_made PULLS the (source, target)
+           pair fresh as a PREFIX \[LongDash] langRead?(lp), restricted to Helm's
+           langRead! in mioCore (an internal tau). No cached language => no
+           staleness. See ARCHITECTURE.md "Borrowed vs owned data". The pair is
+           passed into evaluate, which uses the target code for the ASR. *)
         precede[coLabel["attempt_made"],
-          call["PS", phrases, pos, rec,
-            scored[evaluate[targetOf[phrases, pos], rec]]]],
+          precede[coLabel["langRead", binding[lp]],
+            call["PS", phrases, pos, rec,
+              scored[evaluate[targetOf[phrases, pos], rec, lp]]]]],
         precede[coLabel["clear_recording"],
           call["PS", phrases, pos, none, none]]]],
     if[pos < Length[phrases] - 1,

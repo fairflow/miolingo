@@ -31,7 +31,7 @@ readyTaus[tf_, s_] := Select[readyTransitions[tf, s], isTauAct[First[#]] &];
 
 (* drive to just AFTER capture_vocab, BEFORE the vAdd tau *)
 plan = {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "S"|>}],
-        vis["recording_made", "audio"], vis["attempt_made"], vis["capture_vocab", "chat"]};
+        vis["recording_made", "audio"], vis["attempt_made"], tau["langRead"], vis["capture_vocab", "chat"]};
 
 check[label_, tf_, s0_] := Module[{s, taus, a, stable},
   Print[hr]; Print[label]; Print[hr];

@@ -62,7 +62,7 @@ With[{succ = Last[First[de0]]},
 findStep[tf_, s_, vis[nm_]]  := SelectFirst[tf[s], !isTau[First[#]] && portName[First[#]] === nm &];
 findStep[tf_, s_, tau[ch_]] := SelectFirst[tf[s], MatchQ[First[#], tag[\[Tau], ch, ___]] &];
 plan = {vis["set_filter"], vis["add"], vis["practise_filtered"], tau["pLoad"],
-        vis["recording_made"], vis["attempt_made"], vis["capture_vocab"], tau["vAdd"]};
+        vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
 walk[tf_, s0_] := Module[{s = s0, labs = {}, t, stuck = False},
   Do[t = findStep[tf, s, p];
      If[MissingQ[t], stuck = True; Break[]];

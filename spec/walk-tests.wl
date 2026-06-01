@@ -90,6 +90,7 @@ walkTests = <|
     vis["clear_recording"],
     vis["recording_made", "audio-B"],
     vis["attempt_made"],
+    tau["langRead"],                                (* scoring PULLS the target language *)
     vis["capture_vocab", "souris"],
     tau["vAdd"]},                                   (* capture relays to VS *)
 
@@ -115,6 +116,7 @@ walkTests = <|
     vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
     vis["recording_made", "audio"],
     vis["attempt_made"],
+    tau["langRead"],                                (* scoring PULLS the target language *)
     vis["capture_vocab", "chat"],
     tau["vAdd"]},
 
@@ -142,6 +144,7 @@ walkTests = <|
     tau["pLoad"],
     vis["recording_made", "audio"],
     vis["attempt_made"],
+    tau["langRead"],                                (* scoring PULLS the target language *)
     vis["capture_vocab", "souris"],
     tau["vAdd"]}
 

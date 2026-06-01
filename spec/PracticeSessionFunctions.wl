@@ -33,8 +33,10 @@ audioOf[_] := Missing[];
 
 (* --- oracle: audio -> recognised phonemes -------------------------------
    The ASR / espeak-from-audio step. Genuinely IO (a model / external
-   process); left UNINTERPRETED. evaluate is parametric in it. *)
-(* recognisePhonemes[audio]  -- stub oracle, no downvalue *)
+   process); left UNINTERPRETED. evaluate is parametric in it.
+   recognisePhonemes[audio, lang] -- stub oracle, no downvalue. lang is the
+   target language CODE (which ASR model); BORROWED from Helm and pulled fresh
+   at the attempt_made port (ARCHITECTURE.md "Borrowed vs owned data"). *)
 
 
 (* --- levenshtein + compare_phonemes_edit_distance (comparison.py:9, 83).
@@ -61,14 +63,16 @@ comparePhonemes[user_String, correct_String] := Module[{dist, maxLen},
     "distance" -> dist|>];
 
 
-(* --- evaluate[target, rec] : the scoring of an attempt -----------------
+(* --- evaluate[target, rec, lang] : the scoring of an attempt -----------
    PURE core (comparePhonemes) composed with the ASR oracle. The recorded
-   audio is recognised to phonemes (IO oracle), then compared against the
-   target's correct phonemes (pure). The result Association is what the
-   agent wraps in scored[...]. *)
-evaluate[target_, rec_] :=
+   audio is recognised to phonemes (IO oracle, in the target language), then
+   compared against the target item's correct phonemes (pure). lang is the
+   BORROWED {source, target} pair pulled from Helm at attempt_made; the ASR
+   uses Last[lang] (the target code). The result Association is what the agent
+   wraps in scored[...]. *)
+evaluate[target_, rec_, lang_List] :=
   comparePhonemes[
-    ToString[recognisePhonemes[audioOf[rec]]],
+    ToString[recognisePhonemes[audioOf[rec], Last[lang]]],
     correctPhonemesOf[target]];
 
 
