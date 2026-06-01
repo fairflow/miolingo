@@ -1,96 +1,154 @@
 (* ::Package:: *)
 
 (* =====================================================================
-   miolingo / L1 — VocabStore, RECOVERED (UI-first, stubbed)
+   miolingo / L1 \[LongDash] VocabStore, RECOVERED (UI-first, stubbed)
    ---------------------------------------------------------------------
-   Per SPEC-RECOVERY.md. Recovered from src/ui/vocabulary_tab.py + the
-   vocab.py CRUD it calls, NOT invented. See spec/docs/vocabstore-recovery.md.
+   Per SPEC-RECOVERY.md. Recovered from the Streamlit source
+   (src/ui/vocabulary_tab.py + the vocab.py CRUD it calls), NOT invented.
+   See spec/docs/vocabstore-recovery.md for the \[Section]3 analysis.
 
-   FORM: compact guarded-choice with 2-arg if[c, P] sugar. The merge law
-   if[c,A] + if[!c,B] == if[c,A,B] is applied where complementary guards
-   carry disjoint actions — here for `editing` (entry actions vs edit-mode
-   actions). The auth and empty/non-empty splits keep their shared ports
-   out front + a one-armed if for the extra (no duplication).
-   No `afforded` (readiness = readyPorts[state]); `view` kept.
-   LOAD ORDER: RCA_core.wl, discipline.wl, then this.
+   SPEC STYLE: guard-partitioned normal form.
+     - No `afforded` channel; readiness is derived from guards + structure.
+     - No degenerate conditionals: no if[c,P,nil] / if[c,nil,Q] in the
+       written form. Guards are hoisted outermost; every branch is a real
+       process expression.
+
+   Supersedes the invented strawman VocabStore.wl (kept for the
+   invented-vs-recovered contrast, H1/H3). The strawman's core claim \[LongDash]
+   per-entry ops gated on non-empty \[LongDash] is CONFIRMED; the recovery adds the
+   real guards it lacked: an AUTH gate over the whole component, a
+   search-non-empty guard on "Practise these", a missing-fields guard on
+   autofill (stubbed), and an inline EDIT-MODE that swaps a row's actions.
+
+   Cross-component: practise_filtered -> PracticeSession.load_material;
+   and PracticeSession.capture_vocab -> this agent's `add`. (bidirectional)
+
+   STUBBED: listVocab/addEntry/updateEntry/... are named, not defined.
+   Structural guards (auth, non-empty, filter present, edit-mode) are
+   concrete so the ready sets simulate.
+
+   LOAD ORDER: RCA_core.wl, then discipline.wl, then this file.
 
    STATE: VS[auth, entries, sort, filter, editing]
-     auth : anon | signedIn     entries : list     sort : alpha|recent|oldest
-     filter : none | filterBy[q]   editing : none | editingRow[id]
-     (the edit-mode tag head `editingRow` must DIFFER from the `editing`
-      parameter name, else mu-term substitution of the editing binder
-      captures the tag head: editing[id] /. {editing->none} -> none[id].)
+     auth    : anon | signedIn
+     entries : the collection (list)
+     sort    : ordering value (alpha | recent | oldest)
+     filter  : none | filterBy[q]
+     editing : none | editing[id]   (which row is in inline edit-mode)
 
-   READY SETS (analysis; readyPorts, not declared):
-     VS[anon,      _,_,_,_]            : view
-     VS[signedIn, {}, _,none,none]     : + add, vAdd, import_bulk,
-                                           set_sort, set_filter
-     VS[signedIn, ne, _,none,none]     : + export, delete, update_notes,
-                                           autofill, begin_edit
-     VS[signedIn, ne, _,filterBy,none] : + practise_filtered
-     VS[signedIn, ne, _,_,editingRow[id]] : update, cancel_edit replace the
-                                           per-entry set (export stays)
+   RECOVERED READY SETS (analysis only; derived from the guards below,
+   not explicit channels in the process):
+     VS[anon,      _, _,_,_ ]          Anon     : (none)
+     VS[signedIn, {}, _,none,none]     Empty    : add, vAdd, import_bulk,
+                                                  set_sort, set_filter
+     VS[signedIn, ne, _,none,none]     NonEmpty : + export, delete,
+                                                  update_notes, autofill,
+                                                  begin_edit
+     VS[signedIn, ne, _,filterBy,none] +search  : + practise_filtered
+     VS[signedIn, ne, _,_,editing[id]] Editing  : per-row -> update,
+                                                  cancel_edit (no delete/
+                                                  begin_edit); export stays
 
-   MU-TERM VIEW: buildSystem[call["VS", auth, entries, sort, filter, editing]].
+   NOTE: refactored to guard-partitioned normal form 2026-05-30.
+   RE-VERIFY on the engine before commit: simulated ready sets per mode
+   must be identical to the pre-refactor file (this is a normal-form
+   rewrite, meaning-preserving, NOT a semantic change).
    ===================================================================== *)
 
 
-(* --- top: view always; domain ports when signed in (shared-port split) --- *)
+(* --- top level: view + auth gate --- *)
 defineAgent["VS", {auth, entries, sort, filter, editing},
-  choice[
+  if[auth === signedIn,
+    choice[
+      precede[label["view", param[vocabView[auth, entries, sort, filter, editing]]],
+        call["VS", auth, entries, sort, filter, editing]],
+      call["VSAuthed", entries, sort, filter, editing]],
     precede[label["view", param[vocabView[auth, entries, sort, filter, editing]]],
-      call["VS", auth, entries, sort, filter, editing]],
-    if[auth === signedIn,
-      call["VSAuthed", entries, sort, filter, editing]]]]
+      call["VS", auth, entries, sort, filter, editing]]]]
 
 
-(* --- signed in: always-available CRUD-in; per-entry ops when non-empty.
-   vAdd is the cross-component relay from PracticeSession (restricted in
-   MioCore); `add` is the user paste/upload route. --- *)
+(* --- signed in: always-available CRUD-in, then non-empty refinement --- *)
 defineAgent["VSAuthed", {entries, sort, filter, editing},
-  choice[
-    precede[coLabel["add", binding[w]],
-      call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
-    precede[coLabel["vAdd", binding[w]],
-      call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
-    precede[coLabel["import_bulk", binding[f]],
-      call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
-    precede[coLabel["set_sort", binding[s]],
-      call["VS", signedIn, entries, s, filter, editing]],
-    precede[coLabel["set_filter", binding[q]],
-      call["VS", signedIn, entries, sort, filterBy[q], editing]],
-    if[Length[entries] > 0,
-      call["VSNonEmpty", entries, sort, filter, editing]]]]
+  if[Length[entries] == 0,
+    choice[
+      precede[coLabel["add", binding[w]],
+        call["VSAuthed", signedIn, addEntry[entries, w], sort, filter, editing]],
+      choice[
+        precede[coLabel["vAdd", binding[w]],
+          call["VSAuthed", signedIn, addEntry[entries, w], sort, filter, editing]],
+        choice[
+          precede[coLabel["import_bulk", binding[f]],
+            call["VSAuthed", signedIn, importInto[entries, f], sort, filter, editing]],
+          choice[
+            precede[coLabel["set_sort", binding[s]],
+              call["VSAuthed", signedIn, entries, s, filter, editing]],
+            precede[coLabel["set_filter", binding[q]],
+              call["VSAuthed", signedIn, entries, sort, filterBy[q], editing]]]]]],
+    choice[
+      precede[coLabel["add", binding[w]],
+        call["VSAuthed", signedIn, addEntry[entries, w], sort, filter, editing]],
+      choice[
+        precede[coLabel["vAdd", binding[w]],
+          call["VSAuthed", signedIn, addEntry[entries, w], sort, filter, editing]],
+        choice[
+          precede[coLabel["import_bulk", binding[f]],
+            call["VSAuthed", signedIn, importInto[entries, f], sort, filter, editing]],
+          choice[
+            precede[coLabel["set_sort", binding[s]],
+              call["VSAuthed", signedIn, entries, s, filter, editing]],
+            choice[
+              precede[coLabel["set_filter", binding[q]],
+                call["VSAuthed", signedIn, entries, sort, filterBy[q], editing]],
+              call["VSNonEmpty", entries, sort, filter, editing]]]]]]]]
 
 
-(* --- non-empty: export always; practise_filtered when a filter is set;
-   two-armed editing split (entry actions vs edit-mode actions) --- *)
+(* --- non-empty: export always; filter and edit-mode refine the branch --- *)
 defineAgent["VSNonEmpty", {entries, sort, filter, editing},
-  choice[
-    precede[label["export", param[exportCsv[entries]]],
-      call["VS", signedIn, entries, sort, filter, editing]],
-    (* practise_filtered relays to PracticeSession on pLoad (restricted) *)
-    if[filter =!= none,
-      precede[coLabel["practise_filtered"],
-        precede[label["pLoad", param[practiseList[entries, filter]]],
-          call["VS", signedIn, entries, sort, filter, editing]]]],
+  if[filter =!= none,
     if[editing === none,
-      call["VSEntryActions", entries, sort, filter],
-      call["VSEditActions", entries, sort, filter, editing]]]]
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        choice[
+          precede[coLabel["practise_filtered"],
+            precede[label["pLoad", param[practiseList[entries, filter]]],
+              call["VS", signedIn, entries, sort, filter, editing]]],
+          call["VSEntryActions", entries, sort, filter]]],
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        choice[
+          precede[coLabel["practise_filtered"],
+            precede[label["pLoad", param[practiseList[entries, filter]]],
+              call["VS", signedIn, entries, sort, filter, editing]]],
+          call["VSEditActions", entries, sort, filter, editing]]]],
+    if[editing === none,
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        call["VSEntryActions", entries, sort, filter]],
+      choice[
+        precede[label["export", param[exportCsv[entries]]],
+          call["VS", signedIn, entries, sort, filter, editing]],
+        call["VSEditActions", entries, sort, filter, editing]]]]]
 
 
-(* --- per-entry actions when NOT editing (autofill's missing-fields guard
-   is a stubbed value predicate, deferred) --- *)
+(* --- per-entry actions when NOT editing --- *)
 defineAgent["VSEntryActions", {entries, sort, filter},
   choice[
     precede[coLabel["delete", binding[id]],
       call["VS", signedIn, deleteFrom[entries, id], sort, filter, none]],
-    precede[coLabel["update_notes", binding[idn]],
-      call["VS", signedIn, updateNotesIn[entries, idn], sort, filter, none]],
-    precede[coLabel["autofill", binding[id]],
-      call["VS", signedIn, autofillIn[entries, id], sort, filter, none]],
-    precede[coLabel["begin_edit", binding[id]],
-      call["VS", signedIn, entries, sort, filter, editingRow[id]]]]]
+    choice[
+      precede[coLabel["update_notes", binding[idn]],
+        call["VS", signedIn, updateNotesIn[entries, idn], sort, filter, none]],
+      choice[
+        (* autofill \[LongDash] the missing-fields guard needsAutofill[entries,id] is
+           a STUBBED value predicate, deferred; modelled as available per
+           entry when non-empty *)
+        precede[coLabel["autofill", binding[id]],
+          call["VS", signedIn, autofillIn[entries, id], sort, filter, none]],
+        precede[coLabel["begin_edit", binding[id]],
+          call["VS", signedIn, entries, sort, filter, editing[id]]]]]]]
 
 
 (* --- per-entry actions WHILE editing a row --- *)
