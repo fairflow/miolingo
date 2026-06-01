@@ -26,6 +26,18 @@
      tag[Tau, ch, subst] / Tau  internal
    ===================================================================== *)
 
+(* --- usage messages (so ?name works in a notebook) ------------------- *)
+readyTransitions::usage = "readyTransitions[tf, s] gives the enabled transitions at state s as a list of {action, successor}, normalising the engine's optional 3-tuple form.";
+inputBinderOf::usage = "inputBinderOf[action] gives the binder symbol(s) an input action coLabel[nm, binding[x]] introduces (the free variables a supplied value replaces); {} for outputs, taus and value-free inputs.";
+valueInputQ::usage = "valueInputQ[action] is True iff action is an input port that binds a value (so the walk must let the user supply one).";
+readyInputs::usage = "readyInputs[tf, s] gives the ready transitions that are value-carrying input ports — the places where the user, as the open environment, supplies real data.";
+supplyValue::usage = "supplyValue[trans, val] inserts a user value into an input transition's binder via the engine's substVv (scope-aware), returning {action, derivative-with-value}. No validation: the value is the user's responsibility.";
+viewProjections::usage = "viewProjections[tf, s] gives <|portName -> projectionValue|> for the published read-only view ports at s (the bare \"view\" or a relabelled \"{Agent}View\").";
+dataView::usage = "dataView[tf, s] renders the state's published projections through the data-compaction grid (linearizeGrid of the computed projection).";
+traceView::usage = "traceView[traceSymbol] renders the condensed event log of a walk trace (HoldFirst) with a Copy button.";
+stateDisplay::usage = "stateDisplay[s] gives a compact render of the CCS process state s (foldAgentDisplay о normalizeSC) — where you are / where a transition leads.";
+walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests, and record a trace. Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
+
 (* ---------------------------------------------------------------------
    readyTransitions[tf, s] : the enabled transitions at state s as a list
    of {action, successor}.  Normalises the engine's optional 3-tuple form
@@ -172,7 +184,8 @@ stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Sho
 Options[walkUI] = {"TransitionFunction" -> transVP};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"]},
-  DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>},
+  DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>,
+     testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
         Framed[Column[{
@@ -226,10 +239,28 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
             Button["Reset \[CenterDot]", cur = agent; hist = {}; trace = {};
                inVals = <||>]}],
 
+          (* Run a value-carrying test sequence from walkTests — no typing:
+             replays the chosen plan FROM THE INITIAL AGENT, setting the trace
+             to its condensed event log and the state to the final state (hist
+             keeps the intermediate states so Back walks through it). *)
+          Row[{Style["Test: ", Bold, GrayLevel[0.4]], Spacer[4],
+               PopupMenu[Dynamic[testSel], Keys[If[ValueQ[walkTests], walkTests, <||>]]],
+               Spacer[4],
+               Button["Run test \[FilledRightTriangle]",
+                 Module[{w = walkSteps[tf, agent, walkTests[testSel]]},
+                   hist = Most[w["states"]]; trace = eventLog[w];
+                   cur = Last[w["states"]]; inVals = <||>],
+                 Enabled -> Dynamic[ValueQ[walkTests] && KeyExistsQ[walkTests, testSel]]]}],
+
           traceView[trace]
 
         }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
-      TrackedSymbols :> {cur, inVals}]]];
+      TrackedSymbols :> {cur, inVals, testSel}]]];
+
+
+(* --- the value-carrying test sequences (walkTests), loaded relative to
+   this file so walkUI's "Run test" menu and walkSteps both have them. --- *)
+Get[FileNameJoin[{DirectoryName[$InputFileName], "walk-tests.wl"}]];
 
 (* NB: the engine binds `walk = interactiveVP` (an OwnValue), so we do NOT
    reuse that name here — call walkUI[mioCore] for the richer spec harness.
