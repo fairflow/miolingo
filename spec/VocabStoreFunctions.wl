@@ -293,8 +293,12 @@ practiseList[entries_List, filter_] :=
 
 (* --- vocabView[auth, entries, sort, filter, editing] : the read-only view
    projection (what list_vocab + the tab publish). A projection f, never raw
-   state: emits a summary Association the skin renders. *)
-vocabView[auth_, entries_, sort_, filter_, editing_] := <|
+   state: emits a summary Association the skin renders.
+   entries_List (not entries_): like sessionView[phrases_List], this keeps the
+   WHOLE projection symbolic in a held mu-term derivation until the entries value
+   lands, then computes consistently — otherwise Length[<symbol>] froze count to
+   0 while the entries field got the real list (the count-stuck-at-0 display bug). *)
+vocabView[auth_, entries_List, sort_, filter_, editing_] := <|
   "auth" -> auth,
   "count" -> Length[entries],
   "sort" -> sort,
