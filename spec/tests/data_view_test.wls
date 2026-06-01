@@ -38,7 +38,7 @@ Print[hr]; Print["1. linearize  (let-form / A-normal CSE pretty-print)"]; Print[
 
 big = exportCsv[autofillIn[updateEntry[updateNotesIn[deleteFrom[
         addEntry[addEntry[addEntry[importInto[{}, f], w], w], w],
-        id], idn], editingRow[id], fields], id]];
+        id], idn], editingRow[id], fields], id, lang]];
 
 lin = linearize[big];
 Print["   raw term:"];
@@ -106,7 +106,7 @@ assert["each event has exactly the 4 fields?",
 Print[hr]; Print["4. replay: snapshot is derived (Fold), not stored"]; Print[hr];
 ops = {importInto[#, f] &, addEntry[#, w] &, addEntry[#, w] &, addEntry[#, w] &,
        deleteFrom[#, id] &, updateNotesIn[#, idn] &,
-       updateEntry[#, editingRow[id], fields] &, autofillIn[#, id] &};
+       updateEntry[#, editingRow[id], fields] &, autofillIn[#, id, lang] &};
 snap = exportCsv[replay[{}, ops]];
 Print["   replay[{}, ops] then exportCsv:"];
 Print["     ", ToString[snap, InputForm]];

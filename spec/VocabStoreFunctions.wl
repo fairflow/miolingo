@@ -152,16 +152,20 @@ updateEntry[entries_List, id : Except[_editingRow], fields_Association] :=
   updateEntry[entries, editingRow[id], fields];
 
 
-(* --- autofillIn[entries, id] : autofill_vocab_entry (vocab.py:411).
-   Fills ONLY empty translation/ipa, never overwrites. The enrichment is
-   the whole point of the function and is IO: it is the oracle
-   enrichOracle[word] -> <|"translation"->_, "ipa"->_|> (uninterpreted;
-   the spec is parametric in it). Existing-value fields are left intact. *)
-autofillIn[entries_List, id_] := Module[{pos, row, fill, m},
+(* --- autofillIn[entries, id, lang] : autofill_vocab_entry (vocab.py:411).
+   Fills ONLY empty translation/ipa, never overwrites. The enrichment is the
+   whole point of the function and is IO: the oracle
+   enrichOracle[word, source, target] -> <|"translation"->_, "ipa"->_|>
+   (uninterpreted; the spec is parametric in it). It translates source -> target
+   and produces the target-language IPA, so it needs the (source, target) pair.
+   BORROWED DATA (ARCHITECTURE.md): that pair is Helm's, pulled fresh at the
+   autofill port and passed in as `lang` = {source, target} — NOT cached.
+   Existing-value fields are left intact. *)
+autofillIn[entries_List, id_, lang_List] := Module[{pos, row, fill},
   pos = FirstPosition[entries, e_ /; e["id"] === id, None, {1}, Heads -> False];
   If[pos === None, Return[entries]];
   row = Extract[entries, pos];
-  fill = enrichOracle[row["display_word"]];
+  fill = enrichOracle[row["display_word"], First[lang], Last[lang]];
   If[!AssociationQ[fill], Return[entries]];
   MapAt[Function[e, Module[{n = e},
       If[(n["translation"] === Null || n["translation"] === "") &&

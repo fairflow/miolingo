@@ -56,15 +56,17 @@ Print["  updateEntry key-change rejected (no-op)? ", ok[e6 === e2]];
 e7 = updateEntry[e2, editingRow[id1], <|"word" -> "x"|>];
 Print["  updateEntry unknown field rejected? ", ok[e7 === e2]];
 
-(* autofillIn: oracle fills only empty fields *)
-enrichOracle["chien"] = <|"translation" -> "dog", "ipa" -> "ʃjɛ̃"|>;
+(* autofillIn: oracle fills only empty fields. enrichOracle now takes the
+   (source, target) pair (borrowed data); autofillIn is passed lang = {src,tgt}. *)
+enrichOracle["chien", _, _] = <|"translation" -> "dog", "ipa" -> "ʃjɛ̃"|>;
+lang = {"English", "fr"};
 ed = addEntry[{}, <|"word" -> "chien"|>];
-ef = autofillIn[ed, ed[[1]]["id"]];
+ef = autofillIn[ed, ed[[1]]["id"], lang];
 Print["  autofillIn fills empty translation+ipa via oracle? ",
   ok[ef[[1]]["translation"] === "dog" && ef[[1]]["ipa"] === "ʃjɛ̃"]];
 (* never overwrites an existing field *)
 eg = addEntry[{}, <|"word" -> "chien", "translation" -> "hound"|>];
-eh = autofillIn[eg, eg[[1]]["id"]];
+eh = autofillIn[eg, eg[[1]]["id"], lang];
 Print["  autofillIn does NOT overwrite existing translation? ",
   ok[eh[[1]]["translation"] === "hound" && eh[[1]]["ipa"] === "ʃjɛ̃"]];
 

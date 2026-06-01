@@ -27,11 +27,19 @@ sG = call["Helm", "English", "fr", google, 250];   (* tts = google *)
 sE = call["Helm", "English", "fr", espeak, 250];    (* tts = espeak *)
 
 Print[hr]; Print["1. ports — set_speed is gated on tts === espeak"]; Print[hr];
-assert["google: view + set_source/target/tts, NO set_speed",
-  ports[sG] === {"set_source", "set_target", "set_tts", "view"}];
+(* langRead is the internal READ port (a borrower pulls {source,target} from it);
+   STANDALONE it is unrestricted so it shows here — in mioCore it is restricted
+   to an internal tau and does NOT appear externally. *)
+assert["google: view + langRead + set_source/target/tts, NO set_speed",
+  ports[sG] === {"langRead", "set_source", "set_target", "set_tts", "view"}];
 assert["espeak: + set_speed appears",
   MemberQ[ports[sE], "set_speed"]];
 assert["set_speed absent unless espeak", !MemberQ[ports[sG], "set_speed"]];
+
+(* langRead emits the (source, target) pair the borrowers pull *)
+assert["langRead carries {source, target}",
+  With[{t = SelectFirst[readyTransitions[transNamed, sG], portName[First[#]] === "langRead" &]},
+    First[Cases[First[t], param[p_] :> p, Infinity], None] === {"English", "fr"}]];
 
 Print[hr]; Print["2. helmView projection — the (source,target) pair others read"]; Print[hr];
 v = view[sG];

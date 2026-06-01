@@ -44,6 +44,14 @@
    set_sort, set_target, set_tts, vSView} — three view ports, no bare `view`
    clash; vAdd/pLoad restricted (internal tau). (set_speed appears once tts is
    set to espeak.)
+
+   BORROWED-DATA wiring (2026-06-01): langRead is also restricted, so Helm's
+   internal read port pairs with VS.autofill's langRead?(lp) prefix as an
+   internal tau — VS pulls the (source, target) pair fresh when enriching, never
+   caching it (ARCHITECTURE.md "Borrowed vs owned data"). langRead does NOT
+   appear in the external ready set (it is internal); it is enabled as a tau only
+   while a borrower waits at langRead? (currently: just after `autofill`). PS
+   scoring is the next borrower to wire (b2).
    ===================================================================== *)
 
 mioCore =
@@ -51,7 +59,7 @@ mioCore =
     {"PS" -> call["PS", {}, 0, none, none],
      "VS" -> call["VS", signedIn, {}, alpha, none, none],
      "Helm" -> call["Helm", "English", "fr", google, 250]},
-    {label["vAdd"], label["pLoad"]}];
+    {label["vAdd"], label["pLoad"], label["langRead"]}];
 
 (* Compact call-based twin (mergeDefined): same composition, but stepped with
    transNamed and with call-based successors — no mu-term bulk. Use this for
@@ -64,4 +72,4 @@ mioCoreD =
     {"PS" -> call["PS", {}, 0, none, none],
      "VS" -> call["VS", signedIn, {}, alpha, none, none],
      "Helm" -> call["Helm", "English", "fr", google, 250]},
-    {label["vAdd"], label["pLoad"]}];
+    {label["vAdd"], label["pLoad"], label["langRead"]}];
