@@ -36,7 +36,7 @@ viewProjections::usage = "viewProjections[tf, s] gives <|portName -> projectionV
 dataView::usage = "dataView[tf, s] renders the state's published projections through the data-compaction grid (linearizeGrid of the computed projection).";
 traceView::usage = "traceView[traceSymbol] renders the condensed event log of a walk trace (HoldFirst) with a Copy button.";
 stateDisplay::usage = "stateDisplay[s] gives a compact render of the CCS process state s (foldAgentDisplay о normalizeSC) — where you are / where a transition leads.";
-walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests, and record a trace. Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
+walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests, step Back/Forward through a run, and record a trace. Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
 
 (* ---------------------------------------------------------------------
    readyTransitions[tf, s] : the enabled transitions at state s as a list
@@ -184,7 +184,7 @@ stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Sho
 Options[walkUI] = {"TransitionFunction" -> transVP};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"]},
-  DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>,
+  DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
      testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
@@ -211,7 +211,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                                  supplyValue[tr, inVals[nm]], tr];
                         AppendTo[hist, cur];
                         AppendTo[trace, eventOf[First[taken]]];
-                        cur = Last[taken]; inVals = <||>],
+                        cur = Last[taken]; inVals = <||>; future = {}],
                       Appearance -> "Frameless",
                       ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}],
                      (* hover: the derivative this transition leads to (symbolic,
@@ -230,14 +230,26 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                       Nothing]}]]],
                 trans]]],
 
+          (* Back / Forward scrub the run: Back pushes the current step onto a
+             `future` stack; Forward replays it. A fresh step or Run test clears
+             `future` (you've branched off the redo line). *)
           Row[{
             Button["\[LeftArrow] Back",
-              If[hist =!= {}, cur = Last[hist]; hist = Most[hist];
-                 trace = Most[trace]; inVals = <||>],
+              If[hist =!= {},
+                AppendTo[future, {cur, Last[trace]}];
+                cur = Last[hist]; hist = Most[hist]; trace = Most[trace];
+                inVals = <||>],
               Enabled -> Dynamic[hist =!= {}]],
+            Spacer[4],
+            Button["Forward \[RightArrow]",
+              If[future =!= {},
+                Module[{f = Last[future]},
+                  AppendTo[hist, cur]; cur = f[[1]]; AppendTo[trace, f[[2]]];
+                  future = Most[future]; inVals = <||>]],
+              Enabled -> Dynamic[future =!= {}]],
             Spacer[6],
             Button["Reset \[CenterDot]", cur = agent; hist = {}; trace = {};
-               inVals = <||>]}],
+               future = {}; inVals = <||>]}],
 
           (* Run a value-carrying test sequence from walkTests — no typing:
              replays the chosen plan FROM THE INITIAL AGENT, setting the trace
@@ -249,13 +261,13 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                Button["Run test \[FilledRightTriangle]",
                  Module[{w = walkSteps[tf, agent, walkTests[testSel]]},
                    hist = Most[w["states"]]; trace = eventLog[w];
-                   cur = Last[w["states"]]; inVals = <||>],
+                   cur = Last[w["states"]]; future = {}; inVals = <||>],
                  Enabled -> Dynamic[ValueQ[walkTests] && KeyExistsQ[walkTests, testSel]]]}],
 
           traceView[trace]
 
         }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
-      TrackedSymbols :> {cur, inVals, testSel}]]];
+      TrackedSymbols :> {cur, inVals, testSel, future}]]];
 
 
 (* --- the value-carrying test sequences (walkTests), loaded relative to

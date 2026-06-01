@@ -36,8 +36,11 @@ The panel shows, top to bottom:
   bare `view`), rendered as the *computed* data through `linearizeGrid`.
 - **Transitions** — one clickable row each; hover shows *→ goes to:* the
   derivative. Value-carrying input ports get an inline field.
-- **Back / Reset**, a **`Test:` menu + `Run test`** (see below), and the
-  **condensed trace** (with Copy).
+- **Back / Forward / Reset**, a **`Test:` menu + `Run test`** (see below), and
+  the **condensed trace** (with Copy). **Back** and **Forward** scrub a run: step
+  back through the states you've visited and forward again — handy after
+  `Run test` to watch what each step of a sequence reveals. (A fresh manual step
+  or `Run test` clears the forward/redo line.)
 
 ---
 
