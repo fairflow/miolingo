@@ -113,6 +113,38 @@ walkResolve[tf_, s_, vis[nm_, val_]] := Module[{t = walkResolve[tf, s, vis[nm]]}
   If[MissingQ[t], t, supplyValue[t, val]]];
 
 
+(* ---------------------------------------------------------------------
+   autoTau[tf, s] : MAXIMAL-PROGRESS advance — a SIMULATION STRATEGY, not a
+   language change. CCS itself has no priority: an offered internal sync is
+   declinable while the agent has other transitions (the asynchrony that makes
+   push-to-cache unfaithful). But the SIMULATOR is free to choose how it walks
+   the LTS, and "fire internal syncs before offering external choices" is one
+   such walk. It leaves the spec's meaning (the full transition relation)
+   untouched — see ARCHITECTURE.md ("Borrowed vs owned data").
+
+   It fires the UNIQUE enabled internal tau repeatedly until the state is
+   tau-stable. Deliberately conservative:
+     - 0 taus ready        -> stop (tau-stable; offer the external ready set);
+     - exactly 1 tau ready -> fire it (forced-by-the-only-thing-to-do);
+     - >= 2 taus ready     -> STOP and hand back to the user. Auto-firing here
+                              would silently resolve a genuine nondeterministic
+                              tau-CHOICE; we never bury that.
+   A safety cap bounds the loop against a (here unexpected) tau-cycle.
+
+   Returns <|"state" -> tau-stable state, "events" -> {eventOf each tau fired},
+   "states" -> {pre-state of each tau}|> so the caller can extend trace + hist
+   (every auto-fired tau is RECORDED and Back-steppable — maximal progress
+   speeds driving, it does not hide the internal flow). *)
+autoTau::usage = "autoTau[tf, s] is the maximal-progress simulation strategy: fire the unique enabled internal tau repeatedly until tau-stable (stopping if >=2 taus are ready, leaving the genuine choice to the user). Returns <|state, events, states|>. A walk strategy over the LTS, not a change to the spec.";
+autoTau[tf_, s_] := Module[{cur = s, evs = {}, sts = {}, taus, guard = 0},
+  While[guard++ < 500 &&
+        Length[taus = Select[readyTransitions[tf, cur], isTauAct[First[#]] &]] === 1,
+    AppendTo[sts, cur];
+    AppendTo[evs, eventOf[First[First[taus]]]];
+    cur = Last[First[taus]]];
+  <|"state" -> cur, "events" -> evs, "states" -> sts|>];
+
+
 (* =====================================================================
    DYNAMIC WIDGETS  (notebook front end — drive these; not headless)
    ---------------------------------------------------------------------
@@ -238,6 +270,7 @@ Options[walkUI] = {"TransitionFunction" -> transVP};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"]},
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
+     maxprog = False,
      testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
@@ -250,6 +283,18 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
           dataView[tf, cur],
 
           Style["Transitions \[LongDash] click to step; type into input ports", Bold, 13],
+          (* maximal-progress toggle: a SIMULATION strategy (auto-fire internal
+             syncs between your actions), not a language change. Switching it ON
+             also settles the current state. The system plays the SYSTEM for you;
+             you still play the user (and the world). *)
+          Row[{Checkbox[Dynamic[maxprog, (maxprog = #;
+                 If[TrueQ[#],
+                   With[{a = autoTau[tf, cur]},
+                     hist = Join[hist, a["states"]];
+                     trace = Join[trace, a["events"]]; cur = a["state"]]]) &]],
+               Spacer[4],
+               Style["Auto-advance internal syncs (maximal progress)",
+                 GrayLevel[0.35], 11]}],
           If[trans === {},
             Style["(deadlocked \[LongDash] no transitions)", Italic, GrayLevel[0.5]],
             Column[
@@ -264,7 +309,13 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                                  supplyValue[tr, inVals[nm]], tr];
                         AppendTo[hist, cur];
                         AppendTo[trace, eventOf[First[taken]]];
-                        cur = Last[taken]; inVals = <||>; future = {}],
+                        cur = Last[taken]; inVals = <||>; future = {};
+                        (* maximal progress: let the system settle its internal
+                           syncs before offering the next external choice *)
+                        If[TrueQ[maxprog],
+                          With[{a = autoTau[tf, cur]},
+                            hist = Join[hist, a["states"]];
+                            trace = Join[trace, a["events"]]; cur = a["state"]]]],
                       Appearance -> "Frameless",
                       ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}],
                      (* hover: the derivative this transition leads to (symbolic,
@@ -324,7 +375,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
           traceView[trace]
 
         }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
-      TrackedSymbols :> {cur, inVals, testSel, future}]]];
+      TrackedSymbols :> {cur, inVals, testSel, future, maxprog}]]];
 
 
 (* --- the value-carrying test sequences (walkTests), loaded relative to
