@@ -36,8 +36,11 @@ lab[a_]     := If[MatchQ[a, tag[\[Tau], _, ___]], a[[2]], portName[a]];
 
 mu0 = transVP[mioCore];
 de0 = transNamed[mioCoreD];
-expected = {"add", "import_bulk", "load_material", "pSView",
-            "set_filter", "set_sort", "vSView"};
+(* includes Helm's ports (2026-06-01): helmView + set_source/set_target/set_tts.
+   set_speed is NOT here — it is espeak-only and the initial tts is google. *)
+expected = {"add", "helmView", "import_bulk", "load_material", "pSView",
+            "set_filter", "set_sort", "set_source", "set_target", "set_tts",
+            "vSView"};   (* sorted: "set_sort" < "set_source" (r < u) *)
 
 Print[hr]; Print["1. EXTERNAL READY-SET PARITY"]; Print[hr];
 Print["   merge       (transVP)   : ", InputForm[names[mu0]]];

@@ -44,8 +44,12 @@ loadRecoveredBase[];
    downvalues only. See spec/docs/function-recovery.md. *)
 mioGet["VocabStoreFunctions.wl"];
 mioGet["PracticeSessionFunctions.wl"];
-mioGet["MioCore.wl"];
-(* Helm — session/language settings (the source/target pair the oracles read).
-   Standalone (not composed into mioCore): no control guard reads the language. *)
-mioGet["HelmRecovered.wl"];
+(* Helm value-functions. HelmRecovered (the AGENT) is already loaded by
+   loadRecoveredBase[]; here we only add its function bodies. helmView MUST be
+   defined BEFORE MioCore: mioCore = merge[...] eagerly buildSystems each agent
+   into a mu-term, computing helmView["English","fr",...] with the concrete
+   initial values at that point. (mioCoreD defers to step time and tolerates
+   either order; mioCore needs it now.) Helm is composed as a PURE PARALLEL
+   agent — no control guard reads the language, so no restricted sync. *)
 mioGet["HelmFunctions.wl"];
+mioGet["MioCore.wl"];
