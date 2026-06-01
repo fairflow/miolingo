@@ -61,6 +61,16 @@ assert["defaultComponents[mioCoreD] === mioComponents",
 assert["a bare agent resolves to {} (flat, ungrouped)",
   defaultComponents[call["VS", signedIn, {}, alpha, none, none]] === {}];
 
+Print[hr]; Print["5. the cloud — external-dependency inventory lights up on consulting ports"]; Print[hr];
+enrichItem = SelectFirst[$walkCloud, #["item"] === "enrichOracle" &];
+asrItem    = SelectFirst[$walkCloud, #["item"] === "recognisePhonemes" &];
+assert["enrichOracle active when autofill is ready",  cloudActiveQ[enrichItem, {"autofill", "delete"}]];
+assert["enrichOracle NOT active without autofill",  ! cloudActiveQ[enrichItem, {"add", "set_sort"}]];
+assert["recognisePhonemes active on attempt_made",   cloudActiveQ[asrItem, {"attempt_made"}]];
+assert["stats/history never auto-active (not modelled, no ports)",
+  ! cloudActiveQ[SelectFirst[$walkCloud, #["item"] === "stats / history" &], {"add", "attempt_made", "autofill"}]];
+assert["cloudPanel builds (Head OpenerView)", Head[cloudPanel[transVP, mioCore]] === OpenerView];
+
 Print[hr];
 Print["ALL ASSERTIONS: ", ok[allOk]];
 Print[hr];
