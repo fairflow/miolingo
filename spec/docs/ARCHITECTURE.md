@@ -82,18 +82,90 @@ of an ordinary input port (`add` already carries an `ipa`; `load_material`
 already carries translations). The language selects *which* oracle output,
 upstream of the port.
 
-The honest gap: today that oracle→`helmView` read is **implicit** (test data
-carries pre-baked `ipa`/`translation` values, correct by fiat). Making it
-explicit — the oracle call reading `(source, target)` from `helmView` — is a
-deliberate **`rig`** decision of the same shape as the external-store question
-below: does the read-edge stay *ambient* (oracle reads the projection at its
-boundary) or *enter the model* (an explicit parameter/sync)? The one place a
-setting already gates a port is `set_speed` (`if[tts === espeak, …]`) — a genuine
-**control** dependency, but on Helm's *own* state, so internal. The day a VS/PS
-port's *readiness* comes to depend on the language, **that** edge must enter the
-model as a restricted sync.
+Today that oracle→`helmView` read is still **implicit** (test data carries
+pre-baked `ipa`/`translation` values, correct by fiat). Making it explicit — the
+oracle call reading `(source, target)` from `helmView` — is now a **decided**
+matter: see **Borrowed vs owned data** below. In short, the consuming action
+*pulls* the language fresh through an internal port at the point of use; it is
+**not** pushed into a VS/PS cache. The one place a setting already gates a port
+is `set_speed` (`if[tts === espeak, …]`) — a genuine **control** dependency, but
+on Helm's *own* state, so internal. The day a VS/PS port's *readiness* comes to
+depend on the language, **that** edge must enter the model as a restricted sync —
+and, being a guard over *borrowed* data, is the one case that may force a
+calculus extension (see below).
 
 **† Stats / History and the external store (a rigging issue).** Treating these as *view ports* is correct only under the current modelling assumption that each component stores its own domain data in-process. In any sensible implementation, stats and history are retrieved from an **external store**, not held by the component. Rigging that external store into the system — where the data lives, who reads/writes it, how a view port is backed by a *query* rather than in-process state — is a key **rig** concern, and the question of *how* it is done may itself need to enter the model (an external-store agent / port), not be left wholly to L3. Flagged for when stats/history (and persistence generally) are recovered.
+
+## Borrowed vs Owned Data (decision)
+
+When one component needs data another component owns — VS/PS needing Helm's
+`(source, target)` to enrich/score — the rule is:
+
+> **Own it → store it. Borrow it → fetch it fresh, at the point of use.**
+
+A component keeps the data it *owns* in its own state (VS's entries, sort,
+filter; PS's position). It **never caches data another component owns**; it reads
+that through a port, as a prefix of the action that needs it.
+
+**Why not push-to-cache.** The tempting model — Helm pushes each change into a
+VS/PS replica, which then reads locally — is **not faithfully expressible in
+pure CCS**. CCS has no priority: an offered synchronisation is declinable while
+the agent has any other transition. So with a cache, the run
+
+```
+set_target(pt) · VS.autofill[reads stale "fr"] · langToVS(pt)
+```
+
+is a legal trace — the refresh is not forced before the stale read. The very
+asynchrony that makes CCS clean removes the "write is immediately visible"
+guarantee a shared-memory framework (Streamlit) gives for free. A cache of
+borrowed data cannot be kept coherent without leaving the calculus.
+
+**The mechanism: pull-on-use, forced by prefix.** Instead, the read sits on the
+*critical path* of the consuming action:
+
+```
+Helm:  … + langRead!(source, target) · Helm        (* persistent internal read port, a self-loop *)
+VS:    autofill?(id) · langRead?(s,t) · ⟨enrichOracle[word, s, t]⟩ · VS′
+PS:    attempt_made  · langRead?(_,t) · ⟨recognisePhonemes[audio, t]⟩ · …
+```
+
+`langRead` is **restricted** in `mioCore` (an internal τ, like `vAdd`/`pLoad`).
+The consumer cannot complete the enrich/score without first taking it, and what
+it reads is necessarily Helm's *current* value — there is no local copy to be
+stale. This is **forced by sequencing, not by priority**: it is the same idiom
+`vAdd`/`pLoad` already use (a sync that is the only way for the agent to make
+progress). Helm remains the **sole owner**; oracles stay boundary functions
+(decision-A) but are now called *with* the language the read delivered.
+`espeakG2P[word, voice]` already has this shape (`voice` = the target read).
+
+**The one escape hatch.** Pull-on-use covers a *data* dependency (the value is
+needed when an action runs). It does **not** cover a *control* dependency over
+borrowed data — a guard whose ready set must change the instant Helm changes,
+with no action in flight. That genuinely needs push, i.e. a calculus extension:
+**priority / maximal progress** (Cleaveland & Hennessy; timed-process-algebra
+maximal progress) or **broadcast** (Prasad's CBS, broadcast-π). We adopt none of
+these now; they are reserved for the first borrowed-data *guard*. (`set_speed`'s
+guard reads Helm's *own* state, so it is internal, not a borrowed-data guard.)
+
+**Simulator note (a strategy, not a semantics).** The harness offers a
+**maximal-progress toggle** (`autoTau`, `walk.wl`): between the user's actions it
+auto-fires the unique enabled internal τ until the state is τ-stable (and stops,
+handing back, if ≥2 τ are ready — a real choice is never silently resolved). This
+is a *scheduling strategy over the existing LTS*, leaving the spec's transition
+relation untouched; it does not introduce priority into the language. It embodies
+the meta-agent split: the user plays the **user** (external inputs) and the
+**world** (oracle return values); the simulator plays the **system** (internal
+syncs). Every auto-fired τ is recorded in the trace and is Back-steppable.
+
+**The "data cloud".** Any datum a component reads but that is owned by *nothing
+yet modelled* (DB persistence, an oracle's internal knowledge) is, until given an
+owning agent, shown in the simulator as an explicit **incompleteness inventory** —
+a standing reminder that the simulated agents are not complete in themselves.
+Pull-on-use removes the *language* from that cloud (it now flows through a real
+port); what remains is the genuinely-external world, and it shrinks as each owner
+is modelled (the DB becoming an agent being the large remaining one — it unifies
+with the external-store note † above).
 
 ## Execution Model
 

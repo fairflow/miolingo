@@ -41,6 +41,17 @@ The panel shows, top to bottom:
   back through the states you've visited and forward again — handy after
   `Run test` to watch what each step of a sequence reveals. (A fresh manual step
   or `Run test` clears the forward/redo line.)
+- **Auto-advance internal syncs (maximal progress)** — a checkbox. When on, the
+  harness fires the system's internal synchronisations (`vAdd`, `pLoad`, and the
+  coming `langRead`) for you between your actions, until the state is τ-stable,
+  so you only ever click *external* ports. It's a **simulation strategy, not a
+  language change** (`autoTau` in `walk.wl`): it just chooses how to walk the
+  existing transition system. The meta-agent split — you play the *user* (and the
+  *world*, via input values); the simulator plays the *system*. Every auto-fired
+  τ is still **recorded in the trace and is Back-steppable**, so nothing is
+  hidden. If two internal syncs are ready at once (a real nondeterministic
+  choice) it **stops and hands back to you** rather than pick silently. See
+  ARCHITECTURE.md → *Borrowed vs owned data* for why this is sound.
 
 ---
 
