@@ -220,12 +220,16 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                      Column[{Style["\[RightArrow] goes to:", Bold, GrayLevel[0.4]],
                              stateDisplay[Last[tr]]}]],
                     If[valueInputQ[act],
-                      Row[{Spacer[6],
-                           Style["\[LeftArrow] " <> ToString[First[inputBinderOf[act]]] <> " = ",
-                             GrayLevel[0.5]],
-                           (* default to "" (not Missing[KeyAbsent]) when the
-                              port has no value yet; write inVals[nm] on edit *)
-                           InputField[Dynamic[Lookup[inVals, nm, ""], (inVals[nm] = #) &],
+                      Row[{Spacer[6], Style["\[LeftArrow] ", GrayLevel[0.5]],
+                           (* pre-fill with the port's first binder SYMBOL as the
+                              editable starting point (via inputBinderOf — a
+                              pattern match, never Part-indexing, so it is safe
+                              for any action shape; cf. issue #150). Untouched
+                              fields don't set inVals[nm], so the step stays
+                              symbolic; the user types over the symbol to supply. *)
+                           InputField[
+                             Dynamic[Lookup[inVals, nm, First[inputBinderOf[act], ""]],
+                                     (inVals[nm] = #) &],
                              Expression, FieldSize -> 20, ContinuousAction -> False]}],
                       Nothing]}]]],
                 trans]]],
