@@ -294,13 +294,28 @@ walkResolve[tf_, s_, vis[nm_]] :=
 walkResolve[tf_, s_, tau[ch_]] :=
   SelectFirst[tf[s], MatchQ[First[#], tag[\[Tau], ch, ___]] &];
 
-walkSteps[tf_, s0_, plan_List] := Module[
-  {s = s0, acts = {}, states = {s0}, t, stuck = False},
+Options[walkSteps] = {"AutoTau" -> False};
+walkSteps[tf_, s0_, plan_List, OptionsPattern[]] := Module[
+  {s = s0, acts = {}, states = {s0}, t, stuck = False,
+   auto = TrueQ[OptionValue["AutoTau"]], settle},
+  (* "AutoTau" -> True : maximal-progress between steps — fire the UNIQUE enabled
+     internal tau repeatedly (stop on 0, or on >=2, which is a real choice left to
+     an explicit tau[ch] entry). Lets a plan list only EXTERNAL actions, and stays
+     robust as new internal syncs (langRead, chRead, …) are added — no plan edits.
+     Same strategy as autoTau (walk.wl); kept here so walkSteps is self-contained.
+     Default off, so explicit-tau plans + the tau-checking tests are unchanged. *)
+  settle[] := If[auto,
+    Module[{taus, g = 0},
+      While[g++ < 500 && Length[taus = Select[tf[s], isTauAct[First[#]] &]] === 1,
+        AppendTo[acts, First[First[taus]]]; s = Last[First[taus]]; AppendTo[states, s]]]];
+  settle[];                                  (* settle taus reachable from s0 *)
   Do[t = walkResolve[tf, s, p];
      If[MissingQ[t], stuck = True; Break[]];
      AppendTo[acts, First[t]];
      s = Last[t];
-     AppendTo[states, s], {p, plan}];
+     AppendTo[states, s];
+     settle[],                               (* settle taus after each external step *)
+     {p, plan}];
   <|"actions" -> acts, "states" -> states, "stuck" -> stuck|>];
 
 (* eventLog[walk] : the COMPACT event log — one eventOf per action taken. *)
