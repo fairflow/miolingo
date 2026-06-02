@@ -342,14 +342,14 @@ cloudRow[item_Association, ready_List] := With[{active = cloudActiveQ[item, read
       Style[item["why"], GrayLevel[0.5], 10]}, Spacings -> 0.2],
     FrameStyle -> If[active, Darker[Orange], GrayLevel[0.88]], RoundingRadius -> 3,
     FrameMargins -> 5, Background -> If[active, RGBColor[1, 0.97, 0.88], White]]];
-cloudPanel::usage = "cloudPanel[tf, s] renders the external-dependency inventory ($walkCloud) as a collapsible panel; items a ready port would consult are highlighted.";
-cloudPanel[tf_, s_] := With[
+cloudPanel::usage = "cloudPanel[tf, s, open] renders the external-dependency inventory ($walkCloud) as a collapsible panel; items a ready port would consult are highlighted. `open` (default False, or a Dynamic) is the opener state, so it can persist across steps.";
+cloudPanel[tf_, s_, open_ : False] := With[
   {ready = ToString /@ portName /@ First /@ readyTransitions[tf, s]},
   OpenerView[{
     Style[Row[{"Outside the model \[LongDash] read but not owned (",
                Length[$walkCloud], " items; \[FilledCircle] = consulted by a ready action)"}],
       Bold, 12, GrayLevel[0.45]],
-    Column[cloudRow[#, ready] & /@ $walkCloud, Spacings -> 0.4]}, False]];
+    Column[cloudRow[#, ready] & /@ $walkCloud, Spacings -> 0.4]}, open]];
 
 Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> Automatic};
 walkUI[agent_, opts : OptionsPattern[]] := With[
@@ -359,7 +359,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
    components = Replace[OptionValue["Components"], Automatic :> defaultComponents[agent]]},
   With[{pmap = If[components === {}, <||>, componentPortMap[components]]},
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
-     maxprog = False, stateOpen = False,
+     maxprog = False, stateOpen = False, cloudOpen = False,
      testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
@@ -375,9 +375,10 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
           Style["Data view \[LongDash] published projections", Bold, 13],
           dataView[tf, cur],
 
-          (* the cloud: external data the agents read but don't own (collapsible);
-             items light up when a ready action would consult them *)
-          cloudPanel[tf, cur],
+          (* the cloud: external data the agents read but don't own (collapsible;
+             open state persists across steps via cloudOpen); items light up when
+             a ready action would consult them *)
+          cloudPanel[tf, cur, Dynamic[cloudOpen]],
 
           Style["Transitions \[LongDash] click to step; type into input ports", Bold, 13],
           (* maximal-progress toggle: a SIMULATION strategy (auto-fire internal
