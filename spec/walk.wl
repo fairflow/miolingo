@@ -250,14 +250,28 @@ dataView[tf_, s_] := Module[{projs = viewProjections[tf, s]},
     Style["(no view ports ready)", Italic, GrayLevel[0.5]],
     Column[KeyValueMap[viewPanel[#1, forceProj[#2]] &, projs], Spacings -> 0.8]]];
 
-(* traceView[traceDyn] : condensed event-log rendering of the trace held in
-   the Dynamic-tracked symbol passed by reference, + a Copy button. *)
+(* Per-event render: port + polarity glyph + the value as a NAKED expression
+   (no ToString — Wolfram boxes read fine), dropping the {} wrapper for <=1
+   parameter (eventOf wraps every value in a list; we unwrap the singleton).
+   When `short`, the value is Short[…]'d to tame bulky payloads. *)
+renderTraceVal[{v_}, short_] := If[TrueQ[short], Short[v, 1], v];   (* <=1 param: NAKED, no {} *)
+renderTraceVal[v_, short_]   := If[TrueQ[short], Short[v, 1], v];   (* multi-param list / tau subst *)
+eventRow[e_Association, short_] := Row[{
+  Style[If[e["isVisible"], "", "\[Tau] "], GrayLevel[0.6]],
+  Style[e["port"], Bold, Darker[Blue]],
+  Style[Switch[e["polarity"], "out", "!", "in", "?", _, ""], GrayLevel[0.5]],
+  If[e["value"] === None, "", Row[{"\[ThinSpace]", renderTraceVal[e["value"], short]}]]}];
+
+(* traceView[trace, short] : the trace rendered as naked-expression rows (not a
+   string), so it copies/reads cleanly. `short` (a Bool, tracked by walkUI) wraps
+   bulky values in Short. eventLogForm (string form) is kept for trace round-trip
+   (trace_io_test) and Copy. *)
 SetAttributes[traceView, HoldFirst];
-traceView[trace_] := Column[{
+traceView[trace_, short_ : False] := Column[{
   Style["Trace (condensed event log)", Bold],
   Pane[Dynamic[If[trace === {},
         Style["(no steps yet)", Italic, GrayLevel[0.5]],
-        Style[eventLogForm[trace], FontFamily -> "Courier", FontSize -> 12]]],
+        Column[eventRow[#, short] & /@ trace, Spacings -> 0.15]]],
     {Automatic, 110}, Scrollbars -> Automatic],
   Button["Copy trace \[SelectionPlaceholder]", CopyToClipboard[trace],
     Enabled -> Dynamic[trace =!= {}]]}];
@@ -346,6 +360,11 @@ $walkCloud = {
     "ports" -> {}|>};
 cloudActiveQ[item_Association, readyNames_List] := IntersectingQ[item["ports"], readyNames];
 cloudActiveQ::usage = "cloudActiveQ[item, readyPortNames] is True iff a currently-ready port would consult this external item (so the cloud panel highlights it).";
+(* the set of cloud-item names CONSULTED at state s — walkUI pops the panel open
+   when this set CHANGES (otherwise it leaves the panel as the user set it). *)
+cloudActiveNames[tf_, s_] := With[
+  {ready = ToString /@ portName /@ First /@ readyTransitions[tf, s]},
+  #["item"] & /@ Select[$walkCloud, cloudActiveQ[#, ready] &]];
 cloudRow[item_Association, ready_List] := With[{active = cloudActiveQ[item, ready]},
   Framed[
     Column[{
@@ -396,6 +415,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
         ver = walkVersion[$walkDir]},
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
      maxprog = False, stateOpen = False, cloudOpen = False,
+     shortTrace = True, prevCloudActive = cloudActiveNames[tf, agent],
      testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
@@ -452,7 +472,13 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                         If[TrueQ[maxprog],
                           With[{a = autoTau[tf, cur]},
                             hist = Join[hist, a["states"]];
-                            trace = Join[trace, a["events"]]; cur = a["state"]]]],
+                            trace = Join[trace, a["events"]]; cur = a["state"]]];
+                        (* cloud auto-open: pop the externals panel open ONLY when
+                           the set of consulted externals changes; otherwise leave
+                           it as the user set it *)
+                        With[{na = cloudActiveNames[tf, cur]},
+                          If[na =!= prevCloudActive, cloudOpen = True];
+                          prevCloudActive = na]],
                       Appearance -> "Frameless"(*,
                       ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}*)],
                      (* hover: the derivative this transition leads to (symbolic,
@@ -535,10 +561,12 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                    cur = Last[w["states"]]; future = {}; inVals = <||>],
                  Enabled -> Dynamic[ValueQ[walkTests] && KeyExistsQ[walkTests, testSel]]]}],
 
-          traceView[trace]
+          Row[{Checkbox[Dynamic[shortTrace]], Spacer[4],
+               Style["Short trace values (truncate bulky data)", GrayLevel[0.35], 11]}],
+          traceView[trace, shortTrace]
 
         }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
-      TrackedSymbols :> {cur, inVals, testSel, future, maxprog}]]]];
+      TrackedSymbols :> {cur, inVals, testSel, future, maxprog, shortTrace}]]]];
 
 
 (* --- register the miolingo systems so walkUI[mioCore] / walkUI[mioCoreD] GROUP
