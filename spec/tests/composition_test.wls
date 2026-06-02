@@ -84,8 +84,8 @@ If[cv2 =!= $Failed, Print["      ", InputForm[taus[cv2]]]];
 
 pf = restrict[par[call["PS", {}, 0, none, none],
                   call["VS", signedIn, {e1}, alpha, filterBy["q"], none]], R];
-pf2 = stepTo[pf, "practise_filtered"];
-Print["   practise_filtered -> tau(pLoad)?  ",
+pf2 = stepTo[pf, "practise_vocab"];
+Print["   practise_vocab -> tau(pLoad)?  ",
   ok[pf2 =!= $Failed && AnyTrue[taus[pf2], MatchQ[#, tag[\[Tau], "pLoad", ___]] &]]];
 If[pf2 =!= $Failed, Print["      ", InputForm[taus[pf2]]]];
 

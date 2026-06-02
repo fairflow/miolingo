@@ -9,7 +9,7 @@
 
    One path hits both, because the two relays chain:
 
-     VS: set_filter, add  ->  practise_filtered  --pLoad!-->  (tau)
+     VS: set_filter, add  ->  practise_vocab  --pLoad!-->  (tau)
          => PS receives practiseList[...] and becomes ACTIVE
      PS: recording_made, attempt_made  ->  capture_vocab  --vAdd!--> (tau)
          => VS receives the captured word
@@ -38,7 +38,7 @@ findStep[s_, vis[nm_]]  := SelectFirst[transVP[s], !isTau[First[#]] && portName[
 findStep[s_, tau[ch_]] := SelectFirst[transVP[s], MatchQ[First[#], tag[\[Tau], ch, ___]] &];
 
 plan = {
-  vis["set_filter"], vis["add"], vis["practise_filtered"], tau["pLoad"],
+  vis["set_filter"], vis["add"], vis["practise_vocab"], tau["pLoad"],
   vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]
 };
 
