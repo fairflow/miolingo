@@ -4,16 +4,20 @@
    spec/walk-tests.wl — a batch of value-carrying test SEQUENCES (plans)
    that drive the spec through walk WITHOUT any typing into input fields.
    ---------------------------------------------------------------------
-   A test is a PLAN: a list of plan-entries
+   A test is a PLAN: a list of plan-entries. These plans list ONLY EXTERNAL
+   actions:
      vis["port"]          take a visible action by port name (no value)
      vis["port", value]   take a value-carrying input port, supplying value
-     tau["chan"]          take an internal sync on a named channel
-   (the vocabulary of walkResolve / walkSteps, discipline.wl + walk.wl).
+   The internal syncs (vAdd / pLoad / langRead, and chRead once CargoHold is
+   composed) are fired AUTOMATICALLY between steps by walkSteps' maximal-progress
+   mode ("AutoTau" -> True) — so plans stay readable and robust as new internal
+   syncs are added (no plan edits). (A plan MAY still force a specific sync with
+   tau["chan"] when a step is genuinely ambiguous; none need to here.)
 
-   Run a plan with the existing machinery:
-     walkSteps[transVP,   mioCore,  walkTests["full-roundtrip"]]   (* mu-term  *)
-     walkSteps[transNamed, mioCoreD, walkTests["full-roundtrip"]]  (* call form *)
-   or load one into the GUI from walkUI's "Run test" menu.
+   Run a plan with maximal progress (the GUI "Run test" and walk_sequences_test
+   do this):
+     walkSteps[transVP,   mioCore,  walkTests["full-roundtrip"], "AutoTau" -> True]
+     walkSteps[transNamed, mioCoreD, walkTests["full-roundtrip"], "AutoTau" -> True]
 
    EVERY sequence runs to completion on BOTH mioCore (transVP) and mioCoreD
    (transNamed) — that is the standing invariant (see
@@ -68,8 +72,7 @@ walkTests = <|
     vis["begin_edit", 1],
     vis["cancel_edit"],
     vis["update_notes", <|"id" -> 1, "notes" -> "seen in a book"|>],
-    vis["autofill", 1],
-    tau["langRead"],                                (* autofill PULLS the language *)
+    vis["autofill", 1],                             (* langRead auto-fires (pull language) *)
     vis["delete", 1]},
 
   (* --- PracticeSession: load + navigate ------------------------------- *)
@@ -89,18 +92,15 @@ walkTests = <|
     vis["recording_made", "audio-A"],
     vis["clear_recording"],
     vis["recording_made", "audio-B"],
-    vis["attempt_made"],
-    tau["langRead"],                                (* scoring PULLS the target language *)
-    vis["capture_vocab", "souris"],
-    tau["vAdd"]},                                   (* capture relays to VS *)
+    vis["attempt_made"],                            (* langRead auto-fires for scoring *)
+    vis["capture_vocab", "souris"]},                (* vAdd auto-fires (relay to VS) *)
 
   (* --- sync: VS practise_vocab (FILTERED) -> PS load (pLoad) ----------
      a filter is set, so practise_vocab sends the filtered subset. *)
   "sync-pload" -> {
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
     vis["set_filter", "ch"],
-    vis["practise_vocab"],
-    tau["pLoad"],
+    vis["practise_vocab"],                          (* pLoad auto-fires *)
     vis["select_item", 0]},
 
   (* --- sync: VS practise_vocab (ALL, no filter) -> PS load (pLoad) ----
@@ -109,8 +109,7 @@ walkTests = <|
   "practise-all" -> {
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
     vis["add", <|"word" -> "chien", "translation" -> "dog"|>],
-    vis["practise_vocab"],
-    tau["pLoad"],
+    vis["practise_vocab"],                          (* pLoad auto-fires *)
     vis["select_item", 1]},
 
   (* --- sync: VS autofill PULLS the language from Helm (langRead) ------
@@ -119,17 +118,14 @@ walkTests = <|
      Only meaningful in the COMPOSED system (Helm must be present to answer). *)
   "sync-langread" -> {
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
-    vis["autofill", 1],
-    tau["langRead"]},
+    vis["autofill", 1]},                            (* langRead auto-fires *)
 
   (* --- sync: PS capture_vocab -> VS add (vAdd) ----------------------- *)
   "sync-vadd" -> {
     vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
     vis["recording_made", "audio"],
-    vis["attempt_made"],
-    tau["langRead"],                                (* scoring PULLS the target language *)
-    vis["capture_vocab", "chat"],
-    tau["vAdd"]},
+    vis["attempt_made"],                            (* langRead auto-fires for scoring *)
+    vis["capture_vocab", "chat"]},                  (* vAdd auto-fires (relay to VS) *)
 
   (* --- Helm: settings tour + the espeak-only set_speed guard ---------- *)
   "helm-settings" -> {
@@ -151,12 +147,9 @@ walkTests = <|
   "full-roundtrip" -> {
     vis["set_filter", "ch"],
     vis["add", <|"word" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>],
-    vis["practise_vocab"],
-    tau["pLoad"],
+    vis["practise_vocab"],                          (* pLoad auto-fires *)
     vis["recording_made", "audio"],
-    vis["attempt_made"],
-    tau["langRead"],                                (* scoring PULLS the target language *)
-    vis["capture_vocab", "souris"],
-    tau["vAdd"]}
+    vis["attempt_made"],                            (* langRead auto-fires for scoring *)
+    vis["capture_vocab", "souris"]}                 (* vAdd auto-fires (relay to VS) *)
 
 |>;

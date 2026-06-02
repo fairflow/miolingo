@@ -518,10 +518,19 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
              to its condensed event log and the state to the final state (hist
              keeps the intermediate states so Back walks through it). *)
           Row[{Style["Test: ", Bold, GrayLevel[0.4]], Spacer[4],
-               PopupMenu[Dynamic[testSel], Keys[If[ValueQ[walkTests], walkTests, <||>]]],
+               (* group the dropdown by prefix (vs- / ps- / sync- / helm- / …)
+                  with a horizontal Delimiter between groups, so it's clear which
+                  tests belong where *)
+               PopupMenu[Dynamic[testSel],
+                 Flatten[Riffle[
+                   SplitBy[Keys[If[ValueQ[walkTests], walkTests, <||>]],
+                           First[StringSplit[#, "-"], #] &],
+                   Delimiter]]],
                Spacer[4],
                Button["Run test \[FilledRightTriangle]",
-                 Module[{w = walkSteps[tf, agent, walkTests[testSel]]},
+                 (* "AutoTau" -> True : the plans list only external actions, so
+                    fire the internal syncs (vAdd/pLoad/langRead/chRead) for us *)
+                 Module[{w = walkSteps[tf, agent, walkTests[testSel], "AutoTau" -> True]},
                    hist = Most[w["states"]]; trace = eventLog[w];
                    cur = Last[w["states"]]; future = {}; inVals = <||>],
                  Enabled -> Dynamic[ValueQ[walkTests] && KeyExistsQ[walkTests, testSel]]]}],
