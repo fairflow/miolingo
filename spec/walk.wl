@@ -362,19 +362,46 @@ cloudPanel[tf_, s_, open_ : False] := With[
       Bold, 12, GrayLevel[0.45]],
     Column[cloudRow[#, ready] & /@ $walkCloud, Spacings -> 0.4]}, open]];
 
+(* --- build stamp: read the loaded checkout's git HEAD so the harness shows
+   exactly which spec build a cell is running — the merge commit's PR number,
+   short SHA, date, and a +local-edits flag if the tree is dirty. Read at walkUI
+   creation (cheap: a few git calls), so each fresh cell reflects what's on disk
+   NOW; a stale cell keeps its old stamp (a visible tell to re-make it).
+   $walkDir is captured at LOAD time ($InputFileName is only valid during Get). *)
+walkVersion::usage = "walkVersion[dir] gives a one-line build stamp for the git checkout at `dir` (PR #, short SHA, date, +local edits) — shown in walkUI so you can confirm which spec build the cell is running.";
+walkVersion[dir_] := Module[{run, sha, subj, date, dirty, pr},
+  run[a_] := Module[{r = Quiet @ RunProcess[Join[{"git", "-C", dir}, a]]},
+    If[AssociationQ[r] && r["ExitCode"] === 0, StringTrim[r["StandardOutput"]], $Failed]];
+  sha = run[{"rev-parse", "--short=9", "HEAD"}];
+  If[sha === $Failed, Return["(version unknown \[LongDash] not a git checkout)"]];
+  subj  = run[{"log", "-1", "--format=%s"}];
+  date  = run[{"log", "-1", "--format=%cs"}];
+  dirty = StringTrim[ToString[run[{"status", "--porcelain"}]]] =!= "";
+  pr = FirstCase[StringCases[ToString[subj], "#" ~~ d : DigitCharacter .. :> d], _, None];
+  StringJoin[
+    If[pr =!= None, "PR #" <> pr <> " \[CenterDot] ", ""],
+    ToString[sha], " \[CenterDot] ", ToString[date],
+    If[dirty, " \[CenterDot] +local edits", ""]]];
+$walkDir = DirectoryName[$InputFileName];
+
 Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> Automatic};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"],
    (* Automatic (the default): group if `agent` is a registered composed system,
       else flat. An explicit list / {} overrides. *)
    components = Replace[OptionValue["Components"], Automatic :> defaultComponents[agent]]},
-  With[{pmap = If[components === {}, <||>, componentPortMap[components]]},
+  With[{pmap = If[components === {}, <||>, componentPortMap[components]],
+        ver = walkVersion[$walkDir]},
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
      maxprog = False, stateOpen = False, cloudOpen = False,
      testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
         Framed[Column[{
+
+          (* build stamp (captured when THIS cell was created) — confirms which
+             spec build you're running; a stale cell shows an old PR#/SHA *)
+          Style["spec build: " <> ver, GrayLevel[0.55], 10],
 
           (* collapsible (default closed) so the process term doesn't eat space;
              open state persists across steps via stateOpen *)
