@@ -31,8 +31,11 @@ assert["loadEngine::usage is set (?loadEngine works)", StringQ[loadEngine::usage
 assert["walkUI::usage is set", StringQ[walkUI::usage]];
 
 Print[hr]; Print["every sequence completes on BOTH mioCore and mioCoreD"]; Print[hr];
-runs[tf_, s0_, plan_] := Module[{w = walkSteps[tf, s0, plan]},
-  !w["stuck"] && Length[w["actions"]] === Length[plan]];
+(* plans list only external actions; "AutoTau" -> True fires the internal syncs
+   between steps, so we check completion (not stuck) — the action count now
+   includes the auto-fired taus, so it exceeds Length[plan]. *)
+runs[tf_, s0_, plan_] := Module[{w = walkSteps[tf, s0, plan, "AutoTau" -> True]},
+  !w["stuck"] && Length[w["actions"]] >= Length[plan]];
 Do[Module[{plan = walkTests[k]},
    assert[StringPadRight[k, 16] <> " on mioCore (transVP)",   runs[transVP, mioCore, plan]];
    assert[StringPadRight[k, 16] <> " on mioCoreD (transNamed)", runs[transNamed, mioCoreD, plan]]],
@@ -40,13 +43,13 @@ Do[Module[{plan = walkTests[k]},
 
 Print[hr]; Print["syncs actually move data across components"]; Print[hr];
 (* sync-vadd: a captured word ends up in the VS entries via vAdd *)
-vsEntriesAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan]["states"]], vp},
+vsEntriesAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan, "AutoTau" -> True]["states"]], vp},
   vp = Map[Identity, viewProjections[transVP, s]];
   If[KeyExistsQ[vp, "vSView"], #["word"] & /@ vp["vSView"]["entries"], $Failed]];
 assert["sync-vadd: captured \"chat\" reaches VS entries",
   MemberQ[vsEntriesAfter[walkTests["sync-vadd"]], "chat"]];
 (* sync-pload: the practise relay loads PS (pSView total > 0) *)
-psTotalAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan]["states"]], vp},
+psTotalAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan, "AutoTau" -> True]["states"]], vp},
   vp = Map[Identity, viewProjections[transVP, s]];
   If[KeyExistsQ[vp, "pSView"], vp["pSView"]["total"], $Failed]];
 assert["sync-pload: practise relay loads the PS queue (total > 0)",
