@@ -228,9 +228,20 @@ viewPanel[nm_String, p_Association] := Module[
     Column[Join[{Style[nm, Bold, Darker[Blue]]}, {strip}, tables], Spacings -> 0.5],
     RoundingRadius -> 5, FrameStyle -> GrayLevel[0.8], FrameMargins -> 8,
     Background -> GrayLevel[0.99]]];
+(* A view projection that did NOT reduce to an Association (every view! function
+   — sessionView/vocabView/helmView — returns one when it computes). The usual
+   cause: a supplied value of the wrong SHAPE, so the projection function's
+   pattern (e.g. sessionView[phrases_List, ...]) doesn't match and it stays held.
+   Show the raw term (so you can see what didn't reduce) under a clear warning,
+   rather than a cryptic linearised stub. *)
 viewPanel[nm_String, other_] := Framed[
-  Column[{Style[nm, Bold, Darker[Blue]], linearizeGrid[other]}, Spacings -> 0.5],
-  RoundingRadius -> 5, FrameStyle -> GrayLevel[0.8], FrameMargins -> 8];
+  Column[{Style[nm, Bold, Darker[Blue]],
+          Style["\[WarningSign] projection did not reduce to data \[LongDash] the supplied \
+value is probably the wrong shape (e.g. a single entry, or `word`-keyed, where a \
+LIST of `text`-keyed phrases is expected). Use practise_vocab for vocab, or a list \
+like {<|\"text\"->...|>} for load_material.", Italic, Darker[Orange], 10],
+          linearizeGrid[other]}, Spacings -> 0.5],
+  RoundingRadius -> 5, FrameStyle -> Darker[Orange], FrameMargins -> 8];
 
 dataView[tf_, s_] := Module[{projs = viewProjections[tf, s]},
   If[projs === <||>,
