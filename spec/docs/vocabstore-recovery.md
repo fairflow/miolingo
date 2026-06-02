@@ -51,7 +51,7 @@ Per `SPEC-RECOVERY.md` §3. Component: **Vocabulary** tab (per-user, per-languag
 | "✖ Cancel" | `cancel_edit(id)` | leave edit-mode |
 | Sort selectbox | `set_sort(s)` | reparametrise the view |
 | Search box | `set_filter(q)` | reparametrise the view |
-| "🎯 Practise these" | `practise_filtered` | **cross-component** → `PracticeSession.load_material` |
+| "🎯 Practise these" / QP "📂 Load vocabulary" / "🎯 Load filtered" | `practise_vocab` | **cross-component** → `PracticeSession.load_material`. ONE channel; payload `practiseList(entries, filter)` is all vocab when `filter=none`, the subset otherwise (see Amendment below) |
 | (text fields, the upload widget) | — not ports — | |
 
 *"🔊 Play"* is an output effect (TTS), not a store mutation.
@@ -77,15 +77,13 @@ Per `SPEC-RECOVERY.md` §3. Component: **Vocabulary** tab (per-user, per-languag
 | Mode | Domain ports | Recovered from |
 |---|---|---|
 | **Anon** (not authenticated) | — (none) | `_require_auth()` early-returns the whole tab |
-| **Empty** (signed in, no entries in this pairing) | `add`, `import_bulk`, `set_sort`, `set_filter` | no rows ⇒ no per-entry actions, no export, no "Practise these" |
-| **NonEmpty** | `+ export`, and per entry: `delete`, `update_notes`, `autofill`†, `begin_edit` | `for row in rows:` renders the action rows |
-| **NonEmpty + search** | `+ practise_filtered` | `if rows and search.strip():` |
-| **Editing(id)** (a row in edit-mode) | for that row: `update(id)`, `cancel_edit(id)` *instead of* the normal actions | `if editing: _render_entry_edit_form` |
+| **Empty** (signed in, no entries in this pairing) | `add`, `import_bulk`, `set_sort`, `set_filter` | no rows ⇒ no per-entry actions, no export, no practise |
+| **NonEmpty** | `+ export`, `practise_vocab`, and per entry: `delete`, `update_notes`, `autofill`†, `begin_edit` | `for row in rows:` renders the action rows |
+| **Editing(id)** (a row in edit-mode) | for that row: `update(id)`, `cancel_edit(id)` *instead of* the normal actions (`export`, `practise_vocab` stay) | `if editing: _render_entry_edit_form` |
 
 Guards (state-dependent enablement):
 - **auth** gates every domain port (Anon offers none).
-- per-entry ops + export gate on **non-empty**.
-- `practise_filtered` gates on **non-empty ∧ filter non-empty**.
+- per-entry ops + export + `practise_vocab` gate on **non-empty** (the filter no longer gates practise — see Amendment).
 - † `autofill` gates on the entry **missing translation or IPA** (`need_autofill`) — a per-entry stubbed-value guard.
 - `begin_edit` vs `update`/`cancel_edit` switch on **edit-mode** for that entry.
 
@@ -106,7 +104,7 @@ Guards (state-dependent enablement):
         ◄──export(csv)──────                                │
         ◄──whyEmpty(...)────└──────────────────────────────┘
                                  │                    ▲
-              practise_filtered ─┘                    └── add ◄── capture_vocab
+              practise_vocab ────┘                    └── add ◄── capture_vocab
                   │                                          (from PracticeSession)
                   ▼
             PracticeSession.load_material      ⇒ VocabStore ⇄ PracticeSession (bidirectional)
@@ -123,3 +121,16 @@ Guards (state-dependent enablement):
 `needsAutofill(entries, id)`, `vocabView(...)`.
 
 Names recovered from `vocabulary_tab.py`'s calls into `vocab.py`; bodies survive framework-independently in `src/vocab.py` and are recovered mechanically later — not invented now.
+
+---
+
+## Amendment (2026-06-02) — the vocab→practice channel is `practise_vocab`, ungated
+
+The original recovery extracted only the vocab tab's "🎯 Practise these" button, as `practise_filtered`, **gated on a filter** (`if rows and search.strip()`). That under-extracted the design: **`src/ui/quick_practice_tab.py`** exposes the same hand-off from the *Quick Practice* side with **two more routes** — **"📂 Load vocabulary (N)"** (the *whole, unfiltered* vocab, available whenever vocab is non-empty) and **"🎯 Load filtered (N)"** (the filtered subset) — plus a Minimal-Pairs route (a computed subset).
+
+Per Matthew's decision (2026-06-02), these are unified into **one channel**, `practise_vocab`:
+- available whenever the store is **non-empty** (the filter no longer *gates* it);
+- it emits the **current view** to PracticeSession via `pLoad` (restricted → τ): `practiseList(entries, filter)` — **all** vocab when `filter = none`, the filtered subset when `filterBy[q]`. So the filter *parametrises the payload*, it does not enable/disable the route.
+- Minimal Pairs is **not** modelled this round (a separate computed route, deferred).
+
+The τ hand-off itself was verified faithful before this change: PS receives the list and all PS features become available, identical to `load_material`. See `MioCore.wl` (the `pLoad` link) and `VocabStoreRecovered.wl` (`VSNonEmpty`).

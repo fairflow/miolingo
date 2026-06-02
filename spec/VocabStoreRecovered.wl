@@ -20,8 +20,10 @@
    search-non-empty guard on "Practise these", a missing-fields guard on
    autofill (stubbed), and an inline EDIT-MODE that swaps a row's actions.
 
-   Cross-component: practise_filtered -> PracticeSession.load_material;
-   and PracticeSession.capture_vocab -> this agent's `add`. (bidirectional)
+   Cross-component: practise_vocab -> PracticeSession.load_material (via pLoad);
+   and PracticeSession.capture_vocab -> this agent's `add` (via vAdd). The two
+   are symmetric: practise_vocab sends the vocab view OUT to practice,
+   capture_vocab brings a practised word back IN. (bidirectional)
 
    STUBBED: listVocab/addEntry/updateEntry/... are named, not defined.
    Structural guards (auth, non-empty, filter present, edit-mode) are
@@ -41,13 +43,15 @@
      VS[anon,      _, _,_,_ ]          Anon     : (none)
      VS[signedIn, {}, _,none,none]     Empty    : add, vAdd, import_bulk,
                                                   set_sort, set_filter
-     VS[signedIn, ne, _,none,none]     NonEmpty : + export, delete,
-                                                  update_notes, autofill,
-                                                  begin_edit
-     VS[signedIn, ne, _,filterBy,none] +search  : + practise_filtered
-     VS[signedIn, ne, _,_,editingRow[id]] Editing  : per-row -> update,
-                                                  cancel_edit (no delete/
-                                                  begin_edit); export stays
+     VS[signedIn, ne, _,_,none]        NonEmpty : + export, practise_vocab,
+                                                  delete, update_notes,
+                                                  autofill, begin_edit
+                                                  (practise_vocab any filter;
+                                                  payload = practiseList[…,filter],
+                                                  all when filter===none)
+     VS[signedIn, ne, _,_,editingRow[id]] Editing  : export, practise_vocab,
+                                                  per-row update, cancel_edit
+                                                  (no delete/begin_edit)
 
    NOTE: refactored to guard-partitioned normal form 2026-05-30.
    RE-VERIFY on the engine before commit: simulated ready sets per mode
@@ -102,35 +106,26 @@ defineAgent["VSAuthed", {entries, sort, filter, editing},
               call["VSNonEmpty", entries, sort, filter, editing]]]]]]]]
 
 
-(* --- non-empty: export always; filter and edit-mode refine the branch --- *)
+(* --- non-empty: export + practise_vocab always; edit-mode refines per-entry --
+   practise_vocab is the SINGLE vocab->practice channel (the app exposes it as
+   "Load vocabulary" / "Load filtered" / "Practise these" — unified here). It is
+   available whenever the store is non-empty, regardless of filter, and emits the
+   CURRENT vocab VIEW to PracticeSession via pLoad (restricted -> tau in mioCore):
+   practiseList[entries, filter] is ALL vocab when filter===none ("Load
+   vocabulary") and the filtered subset when filterBy[q] ("Load filtered"). The
+   filter no longer GATES the route (it only parametrises the payload); the
+   previous filter split collapses, leaving just the edit-mode split for per-entry
+   actions. *)
 defineAgent["VSNonEmpty", {entries, sort, filter, editing},
-  if[filter =!= none,
+  choice[
+    precede[label["export", param[exportCsv[entries]]],
+      call["VS", signedIn, entries, sort, filter, editing]],
+    precede[coLabel["practise_vocab"],
+      precede[label["pLoad", param[practiseList[entries, filter]]],
+        call["VS", signedIn, entries, sort, filter, editing]]],
     if[editing === none,
-      choice[
-        precede[label["export", param[exportCsv[entries]]],
-          call["VS", signedIn, entries, sort, filter, editing]],
-        choice[
-          precede[coLabel["practise_filtered"],
-            precede[label["pLoad", param[practiseList[entries, filter]]],
-              call["VS", signedIn, entries, sort, filter, editing]]],
-          call["VSEntryActions", entries, sort, filter]]],
-      choice[
-        precede[label["export", param[exportCsv[entries]]],
-          call["VS", signedIn, entries, sort, filter, editing]],
-        choice[
-          precede[coLabel["practise_filtered"],
-            precede[label["pLoad", param[practiseList[entries, filter]]],
-              call["VS", signedIn, entries, sort, filter, editing]]],
-          call["VSEditActions", entries, sort, filter, editing]]]],
-    if[editing === none,
-      choice[
-        precede[label["export", param[exportCsv[entries]]],
-          call["VS", signedIn, entries, sort, filter, editing]],
-        call["VSEntryActions", entries, sort, filter]],
-      choice[
-        precede[label["export", param[exportCsv[entries]]],
-          call["VS", signedIn, entries, sort, filter, editing]],
-        call["VSEditActions", entries, sort, filter, editing]]]]]
+      call["VSEntryActions", entries, sort, filter],
+      call["VSEditActions", entries, sort, filter, editing]]]]
 
 
 (* --- per-entry actions when NOT editing --- *)

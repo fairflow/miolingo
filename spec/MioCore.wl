@@ -24,7 +24,7 @@
 
    Cross-component links (each a complementary output/input pair, restricted):
      vAdd  : PS.capture_vocab(word)  --vAdd!(word)-->   VS adds the word
-     pLoad : VS.practise_filtered    --pLoad!(phrases)--> PS loads them
+     pLoad : VS.practise_vocab       --pLoad!(phrases)--> PS loads them
 
    Helm is composed in as a PURE PARALLEL agent (2026-06-01): NO control guard
    in PS/VS reads the language, so there is no new restricted channel — Helm

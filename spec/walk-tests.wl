@@ -94,13 +94,24 @@ walkTests = <|
     vis["capture_vocab", "souris"],
     tau["vAdd"]},                                   (* capture relays to VS *)
 
-  (* --- sync: VS practise_filtered -> PS load (pLoad) ------------------ *)
+  (* --- sync: VS practise_vocab (FILTERED) -> PS load (pLoad) ----------
+     a filter is set, so practise_vocab sends the filtered subset. *)
   "sync-pload" -> {
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
     vis["set_filter", "ch"],
-    vis["practise_filtered"],
+    vis["practise_vocab"],
     tau["pLoad"],
     vis["select_item", 0]},
+
+  (* --- sync: VS practise_vocab (ALL, no filter) -> PS load (pLoad) ----
+     no filter, so the SAME channel sends the whole vocab ("Load vocabulary").
+     practiseList[entries, none] = all entries. *)
+  "practise-all" -> {
+    vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
+    vis["add", <|"word" -> "chien", "translation" -> "dog"|>],
+    vis["practise_vocab"],
+    tau["pLoad"],
+    vis["select_item", 1]},
 
   (* --- sync: VS autofill PULLS the language from Helm (langRead) ------
      The first BORROWED-DATA read: autofill needs the (source, target) pair to
@@ -140,7 +151,7 @@ walkTests = <|
   "full-roundtrip" -> {
     vis["set_filter", "ch"],
     vis["add", <|"word" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>],
-    vis["practise_filtered"],
+    vis["practise_vocab"],
     tau["pLoad"],
     vis["recording_made", "audio"],
     vis["attempt_made"],

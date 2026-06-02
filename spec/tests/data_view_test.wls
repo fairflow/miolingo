@@ -13,7 +13,7 @@
         cumulative state term (recoverable by replay).
 
    PLAN: the dual-tau deterministic walk from internal_transitions_test /
-   merge_defined_test (set_filter, add, practise_filtered, tau pLoad,
+   merge_defined_test (set_filter, add, practise_vocab, tau pLoad,
    recording_made, attempt_made, capture_vocab, tau vAdd) over mioCoreD
    (transNamed). It drives both cross-component internal taus.
 
@@ -60,7 +60,7 @@ assert["editingRow[id] kept inline (not a binding)?",
 --------------------------------------------------------------------- *)
 Print[hr]; Print["2. linearize a LIVE projection from the dual-tau walk"]; Print[hr];
 
-plan = {vis["set_filter"], vis["add"], vis["practise_filtered"], tau["pLoad"],
+plan = {vis["set_filter"], vis["add"], vis["practise_vocab"], tau["pLoad"],
         vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
 wlk = walkSteps[transNamed, mioCoreD, plan];
 assert["walk ran to completion (not stuck)?", ! wlk["stuck"]];
