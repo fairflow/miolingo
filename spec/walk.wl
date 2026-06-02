@@ -1,10 +1,12 @@
+(* ::Package:: *)
+
 (* =====================================================================
-   spec/walk.wl — interactive walk harness for the miolingo spec.
+   spec/walk.wl \[LongDash] interactive walk harness for the miolingo spec.
    ---------------------------------------------------------------------
    `walk` lets a human live with the spec as it evolves: drive the
    simulation, PLAY THE USER by entering real data into input ports as
    they become ready, see each state through the data-compaction views
-   (linearize / condensed event log), and record/replay traces — built
+   (linearize / condensed event log), and record/replay traces \[LongDash] built
    from Wolfram `Dynamic`.
 
    This file is loaded ON TOP OF a loaded spec (engine + discipline +
@@ -15,7 +17,7 @@
        Get[".../spec/walk.wl"];           (* this file *)
        walkUI[mioCore]                     (* drive it *)
 
-   THIS SECTION — the PURE SUBSTRATE — is headless-testable (see
+   THIS SECTION \[LongDash] the PURE SUBSTRATE \[LongDash] is headless-testable (see
    spec/tests/walk_test.wls). The Dynamic widgets that sit on top of it
    are added once the substrate mechanic is proven.
 
@@ -30,12 +32,12 @@
 readyTransitions::usage = "readyTransitions[tf, s] gives the enabled transitions at state s as a list of {action, successor}, normalising the engine's optional 3-tuple form.";
 inputBinderOf::usage = "inputBinderOf[action] gives the binder symbol(s) an input action coLabel[nm, binding[x]] introduces (the free variables a supplied value replaces); {} for outputs, taus and value-free inputs.";
 valueInputQ::usage = "valueInputQ[action] is True iff action is an input port that binds a value (so the walk must let the user supply one).";
-readyInputs::usage = "readyInputs[tf, s] gives the ready transitions that are value-carrying input ports — the places where the user, as the open environment, supplies real data.";
+readyInputs::usage = "readyInputs[tf, s] gives the ready transitions that are value-carrying input ports \[LongDash] the places where the user, as the open environment, supplies real data.";
 supplyValue::usage = "supplyValue[trans, val] inserts a user value into an input transition's binder via the engine's substVv (scope-aware), returning {action, derivative-with-value}. No validation: the value is the user's responsibility.";
 viewProjections::usage = "viewProjections[tf, s] gives <|portName -> projectionValue|> for the published read-only view ports at s (the bare \"view\" or a relabelled \"{Agent}View\").";
 dataView::usage = "dataView[tf, s] renders the state's published projections through the data-compaction grid (linearizeGrid of the computed projection).";
 traceView::usage = "traceView[traceSymbol] renders the condensed event log of a walk trace (HoldFirst) with a Copy button.";
-stateDisplay::usage = "stateDisplay[s] gives a compact render of the CCS process state s (foldAgentDisplay о normalizeSC) — where you are / where a transition leads.";
+stateDisplay::usage = "stateDisplay[s] gives a compact render of the CCS process state s (foldAgentDisplay \:043e normalizeSC) \[LongDash] where you are / where a transition leads.";
 walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests, step Back/Forward through a run, and record a trace. Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
 
 (* ---------------------------------------------------------------------
@@ -65,7 +67,7 @@ valueInputQ[a_] := inputBinderOf[a] =!= {};
 
 (* ---------------------------------------------------------------------
    readyInputs[tf, s] : the ready transitions that are value-carrying input
-   ports — the places where the human, as the open environment, supplies
+   ports \[LongDash] the places where the human, as the open environment, supplies
    real data.  These are exactly the rows the GUI gives an input field.
 --------------------------------------------------------------------- *)
 readyInputs[tf_, s_] := Select[readyTransitions[tf, s], valueInputQ[First[#]] &];
@@ -80,7 +82,7 @@ readyInputs[tf_, s_] := Select[readyTransitions[tf, s], valueInputQ[First[#]] &]
    that rebind the same name. The action's binding is set to val too, so eventOf
    reads the concrete value for the trace.
 
-   The value is the USER's responsibility: the simulator does NOT validate it —
+   The value is the USER's responsibility: the simulator does NOT validate it \[LongDash]
    the spec's own functions (validateWord, the _List match, ...) judge it if and
    when the term becomes concrete. This is the deliberate blend of transition
    function and simulator that lets the user, as the open environment, inject
@@ -105,7 +107,7 @@ supplyValue[trans_List, val_] := Module[{binders = inputBinderOf[First[trans]]},
    Value-carrying plan entry: vis[nm, val] resolves the input port `nm`
    (delegating to discipline.wl's existing string-name resolver, so the
    matching convention is shared) and supplies `val` into its binder.
-   ADDITIVE downvalue on walkResolve — lets the existing walkSteps run a
+   ADDITIVE downvalue on walkResolve \[LongDash] lets the existing walkSteps run a
    value-driven plan, e.g.
        walkSteps[transVP, mioCore, {vis["set_filter", "happy"], vis["add", w]}]
 --------------------------------------------------------------------- *)
@@ -114,13 +116,13 @@ walkResolve[tf_, s_, vis[nm_, val_]] := Module[{t = walkResolve[tf, s, vis[nm]]}
 
 
 (* ---------------------------------------------------------------------
-   autoTau[tf, s] : MAXIMAL-PROGRESS advance — a SIMULATION STRATEGY, not a
+   autoTau[tf, s] : MAXIMAL-PROGRESS advance \[LongDash] a SIMULATION STRATEGY, not a
    language change. CCS itself has no priority: an offered internal sync is
    declinable while the agent has other transitions (the asynchrony that makes
    push-to-cache unfaithful). But the SIMULATOR is free to choose how it walks
    the LTS, and "fire internal syncs before offering external choices" is one
    such walk. It leaves the spec's meaning (the full transition relation)
-   untouched — see ARCHITECTURE.md ("Borrowed vs owned data").
+   untouched \[LongDash] see ARCHITECTURE.md ("Borrowed vs owned data").
 
    It fires the UNIQUE enabled internal tau repeatedly until the state is
    tau-stable. Deliberately conservative:
@@ -133,7 +135,7 @@ walkResolve[tf_, s_, vis[nm_, val_]] := Module[{t = walkResolve[tf, s, vis[nm]]}
 
    Returns <|"state" -> tau-stable state, "events" -> {eventOf each tau fired},
    "states" -> {pre-state of each tau}|> so the caller can extend trace + hist
-   (every auto-fired tau is RECORDED and Back-steppable — maximal progress
+   (every auto-fired tau is RECORDED and Back-steppable \[LongDash] maximal progress
    speeds driving, it does not hide the internal flow). *)
 autoTau::usage = "autoTau[tf, s] is the maximal-progress simulation strategy: fire the unique enabled internal tau repeatedly until tau-stable (stopping if >=2 taus are ready, leaving the genuine choice to the user). Returns <|state, events, states|>. A walk strategy over the LTS, not a change to the spec.";
 autoTau[tf_, s_] := Module[{cur = s, evs = {}, sts = {}, taus, guard = 0},
@@ -146,7 +148,7 @@ autoTau[tf_, s_] := Module[{cur = s, evs = {}, sts = {}, taus, guard = 0},
 
 
 (* =====================================================================
-   DYNAMIC WIDGETS  (notebook front end — drive these; not headless)
+   DYNAMIC WIDGETS  (notebook front end \[LongDash] drive these; not headless)
    ---------------------------------------------------------------------
    Composable Dynamic pieces, plus walkUI[] that assembles them. Each
    reuses the substrate above + discipline.wl's data-compaction display
@@ -171,12 +173,12 @@ viewProjections[tf_, s_] := Association[
 (* dataView[tf, s] : the state's DATA as one compact PANEL per published
    projection. The "visual data compression". The projection comes out of the
    engine's held `param` with its values UNEVALUATED (the recipe, e.g.
-   sortEntries[applyFilter[...]]); Map[Identity, ·] rebuilds the association
+   sortEntries[applyFilter[...]]); Map[Identity, \[CenterDot]] rebuilds the association
    forcing each value, so we render the COMPUTED data.
 
    Panel layout (chosen 2026-06-01): an agent's view Association is almost
    always SCALARS + one COLLECTION (entries / history), and that collection is
-   a list of homogeneous Associations — which IS a table. So:
+   a list of homogeneous Associations \[LongDash] which IS a table. So:
      scalar keys           -> a tight "key=value" strip;
      a list-of-Associations -> a column-headed table (columns = union of the
                                records' keys, one row per record).
@@ -196,7 +198,7 @@ scalarForm[v_] := ToString[v /. sym[z_] :> z];
    columns are dropped: a single freshly-added entry carries the full DB schema
    (~14 keys, most Null), so without pruning the table is mostly empty columns
    with long headings (the casa-row display problem). A column empty in every
-   row carries no information — dropping it is lossless. Empty cells blank, and
+   row carries no information \[LongDash] dropping it is lossless. Empty cells blank, and
    a still-wide table scrolls horizontally rather than breaking the layout. *)
 emptyCellQ[v_] := MatchQ[v, Null | "" | None | _Missing];
 cellForm[v_] := If[emptyCellQ[v], "", scalarForm[v]];
@@ -229,7 +231,7 @@ viewPanel[nm_String, p_Association] := Module[
     RoundingRadius -> 5, FrameStyle -> GrayLevel[0.8], FrameMargins -> 8,
     Background -> GrayLevel[0.99]]];
 (* A view projection that did NOT reduce to an Association (every view! function
-   — sessionView/vocabView/helmView — returns one when it computes). The usual
+   \[LongDash] sessionView/vocabView/helmView \[LongDash] returns one when it computes). The usual
    cause: a supplied value of the wrong SHAPE, so the projection function's
    pattern (e.g. sessionView[phrases_List, ...]) doesn't match and it stays held.
    Show the raw term (so you can see what didn't reduce) under a clear warning,
@@ -272,14 +274,14 @@ traceView[trace_] := Column[{
        <|"word"->"chat","translation"->"cat"|>   (for add)
    Option "TransitionFunction" -> transVP (mioCore) | transNamed (mioCoreD).
 --------------------------------------------------------------------- *)
-(* stateDisplay[s] : compact render of a process STATE (the derivative) — where
-   you are / where a transition leads — via the engine's foldAgentDisplay. This
+(* stateDisplay[s] : compact render of a process STATE (the derivative) \[LongDash] where
+   you are / where a transition leads \[LongDash] via the engine's foldAgentDisplay. This
    is the CCS term, complementing dataView's published data projections. *)
 stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Short[s, 3]];
 
 (* --- grouping the ready transitions by the agent that provides each port ---
    sortOf[term] : the port NAMES (as strings) a process term offers, by a pure
-   SYNTACTIC scan (Cases over label/coLabel) — no execution, so guards and
+   SYNTACTIC scan (Cases over label/coLabel) \[LongDash] no execution, so guards and
    infinite data state never bite. componentPortMap inverts the per-agent sorts
    into <|"port" -> "Agent"|>. The merge decomposition is passed in (the same
    {"PS"->call[...], ...} list merge uses); each agent's sort is scanned from its
@@ -289,7 +291,7 @@ stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Sho
    vAdd/pLoad/langRead live in two
    sorts, but they are internal taus in the composed system and never queried as
    named ports here, so the overlap is harmless. *)
-sortOf::usage = "sortOf[term] gives the set of port names (strings) appearing syntactically in a process term — a pure scan, no execution.";
+sortOf::usage = "sortOf[term] gives the set of port names (strings) appearing syntactically in a process term \[LongDash] a pure scan, no execution.";
 componentPortMap::usage = "componentPortMap[{name->call,...}] gives <|portName -> agentName|> for grouping ready transitions by the component that provides each port (sort scanned from each agent's view-relabelled built term).";
 sortOf[term_] := Union[Cases[term, (label | coLabel)[nm_, ___] :> ToString[nm], Infinity]];
 componentPortMap[components : {(_String -> _) ..}] := Association @@
@@ -300,7 +302,7 @@ componentPortMap[components : {(_String -> _) ..}] := Association @@
 
 (* Auto-grouping registry: a composed-system term -> its component decomposition,
    so walkUI with "Components" -> Automatic (the default) groups a KNOWN system
-   without being told each time. Generic — any composed system can register; the
+   without being told each time. Generic \[LongDash] any composed system can register; the
    miolingo systems (mioCore/mioCoreD) register at the bottom of this file. An
    unregistered / bare agent resolves to {} (a flat, ungrouped list). *)
 $walkComponents = {};
@@ -321,11 +323,11 @@ inputsFirst[ts_List] := Join[
   Select[ts, ! MatchQ[First[#], coLabel[___] | label[___]] &]];
 
 (* --- the "cloud": an honest INVENTORY of what the simulated agents read but
-   do NOT own — data whose owner is not (yet) modelled. A standing reminder that
+   do NOT own \[LongDash] data whose owner is not (yet) modelled. A standing reminder that
    the agents are not complete in themselves (ARCHITECTURE.md "Borrowed vs owned
    data" / the Stats-History note). It SHRINKS as each owner is modelled: the
    language used to be here, but pull-on-use (langRead) brought it into the model,
-   so it is gone — what remains is the genuinely external world (oracle knowledge,
+   so it is gone \[LongDash] what remains is the genuinely external world (oracle knowledge,
    persistence). Hand-maintained in lockstep with the spec, like the ARCHITECTURE
    notes. Each item lights up when a ready action would CONSULT it, so the cloud
    visibly changes as you walk. *)
@@ -363,12 +365,12 @@ cloudPanel[tf_, s_, open_ : False] := With[
     Column[cloudRow[#, ready] & /@ $walkCloud, Spacings -> 0.4]}, open]];
 
 (* --- build stamp: read the loaded checkout's git HEAD so the harness shows
-   exactly which spec build a cell is running — the merge commit's PR number,
+   exactly which spec build a cell is running \[LongDash] the merge commit's PR number,
    short SHA, date, and a +local-edits flag if the tree is dirty. Read at walkUI
    creation (cheap: a few git calls), so each fresh cell reflects what's on disk
    NOW; a stale cell keeps its old stamp (a visible tell to re-make it).
    $walkDir is captured at LOAD time ($InputFileName is only valid during Get). *)
-walkVersion::usage = "walkVersion[dir] gives a one-line build stamp for the git checkout at `dir` (PR #, short SHA, date, +local edits) — shown in walkUI so you can confirm which spec build the cell is running.";
+walkVersion::usage = "walkVersion[dir] gives a one-line build stamp for the git checkout at `dir` (PR #, short SHA, date, +local edits) \[LongDash] shown in walkUI so you can confirm which spec build the cell is running.";
 walkVersion[dir_] := Module[{run, sha, subj, date, dirty, pr},
   run[a_] := Module[{r = Quiet @ RunProcess[Join[{"git", "-C", dir}, a]]},
     If[AssociationQ[r] && r["ExitCode"] === 0, StringTrim[r["StandardOutput"]], $Failed]];
@@ -399,9 +401,9 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
       Module[{trans = readyTransitions[tf, cur]},
         Framed[Column[{
 
-          (* build stamp (captured when THIS cell was created) — confirms which
+          (* build stamp (captured when THIS cell was created) \[LongDash] confirms which
              spec build you're running; a stale cell shows an old PR#/SHA *)
-          Style["spec build: " <> ver, GrayLevel[0.55], 10],
+          Style["spec build: " <> ver, GrayLevel[0.35], 13],
 
           (* collapsible (default closed) so the process term doesn't eat space;
              open state persists across steps via stateOpen *)
@@ -451,17 +453,17 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                           With[{a = autoTau[tf, cur]},
                             hist = Join[hist, a["states"]];
                             trace = Join[trace, a["events"]]; cur = a["state"]]]],
-                      Appearance -> "Frameless",
-                      ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}],
+                      Appearance -> "Frameless"(*,
+                      ActiveStyle -> {Background -> RGBColor[0.9, 0.95, 1.0]}*)],
                      (* hover: the derivative this transition leads to (symbolic,
-                        i.e. before any supplied value — so e.g. add's collapse to
+                        i.e. before any supplied value \[LongDash] so e.g. add's collapse to
                         entries {} is visible here) *)
                      Column[{Style["\[RightArrow] goes to:", Bold, GrayLevel[0.4]],
                              stateDisplay[Last[tr]]}]],
                     If[valueInputQ[act],
                       Row[{Spacer[6], Style["\[LeftArrow] ", GrayLevel[0.5]],
                            (* pre-fill with the port's first binder SYMBOL as the
-                              editable starting point (via inputBinderOf — a
+                              editable starting point (via inputBinderOf \[LongDash] a
                               pattern match, never Part-indexing, so it is safe
                               for any action shape; cf. issue #150). Untouched
                               fields don't set inVals[nm], so the step stays
@@ -511,7 +513,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
             Button["Reset \[CenterDot]", cur = agent; hist = {}; trace = {};
                future = {}; inVals = <||>]}],
 
-          (* Run a value-carrying test sequence from walkTests — no typing:
+          (* Run a value-carrying test sequence from walkTests \[LongDash] no typing:
              replays the chosen plan FROM THE INITIAL AGENT, setting the trace
              to its condensed event log and the state to the final state (hist
              keeps the intermediate states so Back walks through it). *)
@@ -547,5 +549,5 @@ walkMioD[] := walkUI[mioCoreD, "TransitionFunction" -> transNamed];
 Get[FileNameJoin[{DirectoryName[$InputFileName], "walk-tests.wl"}]];
 
 (* NB: the engine binds `walk = interactiveVP` (an OwnValue), so we do NOT
-   reuse that name here — call walkUI[mioCore] for the richer spec harness.
+   reuse that name here \[LongDash] call walkUI[mioCore] for the richer spec harness.
    Whether to rebind `walk` to walkUI is left until the UX settles. *)
