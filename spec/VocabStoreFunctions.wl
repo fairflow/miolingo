@@ -114,8 +114,15 @@ addEntry[entries_List, w : (_String | _Association)] := Module[
       entries, pos]]];
 
 
-(* --- deleteFrom[entries, id] : delete_vocab_entry (vocab.py:301) ------- *)
-deleteFrom[entries_List, id_] := DeleteCases[entries, e_ /; e["id"] === id];
+(* --- deleteFrom[entries, id] : delete_vocab_entry (vocab.py:301) -------
+   id_Integer (not id_): the vocab_id is an integer, and this is the SAME
+   held-until-concrete discipline as addEntry[w:(_String|_Association)] /
+   updateEntry[fields_Association]. Without it, deleteFrom fires while `id` is
+   still a FREE binder (concrete entries, symbolic id): DeleteCases then matches
+   nothing and collapses to the list UNCHANGED, before the supplied value lands —
+   a silent no-op delete (latent in VS.delete; surfaced by CargoHold.chRemove).
+   Gating on _Integer keeps it held until the real id arrives, then deletes. *)
+deleteFrom[entries_List, id_Integer] := DeleteCases[entries, e_ /; e["id"] === id];
 
 
 (* --- updateNotesIn[entries, idn] : update_vocab_notes (vocab.py:314).
