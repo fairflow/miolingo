@@ -9,10 +9,13 @@ and the persistence counterpart of the "own it → store it" rule.
 (`CargoHold`, not `Hold`: `Hold` is a Wolfram built-in. Nautical theme — `Helm`
 steers, the cargo hold stores.)
 
-**Status:** PR-1 defines it **standalone** (loaded via `loadRecoveredBase`, *not*
-yet composed into `mioCore` — no dual state until VS reads it). PR-2 composes it
-(restricted `chRead`/`chUpsert`/`chRemove`/`chAmend`) and migrates VS to read/write
-it (the (i) prefix-read model).
+**Status:** PR-1 defined it standalone. **PR-2 composes it into `mioCore`**
+(restricted `chRead`/`chUpsert`/`chImport`/`chRemove`/`chAmend` + `vAdd`) and
+migrates VS to the (i) form: VS holds no entries; it is the **`open_vocab`-gated
+tab** that reads/writes the store. **Two writers feed the store:** `chUpsert` (VS
+tab type/paste) and **`vAdd` (PS capture from practice, written DIRECTLY — not via
+the tab)**. The first VS action is the *visible* `open_vocab`, not the `chRead` τ,
+so the composition stays visibly-guarded (≈ a congruence — ARCHITECTURE.md).
 
 ---
 

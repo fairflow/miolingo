@@ -40,16 +40,21 @@ sV = Last[walkSteps[transVP, mioCore,
 tauTr = SelectFirst[readyTransitions[transVP, sV], isTauAct[First[#]] &];
 assert["a tau transition groups into internal (tau)",
   transGroup[pm, tauTr] === "internal (\[Tau])"];
+(* add is not externally ready at mioCore init (VS gates behind chRead), so use a
+   synthetic transition — transGroup only looks at the action's port name *)
 assert["a named input groups into its agent (add -> VS)",
-  transGroup[pm, SelectFirst[readyTransitions[transVP, mioCore],
-     portName[First[#]] === "add" &]] === "VS"];
+  transGroup[pm, {coLabel["add", binding[w]], dummyState}] === "VS"];
 (* inputsFirst: coLabel before label *)
 mix = {{label["x", param[1]], s1}, {coLabel["y", binding[z]], s2}};
 assert["inputsFirst puts the coLabel (input) before the label (output)",
   MatchQ[First[First[inputsFirst[mix]]], coLabel[___]]];
 
-Print[hr]; Print["3. the initial mioCore ready set partitions cleanly (no 'other')"]; Print[hr];
-grp = GroupBy[readyTransitions[transVP, mioCore], transGroup[pm, #] &];
+Print[hr]; Print["3. the SETTLED mioCore ready set partitions cleanly (no 'other')"]; Print[hr];
+(* settle the chRead tau (VS gates behind it under the (i) store form) so VS's
+   external ports are present; CargoHold's ports are all restricted (internal),
+   so they never appear in the external grouping *)
+sInit = Last[walkSteps[transVP, mioCore, {}, "AutoTau" -> True]["states"]];
+grp = GroupBy[readyTransitions[transVP, sInit], transGroup[pm, #] &];
 assert["groups are exactly {VS, PS, Helm}", Sort[Keys[grp]] === {"Helm", "PS", "VS"}];
 assert["no port falls into 'other'", ! KeyExistsQ[grp, "other"]];
 

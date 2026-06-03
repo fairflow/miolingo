@@ -33,8 +33,8 @@ ports[s_] := Sort[ToString /@ portName /@ First /@ readyTransitions[transNamed, 
 
 Print[hr]; Print["1. ports — read self-loop + three writes"]; Print[hr];
 s0 = call["CargoHold", {}];
-assert["empty store offers chRead, chUpsert, chRemove, chAmend",
-  ports[s0] === {"chAmend", "chRead", "chRemove", "chUpsert"}];
+assert["empty store offers chRead + the writes (incl vAdd capture from PS)",
+  ports[s0] === {"chAmend", "chImport", "chRead", "chRemove", "chUpsert", "vAdd"}];
 assert["chRead on empty emits {}", chReadOf[s0] === {}];
 
 Print[hr]; Print["2. chUpsert — capture + dedup (addEntry)"]; Print[hr];

@@ -1,162 +1,162 @@
 (* ::Package:: *)
 
 (* =====================================================================
-   miolingo / L1 \[LongDash] VocabStore, RECOVERED (UI-first, stubbed)
+   miolingo / L1 — VocabStore, RECOVERED — (i) external-store form
    ---------------------------------------------------------------------
-   Per SPEC-RECOVERY.md. Recovered from the Streamlit source
-   (src/ui/vocabulary_tab.py + the vocab.py CRUD it calls), NOT invented.
-   See spec/docs/vocabstore-recovery.md for the \[Section]3 analysis.
+   Recovered from src/ui/vocabulary_tab.py + the vocab.py CRUD it calls.
+   See spec/docs/vocabstore-recovery.md for the §3 analysis and the
+   provenance table.
 
-   SPEC STYLE: guard-partitioned normal form.
-     - No `afforded` channel; readiness is derived from guards + structure.
-     - No degenerate conditionals: no if[c,P,nil] / if[c,nil,Q] in the
-       written form. Guards are hoisted outermost; every branch is a real
-       process expression.
+   (i) MIGRATION (2026-06-02): the persisted collection is OWNED by
+   CargoHold (the external store), NOT by VocabStore. VS holds only its UI
+   parameters and READS the collection fresh at the point of use, and WRITES
+   through CargoHold. Single source of truth (ARCHITECTURE.md "Borrowed vs
+   owned data"; the Stats-History † note). This is the "own it → store it;
+   borrow it → fetch fresh" rule applied to persistence.
 
-   Supersedes the invented strawman VocabStore.wl (kept for the
-   invented-vs-recovered contrast, H1/H3). The strawman's core claim \[LongDash]
-   per-entry ops gated on non-empty \[LongDash] is CONFIRMED; the recovery adds the
-   real guards it lacked: an AUTH gate over the whole component, a
-   search-non-empty guard on "Practise these", a missing-fields guard on
-   autofill (stubbed), and an inline EDIT-MODE that swaps a row's actions.
-
-   Cross-component: practise_vocab -> PracticeSession.load_material (via pLoad);
-   and PracticeSession.capture_vocab -> this agent's `add` (via vAdd). The two
-   are symmetric: practise_vocab sends the vocab view OUT to practice,
-   capture_vocab brings a practised word back IN. (bidirectional)
-
-   STUBBED: listVocab/addEntry/updateEntry/... are named, not defined.
-   Structural guards (auth, non-empty, filter present, edit-mode) are
-   concrete so the ready sets simulate.
-
-   LOAD ORDER: RCA_core.wl, then discipline.wl, then this file.
-
-   STATE: VS[auth, entries, sort, filter, editing]
+   STATE: VS[auth, sort, filter, editing]   — NO entries (they live in CargoHold)
      auth    : anon | signedIn
-     entries : the collection (list)
-     sort    : ordering value (alpha | recent | oldest)
-     filter  : none | filterBy[q]
-     editing : none | editingRow[id]   (which row is in inline edit-mode)
+     sort    : ordering value (alpha | recent | oldest)   — a VS-owned UI param
+     filter  : none | filterBy[q]                         — a VS-owned UI param
+     editing : none | editingRow[id]                      — a VS-owned UI param
 
-   RECOVERED READY SETS (analysis only; derived from the guards below,
-   not explicit channels in the process):
-     VS[anon,      _, _,_,_ ]          Anon     : (none)
-     VS[signedIn, {}, _,none,none]     Empty    : add, vAdd, import_bulk,
-                                                  set_sort, set_filter
-     VS[signedIn, ne, _,_,none]        NonEmpty : + export, practise_vocab,
-                                                  delete, update_notes,
-                                                  autofill, begin_edit
-                                                  (practise_vocab any filter;
-                                                  payload = practiseList[…,filter],
-                                                  all when filter===none)
-     VS[signedIn, ne, _,_,editingRow[id]] Editing  : export, practise_vocab,
-                                                  per-row update, cancel_edit
-                                                  (no delete/begin_edit)
+   WHAT VS READS FROM CARGOHOLD, AND WHY  (one chRead per cycle feeds all):
+     read es (chRead!) ──┬─ ready-set guard   Length[es]==0  → which ports are afforded
+                         ├─ view! projection  vocabView[…, es, …]   (≈ list_vocab)
+                         ├─ practise payload  practiseList[es, filter]  (→ PS via pLoad)
+                         └─ export            exportCsv[es]
+     Reads are FRESH each cycle (a prefix chRead, restricted → internal τ in
+     mioCore); there is NO cached copy, hence no staleness. In the app every
+     Streamlit rerun re-runs list_vocab — a query — so view! is query-backed.
 
-   NOTE: refactored to guard-partitioned normal form 2026-05-30.
-   RE-VERIFY on the engine before commit: simulated ready sets per mode
-   must be identical to the pre-refactor file (this is a normal-form
-   rewrite, meaning-preserving, NOT a semantic change).
+   ENTRY: VS is the Vocabulary TAB. open_vocab (a VISIBLE, parameter-less input —
+   the user selecting the tab) is the entry; it initiates the chRead. Keeping the
+   first action visible (not the chRead τ) keeps VS visibly-guarded so weak
+   bisimilarity stays a congruence under composition.
+
+   WHAT VS WRITES TO CARGOHOLD  (VS never mutates a local copy):
+     add         → chUpsert!(w)      type/paste a word (INSERT … ON DUPLICATE KEY)
+     import_bulk → chImport!(f)      bulk capture
+     delete      → chRemove!(id)     DELETE
+     update / update_notes / autofill → chAmend!(<|id, fields|>)   UPDATE
+   set_sort / set_filter / begin_edit / cancel_edit change VS's OWN params only.
+
+   Cross-component: practise_vocab → PracticeSession.load_material (via pLoad);
+   PracticeSession.capture_vocab → vAdd → CargoHold DIRECTLY (capture from practice
+   writes to the store, NOT through this tab — the app's capture_vocab_entry is a
+   direct DB write, vocabulary_tab.py:7 / vocab.py:106).
+
+   LOAD ORDER: RCA_core.wl, discipline.wl, then this (CargoHold too); MioCore
+   composes VS with CargoHold. Functions resolve at step time.
    ===================================================================== *)
 
 
-(* --- top level: view + auth gate --- *)
-defineAgent["VS", {auth, entries, sort, filter, editing},
+(* --- top: the Vocabulary TAB. Signed-in offers a VISIBLE entry, open_vocab
+   (the user selecting the tab); taking it initiates the store read. Keeping the
+   FIRST action visible (not the chRead τ) makes VS visibly-guarded, so weak
+   bisimilarity stays a congruence under composition — no initial τ to break it.
+   Capture from practice does NOT pass through the tab: it writes to CargoHold
+   directly (PS.capture_vocab → vAdd → CargoHold). VS is purely the gated
+   viewer/editor of the store. *)
+defineAgent["VS", {auth, sort, filter, editing},
   if[auth === signedIn,
+    precede[coLabel["open_vocab"], call["VSRead", sort, filter, editing]],
+    precede[label["view", param[vocabView[anon, {}, sort, filter, editing]]],
+      call["VS", anon, sort, filter, editing]]]]
+
+(* --- in the tab: PULL the collection (chRead — AFTER the visible open_vocab),
+   then offer the view + the authed surface. Loops back HERE (re-read each cycle),
+   NOT to VS: open_vocab is the one-time entry, not a per-action gate.
+   @src vocab.py:195 (list_vocab) — read the collection from CargoHold *)
+defineAgent["VSRead", {sort, filter, editing},
+  precede[coLabel["chRead", binding[es]],
     choice[
-      precede[label["view", param[vocabView[auth, entries, sort, filter, editing]]],
-        call["VS", auth, entries, sort, filter, editing]],
-      call["VSAuthed", entries, sort, filter, editing]],
-    precede[label["view", param[vocabView[auth, entries, sort, filter, editing]]],
-      call["VS", auth, entries, sort, filter, editing]]]]
+      precede[label["view", param[vocabView[signedIn, es, sort, filter, editing]]],
+        call["VSRead", sort, filter, editing]],
+      call["VSAuthed", es, sort, filter, editing]]]]
 
 
-(* --- signed in: always-available CRUD-in, then non-empty refinement --- *)
-defineAgent["VSAuthed", {entries, sort, filter, editing},
-  if[Length[entries] == 0,
+(* --- in the tab, signed in: add (type a word) / import write to CargoHold;
+   sort/filter are VS-owned params; non-empty adds the rest. NB capture FROM
+   PRACTICE does NOT appear here — it goes PS → CargoHold directly (vAdd). *)
+defineAgent["VSAuthed", {es, sort, filter, editing},
+  if[Length[es] == 0,
+    choice[
+      (* @src vocabulary_tab.py (paste/word add); vocab.py:106 — write to store *)
+      precede[coLabel["add", binding[w]],
+        precede[label["chUpsert", param[w]], call["VSRead", sort, filter, editing]]],
+      choice[
+        (* @src vocab.py:453 (import_from_file_contents) — bulk capture *)
+        precede[coLabel["import_bulk", binding[f]],
+          precede[label["chImport", param[f]], call["VSRead", sort, filter, editing]]],
+        choice[
+          precede[coLabel["set_sort", binding[s]],
+            call["VSRead", s, filter, editing]],
+          precede[coLabel["set_filter", binding[q]],
+            call["VSRead", sort, filterBy[q], editing]]]]],
     choice[
       precede[coLabel["add", binding[w]],
-        call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
+        precede[label["chUpsert", param[w]], call["VSRead", sort, filter, editing]]],
       choice[
-        precede[coLabel["vAdd", binding[w]],
-          call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
+        precede[coLabel["import_bulk", binding[f]],
+          precede[label["chImport", param[f]], call["VSRead", sort, filter, editing]]],
         choice[
-          precede[coLabel["import_bulk", binding[f]],
-            call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
+          precede[coLabel["set_sort", binding[s]],
+            call["VSRead", s, filter, editing]],
           choice[
-            precede[coLabel["set_sort", binding[s]],
-              call["VS", signedIn, entries, s, filter, editing]],
             precede[coLabel["set_filter", binding[q]],
-              call["VS", signedIn, entries, sort, filterBy[q], editing]]]]]],
-    choice[
-      precede[coLabel["add", binding[w]],
-        call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
-      choice[
-        precede[coLabel["vAdd", binding[w]],
-          call["VS", signedIn, addEntry[entries, w], sort, filter, editing]],
-        choice[
-          precede[coLabel["import_bulk", binding[f]],
-            call["VS", signedIn, importInto[entries, f], sort, filter, editing]],
-          choice[
-            precede[coLabel["set_sort", binding[s]],
-              call["VS", signedIn, entries, s, filter, editing]],
-            choice[
-              precede[coLabel["set_filter", binding[q]],
-                call["VS", signedIn, entries, sort, filterBy[q], editing]],
-              call["VSNonEmpty", entries, sort, filter, editing]]]]]]]]
+              call["VSRead", sort, filterBy[q], editing]],
+            call["VSNonEmpty", es, sort, filter, editing]]]]]]]
 
 
-(* --- non-empty: export + practise_vocab always; edit-mode refines per-entry --
-   practise_vocab is the SINGLE vocab->practice channel (the app exposes it as
-   "Load vocabulary" / "Load filtered" / "Practise these" — unified here). It is
-   available whenever the store is non-empty, regardless of filter, and emits the
-   CURRENT vocab VIEW to PracticeSession via pLoad (restricted -> tau in mioCore):
-   practiseList[entries, filter] is ALL vocab when filter===none ("Load
-   vocabulary") and the filtered subset when filterBy[q] ("Load filtered"). The
-   filter no longer GATES the route (it only parametrises the payload); the
-   previous filter split collapses, leaving just the edit-mode split for per-entry
-   actions. *)
-defineAgent["VSNonEmpty", {entries, sort, filter, editing},
+(* --- non-empty: export + practise_vocab always; edit-mode refines per-entry.
+   practise_vocab sends the CURRENT view (practiseList[es,filter]) to PS via pLoad
+   — all vocab when filter===none, the filtered subset otherwise. *)
+defineAgent["VSNonEmpty", {es, sort, filter, editing},
   choice[
-    precede[label["export", param[exportCsv[entries]]],
-      call["VS", signedIn, entries, sort, filter, editing]],
+    (* @src vocabulary_tab.py:69 (Export CSV) *)
+    precede[label["export", param[exportCsv[es]]],
+      call["VSRead", sort, filter, editing]],
+    (* @src quick_practice_tab.py:184 / vocabulary_tab.py:556 — to PracticeSession *)
     precede[coLabel["practise_vocab"],
-      precede[label["pLoad", param[practiseList[entries, filter]]],
-        call["VS", signedIn, entries, sort, filter, editing]]],
+      precede[label["pLoad", param[practiseList[es, filter]]],
+        call["VSRead", sort, filter, editing]]],
     if[editing === none,
-      call["VSEntryActions", entries, sort, filter],
-      call["VSEditActions", entries, sort, filter, editing]]]]
+      call["VSEntryActions", es, sort, filter],
+      call["VSEditActions", es, sort, filter, editing]]]]
 
 
-(* --- per-entry actions when NOT editing --- *)
-defineAgent["VSEntryActions", {entries, sort, filter},
+(* --- per-entry actions when NOT editing — each WRITES to CargoHold --- *)
+defineAgent["VSEntryActions", {es, sort, filter},
   choice[
+    (* @src vocab.py:301 (delete_vocab_entry) *)
     precede[coLabel["delete", binding[id]],
-      call["VS", signedIn, deleteFrom[entries, id], sort, filter, none]],
+      precede[label["chRemove", param[id]], call["VSRead", sort, filter, none]]],
     choice[
+      (* @src vocab.py:314 (update_vocab_notes) *)
       precede[coLabel["update_notes", binding[idn]],
-        call["VS", signedIn, updateNotesIn[entries, idn], sort, filter, none]],
+        precede[label["chAmend", param[<|"id" -> idn["id"], "fields" -> <|"notes" -> idn["notes"]|>|>]],
+          call["VSRead", sort, filter, none]]],
       choice[
-        (* autofill \[LongDash] the missing-fields guard needsAutofill[entries,id] is
-           a STUBBED value predicate, deferred; modelled as available per
-           entry when non-empty.
-           BORROWED DATA: enrichment needs the (source, target) language pair,
-           which Helm OWNS. So autofill PULLS it fresh as a PREFIX \[LongDash] langRead?(lp)
-           sits on the critical path of the action, restricted to Helm's langRead!
-           in mioCore (an internal tau). No cached language => no staleness; the
-           value read is always Helm's current pair. See ARCHITECTURE.md
-           "Borrowed vs owned data". lp = {source, target}. *)
+        (* @src vocab.py:411 (autofill_vocab_entry) — read the language (langRead,
+           borrowed from Helm), compute the fill, write it via chAmend *)
         precede[coLabel["autofill", binding[id]],
           precede[coLabel["langRead", binding[lp]],
-            call["VS", signedIn, autofillIn[entries, id, lp], sort, filter, none]]],
+            precede[label["chAmend", param[<|"id" -> id, "fields" -> autofillFields[es, id, lp]|>]],
+              call["VSRead", sort, filter, none]]]],
         precede[coLabel["begin_edit", binding[id]],
-          call["VS", signedIn, entries, sort, filter, editingRow[id]]]]]]]
+          call["VSRead", sort, filter, editingRow[id]]]]]]]
 
 
-(* --- per-entry actions WHILE editing a row --- *)
-defineAgent["VSEditActions", {entries, sort, filter, editing},
+(* --- per-entry actions WHILE editing a row — update WRITES via chAmend --- *)
+defineAgent["VSEditActions", {es, sort, filter, editing},
   choice[
+    (* @src vocab.py:343 (update_vocab_entry) ; editing = editingRow[id].
+       Extract the id by PATTERN (editing /. editingRow[i_] :> i), not First[editing]:
+       First[editing] would evaluate on the bare `editing` symbol at load (an atom →
+       error). ReplaceAll leaves a non-editingRow value untouched (held). *)
     precede[coLabel["update", binding[fields]],
-      call["VS", signedIn, updateEntry[entries, editing, fields], sort, filter, none]],
+      precede[label["chAmend", param[<|"id" -> (editing /. editingRow[i_] :> i), "fields" -> fields|>]],
+        call["VSRead", sort, filter, none]]],
     precede[coLabel["cancel_edit"],
-      call["VS", signedIn, entries, sort, filter, none]]]]
+      call["VSRead", sort, filter, none]]]]

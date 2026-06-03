@@ -50,6 +50,7 @@ walkTests = <|
 
   (* --- VocabStore: capture, dedup, sort, filter, export --------------- *)
   "vs-capture" -> {
+    vis["open_vocab"],                           (* enter the Vocabulary tab *)
     vis["add", <|"word" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>],
     vis["add", <|"word" -> "chien", "translation" -> "dog"|>],
     vis["add", <|"word" -> "chat"|>],            (* dedup: bumps times_seen *)
@@ -59,6 +60,7 @@ walkTests = <|
 
   (* --- VocabStore: bulk import then sort/export ----------------------- *)
   "vs-import" -> {
+    vis["open_vocab"],
     vis["import_bulk", <|"contents" -> "(en,fr)\nsouris|mouse\nchien|dog",
                          "expectedTarget" -> "fr"|>],
     vis["set_sort", oldest],
@@ -66,6 +68,7 @@ walkTests = <|
 
   (* --- VocabStore: the per-entry edit surface ------------------------- *)
   "vs-edit" -> {
+    vis["open_vocab"],
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
     vis["begin_edit", 1],
     vis["update", <|"translation" -> "feline"|>],   (* in edit-mode *)
@@ -98,6 +101,7 @@ walkTests = <|
   (* --- sync: VS practise_vocab (FILTERED) -> PS load (pLoad) ----------
      a filter is set, so practise_vocab sends the filtered subset. *)
   "sync-pload" -> {
+    vis["open_vocab"],
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
     vis["set_filter", "ch"],
     vis["practise_vocab"],                          (* pLoad auto-fires *)
@@ -107,6 +111,7 @@ walkTests = <|
      no filter, so the SAME channel sends the whole vocab ("Load vocabulary").
      practiseList[entries, none] = all entries. *)
   "practise-all" -> {
+    vis["open_vocab"],
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
     vis["add", <|"word" -> "chien", "translation" -> "dog"|>],
     vis["practise_vocab"],                          (* pLoad auto-fires *)
@@ -117,6 +122,7 @@ walkTests = <|
      enrich, so it reads Helm's langRead as a prefix (internal tau in mioCore).
      Only meaningful in the COMPOSED system (Helm must be present to answer). *)
   "sync-langread" -> {
+    vis["open_vocab"],
     vis["add", <|"word" -> "chat", "translation" -> "cat"|>],
     vis["autofill", 1]},                            (* langRead auto-fires *)
 
@@ -125,7 +131,8 @@ walkTests = <|
     vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
     vis["recording_made", "audio"],
     vis["attempt_made"],                            (* langRead auto-fires for scoring *)
-    vis["capture_vocab", "chat"]},                  (* vAdd auto-fires (relay to VS) *)
+    vis["capture_vocab", "chat"],                   (* vAdd auto-fires -> CargoHold (direct) *)
+    vis["open_vocab"]},                             (* now view the captured word in the tab *)
 
   (* --- Helm: settings tour + the espeak-only set_speed guard ---------- *)
   "helm-settings" -> {
@@ -139,12 +146,14 @@ walkTests = <|
   "helm-then-capture" -> {
     vis["set_target", "pt"],          (* choose the material language code *)
     vis["set_source", "English"],
+    vis["open_vocab"],
     vis["add", <|"word" -> "casa", "translation" -> "house"|>],
     vis["set_sort", recent],
     vis["export"]},
 
   (* --- full end-to-end: both syncs in one run ------------------------- *)
   "full-roundtrip" -> {
+    vis["open_vocab"],
     vis["set_filter", "ch"],
     vis["add", <|"word" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>],
     vis["practise_vocab"],                          (* pLoad auto-fires *)

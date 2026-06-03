@@ -59,11 +59,15 @@
    ready transitions per providing agent. One source of truth for "who the
    components are" — see walk.wl componentPortMap. *)
 mioComponents =
-  {"PS"   -> call["PS", {}, 0, none, none],
-   "VS"   -> call["VS", signedIn, {}, alpha, none, none],
-   "Helm" -> call["Helm", "English", "fr", google, 250]};
+  {"PS"        -> call["PS", {}, 0, none, none],
+   "VS"        -> call["VS", signedIn, alpha, none, none],   (* (i): NO entries — they live in CargoHold *)
+   "Helm"      -> call["Helm", "English", "fr", google, 250],
+   "CargoHold" -> call["CargoHold", {}]};                    (* the persisted collection, owned here *)
 
-mioRestricted = {label["vAdd"], label["pLoad"], label["langRead"]};
+mioRestricted = {label["vAdd"], label["pLoad"], label["langRead"],
+                 (* the external-store channels: VS reads/writes CargoHold internally *)
+                 label["chRead"], label["chUpsert"], label["chImport"],
+                 label["chRemove"], label["chAmend"]};
 
 mioCore = merge[mioComponents, mioRestricted];
 

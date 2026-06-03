@@ -29,28 +29,31 @@ hr = StringRepeat["=", 70];
 
 readyTaus[tf_, s_] := Select[readyTransitions[tf, s], isTauAct[First[#]] &];
 
-(* drive to just AFTER capture_vocab, BEFORE the vAdd tau *)
+(* drive to just AFTER capture_vocab — PS is now mid-relay (vAdd!) and VS is at
+   its chRead prefix, so an internal tau is pending. Under the (i) store form the
+   capture relay is a SEQUENCE of taus: chRead (VS reads) → vAdd (PS→VS) → chUpsert
+   (VS→store) → chRead — autoTau fires them to stability, landing the word in the
+   store. (Setup plan keeps the explicit langRead; it is PS-side, no AutoTau.) *)
 plan = {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "S"|>}],
         vis["recording_made", "audio"], vis["attempt_made"], tau["langRead"], vis["capture_vocab", "chat"]};
 
-check[label_, tf_, s0_] := Module[{s, taus, a, stable},
+check[label_, tf_, s0_] := Module[{s, a, stable},
   Print[hr]; Print[label]; Print[hr];
   s = Last[walkSteps[tf, s0, plan]["states"]];
-  taus = readyTaus[tf, s];
-  assert["exactly one tau (vAdd) pending after capture_vocab", Length[taus] === 1];
-  (* channel rep is incidental (symbol / string / label[]); match on its text *)
-  assert["that tau's channel is vAdd",
-    StringContainsQ[ToString[eventOf[First[First[taus]]]["port"]], "vAdd"]];
+  assert["an internal tau is pending after capture_vocab", Length[readyTaus[tf, s]] >= 1];
   a = autoTau[tf, s];
-  assert["autoTau fired exactly one event", Length[a["events"]] === 1];
-  assert["fired event polarity is tau", First[a["events"]]["polarity"] === "tau"];
-  assert["fired event port is vAdd",
-    StringContainsQ[ToString[First[a["events"]]["port"]], "vAdd"]];
-  assert["one pre-state recorded (Back-steppable)", Length[a["states"]] === 1];
+  assert["autoTau fired >=1 event, all taus",
+    Length[a["events"]] >= 1 && AllTrue[a["events"], #["polarity"] === "tau" &]];
+  assert["one recorded pre-state per fired tau (Back-steppable)",
+    Length[a["states"]] === Length[a["events"]]];
   stable = a["state"];
   assert["resulting state is tau-stable (no tau ready)", readyTaus[tf, stable] === {}];
   assert["autoTau is a no-op on a tau-stable state",
-    autoTau[tf, stable]["events"] === {} && autoTau[tf, stable]["states"] === {}];];
+    autoTau[tf, stable]["events"] === {} && autoTau[tf, stable]["states"] === {}];
+  (* the relay completed: the capture wrote to the store via the vAdd tau
+     (PS.capture_vocab -> vAdd -> CargoHold; viewing it would need open_vocab) *)
+  assert["the capture relay fired (vAdd tau among the auto-fired events)",
+    AnyTrue[a["events"], StringContainsQ[ToString[#["port"]], "vAdd"] &]];];
 
 check["1. mioCore  (transVP)",   transVP,   mioCore];
 check["2. mioCoreD (transNamed)", transNamed, mioCoreD];

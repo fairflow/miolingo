@@ -60,9 +60,11 @@ assert["editingRow[id] kept inline (not a binding)?",
 --------------------------------------------------------------------- *)
 Print[hr]; Print["2. linearize a LIVE projection from the dual-tau walk"]; Print[hr];
 
-plan = {vis["set_filter"], vis["add"], vis["practise_vocab"], tau["pLoad"],
-        vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
-wlk = walkSteps[transNamed, mioCoreD, plan];
+(* external-only plan; AutoTau fires the internal syncs (chRead/chUpsert/pLoad/
+   langRead/vAdd) between steps — so the action log includes them *)
+plan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
+        vis["recording_made"], vis["attempt_made"], vis["capture_vocab"]};
+wlk = walkSteps[transNamed, mioCoreD, plan, "AutoTau" -> True];
 assert["walk ran to completion (not stuck)?", ! wlk["stuck"]];
 
 (* Pull the VS `vocabView` projection out of the final composed state's view
@@ -96,7 +98,7 @@ condensedSize = LeafCount[log];
 Print["   raw  trace (all cumulative state terms) LeafCount : ", rawStatesSize];
 Print["   condensed event-log                     LeafCount : ", condensedSize];
 assert["condensed log strictly smaller than raw trace?", condensedSize < rawStatesSize];
-assert["one event per plan step?", Length[log] === Length[plan]];
+assert["at least one event per plan step (AutoTau adds internal taus)?", Length[log] >= Length[plan]];
 assert["both taus present (pLoad, vAdd)?",
        SubsetQ[#["port"] & /@ Select[log, #["polarity"] === "tau" &], {"pLoad", "vAdd"}]];
 assert["each event has exactly the 4 fields?",

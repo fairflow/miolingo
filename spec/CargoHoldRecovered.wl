@@ -26,8 +26,9 @@
    PORTS (mirror the vocab.py SQL surface; see cargohold-recovery.md):
      chRead!    always — emits the current collection (a self-loop, never
                 changing CargoHold). The READ a client pulls. ≈ list_vocab SELECT.
-     chUpsert   capture/import a word — INSERT … ON DUPLICATE KEY UPDATE
+     chUpsert   capture a word — INSERT … ON DUPLICATE KEY UPDATE
                 (dedup/bump): the recovered addEntry IS this upsert.
+     chImport   bulk capture — importInto (parse + fold upserts).
      chRemove   delete by id — DELETE.
      chAmend    update fields by id — UPDATE. Carries <|"id"->_, "fields"->_|>.
 
@@ -50,9 +51,17 @@ defineAgent["CargoHold", {entries},
     precede[label["chRead", param[entries]],
       call["CargoHold", entries]],
     (* @src vocab.py:106 (capture_vocab_entry) — INSERT … ON DUPLICATE KEY UPDATE.
-       addEntry is the recovered upsert (dedup + times_seen bump). *)
+       addEntry is the recovered upsert (dedup + times_seen bump). Two writers feed
+       it: chUpsert from the VS tab (type/paste), and vAdd from PS capture (capture
+       from practice writes the store DIRECTLY, not through the tab). *)
     precede[coLabel["chUpsert", binding[w]],
       call["CargoHold", addEntry[entries, w]]],
+    (* @src vocabulary_tab.py:7 — PS.capture_vocab relays here (a direct DB write) *)
+    precede[coLabel["vAdd", binding[w]],
+      call["CargoHold", addEntry[entries, w]]],
+    (* @src vocab.py:453 (import_from_file_contents) — bulk capture *)
+    precede[coLabel["chImport", binding[f]],
+      call["CargoHold", importInto[entries, f]]],
     (* @src vocab.py:301 (delete_vocab_entry) — DELETE … WHERE vocab_id=%s *)
     precede[coLabel["chRemove", binding[id]],
       call["CargoHold", deleteFrom[entries, id]]],

@@ -184,6 +184,26 @@ autofillIn[entries_List, id_, lang_List] := Module[{pos, row, fill},
       n]], entries, pos]];
 
 
+(* --- autofillFields[entries, id, lang] : the WRITE side of autofill under the
+   external-store (i) form. autofillIn (above) does find-row + enrich + merge in
+   one go over a held collection; but with CargoHold owning the data, VS computes
+   ONLY the fill fields here (the same only-empty / never-overwrite logic) and
+   writes them via chAmend (which CargoHold applies with updateEntry). Returns the
+   Association of fields to set (possibly empty → a no-op amend). id_Integer gates
+   it held until the concrete id lands (cf. deleteFrom). *)
+autofillFields[entries_List, id_Integer, lang_List] := Module[{row, fill, out = <||>},
+  row = SelectFirst[entries, #["id"] === id &, <||>];
+  fill = enrichOracle[row["display_word"], First[lang], Last[lang]];
+  If[!AssociationQ[fill], Return[<||>]];
+  If[(Lookup[row, "translation", Null] === Null || row["translation"] === "") &&
+     emptyToNull[Lookup[fill, "translation", Null]] =!= Null,
+    out["translation"] = fill["translation"]];
+  If[(Lookup[row, "ipa", Null] === Null || row["ipa"] === "") &&
+     emptyToNull[Lookup[fill, "ipa", Null]] =!= Null,
+    out["ipa"] = fill["ipa"]];
+  out];
+
+
 (* --- import: _parse_import_line / parse_import_header / import_from_file_contents
    (vocab.py:453, 486, 545). f = <|"contents"->_String, "expectedTarget"->_|>.
    Pipe-delimited `word|translation|ipa|source|url`; IPA may be []-wrapped.

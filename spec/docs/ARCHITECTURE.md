@@ -144,6 +144,25 @@ Helm's `langRead!` restricted in `mioCore`:
 - **VS `autofill`** → `autofillIn[entries, id, lang]` → `enrichOracle[word, source, target]`;
 - **PS scoring** (`attempt_made`) → `evaluate[target, rec, lang]` → `recognisePhonemes[audio, targetCode]`.
 
+**External store (CargoHold) — the persistence counterpart, now modelled.** The
+vocab collection is owned by the **CargoHold** agent (the DB), not held in VS.
+VocabStore is the **Vocabulary *tab*** — a *gated viewer/editor*: a VISIBLE entry
+`open_vocab` (the user selecting the tab), then a `chRead` of the store, then the
+view/edit actions; writes route to CargoHold (`chUpsert`/`chImport`/`chRemove`/
+`chAmend`, all restricted → τ). Capture from practice writes the store **directly**
+(`PS.capture_vocab → vAdd → CargoHold`), not through the tab — matching the app
+(`capture_vocab_entry` is a direct DB write). Two design points this settled:
+- **Visible-guarding for congruence.** A *prefix-read* (VS's first action a `chRead`
+  τ) put an **initial τ** in the composition, and `≈` fails to be a congruence over
+  `+` exactly because of initial τ. Guarding the tab behind the **visible**
+  `open_vocab` (no initial τ) keeps the system *initially stable* / visibly-guarded,
+  so weak bisimilarity stays a congruence. (The `ModeSelector` idea was eliminated:
+  each mode carries its own visible entry; no relay agent needed.)
+- **Store vs tab.** Separating *the store* (CargoHold, always accepting writes) from
+  *the tab* (VS, gated) is both faithful and what makes capture mode-independent.
+  This is the persistence half of the `†` Stats/History note: when stats/history
+  are recovered they read/write a store the same way.
+
 **The one escape hatch.** Pull-on-use covers a *data* dependency (the value is
 needed when an action runs). It does **not** cover a *control* dependency over
 borrowed data — a guard whose ready set must change the instant Helm changes,

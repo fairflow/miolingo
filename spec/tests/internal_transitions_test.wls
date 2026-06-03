@@ -32,40 +32,24 @@ mioGet["MioCore.wl"];
 hr = StringRepeat["=", 70];
 isTau[a_] := MatchQ[a, tag[\[Tau], ___]] || a === \[Tau];
 
-(* a plan entry is  vis["port"]  (an external action, visible)
-                 or tau["chan"]  (an internal sync on that channel)      *)
-findStep[s_, vis[nm_]]  := SelectFirst[transVP[s], !isTau[First[#]] && portName[First[#]] === nm &];
-findStep[s_, tau[ch_]] := SelectFirst[transVP[s], MatchQ[First[#], tag[\[Tau], ch, ___]] &];
-
-plan = {
-  vis["set_filter"], vis["add"], vis["practise_vocab"], tau["pLoad"],
-  vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]
-};
+(* The plan lists only EXTERNAL triggers; "AutoTau" -> True fires the internal
+   syncs (chRead before each VS action, chUpsert on capture, pLoad/vAdd relays,
+   langRead for scoring) between them. The recorded action log therefore contains
+   the internal taus, so we confirm pLoad and vAdd actually fired. *)
+lab[a_] := If[MatchQ[a, tag[\[Tau], _, ___]], a[[2]], portName[a]];
+plan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
+        vis["recording_made"], vis["attempt_made"], vis["capture_vocab"]};
 
 Print[hr];
-Print["DETERMINISTIC WALK over mioCore  (visible triggers + internal taus)"];
+Print["DETERMINISTIC WALK over mioCore  (external triggers; internal taus auto-fired)"];
 Print[hr];
 
-state = mioCore;
-sawPLoad = False; sawVAdd = False; failed = False;
-Do[
-  Module[{spec = plan[[k]], t},
-    t = findStep[state, spec];
-    If[MissingQ[t],
-      failed = True;
-      Print["step ", k, "  *** NO TRANSITION for ", InputForm[spec], " ***"];
-      Print["   ready now: ",
-            InputForm[Sort[portName /@ (First /@ transVP[state])]]];
-      Break[]];
-    Module[{act = First[t], vq},
-      vq = !isTau[act];
-      If[MatchQ[spec, tau["pLoad"]], sawPLoad = True];
-      If[MatchQ[spec, tau["vAdd"]],  sawVAdd  = True];
-      Print["step ", StringPadLeft[ToString[k], 2], "  ",
-            If[vq, "[vis] ", "[TAU] "], InputForm[act]];
-      state = Last[t]];
-  ],
-  {k, Length[plan]}];
+w = walkSteps[transVP, mioCore, plan, "AutoTau" -> True];
+labels = lab /@ w["actions"];
+failed = w["stuck"];
+sawPLoad = MemberQ[labels, "pLoad"];
+sawVAdd  = MemberQ[labels, "vAdd"];
+Print["trace: ", InputForm[labels]];
 
 Print[hr];
 Print["pLoad tau taken (VS --practiseList--> PS) ? ", If[sawPLoad, "OK", "*** FAIL ***"]];
