@@ -11,7 +11,7 @@ Per `SPEC-RECOVERY.md` §3. Component: **Quick Practice** (the "🎯 Quick Pract
 - The session is **free navigation over a bounded queue** (prev / next / select), *not* a linear consume-to-`Finished`. There is no deadlock end state; the user simply stops. `next`/`prev` are *disabled at the ends*, which is a ready-set guard, not a transition to `Finished`.
 - Recording and checking are **two steps**: `st.audio_input` produces a recording (a field), and only `if audio_data:` are **Check** and **Remove** offered. That `if` is a CCS guard — Check/Remove are afforded *only when a recording exists*.
 - A practice **result** is per-position and is cleared by navigation or by Remove.
-- There is a genuine **cross-component port**: a multi-word result offers "add a word to my vocabulary" → this is a synchronisation with `VocabStore` (`capture_vocab`).
+- There is a genuine **cross-component port**: a multi-word result offers "add a word to my vocabulary" → this is a synchronisation with `Vocab` (`capture_vocab`).
 
 ---
 
@@ -59,7 +59,7 @@ A port exists only where crossing it is *semantically observable*. Keystrokes, t
 | phrase selectbox (`phrase_selector_widget`) | `select_item(i)` | jump `position := i`; clear recording/result |
 | "📂 Load This File" / "✅ Use This File" / vocab & minimal-pairs loaders | `load_material(phrases)` | set queue, `position := 0` |
 | "🗑️ Clear Material" | `clear_material` | empty the queue |
-| "➕ Add" (vocab capture, multi-word result) | `capture_vocab(word)` | **cross-component** → `VocabStore.add`; loops here |
+| "➕ Add" (vocab capture, multi-word result) | `capture_vocab(word)` | **cross-component** → `Vocab.add`; loops here |
 | "💾 Save" (`save_current_session`) | `save_session` | persist; reset current-session accumulator |
 
 *Borderline / deferred:* `edit_mode` toggle (opens phrase editing; disables nav while open) is a sub-mode, recorded but not in the core loop. Free-text target/source entry is an alternate material source feeding `load_material`.
@@ -114,13 +114,13 @@ Guards (state-dependent enablement, the headline):
         ◄──chime!(grade)───────────    │          result)           │
         ◄──afforded!(ready set)────    └───────────────────────────┘
                                               │            │
-                            evaluate(target,──┘            └──capture_vocab(word)──► VocabStore.add
+                            evaluate(target,──┘            └──capture_vocab(word)──► Vocab.add
                             recording)  [stub]                (cross-component port)
                                               │
                                       save_session ──► (History/Statistics persistence; other components)
 ```
 
-Restriction/composition note: `capture_vocab` is the one link to another agent (`VocabStore`); everything else is a port between the user and this agent. `save_session`, History and Statistics are downstream consumers of the accumulated `practices` projection (separate components).
+Restriction/composition note: `capture_vocab` is the one link to another agent (`Vocab`); everything else is a port between the user and this agent. `save_session`, History and Statistics are downstream consumers of the accumulated `practices` projection (separate components).
 
 ---
 
@@ -135,25 +135,25 @@ These are committed as *signatures only*. Their bodies survive framework-indepen
 
 ---
 
-## Amendment (2026-06-03) — PS reads CargoHold directly (pull + signal)
+## Amendment (2026-06-03) — PS reads VocabTable directly (pull + signal)
 
-PracticeSession now reads the external store (**CargoHold**) itself for vocab
+PracticeSession now reads the external store (**VocabTable**) itself for vocab
 material, instead of receiving a pushed snapshot. Two visibly-guarded entries were
-added (mirroring VocabStore's `open_vocab`):
+added (mirroring Vocab's `open_vocab`):
 
 - **Pull** — `open_practice` (a VISIBLE, parameter-less input: the quick-practice
-  picker) → `chRead?(es)` → **`PSBrowse[es]`**, which offers `load_vocab` (the whole
+  picker) → `vocabRead?(es)` → **`PSBrowse[es]`**, which offers `load_vocab` (the whole
   collection) and `load_filtered(q)` (the subset). Both shape `es` into the practice
   queue via `practiseList` (`vocab.py:644`). `@src quick_practice_tab.py:178/184`.
-- **Signal** — the vocab-tab "🎯 Practise these" sends VS → `goPractice!(filter)`
-  (the filter only); PS receives `goPractice?(filter)`, pulls `chRead?(es)`, and loads
+- **Signal** — the vocab-tab "🎯 Practise these" sends Vocab → `goPractice!(filter)`
+  (the filter only); PS receives `goPractice?(filter)`, pulls `vocabRead?(es)`, and loads
   `practiseList[es, filter]`.
 
-Both keep their VISIBLE input first (`open_practice` / `goPractice`), so the `chRead`
+Both keep their VISIBLE input first (`open_practice` / `goPractice`), so the `vocabRead`
 is the *second* action — PS stays **visibly-guarded** (no initial τ; `≈` a congruence).
-`chRead`/`goPractice` are restricted → τ in `mioCore`; `goPractice` **replaced** the old
+`vocabRead`/`goPractice` are restricted → τ in `mioCore`; `goPractice` **replaced** the old
 `pLoad` data-push. This makes the borrowed collection **pull-on-use** (ARCHITECTURE.md
 "Borrowed vs owned data"); the loaded queue PS then holds is a deliberate *session*
 snapshot, not a cache. The §3 ready-set adds `open_practice`/`goPractice` to the
 always-on top (`load_material` unchanged for non-vocab sources). See `MioCore.wl`
-(the `goPractice`/`chRead` links) and `cargohold-recovery.md` (two readers).
+(the `goPractice`/`vocabRead` links) and `vocab-table-recovery.md` (two readers).

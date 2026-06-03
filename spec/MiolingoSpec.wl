@@ -23,14 +23,14 @@
      RCA_core.wl                  the CCS engine (feature-work, native)
      discipline.wl                view!/readyPorts + viewAs/merge helpers
      PracticeSessionRecovered.wl  PS / PSActive  (recovered, canonical)
-     VocabStoreRecovered.wl       VS / VSAuthed / ...  (recovered)
+     VocabRecovered.wl       Vocab / VocabAuthed / ...  (recovered)
      MioCore.wl                   mioCore = merge[...]  (composed mu-term value)
    The invented strawmen PracticeSession.wl / VocabStore.wl are NOT loaded
    here — they are kept only for the invented-vs-recovered contrast.
 
    USAGE after loading:
      transNamed[call["PS", {p1,p2}, 0, none, none]]   (* simulate an agent *)
-     readyPorts[call["VS", signedIn, {e1}, alpha, none, none]]
+     readyPorts[call["Vocab", signedIn, {e1}, alpha, none, none]]
      transVP[mioCore]                                  (* step the merged unit *)
      buildSystem[call["PS", {p1,p2}, 0, none, none]]   (* canonical mu-term *)
    ===================================================================== *)
@@ -42,7 +42,7 @@ loadRecoveredBase[];
 (* function-recovery pass: give the stubbed value-functions bodies recovered
    from the Python. ADDITIVE — loaded after the recovered agents, attaches
    downvalues only. See spec/docs/function-recovery.md. *)
-mioGet["VocabStoreFunctions.wl"];
+mioGet["VocabFunctions.wl"];
 mioGet["PracticeSessionFunctions.wl"];
 (* Helm value-functions. HelmRecovered (the AGENT) is already loaded by
    loadRecoveredBase[]; here we only add its function bodies. helmView MUST be

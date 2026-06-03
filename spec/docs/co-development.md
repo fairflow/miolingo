@@ -86,8 +86,8 @@ the design history is self-documenting. Examples:
 Minimal commentary by design — each PR carries its own rationale.
 
 - **#135** (merged 2026-05-31) — text-trace import parser + trace I/O round-trip test.
-- **#136** (merged 2026-05-31) — function-recovery pass: VS + PS value-functions recovered from the Python.
-- **#137** (open) — logical clock for VocabStore (replaces wall-clock).
+- **#136** (merged 2026-05-31) — function-recovery pass: Vocab + PS value-functions recovered from the Python.
+- **#137** (open) — logical clock for Vocab (replaces wall-clock).
 - *(spike, pending)* — espeak grapheme-to-phoneme as a CCS service agent via the WolframScript bridge: the first external service made to run for real inside the spec.
 
 *(Engine-side work on the Wolfram/RCA executor lives in the separate RCA

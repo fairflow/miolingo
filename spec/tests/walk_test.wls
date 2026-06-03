@@ -30,24 +30,24 @@ byName[tf_, s_, nm_] := SelectFirst[readyTransitions[tf, s], portName[First[#]] 
 hr = StringRepeat["=", 70];
 
 Print[hr]; Print["1. readyInputs : the value-carrying ports a user can drive (after open_vocab)"]; Print[hr];
-(* (i) external-store form: a bare VS first offers the VISIBLE open_vocab (the tab
-   entry); taking it reaches VSRead, which reads the store (chRead); then the CRUD
-   ports appear. vsRead[es] = VS having entered the tab and read the collection es. *)
-vsOpen   = Last[byName[transNamed, call["VS", signedIn, alpha, none, none], "open_vocab"]];
-vsRead[es_] := Last[supplyValue[byName[transNamed, vsOpen, "chRead"], es]];
-assert["a bare VS first offers open_vocab (the visible tab entry)",
-  MemberQ[ToString /@ portName /@ First /@ readyTransitions[transNamed, call["VS", signedIn, alpha, none, none]], "open_vocab"]];
+(* (i) external-store form: a bare Vocab first offers the VISIBLE open_vocab (the tab
+   entry); taking it reaches VocabRead, which reads the store (vocabRead); then the CRUD
+   ports appear. vsRead[es] = Vocab having entered the tab and read the collection es. *)
+vsOpen   = Last[byName[transNamed, call["Vocab", signedIn, alpha, none, none], "open_vocab"]];
+vsRead[es_] := Last[supplyValue[byName[transNamed, vsOpen, "vocabRead"], es]];
+assert["a bare Vocab first offers open_vocab (the visible tab entry)",
+  MemberQ[ToString /@ portName /@ First /@ readyTransitions[transNamed, call["Vocab", signedIn, alpha, none, none]], "open_vocab"]];
 ri = readyInputs[transNamed, vsRead[{}]];
 assert["every readyInput is a value-carrying input (has a binder)",
   AllTrue[ri, valueInputQ[First[#]] &]];
-assert["after reading, the canonical VS input ports are present",
+assert["after reading, the canonical Vocab input ports are present",
   SubsetQ[ToString /@ portName /@ First /@ ri, {"add", "set_filter", "set_sort", "import_bulk"}]];
 
 (* viewProjections must pick up the BARE agent's "view" port (case-insensitive),
-   and VS projects what it READ from the store. *)
+   and Vocab projects what it READ from the store. *)
 assert["viewProjections finds the bare \"view\" port after reading",
   KeyExistsQ[viewProjections[transNamed, vsRead[{}]], "view"]];
-assert["VS projects the entries it read (count reflects the store)",
+assert["Vocab projects the entries it read (count reflects the store)",
   Map[Identity, viewProjections[transNamed, vsRead[addEntry[{}, "souris"]]]["view"]]["count"] === 1];
 
 Print[hr]; Print["2. supplyValue : slot binder (load_material on PS) inserts cleanly"]; Print[hr];
@@ -58,21 +58,21 @@ assert["value inserted into the PS state slot",
   Last[lmv] === call["PS", phr, 0, none, none]];
 assert["eventOf reads the concrete value", eventOf[First[lmv]]["value"] === {phr}];
 
-Print[hr]; Print["3. supplyValue : add now WRITES to the store (chUpsert carries the word)"]; Print[hr];
-(* under (i) add no longer mutates VS state — it emits chUpsert!(w) to CargoHold.
+Print[hr]; Print["3. supplyValue : add now WRITES to the store (vocabUpsert carries the word)"]; Print[hr];
+(* under (i) add no longer mutates Vocab state — it emits vocabUpsert!(w) to VocabTable.
    supplyValue must thread the word into that emission (data preserved, routed out). *)
 ad  = byName[transNamed, vsRead[{}], "add"];
 wv  = <|"word" -> "Chat"|>;
 adv = supplyValue[ad, wv];
-assert["add emits chUpsert carrying the word (data preserved, routed to the store)",
-  ! FreeQ[Last[adv], param[wv]] && ! FreeQ[Last[adv], label["chUpsert", ___]]];
+assert["add emits vocabUpsert carrying the word (data preserved, routed to the store)",
+  ! FreeQ[Last[adv], param[wv]] && ! FreeQ[Last[adv], label["vocabUpsert", ___]]];
 assert["the supplied word is NOT lost (binder w replaced by the value)",
   FreeQ[Last[adv], binding[w]]];
 
 Print[hr]; Print["4. substVv is SCOPE-AWARE where ReplaceAll would leak"]; Print[hr];
 (* the mu-term add derivative re-unfolds clauses that REBIND w; the supplied
    value must NOT land in those rebound occurrences. (add is gated behind the
-   visible open_vocab then chRead under (i); take open_vocab + settle the chRead
+   visible open_vocab then vocabRead under (i); take open_vocab + settle the vocabRead
    to reach the state offering add.) *)
 mioSettled = Last[walkSteps[transVP, mioCore, {vis["open_vocab"]}, "AutoTau" -> True]["states"]];
 deriv = Last[byName[transVP, mioSettled, "add"]];

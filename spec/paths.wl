@@ -49,7 +49,7 @@ $minEngineSha = "5bcc031";
 
 mioGet::usage = "mioGet[\"file.wl\"] Gets a spec file by name, relative to $specDir (this spec directory, derived from paths.wl's own location).";
 loadEngine::usage = "loadEngine[] Gets the RCA engine ($rca = $RCA_CORE env var, else the canonical checkout) AND asserts (git merge-base --is-ancestor) that the checkout contains $minEngineSha, aborting loudly on divergence. The shared coordinate between the spec and engine repos.";
-loadRecoveredBase::usage = "loadRecoveredBase[] loads discipline.wl + the recovered agents (PracticeSessionRecovered.wl, VocabStoreRecovered.wl, HelmRecovered.wl, CargoHoldRecovered.wl) in order — the common base every spec consumer loads first. MioCore composes PS/VS/Helm; CargoHold is defined here and composed at the (i) migration.";
+loadRecoveredBase::usage = "loadRecoveredBase[] loads discipline.wl + the recovered agents (PracticeSessionRecovered.wl, VocabRecovered.wl, HelmRecovered.wl, VocabTableRecovered.wl) in order — the common base every spec consumer loads first. MioCore composes PS/Vocab/Helm; VocabTable is defined here and composed at the (i) migration.";
 
 mioGet[file_String] := Get[$specDir <> file];
 
@@ -78,7 +78,7 @@ loadEngine[] := Module[{engineDir, res, exit},
 loadRecoveredBase[] := (
   mioGet["discipline.wl"];
   mioGet["PracticeSessionRecovered.wl"];
-  mioGet["VocabStoreRecovered.wl"];
+  mioGet["VocabRecovered.wl"];
   mioGet["HelmRecovered.wl"];    (* third recovered agent; MioCore composes it *)
-  mioGet["CargoHoldRecovered.wl"]);   (* the external store; defined here, composed
+  mioGet["VocabTableRecovered.wl"]);   (* the external store; defined here, composed
                                          into MioCore at the (i) migration (PR-2) *)

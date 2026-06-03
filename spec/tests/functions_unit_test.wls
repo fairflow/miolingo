@@ -2,7 +2,7 @@
 (* =====================================================================
    spec/tests/functions_unit_test.wls
    ---------------------------------------------------------------------
-   Systematic UNIT tests for every value-function in VocabStoreFunctions.wl
+   Systematic UNIT tests for every value-function in VocabFunctions.wl
    and PracticeSessionFunctions.wl — leaves and helpers included, with edge
    cases. Complements functions_test.wls (golden end-to-end cases); this one
    pins each function's contract directly so behaviour can be validated
@@ -29,7 +29,7 @@ assert[lbl_, b_] := (n++; allOk = allOk && TrueQ[b];
 hr = StringRepeat["=", 70];
 sec[t_] := (Print[hr]; Print[t]; Print[hr]);
 
-(* ---------------- VocabStore: id / seq / null helpers ---------------- *)
+(* ---------------- Vocab: id / seq / null helpers ---------------- *)
 sec["vsNewId / vsNextSeq / emptyToNull / coalesce"];
 assert["vsNewId {} -> 1", vsNewId[{}] === 1];
 assert["vsNewId max(id)+1", vsNewId[{<|"id" -> 1|>, <|"id" -> 3|>}] === 4];

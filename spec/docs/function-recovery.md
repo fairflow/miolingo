@@ -1,13 +1,13 @@
 # function-recovery.md
-## Recovering the stubbed value-functions from the Python (VS + PS, first pass)
+## Recovering the stubbed value-functions from the Python (Vocab + PS, first pass)
 
 This document governs the **function-recovery pass** that SPEC-RECOVERY.md §4/§6
 defers to "later": the UI-first recovery left every value-transformation as a
 named stub with no body; here those bodies are recovered **from the Python**,
-mechanically, never invented. It covers the first two components — VocabStore
-(VS) and PracticeSession (PS).
+mechanically, never invented. It covers the first two components — Vocab
+(Vocab) and PracticeSession (PS).
 
-It is the companion to `vocabstore-recovery.md` / `practice-session-recovery.md`
+It is the companion to `vocab-tab-recovery.md` / `practice-session-recovery.md`
 (which recovered the *interaction* structure). Read it alongside METHODOLOGY.md
 (the L1 agent model) and SPEC-RECOVERY.md §4 ("what stubbed means precisely").
 
@@ -86,16 +86,16 @@ columns — see §"time".) `entries` is a `List[entry]`. `Null`
 encodes a Python NULL column. A practice `phrase` is `<|"text","translation",
 "ipa"|>` — exactly `vocab_as_practice_phrases`'s output, which is why
 `practiseList` directly produces a PS `phrases` queue — now applied by **PS itself**
-after it pulls the collection from CargoHold (`goPractice`/`open_practice`), no longer
+after it pulls the collection from VocabTable (`goPractice`/`open_practice`), no longer
 the payload of a `pLoad` push.
 
-**`word` vs `text` — two interfaces, not an inconsistency.** A VocabStore entry
+**`word` vs `text` — two interfaces, not an inconsistency.** A Vocab entry
 is keyed by `"word"` (the lowercased dedup/lookup key; `"display_word"` keeps the
 original casing) — it is a *dictionary of words*. A PracticeSession phrase carries
 `"text"` — *something to pronounce*, a word OR a multi-word phrase, so it is the
 more general field. They are different domains and deliberately do not share a
 field name; **`practiseList` is the bridge** (`"display_word" -> "text"`). Hence
-the capture ports (`add`, `vAdd`, and `addEntry`) require a payload with `"word"`:
+the capture ports (`add`, `vocabUpsert`, and `addEntry`) require a payload with `"word"`:
 handing them a practice-phrase `<|"text"->…|>` is a no-op, because `addEntry`
 validates `Lookup[w,"word",""]` and an absent key fails `validateWord`. This
 mirrors the Python source (`vocab.word` vs the practice payload's `text`).
@@ -128,7 +128,7 @@ mirrors the Python source (`vocab.word` vs the practice payload's `text`).
 ## 4. Additivity (don't overwrite — refine and keep the refinement)
 
 The recovered *agent* files are untouched. The bodies live in **new** files —
-`VocabStoreFunctions.wl`, `PracticeSessionFunctions.wl` — loaded *after* the
+`VocabFunctions.wl`, `PracticeSessionFunctions.wl` — loaded *after* the
 recovered agents (see `MiolingoSpec.wl`), attaching downvalues to symbols that
 were previously uninterpreted stubs. Removing the two `Get` lines returns the
 spec to its fully-stubbed state. The interaction structure remains the source of

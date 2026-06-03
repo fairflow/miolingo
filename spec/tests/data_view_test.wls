@@ -14,7 +14,7 @@
 
    PLAN: the dual-tau deterministic walk from internal_transitions_test /
    merge_defined_test (set_filter, add, practise_vocab, tau goPractice,
-   recording_made, attempt_made, capture_vocab, tau vAdd) over mioCoreD
+   recording_made, attempt_made, capture_vocab, tau vocabUpsert) over mioCoreD
    (transNamed). It drives both cross-component internal taus.
 
    Run headless:  wolframscript -file spec/tests/data_view_test.wls
@@ -60,21 +60,21 @@ assert["editingRow[id] kept inline (not a binding)?",
 --------------------------------------------------------------------- *)
 Print[hr]; Print["2. linearize a LIVE projection from the dual-tau walk"]; Print[hr];
 
-(* external-only plan; AutoTau fires the internal syncs (chRead/chUpsert/goPractice/
-   langRead/vAdd) between steps — so the action log includes them *)
+(* external-only plan; AutoTau fires the internal syncs (vocabRead/vocabUpsert/goPractice/
+   langRead/vocabUpsert) between steps — so the action log includes them *)
 plan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
         vis["recording_made"], vis["attempt_made"], vis["capture_vocab"]};
 wlk = walkSteps[transNamed, mioCoreD, plan, "AutoTau" -> True];
 assert["walk ran to completion (not stuck)?", ! wlk["stuck"]];
 
-(* Pull the VS `vocabView` projection out of the final composed state's view
-   action. The VS export/view value-function term is the nested snapshot. *)
+(* Pull the Vocab `vocabView` projection out of the final composed state's view
+   action. The Vocab export/view value-function term is the nested snapshot. *)
 finalState = Last[wlk["states"]];
 viewActs = Cases[transNamed[finalState],
                  {label[_, param[v_]], _} :> v, {0, Infinity}];
 vsViews = Select[viewActs, ! FreeQ[#, vocabView] || ! FreeQ[#, exportCsv] &];
 proj = If[vsViews === {}, First[viewActs, big], First[vsViews]];
-Print["   live VS projection (raw):"];
+Print["   live Vocab projection (raw):"];
 Print["     ", ToString[proj, InputForm]];
 linP = linearize[proj];
 Print["   linearized:"];
@@ -99,8 +99,8 @@ Print["   raw  trace (all cumulative state terms) LeafCount : ", rawStatesSize];
 Print["   condensed event-log                     LeafCount : ", condensedSize];
 assert["condensed log strictly smaller than raw trace?", condensedSize < rawStatesSize];
 assert["at least one event per plan step (AutoTau adds internal taus)?", Length[log] >= Length[plan]];
-assert["both taus present (goPractice, vAdd)?",
-       SubsetQ[#["port"] & /@ Select[log, #["polarity"] === "tau" &], {"goPractice", "vAdd"}]];
+assert["both taus present (goPractice, vocabUpsert)?",
+       SubsetQ[#["port"] & /@ Select[log, #["polarity"] === "tau" &], {"goPractice", "vocabUpsert"}]];
 assert["each event has exactly the 4 fields?",
        AllTrue[log, Sort[Keys[#]] === Sort[{"port","polarity","isVisible","value"}] &]];
 

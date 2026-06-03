@@ -88,7 +88,7 @@ Required rewrite goals:
 - preserve `view`
 - preserve auth gate
 - preserve empty/non-empty split
-- preserve filter-sensitive `practise_filtered` (later renamed `practise_vocab` and made filter-INsensitive — the filter now parametrises the payload, not availability; see vocabstore-recovery.md Amendment 2026-06-02)
+- preserve filter-sensitive `practise_filtered` (later renamed `practise_vocab` and made filter-INsensitive — the filter now parametrises the payload, not availability; see vocab-tab-recovery.md Amendment 2026-06-02)
 - preserve edit-mode split
 - preserve cross-component `vAdd` and `pLoad`
 - normalize into guard-partitioned form

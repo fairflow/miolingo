@@ -103,8 +103,8 @@ readyPorts[s_] := portName /@ (First /@ transNamed[s]);
    Example (note the lowercase WL symbol mioCore; "MioCore" stays capitalised
    only as an agent NAME in call[...]):
      mioCore  = merge[       {"PS" -> call["PS", {}, 0, none, none],
-                              "VS" -> call["VS", signedIn, {}, alpha, none, none]},
-                             {label["vAdd"], label["pLoad"]}];
+                              "Vocab" -> call["Vocab", signedIn, {}, alpha, none, none]},
+                             {label["vocabUpsert"], label["pLoad"]}];
      mioCoreD = mergeDefined[ ... same args ... ];   (* compact, transNamed *)
    ===================================================================== *)
 (* decapitalise the first letter (Agent -> agentView): WL convention is
@@ -301,7 +301,7 @@ walkSteps[tf_, s0_, plan_List, OptionsPattern[]] := Module[
   (* "AutoTau" -> True : maximal-progress between steps — fire the UNIQUE enabled
      internal tau repeatedly (stop on 0, or on >=2, which is a real choice left to
      an explicit tau[ch] entry). Lets a plan list only EXTERNAL actions, and stays
-     robust as new internal syncs (langRead, chRead, …) are added — no plan edits.
+     robust as new internal syncs (langRead, vocabRead, …) are added — no plan edits.
      Same strategy as autoTau (walk.wl); kept here so walkSteps is self-contained.
      Default off, so explicit-tau plans + the tau-checking tests are unchanged. *)
   settle[] := If[auto,

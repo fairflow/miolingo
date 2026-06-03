@@ -1,15 +1,15 @@
 (* ::Package:: *)
 
 (* =====================================================================
-   miolingo / L1 — VocabStore value-functions, RECOVERED (function pass)
+   miolingo / L1 — Vocab value-functions, RECOVERED (function pass)
    ---------------------------------------------------------------------
-   The function-recovery pass for VS: the stubbed value-functions named in
-   VocabStoreRecovered.wl get real bodies, RECOVERED from src/vocab.py (NOT
+   The function-recovery pass for Vocab: the stubbed value-functions named in
+   VocabRecovered.wl get real bodies, RECOVERED from src/vocab.py (NOT
    invented). See spec/docs/function-recovery.md for the IO-extraction
    process (pure core vs. quarantined oracle) and the provenance table.
 
    This file is ADDITIVE: it only attaches downvalues to symbols that were
-   uninterpreted stubs. It does NOT modify VocabStoreRecovered.wl. Load it
+   uninterpreted stubs. It does NOT modify VocabRecovered.wl. Load it
    AFTER the recovered agent (see MiolingoSpec.wl).
 
    DATA REPRESENTATION (fixed from the vocab_entries schema, not invented;
@@ -120,7 +120,7 @@ addEntry[entries_List, w : (_String | _Association)] := Module[
    updateEntry[fields_Association]. Without it, deleteFrom fires while `id` is
    still a FREE binder (concrete entries, symbolic id): DeleteCases then matches
    nothing and collapses to the list UNCHANGED, before the supplied value lands —
-   a silent no-op delete (latent in VS.delete; surfaced by CargoHold.chRemove).
+   a silent no-op delete (latent in Vocab.delete; surfaced by VocabTable.vocabRemove).
    Gating on _Integer keeps it held until the real id arrives, then deletes. *)
 deleteFrom[entries_List, id_Integer] := DeleteCases[entries, e_ /; e["id"] === id];
 
@@ -186,9 +186,9 @@ autofillIn[entries_List, id_, lang_List] := Module[{pos, row, fill},
 
 (* --- autofillFields[entries, id, lang] : the WRITE side of autofill under the
    external-store (i) form. autofillIn (above) does find-row + enrich + merge in
-   one go over a held collection; but with CargoHold owning the data, VS computes
+   one go over a held collection; but with VocabTable owning the data, Vocab computes
    ONLY the fill fields here (the same only-empty / never-overwrite logic) and
-   writes them via chAmend (which CargoHold applies with updateEntry). Returns the
+   writes them via vocabAmend (which VocabTable applies with updateEntry). Returns the
    Association of fields to set (possibly empty → a no-op amend). id_Integer gates
    it held until the concrete id lands (cf. deleteFrom). *)
 autofillFields[entries_List, id_Integer, lang_List] := Module[{row, fill, out = <||>},

@@ -160,7 +160,7 @@ autoTau[tf_, s_] := Module[{cur = s, evs = {}, sts = {}, taus, guard = 0},
 (* viewProjections[tf, s] : the published read-only projections at s, as
    <|"portName" -> projectionValue|>. A view port is an OUTPUT (label[...])
    carrying param[projection] whose name is a read-only view: the bare agent's
-   "view" port, OR a composition-relabelled "{Agent}View" (vSView, pSView).
+   "view" port, OR a composition-relabelled "{Agent}View" (vocabView, pSView).
    Matched case-insensitively on the "view" suffix so BOTH forms are picked up
    (the bare "view" was previously dropped by a literal "View" test). *)
 viewProjections[tf_, s_] := Association[
@@ -183,7 +183,7 @@ viewProjections[tf_, s_] := Association[
      a list-of-Associations -> a column-headed table (columns = union of the
                                records' keys, one row per record).
    This is the most compact LOSSLESS form and stacks cleanly as N view ports
-   grow (pSView / vSView / helmView, then more). *)
+   grow (pSView / vocabView / helmView, then more). *)
 forceProj[p_Association] := Map[Identity, p];
 forceProj[p_] := p;
 
@@ -300,9 +300,9 @@ stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Sho
    into <|"port" -> "Agent"|>. The merge decomposition is passed in (the same
    {"PS"->call[...], ...} list merge uses); each agent's sort is scanned from its
    built term, with the bare "view" renamed to decap[name]<>"View" to match the
-   composition's relabelled pSView/vSView/helmView (relabel is a lazy wrapper
+   composition's relabelled pSView/vocabView/helmView (relabel is a lazy wrapper
    under transVP, so we rename the name set directly). Dual (restricted) actions
-   vAdd/goPractice/langRead/chRead live in two
+   vocabUpsert/goPractice/langRead/vocabRead live in two
    sorts, but they are internal taus in the composed system and never queried as
    named ports here, so the overlap is harmless. *)
 sortOf::usage = "sortOf[term] gives the set of port names (strings) appearing syntactically in a process term \[LongDash] a pure scan, no execution.";
@@ -347,13 +347,13 @@ inputsFirst[ts_List] := Join[
    visibly changes as you walk. *)
 $walkCloud = {
   <|"item" -> "enrichOracle", "owner" -> "external translation / G2P service",
-    "why" -> "VS.autofill's translation + IPA are produced OUTSIDE the model; only the (source,target) pull (langRead) is in it.",
+    "why" -> "Vocab.autofill's translation + IPA are produced OUTSIDE the model; only the (source,target) pull (langRead) is in it.",
     "ports" -> {"autofill"}|>,
   <|"item" -> "recognisePhonemes", "owner" -> "external ASR / acoustic model",
     "why" -> "PS scoring recognises audio -> phonemes outside the model; only the target-language pull (langRead) is in it.",
     "ports" -> {"attempt_made"}|>,
   <|"item" -> "vocab persistence", "owner" -> "external store (DB)",
-    "why" -> "entries are modelled in VS state in-process; really an external store. To become a DB agent (ARCHITECTURE \[Dagger]).",
+    "why" -> "entries are modelled in Vocab state in-process; really an external store. To become a DB agent (ARCHITECTURE \[Dagger]).",
     "ports" -> {"add", "import_bulk", "delete", "update", "update_notes", "autofill"}|>,
   <|"item" -> "stats / history", "owner" -> "external store (query-backed views)",
     "why" -> "not yet recovered; will be queries/views on the external store, not in-process state.",
@@ -555,7 +555,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                Spacer[4],
                Button["Run test \[FilledRightTriangle]",
                  (* "AutoTau" -> True : the plans list only external actions, so
-                    fire the internal syncs (vAdd/goPractice/langRead/chRead) for us *)
+                    fire the internal syncs (vocabUpsert/goPractice/langRead/vocabRead) for us *)
                  Module[{w = walkSteps[tf, agent, walkTests[testSel], "AutoTau" -> True]},
                    hist = Most[w["states"]]; trace = eventLog[w];
                    cur = Last[w["states"]]; future = {}; inVals = <||>],

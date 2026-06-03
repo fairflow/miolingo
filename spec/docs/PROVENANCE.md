@@ -66,9 +66,11 @@ indexed below). Columns:
 | Component | Spec file | Recovery doc (provenance table) | Status |
 |---|---|---|---|
 | Practice Session | `PracticeSessionRecovered.wl` | `practice-session-recovery.md` | recovered (table: back-fill pending) |
-| Vocabulary Store | `VocabStoreRecovered.wl` | `vocabstore-recovery.md` | recovered (table: back-fill pending) |
+| Vocab tab | `VocabRecovered.wl` | `vocab-tab-recovery.md` | recovered (table: back-fill pending) |
 | Helm (session/language) | `HelmRecovered.wl` | `helm-recovery.md` | recovered (table: back-fill pending) |
-| CargoHold (external store) | `CargoHoldRecovered.wl` | `cargohold-recovery.md` | **in design** |
+| VocabTable (vocab store) | `VocabTableRecovered.wl` | `vocab-table-recovery.md` | recovered + composed |
+
+(Names per the 2026-06-03 rename — ARCHITECTURE.md "Naming": the tab is `Vocab`, the store `VocabTable`; channels are `vocab*`. The worked example below predates the rename and keeps its original names.)
 
 Existing components get their tables back-filled as we next touch them; new ones
 ship with the table from the start.
@@ -96,4 +98,4 @@ The first extraction recorded in this format (the vocab→practice channel, PR #
 > - `capture_vocab` relays via `vAdd` **directly to CargoHold**, not to VS.
 > - The verifying plan `sync-pload` was renamed `sync-practise` (+ `ps-pull-*` added).
 >
-> See `cargohold-recovery.md`, `practice-session-recovery.md`, and ARCHITECTURE.md.
+> See `vocab-table-recovery.md`, `practice-session-recovery.md`, and ARCHITECTURE.md.

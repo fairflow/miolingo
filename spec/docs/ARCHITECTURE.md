@@ -53,16 +53,32 @@ Location: `/spec/interaction-forms.md`. Governed by: human designer.
 
 ## Component Inventory (preliminary)
 
+Two tiers: **interactive agents** (UI-facing) and **store agents** (the data tier — one per DB table; see Naming note below).
+
 | Component | CCS agent family | Kind | Priority |
 |---|---|---|---|
-| Practice Session | `PracticeSession` | Stateful agent — tight interaction loop | High — **recovered** (PS) |
-| Vocabulary Manager | `VocabStore` | Stateful agent — CRUD with IPA | High — **recovered** (VS) |
-| Session / language | `Helm` | Stateful agent — finite-choice settings; **owns the (source, target) language pair** | **recovered + composed** ‡ |
-| Stats Display † | (projection of `PracticeSession`/`VocabStore`) | Read-only view port — **not** a standalone agent | Medium |
-| History Browser † | (projection of a session/store agent) | Read-only view port — **not** a standalone agent | Medium |
-| Mode Navigation | `ModeSelector` | Stateful agent — finite-choice | Low |
+| Practice Session | `PracticeSession` (PS) | Interactive — tight interaction loop | High — **recovered** |
+| Vocabulary tab | `Vocab` | Interactive — the gated viewer/editor (holds no data) | High — **recovered** |
+| Session / language | `Helm` | Interactive — finite-choice settings; **owns the (source, target) language pair** | **recovered + composed** ‡ |
+| Vocab store | `VocabTable` | **Store** — the persisted vocab collection (DB `vocab_entries`) | **recovered + composed** |
+| Story Reader | `StoryReader` | Interactive — narrative nav + 3 modes; practice mode reuses the factored `PracticeLoop` | Next |
+| Stats / History † | (read projections over a `Ledger` store) | view ports backed by store queries — **not** standalone interactive agents | Medium |
+| Mode Navigation | ~~`ModeSelector`~~ **eliminated** | each mode carries its own *visible* entry instead | — |
 
 Correction from the previous draft: the read-only "displays" are most likely *view ports on* the stateful agents (a published `view!` projection rendered by a skin), not agents in their own right. Promote one to a standalone agent only if it genuinely owns state; otherwise it is a presentation of another agent's projection. Decide this deliberately per component.
+
+### Naming (2026-06-03 rename)
+
+Store agents are named after their **table**, not generically, because table-faithfulness documents which component touches which table and pays off when rigging to the real DB. The interactive vocab agent is the **tab** (it stores nothing); the store is the **table**:
+
+| Old | New | Why |
+|---|---|---|
+| `VocabStore` / `VS` (the *tab*) | `Vocab` | it's a viewer/editor — stored nothing after the (i) migration; the old name was the misnomer |
+| `CargoHold` (the *store*) | `VocabTable` | per-table store, instance of the `Store[table, rows]` pattern |
+| `chRead`/`chUpsert`/`chImport`/`chRemove`/`chAmend`, `vAdd` | `vocabRead`/`vocabUpsert`/`vocabImport`/`vocabRemove`/`vocabAmend` | table-scoped channels (multiple stores can't share generic `ch*` — a reader couldn't route). `vAdd` (PS capture) collapsed into `vocabUpsert` (same upsert, two writers) |
+| `vSView` (view port) | `vocabView` | follows the `decap[name]<>"View"` rule |
+
+`Helm` keeps its nautical name (it's a controller, not a store). Future store tables follow the same scheme (`Ledger`/`AttemptTable`… for stats/history).
 
 **‡ Helm and how the language reaches its consumers.** Helm is composed into
 `mioCore` as a **pure parallel** agent (no restricted sync): it *owns* the
@@ -71,13 +87,13 @@ mirroring `language_state.py` (the sidebar is the sole owner; everyone else
 reads via `read_source_lang` / `read_target_code` / `read_training_lang`). That
 owner→reader split **is** the `view!` discipline.
 
-Crucially, VS and PS do **not** receive the language through any port. No
-**control guard** in VS/PS branches on it (logical-clock precedent: a value no
+Crucially, Vocab and PS do **not** receive the language through any port. No
+**control guard** in Vocab/PS branches on it (logical-clock precedent: a value no
 guard reads is *data*, not control), so it is not threaded as a sync. It
 reaches the vocab/practice sides **indirectly, through the oracle boundary**:
 the g2p/IPA, translation/enrich and TTS oracles (live oracles, not modelled
 agents) read `helmView` for the `(source, target)` pair, and the *result* of
-that — an IPA string, a translation, audio — enters VS/PS baked into the value
+that — an IPA string, a translation, audio — enters Vocab/PS baked into the value
 of an ordinary input port (`add` already carries an `ipa`; `load_material`
 already carries translations). The language selects *which* oracle output,
 upstream of the port.
@@ -87,9 +103,9 @@ pre-baked `ipa`/`translation` values, correct by fiat). Making it explicit — t
 oracle call reading `(source, target)` from `helmView` — is now a **decided**
 matter: see **Borrowed vs owned data** below. In short, the consuming action
 *pulls* the language fresh through an internal port at the point of use; it is
-**not** pushed into a VS/PS cache. The one place a setting already gates a port
+**not** pushed into a Vocab/PS cache. The one place a setting already gates a port
 is `set_speed` (`if[tts === espeak, …]`) — a genuine **control** dependency, but
-on Helm's *own* state, so internal. The day a VS/PS port's *readiness* comes to
+on Helm's *own* state, so internal. The day a Vocab/PS port's *readiness* comes to
 depend on the language, **that** edge must enter the model as a restricted sync —
 and, being a guard over *borrowed* data, is the one case that may force a
 calculus extension (see below).
@@ -98,22 +114,22 @@ calculus extension (see below).
 
 ## Borrowed vs Owned Data (decision)
 
-When one component needs data another component owns — VS/PS needing Helm's
+When one component needs data another component owns — Vocab/PS needing Helm's
 `(source, target)` to enrich/score — the rule is:
 
 > **Own it → store it. Borrow it → fetch it fresh, at the point of use.**
 
-A component keeps the data it *owns* in its own state (VS's entries, sort,
+A component keeps the data it *owns* in its own state (Vocab's entries, sort,
 filter; PS's position). It **never caches data another component owns**; it reads
 that through a port, as a prefix of the action that needs it.
 
 **Why not push-to-cache.** The tempting model — Helm pushes each change into a
-VS/PS replica, which then reads locally — is **not faithfully expressible in
+Vocab/PS replica, which then reads locally — is **not faithfully expressible in
 pure CCS**. CCS has no priority: an offered synchronisation is declinable while
 the agent has any other transition. So with a cache, the run
 
 ```
-set_target(pt) · VS.autofill[reads stale "fr"] · langToVS(pt)
+set_target(pt) · Vocab.autofill[reads stale "fr"] · langToVS(pt)
 ```
 
 is a legal trace — the refresh is not forced before the stale read. The very
@@ -126,56 +142,56 @@ borrowed data cannot be kept coherent without leaving the calculus.
 
 ```
 Helm:  … + langRead!(source, target) · Helm        (* persistent internal read port, a self-loop *)
-VS:    autofill?(id) · langRead?(s,t) · ⟨enrichOracle[word, s, t]⟩ · VS′
+Vocab:    autofill?(id) · langRead?(s,t) · ⟨enrichOracle[word, s, t]⟩ · Vocab′
 PS:    attempt_made  · langRead?(_,t) · ⟨recognisePhonemes[audio, t]⟩ · …
 ```
 
-`langRead` is **restricted** in `mioCore` (an internal τ, like `vAdd`/`chRead`).
+`langRead` is **restricted** in `mioCore` (an internal τ, like `vocabUpsert`/`vocabRead`).
 The consumer cannot complete the enrich/score without first taking it, and what
 it reads is necessarily Helm's *current* value — there is no local copy to be
 stale. This is **forced by sequencing, not by priority**: it is the same idiom
-`vAdd`/`chRead` already use (a sync that is the only way for the agent to make
+`vocabUpsert`/`vocabRead` already use (a sync that is the only way for the agent to make
 progress). Helm remains the **sole owner**; oracles stay boundary functions
 (decision-A) but are now called *with* the language the read delivered.
 `espeakG2P[word, voice]` already has this shape (`voice` = the target read).
 
 *Status:* implemented for **both** borrowers, by the identical prefix-read, with
 Helm's `langRead!` restricted in `mioCore`:
-- **VS `autofill`** → `autofillIn[entries, id, lang]` → `enrichOracle[word, source, target]`;
+- **Vocab `autofill`** → `autofillIn[entries, id, lang]` → `enrichOracle[word, source, target]`;
 - **PS scoring** (`attempt_made`) → `evaluate[target, rec, lang]` → `recognisePhonemes[audio, targetCode]`.
 
-**External store (CargoHold) — the persistence counterpart, now modelled.** The
-vocab collection is owned by the **CargoHold** agent (the DB), not held in VS.
-VocabStore is the **Vocabulary *tab*** — a *gated viewer/editor*: a VISIBLE entry
-`open_vocab` (the user selecting the tab), then a `chRead` of the store, then the
-view/edit actions; writes route to CargoHold (`chUpsert`/`chImport`/`chRemove`/
-`chAmend`, all restricted → τ). Capture from practice writes the store **directly**
-(`PS.capture_vocab → vAdd → CargoHold`), not through the tab — matching the app
+**External store (VocabTable) — the persistence counterpart, now modelled.** The
+vocab collection is owned by the **VocabTable** agent (the DB), not held in Vocab.
+Vocab is the **Vocabulary *tab*** — a *gated viewer/editor*: a VISIBLE entry
+`open_vocab` (the user selecting the tab), then a `vocabRead` of the store, then the
+view/edit actions; writes route to VocabTable (`vocabUpsert`/`vocabImport`/`vocabRemove`/
+`vocabAmend`, all restricted → τ). Capture from practice writes the store **directly**
+(`PS.capture_vocab → vocabUpsert → VocabTable`), not through the tab — matching the app
 (`capture_vocab_entry` is a direct DB write).
 
 **PS reads the store too — practise is a pull, not a push (2026-06-03).** PracticeSession
-no longer receives a *pushed snapshot*. It reads CargoHold itself, by two visibly-guarded
+no longer receives a *pushed snapshot*. It reads VocabTable itself, by two visibly-guarded
 entries that mirror `open_vocab`:
-- **Pull** — `open_practice` (the visible quick-practice entry) → `chRead` → `PSBrowse`
+- **Pull** — `open_practice` (the visible quick-practice entry) → `vocabRead` → `PSBrowse`
   offers `load_vocab` (all) / `load_filtered(q)`, shaping the collection into the practice
   queue (`quick_practice_tab.py`'s "Load vocabulary"/"Load filtered").
-- **Signal** — the vocab-tab "Practise these" (`VS.practise_vocab`) now emits
+- **Signal** — the vocab-tab "Practise these" (`Vocab.practise_vocab`) now emits
   `goPractice!(filter)` — the **filter only, not the entries** — and PS pulls the
-  collection *fresh* (`chRead`) and shapes it. No snapshot crosses the boundary. VS, having
+  collection *fresh* (`vocabRead`) and shapes it. No snapshot crosses the boundary. Vocab, having
   navigated away, returns to its un-opened `open_vocab` entry (it does **not** re-read), which
   also leaves PS's pull as the unique enabled τ so the hand-off settles deterministically.
 This replaced the old `pLoad` data-push: borrowed data (the collection) is pulled-on-use,
 consistent with the rule below. The loaded queue PS then holds is a deliberate *session*
 snapshot the user practices through — not a cache of borrowed data. Two design points this
 settled:
-- **Visible-guarding for congruence.** A *prefix-read* (VS's first action a `chRead`
+- **Visible-guarding for congruence.** A *prefix-read* (Vocab's first action a `vocabRead`
   τ) put an **initial τ** in the composition, and `≈` fails to be a congruence over
   `+` exactly because of initial τ. Guarding the tab behind the **visible**
   `open_vocab` (no initial τ) keeps the system *initially stable* / visibly-guarded,
   so weak bisimilarity stays a congruence. (The `ModeSelector` idea was eliminated:
   each mode carries its own visible entry; no relay agent needed.)
-- **Store vs tab.** Separating *the store* (CargoHold, always accepting writes) from
-  *the tab* (VS, gated) is both faithful and what makes capture mode-independent.
+- **Store vs tab.** Separating *the store* (VocabTable, always accepting writes) from
+  *the tab* (Vocab, gated) is both faithful and what makes capture mode-independent.
   This is the persistence half of the `†` Stats/History note: when stats/history
   are recovered they read/write a store the same way.
 

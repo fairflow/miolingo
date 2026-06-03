@@ -1,4 +1,4 @@
-# VocabStore — UI-first spec recovery (pre-draft analysis)
+# Vocab — UI-first spec recovery (pre-draft analysis)
 
 Per `SPEC-RECOVERY.md` §3. Component: **Vocabulary** tab (per-user, per-language personal dictionary). Recovered from the Streamlit source, not invented.
 
@@ -10,7 +10,7 @@ Per `SPEC-RECOVERY.md` §3. Component: **Vocabulary** tab (per-user, per-languag
 - The entry collection lives in the **database**, not `session_state`. So the CCS process-local state is the collection itself (read via `list_vocab`); almost everything in `session_state` here is per-widget edit bookkeeping.
 - **Auth gates the entire component** (`_require_auth()` early-returns) — a top-level ready-set guard.
 - This confirms and refines the invented VocabStore strawman: CRUD over a collection with **non-empty gating** of per-entry operations — exactly the state-dependent enablement the strawman demonstrated. The recovery adds real guards the strawman lacked: auth, search-non-empty (for "Practise these"), missing-fields (autofill), and an edit-mode.
-- **Bidirectional coupling with PracticeSession**: Practice's `capture_vocab` → `VocabStore.add`; VocabStore's "🎯 Practise these" → `PracticeSession.load_material`.
+- **Bidirectional coupling with PracticeSession**: Practice's `capture_vocab` → `Vocab.add`; Vocab's "🎯 Practise these" → `PracticeSession.load_material`.
 
 ---
 
@@ -93,7 +93,7 @@ Guards (state-dependent enablement):
 
 ```
    auth ──(precondition)──►┌──────────────────────────────┐
-   user ──add/import──────►│  VocabStore                   │
+   user ──add/import──────►│  Vocab                   │
         ──update/notes────►│  state: (entries, sort,       │
         ──delete──────────►│          filter, editing)     │
         ──autofill────────►│                               │
@@ -107,7 +107,7 @@ Guards (state-dependent enablement):
               practise_vocab ────┘                    └── add ◄── capture_vocab
                   │                                          (from PracticeSession)
                   ▼
-            PracticeSession.load_material      ⇒ VocabStore ⇄ PracticeSession (bidirectional)
+            PracticeSession.load_material      ⇒ Vocab ⇄ PracticeSession (bidirectional)
 ```
 
 ---
@@ -133,40 +133,40 @@ Per Matthew's decision (2026-06-02), these are unified into **one channel**, `pr
 - it emits the **current view** to PracticeSession via `pLoad` (restricted → τ): `practiseList(entries, filter)` — **all** vocab when `filter = none`, the filtered subset when `filterBy[q]`. So the filter *parametrises the payload*, it does not enable/disable the route.
 - Minimal Pairs is **not** modelled this round (a separate computed route, deferred).
 
-The τ hand-off itself was verified faithful before this change: PS receives the list and all PS features become available, identical to `load_material`. See `MioCore.wl` (the `pLoad` link) and `VocabStoreRecovered.wl` (`VSNonEmpty`).
+The τ hand-off itself was verified faithful before this change: PS receives the list and all PS features become available, identical to `load_material`. See `MioCore.wl` (the `pLoad` link) and `VocabRecovered.wl` (`VSNonEmpty`).
 
 ---
 
-## Amendment (2026-06-03) — the (i) external-store form: VS is the gated tab
+## Amendment (2026-06-03) — the (i) external-store form: Vocab is the gated tab
 
-VocabStore no longer holds the collection. It is now the **Vocabulary tab**: a
-*gated viewer/editor* over **CargoHold** (the store agent, `cargohold-recovery.md`).
+Vocab no longer holds the collection. It is now the **Vocabulary tab**: a
+*gated viewer/editor* over **VocabTable** (the store agent, `vocab-table-recovery.md`).
 
-- **State** drops `entries` → `VS[auth, sort, filter, editing]` (UI params only).
+- **State** drops `entries` → `Vocab[auth, sort, filter, editing]` (UI params only).
 - **Entry** is a VISIBLE, parameter-less `open_vocab` (the user selecting the tab);
-  it leads to `VSRead`, which `chRead`s the store, then offers view + actions and
+  it leads to `VSRead`, which `vocabRead`s the store, then offers view + actions and
   loops back to `VSRead` (re-reads each cycle). Keeping the first action *visible*
-  (not the `chRead` τ) keeps the composition visibly-guarded so `≈` stays a
+  (not the `vocabRead` τ) keeps the composition visibly-guarded so `≈` stays a
   congruence (ARCHITECTURE.md → Borrowed-vs-owned; no `ModeSelector` needed).
-- **Reads** (one `chRead` per cycle) feed: the empty/non-empty ready-set guard,
+- **Reads** (one `vocabRead` per cycle) feed: the empty/non-empty ready-set guard,
   the `view!` projection, the `practise_vocab` payload, and `export`.
-- **Writes** route to CargoHold: `add → chUpsert`, `import_bulk → chImport`,
-  `delete → chRemove`, `update`/`update_notes`/`autofill → chAmend`.
+- **Writes** route to VocabTable: `add → vocabUpsert`, `import_bulk → vocabImport`,
+  `delete → vocabRemove`, `update`/`update_notes`/`autofill → vocabAmend`.
 - **Capture from practice does NOT pass through the tab** — `PS.capture_vocab →
-  vAdd → CargoHold` writes the store directly (the app's `capture_vocab_entry` is
-  a direct DB write, `vocabulary_tab.py:7`). So `vAdd` re-targeted PS→CargoHold,
-  and VS has no always-on capture summand to muddy its visible-guarding.
+  vocabUpsert → VocabTable` writes the store directly (the app's `capture_vocab_entry` is
+  a direct DB write, `vocabulary_tab.py:7`). So `vocabUpsert` re-targeted PS→VocabTable,
+  and Vocab has no always-on capture summand to muddy its visible-guarding.
 
 The §4 ready-set table above describes the *in-process* (pre-(i)) shape; under
-(i) those domain ports are afforded **after `open_vocab` + `chRead`**, and the
+(i) those domain ports are afforded **after `open_vocab` + `vocabRead`**, and the
 collection-dependent guards read the store rather than local `entries`.
 
 **Practise hand-off is now a SIGNAL, not a push (supersedes the 2026-06-02 `pLoad`
 amendment).** `practise_vocab` no longer emits `pLoad!(practiseList[es, filter])` —
 the §2 row "→ `PracticeSession.load_material`" and the 2026-06-02 amendment are
 superseded. It now emits **`goPractice!(filter)`** — the *filter only* — and PS pulls
-the collection FRESH from CargoHold itself (`practice-session-recovery.md`). VS need
-not even read `es` to hand off, and since this navigates away from the tab, VS returns
+the collection FRESH from VocabTable itself (`practice-session-recovery.md`). Vocab need
+not even read `es` to hand off, and since this navigates away from the tab, Vocab returns
 to its un-opened `open_vocab` entry (it does not re-read). Single source of truth: no
 snapshot crosses the boundary. The two quick-practice routes ("Load vocabulary"/"Load
-filtered") are now PS-side pull entries (`open_practice`), not VS ports.
+filtered") are now PS-side pull entries (`open_practice`), not Vocab ports.

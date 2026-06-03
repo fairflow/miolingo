@@ -1,5 +1,5 @@
 #!/usr/bin/env wolframscript
-(* function-recovery pass — golden cases for VS + PS value-functions,
+(* function-recovery pass — golden cases for Vocab + PS value-functions,
    checked against behaviour stated in the Python docstrings (NOT a live DB).
    Paths + engine version come from spec/paths.wl, located relative to this
    test, so it runs unchanged in any worktree or the canonical spec. *)
@@ -7,12 +7,12 @@
 Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "paths.wl"}]];
 loadEngine[];
 loadRecoveredBase[];
-mioGet["VocabStoreFunctions.wl"];
+mioGet["VocabFunctions.wl"];
 mioGet["PracticeSessionFunctions.wl"];
 
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 
-Print["== VocabStore =="];
+Print["== Vocab =="];
 
 (* addEntry: new word appends with times_seen 1 *)
 e1 = addEntry[{}, <|"word" -> "Maison", "translation" -> "house"|>];
