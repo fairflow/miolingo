@@ -58,7 +58,7 @@ The panel shows, top to bottom:
   component** (Helm / PS / VS), **inputs before outputs** in each frame; internal
   syncs go in an *internal (τ)* frame. The port→component map is a pure syntactic
   scan of each agent's sort (`componentPortMap`), so it needs no execution and
-  can't be fooled by guards; dual restricted actions (`vAdd`/`pLoad`/`langRead`)
+  can't be fooled by guards; dual restricted actions (`vAdd`/`goPractice`/`langRead`)
   only ever appear as τ, so they never split across frames.
 - **Back / Forward / Reset**, a **`Test:` menu + `Run test`** (see below), and
   the **condensed trace** (with Copy). **Back** and **Forward** scrub a run: step
@@ -66,7 +66,7 @@ The panel shows, top to bottom:
   `Run test` to watch what each step of a sequence reveals. (A fresh manual step
   or `Run test` clears the forward/redo line.)
 - **Auto-advance internal syncs (maximal progress)** — a checkbox. When on, the
-  harness fires the system's internal synchronisations (`vAdd`, `pLoad`, and
+  harness fires the system's internal synchronisations (`vAdd`, `goPractice`, and
   `langRead` — the borrowed-language pull on `autofill` and on `attempt_made`
   scoring) for you between your actions, until the state is τ-stable,
   so you only ever click *external* ports. It's a **simulation strategy, not a
@@ -105,7 +105,7 @@ plan is a list of:
 
 - `vis["port"]` — a visible action with no value;
 - `vis["port", value]` — a value-carrying input, value supplied;
-- `tau["chan"]` — an internal sync (`pLoad`, `vAdd`).
+- `tau["chan"]` — an internal sync (`goPractice`, `vAdd`).
 
 Run one from the GUI: pick it in the **`Test:`** menu and click **`Run test`** —
 it replays the whole plan from the initial state, setting the data view and the
@@ -166,7 +166,7 @@ All have `::usage`, so `?walkUI`, `?supplyValue`, `?walkTests`, `?loadEngine`,
 - **`view` vs `View`.** `viewProjections` matches the view suffix
   case-insensitively, so both the bare agent's `view` and the relabelled
   `vSView`/`pSView` are picked up.
-- **Syncs are composed-only.** `pLoad`/`vAdd` are restricted internal channels;
+- **Syncs are composed-only.** `goPractice`/`vAdd` are restricted internal channels;
   the `sync-*`/`full-*` sequences run on `mioCore`/`mioCoreD`, not VS/PS alone.
 - **Deferred.** A cleaner value-supply route — giving `transVP` a parameter that
   derives an input transition *with* the substitution inline (supply-then-derive)

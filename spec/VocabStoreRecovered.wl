@@ -23,8 +23,8 @@
    WHAT VS READS FROM CARGOHOLD, AND WHY  (one chRead per cycle feeds all):
      read es (chRead!) ──┬─ ready-set guard   Length[es]==0  → which ports are afforded
                          ├─ view! projection  vocabView[…, es, …]   (≈ list_vocab)
-                         ├─ practise payload  practiseList[es, filter]  (→ PS via pLoad)
                          └─ export            exportCsv[es]
+     (practise_vocab no longer reads es: it signals PS the filter and PS pulls.)
      Reads are FRESH each cycle (a prefix chRead, restricted → internal τ in
      mioCore); there is NO cached copy, hence no staleness. In the app every
      Streamlit rerun re-runs list_vocab — a query — so view! is query-backed.
@@ -41,7 +41,7 @@
      update / update_notes / autofill → chAmend!(<|id, fields|>)   UPDATE
    set_sort / set_filter / begin_edit / cancel_edit change VS's OWN params only.
 
-   Cross-component: practise_vocab → PracticeSession.load_material (via pLoad);
+   Cross-component: practise_vocab → goPractice!(filter) → PS pulls from CargoHold;
    PracticeSession.capture_vocab → vAdd → CargoHold DIRECTLY (capture from practice
    writes to the store, NOT through this tab — the app's capture_vocab_entry is a
    direct DB write, vocabulary_tab.py:7 / vocab.py:106).
@@ -110,17 +110,23 @@ defineAgent["VSAuthed", {es, sort, filter, editing},
 
 
 (* --- non-empty: export + practise_vocab always; edit-mode refines per-entry.
-   practise_vocab sends the CURRENT view (practiseList[es,filter]) to PS via pLoad
-   — all vocab when filter===none, the filtered subset otherwise. *)
+   practise_vocab is the vocab-tab "Practise these" cross-tab nav. It no longer
+   PUSHES the data: it signals PS with goPractice!(filter) — the FILTER only — and
+   PS pulls the collection FRESH from CargoHold itself. So no snapshot crosses the
+   boundary (single source of truth); VS need not even read es to hand off. *)
 defineAgent["VSNonEmpty", {es, sort, filter, editing},
   choice[
     (* @src vocabulary_tab.py:69 (Export CSV) *)
     precede[label["export", param[exportCsv[es]]],
       call["VSRead", sort, filter, editing]],
-    (* @src quick_practice_tab.py:184 / vocabulary_tab.py:556 — to PracticeSession *)
+    (* @src vocabulary_tab.py:556 ("🎯 Practise these") — SIGNAL to PracticeSession;
+       carries the filter, not the entries (PS pulls them). This NAVIGATES AWAY from
+       the vocab tab, so VS returns to its un-opened entry (open_vocab), NOT VSRead —
+       it does not re-read. That also leaves PS's pull as the unique enabled τ, so
+       the hand-off settles deterministically (no competing VS re-read). *)
     precede[coLabel["practise_vocab"],
-      precede[label["pLoad", param[practiseList[es, filter]]],
-        call["VSRead", sort, filter, editing]]],
+      precede[label["goPractice", param[filter]],
+        call["VS", signedIn, sort, filter, editing]]],
     if[editing === none,
       call["VSEntryActions", es, sort, filter],
       call["VSEditActions", es, sort, filter, editing]]]]

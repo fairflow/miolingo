@@ -8,7 +8,7 @@
      2. steps each composition layer (sub-agent -> par -> restrict ->
         call[MioCore]) so a transNamed that returns UNEVALUATED is
         localised to the exact layer that fails,
-     3. checks the external ready set and the vAdd / pLoad tau syncs.
+     3. checks the external ready set and the vAdd / goPractice tau syncs.
 
    Run headless:   wolframscript -file spec/tests/composition_test.wls
    Or Get it into a session (NB: re-Getting RCA_core.wl resets agentDefs,
@@ -33,7 +33,7 @@ lab[a_]   := If[MatchQ[a, tag[\[Tau], _, ___]], a[[2]], portName[a]];
 Print[bar];
 Print["1. AGENT REGISTRATION (agentDefs)"];
 Print[bar];
-need = {"PS", "PSActive", "VS", "VSAuthed", "VSNonEmpty",
+need = {"PS", "PSActive", "PSBrowse", "VS", "VSAuthed", "VSNonEmpty",
         "VSEntryActions", "VSEditActions", "Helm", "CargoHold"};
 (* MioCore is now a composed MU-TERM value (relabeled view!), not a
    defineAgent; it is stepped with transVP[MioCore], not call["MioCore"]. *)
@@ -48,7 +48,7 @@ ps0 = call["PS", {}, 0, none, none];
 vs0 = call["VS", signedIn, alpha, none, none];          (* (i): no entries *)
 ch0 = call["CargoHold", {}];                            (* the store owns the entries *)
 helm0 = call["Helm", "English", "fr", google, 250];
-R = {label["vAdd"], label["pLoad"], label["langRead"],
+R = {label["vAdd"], label["goPractice"], label["langRead"],
      label["chRead"], label["chUpsert"], label["chImport"], label["chRemove"], label["chAmend"]};
 parTerm = par[par[par[ps0, vs0], helm0], ch0];
 resTerm = restrict[parTerm, R];
@@ -68,17 +68,19 @@ If[! evaluatedQ[tMio],
 Print[bar];
 Print["3. EXTERNAL READY SET (all restricted channels hidden)"];
 Print[bar];
-(* VS gates behind chRead under (i): settle that tau, then the external (non-tau)
-   ready set is the familiar one — and the restricted channels (vAdd/pLoad and the
-   ch* store channels) are NOT among the external named ports. *)
+(* VS gates behind chRead under (i): settle, then the external (non-tau) ready set
+   is the familiar one (now incl. open_practice, the PS pull entry) — and the
+   restricted channels (vAdd/goPractice and the ch* store channels) are NOT among
+   the external named ports. *)
 If[evaluatedQ[tMio],
   Module[{ns = Sort[portName /@ Select[First /@
        transVP[Last[walkSteps[transVP, mioCore, {}, "AutoTau" -> True]["states"]]], ! isTau[#] &]]},
     Print["   (settled) ", InputForm[ns]];
-    Print["   vAdd hidden?     ", ok[! MemberQ[ns, "vAdd"]]];
-    Print["   pLoad hidden?    ", ok[! MemberQ[ns, "pLoad"]]];
-    Print["   chRead hidden?   ", ok[! MemberQ[ns, "chRead"]]];
-    Print["   chUpsert hidden? ", ok[! MemberQ[ns, "chUpsert"]]]]];
+    Print["   open_practice shown? ", ok[MemberQ[ns, "open_practice"]]];
+    Print["   vAdd hidden?       ", ok[! MemberQ[ns, "vAdd"]]];
+    Print["   goPractice hidden? ", ok[! MemberQ[ns, "goPractice"]]];
+    Print["   chRead hidden?     ", ok[! MemberQ[ns, "chRead"]]];
+    Print["   chUpsert hidden?   ", ok[! MemberQ[ns, "chUpsert"]]]]];
 
 Print[bar];
 Print["4. CROSS-COMPONENT SYNCHRONISATION (via AutoTau on mioCoreD)"];
@@ -89,8 +91,11 @@ capLabels = labelsOf[{vis["load_material", {<|"text" -> "chat", "translation" ->
 Print["   capture_vocab relays via vAdd?   ", ok[MemberQ[capLabels, "vAdd"]]];
 Print["      ", InputForm[capLabels]];
 plLabels = labelsOf[{vis["open_vocab"], vis["add", <|"word" -> "chat"|>], vis["set_filter", "ch"], vis["practise_vocab"]}];
-Print["   practise_vocab relays via pLoad? ", ok[MemberQ[plLabels, "pLoad"]]];
+Print["   practise_vocab signals via goPractice? ", ok[MemberQ[plLabels, "goPractice"]]];
 Print["      ", InputForm[plLabels]];
+ppLabels = labelsOf[{vis["open_practice"], vis["load_vocab"]}];
+Print["   open_practice pulls via chRead?        ", ok[MemberQ[ppLabels, "chRead"]]];
+Print["      ", InputForm[ppLabels]];
 
 Print[bar];
 Print["done."];

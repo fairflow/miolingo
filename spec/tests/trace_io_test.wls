@@ -30,7 +30,7 @@ mioGet["MioCore.wl"];
 hr      = StringRepeat["=", 70];
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 
-(* External-only plan; AutoTau fires the internal syncs (chRead/chUpsert/pLoad/
+(* External-only plan; AutoTau fires the internal syncs (chRead/chUpsert/goPractice/
    langRead/vAdd). The RECORDED trace (wlk["actions"]) therefore includes those
    taus — and that full trace is what the round-trips reproduce. *)
 extPlan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
@@ -60,7 +60,7 @@ txt = eventLogForm[eventLog[wlk]];
 Export[txtfile, txt, "Text"];
 fullPlan = importTrace[txtfile];
 Print["   recovered plan includes the taus? ",
-      ok[MemberQ[fullPlan, tau["pLoad"]] && MemberQ[fullPlan, tau["chRead"]]]];
+      ok[MemberQ[fullPlan, tau["goPractice"]] && MemberQ[fullPlan, tau["chRead"]]]];
 wlk3 = walkSteps[transNamed, mioCoreD, fullPlan];
 Print["   text->plan->replay actions match? ", ok[wlk3["actions"] === wlk["actions"]]];
 

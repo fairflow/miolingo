@@ -10,7 +10,7 @@
    — with its embedded values, so the GUI's "Run test" menu and walkSteps
    both replay them with no typing. Also checks the value-carrying ports
    actually computed (a captured word reaches the VS entries via the
-   vAdd sync; a practise relay reaches the PS queue via pLoad).
+   vAdd sync; a practise relay reaches the PS queue via goPractice + a PS pull).
 
    Run headless:  wolframscript -file spec/tests/walk_sequences_test.wls
    ===================================================================== *)
@@ -48,12 +48,12 @@ vsEntriesAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan, "Aut
   If[KeyExistsQ[vp, "vSView"], #["word"] & /@ vp["vSView"]["entries"], $Failed]];
 assert["sync-vadd: captured \"chat\" reaches VS entries",
   MemberQ[vsEntriesAfter[walkTests["sync-vadd"]], "chat"]];
-(* sync-pload: the practise relay loads PS (pSView total > 0) *)
+(* sync-practise: the practise relay loads PS (pSView total > 0) *)
 psTotalAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan, "AutoTau" -> True]["states"]], vp},
   vp = Map[Identity, viewProjections[transVP, s]];
   If[KeyExistsQ[vp, "pSView"], vp["pSView"]["total"], $Failed]];
-assert["sync-pload: practise relay loads the PS queue (total > 0)",
-  TrueQ[psTotalAfter[walkTests["sync-pload"]] > 0]];
+assert["sync-practise: practise relay loads the PS queue (total > 0)",
+  TrueQ[psTotalAfter[walkTests["sync-practise"]] > 0]];
 
 Print[hr];
 Print["ALL ASSERTIONS: ", ok[allOk]];

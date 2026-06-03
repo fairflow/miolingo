@@ -23,7 +23,7 @@
      rec : none | recorded[audio]  res : none | scored[r]
 
    READY SETS (analysis; readyPorts, not declared):
-     PS[{},      _,_,_]            : view, load_material, pLoad
+     PS[{},      _,_,_]            : view, load_material, open_practice, goPractice
      PS[ne,p,none,    none]        : + clear_material, select_item,
                                        recording_made, next†, prev‡
      PS[ne,p,recorded,none]        : + attempt_made, clear_recording
@@ -34,18 +34,53 @@
    ===================================================================== *)
 
 
-(* --- top: always-on view/load/pLoad; domain ports only when non-empty
-   (shared-port split → one-armed if, no duplication) --- *)
+(* --- top: always-on view/load + the two CargoHold-pull entries; domain ports
+   only when non-empty (shared-port split → one-armed if, no duplication).
+
+   PS reads the store ITSELF now (no pushed snapshot). Two entries reach it:
+     • open_practice  — the VISIBLE quick-practice entry (a parameter-less input,
+       the user opening the practice-from-vocab picker), then chRead the store and
+       choose load_vocab / load_filtered (PSBrowse).
+     • goPractice     — the vocab-tab "Practise these" SIGNAL from VS, carrying the
+       FILTER only (not the entries); PS pulls the collection fresh and shapes it.
+   Both keep their VISIBLE input first (open_practice / goPractice), so the chRead
+   is the SECOND action — PS stays visibly-guarded (no initial τ), weak bisim a
+   congruence. chRead/goPractice are restricted → τ in mioCore. --- *)
 defineAgent["PS", {phrases, pos, rec, res},
   choice[
     precede[label["view", param[sessionView[phrases, pos, rec, res]]],
       call["PS", phrases, pos, rec, res]],
     precede[coLabel["load_material", binding[ps]],
       call["PS", ps, 0, none, none]],
-    precede[coLabel["pLoad", binding[ps]],
-      call["PS", ps, 0, none, none]],
+    (* PULL (quick_practice "Load vocabulary"/"Load filtered", quick_practice_tab.py):
+       visible open_practice → read CargoHold → PSBrowse picks what to load. *)
+    precede[coLabel["open_practice"],
+      precede[coLabel["chRead", binding[es]],
+        call["PSBrowse", es]]],
+    (* SIGNAL (vocab-tab "Practise these"): VS sends goPractice!(filter) — the
+       filter only. PS pulls the collection FRESH (chRead) and shapes it with that
+       filter. No cached snapshot crosses the boundary — single source of truth
+       (ARCHITECTURE.md "Borrowed vs owned data"). *)
+    precede[coLabel["goPractice", binding[filter]],
+      precede[coLabel["chRead", binding[es]],
+        call["PS", practiseList[es, filter], 0, none, none]]],
     if[Length[phrases] > 0,
       call["PSActive", phrases, pos, rec, res]]]]
+
+
+(* --- after open_practice + chRead: choose what to load from the store.
+   load_vocab = the whole collection; load_filtered(q) = the subset. Both shape
+   via practiseList (vocab.py:644) into the practice phrase queue. The es read here
+   is FRESH (pull-on-use); the loaded queue is a deliberate session snapshot the
+   user then practices through (next/prev/record/score). --- *)
+defineAgent["PSBrowse", {es},
+  choice[
+    (* @src quick_practice_tab.py:178 ("Load vocabulary (N)") *)
+    precede[coLabel["load_vocab"],
+      call["PS", practiseList[es, none], 0, none, none]],
+    (* @src quick_practice_tab.py:184 ("Load filtered (N)") *)
+    precede[coLabel["load_filtered", binding[q]],
+      call["PS", practiseList[es, filterBy[q]], 0, none, none]]]]
 
 
 (* --- domain ports for a non-empty queue --- *)

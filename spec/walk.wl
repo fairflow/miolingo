@@ -288,7 +288,7 @@ stateDisplay[s_] := If[agentDefs =!= <||>, foldAgentDisplay[normalizeSC[s]], Sho
    built term, with the bare "view" renamed to decap[name]<>"View" to match the
    composition's relabelled pSView/vSView/helmView (relabel is a lazy wrapper
    under transVP, so we rename the name set directly). Dual (restricted) actions
-   vAdd/pLoad/langRead live in two
+   vAdd/goPractice/langRead/chRead live in two
    sorts, but they are internal taus in the composed system and never queried as
    named ports here, so the overlap is harmless. *)
 sortOf::usage = "sortOf[term] gives the set of port names (strings) appearing syntactically in a process term \[LongDash] a pure scan, no execution.";
@@ -529,7 +529,7 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                Spacer[4],
                Button["Run test \[FilledRightTriangle]",
                  (* "AutoTau" -> True : the plans list only external actions, so
-                    fire the internal syncs (vAdd/pLoad/langRead/chRead) for us *)
+                    fire the internal syncs (vAdd/goPractice/langRead/chRead) for us *)
                  Module[{w = walkSteps[tf, agent, walkTests[testSel], "AutoTau" -> True]},
                    hist = Most[w["states"]]; trace = eventLog[w];
                    cur = Last[w["states"]]; future = {}; inVals = <||>],

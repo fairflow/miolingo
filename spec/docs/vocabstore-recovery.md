@@ -160,3 +160,13 @@ VocabStore no longer holds the collection. It is now the **Vocabulary tab**: a
 The §4 ready-set table above describes the *in-process* (pre-(i)) shape; under
 (i) those domain ports are afforded **after `open_vocab` + `chRead`**, and the
 collection-dependent guards read the store rather than local `entries`.
+
+**Practise hand-off is now a SIGNAL, not a push (supersedes the 2026-06-02 `pLoad`
+amendment).** `practise_vocab` no longer emits `pLoad!(practiseList[es, filter])` —
+the §2 row "→ `PracticeSession.load_material`" and the 2026-06-02 amendment are
+superseded. It now emits **`goPractice!(filter)`** — the *filter only* — and PS pulls
+the collection FRESH from CargoHold itself (`practice-session-recovery.md`). VS need
+not even read `es` to hand off, and since this navigates away from the tab, VS returns
+to its un-opened `open_vocab` entry (it does not re-read). Single source of truth: no
+snapshot crosses the boundary. The two quick-practice routes ("Load vocabulary"/"Load
+filtered") are now PS-side pull entries (`open_practice`), not VS ports.

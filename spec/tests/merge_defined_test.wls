@@ -12,7 +12,7 @@
      2. mioCoreD is much smaller than mioCore and stays call-based
         (free of mu / rvar), one step included
      3. the dual-tau deterministic walk runs on mioCoreD (transNamed):
-        both vAdd and pLoad internal syncs fire
+        both vAdd and goPractice internal syncs fire
      4. the visible+tau label trace agrees with merge's (transVP)
 
    Engine + paths come from spec/paths.wl; loadEngine[] asserts the engine
@@ -47,7 +47,7 @@ deNames = extNames[transNamed, settled[transNamed, mioCoreD]];
 (* VS now gates behind a VISIBLE open_vocab (the tab entry), so at the (stable)
    initial state VS contributes only open_vocab — its CRUD/view appear once the
    tab is opened. Helm's set_speed is espeak-only (tts=google). *)
-expected = {"helmView", "load_material", "open_vocab", "pSView",
+expected = {"helmView", "load_material", "open_practice", "open_vocab", "pSView",
             "set_source", "set_target", "set_tts"};
 
 Print[hr]; Print["1. EXTERNAL READY-SET PARITY (settled past the chRead τ)"]; Print[hr];
@@ -68,8 +68,8 @@ With[{succ = Last[First[de0]]},
 
 (* shared deterministic walk, parametrised by the transition function. Plan lists
    only EXTERNAL actions; "AutoTau" fires the internal syncs (chRead/chUpsert/
-   pLoad/langRead/vAdd) between them, so the label trace includes those τs and we
-   can confirm pLoad/vAdd fired. *)
+   goPractice/langRead/vAdd) between them, so the label trace includes those τs and
+   we can confirm goPractice/vAdd fired. *)
 plan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
         vis["recording_made"], vis["attempt_made"], vis["capture_vocab"]};
 walk[tf_, s0_] := Module[{w = walkSteps[tf, s0, plan, "AutoTau" -> True]},
@@ -79,7 +79,7 @@ Print[hr]; Print["3. DUAL-TAU WALK on mioCoreD (transNamed)"]; Print[hr];
 wd = walk[transNamed, mioCoreD];
 Print["   trace: ", InputForm[wd["labels"]]];
 Print["   ran to completion? ", ok[! wd["stuck"]]];
-Print["   pLoad tau fired?   ", ok[MemberQ[wd["labels"], "pLoad"]]];
+Print["   goPractice tau fired? ", ok[MemberQ[wd["labels"], "goPractice"]]];
 Print["   vAdd  tau fired?   ", ok[MemberQ[wd["labels"], "vAdd"]]];
 
 Print[hr]; Print["4. TRACE PARITY  merge(transVP) vs mergeDefined(transNamed)"]; Print[hr];

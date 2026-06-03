@@ -130,11 +130,11 @@ VS:    autofill?(id) · langRead?(s,t) · ⟨enrichOracle[word, s, t]⟩ · VS�
 PS:    attempt_made  · langRead?(_,t) · ⟨recognisePhonemes[audio, t]⟩ · …
 ```
 
-`langRead` is **restricted** in `mioCore` (an internal τ, like `vAdd`/`pLoad`).
+`langRead` is **restricted** in `mioCore` (an internal τ, like `vAdd`/`chRead`).
 The consumer cannot complete the enrich/score without first taking it, and what
 it reads is necessarily Helm's *current* value — there is no local copy to be
 stale. This is **forced by sequencing, not by priority**: it is the same idiom
-`vAdd`/`pLoad` already use (a sync that is the only way for the agent to make
+`vAdd`/`chRead` already use (a sync that is the only way for the agent to make
 progress). Helm remains the **sole owner**; oracles stay boundary functions
 (decision-A) but are now called *with* the language the read delivered.
 `espeakG2P[word, voice]` already has this shape (`voice` = the target read).
@@ -151,7 +151,23 @@ VocabStore is the **Vocabulary *tab*** — a *gated viewer/editor*: a VISIBLE en
 view/edit actions; writes route to CargoHold (`chUpsert`/`chImport`/`chRemove`/
 `chAmend`, all restricted → τ). Capture from practice writes the store **directly**
 (`PS.capture_vocab → vAdd → CargoHold`), not through the tab — matching the app
-(`capture_vocab_entry` is a direct DB write). Two design points this settled:
+(`capture_vocab_entry` is a direct DB write).
+
+**PS reads the store too — practise is a pull, not a push (2026-06-03).** PracticeSession
+no longer receives a *pushed snapshot*. It reads CargoHold itself, by two visibly-guarded
+entries that mirror `open_vocab`:
+- **Pull** — `open_practice` (the visible quick-practice entry) → `chRead` → `PSBrowse`
+  offers `load_vocab` (all) / `load_filtered(q)`, shaping the collection into the practice
+  queue (`quick_practice_tab.py`'s "Load vocabulary"/"Load filtered").
+- **Signal** — the vocab-tab "Practise these" (`VS.practise_vocab`) now emits
+  `goPractice!(filter)` — the **filter only, not the entries** — and PS pulls the
+  collection *fresh* (`chRead`) and shapes it. No snapshot crosses the boundary. VS, having
+  navigated away, returns to its un-opened `open_vocab` entry (it does **not** re-read), which
+  also leaves PS's pull as the unique enabled τ so the hand-off settles deterministically.
+This replaced the old `pLoad` data-push: borrowed data (the collection) is pulled-on-use,
+consistent with the rule below. The loaded queue PS then holds is a deliberate *session*
+snapshot the user practices through — not a cache of borrowed data. Two design points this
+settled:
 - **Visible-guarding for congruence.** A *prefix-read* (VS's first action a `chRead`
   τ) put an **initial τ** in the composition, and `≈` fails to be a congruence over
   `+` exactly because of initial τ. Guarding the tab behind the **visible**
