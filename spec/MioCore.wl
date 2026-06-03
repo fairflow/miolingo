@@ -23,8 +23,14 @@
    capitalised PSView/VSView.
 
    Cross-component links (each a complementary output/input pair, restricted):
-     vAdd  : PS.capture_vocab(word)  --vAdd!(word)-->   VS adds the word
-     pLoad : VS.practise_vocab       --pLoad!(phrases)--> PS loads them
+     vAdd       : PS.capture_vocab(word)  --vAdd!(word)-->      CargoHold adds it
+     goPractice : VS.practise_vocab       --goPractice!(filter)--> PS (then PS PULLS)
+     chRead     : CargoHold.chRead!       --chRead!(es)-->       VS or PS reads it
+
+   Note the practise hand-off is now a SIGNAL, not a data push: goPractice carries
+   only the filter; PS then pulls the collection itself via chRead (a second τ). So
+   a practise relay shows as goPractice·chRead, not a single pLoad — no snapshot
+   crosses the boundary (single source of truth).
 
    Helm is composed in as a PURE PARALLEL agent (2026-06-01): NO control guard
    in PS/VS reads the language, so there is no new restricted channel — Helm
@@ -40,10 +46,10 @@
    google TTS, 250 wpm.
 
    VERIFIED on the engine (2026-06-01): transVP[mioCore] external ready set is
-   {add, helmView, import_bulk, load_material, pSView, set_filter, set_source,
-   set_sort, set_target, set_tts, vSView} — three view ports, no bare `view`
-   clash; vAdd/pLoad restricted (internal tau). (set_speed appears once tts is
-   set to espeak.)
+   {add, helmView, import_bulk, load_material, open_practice, pSView, set_filter,
+   set_source, set_sort, set_target, set_tts, vSView} — three view ports, no bare
+   `view` clash; vAdd/goPractice/chRead restricted (internal tau). open_practice is
+   the visible PS pull entry. (set_speed appears once tts is set to espeak.)
 
    BORROWED-DATA wiring (2026-06-01): langRead is also restricted, so Helm's
    internal read port pairs with VS.autofill's langRead?(lp) prefix as an
@@ -59,11 +65,15 @@
    ready transitions per providing agent. One source of truth for "who the
    components are" — see walk.wl componentPortMap. *)
 mioComponents =
-  {"PS"   -> call["PS", {}, 0, none, none],
-   "VS"   -> call["VS", signedIn, {}, alpha, none, none],
-   "Helm" -> call["Helm", "English", "fr", google, 250]};
+  {"PS"        -> call["PS", {}, 0, none, none],
+   "VS"        -> call["VS", signedIn, alpha, none, none],   (* (i): NO entries — they live in CargoHold *)
+   "Helm"      -> call["Helm", "English", "fr", google, 250],
+   "CargoHold" -> call["CargoHold", {}]};                    (* the persisted collection, owned here *)
 
-mioRestricted = {label["vAdd"], label["pLoad"], label["langRead"]};
+mioRestricted = {label["vAdd"], label["goPractice"], label["langRead"],
+                 (* the external-store channels: VS and PS read/write CargoHold internally *)
+                 label["chRead"], label["chUpsert"], label["chImport"],
+                 label["chRemove"], label["chAmend"]};
 
 mioCore = merge[mioComponents, mioRestricted];
 

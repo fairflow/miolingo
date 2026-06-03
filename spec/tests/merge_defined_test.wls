@@ -12,7 +12,7 @@
      2. mioCoreD is much smaller than mioCore and stays call-based
         (free of mu / rvar), one step included
      3. the dual-tau deterministic walk runs on mioCoreD (transNamed):
-        both vAdd and pLoad internal syncs fire
+        both vAdd and goPractice internal syncs fire
      4. the visible+tau label trace agrees with merge's (transVP)
 
    Engine + paths come from spec/paths.wl; loadEngine[] asserts the engine
@@ -34,19 +34,27 @@ isTau[a_]   := MatchQ[a, tag[\[Tau], ___]] || a === \[Tau];
 names[tr_]  := Sort[portName /@ (First /@ tr)];
 lab[a_]     := If[MatchQ[a, tag[\[Tau], _, ___]], a[[2]], portName[a]];
 
-mu0 = transVP[mioCore];
+mu0 = transVP[mioCore];      (* raw transitions — used by the compactness checks *)
 de0 = transNamed[mioCoreD];
-(* includes Helm's ports (2026-06-01): helmView + set_source/set_target/set_tts.
-   set_speed is NOT here — it is espeak-only and the initial tts is google. *)
-expected = {"add", "helmView", "import_bulk", "load_material", "pSView",
-            "set_filter", "set_sort", "set_source", "set_target", "set_tts",
-            "vSView"};   (* sorted: "set_sort" < "set_source" (r < u) *)
+(* Under the (i) external-store form VS GATES behind an internal chRead: at the
+   raw initial state VS offers nothing externally (only the chRead τ). SETTLE that
+   τ (maximal progress), then the external ready set is the familiar one — and
+   merge (transVP) and mergeDefined (transNamed) settle to the SAME set. *)
+settled[tf_, s0_]   := Last[walkSteps[tf, s0, {}, "AutoTau" -> True]["states"]];
+extNames[tf_, s_]   := Sort[portName /@ Select[First /@ tf[s], ! isTau[#] &]];
+muNames = extNames[transVP,   settled[transVP,   mioCore]];
+deNames = extNames[transNamed, settled[transNamed, mioCoreD]];
+(* VS now gates behind a VISIBLE open_vocab (the tab entry), so at the (stable)
+   initial state VS contributes only open_vocab — its CRUD/view appear once the
+   tab is opened. Helm's set_speed is espeak-only (tts=google). *)
+expected = {"helmView", "load_material", "open_practice", "open_vocab", "pSView",
+            "set_source", "set_target", "set_tts"};
 
-Print[hr]; Print["1. EXTERNAL READY-SET PARITY"]; Print[hr];
-Print["   merge       (transVP)   : ", InputForm[names[mu0]]];
-Print["   mergeDefined (transNamed): ", InputForm[names[de0]]];
-Print["   agree?             ", ok[names[mu0] === names[de0]]];
-Print["   equals documented? ", ok[names[de0] === expected]];
+Print[hr]; Print["1. EXTERNAL READY-SET PARITY (settled past the chRead τ)"]; Print[hr];
+Print["   merge       (transVP)   : ", InputForm[muNames]];
+Print["   mergeDefined (transNamed): ", InputForm[deNames]];
+Print["   agree?             ", ok[muNames === deNames]];
+Print["   equals documented? ", ok[deNames === expected]];
 
 Print[hr]; Print["2. COMPACTNESS / CALL-BASED SUCCESSORS"]; Print[hr];
 Print["   LeafCount mioCore  (mu-term)   : ", LeafCount[mioCore]];
@@ -58,23 +66,20 @@ With[{succ = Last[First[de0]]},
   Print["   one successor free of mu/rvar? ",
         ok[FreeQ[succ, mu] && FreeQ[succ, rvar]]]];
 
-(* shared deterministic walk, parametrised by the transition function *)
-findStep[tf_, s_, vis[nm_]]  := SelectFirst[tf[s], !isTau[First[#]] && portName[First[#]] === nm &];
-findStep[tf_, s_, tau[ch_]] := SelectFirst[tf[s], MatchQ[First[#], tag[\[Tau], ch, ___]] &];
-plan = {vis["set_filter"], vis["add"], vis["practise_vocab"], tau["pLoad"],
-        vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
-walk[tf_, s0_] := Module[{s = s0, labs = {}, t, stuck = False},
-  Do[t = findStep[tf, s, p];
-     If[MissingQ[t], stuck = True; Break[]];
-     AppendTo[labs, lab[First[t]]];
-     s = Last[t], {p, plan}];
-  <|"labels" -> labs, "stuck" -> stuck|>];
+(* shared deterministic walk, parametrised by the transition function. Plan lists
+   only EXTERNAL actions; "AutoTau" fires the internal syncs (chRead/chUpsert/
+   goPractice/langRead/vAdd) between them, so the label trace includes those τs and
+   we can confirm goPractice/vAdd fired. *)
+plan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
+        vis["recording_made"], vis["attempt_made"], vis["capture_vocab"]};
+walk[tf_, s0_] := Module[{w = walkSteps[tf, s0, plan, "AutoTau" -> True]},
+  <|"labels" -> (lab /@ w["actions"]), "stuck" -> w["stuck"]|>];
 
 Print[hr]; Print["3. DUAL-TAU WALK on mioCoreD (transNamed)"]; Print[hr];
 wd = walk[transNamed, mioCoreD];
 Print["   trace: ", InputForm[wd["labels"]]];
 Print["   ran to completion? ", ok[! wd["stuck"]]];
-Print["   pLoad tau fired?   ", ok[MemberQ[wd["labels"], "pLoad"]]];
+Print["   goPractice tau fired? ", ok[MemberQ[wd["labels"], "goPractice"]]];
 Print["   vAdd  tau fired?   ", ok[MemberQ[wd["labels"], "vAdd"]]];
 
 Print[hr]; Print["4. TRACE PARITY  merge(transVP) vs mergeDefined(transNamed)"]; Print[hr];

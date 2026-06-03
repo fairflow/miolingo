@@ -132,3 +132,28 @@ Restriction/composition note: `capture_vocab` is the one link to another agent (
 `nextPos`/`prevPos`/`selectPos`, `capture(word, …)`, `persist(result)`.
 
 These are committed as *signatures only*. Their bodies survive framework-independently in `src/scoring/practice.py`, `src/scoring/phonemes.py`, `src/audio/`, and `src/vocab.py`, and are recovered mechanically later — not invented now (§4, §6).
+
+---
+
+## Amendment (2026-06-03) — PS reads CargoHold directly (pull + signal)
+
+PracticeSession now reads the external store (**CargoHold**) itself for vocab
+material, instead of receiving a pushed snapshot. Two visibly-guarded entries were
+added (mirroring VocabStore's `open_vocab`):
+
+- **Pull** — `open_practice` (a VISIBLE, parameter-less input: the quick-practice
+  picker) → `chRead?(es)` → **`PSBrowse[es]`**, which offers `load_vocab` (the whole
+  collection) and `load_filtered(q)` (the subset). Both shape `es` into the practice
+  queue via `practiseList` (`vocab.py:644`). `@src quick_practice_tab.py:178/184`.
+- **Signal** — the vocab-tab "🎯 Practise these" sends VS → `goPractice!(filter)`
+  (the filter only); PS receives `goPractice?(filter)`, pulls `chRead?(es)`, and loads
+  `practiseList[es, filter]`.
+
+Both keep their VISIBLE input first (`open_practice` / `goPractice`), so the `chRead`
+is the *second* action — PS stays **visibly-guarded** (no initial τ; `≈` a congruence).
+`chRead`/`goPractice` are restricted → τ in `mioCore`; `goPractice` **replaced** the old
+`pLoad` data-push. This makes the borrowed collection **pull-on-use** (ARCHITECTURE.md
+"Borrowed vs owned data"); the loaded queue PS then holds is a deliberate *session*
+snapshot, not a cache. The §3 ready-set adds `open_practice`/`goPractice` to the
+always-on top (`load_material` unchanged for non-vocab sources). See `MioCore.wl`
+(the `goPractice`/`chRead` links) and `cargohold-recovery.md` (two readers).

@@ -85,3 +85,15 @@ The first extraction recorded in this format (the vocab→practice channel, PR #
 | `pLoad` | sync (VS→PS τ) | `quick_practice_tab.py:170,190`; `vocabulary_tab.py:559-570` | sets `st.session_state.phrase_list`, `qp_phrase_position = 0` | **faithful** — the cross-component hand-off; PS loads at position 0. Restricted in `mioCore`. Verified: `internal_transitions_test`, `composition_test`. |
 | `practiseList[entries, filter]` | value-fn | `vocab.py:644 (vocab_as_practice_phrases)` | maps rows → `{text, translation, ipa}` | **faithful** — `filter = none` ⇒ all (`filterMatch[_, none] = True`); `filterBy[q]` ⇒ subset. |
 | `capture_vocab` | port (in, PS) | `vocabulary_tab.py:7` (capture hook), `vocab.py:106 (capture_vocab_entry)` | Story Reader / Quick Practice capture | **faithful** — the reverse direction; relays to VS via `vAdd`. Symmetric with `practise_vocab`. |
+
+> **Superseded by the CargoHold migration (PR-2b/2c, 2026-06-03).** This table is the
+> #161 snapshot, kept as the worked example. Since then the external store
+> (CargoHold) was modelled, and the vocab↔practice wiring changed accordingly:
+> - `pLoad` (the VS→PS *data push*) is **gone**, replaced by **`goPractice`** — a VS→PS
+>   *signal* carrying the filter only; **PS pulls** the collection itself (`chRead`) and
+>   applies `practiseList`. The "Load vocabulary"/"Load filtered" buttons are now PS-side
+>   pull entries (`open_practice` → `PSBrowse`), not VS ports.
+> - `capture_vocab` relays via `vAdd` **directly to CargoHold**, not to VS.
+> - The verifying plan `sync-pload` was renamed `sync-practise` (+ `ps-pull-*` added).
+>
+> See `cargohold-recovery.md`, `practice-session-recovery.md`, and ARCHITECTURE.md.

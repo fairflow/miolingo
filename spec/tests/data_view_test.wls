@@ -13,7 +13,7 @@
         cumulative state term (recoverable by replay).
 
    PLAN: the dual-tau deterministic walk from internal_transitions_test /
-   merge_defined_test (set_filter, add, practise_vocab, tau pLoad,
+   merge_defined_test (set_filter, add, practise_vocab, tau goPractice,
    recording_made, attempt_made, capture_vocab, tau vAdd) over mioCoreD
    (transNamed). It drives both cross-component internal taus.
 
@@ -60,9 +60,11 @@ assert["editingRow[id] kept inline (not a binding)?",
 --------------------------------------------------------------------- *)
 Print[hr]; Print["2. linearize a LIVE projection from the dual-tau walk"]; Print[hr];
 
-plan = {vis["set_filter"], vis["add"], vis["practise_vocab"], tau["pLoad"],
-        vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
-wlk = walkSteps[transNamed, mioCoreD, plan];
+(* external-only plan; AutoTau fires the internal syncs (chRead/chUpsert/goPractice/
+   langRead/vAdd) between steps — so the action log includes them *)
+plan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
+        vis["recording_made"], vis["attempt_made"], vis["capture_vocab"]};
+wlk = walkSteps[transNamed, mioCoreD, plan, "AutoTau" -> True];
 assert["walk ran to completion (not stuck)?", ! wlk["stuck"]];
 
 (* Pull the VS `vocabView` projection out of the final composed state's view
@@ -96,9 +98,9 @@ condensedSize = LeafCount[log];
 Print["   raw  trace (all cumulative state terms) LeafCount : ", rawStatesSize];
 Print["   condensed event-log                     LeafCount : ", condensedSize];
 assert["condensed log strictly smaller than raw trace?", condensedSize < rawStatesSize];
-assert["one event per plan step?", Length[log] === Length[plan]];
-assert["both taus present (pLoad, vAdd)?",
-       SubsetQ[#["port"] & /@ Select[log, #["polarity"] === "tau" &], {"pLoad", "vAdd"}]];
+assert["at least one event per plan step (AutoTau adds internal taus)?", Length[log] >= Length[plan]];
+assert["both taus present (goPractice, vAdd)?",
+       SubsetQ[#["port"] & /@ Select[log, #["polarity"] === "tau" &], {"goPractice", "vAdd"}]];
 assert["each event has exactly the 4 fields?",
        AllTrue[log, Sort[Keys[#]] === Sort[{"port","polarity","isVisible","value"}] &]];
 

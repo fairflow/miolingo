@@ -30,48 +30,47 @@ mioGet["MioCore.wl"];
 hr      = StringRepeat["=", 70];
 ok[b_] := If[TrueQ[b], "OK", "*** FAIL ***"];
 
-(* the known dual-tau deterministic plan (see merge_defined_test.wls) *)
-plan = {vis["set_filter"], vis["add"], vis["practise_vocab"], tau["pLoad"],
-        vis["recording_made"], vis["attempt_made"], tau["langRead"], vis["capture_vocab"], tau["vAdd"]};
+(* External-only plan; AutoTau fires the internal syncs (chRead/chUpsert/goPractice/
+   langRead/vAdd). The RECORDED trace (wlk["actions"]) therefore includes those
+   taus — and that full trace is what the round-trips reproduce. *)
+extPlan = {vis["open_vocab"], vis["set_filter"], vis["add"], vis["practise_vocab"],
+           vis["recording_made"], vis["attempt_made"], vis["capture_vocab"]};
 
 (* NB: do NOT name any variable `w` — the spec's agent equations use the
    bare symbol `w` as a value binder (binding[w]); assigning to w here would
    substitute it into every recorded action and corrupt the trace. Use wlk. *)
-wlk = walkSteps[transNamed, mioCoreD, plan];
+wlk = walkSteps[transNamed, mioCoreD, extPlan, "AutoTau" -> True];
 
 (* temp files *)
 tmpfile  = FileNameJoin[{$TemporaryDirectory, "trace_io_actions.m"}];
-tmpfile2 = FileNameJoin[{$TemporaryDirectory, "trace_io_plan.m"}];
 txtfile  = FileNameJoin[{$TemporaryDirectory, "trace_io_text.txt"}];
 
-Print[hr]; Print["A. FAITHFUL ROUND-TRIP via replayTrace"]; Print[hr];
+Print[hr]; Print["A. FAITHFUL ROUND-TRIP via replayTrace (the recorded actions)"]; Print[hr];
 Put[wlk["actions"], tmpfile];
 acts = Get[tmpfile];
 r = replayTrace[mioCoreD, acts, "TransitionFunction" -> transNamed];
-Print["   replay ok?            ", ok[r["ok"]]];
-Print["   steps === plan length? ", ok[r["steps"] === Length[plan]]];
-Print["   final state matches?   ", ok[r["final"] === Last[wlk["states"]]]];
+Print["   replay ok?               ", ok[r["ok"]]];
+Print["   steps === #actions?      ", ok[r["steps"] === Length[wlk["actions"]]]];
+Print["   final state matches?     ", ok[r["final"] === Last[wlk["states"]]]];
 
-Print[hr]; Print["B. PORTABLE-PLAN ROUND-TRIP"]; Print[hr];
-Put[plan, tmpfile2];
-wlk2 = walkSteps[transNamed, mioCoreD, Get[tmpfile2]];
-Print["   actions re-derived from labels? ", ok[wlk2["actions"] === wlk["actions"]]];
-
-Print[hr]; Print["C. TEXT GOLDEN + parser ROUND-TRIP"]; Print[hr];
+Print[hr]; Print["B. TEXT GOLDEN + parser ROUND-TRIP"]; Print[hr];
+(* the recovered plan is the FULL label sequence (external + the internal taus);
+   replaying it EXPLICITLY (no AutoTau) reproduces the recorded actions. *)
 txt = eventLogForm[eventLog[wlk]];
 Export[txtfile, txt, "Text"];
-plan2 = importTrace[txtfile];
-Print["   plan2 === plan?        ", ok[plan2 === plan]];
-wlk3 = walkSteps[transNamed, mioCoreD, plan2];
+fullPlan = importTrace[txtfile];
+Print["   recovered plan includes the taus? ",
+      ok[MemberQ[fullPlan, tau["goPractice"]] && MemberQ[fullPlan, tau["chRead"]]]];
+wlk3 = walkSteps[transNamed, mioCoreD, fullPlan];
 Print["   text->plan->replay actions match? ", ok[wlk3["actions"] === wlk["actions"]]];
 
-Print[hr]; Print["D. CROSS-ENGINE PARITY  transVP vs transNamed"]; Print[hr];
-logVP = eventLog[walkSteps[transVP, mioCore, plan]];
-logND = eventLog[walkSteps[transNamed, mioCoreD, plan]];
+Print[hr]; Print["C. CROSS-ENGINE PARITY  transVP vs transNamed"]; Print[hr];
+logVP = eventLog[walkSteps[transVP, mioCore, extPlan, "AutoTau" -> True]];
+logND = eventLog[walkSteps[transNamed, mioCoreD, extPlan, "AutoTau" -> True]];
 polSeq[log_] := {#["port"], #["polarity"]} & /@ log;
 Print["   event logs identical? ", ok[polSeq[logVP] === polSeq[logND]]];
 
 (* cleanup *)
-DeleteFile /@ Select[{tmpfile, tmpfile2, txtfile}, FileExistsQ];
+DeleteFile /@ Select[{tmpfile, txtfile}, FileExistsQ];
 
 Print[hr]; Print["done."];

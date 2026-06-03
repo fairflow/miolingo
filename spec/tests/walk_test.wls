@@ -29,23 +29,26 @@ assert[lbl_, b_] := (allOk = allOk && TrueQ[b]; Print["   ", lbl, " ", ok[b]]);
 byName[tf_, s_, nm_] := SelectFirst[readyTransitions[tf, s], portName[First[#]] === nm &];
 hr = StringRepeat["=", 70];
 
-Print[hr]; Print["1. readyInputs : the value-carrying ports a user can drive"]; Print[hr];
-ri = readyInputs[transNamed, call["VS", signedIn, ent, alpha, none, none]];
+Print[hr]; Print["1. readyInputs : the value-carrying ports a user can drive (after open_vocab)"]; Print[hr];
+(* (i) external-store form: a bare VS first offers the VISIBLE open_vocab (the tab
+   entry); taking it reaches VSRead, which reads the store (chRead); then the CRUD
+   ports appear. vsRead[es] = VS having entered the tab and read the collection es. *)
+vsOpen   = Last[byName[transNamed, call["VS", signedIn, alpha, none, none], "open_vocab"]];
+vsRead[es_] := Last[supplyValue[byName[transNamed, vsOpen, "chRead"], es]];
+assert["a bare VS first offers open_vocab (the visible tab entry)",
+  MemberQ[ToString /@ portName /@ First /@ readyTransitions[transNamed, call["VS", signedIn, alpha, none, none]], "open_vocab"]];
+ri = readyInputs[transNamed, vsRead[{}]];
 assert["every readyInput is a value-carrying input (has a binder)",
   AllTrue[ri, valueInputQ[First[#]] &]];
-assert["the canonical VS input ports are present",
+assert["after reading, the canonical VS input ports are present",
   SubsetQ[ToString /@ portName /@ First /@ ri, {"add", "set_filter", "set_sort", "import_bulk"}]];
 
-(* regression: viewProjections must pick up the BARE agent's "view" port, not
-   only the composition-relabelled "{Agent}View" (vSView/pSView). A literal
-   "View" suffix test silently dropped "view", so the data view was empty when
-   driving a bare agent (e.g. walkUI[call["VS", ...]]) and add never showed. *)
-assert["viewProjections finds the bare \"view\" port (case-insensitive)",
-  KeyExistsQ[viewProjections[transNamed, call["VS", signedIn, {}, alpha, none, none]], "view"]];
-assert["after add on a bare VS agent, the view projection shows the entry",
-  Map[Identity, viewProjections[transNamed,
-      Last[supplyValue[byName[transNamed, call["VS", signedIn, {}, alpha, none, none], "add"],
-                       <|"word" -> "souris"|>]]]["view"]]["count"] === 1];
+(* viewProjections must pick up the BARE agent's "view" port (case-insensitive),
+   and VS projects what it READ from the store. *)
+assert["viewProjections finds the bare \"view\" port after reading",
+  KeyExistsQ[viewProjections[transNamed, vsRead[{}]], "view"]];
+assert["VS projects the entries it read (count reflects the store)",
+  Map[Identity, viewProjections[transNamed, vsRead[addEntry[{}, "souris"]]]["view"]]["count"] === 1];
 
 Print[hr]; Print["2. supplyValue : slot binder (load_material on PS) inserts cleanly"]; Print[hr];
 lm  = byName[transNamed, call["PS", {}, 0, none, none], "load_material"];
@@ -55,18 +58,24 @@ assert["value inserted into the PS state slot",
   Last[lmv] === call["PS", phr, 0, none, none]];
 assert["eventOf reads the concrete value", eventOf[First[lmv]]["value"] === {phr}];
 
-Print[hr]; Print["3. supplyValue : data preserved on a value-function port (add)"]; Print[hr];
-ad  = byName[transNamed, call["VS", signedIn, ent, alpha, none, none], "add"];
+Print[hr]; Print["3. supplyValue : add now WRITES to the store (chUpsert carries the word)"]; Print[hr];
+(* under (i) add no longer mutates VS state — it emits chUpsert!(w) to CargoHold.
+   supplyValue must thread the word into that emission (data preserved, routed out). *)
+ad  = byName[transNamed, vsRead[{}], "add"];
 wv  = <|"word" -> "Chat"|>;
 adv = supplyValue[ad, wv];
-assert["binder w replaced by the value inside addEntry (data preserved)",
-  Last[adv] === call["VS", signedIn, addEntry[ent, wv], alpha, none, none]];
-assert["addEntry kept (not collapsed); entries left symbolic", !FreeQ[Last[adv], addEntry[ent, wv]]];
+assert["add emits chUpsert carrying the word (data preserved, routed to the store)",
+  ! FreeQ[Last[adv], param[wv]] && ! FreeQ[Last[adv], label["chUpsert", ___]]];
+assert["the supplied word is NOT lost (binder w replaced by the value)",
+  FreeQ[Last[adv], binding[w]]];
 
 Print[hr]; Print["4. substVv is SCOPE-AWARE where ReplaceAll would leak"]; Print[hr];
 (* the mu-term add derivative re-unfolds clauses that REBIND w; the supplied
-   value must NOT land in those rebound occurrences. *)
-deriv = Last[byName[transVP, mioCore, "add"]];
+   value must NOT land in those rebound occurrences. (add is gated behind the
+   visible open_vocab then chRead under (i); take open_vocab + settle the chRead
+   to reach the state offering add.) *)
+mioSettled = Last[walkSteps[transVP, mioCore, {vis["open_vocab"]}, "AutoTau" -> True]["states"]];
+deriv = Last[byName[transVP, mioSettled, "add"]];
 assert["derivative does re-unfold clauses that rebind w (precondition)",
   Length[Cases[deriv, binding[w], Infinity]] > 0];
 assert["substVv does NOT leak into a rebound binding",

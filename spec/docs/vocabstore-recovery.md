@@ -134,3 +134,39 @@ Per Matthew's decision (2026-06-02), these are unified into **one channel**, `pr
 - Minimal Pairs is **not** modelled this round (a separate computed route, deferred).
 
 The τ hand-off itself was verified faithful before this change: PS receives the list and all PS features become available, identical to `load_material`. See `MioCore.wl` (the `pLoad` link) and `VocabStoreRecovered.wl` (`VSNonEmpty`).
+
+---
+
+## Amendment (2026-06-03) — the (i) external-store form: VS is the gated tab
+
+VocabStore no longer holds the collection. It is now the **Vocabulary tab**: a
+*gated viewer/editor* over **CargoHold** (the store agent, `cargohold-recovery.md`).
+
+- **State** drops `entries` → `VS[auth, sort, filter, editing]` (UI params only).
+- **Entry** is a VISIBLE, parameter-less `open_vocab` (the user selecting the tab);
+  it leads to `VSRead`, which `chRead`s the store, then offers view + actions and
+  loops back to `VSRead` (re-reads each cycle). Keeping the first action *visible*
+  (not the `chRead` τ) keeps the composition visibly-guarded so `≈` stays a
+  congruence (ARCHITECTURE.md → Borrowed-vs-owned; no `ModeSelector` needed).
+- **Reads** (one `chRead` per cycle) feed: the empty/non-empty ready-set guard,
+  the `view!` projection, the `practise_vocab` payload, and `export`.
+- **Writes** route to CargoHold: `add → chUpsert`, `import_bulk → chImport`,
+  `delete → chRemove`, `update`/`update_notes`/`autofill → chAmend`.
+- **Capture from practice does NOT pass through the tab** — `PS.capture_vocab →
+  vAdd → CargoHold` writes the store directly (the app's `capture_vocab_entry` is
+  a direct DB write, `vocabulary_tab.py:7`). So `vAdd` re-targeted PS→CargoHold,
+  and VS has no always-on capture summand to muddy its visible-guarding.
+
+The §4 ready-set table above describes the *in-process* (pre-(i)) shape; under
+(i) those domain ports are afforded **after `open_vocab` + `chRead`**, and the
+collection-dependent guards read the store rather than local `entries`.
+
+**Practise hand-off is now a SIGNAL, not a push (supersedes the 2026-06-02 `pLoad`
+amendment).** `practise_vocab` no longer emits `pLoad!(practiseList[es, filter])` —
+the §2 row "→ `PracticeSession.load_material`" and the 2026-06-02 amendment are
+superseded. It now emits **`goPractice!(filter)`** — the *filter only* — and PS pulls
+the collection FRESH from CargoHold itself (`practice-session-recovery.md`). VS need
+not even read `es` to hand off, and since this navigates away from the tab, VS returns
+to its un-opened `open_vocab` entry (it does not re-read). Single source of truth: no
+snapshot crosses the boundary. The two quick-practice routes ("Load vocabulary"/"Load
+filtered") are now PS-side pull entries (`open_practice`), not VS ports.

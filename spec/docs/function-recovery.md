@@ -85,8 +85,9 @@ counters that REPLACE the schema's `first_seen_at`/`last_seen_at` wall-clock
 columns — see §"time".) `entries` is a `List[entry]`. `Null`
 encodes a Python NULL column. A practice `phrase` is `<|"text","translation",
 "ipa"|>` — exactly `vocab_as_practice_phrases`'s output, which is why
-`practiseList` (VS) directly produces a PS `phrases` queue: that is the `pLoad`
-relay made concrete.
+`practiseList` directly produces a PS `phrases` queue — now applied by **PS itself**
+after it pulls the collection from CargoHold (`goPractice`/`open_practice`), no longer
+the payload of a `pLoad` push.
 
 **`word` vs `text` — two interfaces, not an inconsistency.** A VocabStore entry
 is keyed by `"word"` (the lowercased dedup/lookup key; `"display_word"` keeps the
