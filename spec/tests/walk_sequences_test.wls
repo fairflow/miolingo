@@ -9,8 +9,8 @@
        mioCoreD via transNamed (call form)
    — with its embedded values, so the GUI's "Run test" menu and walkSteps
    both replay them with no typing. Also checks the value-carrying ports
-   actually computed (a captured word reaches the VS entries via the
-   vAdd sync; a practise relay reaches the PS queue via goPractice + a PS pull).
+   actually computed (a captured word reaches the Vocab entries via the
+   vocabUpsert sync; a practise relay reaches the PS queue via goPractice + a PS pull).
 
    Run headless:  wolframscript -file spec/tests/walk_sequences_test.wls
    ===================================================================== *)
@@ -42,11 +42,11 @@ Do[Module[{plan = walkTests[k]},
   {k, Keys[walkTests]}];
 
 Print[hr]; Print["syncs actually move data across components"]; Print[hr];
-(* sync-vadd: a captured word ends up in the VS entries via vAdd *)
+(* sync-vadd: a captured word ends up in the Vocab entries via vocabUpsert *)
 vsEntriesAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan, "AutoTau" -> True]["states"]], vp},
   vp = Map[Identity, viewProjections[transVP, s]];
-  If[KeyExistsQ[vp, "vSView"], #["word"] & /@ vp["vSView"]["entries"], $Failed]];
-assert["sync-vadd: captured \"chat\" reaches VS entries",
+  If[KeyExistsQ[vp, "vocabView"], #["word"] & /@ vp["vocabView"]["entries"], $Failed]];
+assert["sync-vadd: captured \"chat\" reaches Vocab entries",
   MemberQ[vsEntriesAfter[walkTests["sync-vadd"]], "chat"]];
 (* sync-practise: the practise relay loads PS (pSView total > 0) *)
 psTotalAfter[plan_] := Module[{s = Last[walkSteps[transVP, mioCore, plan, "AutoTau" -> True]["states"]], vp},

@@ -34,18 +34,18 @@
    ===================================================================== *)
 
 
-(* --- top: always-on view/load + the two CargoHold-pull entries; domain ports
+(* --- top: always-on view/load + the two VocabTable-pull entries; domain ports
    only when non-empty (shared-port split → one-armed if, no duplication).
 
    PS reads the store ITSELF now (no pushed snapshot). Two entries reach it:
      • open_practice  — the VISIBLE quick-practice entry (a parameter-less input,
-       the user opening the practice-from-vocab picker), then chRead the store and
+       the user opening the practice-from-vocab picker), then vocabRead the store and
        choose load_vocab / load_filtered (PSBrowse).
-     • goPractice     — the vocab-tab "Practise these" SIGNAL from VS, carrying the
+     • goPractice     — the vocab-tab "Practise these" SIGNAL from Vocab, carrying the
        FILTER only (not the entries); PS pulls the collection fresh and shapes it.
-   Both keep their VISIBLE input first (open_practice / goPractice), so the chRead
+   Both keep their VISIBLE input first (open_practice / goPractice), so the vocabRead
    is the SECOND action — PS stays visibly-guarded (no initial τ), weak bisim a
-   congruence. chRead/goPractice are restricted → τ in mioCore. --- *)
+   congruence. vocabRead/goPractice are restricted → τ in mioCore. --- *)
 defineAgent["PS", {phrases, pos, rec, res},
   choice[
     precede[label["view", param[sessionView[phrases, pos, rec, res]]],
@@ -53,22 +53,22 @@ defineAgent["PS", {phrases, pos, rec, res},
     precede[coLabel["load_material", binding[ps]],
       call["PS", ps, 0, none, none]],
     (* PULL (quick_practice "Load vocabulary"/"Load filtered", quick_practice_tab.py):
-       visible open_practice → read CargoHold → PSBrowse picks what to load. *)
+       visible open_practice → read VocabTable → PSBrowse picks what to load. *)
     precede[coLabel["open_practice"],
-      precede[coLabel["chRead", binding[es]],
+      precede[coLabel["vocabRead", binding[es]],
         call["PSBrowse", es]]],
-    (* SIGNAL (vocab-tab "Practise these"): VS sends goPractice!(filter) — the
-       filter only. PS pulls the collection FRESH (chRead) and shapes it with that
+    (* SIGNAL (vocab-tab "Practise these"): Vocab sends goPractice!(filter) — the
+       filter only. PS pulls the collection FRESH (vocabRead) and shapes it with that
        filter. No cached snapshot crosses the boundary — single source of truth
        (ARCHITECTURE.md "Borrowed vs owned data"). *)
     precede[coLabel["goPractice", binding[filter]],
-      precede[coLabel["chRead", binding[es]],
+      precede[coLabel["vocabRead", binding[es]],
         call["PS", practiseList[es, filter], 0, none, none]]],
     if[Length[phrases] > 0,
       call["PSActive", phrases, pos, rec, res]]]]
 
 
-(* --- after open_practice + chRead: choose what to load from the store.
+(* --- after open_practice + vocabRead: choose what to load from the store.
    load_vocab = the whole collection; load_filtered(q) = the subset. Both shape
    via practiseList (vocab.py:644) into the practice phrase queue. The es read here
    is FRESH (pull-on-use); the loaded queue is a deliberate session snapshot the
@@ -113,14 +113,14 @@ defineAgent["PSActive", {phrases, pos, rec, res},
     if[pos > 0,
       precede[coLabel["prev_item_requested"],
         call["PS", phrases, pos - 1, none, none]]],
-    (* capture_vocab relays to VocabStore on vAdd (restricted in MioCore).
+    (* capture_vocab relays to Vocab on vocabUpsert (restricted in MioCore).
        NB — modelling artifact, NOT a behaviour to implement: this is a precede
-       chain capture_vocab . vAdd! . PS, so between the capture and the vAdd
+       chain capture_vocab . vocabUpsert! . PS, so between the capture and the vocabUpsert
        emit, PS is mid-handoff and offers no `view` (the pSView panel momentarily
-       disappears in the simulator until the vAdd tau fires). An L3 implementation
+       disappears in the simulator until the vocabUpsert tau fires). An L3 implementation
        must treat capture-and-relay as ATOMIC — no view flicker. The split exists
        only because CCS makes the synchronous handoff explicit as two events. *)
     if[res =!= none,
       precede[coLabel["capture_vocab", binding[word]],
-        precede[label["vAdd", param[word]],
+        precede[label["vocabUpsert", param[word]],
           call["PS", phrases, pos, rec, res]]]]]]

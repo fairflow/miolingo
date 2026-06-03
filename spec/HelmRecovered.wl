@@ -8,7 +8,7 @@
    language" (it raises a tripwire if any other module writes the language
    keys); every other module READS via read_source_lang / read_target_code /
    read_training_lang. That is precisely the view!/afforded discipline: Helm
-   OWNS the session settings and publishes a read-only projection; VS, PS and
+   OWNS the session settings and publishes a read-only projection; Vocab, PS and
    the oracles (g2pOracle/enrichOracle/TTS) READ that projection — they never
    write it.
 
@@ -22,7 +22,7 @@
      view!         always — the helmView projection everyone reads
      langRead!     always — INTERNAL read port (restricted in mioCore): emits
                    {source, target} for a borrower that pulls it at point of use
-                   (VS.autofill, PS.attempt_made scoring). Not a UI control.
+                   (Vocab.autofill, PS.attempt_made scoring). Not a UI control.
      set_source    set the source (native) language name
      set_target    set the target language code (target_language mirrors it)
      set_tts       set the TTS engine
@@ -30,12 +30,12 @@
                    espeak in sidebar.py — a genuine guard)
 
    COMPOSITION (updated 2026-06-01): Helm is composed into mioCore as a PURE
-   PARALLEL agent — NO control guard in VS/PS reads the language (it is passive
+   PARALLEL agent — NO control guard in Vocab/PS reads the language (it is passive
    data the oracles consume, like the logical clock), so there is no restricted
    channel: Helm rides alongside, contributing its helmView projection and its
    set_* inputs to the system ready set. (Originally kept standalone for exactly
    that reason; merging it in costs nothing and surfaces its viewport beside
-   pSView/vSView.) If a guard ever comes to depend on a setting, add the
+   pSView/vocabView.) If a guard ever comes to depend on a setting, add the
    corresponding restricted sync at that point.
 
    LEAF agent (every branch loops back to Helm) — no sub-agent expansion.

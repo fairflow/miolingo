@@ -22,40 +22,40 @@ hr = StringRepeat["=", 70];
 pm = componentPortMap[mioComponents];
 
 Print[hr]; Print["1. componentPortMap — each external port to its owning agent"]; Print[hr];
-assert["add -> VS",            pm["add"] === "VS"];
-assert["import_bulk -> VS",    pm["import_bulk"] === "VS"];
+assert["add -> Vocab",            pm["add"] === "Vocab"];
+assert["import_bulk -> Vocab",    pm["import_bulk"] === "Vocab"];
 assert["load_material -> PS",  pm["load_material"] === "PS"];
 assert["set_target -> Helm",   pm["set_target"] === "Helm"];
 assert["set_speed -> Helm",    pm["set_speed"] === "Helm"];
 (* the view ports are renamed per agent to match the composition *)
 assert["pSView -> PS",   pm["pSView"] === "PS"];
-assert["vSView -> VS",   pm["vSView"] === "VS"];
+assert["vocabView -> Vocab",   pm["vocabView"] === "Vocab"];
 assert["helmView -> Helm", pm["helmView"] === "Helm"];
 
 Print[hr]; Print["2. transGroup / inputsFirst"]; Print[hr];
-(* a real tau transition: drive capture_vocab so vAdd is pending *)
+(* a real tau transition: drive capture_vocab so vocabUpsert is pending *)
 sV = Last[walkSteps[transVP, mioCore,
    {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "S"|>}],
     vis["recording_made", "audio"], vis["attempt_made"], tau["langRead"], vis["capture_vocab", "chat"]}]["states"]];
 tauTr = SelectFirst[readyTransitions[transVP, sV], isTauAct[First[#]] &];
 assert["a tau transition groups into internal (tau)",
   transGroup[pm, tauTr] === "internal (\[Tau])"];
-(* add is not externally ready at mioCore init (VS gates behind chRead), so use a
+(* add is not externally ready at mioCore init (Vocab gates behind vocabRead), so use a
    synthetic transition — transGroup only looks at the action's port name *)
-assert["a named input groups into its agent (add -> VS)",
-  transGroup[pm, {coLabel["add", binding[w]], dummyState}] === "VS"];
+assert["a named input groups into its agent (add -> Vocab)",
+  transGroup[pm, {coLabel["add", binding[w]], dummyState}] === "Vocab"];
 (* inputsFirst: coLabel before label *)
 mix = {{label["x", param[1]], s1}, {coLabel["y", binding[z]], s2}};
 assert["inputsFirst puts the coLabel (input) before the label (output)",
   MatchQ[First[First[inputsFirst[mix]]], coLabel[___]]];
 
 Print[hr]; Print["3. the SETTLED mioCore ready set partitions cleanly (no 'other')"]; Print[hr];
-(* settle the chRead tau (VS gates behind it under the (i) store form) so VS's
-   external ports are present; CargoHold's ports are all restricted (internal),
+(* settle the vocabRead tau (Vocab gates behind it under the (i) store form) so Vocab's
+   external ports are present; VocabTable's ports are all restricted (internal),
    so they never appear in the external grouping *)
 sInit = Last[walkSteps[transVP, mioCore, {}, "AutoTau" -> True]["states"]];
 grp = GroupBy[readyTransitions[transVP, sInit], transGroup[pm, #] &];
-assert["groups are exactly {VS, PS, Helm}", Sort[Keys[grp]] === {"Helm", "PS", "VS"}];
+assert["groups are exactly {Vocab, PS, Helm}", Sort[Keys[grp]] === {"Helm", "PS", "Vocab"}];
 assert["no port falls into 'other'", ! KeyExistsQ[grp, "other"]];
 
 Print[hr]; Print["4. auto-grouping registry — walkUI groups known systems by default"]; Print[hr];
@@ -64,7 +64,7 @@ assert["defaultComponents[mioCore] === mioComponents",
 assert["defaultComponents[mioCoreD] === mioComponents",
   defaultComponents[mioCoreD] === mioComponents];
 assert["a bare agent resolves to {} (flat, ungrouped)",
-  defaultComponents[call["VS", signedIn, {}, alpha, none, none]] === {}];
+  defaultComponents[call["Vocab", signedIn, {}, alpha, none, none]] === {}];
 
 Print[hr]; Print["5. the cloud — external-dependency inventory lights up on consulting ports"]; Print[hr];
 enrichItem = SelectFirst[$walkCloud, #["item"] === "enrichOracle" &];

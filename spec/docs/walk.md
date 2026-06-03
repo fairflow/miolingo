@@ -25,7 +25,7 @@ Get[".../spec/walk.wl"];           (* the harness + walkTests *)
 walkUI[mioCore]                                       (* GROUPED by component (auto) *)
 walkUI[mioCoreD, "TransitionFunction" -> transNamed]  (* grouped; compact call form *)
 walkMio[]   walkMioD[]                                 (* shorthands for the two above *)
-walkUI[call["VS", signedIn, {}, alpha, none, none], "TransitionFunction" -> transNamed]  (* bare agent: flat *)
+walkUI[call["Vocab", signedIn, {}, alpha, none, none], "TransitionFunction" -> transNamed]  (* bare agent: flat *)
 ```
 
 Grouping is **automatic**: `walkUI[term]` groups by component whenever `term` is
@@ -43,7 +43,7 @@ The panel shows, top to bottom:
 - **Current state** — the CCS process term (`foldAgentDisplay`), *where you are*.
   **Collapsible** (an `OpenerView`, closed by default) so the term doesn't eat
   space; the open/closed state persists across steps.
-- **Data view** — the published `view!` projections (`vSView`/`pSView`, or the
+- **Data view** — the published `view!` projections (`vocabView`/`pSView`, or the
   bare `view`), rendered as the *computed* data through `linearizeGrid`.
 - **Outside the model** — a collapsible *incompleteness inventory* (`$walkCloud`):
   data the agents **read but don't own** because its owner isn't modelled yet
@@ -55,10 +55,10 @@ The panel shows, top to bottom:
 - **Transitions** — one clickable row each; hover shows *→ goes to:* the
   derivative. Value-carrying input ports get an inline field. Under `walkMio[]`
   (or any `"Components"`) they are **grouped into a frame per providing
-  component** (Helm / PS / VS), **inputs before outputs** in each frame; internal
+  component** (Helm / PS / Vocab), **inputs before outputs** in each frame; internal
   syncs go in an *internal (τ)* frame. The port→component map is a pure syntactic
   scan of each agent's sort (`componentPortMap`), so it needs no execution and
-  can't be fooled by guards; dual restricted actions (`vAdd`/`goPractice`/`langRead`)
+  can't be fooled by guards; dual restricted actions (`vocabUpsert`/`goPractice`/`langRead`)
   only ever appear as τ, so they never split across frames.
 - **Back / Forward / Reset**, a **`Test:` menu + `Run test`** (see below), and
   the **condensed trace** (with Copy). **Back** and **Forward** scrub a run: step
@@ -66,7 +66,7 @@ The panel shows, top to bottom:
   `Run test` to watch what each step of a sequence reveals. (A fresh manual step
   or `Run test` clears the forward/redo line.)
 - **Auto-advance internal syncs (maximal progress)** — a checkbox. When on, the
-  harness fires the system's internal synchronisations (`vAdd`, `goPractice`, and
+  harness fires the system's internal synchronisations (`vocabUpsert`, `goPractice`, and
   `langRead` — the borrowed-language pull on `autofill` and on `attempt_made`
   scoring) for you between your actions, until the state is τ-stable,
   so you only ever click *external* ports. It's a **simulation strategy, not a
@@ -88,7 +88,7 @@ value, **press Enter (or Tab out) to commit**, then click the row. Conventions:
 | port kind | type this | note |
 |---|---|---|
 | word (`add`, `capture_vocab`, `set_filter`) | `"souris"` | **quote strings** — bare `souris` is a *symbol* and `validateWord` rejects it |
-| capture payload (`add`, `vAdd`) | `<|"word"->"souris", "translation"->"mouse"|>` | needs a `"word"` key (vocab shape, not the practice `"text"`) |
+| capture payload (`add`, `vocabUpsert`) | `<|"word"->"souris", "translation"->"mouse"|>` | needs a `"word"` key (vocab shape, not the practice `"text"`) |
 | sort (`set_sort`) | `alpha` / `recent` / `oldest` | the Enum **symbols**, unquoted |
 | id (`delete`, `autofill`, `begin_edit`) | `1` | integer |
 | import (`import_bulk`) | `<|"contents"->"(en,fr)\nsouris|mouse", "expectedTarget"->"fr"|>` | header `(src,tgt)` then `word\|translation\|ipa\|source\|url` rows; target must match |
@@ -105,7 +105,7 @@ plan is a list of:
 
 - `vis["port"]` — a visible action with no value;
 - `vis["port", value]` — a value-carrying input, value supplied;
-- `tau["chan"]` — an internal sync (`goPractice`, `vAdd`).
+- `tau["chan"]` — an internal sync (`goPractice`, `vocabUpsert`).
 
 Run one from the GUI: pick it in the **`Test:`** menu and click **`Run test`** —
 it replays the whole plan from the initial state, setting the data view and the
@@ -122,12 +122,12 @@ Kebab-case keys, prefixed by scope:
 
 | prefix | meaning | sequences |
 |---|---|---|
-| `vs-*`   | VocabStore-only ports | `vs-capture`, `vs-import`, `vs-edit` |
+| `vs-*`   | Vocab-only ports | `vs-capture`, `vs-import`, `vs-edit` |
 | `ps-*`   | PracticeSession-only ports | `ps-navigate`, `ps-score` |
 | `sync-*` | one cross-component sync (composed-only) | `sync-pload`, `sync-vadd` |
 | `full-*` | end-to-end, both syncs | `full-roundtrip` |
 
-Together they exercise **every** VS and PS port and both syncs.
+Together they exercise **every** Vocab and PS port and both syncs.
 
 ### Adding a sequence
 
@@ -165,9 +165,9 @@ All have `::usage`, so `?walkUI`, `?supplyValue`, `?walkTests`, `?loadEngine`,
   shows a change once a valid value is supplied. (It's the honest one.)
 - **`view` vs `View`.** `viewProjections` matches the view suffix
   case-insensitively, so both the bare agent's `view` and the relabelled
-  `vSView`/`pSView` are picked up.
-- **Syncs are composed-only.** `goPractice`/`vAdd` are restricted internal channels;
-  the `sync-*`/`full-*` sequences run on `mioCore`/`mioCoreD`, not VS/PS alone.
+  `vocabView`/`pSView` are picked up.
+- **Syncs are composed-only.** `goPractice`/`vocabUpsert` are restricted internal channels;
+  the `sync-*`/`full-*` sequences run on `mioCore`/`mioCoreD`, not Vocab/PS alone.
 - **Deferred.** A cleaner value-supply route — giving `transVP` a parameter that
   derives an input transition *with* the substitution inline (supply-then-derive)
   instead of precompute-then-`substVv` — is noted for the future.

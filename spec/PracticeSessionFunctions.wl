@@ -13,7 +13,7 @@
 
    STATE (from PracticeSessionRecovered.wl):
      phrases : queue, each a phrase Association <|"text","translation","ipa"|>
-               (this is exactly practiseList's output — PS pulls it from CargoHold)
+               (this is exactly practiseList's output — PS pulls it from VocabTable)
      pos     : 0-based index      rec : none | recorded[audio]
      res     : none | scored[r]   (r is the evaluate result)
    ===================================================================== *)

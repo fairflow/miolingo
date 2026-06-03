@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* =====================================================================
-   miolingo / L1 — MioCore: PracticeSession || VocabStore (composed)
+   miolingo / L1 — MioCore: PracticeSession || Vocab (composed)
    ---------------------------------------------------------------------
    The merged unit. The two recovered agents are composed in parallel,
    their cross-component channels restricted (so the inter-component links
@@ -18,42 +18,42 @@
    with transVP[mioCore], not a call-based agent / transNamed.
 
    viewAs (defined in discipline.wl) relabels view -> decap[name]<>"View"
-   (Agent->agentView, so PS->pSView, VS->vSView). It is NOT redefined here:
+   (Agent->agentView, so PS->pSView, Vocab->vocabView). It is NOT redefined here:
    doing so would shadow discipline.wl's decap version and re-expose the
    capitalised PSView/VSView.
 
    Cross-component links (each a complementary output/input pair, restricted):
-     vAdd       : PS.capture_vocab(word)  --vAdd!(word)-->      CargoHold adds it
-     goPractice : VS.practise_vocab       --goPractice!(filter)--> PS (then PS PULLS)
-     chRead     : CargoHold.chRead!       --chRead!(es)-->       VS or PS reads it
+     vocabUpsert       : PS.capture_vocab(word)  --vocabUpsert!(word)-->      VocabTable adds it
+     goPractice : Vocab.practise_vocab       --goPractice!(filter)--> PS (then PS PULLS)
+     vocabRead     : VocabTable.vocabRead!       --vocabRead!(es)-->       Vocab or PS reads it
 
    Note the practise hand-off is now a SIGNAL, not a data push: goPractice carries
-   only the filter; PS then pulls the collection itself via chRead (a second τ). So
-   a practise relay shows as goPractice·chRead, not a single pLoad — no snapshot
+   only the filter; PS then pulls the collection itself via vocabRead (a second τ). So
+   a practise relay shows as goPractice·vocabRead, not a single pLoad — no snapshot
    crosses the boundary (single source of truth).
 
    Helm is composed in as a PURE PARALLEL agent (2026-06-01): NO control guard
-   in PS/VS reads the language, so there is no new restricted channel — Helm
+   in PS/Vocab reads the language, so there is no new restricted channel — Helm
    just rides alongside, contributing its helmView projection (the source/target
    pair the oracles read) and its set_source/set_target/set_tts/set_speed inputs
    to the system's ready set. Its `view` relabels to helmView (third view port,
-   beside pSView/vSView). Standalone was only justified WHILE nothing synced on
+   beside pSView/vocabView). Standalone was only justified WHILE nothing synced on
    the language; composing it in costs nothing and surfaces its viewport.
 
    LOAD ORDER: RCA_core.wl, discipline.wl, PracticeSessionRecovered.wl,
-   VocabStoreRecovered.wl, HelmRecovered.wl, then this file. Initial state:
-   Practice with no material; VocabStore signed-in, empty; Helm English/fr,
+   VocabRecovered.wl, HelmRecovered.wl, then this file. Initial state:
+   Practice with no material; Vocab signed-in, empty; Helm English/fr,
    google TTS, 250 wpm.
 
    VERIFIED on the engine (2026-06-01): transVP[mioCore] external ready set is
    {add, helmView, import_bulk, load_material, open_practice, pSView, set_filter,
-   set_source, set_sort, set_target, set_tts, vSView} — three view ports, no bare
-   `view` clash; vAdd/goPractice/chRead restricted (internal tau). open_practice is
+   set_source, set_sort, set_target, set_tts, vocabView} — three view ports, no bare
+   `view` clash; vocabUpsert/goPractice/vocabRead restricted (internal tau). open_practice is
    the visible PS pull entry. (set_speed appears once tts is set to espeak.)
 
    BORROWED-DATA wiring (2026-06-01): langRead is also restricted, so Helm's
-   internal read port pairs with VS.autofill's langRead?(lp) prefix as an
-   internal tau — VS pulls the (source, target) pair fresh when enriching, never
+   internal read port pairs with Vocab.autofill's langRead?(lp) prefix as an
+   internal tau — Vocab pulls the (source, target) pair fresh when enriching, never
    caching it (ARCHITECTURE.md "Borrowed vs owned data"). langRead does NOT
    appear in the external ready set (it is internal); it is enabled as a tau only
    while a borrower waits at langRead? (currently: just after `autofill`). PS
@@ -66,14 +66,15 @@
    components are" — see walk.wl componentPortMap. *)
 mioComponents =
   {"PS"        -> call["PS", {}, 0, none, none],
-   "VS"        -> call["VS", signedIn, alpha, none, none],   (* (i): NO entries — they live in CargoHold *)
+   "Vocab"        -> call["Vocab", signedIn, alpha, none, none],   (* (i): NO entries — they live in VocabTable *)
    "Helm"      -> call["Helm", "English", "fr", google, 250],
-   "CargoHold" -> call["CargoHold", {}]};                    (* the persisted collection, owned here *)
+   "VocabTable" -> call["VocabTable", {}]};                    (* the persisted collection, owned here *)
 
-mioRestricted = {label["vAdd"], label["goPractice"], label["langRead"],
-                 (* the external-store channels: VS and PS read/write CargoHold internally *)
-                 label["chRead"], label["chUpsert"], label["chImport"],
-                 label["chRemove"], label["chAmend"]};
+mioRestricted = {label["goPractice"], label["langRead"],
+                 (* the VocabTable channels: the Vocab tab and PS read/write the store
+                    internally. vocabUpsert has two writers (tab add + PS capture). *)
+                 label["vocabRead"], label["vocabUpsert"], label["vocabImport"],
+                 label["vocabRemove"], label["vocabAmend"]};
 
 mioCore = merge[mioComponents, mioRestricted];
 
