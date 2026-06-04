@@ -86,5 +86,33 @@ assert["VocabTable now holds the captured word (visible via the vocab tab)",
   KeyExistsQ[vp, "vocabView"] &&
     MemberQ[#["display_word"] & /@ vp["vocabView"]["entries"], "Bonjour"]];
 
+Print[hr]; Print["5. select_item BOUNDS — out-of-range select is a no-op (regression)"]; Print[hr];
+(* The interleaving bug (2026-06-04): select_item bound the index raw, so pos could go
+   out of range; targetOf then returned the empty item and attempt_made scored zero.
+   selectPos keeps pos valid. *)
+assert["selectPos keeps a valid index", selectPos[ph2, 1, 0] === 1];
+assert["selectPos rejects out-of-range (keeps current)", selectPos[ph2, 5, 0] === 0];
+assert["selectPos rejects negative (keeps current)", selectPos[ph2, -3, 1] === 1];
+(* PS: load 1 item, select_item to a non-existent index 1 -> pos STAYS 0 (was: pos 1). *)
+assert["PS: invalid select_item is a no-op (pos stays 0)",
+  MatchQ[Last[walkSteps[transNamed, call["PS", {}, 0, none, none],
+    {vis["load_material", {First[ph2]}], vis["select_item", 1]}]["states"]],
+    call["PS", {_}, 0, none, none]]];
+(* Story: story_select_item out of range -> pos unchanged (scene 0, was 0) *)
+assert["Story: invalid story_select_item is a no-op (pos stays 0)",
+  Last[walkSteps[transNamed, call["StoryReader", 0, 0, browse, none, none],
+    {vis["story_select_item", 9]}]["states"]] === call["StoryReader", 0, 0, browse, none, none]];
+(* COMPOSED end-to-end (your interleaving trace): after the invalid PS select + a
+   StoryReader practice detour, PS's own attempt_made scores its REAL item, not the
+   empty-target zero. langRead resolves via Helm in the composed system. *)
+wInter = walkSteps[transVP, mioCore,
+  {vis["load_material", {First[ph2]}], vis["select_item", 1], vis["recording_made", "a"],
+   vis["select_scene", 1], vis["set_mode", practice], vis["story_select_item", 2],
+   vis["story_recording_made", "a"], vis["story_attempt_made"], vis["attempt_made"]},
+  "AutoTau" -> True];
+assert["interleaved PS attempt scores the REAL item (not empty / not stuck)",
+  ! wInter["stuck"] &&
+    (Map[Identity, viewProjections[transVP, Last[wInter["states"]]]]["pSView"]["item"]["text"]) === "chat"];
+
 Print[hr]; Print["ALL ASSERTIONS: ", ok[allOk]]; Print[hr];
 If[! allOk, Exit[1]];
