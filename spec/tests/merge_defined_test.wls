@@ -26,6 +26,7 @@ Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "paths.wl"}]];
 
 loadEngine[];
 loadRecoveredBase[];
+mioGet["StoryFunctions.wl"];   (* sceneOf — StoryReader's nav guard reads Length[sceneOf[scene]] *)
 mioGet["MioCore.wl"];
 
 hr = StringRepeat["=", 70];
@@ -44,11 +45,14 @@ settled[tf_, s0_]   := Last[walkSteps[tf, s0, {}, "AutoTau" -> True]["states"]];
 extNames[tf_, s_]   := Sort[portName /@ Select[First /@ tf[s], ! isTau[#] &]];
 muNames = extNames[transVP,   settled[transVP,   mioCore]];
 deNames = extNames[transNamed, settled[transNamed, mioCoreD]];
-(* Vocab now gates behind a VISIBLE open_vocab (the tab entry), so at the (stable)
-   initial state Vocab contributes only open_vocab — its CRUD/view appear once the
-   tab is opened. Helm's set_speed is espeak-only (tts=google). *)
+(* Vocab gates behind a VISIBLE open_vocab (the tab entry), so initially it
+   contributes only open_vocab. StoryReader starts in browse mode at scene 0 / pos 0,
+   so it contributes storyReaderView + set_mode + select_scene + story_select_item +
+   story_next_item_requested (story_prev guarded out at pos 0). Helm's set_speed is
+   espeak-only (tts=google). VocabTable's ports are all restricted (internal τ). *)
 expected = {"helmView", "load_material", "open_practice", "open_vocab", "pSView",
-            "set_source", "set_target", "set_tts"};
+            "select_scene", "set_mode", "set_source", "set_target", "set_tts",
+            "story_next_item_requested", "storyReaderView", "story_select_item"};
 
 Print[hr]; Print["1. EXTERNAL READY-SET PARITY (settled past the vocabRead τ)"]; Print[hr];
 Print["   merge       (transVP)   : ", InputForm[muNames]];

@@ -134,6 +134,26 @@ walkTests = <|
     vis["open_practice"],                           (* vocabRead auto-fires (PS pulls) *)
     vis["load_filtered", "ch"]},
 
+  (* --- Story Reader: browse a scene, navigate, switch mode (position kept) ---
+     mode starts at browse (scene 0). Navigate, jump, then flip to full — the
+     narrative position is owned by StoryReader, so the mode switch preserves it. *)
+  "story-browse" -> {
+    vis["story_next_item_requested"],               (* pos 0 -> 1 *)
+    vis["story_select_item", 0],                    (* jump back to 0 *)
+    vis["set_mode", full],                          (* whole-story view; pos kept *)
+    vis["set_mode", browse]},
+
+  (* --- Story Reader: practise a scene phrase end-to-end ---
+     enter practice mode, record, score (langRead τ from Helm), capture to the
+     store (vocabUpsert τ to VocabTable — the SAME channel Quick Practice uses),
+     then advance. The practice loop is StoryReader's own (mirrors PSActive). *)
+  "story-practice" -> {
+    vis["set_mode", practice],
+    vis["story_recording_made", "audio"],
+    vis["story_attempt_made"],                      (* langRead auto-fires (score) *)
+    vis["story_capture_vocab", "Bonjour"],          (* vocabUpsert -> VocabTable *)
+    vis["story_next_item_requested"]},
+
   (* --- sync: Vocab autofill PULLS the language from Helm (langRead) ------
      The first BORROWED-DATA read: autofill needs the (source, target) pair to
      enrich, so it reads Helm's langRead as a prefix (internal tau in mioCore).

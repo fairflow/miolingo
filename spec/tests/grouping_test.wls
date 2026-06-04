@@ -50,12 +50,14 @@ assert["inputsFirst puts the coLabel (input) before the label (output)",
   MatchQ[First[First[inputsFirst[mix]]], coLabel[___]]];
 
 Print[hr]; Print["3. the SETTLED mioCore ready set partitions cleanly (no 'other')"]; Print[hr];
-(* settle the vocabRead tau (Vocab gates behind it under the (i) store form) so Vocab's
-   external ports are present; VocabTable's ports are all restricted (internal),
-   so they never appear in the external grouping *)
+(* Vocab gates behind open_vocab so it contributes that; StoryReader is live (browse
+   mode) so it contributes its view/mode/nav ports; PS (empty) and Helm contribute
+   too. VocabTable's ports are all restricted (internal τ), so it never appears in the
+   external grouping. *)
 sInit = Last[walkSteps[transVP, mioCore, {}, "AutoTau" -> True]["states"]];
 grp = GroupBy[readyTransitions[transVP, sInit], transGroup[pm, #] &];
-assert["groups are exactly {Vocab, PS, Helm}", Sort[Keys[grp]] === {"Helm", "PS", "Vocab"}];
+assert["groups are exactly {Vocab, PS, Helm, StoryReader}",
+  Sort[Keys[grp]] === {"Helm", "PS", "StoryReader", "Vocab"}];
 assert["no port falls into 'other'", ! KeyExistsQ[grp, "other"]];
 
 Print[hr]; Print["4. auto-grouping registry — walkUI groups known systems by default"]; Print[hr];

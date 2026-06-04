@@ -52,4 +52,5 @@ mioGet["PracticeSessionFunctions.wl"];
    either order; mioCore needs it now.) Helm is composed as a PURE PARALLEL
    agent — no control guard reads the language, so no restricted sync. *)
 mioGet["HelmFunctions.wl"];
+mioGet["StoryFunctions.wl"];   (* sceneOf (story-content boundary) + storyView *)
 mioGet["MioCore.wl"];

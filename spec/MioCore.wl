@@ -65,10 +65,12 @@
    ready transitions per providing agent. One source of truth for "who the
    components are" — see walk.wl componentPortMap. *)
 mioComponents =
-  {"PS"        -> call["PS", {}, 0, none, none],
-   "Vocab"        -> call["Vocab", signedIn, alpha, none, none],   (* (i): NO entries — they live in VocabTable *)
-   "Helm"      -> call["Helm", "English", "fr", google, 250],
-   "VocabTable" -> call["VocabTable", {}]};                    (* the persisted collection, owned here *)
+  {"PS"          -> call["PS", {}, 0, none, none],
+   "Vocab"       -> call["Vocab", signedIn, alpha, none, none],   (* (i): NO entries — they live in VocabTable *)
+   "Helm"        -> call["Helm", "English", "fr", google, 250],
+   "VocabTable"  -> call["VocabTable", {}],                       (* the persisted collection, owned here *)
+   "StoryReader" -> call["StoryReader", 0, 0, browse, none, none]};  (* narrative tab; practice mode
+       mirrors PSActive, capturing via vocabUpsert + scoring via langRead — no NEW restricted channels *)
 
 mioRestricted = {label["goPractice"], label["langRead"],
                  (* the VocabTable channels: the Vocab tab and PS read/write the store
