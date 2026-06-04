@@ -21,6 +21,7 @@ Print["Loading engine + spec (order matters: discipline before components,",
       " components before MioCore) ..."];
 loadEngine[];
 loadRecoveredBase[];
+mioGet["StoryFunctions.wl"];   (* sceneOf — StoryReader's nav guard reads Length[sceneOf[scene]] *)
 mioGet["MioCore.wl"];
 mioGet["walk.wl"];   (* walkSteps "AutoTau" + value-carrying vis[nm,val] for §4 *)
 
@@ -34,7 +35,8 @@ Print[bar];
 Print["1. AGENT REGISTRATION (agentDefs)"];
 Print[bar];
 need = {"PS", "PSActive", "PSBrowse", "Vocab", "VocabAuthed", "VocabNonEmpty",
-        "VocabEntryActions", "VocabEditActions", "Helm", "VocabTable"};
+        "VocabEntryActions", "VocabEditActions", "Helm", "VocabTable",
+        "StoryReader", "StoryBrowse", "StoryPractice"};
 (* MioCore is now a composed MU-TERM value (relabeled view!), not a
    defineAgent; it is stepped with transVP[MioCore], not call["MioCore"]. *)
 Do[Print["   ", StringPadRight[n, 16], KeyExistsQ[agentDefs, n] // ok], {n, need}];

@@ -61,7 +61,7 @@ Two tiers: **interactive agents** (UI-facing) and **store agents** (the data tie
 | Vocabulary tab | `Vocab` | Interactive — the gated viewer/editor (holds no data) | High — **recovered** |
 | Session / language | `Helm` | Interactive — finite-choice settings; **owns the (source, target) language pair** | **recovered + composed** ‡ |
 | Vocab store | `VocabTable` | **Store** — the persisted vocab collection (DB `vocab_entries`) | **recovered + composed** |
-| Story Reader | `StoryReader` | Interactive — narrative nav + 3 modes; practice mode reuses the factored `PracticeLoop` | Next |
+| Story Reader | `StoryReader` | Interactive — narrative nav + 3 modes; one shared position; practice mode mirrors `PSActive` | **recovered + composed** |
 | Stats / History † | (read projections over a `Ledger` store) | view ports backed by store queries — **not** standalone interactive agents | Medium |
 | Mode Navigation | ~~`ModeSelector`~~ **eliminated** | each mode carries its own *visible* entry instead | — |
 

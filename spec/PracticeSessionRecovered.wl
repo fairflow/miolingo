@@ -83,24 +83,31 @@ defineAgent["PSBrowse", {es},
       call["PS", practiseList[es, filterBy[q]], 0, none, none]]]]
 
 
-(* --- domain ports for a non-empty queue --- *)
+(* --- domain ports for a non-empty queue ---
+   This is the practice LOOP (select/next/prev/record/score/capture). StoryReader's
+   practice mode (StoryReaderRecovered.wl, StoryPractice) runs the SAME interaction;
+   the two share their value-functions (targetOf, evaluate, scored/recorded) but the
+   loop SUMMANDS are written per-context. Factoring the summands into ONE shared
+   builder was attempted and abandoned — see story-reader-recovery.md "Why the loop
+   isn't a single shared definition": the engine's guard mechanism (prepBody Hold-
+   wraps the conditions that are syntactically present in a hand-written body, so
+   `Length[phrases]` / `rec === none` are never evaluated until step-time with
+   concrete params) does not compose with a builder-produced body. A flagged
+   boundary case (docs/CLAUDE.md: framework difficulty is research data).
+   NB on capture_vocab — a modelling artifact, NOT a behaviour to implement: the
+   capture . vocabUpsert! . PS precede chain means PS is mid-handoff between the
+   capture and the emit and offers no `view` (the pSView panel momentarily blanks
+   until the τ fires). L3 must treat capture-and-relay as ATOMIC — no view flicker. *)
 defineAgent["PSActive", {phrases, pos, rec, res},
   choice[
     precede[coLabel["clear_material"],
       call["PS", {}, 0, none, none]],
     precede[coLabel["select_item", binding[i]],
       call["PS", phrases, i, none, none]],
-    (* two-armed: no recording -> record; recording present -> check / remove *)
     if[rec === none,
       precede[coLabel["recording_made", binding[audio]],
         call["PS", phrases, pos, recorded[audio], none]],
       choice[
-        (* BORROWED DATA: scoring's ASR (recognisePhonemes) needs the target
-           language, which Helm OWNS. So attempt_made PULLS the (source, target)
-           pair fresh as a PREFIX \[LongDash] langRead?(lp), restricted to Helm's
-           langRead! in mioCore (an internal tau). No cached language => no
-           staleness. See ARCHITECTURE.md "Borrowed vs owned data". The pair is
-           passed into evaluate, which uses the target code for the ASR. *)
         precede[coLabel["attempt_made"],
           precede[coLabel["langRead", binding[lp]],
             call["PS", phrases, pos, rec,
@@ -113,13 +120,6 @@ defineAgent["PSActive", {phrases, pos, rec, res},
     if[pos > 0,
       precede[coLabel["prev_item_requested"],
         call["PS", phrases, pos - 1, none, none]]],
-    (* capture_vocab relays to Vocab on vocabUpsert (restricted in MioCore).
-       NB — modelling artifact, NOT a behaviour to implement: this is a precede
-       chain capture_vocab . vocabUpsert! . PS, so between the capture and the vocabUpsert
-       emit, PS is mid-handoff and offers no `view` (the pSView panel momentarily
-       disappears in the simulator until the vocabUpsert tau fires). An L3 implementation
-       must treat capture-and-relay as ATOMIC — no view flicker. The split exists
-       only because CCS makes the synchronous handoff explicit as two events. *)
     if[res =!= none,
       precede[coLabel["capture_vocab", binding[word]],
         precede[label["vocabUpsert", param[word]],

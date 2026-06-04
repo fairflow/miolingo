@@ -80,5 +80,6 @@ loadRecoveredBase[] := (
   mioGet["PracticeSessionRecovered.wl"];
   mioGet["VocabRecovered.wl"];
   mioGet["HelmRecovered.wl"];    (* third recovered agent; MioCore composes it *)
-  mioGet["VocabTableRecovered.wl"]);   (* the external store; defined here, composed
+  mioGet["VocabTableRecovered.wl"];    (* the external store; defined here, composed
                                          into MioCore at the (i) migration (PR-2) *)
+  mioGet["StoryReaderRecovered.wl"]);  (* narrative tab; practice mode mirrors PSActive *)
