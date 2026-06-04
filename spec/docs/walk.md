@@ -124,7 +124,7 @@ Kebab-case keys, prefixed by scope:
 |---|---|---|
 | `vs-*`   | Vocab-only ports | `vs-capture`, `vs-import`, `vs-edit` |
 | `ps-*`   | PracticeSession-only ports | `ps-navigate`, `ps-score` |
-| `sync-*` | one cross-component sync (composed-only) | `sync-pload`, `sync-vadd` |
+| `sync-*` | one cross-component sync (composed-only) | `sync-practise`, `sync-vadd` |
 | `full-*` | end-to-end, both syncs | `full-roundtrip` |
 
 Together they exercise **every** Vocab and PS port and both syncs.
@@ -136,6 +136,41 @@ values (quote strings, Enum symbols for sort, integers for ids, Associations for
 payloads). **The standing rule:** it must run to completion on *both* `mioCore`
 (`transVP`) and `mioCoreD` (`transNamed`). `tests/walk_sequences_test.wls`
 enforces this for every sequence; run it after editing the batch.
+
+### Typing your own trace (the `Trace:` field)
+
+To run a one-off trace **without** adding it to `walkTests`, type a plan straight
+into the **`Trace:`** field and click **`Run trace`**. It's the *same format* as a
+`walkTests` entry — a Wolfram list of plan entries:
+
+| entry | meaning | example |
+|---|---|---|
+| `vis["port"]` | a visible action, no value | `vis["story_attempt_made"]` |
+| `vis["port", value]` | a value-carrying input | `vis["set_mode", practice]`, `vis["select_item", 0]` |
+| `tau["chan"]` | force one internal sync (rarely needed) | `tau["vocabRead"]` |
+
+**You normally do NOT type the τ's.** Run trace uses maximal progress (`AutoTau`):
+the internal synchronisations (`vocabUpsert`, `goPractice`, `langRead`, `vocabRead`)
+fire automatically *between* your visible actions. List only what a *user* would do.
+(`tau["chan"]` is there only for the rare case where two internal syncs are both
+enabled and you want to force a specific one.)
+
+Values follow the data: strings in quotes (`"chat"`); the sort/mode **enum symbols**
+bare (`practice`, `browse`, `alpha`); integers for indices/ids (`0`); Associations
+for payloads (`<|"word" -> "chat"|>`); and a *list* of phrase Associations for
+`load_material`. Example — load a word, practise it, capture it:
+
+```wolfram
+{vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
+ vis["recording_made", "audio"],
+ vis["attempt_made"],
+ vis["capture_vocab", "chat"]}
+```
+
+The trace **runs from the initial state** (like `Run test`), so it's fresh and
+repeatable. The status text beside the button shows the parsed action count, or warns
+if what you typed isn't a list of `vis[…]`/`tau[…]`. The **Short trace** checkbox
+truncates bulky values in the event log.
 
 ---
 
