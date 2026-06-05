@@ -38,7 +38,7 @@ viewProjections::usage = "viewProjections[tf, s] gives <|portName -> projectionV
 dataView::usage = "dataView[tf, s] renders the state's published projections through the data-compaction grid (linearizeGrid of the computed projection).";
 traceView::usage = "traceView[traceSymbol] renders the condensed event log of a walk trace (HoldFirst) with a Copy button.";
 stateDisplay::usage = "stateDisplay[s] gives a compact render of the CCS process state s (foldAgentDisplay \:043e normalizeSC) \[LongDash] where you are / where a transition leads.";
-walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests, step Back/Forward through a run, and record a trace. Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
+walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests (\"Run test\") OR an ad-hoc trace you type in the \"Trace:\" field (\"Run trace\"), step Back/Forward through a run, and record a trace. The Trace field takes a plan — a list of vis[\"port\"] / vis[\"port\", value] / tau[\"chan\"] — and runs it from the initial agent with AutoTau on (list only external actions; the internal τ's fire automatically). Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
 
 (* ---------------------------------------------------------------------
    readyTransitions[tf, s] : the enabled transitions at state s as a list
@@ -416,7 +416,8 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
      maxprog = False, stateOpen = False, cloudOpen = False,
      shortTrace = True, prevCloudActive = cloudActiveNames[tf, agent],
-     testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None]},
+     testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None],
+     userPlan = ""},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
         Framed[Column[{
@@ -561,12 +562,38 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                    cur = Last[w["states"]]; future = {}; inVals = <||>],
                  Enabled -> Dynamic[ValueQ[walkTests] && KeyExistsQ[walkTests, testSel]]]}],
 
+          (* Run an AD-HOC trace YOU type — a list of vis[…] / tau[…] entries. Runs
+             FROM THE INITIAL AGENT with "AutoTau" -> True, so you list only the
+             EXTERNAL (visible) actions and the internal syncs (the τ's) fire for you.
+             Same plan format as walkTests / "Run test". See walk.md "Typing your own
+             trace" for the syntax. The status text shows the parsed action count, or
+             a warning if it isn't a list of vis[…]/tau[…]. *)
+          Row[{Style["Trace: ", Bold, GrayLevel[0.4]], Spacer[4],
+               InputField[Dynamic[userPlan], String, FieldSize -> {44, 1},
+                 FieldHint -> "{vis[\"set_mode\", practice], vis[\"story_recording_made\", \"a\"], vis[\"story_attempt_made\"]}"],
+               Spacer[4],
+               Button["Run trace \[FilledRightTriangle]",
+                 Module[{plan = Quiet[ToExpression[userPlan]]},
+                   If[ListQ[plan],
+                     Module[{w = walkSteps[tf, agent, plan, "AutoTau" -> True]},
+                       hist = Most[w["states"]]; trace = eventLog[w];
+                       cur = Last[w["states"]]; future = {}; inVals = <||>]]],
+                 Enabled -> Dynamic[StringQ[userPlan] && StringTrim[userPlan] =!= ""]],
+               Spacer[6],
+               Dynamic[With[{p = Quiet[ToExpression[userPlan]]},
+                 Which[
+                   ! StringQ[userPlan] || StringTrim[userPlan] === "", "",
+                   ListQ[p], Style[ToString[Length[p]] <> " actions", Darker[Green], 10],
+                   True, Style["\[WarningSign] not a list of vis[…]/tau[…]", Darker[Red], 10]]]]}],
+          Style["  list EXTERNAL actions only — the τ's auto-fire. vis[\"port\"] · vis[\"port\", value] · (rarely) tau[\"chan\"]; runs from the initial state.",
+                GrayLevel[0.45], 10],
+
           Row[{Checkbox[Dynamic[shortTrace]], Spacer[4],
                Style["Short trace values (truncate bulky data)", GrayLevel[0.35], 11]}],
           traceView[trace, shortTrace]
 
         }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
-      TrackedSymbols :> {cur, inVals, testSel, future, maxprog, shortTrace}]]]];
+      TrackedSymbols :> {cur, inVals, testSel, future, maxprog, shortTrace, userPlan}]]]];
 
 
 (* --- register the miolingo systems so walkUI[mioCore] / walkUI[mioCoreD] GROUP
