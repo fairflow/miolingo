@@ -26,6 +26,16 @@
 targetOf[phrases_List, pos_Integer] :=
   If[0 <= pos < Length[phrases], phrases[[pos + 1]], <|"text" -> "", "translation" -> "", "ipa" -> ""|>];
 
+(* selectPos[phrases, i, cur] : the recovered "select item i" guard (the stub named
+   in practice-session-recovery.md §"Stub list"). select_item?(i) takes its index
+   from the open environment; the app only renders rows for EXISTING items, so an
+   out-of-range index can't arise there. At L1 we therefore keep pos VALID: selecting
+   a non-existent index is a no-op (pos stays put). Without this, select_item bound the
+   index raw, so pos could walk off the end — then targetOf returns the empty item and
+   attempt_made scores a meaningless zero (the interleaving bug, 2026-06-04).
+   Gated on _Integer so it stays held until the supplied index is concrete. *)
+selectPos[phrases_List, i_Integer, cur_Integer] := If[0 <= i < Length[phrases], i, cur];
+
 correctPhonemesOf[target_Association] := ToString[Lookup[target, "ipa", ""]];
 audioOf[recorded[audio_]] := audio;
 audioOf[_] := Missing[];
