@@ -117,6 +117,26 @@ final class AppModel {
         let f = autofillFields(table.read(), id: id, lang: helm.langPair, oracle: enrich)
         if !f.isEmpty { table.amend(id: id, fields: f); persistVocab() }
     }
+
+    /// Native-language CODE for the source NAME Helm stores (for translation target).
+    var nativeCode: String {
+        ["English": "en", "French": "fr", "Portuguese": "pt",
+         "German": "de", "Spanish": "es", "Italian": "it"][helm.source] ?? "en"
+    }
+
+    /// Autofill driven by the live Apple Translation framework (VocabView supplies
+    /// `translation`); espeak still provides the IPA via the enrich oracle. Both
+    /// honour only-empty / never-overwrite. `translation == nil` falls back to the
+    /// offline lexicon path.
+    func applyAutofill(id: Int, translation: String?) {
+        var fields = autofillFields(table.read(), id: id, lang: helm.langPair, oracle: enrich)
+        if let t = translation?.trimmingCharacters(in: .whitespaces), !t.isEmpty,
+           let row = table.read().first(where: { $0.id == id }),
+           (row.translation ?? "").isEmpty {
+            fields["translation"] = t       // prefer the live translation
+        }
+        if !fields.isEmpty { table.amend(id: id, fields: fields); persistVocab() }
+    }
     func practiseFromVocab() {                                                // practise_vocab → goPractice → PS pull
         ps.load(practiseList(table.read(), filter: vocab.filter))
         selectedTab = .practice

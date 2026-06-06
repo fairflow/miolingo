@@ -1,4 +1,5 @@
 import SwiftUI
+import Translation
 import MiolingoCore
 
 // =====================================================================
@@ -249,6 +250,23 @@ struct VocabView: View {
     @State private var newWord = ""
     @State private var showImport = false
     @State private var importText = ""
+    // live translation (Apple Translation framework) for autofill
+    @State private var translationConfig: TranslationSession.Configuration?
+    @State private var pendingAutofill: (id: Int, word: String)?
+    @State private var cfgLangs = ""
+
+    private func startAutofill(_ entry: VocabEntry) {
+        pendingAutofill = (entry.id, entry.displayWord)
+        let key = "\(model.helm.target)>\(model.nativeCode)"
+        if key != cfgLangs {
+            translationConfig = .init(
+                source: Locale.Language(identifier: model.helm.target),
+                target: Locale.Language(identifier: model.nativeCode))
+            cfgLangs = key
+        } else {
+            translationConfig?.invalidate()   // re-run with the same language pair
+        }
+    }
 
     var body: some View {
         let vm = model.vocabVM
@@ -276,12 +294,20 @@ struct VocabView: View {
                 if vm.editing == entry.id {
                     EditRow(entry: entry)
                 } else {
-                    VocabRow(entry: entry)
+                    VocabRow(entry: entry, onAutofill: { startAutofill(entry) })
                 }
             }
         }
         .padding(20)
         .sheet(isPresented: $showImport) { importSheet }
+        // Live translation: when a request is pending, translate then merge
+        // (espeak IPA comes from the enrich oracle inside applyAutofill).
+        .translationTask(translationConfig) { session in
+            guard let p = pendingAutofill else { return }
+            let text = (try? await session.translate(p.word))?.targetText
+            model.applyAutofill(id: p.id, translation: text)
+            pendingAutofill = nil
+        }
     }
 
     private func add() {
@@ -309,6 +335,7 @@ struct VocabView: View {
 struct VocabRow: View {
     @Environment(AppModel.self) private var model
     let entry: VocabEntry
+    var onAutofill: () -> Void
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -322,7 +349,7 @@ struct VocabRow: View {
             Text("×\(entry.timesSeen)").font(.caption).foregroundStyle(.secondary)
             Button { model.speak(entry.displayWord) } label: { Image(systemName: "speaker.wave.2") }
                 .buttonStyle(.borderless)
-            Button("Autofill") { model.vocabAutofill(entry.id) }
+            Button("Autofill", action: onAutofill)
             Button("Edit") { model.beginEdit(entry.id) }
             Button(role: .destructive) { model.vocabDelete(entry.id) } label: { Image(systemName: "trash") }
                 .buttonStyle(.borderless)

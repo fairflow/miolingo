@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Miolingo",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v15)],   // Translation framework (live autofill) is macOS 15+
     products: [
         .library(name: "MiolingoCore", targets: ["MiolingoCore"]),
         .executable(name: "Miolingo", targets: ["Miolingo"]),
