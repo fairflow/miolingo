@@ -421,6 +421,13 @@ struct SettingsView: View {
                 }
                 Button("Test voice") { model.speak(model.story.view.item?.text ?? "Bonjour") }
             }
+            Section("Rig preview (experimental)") {
+                DisclosureGroup("Settings generated from the rig declaration") {
+                    RiggedHelmView()
+                    Text("Same Helm ports, generated from helmBerth + defaultHelmRig via SwiftUILoft. Flip a Fitting in defaultHelmRig (e.g. set_tts → .choice(.radio)) to re-skin with no other change.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
         }
         .formStyle(.grouped)
         .padding(20)
