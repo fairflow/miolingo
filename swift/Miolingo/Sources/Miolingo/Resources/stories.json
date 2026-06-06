@@ -1,0 +1,11 @@
+[
+  [
+    {"text": "Bonjour", "translation": "Hello", "ipa": "bɔ̃ʒuʁ"},
+    {"text": "Comment ça va?", "translation": "How are you?", "ipa": "kɔmɑ̃ sa va"},
+    {"text": "Je m'appelle Marie", "translation": "My name is Marie", "ipa": "ʒə mapɛl maʁi"}
+  ],
+  [
+    {"text": "Au revoir", "translation": "Goodbye", "ipa": "o ʁəvwaʁ"},
+    {"text": "À bientôt", "translation": "See you soon", "ipa": "a bjɛ̃to"}
+  ]
+]
