@@ -45,6 +45,19 @@ struct ScoreBadge: View {
     }
 }
 
+struct RecognisedHint: View {
+    let scoring: Bool
+    let heard: String
+    var body: some View {
+        if scoring {
+            HStack(spacing: 6) { ProgressView().controlSize(.small)
+                Text("Listening…").foregroundStyle(.secondary).font(.caption) }
+        } else if !heard.isEmpty {
+            Text("heard /\(heard)/").font(.caption).foregroundStyle(.secondary)
+        }
+    }
+}
+
 struct RecordBar: View {
     @ObservedObject var recorder: Recorder
     let hasRecording: Bool
@@ -132,6 +145,7 @@ struct PracticeView: View {
                       onCaptured: { model.psRecorded($0) },
                       onCheck: { Task { await model.psAttempt() } },
                       onClear: { model.psClearRecording() })
+            RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised)
             if let s = v.score {
                 ScoreBadge(score: s)
                 Button("Capture to vocabulary") { model.psCapture() }
@@ -215,6 +229,7 @@ struct StoryView: View {
                       onCaptured: { model.storyRecorded($0) },
                       onCheck: { Task { await model.storyAttempt() } },
                       onClear: { model.storyClearRecording() })
+            RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised)
             if let s = v.score {
                 ScoreBadge(score: s)
                 Button("Capture to vocabulary") { model.storyCapture() }

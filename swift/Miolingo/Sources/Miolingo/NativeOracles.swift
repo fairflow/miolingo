@@ -14,14 +14,25 @@ final class SystemTTS: TTSEngine, @unchecked Sendable {
     private let synth = AVSpeechSynthesizer()
 
     func speak(_ text: String, languageCode: String, rate: Double) {
+        guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         let u = AVSpeechUtterance(string: text)
-        u.voice = AVSpeechSynthesisVoice(language: languageCode)
-            ?? AVSpeechSynthesisVoice(language: "en-US")
+        u.voice = Self.bestVoice(for: languageCode)
         // map wpm-ish (espeak ~250) onto AVSpeech's 0...1 rate around the default.
         let mapped = Float(rate) / 500.0
         u.rate = min(max(mapped, AVSpeechUtteranceMinimumSpeechRate),
                      AVSpeechUtteranceMaximumSpeechRate)
         synth.speak(u)
+    }
+
+    /// Exact locale, else any installed voice whose language shares the prefix
+    /// (e.g. "fr"), else the system default — so it always speaks something.
+    static func bestVoice(for code: String) -> AVSpeechSynthesisVoice? {
+        if let v = AVSpeechSynthesisVoice(language: code) { return v }
+        let prefix = String(code.prefix(2)).lowercased()
+        if let v = AVSpeechSynthesisVoice.speechVoices()
+            .first(where: { $0.language.lowercased().hasPrefix(prefix) }) { return v }
+        return AVSpeechSynthesisVoice(language: "en-US")
     }
 
     func stop() { synth.stopSpeaking(at: .immediate) }
@@ -43,6 +54,7 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
     }
 
     private func transcribe(audio: Data, languageCode: String) async -> String {
+        guard SFSpeechRecognizer.authorizationStatus() == .authorized else { return "" }
         let locale = Locale(identifier: bcp47(languageCode))
         guard let recogniser = SFSpeechRecognizer(locale: locale),
               recogniser.isAvailable else { return "" }
@@ -51,15 +63,16 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
         guard (try? audio.write(to: url)) != nil else { return "" }
         defer { try? FileManager.default.removeItem(at: url) }
         let request = SFSpeechURLRecognitionRequest(url: url)
-        request.requiresOnDeviceRecognition = true
+        // prefer on-device; fall back to server if the locale has no on-device model
+        request.requiresOnDeviceRecognition = recogniser.supportsOnDeviceRecognition
         return await withCheckedContinuation { cont in
             var resumed = false
+            func finish(_ s: String) { if !resumed { resumed = true; cont.resume(returning: s) } }
             recogniser.recognitionTask(with: request) { result, error in
                 if let result, result.isFinal {
-                    if !resumed { resumed = true
-                        cont.resume(returning: result.bestTranscription.formattedString) }
+                    finish(result.bestTranscription.formattedString)
                 } else if error != nil {
-                    if !resumed { resumed = true; cont.resume(returning: "") }
+                    finish("")
                 }
             }
         }

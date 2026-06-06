@@ -25,6 +25,8 @@ final class AppModel {
     var selectedTab: Tab = .practice
     var psBrowsing = false        // open_practice taken; choosing what to load
     var lastError: String?
+    var lastRecognised = ""       // what ASR heard (phonemes) — visible feedback
+    var isScoring = false
 
     private let db: Database
     private let tts: TTSEngine
@@ -42,7 +44,18 @@ final class AppModel {
         story = StoryReader(library: BundledStoryLibrary.shared)
         tts = SystemTTS()
         scorer = SystemScorer()
-        enrich = Espeak.available ? EspeakEnrichOracle() : NullEnrichOracle()
+        // translation from the bundled lexicon + IPA from espeak (offline autofill).
+        enrich = DictionaryEnrichOracle(table: AppModel.loadLexicon(),
+                                        useEspeakIPA: Espeak.available)
+    }
+
+    /// The bundled offline lexicon (targetCode → word → native translation).
+    private static func loadLexicon() -> [String: [String: String]] {
+        guard let url = Bundle.module.url(forResource: "lexicon", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let raw = try? JSONDecoder().decode([String: [String: String]].self, from: data)
+        else { return [:] }
+        return raw
     }
 
     // --- persistence ---
@@ -76,7 +89,9 @@ final class AppModel {
     func psClearMaterial() { ps.clearMaterial() }
     func psAttempt() async {                                   // attempt_made + langRead + ASR
         guard let rec = ps.rec else { return }
+        isScoring = true; defer { isScoring = false }
         let phon = await scorer.recognise(audio: rec.audio, languageCode: helm.target)
+        lastRecognised = phon
         ps.score(recognisedPhonemes: phon)
     }
     func psCapture() {                                         // capture_vocab → vocabUpsert
@@ -117,7 +132,9 @@ final class AppModel {
     func storyClearRecording() { story.clearRecording() }
     func storyAttempt() async {                                               // story_attempt_made + langRead + ASR
         guard let rec = story.rec else { return }
+        isScoring = true; defer { isScoring = false }
         let phon = await scorer.recognise(audio: rec.audio, languageCode: helm.target)
+        lastRecognised = phon
         story.score(recognisedPhonemes: phon)
     }
     func storyCapture() {                                                     // story_capture_vocab → vocabUpsert

@@ -75,3 +75,22 @@ public struct NullEnrichOracle: EnrichOracle {
     public func enrich(word: String, source: String, target: String)
         -> (translation: String?, ipa: String?)? { nil }
 }
+
+/// enrichOracle backed by an offline lexicon for translation (target word →
+/// native meaning) + espeak for IPA. The lexicon is a bundled seed (lexicon.json);
+/// swapping in the Apple Translation framework or an API keeps this signature.
+/// `table` is keyed [targetCode: [lowercasedWord: translation]].
+public struct DictionaryEnrichOracle: EnrichOracle {
+    public let table: [String: [String: String]]
+    public let useEspeakIPA: Bool
+    public init(table: [String: [String: String]], useEspeakIPA: Bool = true) {
+        self.table = table; self.useEspeakIPA = useEspeakIPA
+    }
+    public func enrich(word: String, source: String, target: String)
+        -> (translation: String?, ipa: String?)? {
+        let tr = table[target]?[word.lowercased()]
+        let ipa = useEspeakIPA ? Espeak.ipa(word, voice: target) : nil
+        if tr == nil && ipa == nil { return nil }
+        return (tr, ipa)
+    }
+}
