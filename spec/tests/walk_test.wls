@@ -97,6 +97,42 @@ assert["final state carries the supplied value",
 assert["recorded event carries the concrete value",
   eventOf[First[w1["actions"]]]["value"] === {phr}];
 
+Print[hr]; Print["7. Copy/Run-trace round-trip : traceToPlan + normalisePlan, both \[Tau]-modes"]; Print[hr];
+(* A run WITH internal taus (story practice + capture): set_mode, record, attempt
+   (-> langRead tau), capture (-> vocabUpsert tau). traceToPlan must recover an
+   executable plan that reproduces it in EITHER tau-mode \[LongDash] the symmetry the Run-
+   trace field gives the user via the Auto-advance checkbox. *)
+obs[s_] := Sort[Normal[Map[Identity, viewProjections[transVP, s]]]];
+tracePlan = {vis["set_mode", practice], vis["story_recording_made", "aud"],
+             vis["story_attempt_made"], vis["story_capture_vocab", "Bonjour"]};
+runA  = walkSteps[transVP, mioCore, tracePlan, "AutoTau" -> True];   (* the recorded run *)
+plan2 = traceToPlan[eventLog[runA]];
+assert["traceToPlan keeps the WHOLE log (vis + tau), nothing dropped",
+  Length[plan2] === Length[eventLog[runA]]];
+assert["traceToPlan keeps the internal taus as tau[chan]", Count[plan2, tau[_]] > 0];
+assert["traceToPlan carries values inline (set_mode practice)",
+  MemberQ[plan2, vis["set_mode", practice]]];
+(* MANUAL-tau replay: drive the tau[…] literally (AutoTau off) -> identical run *)
+runMan = walkSteps[transVP, mioCore, plan2, "AutoTau" -> False];
+assert["MANUAL-\[Tau] replay: event log === original", eventLog[runMan] === eventLog[runA]];
+assert["MANUAL-\[Tau] replay: views === original",
+  obs[Last[runMan["states"]]] === obs[Last[runA["states"]]]];
+(* AUTO-tau replay: strip the taus (as Run trace does in auto mode); AutoTau refires *)
+runAut = walkSteps[transVP, mioCore, DeleteCases[plan2, tau[_]], "AutoTau" -> True];
+assert["AUTO-\[Tau] replay (taus stripped): event log === original",
+  eventLog[runAut] === eventLog[runA]];
+assert["AUTO-\[Tau] replay: views === original",
+  obs[Last[runAut["states"]]] === obs[Last[runA["states"]]]];
+(* normalisePlan : accept a typed plan, convert a pasted event log, reject junk *)
+assert["normalisePlan: a vis/tau plan passes through unchanged",
+  normalisePlan[tracePlan] === tracePlan];
+assert["normalisePlan: a pasted event log -> traceToPlan",
+  normalisePlan[eventLog[runA]] === plan2];
+assert["normalisePlan: a non-plan list -> $Failed (status can warn)",
+  normalisePlan[{1, 2, 3}] === $Failed];
+assert["normalisePlan: a non-list -> $Failed", normalisePlan["nope"] === $Failed];
+assert["normalisePlan: {} -> {}", normalisePlan[{}] === {}];
+
 Print[hr];
 Print["ALL ASSERTIONS: ", ok[allOk]];
 Print[hr];

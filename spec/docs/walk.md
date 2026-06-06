@@ -147,18 +147,27 @@ into the **`Trace:`** field and click **`Run trace`**. It's the *same format* as
 |---|---|---|
 | `vis["port"]` | a visible action, no value | `vis["story_attempt_made"]` |
 | `vis["port", value]` | a value-carrying input | `vis["set_mode", practice]`, `vis["select_item", 0]` |
-| `tau["chan"]` | force one internal sync (rarely needed) | `tau["vocabRead"]` |
+| `tau["chan"]` | an internal sync | `tau["langRead"]`, `tau["vocabUpsert"]` |
 
-**You normally do NOT type the τ's.** Run trace uses maximal progress (`AutoTau`):
-the internal synchronisations (`vocabUpsert`, `goPractice`, `langRead`, `vocabRead`)
-fire automatically *between* your visible actions. List only what a *user* would do.
-(`tau["chan"]` is there only for the rare case where two internal syncs are both
-enabled and you want to force a specific one.)
+**Run trace honours the Auto-advance checkbox — the same auto-/manual-τ choice you
+have when stepping by hand.** This is the key symmetry: the τ's behave in a trace
+exactly as they do when you click through the transitions.
+
+- **Box ticked (auto-τ, maximal progress)** — list only what a *user* does. The
+  internal syncs (`vocabUpsert`, `goPractice`, `langRead`, `vocabRead`) fire for you
+  *between* your visible actions. **Any `tau[…]` you pasted is dropped** (it would
+  otherwise double-fire) — the status shows *"N τ ignored (auto mode)"*.
+- **Box clear (manual-τ)** — the `tau[…]` entries **are driven literally**, in
+  order, so a recorded trace replays step-for-step. An external-only plan in this
+  mode behaves like manual stepping without clicking the τ rows: the syncs simply
+  don't fire (tick the box to auto-fire them).
+
+(`Run test` is always auto — its `walkTests` are curated external-only plans.)
 
 Values follow the data: strings in quotes (`"chat"`); the sort/mode **enum symbols**
 bare (`practice`, `browse`, `alpha`); integers for indices/ids (`0`); Associations
 for payloads (`<|"word" -> "chat"|>`); and a *list* of phrase Associations for
-`load_material`. Example — load a word, practise it, capture it:
+`load_material`. Example — load a word, practise it, capture it (auto-τ mode):
 
 ```wolfram
 {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
@@ -167,10 +176,18 @@ for payloads (`<|"word" -> "chat"|>`); and a *list* of phrase Associations for
  vis["capture_vocab", "chat"]}
 ```
 
+**Round-trip with Copy trace.** The **Copy trace** button copies the *current* run
+as an executable plan (`traceToPlan`) — the **full** trace including the τ's, with
+values inline. Paste it straight back into the `Trace:` field and it reproduces the
+run: in **manual-τ** mode literally (τ's and all); in **auto-τ** mode with the τ's
+auto-ignored. (Pasting a raw event-log Association list works too — Run trace
+auto-converts it.)
+
 The trace **runs from the initial state** (like `Run test`), so it's fresh and
-repeatable. The status text beside the button shows the parsed action count, or warns
-if what you typed isn't a list of `vis[…]`/`tau[…]`. The **Short trace** checkbox
-truncates bulky values in the event log.
+repeatable. The status text beside the button shows the parsed action count and the
+τ-handling for the current mode, or warns if what you typed isn't a list of
+`vis[…]`/`tau[…]`. The **Short trace** checkbox truncates bulky values in the event
+log.
 
 ---
 

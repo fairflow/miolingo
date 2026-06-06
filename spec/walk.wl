@@ -36,9 +36,11 @@ readyInputs::usage = "readyInputs[tf, s] gives the ready transitions that are va
 supplyValue::usage = "supplyValue[trans, val] inserts a user value into an input transition's binder via the engine's substVv (scope-aware), returning {action, derivative-with-value}. No validation: the value is the user's responsibility.";
 viewProjections::usage = "viewProjections[tf, s] gives <|portName -> projectionValue|> for the published read-only view ports at s (the bare \"view\" or a relabelled \"{Agent}View\").";
 dataView::usage = "dataView[tf, s] renders the state's published projections through the data-compaction grid (linearizeGrid of the computed projection).";
-traceView::usage = "traceView[traceSymbol] renders the condensed event log of a walk trace (HoldFirst) with a Copy button.";
+traceView::usage = "traceView[traceSymbol] renders the condensed event log of a walk trace (HoldFirst) with a Copy button. Copy emits the trace as an EXECUTABLE plan (traceToPlan), so it pastes straight back into the Run-trace field.";
+traceToPlan::usage = "traceToPlan[trace] turns a recorded event log (list of eventOf Associations) BACK into an executable plan \[LongDash] a list of vis[\"port\"] / vis[\"port\", value] / tau[\"chan\"] entries, values inline. The FULL trace is kept, INCLUDING the internal \[Tau]'s (as tau[chan]): in manual-\[Tau] mode they replay literally; in auto-\[Tau] mode Run trace drops them and re-fires them itself. Inverse of eventLog for replay.";
+normalisePlan::usage = "normalisePlan[expr] canonicalises a typed/pasted trace to a plan list, or returns $Failed. Accepts a list of vis/tau entries as-is, OR a pasted raw event log (list of eventOf Associations) which it converts via traceToPlan.";
 stateDisplay::usage = "stateDisplay[s] gives a compact render of the CCS process state s (foldAgentDisplay \:043e normalizeSC) \[LongDash] where you are / where a transition leads.";
-walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests (\"Run test\") OR an ad-hoc trace you type in the \"Trace:\" field (\"Run trace\"), step Back/Forward through a run, and record a trace. The Trace field takes a plan — a list of vis[\"port\"] / vis[\"port\", value] / tau[\"chan\"] — and runs it from the initial agent with AutoTau on (list only external actions; the internal τ's fire automatically). Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
+walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests (\"Run test\") OR an ad-hoc trace you type in the \"Trace:\" field (\"Run trace\"), step Back/Forward through a run, and record a trace. The Trace field takes a plan — a list of vis[\"port\"] / vis[\"port\", value] / tau[\"chan\"], or a pasted Copy-trace — and runs it from the initial agent, HONOURING the maximal-progress checkbox just like manual stepping: box ON = auto-τ (external actions only, pasted τ's dropped); box OFF = manual-τ (the τ's in the trace are driven literally). Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
 
 (* ---------------------------------------------------------------------
    readyTransitions[tf, s] : the enabled transitions at state s as a list
@@ -262,10 +264,42 @@ eventRow[e_Association, short_] := Row[{
   Style[Switch[e["polarity"], "out", "!", "in", "?", _, ""], GrayLevel[0.5]],
   If[e["value"] === None, "", Row[{"\[ThinSpace]", renderTraceVal[e["value"], short]}]]}];
 
+(* traceToPlan[trace] : recover an EXECUTABLE plan from a recorded event log (the
+   list of eventOf Associations that `trace` holds), so a copied trace pastes back
+   into the Run-trace field and reproduces the run. Values are carried inline (the
+   singleton binder is unwrapped) so value-driven runs reproduce faithfully. The
+   FULL log is kept, INCLUDING the internal \[Tau]'s as tau[chan] \[LongDash] mirroring the
+   manual/auto-\[Tau] symmetry: in MANUAL-\[Tau] mode the tau[…] entries replay literally;
+   in AUTO-\[Tau] mode Run trace drops them (maximal progress re-fires them). This is
+   the structured, value-preserving analogue of parseEventLog (which works from the
+   string form and ignores values). *)
+traceToPlan[trace_List] := Map[
+  Which[
+    ! TrueQ[#["isVisible"]],                          tau[#["port"]],   (* a \[Tau]: keep channel *)
+    #["value"] === None || #["value"] === {},         vis[#["port"]],
+    MatchQ[#["value"], {_}],                          vis[#["port"], First[#["value"]]],
+    True,                                             vis[#["port"]]] &,  (* multi-binder: symbolic *)
+  trace];
+
+(* plan validity / normalisation for the Run-trace field. A plan ENTRY is one of
+   vis["p"] | vis["p", v] | tau["c"]; an event-log ENTRY is an eventOf Association.
+   normalisePlan accepts a typed plan as-is, OR a pasted raw event log (converted
+   via traceToPlan), so an old-style Copy still runs; anything else is $Failed (so
+   the status text can warn instead of silently passing a non-plan list). *)
+planEntryQ[e_]  := MatchQ[e, vis[_String] | vis[_String, _] | tau[_String]];
+eventAssocQ[e_] := MatchQ[e, _Association] && KeyExistsQ[e, "isVisible"];
+normalisePlan[expr_] := Which[
+  ! ListQ[expr],                $Failed,
+  expr === {},                  {},
+  AllTrue[expr, planEntryQ],    expr,
+  AllTrue[expr, eventAssocQ],   traceToPlan[expr],
+  True,                         $Failed];
+
 (* traceView[trace, short] : the trace rendered as naked-expression rows (not a
    string), so it copies/reads cleanly. `short` (a Bool, tracked by walkUI) wraps
-   bulky values in Short. eventLogForm (string form) is kept for trace round-trip
-   (trace_io_test) and Copy. *)
+   bulky values in Short. Copy emits the EXECUTABLE plan (traceToPlan) so it round-
+   trips into Run trace; eventLogForm (string form) is kept for the text round-trip
+   (trace_io_test). *)
 SetAttributes[traceView, HoldFirst];
 traceView[trace_, short_ : False] := Column[{
   Style["Trace (condensed event log)", Bold],
@@ -273,7 +307,9 @@ traceView[trace_, short_ : False] := Column[{
         Style["(no steps yet)", Italic, GrayLevel[0.5]],
         Column[eventRow[#, short] & /@ trace, Spacings -> 0.15]]],
     {Automatic, 110}, Scrollbars -> Automatic],
-  Button["Copy trace \[SelectionPlaceholder]", CopyToClipboard[trace],
+  (* Copy the EXECUTABLE plan (traceToPlan), not the raw Association log: it pastes
+     straight back into the Run-trace field AND is the readable vis/tau form. *)
+  Button["Copy trace \[SelectionPlaceholder]", CopyToClipboard[traceToPlan[trace]],
     Enabled -> Dynamic[trace =!= {}]]}];
 
 (* ---------------------------------------------------------------------
@@ -562,31 +598,47 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                    cur = Last[w["states"]]; future = {}; inVals = <||>],
                  Enabled -> Dynamic[ValueQ[walkTests] && KeyExistsQ[walkTests, testSel]]]}],
 
-          (* Run an AD-HOC trace YOU type — a list of vis[…] / tau[…] entries. Runs
-             FROM THE INITIAL AGENT with "AutoTau" -> True, so you list only the
-             EXTERNAL (visible) actions and the internal syncs (the τ's) fire for you.
-             Same plan format as walkTests / "Run test". See walk.md "Typing your own
-             trace" for the syntax. The status text shows the parsed action count, or
-             a warning if it isn't a list of vis[…]/tau[…]. *)
+          (* Run an AD-HOC trace YOU type (or a Copy-trace you paste back) — a list of
+             vis[…] / tau[…] entries, or a raw event log (auto-converted). Runs FROM
+             THE INITIAL AGENT and HONOURS the maximal-progress checkbox, exactly like
+             manual stepping — so the trace path gives the SAME auto-/manual-τ choice:
+               • box ON  (auto)   : "AutoTau" -> True; any tau[…] you pasted are
+                                    DROPPED (maximal progress re-fires them) — noted
+                                    in the status as "N τ ignored".
+               • box OFF (manual) : "AutoTau" -> False; the tau[…] entries ARE driven,
+                                    so a full recorded trace replays literally.
+             (Run test, by contrast, is always auto — its walkTests are curated
+             external-only plans.) See walk.md "Typing your own trace". *)
           Row[{Style["Trace: ", Bold, GrayLevel[0.4]], Spacer[4],
                InputField[Dynamic[userPlan], String, FieldSize -> {44, 1},
                  FieldHint -> "{vis[\"set_mode\", practice], vis[\"story_recording_made\", \"a\"], vis[\"story_attempt_made\"]}"],
                Spacer[4],
                Button["Run trace \[FilledRightTriangle]",
-                 Module[{plan = Quiet[ToExpression[userPlan]]},
+                 Module[{plan = normalisePlan[Quiet[ToExpression[userPlan]]], run},
                    If[ListQ[plan],
-                     Module[{w = walkSteps[tf, agent, plan, "AutoTau" -> True]},
+                     (* auto mode: strip pasted τ's so they don't double-fire/stall *)
+                     run = If[TrueQ[maxprog], DeleteCases[plan, tau[_]], plan];
+                     Module[{w = walkSteps[tf, agent, run, "AutoTau" -> TrueQ[maxprog]]},
                        hist = Most[w["states"]]; trace = eventLog[w];
                        cur = Last[w["states"]]; future = {}; inVals = <||>]]],
                  Enabled -> Dynamic[StringQ[userPlan] && StringTrim[userPlan] =!= ""]],
                Spacer[6],
-               Dynamic[With[{p = Quiet[ToExpression[userPlan]]},
+               Dynamic[With[{plan = normalisePlan[Quiet[ToExpression[userPlan]]]},
                  Which[
                    ! StringQ[userPlan] || StringTrim[userPlan] === "", "",
-                   ListQ[p], Style[ToString[Length[p]] <> " actions", Darker[Green], 10],
-                   True, Style["\[WarningSign] not a list of vis[…]/tau[…]", Darker[Red], 10]]]]}],
-          Style["  list EXTERNAL actions only — the τ's auto-fire. vis[\"port\"] · vis[\"port\", value] · (rarely) tau[\"chan\"]; runs from the initial state.",
-                GrayLevel[0.45], 10],
+                   plan === $Failed, Style["\[WarningSign] not a list of vis[…]/tau[…]", Darker[Red], 10],
+                   True, With[{ntau = Count[plan, tau[_]]},
+                     Row[{Style[ToString[Length[plan]] <> " actions", Darker[Green], 10],
+                          If[ntau > 0,
+                            Style["  · " <> ToString[ntau] <> If[TrueQ[maxprog],
+                                    " \[Tau] ignored (auto mode)", " \[Tau] driven (manual mode)"],
+                                  GrayLevel[0.5], 10], ""]}]]]]]}],
+          Dynamic[Style["  runs from the initial state, " <>
+              If[TrueQ[maxprog],
+                 "AUTO-\[Tau] (box ticked): list external actions only — τ's auto-fire (pasted τ's ignored).",
+                 "MANUAL-\[Tau] (box clear): τ's in the trace are driven literally — tick the box above to auto-fire them instead."] <>
+              " vis[\"port\"] · vis[\"port\", value] · tau[\"chan\"].",
+            GrayLevel[0.45], 10]],
 
           Row[{Checkbox[Dynamic[shortTrace]], Spacer[4],
                Style["Short trace values (truncate bulky data)", GrayLevel[0.35], 11]}],
