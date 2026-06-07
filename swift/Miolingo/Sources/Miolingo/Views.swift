@@ -69,6 +69,55 @@ struct RecognisedHint: View {
     }
 }
 
+/// The "ingest" affordance as one reusable component: a bulk-text payload
+/// supplied by PASTE or by LOADING A FILE, with a format hint and result
+/// feedback. `onImport` returns a status string (starts with "Nothing…" on
+/// failure). Used by both vocab import and phrase import.
+struct BulkImportSheet: View {
+    let title: String
+    let hint: String                 // markdown-capable
+    let onImport: (String) -> String
+    @Binding var isPresented: Bool
+    @State private var text = ""
+    @State private var status = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title).font(.headline)
+            Text(.init(hint)).font(.caption).foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+                Button("Load file…") { loadFile() }
+                Text("…or paste below").font(.caption).foregroundStyle(.secondary)
+            }
+            TextEditor(text: $text).frame(width: 500, height: 200).border(.quaternary)
+            if !status.isEmpty {
+                Text(status).font(.callout)
+                    .foregroundStyle(status.hasPrefix("Nothing") ? .orange : .green)
+            }
+            HStack {
+                Spacer()
+                Button("Close") { isPresented = false }
+                Button("Import") {
+                    status = onImport(text)
+                    if !status.hasPrefix("Nothing") { text = "" }
+                }.buttonStyle(.borderedProminent)
+            }
+        }.padding(20)
+    }
+
+    private func loadFile() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.plainText, .text, .commaSeparatedText]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        if panel.runModal() == .OK, let url = panel.url,
+           let s = try? String(contentsOf: url, encoding: .utf8) {
+            text = s
+            status = "Loaded \(url.lastPathComponent) — review, then Import."
+        }
+    }
+}
+
 struct RecordBar: View {
     @ObservedObject var recorder: Recorder
     let hasRecording: Bool
@@ -100,6 +149,7 @@ struct PracticeView: View {
     @Environment(AppModel.self) private var model
     @StateObject private var recorder = Recorder()
     @State private var filterText = ""
+    @State private var showPhraseImport = false
 
     private var sample: [Phrase] {
         [Phrase(text: "chat", translation: "cat", ipa: "ʃa"),
@@ -120,6 +170,14 @@ struct PracticeView: View {
             Spacer()
         }
         .padding(20)
+        .sheet(isPresented: $showPhraseImport) {
+            BulkImportSheet(
+                title: "Load phrases",
+                hint: "First line: header **(target, source)** — language CODES; your target is `\(model.helm.target)`. "
+                    + "Then rows `text | translation | ipa` (the phrase is in your target language; IPA may be […]-wrapped). Lines starting with # are comments.",
+                onImport: { model.importPhrasesText($0) },
+                isPresented: $showPhraseImport)
+        }
     }
 
     private var empty: some View {
@@ -127,6 +185,7 @@ struct PracticeView: View {
             Text("No material loaded.").foregroundStyle(.secondary)
             HStack {
                 Button("Open practice from vocabulary") { model.openPractice() }
+                Button("Load phrases…") { showPhraseImport = true }
                 Button("Load a sample") { model.loadMaterial(sample) }
             }
         }
@@ -259,8 +318,6 @@ struct VocabView: View {
     @Environment(AppModel.self) private var model
     @State private var newWord = ""
     @State private var showImport = false
-    @State private var importText = ""
-    @State private var importStatus = ""
     // live translation (Apple Translation framework) for autofill
     @State private var translationConfig: TranslationSession.Configuration?
     @State private var pendingAutofill: (id: Int, word: String)?
@@ -310,7 +367,14 @@ struct VocabView: View {
             }
         }
         .padding(20)
-        .sheet(isPresented: $showImport) { importSheet }
+        .sheet(isPresented: $showImport) {
+            BulkImportSheet(
+                title: "Import vocabulary",
+                hint: "First line: header **(target, source)** — language CODES; your target is `\(model.helm.target)`. "
+                    + "Then rows `word | translation | ipa | source | url` (the word is in your target language; IPA may be […]-wrapped). Lines starting with # are comments.",
+                onImport: { model.vocabImport($0) },
+                isPresented: $showImport)
+        }
         // Live translation: when a request is pending, translate then merge
         // (espeak IPA comes from the enrich oracle inside applyAutofill).
         .translationTask(translationConfig) { session in
@@ -325,45 +389,6 @@ struct VocabView: View {
         let w = newWord.trimmingCharacters(in: .whitespaces)
         guard !w.isEmpty else { return }
         model.vocabAdd(w); newWord = ""
-    }
-
-    /// File source for the same import payload — paste OR file, both feed importText.
-    private func loadImportFile() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.plainText, .text, .commaSeparatedText]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        if panel.runModal() == .OK, let url = panel.url,
-           let s = try? String(contentsOf: url, encoding: .utf8) {
-            importText = s
-            importStatus = "Loaded \(url.lastPathComponent) — review, then Import."
-        }
-    }
-
-    private var importSheet: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Import vocabulary").font(.headline)
-            Text("First line: header **(target, source)** — language CODES; your target is `\(model.helm.target)`. "
-               + "Then rows `word | translation | ipa | source | url` (the word is in your target language; IPA may be […]-wrapped). Lines starting with # are comments.")
-                .font(.caption).foregroundStyle(.secondary)
-            HStack(spacing: 8) {
-                Button("Load file…") { loadImportFile() }
-                Text("…or paste below").font(.caption).foregroundStyle(.secondary)
-            }
-            TextEditor(text: $importText).frame(width: 480, height: 200).border(.quaternary)
-            if !importStatus.isEmpty {
-                Text(importStatus).font(.callout)
-                    .foregroundStyle(importStatus.hasPrefix("Imported") ? .green : .orange)
-            }
-            HStack {
-                Spacer()
-                Button("Close") { showImport = false; importStatus = "" }
-                Button("Import") {
-                    importStatus = model.vocabImport(importText)
-                    if importStatus.hasPrefix("Imported") { importText = "" }
-                }.buttonStyle(.borderedProminent)
-            }
-        }.padding(20)
     }
 }
 

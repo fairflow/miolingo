@@ -87,6 +87,21 @@ final class AppModel {
         ps.load(practiseList(table.read(), filter: q)); psBrowsing = false
     }
     func loadMaterial(_ ph: [Phrase]) { ps.load(ph) }         // load_material
+
+    /// Phrase import (paste or file) → load_material. Same ingest shape as vocab.
+    @discardableResult
+    func importPhrasesText(_ contents: String) -> String {
+        let (ph, result) = importPhrases(ImportRequest(contents: contents, expectedTarget: helm.target))
+        switch result {
+        case .ok(let n):
+            if n > 0 { ps.load(ph) }
+            return "Loaded \(n) phrase\(n == 1 ? "" : "s")."
+        case .noHeader:        return "Nothing loaded: first line must be a (target, source) header, e.g. (\(helm.target), en)."
+        case .targetMismatch(let ft, let e):
+            return "Nothing loaded: file target ‘\(ft)’ ≠ your target ‘\(e)’. Set Target to ‘\(ft)’, or fix the header."
+        case .tooMany(let c):  return "Nothing loaded: \(c) rows exceeds the \(importLineLimit)-row limit."
+        }
+    }
     func psSelect(_ i: Int) { ps.select(i) }
     func psRecorded(_ audio: Data) { ps.recordingMade(audio) }
     func psClearRecording() { ps.clearRecording() }

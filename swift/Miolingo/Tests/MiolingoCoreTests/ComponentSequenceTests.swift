@@ -62,6 +62,17 @@ final class ComponentSequenceTests: XCTestCase {
         XCTAssertEqual(sr.pos, 0)                               // capture does not move position
     }
 
+    // phrase import (same ingest format) → a practice queue
+    func test_phrase_import() {
+        let (ph, result) = importPhrases(ImportRequest(
+            contents: "(fr,en)\nbonjour|hello|[bɔ̃ʒuʁ]\nchat|cat", expectedTarget: "fr"))
+        if case let .ok(n) = result { XCTAssertEqual(n, 2) } else { XCTFail("expected .ok") }
+        XCTAssertEqual(ph.first, Phrase(text: "bonjour", translation: "hello", ipa: "bɔ̃ʒuʁ"))
+        // wrong target → nothing
+        if case .targetMismatch = importPhrases(ImportRequest(
+            contents: "(en,fr)\nx|y", expectedTarget: "fr")).result {} else { XCTFail("expected mismatch") }
+    }
+
     // ---- oracle: autofill via the dictionary enrich oracle ----
     func test_dictionary_enrich_oracle() {
         let oracle = DictionaryEnrichOracle(
