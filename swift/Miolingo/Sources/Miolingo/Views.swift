@@ -56,12 +56,16 @@ struct ScoreBadge: View {
 struct RecognisedHint: View {
     let scoring: Bool
     let heard: String
+    let hasScore: Bool
     var body: some View {
         if scoring {
             HStack(spacing: 6) { ProgressView().controlSize(.small)
                 Text("Listening…").foregroundStyle(.secondary).font(.caption) }
         } else if !heard.isEmpty {
             Text("heard /\(heard)/").font(.caption).foregroundStyle(.secondary)
+        } else if hasScore {
+            Text("(nothing recognised — check Mic/Speech permission & the on-device language model)")
+                .font(.caption).foregroundStyle(.orange)
         }
     }
 }
@@ -212,7 +216,7 @@ struct PracticeView: View {
                       onCaptured: { model.psRecorded($0) },
                       onCheck: { Task { await model.psAttempt() } },
                       onClear: { model.psClearRecording() })
-            RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised)
+            RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised, hasScore: v.score != nil)
             if let s = v.score {
                 ScoreBadge(score: s)
                 Button("Capture to vocabulary") { model.psCapture() }
@@ -296,7 +300,7 @@ struct StoryView: View {
                       onCaptured: { model.storyRecorded($0) },
                       onCheck: { Task { await model.storyAttempt() } },
                       onClear: { model.storyClearRecording() })
-            RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised)
+            RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised, hasScore: v.score != nil)
             if let s = v.score {
                 ScoreBadge(score: s)
                 Button("Capture to vocabulary") { model.storyCapture() }

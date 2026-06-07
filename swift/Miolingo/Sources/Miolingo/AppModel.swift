@@ -173,7 +173,7 @@ final class AppModel {
         if let t = translation?.trimmingCharacters(in: .whitespaces), !t.isEmpty,
            let row = table.read().first(where: { $0.id == id }),
            (row.translation ?? "").isEmpty {
-            fields["translation"] = t       // prefer the live translation
+            fields["translation"] = t.lowercased()   // recovered: app stores translations lower-case
         }
         if !fields.isEmpty { table.amend(id: id, fields: fields); persistVocab() }
     }

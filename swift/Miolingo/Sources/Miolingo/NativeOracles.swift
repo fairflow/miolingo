@@ -42,6 +42,8 @@ final class SystemTTS: TTSEngine, @unchecked Sendable {
 /// espeak IPA (the spec pipeline ASR→text→phonemes). Returns "" if
 /// unavailable/unauthorised, which the pure scorer treats as a miss.
 final class SystemScorer: SpeechScorer, @unchecked Sendable {
+    private var activeTask: SFSpeechRecognitionTask?   // retained while running (calls are serial)
+
     static func requestAuthorization() {
         SFSpeechRecognizer.requestAuthorization { _ in }
     }
@@ -67,13 +69,14 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
         request.requiresOnDeviceRecognition = recogniser.supportsOnDeviceRecognition
         return await withCheckedContinuation { cont in
             var resumed = false
-            func finish(_ s: String) { if !resumed { resumed = true; cont.resume(returning: s) } }
-            recogniser.recognitionTask(with: request) { result, error in
-                if let result, result.isFinal {
-                    finish(result.bestTranscription.formattedString)
-                } else if error != nil {
-                    finish("")
+            var best = ""
+            func finish(_ s: String) { if !resumed { resumed = true; activeTask = nil; cont.resume(returning: s) } }
+            activeTask = recogniser.recognitionTask(with: request) { result, error in
+                if let result {
+                    best = result.bestTranscription.formattedString   // keep latest partial
+                    if result.isFinal { finish(best) }
                 }
+                if error != nil { finish(best) }                      // late error: keep what we heard
             }
         }
     }
