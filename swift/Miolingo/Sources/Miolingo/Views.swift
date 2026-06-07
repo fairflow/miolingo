@@ -458,16 +458,12 @@ struct SettingsView: View {
                 // both are dropdowns over the same list; each excludes the other's
                 // pick (mutual exclusion), settable in either order.
                 Picker("Your language (native)", selection: Binding(
-                    get: { model.sourceCode }, set: { model.setSourceByCode($0) })) {
-                    ForEach(langs.filter { $0.code != v.target }, id: \.code) {
-                        Text("\($0.name) (\($0.code))").tag($0.code)
-                    }
+                    get: { model.sourceCode }, set: { model.chooseSource($0) })) {
+                    ForEach(langs, id: \.code) { Text("\($0.name) (\($0.code))").tag($0.code) }
                 }
                 Picker("Target language", selection: Binding(
-                    get: { v.target }, set: { model.setTarget($0) })) {
-                    ForEach(langs.filter { $0.code != model.sourceCode }, id: \.code) {
-                        Text("\($0.name) (\($0.code))").tag($0.code)
-                    }
+                    get: { v.target }, set: { model.chooseTarget($0) })) {
+                    ForEach(langs, id: \.code) { Text("\($0.name) (\($0.code))").tag($0.code) }
                 }
                 LabeledContent("Resolved", value: v.language)
             }

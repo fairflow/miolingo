@@ -131,14 +131,20 @@ That set renders every current miolingo surface.
 
 ## Update — two capabilities added while building
 
-**Cross-cleat constraints (`distinct`).** Source and target language must differ,
-and each dropdown should drop the other's pick. That's not a per-port type — it's a
-*relation between cleats*. Added `Constraint.distinct([cleat…])` at the **Berth**
-level; the loft removes, from each choice's options, the values held by its mutex
-peers. So "source ≠ target, each excludes the other" is now **declared**, not
-hand-coded — the first cross-cleat relation the grammar carries. (It is arguably a
-semantic constraint wearing a rigging hat: the rig enforces it in the *domain*,
-while the value-functions remain free to reject a bad state too.)
+**Cross-cleat constraints (`distinct`).** Source and target language must differ.
+That's not a per-port type — it's a *relation between cleats*. Added
+`Constraint.distinct([cleat…])` at the **Berth** level — the first cross-cleat
+relation the grammar carries. (It is arguably a semantic constraint wearing a
+rigging hat: the rig declares it; the value-functions remain free to reject a bad
+state too.)
+
+A constraint can be *resolved* more than one way, and the choice matters for UX.
+The first cut **excluded** mutex-peer values from each domain — but that made a
+straight **swap** impossible (to swap source↔target, each value you need is the
+one excluded). So the loft now resolves `distinct` by **swap-on-collision**: full
+domains, and picking a value a peer holds pushes this cleat's old value onto that
+peer. Lesson for the grammar: a constraint needs a declared **resolution policy**
+(`exclude` | `swap` | `reject`), not just the relation. We use `swap`.
 
 **Ingest affordance (paste OR file) — design.** A bulk-input port (vocab
 `import_bulk`; the future phrase import) carries one payload — text — but the user

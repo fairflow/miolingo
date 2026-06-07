@@ -72,6 +72,16 @@ final class AppModel {
     func setSourceByCode(_ code: String) {
         setSource(languages().first { $0.code == code }?.name ?? code)
     }
+    /// Pick source/target keeping them DISTINCT by SWAPPING on collision (so any
+    /// configuration, including a straight swap, is reachable in one action).
+    func chooseSource(_ code: String) {
+        if code == helm.target { setTarget(sourceCode) }   // collision → swap
+        setSourceByCode(code)
+    }
+    func chooseTarget(_ code: String) {
+        if code == sourceCode { setSourceByCode(helm.target) }   // collision → swap
+        setTarget(code)
+    }
     func setTTS(_ e: TTSKind)   { helm.setTTS(e); persistHelm() }
     func setSpeed(_ w: Int)     { helm.setSpeed(w); persistHelm() }
 

@@ -54,7 +54,7 @@ enum SwiftUILoft {
                 TextField(title, text: textBinding(d, cleat.name)) }
 
         case (.input, .choice(let style)):
-            choiceControl(title, choices(cleat, d, berth), style, codeBinding(d, cleat.name))
+            choiceControl(title, choices(cleat, d), style, choiceBinding(d, cleat, berth))
 
         case (.input, .slider):
             let r = range(cleat)
@@ -125,20 +125,27 @@ enum SwiftUILoft {
         let s = name.hasPrefix("set_") ? String(name.dropFirst(4)) : name
         return s.replacingOccurrences(of: "_", with: " ").capitalized
     }
-    private static func choices(_ c: Cleat, _ d: BerthDriver, _ berth: Berth) -> [Choice] {
+    private static func choices(_ c: Cleat, _ d: BerthDriver) -> [Choice] {
         guard case let .input(t) = c.role, case let .code(dom) = t else { return [] }
-        let full: [Choice]
-        switch dom { case .fixed(let cs): full = cs; case .dynamic: full = d.domain(for: c.name) }
-        // honour `distinct` constraints: drop values held by mutex peers (source ≠ target)
-        let excluded = mutexExcluded(c.name, berth, d)
-        return full.filter { !excluded.contains($0.id) }
+        switch dom { case .fixed(let cs): return cs; case .dynamic: return d.domain(for: c.name) }
     }
-    private static func mutexExcluded(_ name: String, _ berth: Berth, _ d: BerthDriver) -> Set<String> {
-        var ex = Set<String>()
-        for case let .distinct(group) in berth.constraints where group.contains(name) {
-            for other in group where other != name { ex.insert(d.value(for: other).asCode) }
-        }
-        return ex
+
+    /// A choice binding that enforces `distinct` constraints by SWAP-ON-COLLISION:
+    /// picking a value held by a mutex peer pushes this cleat's old value onto that
+    /// peer (source ↔ target swap), rather than excluding it from the domain — so
+    /// every configuration is reachable in one action.
+    private static func choiceBinding(_ d: BerthDriver, _ cleat: Cleat, _ berth: Berth) -> Binding<String> {
+        Binding(
+            get: { d.value(for: cleat.name).asCode },
+            set: { v in
+                let old = d.value(for: cleat.name).asCode
+                for case let .distinct(group) in berth.constraints where group.contains(cleat.name) {
+                    for peer in group where peer != cleat.name {
+                        if d.value(for: peer).asCode == v { d.emit(peer, .code(old)) }
+                    }
+                }
+                d.emit(cleat.name, .code(v))
+            })
     }
     private static func range(_ c: Cleat) -> ClosedRange<Double> {
         if case let .input(t) = c.role, case let .bounded(lo, hi) = t { return Double(lo)...Double(hi) }
