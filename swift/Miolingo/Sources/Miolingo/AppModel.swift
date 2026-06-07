@@ -27,6 +27,7 @@ final class AppModel {
     var psBrowsing = false        // open_practice taken; choosing what to load
     var lastError: String?
     var lastRecognised = ""       // what ASR heard (phonemes) — visible feedback
+    var lastRecognisedText = ""   // the recognised PHRASE (words) — surfaced in results
     var isScoring = false
 
     private let db: Database
@@ -127,6 +128,7 @@ final class AppModel {
         isScoring = true; defer { isScoring = false }
         let phon = await scorer.recognise(audio: rec.audio, languageCode: helm.target)
         lastRecognised = phon
+        lastRecognisedText = systemScorer?.diagnostics.lastHeardText ?? ""
         ps.score(recognisedPhonemes: phon)
     }
     func psCapture() {                                         // capture_vocab → vocabUpsert
@@ -199,6 +201,7 @@ final class AppModel {
         isScoring = true; defer { isScoring = false }
         let phon = await scorer.recognise(audio: rec.audio, languageCode: helm.target)
         lastRecognised = phon
+        lastRecognisedText = systemScorer?.diagnostics.lastHeardText ?? ""
         story.score(recognisedPhonemes: phon)
     }
     func storyCapture() {                                                     // story_capture_vocab → vocabUpsert

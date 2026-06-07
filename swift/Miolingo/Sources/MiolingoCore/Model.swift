@@ -87,13 +87,32 @@ public struct Capture: Equatable, Sendable {
     }
 }
 
-/// evaluate's result — comparePhonemes (comparison.py).
+/// One aligned phoneme segment (alignPhonemes / get_edit_operations).
+public enum AlignOp: String, Codable, Sendable { case equal, sub, ins, del }
+public struct AlignSeg: Equatable, Codable, Sendable, Identifiable {
+    public var op: AlignOp
+    public var target: String
+    public var user: String
+    public var id = UUID()
+    public init(op: AlignOp, target: String, user: String) {
+        self.op = op; self.target = target; self.user = user
+    }
+    private enum CodingKeys: String, CodingKey { case op, target, user }
+}
+
+/// evaluate's result — scoreDetail (comparison.py + the alignment): the numbers
+/// AND the phoneme strings + the matched/unmatched alignment the UI colours.
 public struct Score: Equatable, Codable, Sendable {
     public var exactMatch: Bool
     public var similarity: Double
     public var distance: Int
-    public init(exactMatch: Bool, similarity: Double, distance: Int) {
+    public var user: String              // normalised user phonemes
+    public var target: String            // normalised target phonemes
+    public var alignment: [AlignSeg]
+    public init(exactMatch: Bool, similarity: Double, distance: Int,
+                user: String = "", target: String = "", alignment: [AlignSeg] = []) {
         self.exactMatch = exactMatch; self.similarity = similarity; self.distance = distance
+        self.user = user; self.target = target; self.alignment = alignment
     }
 }
 

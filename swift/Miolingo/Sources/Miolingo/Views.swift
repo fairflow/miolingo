@@ -53,6 +53,49 @@ struct ScoreBadge: View {
     }
 }
 
+/// The heart of the feedback: target vs user phonemes, colour-coded by the
+/// alignment (substitution = blue, insertion = green, deletion = pink, match = plain),
+/// matching the app's _colorize_diff. Empty segments shown as "·".
+struct PhonemeDiffView: View {
+    let alignment: [AlignSeg]
+
+    private func colour(_ op: AlignOp) -> Color {
+        switch op {
+        case .equal: return .clear
+        case .sub:   return Color(red: 0.68, green: 0.85, blue: 0.90)  // blue
+        case .ins:   return Color(red: 0.56, green: 0.93, blue: 0.56)  // green
+        case .del:   return Color(red: 1.00, green: 0.71, blue: 0.78)  // pink
+        }
+    }
+    private func row(_ pick: @escaping (AlignSeg) -> String) -> some View {
+        HStack(spacing: 0) {
+            ForEach(alignment) { seg in
+                Text(pick(seg).isEmpty ? "·" : pick(seg))
+                    .font(.system(.body, design: .monospaced))
+                    .padding(.horizontal, 1)
+                    .background(colour(seg.op))
+            }
+        }
+    }
+    private func chip(_ op: AlignOp, _ label: String) -> some View {
+        HStack(spacing: 3) {
+            RoundedRectangle(cornerRadius: 2).fill(colour(op)).frame(width: 10, height: 10)
+            Text(label).font(.caption2).foregroundStyle(.secondary)
+        }
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text("Phoneme match").font(.caption).bold()
+            HStack { Text("target").font(.caption2).foregroundStyle(.secondary).frame(width: 46, alignment: .leading); row { $0.target } }
+            HStack { Text("you").font(.caption2).foregroundStyle(.secondary).frame(width: 46, alignment: .leading); row { $0.user } }
+            HStack(spacing: 10) { chip(.sub, "substituted"); chip(.ins, "extra"); chip(.del, "missing") }
+                .padding(.top, 2)
+        }
+        .padding(8)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
 struct RecognisedHint: View {
     let scoring: Bool
     let heard: String
@@ -219,6 +262,10 @@ struct PracticeView: View {
             RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised, hasScore: v.score != nil)
             if let s = v.score {
                 ScoreBadge(score: s)
+                if !model.lastRecognisedText.isEmpty {
+                    Text("Recognised: \(model.lastRecognisedText)").font(.caption).foregroundStyle(.secondary)
+                }
+                if !s.alignment.isEmpty { PhonemeDiffView(alignment: s.alignment) }
                 Button("Capture to vocabulary") { model.psCapture() }
             }
             HStack {
@@ -303,6 +350,10 @@ struct StoryView: View {
             RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised, hasScore: v.score != nil)
             if let s = v.score {
                 ScoreBadge(score: s)
+                if !model.lastRecognisedText.isEmpty {
+                    Text("Recognised: \(model.lastRecognisedText)").font(.caption).foregroundStyle(.secondary)
+                }
+                if !s.alignment.isEmpty { PhonemeDiffView(alignment: s.alignment) }
                 Button("Capture to vocabulary") { model.storyCapture() }
             }
             navRow()

@@ -117,6 +117,27 @@ final class MiolingoCoreTests: XCTestCase {
         XCTAssertEqual(selectPos(ph, 5, 0), 0)               // out of range -> keep current
     }
 
+    // ---- Practice-mode scoring detail (alignPhonemes) — ported from spec ----
+    func testAlignPhonemesAndDetail() {
+        XCTAssertEqual(normalisePhonemes("k o m"), "kom")
+        let sub = alignPhonemes(user: "kat", correct: "kit")
+        XCTAssertEqual(sub.map(\.op), [.equal, .sub, .equal])
+        XCTAssertEqual(sub[1].target, "i"); XCTAssertEqual(sub[1].user, "a")
+        let del = alignPhonemes(user: "ka", correct: "kat")       // target longer → del
+        XCTAssertEqual(del.map(\.op), [.equal, .equal, .del])
+        XCTAssertEqual(del[2].target, "t"); XCTAssertEqual(del[2].user, "")
+        let ins = alignPhonemes(user: "kat", correct: "ka")       // user longer → ins
+        XCTAssertEqual(ins.map(\.op), [.equal, .equal, .ins])
+        XCTAssertEqual(ins[2].user, "t"); XCTAssertEqual(ins[2].target, "")
+        XCTAssertTrue(alignPhonemes(user: "", correct: "").isEmpty)
+        // evaluate normalises both sides and carries the detail
+        let s = evaluate(target: Phrase(text: "x", ipa: "a b c"), recognisedPhonemes: "a b d")
+        XCTAssertEqual(s.distance, 1)
+        XCTAssertEqual(s.user, "abd"); XCTAssertEqual(s.target, "abc")
+        XCTAssertEqual(s.alignment.last?.op, .sub)
+        XCTAssertEqual(s.alignment.last?.target, "c"); XCTAssertEqual(s.alignment.last?.user, "d")
+    }
+
     // ---- Component behaviour (the agents) ----
     func testPracticeSessionFlow() {
         var ps = PracticeSession()
