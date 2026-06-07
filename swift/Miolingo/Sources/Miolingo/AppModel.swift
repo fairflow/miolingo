@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import Speech
 import MiolingoCore
 
 enum Tab: String, CaseIterable, Identifiable {
@@ -31,6 +32,7 @@ final class AppModel {
     private let db: Database
     private let tts: TTSEngine
     private let scorer: SpeechScorer
+    private let systemScorer: SystemScorer?   // typed handle for live ASR diagnostics
     private let enrich: EnrichOracle
 
     init() {
@@ -43,7 +45,9 @@ final class AppModel {
         vocab = Vocab()
         story = StoryReader(library: BundledStoryLibrary.shared)
         tts = SystemTTS()
-        scorer = SystemScorer()
+        let s = SystemScorer()
+        scorer = s
+        systemScorer = s
         // translation from the bundled lexicon + IPA from espeak (offline autofill).
         enrich = DictionaryEnrichOracle(table: AppModel.loadLexicon(),
                                         useEspeakIPA: Espeak.available)
@@ -51,7 +55,7 @@ final class AppModel {
 
     /// The bundled offline lexicon (targetCode → word → native translation).
     private static func loadLexicon() -> [String: [String: String]] {
-        guard let url = Bundle.module.url(forResource: "lexicon", withExtension: "json"),
+        guard let url = BundledResource.url(forResource: "lexicon", withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let raw = try? JSONDecoder().decode([String: [String: String]].self, from: data)
         else { return [:] }
@@ -204,4 +208,12 @@ final class AppModel {
     // --- projections (the *View ports) ---
     var vocabVM: VocabViewModel { vocab.view(entries: table.entries) }
     var sceneCount: Int { BundledStoryLibrary.shared.sceneCount }
+
+    // --- ASR diagnostics (Settings → Diagnostics) ---
+    /// Live status of the last recognise() attempt; nil if not using SystemScorer.
+    var scorerDiagnostics: ScorerDiagnostics? { systemScorer?.diagnostics }
+    /// The Speech Recognition TCC status right now (separate from microphone).
+    var speechAuthStatus: String {
+        SystemScorer.describe(SFSpeechRecognizer.authorizationStatus())
+    }
 }

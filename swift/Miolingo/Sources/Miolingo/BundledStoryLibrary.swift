@@ -9,7 +9,7 @@ struct BundledStoryLibrary: StoryLibrary {
     private let scenes: [[Phrase]]
 
     init() {
-        if let url = Bundle.module.url(forResource: "stories", withExtension: "json"),
+        if let url = BundledResource.url(forResource: "stories", withExtension: "json"),
            let data = try? Data(contentsOf: url),
            let decoded = try? JSONDecoder().decode([[Phrase]].self, from: data),
            !decoded.isEmpty {

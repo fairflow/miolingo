@@ -493,6 +493,31 @@ struct SettingsView: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
+            Section("Speech recognition diagnostics") {
+                LabeledContent("Speech permission (TCC)", value: model.speechAuthStatus)
+                if let d = model.scorerDiagnostics {
+                    LabeledContent("Recogniser exists", value: d.recogniserExists ? "yes" : "no")
+                    LabeledContent("Recogniser available", value: d.isAvailable ? "yes" : "no")
+                    LabeledContent("On-device model", value: d.supportsOnDevice ? "yes" : "no")
+                    LabeledContent("Last attempt path", value: d.usedOnDevice ? "on-device" : "server")
+                    LabeledContent("Last recording", value: "\(d.lastAudioBytes) bytes")
+                    LabeledContent("Last heard (raw)",
+                                   value: d.lastHeardText.isEmpty ? "—" : d.lastHeardText)
+                    if !d.lastError.isEmpty {
+                        LabeledContent("Last error", value: d.lastError)
+                            .foregroundStyle(.red)
+                    }
+                }
+                if model.speechAuthStatus == "denied" || model.speechAuthStatus == "restricted" {
+                    Text("Speech Recognition is OFF. Open System Settings → Privacy & Security → Speech Recognition and enable Miolingo, then relaunch.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } else if model.speechAuthStatus == "notDetermined" {
+                    Text("Speech Recognition has not been requested yet. Record a phrase and press Check pronunciation once — macOS will prompt; approve it.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Text("Speech Recognition is a separate permission from the Microphone. Diagnostics refresh after each Check pronunciation.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section { LabeledContent("Build", value: appBuild()) }
         }
         .formStyle(.grouped)

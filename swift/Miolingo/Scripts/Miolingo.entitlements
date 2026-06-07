@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Entitlements for the signed Miolingo.app.
+
+    App Sandbox is deliberately OFF (the app shells out to /opt/local/bin/espeak
+    and reads a SQLite DB outside a container). With the sandbox off, the
+    com.apple.security.* sandbox keys do nothing, so we do NOT set
+    com.apple.security.app-sandbox.
+
+    The microphone and speech-recognition prompts are driven by the
+    Info.plist usage strings + the TCC subsystem, which key off a STABLE code
+    signature. Signing (even ad-hoc) is what lets the Speech Recognition
+    prompt appear and the grant persist; these entitlements document intent
+    and are required if App Sandbox is ever enabled later.
+  -->
+  <key>com.apple.security.device.audio-input</key>
+  <true/>
+  <key>com.apple.security.device.microphone</key>
+  <true/>
+</dict>
+</plist>
