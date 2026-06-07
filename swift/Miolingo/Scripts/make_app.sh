@@ -12,8 +12,15 @@ BUNDLE_ID="co.fairflow.miolingo"
 # answerable from the app's version (About box / Settings footer).
 GITHASH="$(git rev-parse --short HEAD 2>/dev/null || echo 0)"
 
-echo "▶ swift build -c $CONFIG"
+# compile the git hash INTO the binary (immune to plist/LaunchServices caching),
+# then restore the placeholder so the worktree stays clean.
+STAMP="Sources/${BIN_NAME}/BuildInfo.swift"
+printf 'enum BuildInfo { static let stamp = "%s" }\n' "$GITHASH" > "$STAMP"
+
+echo "▶ swift build -c $CONFIG  (build $GITHASH)"
 swift build -c "$CONFIG"
+
+git checkout -- "$STAMP" 2>/dev/null || true
 
 BUILD_DIR="$(swift build -c "$CONFIG" --show-bin-path)"
 echo "  bin path: $BUILD_DIR"

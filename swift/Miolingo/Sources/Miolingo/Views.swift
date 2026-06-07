@@ -4,13 +4,10 @@ import AppKit
 import UniformTypeIdentifiers
 import MiolingoCore
 
-/// App version + build (the build is the git short-hash, stamped by make_app.sh).
-func appBuild() -> String {
-    let d = Bundle.main.infoDictionary
-    let v = d?["CFBundleShortVersionString"] as? String ?? "?"
-    let b = d?["CFBundleVersion"] as? String ?? "?"
-    return "\(v) (\(b))"
-}
+/// App version + build. The build is the git short-hash, COMPILED IN via
+/// BuildInfo.stamp (make_app.sh writes it before building) — not read from the
+/// plist, so it can't be stale/cached.
+func appBuild() -> String { "0.1.0 (\(BuildInfo.stamp))" }
 
 // =====================================================================
 // SwiftUI views — one per component (the *View projections rendered).

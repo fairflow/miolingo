@@ -185,7 +185,7 @@ let helmBerth = Berth("Helm", [
 // The lever: flip set_tts to .choice(.radio) / .choice(.menu), or set_target to
 // .choice(.segmented), and the widget changes — no other code touched.
 let defaultHelmRig: Rig = [
-    "set_source": .textField,
+    "set_source": .choice(.menu),
     "set_target": .choice(.menu),
     "set_tts":    .choice(.segmented),
     "set_speed":  .slider,
