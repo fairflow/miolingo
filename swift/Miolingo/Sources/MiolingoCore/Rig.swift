@@ -64,11 +64,23 @@ public struct Cleat: Equatable, Sendable, Identifiable {
     public var id: String { name }
 }
 
+// --- Constraint: a relation the rig enforces ACROSS cleats -------------
+// (the grammar must express more than per-port types; this is the first
+// cross-cleat relation — mutual exclusion of choice domains.)
+public enum Constraint: Equatable, Sendable {
+    /// these cleats must hold DIFFERENT values; each one's choice domain
+    /// excludes the values currently held by the others (e.g. source ≠ target).
+    case distinct([String])
+}
+
 // --- Berth: a component's rigging surface ------------------------------
 public struct Berth: Sendable {
     public let name: String
     public let cleats: [Cleat]
-    public init(_ name: String, _ cleats: [Cleat]) { self.name = name; self.cleats = cleats }
+    public let constraints: [Constraint]
+    public init(_ name: String, _ cleats: [Cleat], constraints: [Constraint] = []) {
+        self.name = name; self.cleats = cleats; self.constraints = constraints
+    }
 }
 
 // --- Fitting: an abstract control kind --------------------------------

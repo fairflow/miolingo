@@ -8,6 +8,9 @@ CONFIG=release
 APP="Miolingo.app"
 BIN_NAME="Miolingo"
 BUNDLE_ID="co.fairflow.miolingo"
+# stamp the git short-hash as the build number, so "am I on the latest?" is
+# answerable from the app's version (About box / Settings footer).
+GITHASH="$(git rev-parse --short HEAD 2>/dev/null || echo 0)"
 
 echo "▶ swift build -c $CONFIG"
 swift build -c "$CONFIG"

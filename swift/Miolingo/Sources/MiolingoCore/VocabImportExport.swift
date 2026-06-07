@@ -22,8 +22,10 @@ func parseImportLine(_ line: String) -> Capture? {
                    url: get(5).isEmpty ? nil : get(5))
 }
 
-/// (src, tgt) header, optionally #-prefixed; lowercased. nil if none before data.
-func parseImportHeader(_ contents: String) -> (src: String, tgt: String)? {
+/// `(target, source)` header — matches the COLUMN order (word is target, the
+/// translation is source). Lowercased language codes; #-comment lines skipped.
+/// nil if no header before the first data line.
+func parseImportHeader(_ contents: String) -> (target: String, source: String)? {
     for raw in contents.components(separatedBy: "\n") {
         let line = raw.trimmingCharacters(in: .whitespaces)
         if line.isEmpty { continue }
@@ -32,7 +34,7 @@ func parseImportHeader(_ contents: String) -> (src: String, tgt: String)? {
             let bits = inner.split(separator: ",", maxSplits: 1).map {
                 $0.trimmingCharacters(in: .whitespaces).lowercased()
             }
-            if bits.count == 2 { return (bits[0], bits[1]) }
+            if bits.count == 2 { return (bits[0], bits[1]) }   // (target, source)
         }
         if line.hasPrefix("#") { continue }
         return nil   // first data line, no header -> reject
@@ -45,19 +47,34 @@ func isImportDataLine(_ raw: String) -> Bool {
     return !line.isEmpty && !line.hasPrefix("#") && !line.hasPrefix("(")
 }
 
-let importLineLimit = 250
+public let importLineLimit = 250
 
-public func importInto(_ entries: [VocabEntry], _ f: ImportRequest) -> [VocabEntry] {
-    guard let hdr = parseImportHeader(f.contents) else { return entries }
-    if let exp = f.expectedTarget, hdr.tgt != exp.lowercased() { return entries }
+/// Why an import did/didn't happen — drives user feedback (no more silent no-op).
+public enum ImportResult: Equatable, Sendable {
+    case ok(added: Int)
+    case noHeader
+    case targetMismatch(fileTarget: String, expected: String)
+    case tooMany(Int)
+}
+
+/// importInto + the reason. The header's TARGET must equal the expected target.
+public func importOutcome(_ entries: [VocabEntry], _ f: ImportRequest)
+    -> (entries: [VocabEntry], result: ImportResult) {
+    guard let hdr = parseImportHeader(f.contents) else { return (entries, .noHeader) }
+    if let exp = f.expectedTarget, hdr.target != exp.lowercased() {
+        return (entries, .targetMismatch(fileTarget: hdr.target, expected: exp.lowercased()))
+    }
     let dataLines = f.contents.components(separatedBy: "\n").filter(isImportDataLine)
-    if dataLines.count > importLineLimit { return entries }
-    return dataLines.reduce(entries) { acc, raw in
-        if let p = parseImportLine(raw.trimmingCharacters(in: .whitespaces)) {
-            return addEntry(acc, p)
-        }
+    if dataLines.count > importLineLimit { return (entries, .tooMany(dataLines.count)) }
+    let out = dataLines.reduce(entries) { acc, raw in
+        if let p = parseImportLine(raw.trimmingCharacters(in: .whitespaces)) { return addEntry(acc, p) }
         return acc
     }
+    return (out, .ok(added: out.count - entries.count))
+}
+
+public func importInto(_ entries: [VocabEntry], _ f: ImportRequest) -> [VocabEntry] {
+    importOutcome(entries, f).entries
 }
 
 // --- exportCsv (vocabulary_tab.py:222) — 13-column header + rows -------

@@ -62,15 +62,26 @@ final class MiolingoCoreTests: XCTestCase {
     }
 
     func testImportRoundTripAndTargetGuard() {
-        let req = ImportRequest(contents: "(en,fr)\nsouris|mouse|[suʁi]\nchat|cat",
+        // header is (target, source): target fr matches expectedTarget fr
+        let req = ImportRequest(contents: "(fr,en)\nsouris|mouse|[suʁi]\nchat|cat",
                                 expectedTarget: "fr")
         let es = importInto([], req)
         XCTAssertEqual(Set(es.map(\.word)), ["souris", "chat"])
         XCTAssertEqual(es.first { $0.word == "souris" }?.ipa, "suʁi")   // []-stripped
-        // wrong target -> no capture
-        XCTAssertEqual(importInto([], ImportRequest(contents: "(en,de)\nx|y", expectedTarget: "fr")).count, 0)
+        // wrong target -> no capture (file target en ≠ fr)
+        XCTAssertEqual(importInto([], ImportRequest(contents: "(en,fr)\nx|y", expectedTarget: "fr")).count, 0)
         // no header -> no capture
         XCTAssertEqual(importInto([], ImportRequest(contents: "x|y")).count, 0)
+    }
+
+    func testImportOutcomeReasons() {
+        if case let .ok(n) = importOutcome([], ImportRequest(contents: "(fr,en)\nchat|cat", expectedTarget: "fr")).result {
+            XCTAssertEqual(n, 1)
+        } else { XCTFail("expected .ok") }
+        if case let .targetMismatch(ft, e) = importOutcome([], ImportRequest(contents: "(en,fr)\nx|y", expectedTarget: "fr")).result {
+            XCTAssertEqual(ft, "en"); XCTAssertEqual(e, "fr")
+        } else { XCTFail("expected .targetMismatch") }
+        if case .noHeader = importOutcome([], ImportRequest(contents: "x|y", expectedTarget: "fr")).result {} else { XCTFail("expected .noHeader") }
     }
 
     func testExportCsvHeaderAndQuoting() {

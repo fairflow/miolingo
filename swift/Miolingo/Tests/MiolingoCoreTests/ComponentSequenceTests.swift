@@ -17,7 +17,7 @@ final class ComponentSequenceTests: XCTestCase {
     // vs-import: bulk import with a matching header
     func test_vs_import() {
         var table = VocabTable()
-        table.importBulk(ImportRequest(contents: "(en,fr)\nchat|cat\nchien|dog",
+        table.importBulk(ImportRequest(contents: "(fr,en)\nchat|cat\nchien|dog",
                                        expectedTarget: "fr"))
         XCTAssertEqual(Set(table.read().map(\.word)), ["chat", "chien"])
     }

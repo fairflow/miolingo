@@ -1,6 +1,16 @@
 import SwiftUI
 import Translation
+import AppKit
+import UniformTypeIdentifiers
 import MiolingoCore
+
+/// App version + build (the build is the git short-hash, stamped by make_app.sh).
+func appBuild() -> String {
+    let d = Bundle.main.infoDictionary
+    let v = d?["CFBundleShortVersionString"] as? String ?? "?"
+    let b = d?["CFBundleVersion"] as? String ?? "?"
+    return "\(v) (\(b))"
+}
 
 // =====================================================================
 // SwiftUI views — one per component (the *View projections rendered).
@@ -250,6 +260,7 @@ struct VocabView: View {
     @State private var newWord = ""
     @State private var showImport = false
     @State private var importText = ""
+    @State private var importStatus = ""
     // live translation (Apple Translation framework) for autofill
     @State private var translationConfig: TranslationSession.Configuration?
     @State private var pendingAutofill: (id: Int, word: String)?
@@ -316,17 +327,41 @@ struct VocabView: View {
         model.vocabAdd(w); newWord = ""
     }
 
+    /// File source for the same import payload — paste OR file, both feed importText.
+    private func loadImportFile() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.plainText, .text, .commaSeparatedText]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        if panel.runModal() == .OK, let url = panel.url,
+           let s = try? String(contentsOf: url, encoding: .utf8) {
+            importText = s
+            importStatus = "Loaded \(url.lastPathComponent) — review, then Import."
+        }
+    }
+
     private var importSheet: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Import vocabulary").font(.headline)
-            Text("First line a header `(source,target)`; then `word|translation|ipa|source|url` rows.")
+            Text("First line: header **(target, source)** — language CODES; your target is `\(model.helm.target)`. "
+               + "Then rows `word | translation | ipa | source | url` (the word is in your target language; IPA may be […]-wrapped). Lines starting with # are comments.")
                 .font(.caption).foregroundStyle(.secondary)
-            TextEditor(text: $importText).frame(width: 460, height: 220).border(.quaternary)
+            HStack(spacing: 8) {
+                Button("Load file…") { loadImportFile() }
+                Text("…or paste below").font(.caption).foregroundStyle(.secondary)
+            }
+            TextEditor(text: $importText).frame(width: 480, height: 200).border(.quaternary)
+            if !importStatus.isEmpty {
+                Text(importStatus).font(.callout)
+                    .foregroundStyle(importStatus.hasPrefix("Imported") ? .green : .orange)
+            }
             HStack {
                 Spacer()
-                Button("Cancel") { showImport = false }
-                Button("Import") { model.vocabImport(importText); importText = ""; showImport = false }
-                    .buttonStyle(.borderedProminent)
+                Button("Close") { showImport = false; importStatus = "" }
+                Button("Import") {
+                    importStatus = model.vocabImport(importText)
+                    if importStatus.hasPrefix("Imported") { importText = "" }
+                }.buttonStyle(.borderedProminent)
             }
         }.padding(20)
     }
@@ -395,11 +430,19 @@ struct SettingsView: View {
         let langs = model.languages()
         Form {
             Section("Languages") {
-                TextField("Your language (native)", text: Binding(
-                    get: { v.source }, set: { model.setSource($0) }))
+                // both are dropdowns over the same list; each excludes the other's
+                // pick (mutual exclusion), settable in either order.
+                Picker("Your language (native)", selection: Binding(
+                    get: { model.sourceCode }, set: { model.setSourceByCode($0) })) {
+                    ForEach(langs.filter { $0.code != v.target }, id: \.code) {
+                        Text("\($0.name) (\($0.code))").tag($0.code)
+                    }
+                }
                 Picker("Target language", selection: Binding(
                     get: { v.target }, set: { model.setTarget($0) })) {
-                    ForEach(langs, id: \.code) { Text("\($0.name) (\($0.code))").tag($0.code) }
+                    ForEach(langs.filter { $0.code != model.sourceCode }, id: \.code) {
+                        Text("\($0.name) (\($0.code))").tag($0.code)
+                    }
                 }
                 LabeledContent("Resolved", value: v.language)
             }
@@ -428,6 +471,7 @@ struct SettingsView: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
+            Section { LabeledContent("Build", value: appBuild()) }
         }
         .formStyle(.grouped)
         .padding(20)

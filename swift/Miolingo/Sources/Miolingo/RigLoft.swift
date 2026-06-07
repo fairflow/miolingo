@@ -15,7 +15,7 @@ enum SwiftUILoft {
             VStack(alignment: .leading, spacing: 14) {
                 ForEach(berth.cleats) { cleat in
                     if isLive(cleat, live) {
-                        control(cleat, rig[cleat.name] ?? defaultFitting(cleat), driver)
+                        control(cleat, rig[cleat.name] ?? defaultFitting(cleat), driver, berth)
                     }
                 }
             })
@@ -42,7 +42,8 @@ enum SwiftUILoft {
     }
 
     @ViewBuilder
-    private static func control(_ cleat: Cleat, _ fitting: Fitting, _ d: BerthDriver) -> some View {
+    private static func control(_ cleat: Cleat, _ fitting: Fitting,
+                                _ d: BerthDriver, _ berth: Berth) -> some View {
         let title = label(cleat.name)
         switch (cleat.role, fitting) {
         case (.trigger, _):
@@ -53,7 +54,7 @@ enum SwiftUILoft {
                 TextField(title, text: textBinding(d, cleat.name)) }
 
         case (.input, .choice(let style)):
-            choiceControl(title, choices(cleat, d), style, codeBinding(d, cleat.name))
+            choiceControl(title, choices(cleat, d, berth), style, codeBinding(d, cleat.name))
 
         case (.input, .slider):
             let r = range(cleat)
@@ -124,9 +125,20 @@ enum SwiftUILoft {
         let s = name.hasPrefix("set_") ? String(name.dropFirst(4)) : name
         return s.replacingOccurrences(of: "_", with: " ").capitalized
     }
-    private static func choices(_ c: Cleat, _ d: BerthDriver) -> [Choice] {
+    private static func choices(_ c: Cleat, _ d: BerthDriver, _ berth: Berth) -> [Choice] {
         guard case let .input(t) = c.role, case let .code(dom) = t else { return [] }
-        switch dom { case .fixed(let cs): return cs; case .dynamic: return d.domain(for: c.name) }
+        let full: [Choice]
+        switch dom { case .fixed(let cs): full = cs; case .dynamic: full = d.domain(for: c.name) }
+        // honour `distinct` constraints: drop values held by mutex peers (source ≠ target)
+        let excluded = mutexExcluded(c.name, berth, d)
+        return full.filter { !excluded.contains($0.id) }
+    }
+    private static func mutexExcluded(_ name: String, _ berth: Berth, _ d: BerthDriver) -> Set<String> {
+        var ex = Set<String>()
+        for case let .distinct(group) in berth.constraints where group.contains(name) {
+            for other in group where other != name { ex.insert(d.value(for: other).asCode) }
+        }
+        return ex
     }
     private static func range(_ c: Cleat) -> ClosedRange<Double> {
         if case let .input(t) = c.role, case let .bounded(lo, hi) = t { return Double(lo)...Double(hi) }
@@ -153,12 +165,14 @@ enum SwiftUILoft {
 // =====================================================================
 
 let helmBerth = Berth("Helm", [
-    Cleat("set_source", .input(.text)),
+    Cleat("set_source", .input(.code(.dynamic("languages")))),
     Cleat("set_target", .input(.code(.dynamic("languages")))),
     Cleat("set_tts",    .input(.code(.fixed([
         Choice("system", "System"), Choice("espeak", "espeak"), Choice("google", "google")])))),
     Cleat("set_speed",  .input(.bounded(80, 450))),
     Cleat("view",       .projection(.record(["source", "target", "language", "tts", "speed"]))),
+], constraints: [
+    .distinct(["set_source", "set_target"]),   // a language can't be both
 ])
 
 // The lever: flip set_tts to .choice(.radio) / .choice(.menu), or set_target to
@@ -180,7 +194,7 @@ struct HelmBerthDriver: BerthDriver {
         MainActor.assumeIsolated {
             let v = model.helm.view
             switch cleat {
-            case "set_source": return .text(v.source)
+            case "set_source": return .code(model.sourceCode)   // source as a CODE (dropdown)
             case "set_target": return .code(v.target)
             case "set_tts":    return .code(v.tts.rawValue)
             case "set_speed":  return .int(v.speed)
@@ -194,7 +208,7 @@ struct HelmBerthDriver: BerthDriver {
     }
     func domain(for cleat: String) -> [Choice] {
         MainActor.assumeIsolated {
-            cleat == "set_target"
+            (cleat == "set_target" || cleat == "set_source")
                 ? model.languages().map { Choice($0.code, "\($0.name) (\($0.code))") } : []
         }
     }
@@ -208,7 +222,7 @@ struct HelmBerthDriver: BerthDriver {
     func emit(_ cleat: String, _ value: PlimValue) {
         MainActor.assumeIsolated {
             switch cleat {
-            case "set_source": model.setSource(value.asText)
+            case "set_source": model.setSourceByCode(value.asCode)
             case "set_target": model.setTarget(value.asCode)
             case "set_tts":    if let k = TTSKind(rawValue: value.asCode) { model.setTTS(k) }
             case "set_speed":  model.setSpeed(value.asInt)

@@ -129,6 +129,36 @@ sidebar), `panel` (record), `collection` (list + per-row triggers), and the
 **component switcher** (a `choice` over component ids → tabs | sidebar | radio).
 That set renders every current miolingo surface.
 
+## Update — two capabilities added while building
+
+**Cross-cleat constraints (`distinct`).** Source and target language must differ,
+and each dropdown should drop the other's pick. That's not a per-port type — it's a
+*relation between cleats*. Added `Constraint.distinct([cleat…])` at the **Berth**
+level; the loft removes, from each choice's options, the values held by its mutex
+peers. So "source ≠ target, each excludes the other" is now **declared**, not
+hand-coded — the first cross-cleat relation the grammar carries. (It is arguably a
+semantic constraint wearing a rigging hat: the rig enforces it in the *domain*,
+while the value-functions remain free to reject a bad state too.)
+
+**Ingest affordance (paste OR file) — design.** A bulk-input port (vocab
+`import_bulk`; the future phrase import) carries one payload — text — but the user
+should supply it by **paste or by loading a file**, with an optional **format hint**
+shown in-app. The acquisition *method* is a presentation concern, so it belongs to
+the rig, not the port type. Proposed model:
+```
+Cleat("import_bulk", .input(.text))           // payload is just Text (or .blob)
+// rig:
+"import_bulk": .ingest(sources: [.paste, .file([".txt", ".csv"])],
+                       hint: "(target, source) header; word | translation | ipa")
+```
+`Fitting.ingest` declares which sources are offered, the accepted file types, and the
+hint string. A loft renders the enabled sources (a text area + a "Load file…" button)
+— both `emit`-ing the same `.text(contents)` to the same port. This generalises:
+the **same** ingest fitting drives vocab import and phrase import; only the port's
+payload type and the hint differ. (Implemented concretely in the app's import sheet
+now — paste + "Load file…" + hint; the *declarative* `.ingest` fitting is the next
+grammar step.)
+
 ## Toward a precise typing language for the multi-platform effort
 The cleanest next step is to make **Plimsoll the single source of port types**,
 authored alongside the spec (or extracted from the held-until-concrete gates), and

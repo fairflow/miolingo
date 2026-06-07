@@ -66,6 +66,12 @@ final class AppModel {
     // --- Helm ports ---
     func setSource(_ s: String) { helm.setSource(s); persistHelm() }
     func setTarget(_ t: String) { helm.setTarget(t); persistHelm() }
+    /// Source is stored as a NAME (spec); the UI picks it by CODE like the target,
+    /// so both can be dropdowns over the same `languages` list (mutually exclusive).
+    var sourceCode: String { nativeCode }
+    func setSourceByCode(_ code: String) {
+        setSource(languages().first { $0.code == code }?.name ?? code)
+    }
     func setTTS(_ e: TTSKind)   { helm.setTTS(e); persistHelm() }
     func setSpeed(_ w: Int)     { helm.setSpeed(w); persistHelm() }
 
@@ -105,9 +111,18 @@ final class AppModel {
     func beginEdit(_ id: Int) { vocab.beginEdit(id) }
     func cancelEdit() { vocab.cancelEdit() }
     func vocabAdd(_ word: String) { table.upsert(word); persistVocab() }      // add → vocabUpsert
-    func vocabImport(_ contents: String) {                                    // import_bulk → vocabImport
-        table.importBulk(ImportRequest(contents: contents, expectedTarget: helm.target))
-        persistVocab()
+    @discardableResult
+    func vocabImport(_ contents: String) -> String {                          // import_bulk → vocabImport
+        let (out, result) = importOutcome(table.entries,
+            ImportRequest(contents: contents, expectedTarget: helm.target))
+        table.entries = out; persistVocab()
+        switch result {
+        case .ok(let n):        return "Imported \(n) new word\(n == 1 ? "" : "s")."
+        case .noHeader:         return "Nothing imported: first line must be a (target, source) header, e.g. (\(helm.target), en)."
+        case .targetMismatch(let ft, let e):
+            return "Nothing imported: file target ‘\(ft)’ ≠ your target ‘\(e)’. Set Target to ‘\(ft)’, or fix the header."
+        case .tooMany(let c):   return "Nothing imported: \(c) rows exceeds the \(importLineLimit)-row limit."
+        }
     }
     func vocabDelete(_ id: Int) { table.remove(id); persistVocab() }          // delete → vocabRemove
     func vocabUpdate(id: Int, fields: [String: String]) {                     // update → vocabAmend
