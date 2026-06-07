@@ -208,6 +208,33 @@ assert["comparePhonemes empty correct: sim 0.0, dist = len(user)",
   cp0["similarity"] === 0.0 && cp0["distance"] === 3];
 ev = evaluate[<|"ipa" -> "abd"|>, recorded["x"], {"English", "fr"}];   (* recognise->"abc" vs "abd" *)
 assert["evaluate composes oracle+compare (dist 1)", ev["distance"] === 1];
+assert["evaluate now carries phoneme detail (user/target/alignment)",
+  AllTrue[{"user", "target", "alignment"}, KeyExistsQ[ev, #] &] &&
+    ev["user"] === "abc" && ev["target"] === "abd"];
+assert["evaluate alignment ends in a substitution d->c",
+  Last[ev["alignment"]] === <|"op" -> "sub", "target" -> "d", "user" -> "c"|>];
+
+sec["normalisePhonemes / alignPhonemes / scoreDetail (the matched/unmatched feedback)"];
+assert["normalisePhonemes strips word-boundary whitespace", normalisePhonemes["k o m"] === "kom"];
+alOp[a_] := #["op"] & /@ a;
+assert["alignPhonemes equal/sub/equal (user kat vs correct kit)",
+  alOp[alignPhonemes["kat", "kit"]] === {"equal", "sub", "equal"}];
+assert["alignPhonemes sub carries target i / user a",
+  alignPhonemes["kat", "kit"][[2]] === <|"op" -> "sub", "target" -> "i", "user" -> "a"|>];
+assert["alignPhonemes del when user shorter (user ka vs correct kat)",
+  With[{a = alignPhonemes["ka", "kat"]},
+    alOp[a] === {"equal", "equal", "del"} && a[[3]]["target"] === "t" && a[[3]]["user"] === ""]];
+assert["alignPhonemes ins when user longer (user kat vs correct ka)",
+  With[{a = alignPhonemes["kat", "ka"]},
+    alOp[a] === {"equal", "equal", "ins"} && a[[3]]["user"] === "t" && a[[3]]["target"] === ""]];
+assert["alignPhonemes empty -> no ops", alignPhonemes["", ""] === {}];
+(* ASCII literals here: wolframscript reads multi-byte IPA in a .wls file as raw
+   bytes, so e.g. "ʃa" would count as 3 chars. The function is correct on real
+   (properly-decoded) IPA at runtime; the test just avoids the file-encoding trap. *)
+assert["scoreDetail superset of comparePhonemes + alignment",
+  With[{sd = scoreDetail["abc", "abc"]},
+    sd["exact_match"] === True && sd["similarity"] === 1.0 &&
+    alOp[sd["alignment"]] === {"equal", "equal", "equal"}]];
 sv = sessionView[phr, 1, recorded["x"], scored[<|"distance" -> 1|>]];
 assert["sessionView total/pos/item/hasRecording/score",
   sv["total"] === 2 && sv["pos"] === 1 && sv["item"] === phr[[2]] &&
