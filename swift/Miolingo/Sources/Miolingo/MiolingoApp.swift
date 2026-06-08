@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import MiolingoCore
 
 @main
@@ -12,6 +13,26 @@ struct MiolingoApp: App {
             ContentView().environment(model)
         }
         .defaultSize(width: 920, height: 660)
+        .commands { HelpCommands() }
+
+        // The in-app Help window (⌘? / Help menu).
+        Window("Miolingo Help", id: "help") {
+            HelpView()
+        }
+        .defaultSize(width: 720, height: 660)
+    }
+}
+
+/// Replace the default Help menu: ⌘? opens the rich in-app Help window; a second
+/// item opens the macOS Help Book (Help Viewer) when the .help bundle is present.
+struct HelpCommands: Commands {
+    @Environment(\.openWindow) private var openWindow
+    var body: some Commands {
+        CommandGroup(replacing: .help) {
+            Button("Miolingo Help") { openWindow(id: "help") }
+                .keyboardShortcut("?", modifiers: .command)
+            Button("Miolingo Help Book") { NSApplication.shared.showHelp(nil) }
+        }
     }
 }
 

@@ -72,6 +72,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleVersion</key>         <string>$GITHASH</string>
   <key>LSMinimumSystemVersion</key>  <string>15.0</string>
   <key>NSHighResolutionCapable</key> <true/>
+  <key>CFBundleHelpBookFolder</key>  <string>Miolingo.help</string>
+  <key>CFBundleHelpBookName</key>    <string>Miolingo Help</string>
   <key>NSMicrophoneUsageDescription</key>
     <string>Miolingo records your voice so it can score your pronunciation.</string>
   <key>NSSpeechRecognitionUsageDescription</key>
@@ -79,6 +81,46 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 </dict>
 </plist>
 PLIST
+
+# --- Help Book (macOS Help Viewer; the simpler companion to the in-app Help) ---
+# Generate Miolingo.help from the same help.md via a light md→html pass. The
+# AppleTitle meta MUST match CFBundleHelpBookName above. Built before signing so
+# it is sealed into the bundle.
+HELP_SRC="Sources/${BIN_NAME}/Resources/help.md"
+if [ -f "$HELP_SRC" ]; then
+  HB="$APP/Contents/Resources/Miolingo.help/Contents/Resources/en.lproj"
+  mkdir -p "$HB"
+  cat > "$APP/Contents/Resources/Miolingo.help/Contents/Info.plist" <<HBPLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleIdentifier</key> <string>$BUNDLE_ID.help</string>
+  <key>CFBundleName</key>       <string>Miolingo Help</string>
+  <key>HPDBookAccessPath</key>  <string>index.html</string>
+  <key>HPDBookIndexPath</key>   <string>index.html</string>
+  <key>HPDBookTitle</key>       <string>Miolingo Help</string>
+  <key>HPDBookType</key>        <string>3</string>
+</dict></plist>
+HBPLIST
+  { echo '<!DOCTYPE html><html><head><meta charset="utf-8">'
+    echo '<meta name="AppleTitle" content="Miolingo Help">'
+    echo '<style>body{font-family:-apple-system,Helvetica,sans-serif;max-width:680px;margin:2em auto;padding:0 1.2em;line-height:1.5;color:#222}code,pre{background:#f3f3f3;border-radius:4px}code{padding:1px 4px}pre{padding:10px;overflow:auto}h1{font-size:1.7em}h2{margin-top:1.4em}</style>'
+    echo '</head><body>'
+    awk '
+      /^```/   { if (c){print "</pre>";c=0} else {print "<pre>";c=1}; next }
+      c        { gsub(/&/,"\\&amp;"); gsub(/</,"\\&lt;"); print; next }
+      /^### /  { sub(/^### /,""); print "<h3>" $0 "</h3>"; next }
+      /^## /   { sub(/^## /,"");  print "<h2>" $0 "</h2>"; next }
+      /^# /    { sub(/^# /,"");   print "<h1>" $0 "</h1>"; next }
+      /^---/   { print "<hr>"; next }
+      /^- /    { sub(/^- /,""); print "<li>" $0 "</li>"; next }
+      /^$/     { print ""; next }
+      { print "<p>" $0 "</p>" }
+    ' "$HELP_SRC"
+    echo '</body></html>'
+  } > "$HB/index.html"
+  echo "▶ Help Book → $APP/Contents/Resources/Miolingo.help"
+fi
 
 # --- code signing ------------------------------------------------------------
 # The only Mach-O in the bundle is Contents/MacOS/Miolingo; the SwiftPM
