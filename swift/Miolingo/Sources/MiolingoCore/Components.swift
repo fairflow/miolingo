@@ -39,9 +39,9 @@ public struct PracticeSession: Sendable {
     // clear_recording
     public mutating func clearRecording() { rec = nil; res = nil }
     // attempt_made — score the held recording against the current target (needs ASR result)
-    public mutating func score(recognisedPhonemes: String) {
+    public mutating func score(recognisedPhonemes: String, method: ScoringMethod = .editDistance) {
         guard rec != nil else { return }
-        res = evaluate(target: targetOf(phrases, pos), recognisedPhonemes: recognisedPhonemes)
+        res = evaluate(target: targetOf(phrases, pos), recognisedPhonemes: recognisedPhonemes, method: method)
     }
     // next_item_requested / prev_item_requested
     public mutating func next() { if canNext { pos += 1; rec = nil; res = nil } }
@@ -155,9 +155,9 @@ public struct StoryReader: Sendable {
         rec = Recording(audio: audio); res = nil
     }
     public mutating func clearRecording() { rec = nil; res = nil }
-    public mutating func score(recognisedPhonemes: String) {
+    public mutating func score(recognisedPhonemes: String, method: ScoringMethod = .editDistance) {
         guard rec != nil else { return }
-        res = evaluate(target: targetOf(phrases, pos), recognisedPhonemes: recognisedPhonemes)
+        res = evaluate(target: targetOf(phrases, pos), recognisedPhonemes: recognisedPhonemes, method: method)
     }
     public var captureWord: String? { res != nil ? targetOf(phrases, pos).text : nil }
 }

@@ -138,6 +138,14 @@ final class MiolingoCoreTests: XCTestCase {
         XCTAssertEqual(s.alignment.last?.target, "c"); XCTAssertEqual(s.alignment.last?.user, "d")
     }
 
+    func testScoringMethods() {
+        let p = Phrase(text: "x", ipa: "ABC")
+        let strict = evaluate(target: p, recognisedPhonemes: "abc", method: .editDistance)
+        XCTAssertFalse(strict.exactMatch)        // case differs → not exact
+        let lenient = evaluate(target: p, recognisedPhonemes: "abc", method: .lenient)
+        XCTAssertTrue(lenient.exactMatch)        // lenient folds case/diacritics → match
+    }
+
     // ---- Component behaviour (the agents) ----
     func testPracticeSessionFlow() {
         var ps = PracticeSession()

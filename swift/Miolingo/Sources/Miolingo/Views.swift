@@ -7,7 +7,7 @@ import MiolingoCore
 /// App version + build. The build is the git short-hash, COMPILED IN via
 /// BuildInfo.stamp (make_app.sh writes it before building) — not read from the
 /// plist, so it can't be stale/cached.
-func appBuild() -> String { "0.3.0 (\(BuildInfo.stamp))" }
+func appBuild() -> String { "0.4.0 (\(BuildInfo.stamp))" }
 
 // =====================================================================
 // SwiftUI views — one per component (the *View projections rendered).
@@ -590,9 +590,15 @@ struct SettingsView: View {
                     Text("Whisper downloads a Core ML model (~hundreds of MB) from Hugging Face on first use — needs network once, then runs on-device. Default engine is System (SFSpeech).")
                         .font(.caption).foregroundStyle(.secondary)
                 } else {
-                    Text("System uses SFSpeech, biased toward the expected phrase (contextualStrings) for higher single-word accuracy. Whisper is an opt-in alternative.")
+                    Text("System uses SFSpeech (on-device, offline). Whisper is an opt-in alternative.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+                Picker("Phoneme scoring", selection: Binding(
+                    get: { model.scoringMethod }, set: { model.scoringMethod = $0 })) {
+                    ForEach(ScoringMethod.allCases) { Text($0.rawValue).tag($0) }
+                }
+                Text("How your phonemes are compared to the target: exact edit distance, or lenient (ignores diacritics & vowel length).")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Section("Appearance") {
                 Picker("Theme", selection: Binding(
@@ -624,7 +630,7 @@ struct SettingsView: View {
                             .font(.caption).foregroundStyle(.orange)
                     }
                     if !d.lastHint.isEmpty {
-                        LabeledContent("Recognition hint", value: d.lastHint)
+                        LabeledContent("Target (not fed to ASR)", value: d.lastHint)
                     }
                     LabeledContent("Last heard (raw)",
                                    value: d.lastHeardText.isEmpty ? "—" : d.lastHeardText)

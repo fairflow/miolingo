@@ -38,6 +38,22 @@ final class SystemTTS: TTSEngine, @unchecked Sendable {
     func stop() { synth.stopSpeaking(at: .immediate) }
 }
 
+/// TTS via the espeak binary (plays through the default output). Selectable as an
+/// alternative voice engine — makes the Speech setting genuinely switchable.
+final class EspeakTTS: TTSEngine, @unchecked Sendable {
+    private var proc: Process?
+    func speak(_ text: String, languageCode: String, rate: Double) {
+        guard Espeak.available, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        stop()
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: Espeak.binary)
+        p.arguments = ["-v", languageCode, "-s", String(max(80, Int(rate))), text]
+        try? p.run()          // async; speaks through the default audio device
+        proc = p
+    }
+    func stop() { if proc?.isRunning == true { proc?.terminate() }; proc = nil }
+}
+
 /// Live diagnostics for one recognise() call — surfaced in Settings so the
 /// "nothing recognised" failure mode is never a black box. Captured on every
 /// call (success or failure).
@@ -140,25 +156,25 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
         // Prefer on-device when supported; if that yields nothing or errors,
         // retry via the server path (the on-device model may be absent/partial).
         if recogniser.supportsOnDeviceRecognition {
-            let onDev = await runTask(recogniser, url: url, onDevice: true, hint: hint)
+            let onDev = await runTask(recogniser, url: url, onDevice: true)
             if !onDev.text.isEmpty { return onDev.text }
             // on-device produced nothing — try server as a fallback
-            let server = await runTask(recogniser, url: url, onDevice: false, hint: hint)
+            let server = await runTask(recogniser, url: url, onDevice: false)
             return server.text
         } else {
-            let server = await runTask(recogniser, url: url, onDevice: false, hint: hint)
+            let server = await runTask(recogniser, url: url, onDevice: false)
             return server.text
         }
     }
 
-    private func runTask(_ recogniser: SFSpeechRecognizer, url: URL, onDevice: Bool, hint: String)
+    private func runTask(_ recogniser: SFSpeechRecognizer, url: URL, onDevice: Bool)
         async -> (text: String, error: String) {
         let request = SFSpeechURLRecognitionRequest(url: url)
         request.requiresOnDeviceRecognition = onDevice
-        // Bias the recogniser toward the expected phrase. For single known words
-        // this is the highest-value, lowest-cost accuracy win (see report).
-        let h = hint.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !h.isEmpty { request.contextualStrings = [h] }
+        // NB: we deliberately do NOT set request.contextualStrings to the target.
+        // Feeding the recogniser the answer made it return the target almost
+        // regardless of the audio — i.e. a constant score per word. Honest
+        // scoring must recognise what was actually said, unbiased.
         setDiag { $0.usedOnDevice = onDevice }
         return await withCheckedContinuation { cont in
             var resumed = false

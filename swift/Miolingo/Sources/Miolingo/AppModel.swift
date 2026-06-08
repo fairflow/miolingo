@@ -56,8 +56,12 @@ final class AppModel {
     /// preserves the plain earlier look. Switchable in Settings → Appearance.
     var skin: Skin = .miolingo
 
+    /// User-selectable phoneme scoring method (Settings → Recognition).
+    var scoringMethod: ScoringMethod = .editDistance
+
     private let db: Database
-    private let tts: TTSEngine
+    private let systemTTS = SystemTTS()
+    private let espeakTTS = EspeakTTS()
     private let systemScorer: SystemScorer    // SFSpeech path (always present)
     private let whisperScorer: SpeechScorer?  // WhisperKit path (nil on offline build)
     private let enrich: EnrichOracle
@@ -71,7 +75,6 @@ final class AppModel {
         ps = PracticeSession()
         vocab = Vocab()
         story = StoryReader(library: BundledStoryLibrary.shared)
-        tts = SystemTTS()
         systemScorer = SystemScorer()
         #if WHISPERKIT
         whisperScorer = WhisperScorer(model: "base")
@@ -130,7 +133,13 @@ final class AppModel {
 
     // --- TTS (read Helm; AVSpeech) ---
     func speak(_ text: String) {
-        tts.speak(text, languageCode: bcp47(helm.target), rate: Double(helm.speed))
+        // honour the selected TTS engine (Helm.tts); google falls back to system.
+        switch helm.tts {
+        case .espeak:
+            espeakTTS.speak(text, languageCode: helm.target, rate: Double(helm.speed))
+        case .system, .google:
+            systemTTS.speak(text, languageCode: bcp47(helm.target), rate: Double(helm.speed))
+        }
     }
 
     // --- PracticeSession flow ---
@@ -169,7 +178,7 @@ final class AppModel {
         let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
         lastRecognised = phon
         lastRecognisedText = lastHeard
-        ps.score(recognisedPhonemes: phon)
+        ps.score(recognisedPhonemes: phon, method: scoringMethod)
     }
     func psCapture() {                                         // capture_vocab → vocabUpsert
         if let w = ps.captureWord { table.upsert(w); persistVocab() }
@@ -244,7 +253,7 @@ final class AppModel {
         let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
         lastRecognised = phon
         lastRecognisedText = lastHeard
-        story.score(recognisedPhonemes: phon)
+        story.score(recognisedPhonemes: phon, method: scoringMethod)
     }
     func storyCapture() {                                                     // story_capture_vocab → vocabUpsert
         if let w = story.captureWord { table.upsert(w); persistVocab() }

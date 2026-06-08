@@ -98,11 +98,29 @@ public func scoreDetail(user: String, correct: String) -> Score {
     return s
 }
 
-/// evaluate, pure half: normalise both sides, then score + align. (The ASR —
-/// recognisePhonemes — is the oracle, performed by SpeechScorer.)
-public func evaluate(target: Phrase, recognisedPhonemes: String) -> Score {
-    scoreDetail(user: normalisePhonemes(recognisedPhonemes),
-                correct: normalisePhonemes(correctPhonemesOf(target)))
+/// Phoneme scoring method (user-selectable). `editDistance` compares the clean
+/// IPA; `lenient` first folds away diacritics + length marks so near-misses
+/// (nasalisation, vowel length) don't penalise.
+public enum ScoringMethod: String, CaseIterable, Sendable, Identifiable {
+    case editDistance = "Edit distance"
+    case lenient = "Lenient (ignore diacritics)"
+    public var id: String { rawValue }
+}
+
+func lenientNormalise(_ s: String) -> String {
+    s.folding(options: .diacriticInsensitive, locale: nil)
+        .replacingOccurrences(of: "ː", with: "")
+        .lowercased()
+}
+
+/// evaluate, pure half: normalise both sides (per method), then score + align.
+/// (The ASR — recognisePhonemes — is the oracle, performed by SpeechScorer.)
+public func evaluate(target: Phrase, recognisedPhonemes: String,
+                     method: ScoringMethod = .editDistance) -> Score {
+    var u = normalisePhonemes(recognisedPhonemes)
+    var c = normalisePhonemes(correctPhonemesOf(target))
+    if method == .lenient { u = lenientNormalise(u); c = lenientNormalise(c) }
+    return scoreDetail(user: u, correct: c)
 }
 
 // --- sessionView (read-only projection) -------------------------------
