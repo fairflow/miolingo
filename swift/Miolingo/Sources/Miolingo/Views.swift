@@ -7,7 +7,7 @@ import MiolingoCore
 /// App version + build. The build is the git short-hash, COMPILED IN via
 /// BuildInfo.stamp (make_app.sh writes it before building) — not read from the
 /// plist, so it can't be stale/cached.
-func appBuild() -> String { "0.1.0 (\(BuildInfo.stamp))" }
+func appBuild() -> String { "0.2.0 (\(BuildInfo.stamp))" }
 
 // =====================================================================
 // SwiftUI views — one per component (the *View projections rendered).
