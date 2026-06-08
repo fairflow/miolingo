@@ -45,7 +45,16 @@ final class AppModel {
     var lastError: String?
     var lastRecognised = ""       // what ASR heard (phonemes) — visible feedback
     var lastRecognisedText = ""   // the recognised PHRASE (words) — surfaced in results
+    var lastAudioFingerprint = "" // size + hash of the audio actually fed to ASR (proves it varies)
     var isScoring = false
+
+    /// Cheap content fingerprint of the audio handed to the recogniser, so the
+    /// diagnostics can show that distinct recordings really do differ.
+    static func fingerprint(_ d: Data) -> String {
+        var h: UInt32 = 5381
+        for b in d { h = (h &* 33) &+ UInt32(b) }
+        return String(format: "%d B · %08x", d.count, h)
+    }
 
     /// Active ASR engine (in-memory; defaults to SFSpeech). The Recognition
     /// picker in Settings drives this. Whisper is only usable when built with
@@ -165,7 +174,12 @@ final class AppModel {
         }
     }
     func psSelect(_ i: Int) { ps.select(i) }
-    func psRecorded(_ audio: Data) { ps.recordingMade(audio) }
+    // clear-then-record so a RE-record actually replaces the take. recordingMade
+    // is a no-op when a recording already exists (spec: recording_made only when
+    // rec===none; you re-record via clear_recording then recording_made). Without
+    // the clear, every re-record was dropped and "Check" kept re-scoring the FIRST
+    // recording — the constant-result bug.
+    func psRecorded(_ audio: Data) { ps.clearRecording(); ps.recordingMade(audio) }
     func psClearRecording() { ps.clearRecording() }
     func psNext() { ps.next() }
     func psPrev() { ps.prev() }
@@ -175,6 +189,7 @@ final class AppModel {
         isScoring = true; defer { isScoring = false }
         // Bias ASR toward the expected phrase (contextualStrings) — known at recognition time.
         let hint = ps.phrases.isEmpty ? "" : targetOf(ps.phrases, ps.pos).text
+        lastAudioFingerprint = AppModel.fingerprint(rec.audio)
         let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
         lastRecognised = phon
         lastRecognisedText = lastHeard
@@ -243,13 +258,14 @@ final class AppModel {
     func storySelectItem(_ i: Int) { story.selectItem(i) }
     func storyNext() { story.next() }
     func storyPrev() { story.prev() }
-    func storyRecorded(_ audio: Data) { story.recordingMade(audio) }
+    func storyRecorded(_ audio: Data) { story.clearRecording(); story.recordingMade(audio) }
     func storyClearRecording() { story.clearRecording() }
     func storyAttempt() async {                                               // story_attempt_made + langRead + ASR
         guard let rec = story.rec else { return }
         isScoring = true; defer { isScoring = false }
         // Bias ASR toward the expected phrase (contextualStrings) — known at recognition time.
         let hint = story.phrases.isEmpty ? "" : targetOf(story.phrases, story.pos).text
+        lastAudioFingerprint = AppModel.fingerprint(rec.audio)
         let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
         lastRecognised = phon
         lastRecognisedText = lastHeard

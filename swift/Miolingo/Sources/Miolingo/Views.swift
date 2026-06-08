@@ -632,6 +632,8 @@ struct SettingsView: View {
                     if !d.lastHint.isEmpty {
                         LabeledContent("Target (not fed to ASR)", value: d.lastHint)
                     }
+                    LabeledContent("Last audio (fed to ASR)",
+                                   value: model.lastAudioFingerprint.isEmpty ? "—" : model.lastAudioFingerprint)
                     LabeledContent("Last heard (raw)",
                                    value: d.lastHeardText.isEmpty ? "—" : d.lastHeardText)
                     if !d.lastError.isEmpty {

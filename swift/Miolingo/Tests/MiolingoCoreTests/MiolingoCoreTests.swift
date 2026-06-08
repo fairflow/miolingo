@@ -138,6 +138,19 @@ final class MiolingoCoreTests: XCTestCase {
         XCTAssertEqual(s.alignment.last?.target, "c"); XCTAssertEqual(s.alignment.last?.user, "d")
     }
 
+    // The constant-result bug: recordingMade is a no-op once a take exists (the
+    // spec guard), so a re-record must clear first. Documents the contract the
+    // AppModel re-record fix relies on.
+    func testReRecordRequiresClear() {
+        var ps = PracticeSession(); ps.load([Phrase(text: "x", ipa: "a")])
+        ps.recordingMade(Data([1]))
+        XCTAssertEqual(ps.rec?.audio, Data([1]))
+        ps.recordingMade(Data([2]))                       // guarded no-op — keeps the first take
+        XCTAssertEqual(ps.rec?.audio, Data([1]))
+        ps.clearRecording(); ps.recordingMade(Data([2]))  // the clear-then-record re-record idiom
+        XCTAssertEqual(ps.rec?.audio, Data([2]))           // now actually replaced
+    }
+
     func testScoringMethods() {
         let p = Phrase(text: "x", ipa: "ABC")
         let strict = evaluate(target: p, recognisedPhonemes: "abc", method: .editDistance)
