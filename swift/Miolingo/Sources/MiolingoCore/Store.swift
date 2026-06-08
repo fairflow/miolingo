@@ -75,7 +75,8 @@ public final class Database {
 
     private func seedDefaultSettings() {
         let defaults: [(String, String)] = [
-            ("source", "English"), ("target", "fr"), ("tts", "system"), ("speed", "250")]
+            ("source", "English"), ("target", "fr"), ("tts", "system"), ("speed", "250"),
+            ("asr", "system"), ("asrModel", "base")]
         for (k, v) in defaults {
             try? run("INSERT OR IGNORE INTO settings(key,value) VALUES(?,?)",
                      [.text(k), .text(v)])
@@ -165,7 +166,7 @@ public final class Database {
 
     // --- settings (Helm) ---------------------------------------------
     public func loadHelm() -> Helm {
-        var s = "English", t = "fr", tts = "system", speed = "250"
+        var s = "English", t = "fr", tts = "system", speed = "250", asr = "system", asrModel = "base"
         var stmt: OpaquePointer?
         if sqlite3_prepare_v2(db, "SELECT key, value FROM settings", -1, &stmt, nil) == SQLITE_OK {
             while sqlite3_step(stmt) == SQLITE_ROW {
@@ -173,19 +174,23 @@ public final class Database {
                 switch k {
                 case "source": s = v; case "target": t = v
                 case "tts": tts = v; case "speed": speed = v
+                case "asr": asr = v; case "asrModel": asrModel = v
                 default: break
                 }
             }
         }
         sqlite3_finalize(stmt)
         return Helm(source: s, target: t,
-                    tts: TTSKind(rawValue: tts) ?? .system, speed: Int(speed) ?? 250)
+                    tts: TTSKind(rawValue: tts) ?? .system, speed: Int(speed) ?? 250,
+                    asr: ASRKind(rawValue: asr) ?? .system,
+                    asrModel: WhisperModel(rawValue: asrModel) ?? .base)
     }
 
     public func saveHelm(_ h: Helm) {
         let kv: [(String, String)] = [
             ("source", h.source), ("target", h.target),
-            ("tts", h.tts.rawValue), ("speed", String(h.speed))]
+            ("tts", h.tts.rawValue), ("speed", String(h.speed)),
+            ("asr", h.asr.rawValue), ("asrModel", h.asrModel.rawValue)]
         for (k, v) in kv {
             try? run("INSERT INTO settings(key,value) VALUES(?,?) " +
                      "ON CONFLICT(key) DO UPDATE SET value=excluded.value",

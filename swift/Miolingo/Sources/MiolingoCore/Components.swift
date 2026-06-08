@@ -56,20 +56,29 @@ public struct Helm: Sendable {
     public var target: String
     public var tts: TTSKind
     public var speed: Int
+    public var asr: ASRKind
+    public var asrModel: WhisperModel
 
     public init(source: String = "English", target: String = "fr",
-                tts: TTSKind = .system, speed: Int = 250) {
+                tts: TTSKind = .system, speed: Int = 250,
+                asr: ASRKind = .system, asrModel: WhisperModel = .base) {
         self.source = source; self.target = target; self.tts = tts; self.speed = speed
+        self.asr = asr; self.asrModel = asrModel
     }
 
-    public var view: HelmView { helmView(source: source, target: target, tts: tts, speed: speed) }
+    public var view: HelmView {
+        helmView(source: source, target: target, tts: tts, speed: speed, asr: asr, asrModel: asrModel)
+    }
     public var langPair: LangPair { LangPair(source: source, target: target) }  // langRead
-    public var showsSpeed: Bool { tts == .espeak }   // the wpm slider guard
+    public var showsSpeed: Bool { tts == .espeak }      // the wpm slider guard
+    public var showsAsrModel: Bool { asr == .whisper }  // model size only for whisper
 
     public mutating func setSource(_ s: String) { source = s }
     public mutating func setTarget(_ t: String) { target = t }
     public mutating func setTTS(_ e: TTSKind) { tts = e }
     public mutating func setSpeed(_ w: Int) { if tts == .espeak { speed = w } }
+    public mutating func setAsr(_ a: ASRKind) { asr = a }
+    public mutating func setAsrModel(_ m: WhisperModel) { if asr == .whisper { asrModel = m } }
 }
 
 // --- VocabTable (the external store) — VocabTableRecovered.wl ----------

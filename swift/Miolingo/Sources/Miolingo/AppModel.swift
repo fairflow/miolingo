@@ -16,15 +16,6 @@ enum Tab: String, CaseIterable, Identifiable {
     }
 }
 
-/// Which speech-recognition engine backs `recognise()`. Default `.system`
-/// (SFSpeech — offline, zero-dependency). `.whisper` is opt-in: it needs the
-/// WhisperKit dependency (network at build resolve) + a Core ML model download.
-enum ASREngine: String, CaseIterable, Identifiable, Sendable {
-    case system = "System (SFSpeech)"
-    case whisper = "Whisper (WhisperKit)"
-    var id: String { rawValue }
-}
-
 // =====================================================================
 // AppModel — composes the components (= mioCore) and wires the restricted
 // cross-component channels (vocabUpsert / goPractice / langRead / vocabRead)
@@ -56,11 +47,6 @@ final class AppModel {
         return String(format: "%d B · %08x", d.count, h)
     }
 
-    /// Active ASR engine (in-memory; defaults to SFSpeech). The Recognition
-    /// picker in Settings drives this. Whisper is only usable when built with
-    /// the WhisperKit dependency (`whisperEngineAvailable`).
-    var asrEngine: ASREngine = .system
-
     /// Active visual skin (L3 styling). `.miolingo` is the default; `.system`
     /// preserves the plain earlier look. Switchable in Settings → Appearance.
     var skin: Skin = .miolingo
@@ -72,8 +58,11 @@ final class AppModel {
     private let systemTTS = SystemTTS()
     private let espeakTTS = EspeakTTS()
     private let systemScorer: SystemScorer    // SFSpeech path (always present)
-    private let whisperScorer: SpeechScorer?  // WhisperKit path (nil on offline build)
     private let enrich: EnrichOracle
+    #if WHISPERKIT
+    private var whisper: WhisperScorer?       // current Whisper instance (lazily built per model)
+    private var whisperModel: WhisperModel?
+    #endif
 
     init() {
         let database = (try? Database(path: Database.defaultPath()))
@@ -85,11 +74,6 @@ final class AppModel {
         vocab = Vocab()
         story = StoryReader(library: BundledStoryLibrary.shared)
         systemScorer = SystemScorer()
-        #if WHISPERKIT
-        whisperScorer = WhisperScorer(model: "base")
-        #else
-        whisperScorer = nil
-        #endif
         // translation from the bundled lexicon + IPA from espeak (offline autofill).
         enrich = DictionaryEnrichOracle(table: AppModel.loadLexicon(),
                                         useEspeakIPA: Espeak.available)
@@ -104,14 +88,31 @@ final class AppModel {
         return raw
     }
 
-    /// The scorer for the selected engine; falls back to SFSpeech if Whisper
-    /// is selected but unavailable (offline build).
+    /// The scorer for the engine selected on Helm (helm.asr); Whisper uses the
+    /// selected model (helm.asrModel), built lazily and reused until the model
+    /// changes. Falls back to SFSpeech when Whisper isn't built in.
     private var activeScorer: SpeechScorer {
-        if asrEngine == .whisper, let w = whisperScorer { return w }
+        #if WHISPERKIT
+        if helm.asr == .whisper {
+            if whisper == nil || whisperModel != helm.asrModel {
+                whisper = WhisperScorer(model: helm.asrModel.rawValue)
+                whisperModel = helm.asrModel
+            }
+            return whisper!
+        }
+        #endif
         return systemScorer
     }
     /// Whether the Whisper engine can actually be selected (built with WhisperKit).
-    var whisperEngineAvailable: Bool { whisperScorer != nil }
+    var whisperEngineAvailable: Bool {
+        #if WHISPERKIT
+        return true
+        #else
+        return false
+        #endif
+    }
+    func setAsr(_ a: ASRKind) { helm.setAsr(a); persistHelm() }
+    func setAsrModel(_ m: WhisperModel) { helm.setAsrModel(m); persistHelm() }
 
     // --- persistence ---
     private func persistVocab() { db.saveEntries(table.entries) }
@@ -289,7 +290,7 @@ final class AppModel {
     /// Raw transcript the active engine last heard (words before espeak).
     private var lastHeard: String {
         #if WHISPERKIT
-        if asrEngine == .whisper, let w = whisperScorer as? WhisperScorer {
+        if helm.asr == .whisper, let w = whisper {
             return w.diagnostics.lastHeardText
         }
         #endif

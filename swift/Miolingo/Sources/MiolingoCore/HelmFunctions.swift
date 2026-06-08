@@ -21,9 +21,12 @@ public struct HelmView: Equatable, Sendable {
     public var language: String    // trainingNameOf(target)
     public var tts: TTSKind
     public var speed: Int
+    public var asr: ASRKind        // recognition engine
+    public var asrModel: WhisperModel  // Whisper model size
 }
 
-public func helmView(source: String, target: String, tts: TTSKind, speed: Int) -> HelmView {
-    HelmView(source: source, target: target,
-             language: trainingNameOf(target), tts: tts, speed: speed)
+public func helmView(source: String, target: String, tts: TTSKind, speed: Int,
+                     asr: ASRKind, asrModel: WhisperModel) -> HelmView {
+    HelmView(source: source, target: target, language: trainingNameOf(target),
+             tts: tts, speed: speed, asr: asr, asrModel: asrModel)
 }

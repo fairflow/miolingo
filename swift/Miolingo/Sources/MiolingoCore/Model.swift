@@ -28,6 +28,19 @@ public enum TTSKind: String, CaseIterable, Codable, Sendable {
     case google, espeak, system   // `system` = AVSpeechSynthesizer (native default)
 }
 
+/// The ASR engine setting (Helm.asr).
+public enum ASRKind: String, CaseIterable, Codable, Sendable, Identifiable {
+    case system, whisper
+    public var id: String { rawValue }
+    public var label: String { self == .system ? "System (SFSpeech)" : "Whisper" }
+}
+
+/// The Whisper model size (Helm.asrModel) — only meaningful when asr == .whisper.
+public enum WhisperModel: String, CaseIterable, Codable, Sendable, Identifiable {
+    case tiny, base, small, medium
+    public var id: String { rawValue }
+}
+
 public enum ReadingMode: String, CaseIterable, Codable, Sendable {
     case full, browse, practice
 }

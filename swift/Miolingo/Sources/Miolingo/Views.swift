@@ -7,7 +7,7 @@ import MiolingoCore
 /// App version + build. The build is the git short-hash, COMPILED IN via
 /// BuildInfo.stamp (make_app.sh writes it before building) — not read from the
 /// plist, so it can't be stale/cached.
-func appBuild() -> String { "0.4.0 (\(BuildInfo.stamp))" }
+func appBuild() -> String { "0.5.0 (\(BuildInfo.stamp))" }
 
 // =====================================================================
 // SwiftUI views — one per component (the *View projections rendered).
@@ -575,19 +575,25 @@ struct SettingsView: View {
             }
             Section("Recognition") {
                 Picker("ASR engine", selection: Binding(
-                    get: { model.asrEngine }, set: { model.asrEngine = $0 })) {
-                    ForEach(ASREngine.allCases) { e in
-                        Text(e.rawValue).tag(e)
+                    get: { model.helm.asr }, set: { model.setAsr($0) })) {
+                    ForEach(ASRKind.allCases) { e in
+                        Text(e.label).tag(e)
                             // Whisper only selectable when built with WhisperKit.
                             .foregroundStyle(e == .whisper && !model.whisperEngineAvailable
                                              ? .secondary : .primary)
                     }
                 }
+                if model.helm.showsAsrModel {     // whisper-only model size (spec guard)
+                    Picker("Whisper model", selection: Binding(
+                        get: { model.helm.asrModel }, set: { model.setAsrModel($0) })) {
+                        ForEach(WhisperModel.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                }
                 if !model.whisperEngineAvailable {
                     Text("Whisper is unavailable in this (offline) build. Default is System (SFSpeech). To enable Whisper, build with the WhisperKit dependency.")
                         .font(.caption).foregroundStyle(.secondary)
-                } else if model.asrEngine == .whisper {
-                    Text("Whisper downloads a Core ML model (~hundreds of MB) from Hugging Face on first use — needs network once, then runs on-device. Default engine is System (SFSpeech).")
+                } else if model.helm.asr == .whisper {
+                    Text("Whisper downloads the chosen model (small/medium are more accurate; ~hundreds of MB) on first use — needs network once, then runs on-device. Slow to load, fine to run.")
                         .font(.caption).foregroundStyle(.secondary)
                 } else {
                     Text("System uses SFSpeech (on-device, offline). Whisper is an opt-in alternative.")
