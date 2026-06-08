@@ -537,6 +537,27 @@ struct SettingsView: View {
                 }
                 Button("Test voice") { model.speak(model.story.view.item?.text ?? "Bonjour") }
             }
+            Section("Recognition") {
+                Picker("ASR engine", selection: Binding(
+                    get: { model.asrEngine }, set: { model.asrEngine = $0 })) {
+                    ForEach(ASREngine.allCases) { e in
+                        Text(e.rawValue).tag(e)
+                            // Whisper only selectable when built with WhisperKit.
+                            .foregroundStyle(e == .whisper && !model.whisperEngineAvailable
+                                             ? .secondary : .primary)
+                    }
+                }
+                if !model.whisperEngineAvailable {
+                    Text("Whisper is unavailable in this (offline) build. Default is System (SFSpeech). To enable Whisper, build with the WhisperKit dependency.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } else if model.asrEngine == .whisper {
+                    Text("Whisper downloads a Core ML model (~hundreds of MB) from Hugging Face on first use — needs network once, then runs on-device. Default engine is System (SFSpeech).")
+                        .font(.caption).foregroundStyle(.secondary)
+                } else {
+                    Text("System uses SFSpeech, biased toward the expected phrase (contextualStrings) for higher single-word accuracy. Whisper is an opt-in alternative.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
             Section("Rig preview (experimental)") {
                 DisclosureGroup("Settings generated from the rig declaration") {
                     RiggedHelmView()
@@ -551,7 +572,15 @@ struct SettingsView: View {
                     LabeledContent("Recogniser available", value: d.isAvailable ? "yes" : "no")
                     LabeledContent("On-device model", value: d.supportsOnDevice ? "yes" : "no")
                     LabeledContent("Last attempt path", value: d.usedOnDevice ? "on-device" : "server")
-                    LabeledContent("Last recording", value: "\(d.lastAudioBytes) bytes")
+                    LabeledContent("Last recording",
+                                   value: String(format: "%d bytes (%.2fs)", d.lastAudioBytes, d.lastAudioSeconds))
+                    if d.lastAudioSeconds > 0 && d.lastAudioSeconds < 0.3 {
+                        Text("Recording is very short (<0.3s) — likely cut off or near-silent. Hold the button longer.")
+                            .font(.caption).foregroundStyle(.orange)
+                    }
+                    if !d.lastHint.isEmpty {
+                        LabeledContent("Recognition hint", value: d.lastHint)
+                    }
                     LabeledContent("Last heard (raw)",
                                    value: d.lastHeardText.isEmpty ? "—" : d.lastHeardText)
                     if !d.lastError.isEmpty {

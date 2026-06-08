@@ -48,8 +48,17 @@ struct ScorerDiagnostics: Sendable {
     var supportsOnDevice = false  // recogniser.supportsOnDeviceRecognition
     var usedOnDevice = false      // which path the last attempt actually used
     var lastAudioBytes = 0        // size of the WAV handed to the recogniser
+    var lastAudioSeconds = 0.0    // estimated recording duration (silence/too-short check)
+    var lastHint = ""             // contextualStrings hint used to bias recognition
     var lastError = ""            // recogniser error description, if any
     var lastHeardText = ""        // raw transcript before espeak (empty ⇒ true miss)
+}
+
+/// Estimate the duration (seconds) of a 16 kHz mono 16-bit PCM WAV from byte
+/// count: header is 44 bytes, each sample is 2 bytes, 16000 samples/sec.
+func wavDurationSeconds(bytes: Int, sampleRate: Double = 16000, bytesPerSample: Int = 2) -> Double {
+    let dataBytes = max(0, bytes - 44)
+    return Double(dataBytes) / (sampleRate * Double(bytesPerSample))
 }
 
 /// recognisePhonemes via SFSpeechRecognizer (on-device) → recognised text →
@@ -91,15 +100,20 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
         }
     }
 
-    func recognise(audio: Data, languageCode: String) async -> String {
-        let text = await transcribe(audio: audio, languageCode: languageCode)
+    func recognise(audio: Data, languageCode: String, hint: String) async -> String {
+        let text = await transcribe(audio: audio, languageCode: languageCode, hint: hint)
         guard !text.isEmpty else { return "" }
         // ASR text → phonemes (espeak), matching the target language voice.
         return Espeak.ipa(text, voice: languageCode) ?? text
     }
 
-    private func transcribe(audio: Data, languageCode: String) async -> String {
-        setDiag { $0 = ScorerDiagnostics(); $0.lastAudioBytes = audio.count }
+    private func transcribe(audio: Data, languageCode: String, hint: String) async -> String {
+        setDiag {
+            $0 = ScorerDiagnostics()
+            $0.lastAudioBytes = audio.count
+            $0.lastAudioSeconds = wavDurationSeconds(bytes: audio.count)
+            $0.lastHint = hint
+        }
 
         // Speech Recognition is a SEPARATE TCC permission from the microphone.
         // If the launch prompt never resolved (notDetermined — common for an
@@ -126,21 +140,25 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
         // Prefer on-device when supported; if that yields nothing or errors,
         // retry via the server path (the on-device model may be absent/partial).
         if recogniser.supportsOnDeviceRecognition {
-            let onDev = await runTask(recogniser, url: url, onDevice: true)
+            let onDev = await runTask(recogniser, url: url, onDevice: true, hint: hint)
             if !onDev.text.isEmpty { return onDev.text }
             // on-device produced nothing — try server as a fallback
-            let server = await runTask(recogniser, url: url, onDevice: false)
+            let server = await runTask(recogniser, url: url, onDevice: false, hint: hint)
             return server.text
         } else {
-            let server = await runTask(recogniser, url: url, onDevice: false)
+            let server = await runTask(recogniser, url: url, onDevice: false, hint: hint)
             return server.text
         }
     }
 
-    private func runTask(_ recogniser: SFSpeechRecognizer, url: URL, onDevice: Bool)
+    private func runTask(_ recogniser: SFSpeechRecognizer, url: URL, onDevice: Bool, hint: String)
         async -> (text: String, error: String) {
         let request = SFSpeechURLRecognitionRequest(url: url)
         request.requiresOnDeviceRecognition = onDevice
+        // Bias the recogniser toward the expected phrase. For single known words
+        // this is the highest-value, lowest-cost accuracy win (see report).
+        let h = hint.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !h.isEmpty { request.contextualStrings = [h] }
         setDiag { $0.usedOnDevice = onDevice }
         return await withCheckedContinuation { cont in
             var resumed = false

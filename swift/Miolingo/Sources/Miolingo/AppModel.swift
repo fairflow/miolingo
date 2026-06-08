@@ -16,6 +16,15 @@ enum Tab: String, CaseIterable, Identifiable {
     }
 }
 
+/// Which speech-recognition engine backs `recognise()`. Default `.system`
+/// (SFSpeech — offline, zero-dependency). `.whisper` is opt-in: it needs the
+/// WhisperKit dependency (network at build resolve) + a Core ML model download.
+enum ASREngine: String, CaseIterable, Identifiable, Sendable {
+    case system = "System (SFSpeech)"
+    case whisper = "Whisper (WhisperKit)"
+    var id: String { rawValue }
+}
+
 // =====================================================================
 // AppModel — composes the components (= mioCore) and wires the restricted
 // cross-component channels (vocabUpsert / goPractice / langRead / vocabRead)
@@ -38,10 +47,15 @@ final class AppModel {
     var lastRecognisedText = ""   // the recognised PHRASE (words) — surfaced in results
     var isScoring = false
 
+    /// Active ASR engine (in-memory; defaults to SFSpeech). The Recognition
+    /// picker in Settings drives this. Whisper is only usable when built with
+    /// the WhisperKit dependency (`whisperEngineAvailable`).
+    var asrEngine: ASREngine = .system
+
     private let db: Database
     private let tts: TTSEngine
-    private let scorer: SpeechScorer
-    private let systemScorer: SystemScorer?   // typed handle for live ASR diagnostics
+    private let systemScorer: SystemScorer    // SFSpeech path (always present)
+    private let whisperScorer: SpeechScorer?  // WhisperKit path (nil on offline build)
     private let enrich: EnrichOracle
 
     init() {
@@ -54,9 +68,12 @@ final class AppModel {
         vocab = Vocab()
         story = StoryReader(library: BundledStoryLibrary.shared)
         tts = SystemTTS()
-        let s = SystemScorer()
-        scorer = s
-        systemScorer = s
+        systemScorer = SystemScorer()
+        #if WHISPERKIT
+        whisperScorer = WhisperScorer(model: "base")
+        #else
+        whisperScorer = nil
+        #endif
         // translation from the bundled lexicon + IPA from espeak (offline autofill).
         enrich = DictionaryEnrichOracle(table: AppModel.loadLexicon(),
                                         useEspeakIPA: Espeak.available)
@@ -70,6 +87,15 @@ final class AppModel {
         else { return [:] }
         return raw
     }
+
+    /// The scorer for the selected engine; falls back to SFSpeech if Whisper
+    /// is selected but unavailable (offline build).
+    private var activeScorer: SpeechScorer {
+        if asrEngine == .whisper, let w = whisperScorer { return w }
+        return systemScorer
+    }
+    /// Whether the Whisper engine can actually be selected (built with WhisperKit).
+    var whisperEngineAvailable: Bool { whisperScorer != nil }
 
     // --- persistence ---
     private func persistVocab() { db.saveEntries(table.entries) }
@@ -134,9 +160,11 @@ final class AppModel {
     func psAttempt() async {                                   // attempt_made + langRead + ASR
         guard let rec = ps.rec else { return }
         isScoring = true; defer { isScoring = false }
-        let phon = await scorer.recognise(audio: rec.audio, languageCode: helm.target)
+        // Bias ASR toward the expected phrase (contextualStrings) — known at recognition time.
+        let hint = ps.phrases.isEmpty ? "" : targetOf(ps.phrases, ps.pos).text
+        let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
         lastRecognised = phon
-        lastRecognisedText = systemScorer?.diagnostics.lastHeardText ?? ""
+        lastRecognisedText = lastHeard
         ps.score(recognisedPhonemes: phon)
     }
     func psCapture() {                                         // capture_vocab → vocabUpsert
@@ -207,9 +235,11 @@ final class AppModel {
     func storyAttempt() async {                                               // story_attempt_made + langRead + ASR
         guard let rec = story.rec else { return }
         isScoring = true; defer { isScoring = false }
-        let phon = await scorer.recognise(audio: rec.audio, languageCode: helm.target)
+        // Bias ASR toward the expected phrase (contextualStrings) — known at recognition time.
+        let hint = story.phrases.isEmpty ? "" : targetOf(story.phrases, story.pos).text
+        let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
         lastRecognised = phon
-        lastRecognisedText = systemScorer?.diagnostics.lastHeardText ?? ""
+        lastRecognisedText = lastHeard
         story.score(recognisedPhonemes: phon)
     }
     func storyCapture() {                                                     // story_capture_vocab → vocabUpsert
@@ -221,10 +251,19 @@ final class AppModel {
     var sceneCount: Int { BundledStoryLibrary.shared.sceneCount }
 
     // --- ASR diagnostics (Settings → Diagnostics) ---
-    /// Live status of the last recognise() attempt; nil if not using SystemScorer.
-    var scorerDiagnostics: ScorerDiagnostics? { systemScorer?.diagnostics }
+    /// Live status of the last SFSpeech recognise() attempt.
+    var scorerDiagnostics: ScorerDiagnostics? { systemScorer.diagnostics }
     /// The Speech Recognition TCC status right now (separate from microphone).
     var speechAuthStatus: String {
         SystemScorer.describe(SFSpeechRecognizer.authorizationStatus())
+    }
+    /// Raw transcript the active engine last heard (words before espeak).
+    private var lastHeard: String {
+        #if WHISPERKIT
+        if asrEngine == .whisper, let w = whisperScorer as? WhisperScorer {
+            return w.diagnostics.lastHeardText
+        }
+        #endif
+        return systemScorer.diagnostics.lastHeardText
     }
 }
