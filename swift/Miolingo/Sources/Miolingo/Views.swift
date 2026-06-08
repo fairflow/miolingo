@@ -50,16 +50,16 @@ struct ScoreRing: View {
     var pct: Int { Int((similarity * 100).rounded()) }
     var body: some View {
         ZStack {
-            Circle().stroke(.quaternary, lineWidth: 8)
+            Circle().stroke(.quaternary, lineWidth: 5)
             Circle().trim(from: 0, to: max(0.001, min(1, similarity)))
-                .stroke(skin.scoreColor(similarity), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                .stroke(skin.scoreColor(similarity), style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .animation(.easeOut(duration: 0.45), value: similarity)
             Text(exact ? "✓" : "\(pct)%")
-                .font(.system(.title3, design: .rounded).weight(.bold))
+                .font(.system(.subheadline, design: .rounded).weight(.bold))
                 .foregroundStyle(skin.scoreColor(similarity))
         }
-        .frame(width: 78, height: 78)
+        .frame(width: 52, height: 52)
     }
 }
 
