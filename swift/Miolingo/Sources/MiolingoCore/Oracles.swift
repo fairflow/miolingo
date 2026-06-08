@@ -20,8 +20,11 @@ public protocol TTSEngine: Sendable {
 }
 
 /// recognisePhonemes: audio + target language → recognised phoneme/text string.
+/// `hint` is the expected TARGET phrase (may be ""): recognisers that can be
+/// biased toward expected words (e.g. SFSpeech contextualStrings) should use it;
+/// others ignore it. For single known words this sharply improves accuracy.
 public protocol SpeechScorer: Sendable {
-    func recognise(audio: Data, languageCode: String) async -> String
+    func recognise(audio: Data, languageCode: String, hint: String) async -> String
 }
 
 // --- espeak grapheme→phoneme (spec/g2p.wl) ----------------------------

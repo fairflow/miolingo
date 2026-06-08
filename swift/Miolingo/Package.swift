@@ -8,6 +8,12 @@ let package = Package(
         .library(name: "MiolingoCore", targets: ["MiolingoCore"]),
         .executable(name: "Miolingo", targets: ["Miolingo"]),
     ],
+    dependencies: [
+        // OPT-IN Whisper ASR engine. This breaks the zero-dependency / offline-build
+        // invariant (network at resolve; Core ML model download on first run), so the
+        // default ASR engine stays SFSpeech — see WhisperScorer.swift + report.
+        .package(url: "https://github.com/argmaxinc/WhisperKit", from: "1.0.0"),
+    ],
     targets: [
         // Pure domain ported from the CCS spec (spec/*.wl). Foundation + SQLite only;
         // no UI, so it builds and tests headlessly.
@@ -19,11 +25,19 @@ let package = Package(
         // (AVSpeechSynthesizer / SFSpeechRecognizer / espeak).
         .executableTarget(
             name: "Miolingo",
-            dependencies: ["MiolingoCore"],
+            dependencies: [
+                "MiolingoCore",
+                .product(name: "WhisperKit", package: "WhisperKit"),
+            ],
             resources: [.process("Resources")],
             // The native oracle code (Speech/AVFoundation completion handlers)
             // predates strict-concurrency; core + tests stay Swift 6.
-            swiftSettings: [.swiftLanguageMode(.v5)]
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+                // Gate WhisperScorer on this flag so the app still compiles if the
+                // WhisperKit dependency is removed for an offline build.
+                .define("WHISPERKIT"),
+            ]
         ),
         .testTarget(
             name: "MiolingoCoreTests",
