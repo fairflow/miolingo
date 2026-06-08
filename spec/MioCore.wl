@@ -67,7 +67,7 @@
 mioComponents =
   {"PS"          -> call["PS", {}, 0, none, none],
    "Vocab"       -> call["Vocab", signedIn, alpha, none, none],   (* (i): NO entries — they live in VocabTable *)
-   "Helm"        -> call["Helm", "English", "fr", google, 250],
+   "Helm"        -> call["Helm", "English", "fr", google, 250, system, base],
    "VocabTable"  -> call["VocabTable", {}],                       (* the persisted collection, owned here *)
    "StoryReader" -> call["StoryReader", 0, 0, browse, none, none]};  (* narrative tab; practice mode
        mirrors PSActive, capturing via vocabUpsert + scoring via langRead — no NEW restricted channels *)

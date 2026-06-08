@@ -42,10 +42,10 @@
    LOAD ORDER: RCA_core.wl, discipline.wl, then this (+ HelmFunctions.wl).
    ===================================================================== *)
 
-defineAgent["Helm", {source, target, tts, speed},
+defineAgent["Helm", {source, target, tts, speed, asr, asrModel},
   choice[
-    precede[label["view", param[helmView[source, target, tts, speed]]],
-      call["Helm", source, target, tts, speed]],
+    precede[label["view", param[helmView[source, target, tts, speed, asr, asrModel]]],
+      call["Helm", source, target, tts, speed, asr, asrModel]],
     (* internal READ port (restricted in mioCore): borrowers PULL the
        (source, target) pair fresh at the point of use. A self-loop — always
        offered, never changing Helm — so a consumer waiting at langRead?(lp)
@@ -53,14 +53,22 @@ defineAgent["Helm", {source, target, tts, speed},
        value; no cached copy, no staleness. See ARCHITECTURE.md "Borrowed vs
        owned data". Distinct from the external `view` projection. *)
     precede[label["langRead", param[{source, target}]],
-      call["Helm", source, target, tts, speed]],
+      call["Helm", source, target, tts, speed, asr, asrModel]],
     precede[coLabel["set_source", binding[s]],
-      call["Helm", s, target, tts, speed]],
+      call["Helm", s, target, tts, speed, asr, asrModel]],
     precede[coLabel["set_target", binding[t]],
-      call["Helm", source, t, tts, speed]],
+      call["Helm", source, t, tts, speed, asr, asrModel]],
     precede[coLabel["set_tts", binding[e]],
-      call["Helm", source, target, e, speed]],
+      call["Helm", source, target, e, speed, asr, asrModel]],
     (* the wpm slider is espeak-only in sidebar.py (tts_is_espeak guard) *)
     if[tts === espeak,
       precede[coLabel["set_speed", binding[w]],
-        call["Helm", source, target, tts, w]]]]]
+        call["Helm", source, target, tts, w, asr, asrModel]]],
+    (* ASR engine (system | whisper); always settable. *)
+    precede[coLabel["set_asr", binding[a]],
+      call["Helm", source, target, tts, speed, a, asrModel]],
+    (* the Whisper model size (tiny|base|small|medium) is only meaningful for
+       whisper — guarded exactly like set_speed is gated on espeak. *)
+    if[asr === whisper,
+      precede[coLabel["set_asr_model", binding[m]],
+        call["Helm", source, target, tts, speed, asr, m]]]]]

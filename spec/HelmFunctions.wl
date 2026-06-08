@@ -20,10 +20,11 @@ trainingNameOf::usage =
 language code (e.g. \"fr\" -> \"French\"); unknown codes pass through as their \
 own string. Recovered from the sidebar's target-code -> name mapping.";
 helmView::usage =
-  "helmView[source, target, tts, speed] is Helm's read-only session projection \
-<|source, target, language, tts, speed|> — the (source, target) language pair \
-(plus TTS engine/speed) that the rest of the system reads (it never writes it). \
-`language` is trainingNameOf[target].";
+  "helmView[source, target, tts, speed, asr, asrModel] is Helm's read-only session \
+projection <|source, target, language, tts, speed, asr, asrModel|> — the (source, \
+target) language pair plus the speech-engine settings (TTS engine/speed, ASR \
+engine/model) that the rest of the system reads (it never writes it). `language` \
+is trainingNameOf[target]; the recogniser oracle reads asr/asrModel at point of use.";
 
 (* target-code -> training-map full name (sidebar's language map; the common
    set — unknown codes pass through, so it degrades gracefully) *)
@@ -40,9 +41,11 @@ trainingNameOf[code_] := Lookup[helmTrainingNames, ToString[code], ToString[code
    real "fr" in (the language-stuck-on-the-binder bug, surfaced by composing Helm
    into mioCore). Gating on target_String keeps the whole projection symbolic
    until the concrete code lands, then computes consistently. *)
-helmView[source_, target_String, tts_, speed_] := <|
+helmView[source_, target_String, tts_, speed_, asr_, asrModel_] := <|
   "source"   -> source,                  (* native language NAME *)
   "target"   -> target,                  (* target language CODE *)
   "language" -> trainingNameOf[target],  (* target's training-map name *)
   "tts"      -> tts,
-  "speed"    -> speed|>;
+  "speed"    -> speed,
+  "asr"      -> asr,                      (* recognition engine: system | whisper *)
+  "asrModel" -> asrModel|>;               (* Whisper model size: tiny|base|small|medium *)

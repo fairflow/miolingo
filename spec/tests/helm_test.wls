@@ -23,18 +23,21 @@ sup[s_, nm_, v_] := Last[supplyValue[SelectFirst[readyTransitions[transNamed, s]
 view[s_] := Map[Identity, viewProjections[transNamed, s]["view"]];
 hr = StringRepeat["=", 70];
 
-sG = call["Helm", "English", "fr", google, 250];   (* tts = google *)
-sE = call["Helm", "English", "fr", espeak, 250];    (* tts = espeak *)
+sG = call["Helm", "English", "fr", google, 250, system, base];   (* tts = google *)
+sE = call["Helm", "English", "fr", espeak, 250, system, base];    (* tts = espeak *)
 
 Print[hr]; Print["1. ports — set_speed is gated on tts === espeak"]; Print[hr];
 (* langRead is the internal READ port (a borrower pulls {source,target} from it);
    STANDALONE it is unrestricted so it shows here — in mioCore it is restricted
    to an internal tau and does NOT appear externally. *)
-assert["google: view + langRead + set_source/target/tts, NO set_speed",
-  ports[sG] === {"langRead", "set_source", "set_target", "set_tts", "view"}];
+assert["google: view + langRead + set_source/target/tts + set_asr, NO set_speed",
+  ports[sG] === {"langRead", "set_asr", "set_source", "set_target", "set_tts", "view"}];
 assert["espeak: + set_speed appears",
   MemberQ[ports[sE], "set_speed"]];
 assert["set_speed absent unless espeak", !MemberQ[ports[sG], "set_speed"]];
+(* set_asr always available; set_asr_model whisper-only (mirrors set_speed/espeak). *)
+assert["set_asr always present", MemberQ[ports[sG], "set_asr"]];
+assert["set_asr_model absent unless whisper", !MemberQ[ports[sG], "set_asr_model"]];
 
 (* langRead emits the (source, target) pair the borrowers pull *)
 assert["langRead carries {source, target}",
@@ -46,6 +49,8 @@ v = view[sG];
 assert["source / target / language / tts / speed present",
   v["source"] === "English" && v["target"] === "fr" &&
   v["language"] === "French" && v["tts"] === google && v["speed"] === 250];
+assert["asr / asrModel present (default system / base)",
+  v["asr"] === system && v["asrModel"] === base];
 assert["trainingNameOf maps the target code", trainingNameOf["pt"] === "Portuguese"];
 assert["unknown code passes through", trainingNameOf["xx"] === "xx"];
 
@@ -57,6 +62,11 @@ assert["set_source -> updates source",
 sEsp = sup[sG, "set_tts", espeak];
 assert["set_tts espeak -> set_speed now available", MemberQ[ports[sEsp], "set_speed"]];
 assert["then set_speed 300 -> speed 300", view[sup[sEsp, "set_speed", 300]]["speed"] === 300];
+(* ASR engine + model, mirroring tts + speed *)
+sWh = sup[sG, "set_asr", whisper];
+assert["set_asr whisper -> set_asr_model now available", MemberQ[ports[sWh], "set_asr_model"]];
+assert["then set_asr_model small -> asrModel small",
+  view[sup[sWh, "set_asr_model", small]]["asrModel"] === small];
 
 Print[hr];
 Print["ALL ASSERTIONS: ", ok[allOk]];

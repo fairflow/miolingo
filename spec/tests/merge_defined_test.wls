@@ -49,9 +49,11 @@ deNames = extNames[transNamed, settled[transNamed, mioCoreD]];
    contributes only open_vocab. StoryReader starts in browse mode at scene 0 / pos 0,
    so it contributes storyReaderView + set_mode + select_scene + story_select_item +
    story_next_item_requested (story_prev guarded out at pos 0). Helm's set_speed is
-   espeak-only (tts=google). VocabTable's ports are all restricted (internal τ). *)
+   espeak-only and set_asr_model is whisper-only (tts=google, asr=system), so both
+   are guarded out; set_asr is always available. VocabTable's ports are all
+   restricted (internal τ). *)
 expected = {"helmView", "load_material", "open_practice", "open_vocab", "pSView",
-            "select_scene", "set_mode", "set_source", "set_target", "set_tts",
+            "select_scene", "set_asr", "set_mode", "set_source", "set_target", "set_tts",
             "story_next_item_requested", "storyReaderView", "story_select_item"};
 
 Print[hr]; Print["1. EXTERNAL READY-SET PARITY (settled past the vocabRead τ)"]; Print[hr];
