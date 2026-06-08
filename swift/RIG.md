@@ -165,6 +165,26 @@ payload type and the hint differ. (Implemented concretely in the app's import sh
 now — paste + "Load file…" + hint; the *declarative* `.ingest` fitting is the next
 grammar step.)
 
+## Update — the grammar is now JSON (Phase 3)
+
+The rig is externalised to **language-neutral JSON**, the three orthogonal layers
+as separate files (Helm done as the proof):
+- `berth.helm.json` — typed cleats (the sort). Types use a compact string tag
+  (`code:dynamic:languages`, `code:fixed:system=System,…`, `bounded:80:450`,
+  `record:source,target,…`) so any platform parses them without polymorphic-JSON
+  pain. Plus `constraints` (e.g. `{"distinct":["set_source","set_target"]}`).
+- `rig.swiftui.json` — `cleat → fitting` (`choice.menu`, `slider`, `panel`, …).
+- `deckplan.helm.json` — **layout**: ordered titled `groups` of cleats.
+
+`MiolingoCore/RigJSON.swift` (`RigGrammar`) decodes these into the model; the
+SwiftUI loft renders `render(berth, rig, deck, driver)` (deck-plan → titled
+sections). The app loads them via `BundledResource`, falling back to the in-code
+declarations. A second loft (Compose/Web) would consume the **same** three files.
+
+Also this round: the top-level component switch is now a **sidebar**
+(`NavigationSplitView`) — the rig's "tabs → sidebar" variety, and the
+"sidebar for settings" request.
+
 ## Toward a precise typing language for the multi-platform effort
 The cleanest next step is to make **Plimsoll the single source of port types**,
 authored alongside the spec (or extracted from the held-until-concrete gates), and

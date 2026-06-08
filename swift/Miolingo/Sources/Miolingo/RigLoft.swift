@@ -9,6 +9,26 @@ import MiolingoCore
 // =====================================================================
 
 enum SwiftUILoft {
+    /// Render grouped by a DeckPlan (layout): each group is a titled section in
+    /// the declared order. The rig gives control KINDS, the deck-plan gives WHERE.
+    static func render(_ berth: Berth, rig: Rig, deck: DeckPlan, driver: BerthDriver) -> AnyView {
+        let live = driver.afforded()
+        let byName = Dictionary(uniqueKeysWithValues: berth.cleats.map { ($0.name, $0) })
+        return AnyView(
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(deck.groups) { group in
+                    VStack(alignment: .leading, spacing: 8) {
+                        if let t = group.title { Text(t).font(.headline) }
+                        ForEach(group.cleats, id: \.self) { name in
+                            if let cleat = byName[name], isLive(cleat, live) {
+                                control(cleat, rig[name] ?? defaultFitting(cleat), driver, berth)
+                            }
+                        }
+                    }
+                }
+            })
+    }
+
     static func render(_ berth: Berth, rig: Rig, driver: BerthDriver) -> AnyView {
         let live = driver.afforded()
         return AnyView(
@@ -244,6 +264,21 @@ struct HelmBerthDriver: BerthDriver {
 struct RiggedHelmView: View {
     @Environment(AppModel.self) private var model
     var body: some View {
-        SwiftUILoft.render(helmBerth, rig: defaultHelmRig, driver: HelmBerthDriver(model: model))
+        let (berth, rig, deck) = RiggedHelmView.loaded()
+        SwiftUILoft.render(berth, rig: rig, deck: deck, driver: HelmBerthDriver(model: model))
+    }
+
+    /// Load the berth/rig/deck-plan from the JSON grammar (Bundle resources);
+    /// fall back to the in-code declarations if a file is missing. Proves the
+    /// spec→JSON→loft flow while staying robust.
+    static func loaded() -> (Berth, Rig, DeckPlan) {
+        func data(_ name: String) -> Data? {
+            BundledResource.url(forResource: name, withExtension: "json").flatMap { try? Data(contentsOf: $0) }
+        }
+        let berth = data("berth.helm").flatMap { try? RigGrammar.berth(from: $0) } ?? helmBerth
+        let rig = data("rig.swiftui").flatMap { try? RigGrammar.rig(from: $0) } ?? defaultHelmRig
+        let deck = data("deckplan.helm").flatMap { try? RigGrammar.deckPlan(from: $0) }
+            ?? DeckPlan(berth: "Helm", groups: [DeckGroup(title: nil, cleats: helmBerth.cleats.map(\.name))])
+        return (berth, rig, deck)
     }
 }

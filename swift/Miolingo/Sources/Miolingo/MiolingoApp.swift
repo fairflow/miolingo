@@ -20,17 +20,27 @@ struct ContentView: View {
 
     var body: some View {
         @Bindable var model = model
-        TabView(selection: $model.selectedTab) {
-            PracticeView()
-                .tabItem { Label("Practice", systemImage: "mic.fill") }.tag(Tab.practice)
-            StoryView()
-                .tabItem { Label("Story", systemImage: "book.fill") }.tag(Tab.story)
-            VocabView()
-                .tabItem { Label("Vocabulary", systemImage: "tray.full.fill") }.tag(Tab.vocab)
-            SettingsView()
-                .tabItem { Label("Settings", systemImage: "slider.horizontal.3") }.tag(Tab.settings)
+        // Component switch rendered as a SIDEBAR (the rig's "tabs → sidebar"
+        // variety), with the chosen component in the detail pane.
+        NavigationSplitView {
+            List(Tab.allCases, selection: Binding(
+                get: { model.selectedTab },
+                set: { if let t = $0 { model.selectedTab = t } })) { tab in
+                Label(tab.rawValue, systemImage: tab.icon).tag(tab)
+            }
+            .navigationSplitViewColumnWidth(min: 168, ideal: 190, max: 230)
+            .navigationTitle("Miolingo")
+        } detail: {
+            Group {
+                switch model.selectedTab {
+                case .practice: PracticeView()
+                case .story:    StoryView()
+                case .vocab:    VocabView()
+                case .settings: SettingsView()
+                }
+            }
+            .frame(minWidth: 560, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
-        .frame(minWidth: 800, minHeight: 580)
-        .padding(.top, 2)
+        .frame(minWidth: 840, minHeight: 600)
     }
 }

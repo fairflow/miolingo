@@ -1,0 +1,10 @@
+{ "schema": "rig/1", "berth": "Helm",
+  "cleats": [
+    { "name": "set_source", "role": "input", "type": "code:dynamic:languages" },
+    { "name": "set_target", "role": "input", "type": "code:dynamic:languages" },
+    { "name": "set_tts",    "role": "input", "type": "code:fixed:system=System,espeak=espeak,google=google" },
+    { "name": "set_speed",  "role": "input", "type": "bounded:80:450" },
+    { "name": "view",       "role": "projection", "type": "record:source,target,language,tts,speed" }
+  ],
+  "constraints": [ { "distinct": ["set_source", "set_target"] } ]
+}

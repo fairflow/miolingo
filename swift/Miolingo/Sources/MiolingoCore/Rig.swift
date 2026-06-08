@@ -103,6 +103,20 @@ public enum Fitting: Equatable, Sendable {
 /// choice(.radio) or .tabs) re-skins that control with no other code change.
 public typealias Rig = [String: Fitting]
 
+// --- DeckPlan: LAYOUT, separate from the rig (the third orthogonal layer) ----
+// The rig says what KIND of control; the deck-plan says WHERE — grouping + order.
+public struct DeckGroup: Equatable, Sendable, Identifiable {
+    public let title: String?            // a section heading, or nil for an untitled group
+    public let cleats: [String]
+    public init(title: String?, cleats: [String]) { self.title = title; self.cleats = cleats }
+    public var id: String { (title ?? "·") + cleats.joined(separator: ",") }
+}
+public struct DeckPlan: Equatable, Sendable {
+    public let berth: String
+    public let groups: [DeckGroup]
+    public init(berth: String, groups: [DeckGroup]) { self.berth = berth; self.groups = groups }
+}
+
 // --- PlimValue: the canonical runtime value crossing the loft boundary -
 // (the cross-platform wire form of a Plimsoll value)
 public enum PlimValue: Equatable, Sendable {

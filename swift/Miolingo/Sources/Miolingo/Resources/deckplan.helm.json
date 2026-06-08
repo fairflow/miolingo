@@ -1,0 +1,6 @@
+{ "schema": "deck/1", "for": "Helm",
+  "groups": [
+    { "title": "Languages", "cleats": ["set_source", "set_target"] },
+    { "title": "Speech",    "cleats": ["set_tts", "set_speed"] },
+    { "title": null,        "cleats": ["view"] }
+  ] }

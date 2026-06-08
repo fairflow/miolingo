@@ -35,6 +35,45 @@ final class RigTests: XCTestCase {
         XCTAssertEqual(rig["set_tts"], .choice(.radio))
     }
 
+    // The JSON grammar (Phase 3) parses to the same model the loft renders.
+    func testRigGrammarParsesBerthRigDeck() throws {
+        let berthJSON = """
+        { "schema":"rig/1","berth":"Helm","cleats":[
+          {"name":"set_target","role":"input","type":"code:dynamic:languages"},
+          {"name":"set_tts","role":"input","type":"code:fixed:system=System,espeak=espeak"},
+          {"name":"set_speed","role":"input","type":"bounded:80:450"},
+          {"name":"view","role":"projection","type":"record:source,target"} ],
+          "constraints":[{"distinct":["set_source","set_target"]}] }
+        """.data(using: .utf8)!
+        let b = try RigGrammar.berth(from: berthJSON)
+        XCTAssertEqual(b.name, "Helm")
+        XCTAssertEqual(b.cleats.count, 4)
+        // dynamic code domain
+        guard case .input(.code(.dynamic(let src))) = b.cleats[0].role else { return XCTFail() }
+        XCTAssertEqual(src, "languages")
+        // fixed code domain carries the choices
+        guard case .input(.code(.fixed(let opts))) = b.cleats[1].role else { return XCTFail() }
+        XCTAssertEqual(opts.map(\.id), ["system", "espeak"])
+        // bounded + projection record
+        guard case .input(.bounded(80, 450)) = b.cleats[2].role else { return XCTFail() }
+        guard case .projection(.record(let fields)) = b.cleats[3].role else { return XCTFail() }
+        XCTAssertEqual(fields, ["source", "target"])
+        XCTAssertEqual(b.constraints, [.distinct(["set_source", "set_target"])])
+
+        let rig = try RigGrammar.rig(from: """
+        {"schema":"rig/1","for":"Helm","fittings":{"set_tts":"choice.segmented","view":"panel"}}
+        """.data(using: .utf8)!)
+        XCTAssertEqual(rig["set_tts"], .choice(.segmented))
+        XCTAssertEqual(rig["view"], .panel)
+
+        let deck = try RigGrammar.deckPlan(from: """
+        {"schema":"deck/1","for":"Helm","groups":[{"title":"Languages","cleats":["set_target"]},{"title":null,"cleats":["view"]}]}
+        """.data(using: .utf8)!)
+        XCTAssertEqual(deck.groups.count, 2)
+        XCTAssertEqual(deck.groups[0].title, "Languages")
+        XCTAssertNil(deck.groups[1].title)
+    }
+
     func testPlimValueAccessors() {
         XCTAssertEqual(PlimValue.text("hi").asText, "hi")
         XCTAssertEqual(PlimValue.code("fr").asCode, "fr")

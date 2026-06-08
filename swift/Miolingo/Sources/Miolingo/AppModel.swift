@@ -6,6 +6,14 @@ import MiolingoCore
 enum Tab: String, CaseIterable, Identifiable {
     case practice = "Practice", story = "Story", vocab = "Vocabulary", settings = "Settings"
     var id: String { rawValue }
+    var icon: String {
+        switch self {
+        case .practice: return "mic.fill"
+        case .story:    return "book.fill"
+        case .vocab:    return "tray.full.fill"
+        case .settings: return "slider.horizontal.3"
+        }
+    }
 }
 
 // =====================================================================
