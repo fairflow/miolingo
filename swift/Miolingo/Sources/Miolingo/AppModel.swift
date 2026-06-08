@@ -52,6 +52,10 @@ final class AppModel {
     /// the WhisperKit dependency (`whisperEngineAvailable`).
     var asrEngine: ASREngine = .system
 
+    /// Active visual skin (L3 styling). `.miolingo` is the default; `.system`
+    /// preserves the plain earlier look. Switchable in Settings → Appearance.
+    var skin: Skin = .miolingo
+
     private let db: Database
     private let tts: TTSEngine
     private let systemScorer: SystemScorer    // SFSpeech path (always present)

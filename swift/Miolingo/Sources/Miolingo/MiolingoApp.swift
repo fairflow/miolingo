@@ -10,7 +10,10 @@ struct MiolingoApp: App {
 
     var body: some Scene {
         WindowGroup("Miolingo") {
-            ContentView().environment(model)
+            ContentView()
+                .environment(model)
+                .environment(\.skin, model.skin)
+                .tint(model.skin.accent)
         }
         .defaultSize(width: 920, height: 660)
         .commands { HelpCommands() }
@@ -18,6 +21,8 @@ struct MiolingoApp: App {
         // The in-app Help window (⌘? / Help menu).
         Window("Miolingo Help", id: "help") {
             HelpView()
+                .environment(\.skin, model.skin)
+                .tint(model.skin.accent)
         }
         .defaultSize(width: 720, height: 660)
     }

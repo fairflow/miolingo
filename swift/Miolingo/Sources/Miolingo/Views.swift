@@ -7,7 +7,7 @@ import MiolingoCore
 /// App version + build. The build is the git short-hash, COMPILED IN via
 /// BuildInfo.stamp (make_app.sh writes it before building) — not read from the
 /// plist, so it can't be stale/cached.
-func appBuild() -> String { "0.2.0 (\(BuildInfo.stamp))" }
+func appBuild() -> String { "0.3.0 (\(BuildInfo.stamp))" }
 
 // =====================================================================
 // SwiftUI views — one per component (the *View projections rendered).
@@ -17,82 +17,104 @@ func appBuild() -> String { "0.2.0 (\(BuildInfo.stamp))" }
 // --- shared pieces ----------------------------------------------------
 
 struct ItemCard: View {
+    @Environment(\.skin) private var skin
     let item: Phrase
     var onSpeak: () -> Void
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(item.text.isEmpty ? "—" : item.text).font(.largeTitle).bold()
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Text(item.text.isEmpty ? "—" : item.text).font(skin.wordFont)
                 Button(action: onSpeak) { Image(systemName: "speaker.wave.2.fill") }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.borderless).foregroundStyle(skin.accent).font(.title2)
             }
             if !item.translation.isEmpty {
                 Text(item.translation).font(.title3).foregroundStyle(.secondary)
             }
             if !item.ipa.isEmpty {
-                Text("/\(item.ipa)/").font(.title3).foregroundStyle(.blue)
+                Text("/\(item.ipa)/").font(skin.ipaFont).foregroundStyle(skin.accent)
             }
         }
-        .padding()
+        .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: skin.cornerRadius))
+        .overlay(RoundedRectangle(cornerRadius: skin.cornerRadius).strokeBorder(.quaternary))
     }
 }
 
-struct ScoreBadge: View {
-    let score: Score
-    var pct: Int { Int((score.similarity * 100).rounded()) }
-    var color: Color { score.exactMatch || pct >= 70 ? .green : (pct >= 40 ? .orange : .red) }
+/// Circular score gauge, green→amber→red by similarity (the satisfying, glanceable
+/// result the pronunciation apps get right).
+struct ScoreRing: View {
+    @Environment(\.skin) private var skin
+    let similarity: Double
+    let exact: Bool
+    var pct: Int { Int((similarity * 100).rounded()) }
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: score.exactMatch ? "checkmark.seal.fill" : "waveform")
-                .foregroundStyle(color)
-            Text(score.exactMatch ? "Exact match!" : "Similarity \(pct)%").bold().foregroundStyle(color)
-            Text("(edit distance \(score.distance))").font(.caption).foregroundStyle(.secondary)
+        ZStack {
+            Circle().stroke(.quaternary, lineWidth: 8)
+            Circle().trim(from: 0, to: max(0.001, min(1, similarity)))
+                .stroke(skin.scoreColor(similarity), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .animation(.easeOut(duration: 0.45), value: similarity)
+            Text(exact ? "✓" : "\(pct)%")
+                .font(.system(.title3, design: .rounded).weight(.bold))
+                .foregroundStyle(skin.scoreColor(similarity))
+        }
+        .frame(width: 78, height: 78)
+    }
+}
+
+/// The result row: the ring + a plain-language verdict + edit distance.
+struct ScoreResult: View {
+    @Environment(\.skin) private var skin
+    let score: Score
+    private var verdict: String {
+        if score.exactMatch { return "Perfect!" }
+        switch score.similarity { case 0.8...: return "Great"; case 0.5..<0.8: return "Close"; default: return "Keep trying" }
+    }
+    var body: some View {
+        HStack(spacing: 14) {
+            ScoreRing(similarity: score.similarity, exact: score.exactMatch)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verdict).font(skin.headingFont)
+                Text("edit distance \(score.distance)").font(.caption).foregroundStyle(.secondary)
+            }
         }
     }
 }
 
-/// The heart of the feedback: target vs user phonemes, colour-coded by the
-/// alignment (substitution = blue, insertion = green, deletion = pink, match = plain),
-/// matching the app's _colorize_diff. Empty segments shown as "·".
+/// The heart of the feedback: target vs user phonemes, colour-coded by the skin's
+/// (correctness-oriented) diff palette. Empty segments shown as "·".
 struct PhonemeDiffView: View {
+    @Environment(\.skin) private var skin
     let alignment: [AlignSeg]
 
-    private func colour(_ op: AlignOp) -> Color {
-        switch op {
-        case .equal: return .clear
-        case .sub:   return Color(red: 0.68, green: 0.85, blue: 0.90)  // blue
-        case .ins:   return Color(red: 0.56, green: 0.93, blue: 0.56)  // green
-        case .del:   return Color(red: 1.00, green: 0.71, blue: 0.78)  // pink
-        }
-    }
     private func row(_ pick: @escaping (AlignSeg) -> String) -> some View {
         HStack(spacing: 0) {
             ForEach(alignment) { seg in
                 Text(pick(seg).isEmpty ? "·" : pick(seg))
-                    .font(.system(.body, design: .monospaced))
-                    .padding(.horizontal, 1)
-                    .background(colour(seg.op))
+                    .font(.system(.title3, design: .monospaced))
+                    .padding(.horizontal, 2).padding(.vertical, 1)
+                    .background(skin.diff(seg.op))
             }
         }
     }
     private func chip(_ op: AlignOp, _ label: String) -> some View {
         HStack(spacing: 3) {
-            RoundedRectangle(cornerRadius: 2).fill(colour(op)).frame(width: 10, height: 10)
+            RoundedRectangle(cornerRadius: 2).fill(skin.diff(op)).frame(width: 10, height: 10)
             Text(label).font(.caption2).foregroundStyle(.secondary)
         }
     }
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        VStack(alignment: .leading, spacing: 5) {
             Text("Phoneme match").font(.caption).bold()
             HStack { Text("target").font(.caption2).foregroundStyle(.secondary).frame(width: 46, alignment: .leading); row { $0.target } }
             HStack { Text("you").font(.caption2).foregroundStyle(.secondary).frame(width: 46, alignment: .leading); row { $0.user } }
-            HStack(spacing: 10) { chip(.sub, "substituted"); chip(.ins, "extra"); chip(.del, "missing") }
+            HStack(spacing: 12) { chip(.sub, "substituted"); chip(.del, "missing"); chip(.ins, "extra") }
                 .padding(.top, 2)
         }
-        .padding(8)
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+        .padding(12)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: skin.cornerRadius))
+        .overlay(RoundedRectangle(cornerRadius: skin.cornerRadius).strokeBorder(.quaternary))
     }
 }
 
@@ -163,25 +185,39 @@ struct BulkImportSheet: View {
 }
 
 struct RecordBar: View {
+    @Environment(\.skin) private var skin
     @ObservedObject var recorder: Recorder
     let hasRecording: Bool
     var onCaptured: (Data) -> Void
     var onCheck: () -> Void
     var onClear: () -> Void
+    @State private var pulse = false
     var body: some View {
-        HStack(spacing: 10) {
-            if recorder.isRecording {
-                Button { if let d = recorder.stop() { onCaptured(d) } } label: {
-                    Label("Stop", systemImage: "stop.circle.fill")
-                }.tint(.red)
-            } else {
-                Button { recorder.start() } label: {
-                    Label(hasRecording ? "Re-record" : "Record", systemImage: "mic.circle.fill")
-                }
+        HStack(spacing: 14) {
+            // one prominent circular mic — the single clear primary action
+            Button {
+                if recorder.isRecording { if let d = recorder.stop() { onCaptured(d) } }
+                else { recorder.start() }
+            } label: {
+                Image(systemName: recorder.isRecording ? "stop.fill" : "mic.fill")
+                    .font(.title2).foregroundStyle(.white)
+                    .frame(width: 54, height: 54)
+                    .background(recorder.isRecording ? Color.red : skin.accent, in: Circle())
+                    .scaleEffect(recorder.isRecording && pulse ? 1.08 : 1.0)
             }
+            .buttonStyle(.plain)
+            .help(recorder.isRecording ? "Stop" : (hasRecording ? "Re-record" : "Record"))
+            .onChange(of: recorder.isRecording) { _, rec in
+                if rec { withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) { pulse = true } }
+                else { pulse = false }
+            }
+
             if hasRecording && !recorder.isRecording {
                 Button("Check pronunciation", action: onCheck).buttonStyle(.borderedProminent)
                 Button("Clear", action: onClear)
+            } else {
+                Text(recorder.isRecording ? "Recording… tap to stop" : "Tap the mic to record")
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -261,7 +297,7 @@ struct PracticeView: View {
                       onClear: { model.psClearRecording() })
             RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised, hasScore: v.score != nil)
             if let s = v.score {
-                ScoreBadge(score: s)
+                ScoreResult(score: s)
                 if !model.lastRecognisedText.isEmpty {
                     Text("Recognised: \(model.lastRecognisedText)").font(.caption).foregroundStyle(.secondary)
                 }
@@ -349,7 +385,7 @@ struct StoryView: View {
                       onClear: { model.storyClearRecording() })
             RecognisedHint(scoring: model.isScoring, heard: model.lastRecognised, hasScore: v.score != nil)
             if let s = v.score {
-                ScoreBadge(score: s)
+                ScoreResult(score: s)
                 if !model.lastRecognisedText.isEmpty {
                     Text("Recognised: \(model.lastRecognisedText)").font(.caption).foregroundStyle(.secondary)
                 }
@@ -557,6 +593,15 @@ struct SettingsView: View {
                     Text("System uses SFSpeech, biased toward the expected phrase (contextualStrings) for higher single-word accuracy. Whisper is an opt-in alternative.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+            }
+            Section("Appearance") {
+                Picker("Theme", selection: Binding(
+                    get: { model.skin.name },
+                    set: { n in if let s = Skin.all.first(where: { $0.name == n }) { model.skin = s } })) {
+                    ForEach(Skin.all, id: \.name) { Text($0.name).tag($0.name) }
+                }
+                Text("Miolingo is the calm, native theme; System is the plain look.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Section("Rig preview (experimental)") {
                 DisclosureGroup("Settings generated from the rig declaration") {
