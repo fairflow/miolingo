@@ -22,15 +22,16 @@ import WhisperKit
 
 /// Live status of the last Whisper recognise() call — mirrors ScorerDiagnostics
 /// shape so Settings can surface either engine.
-struct WhisperDiagnostics: Sendable {
-    var modelLoaded = false
-    var lastAudioBytes = 0
-    var lastAudioSeconds = 0.0
-    var lastHeardText = ""
-    var lastError = ""
+public struct WhisperDiagnostics: Sendable {
+    public init() {}
+    public var modelLoaded = false
+    public var lastAudioBytes = 0
+    public var lastAudioSeconds = 0.0
+    public var lastHeardText = ""
+    public var lastError = ""
 }
 
-final class WhisperScorer: SpeechScorer, @unchecked Sendable {
+public final class WhisperScorer: SpeechScorer, @unchecked Sendable {
     /// Whisper model name (Hugging Face short id). "base" is the small, fast,
     /// multilingual default; "small" is more accurate but a larger download.
     private let model: String
@@ -39,18 +40,18 @@ final class WhisperScorer: SpeechScorer, @unchecked Sendable {
     private var pipe: WhisperKit?         // loaded lazily, kept warm across calls
     private var _diag = WhisperDiagnostics()
 
-    var diagnostics: WhisperDiagnostics {
+    public var diagnostics: WhisperDiagnostics {
         lock.lock(); defer { lock.unlock() }; return _diag
     }
     private func setDiag(_ mutate: (inout WhisperDiagnostics) -> Void) {
         lock.lock(); mutate(&_diag); lock.unlock()
     }
 
-    init(model: String = "base") { self.model = model }
+    public init(model: String = "base") { self.model = model }
 
     /// Whisper auto-detects from the audio, but we constrain it to the known
     /// target language for single short words (WhisperKit wants the 2-letter code).
-    func recognise(audio: Data, languageCode: String, hint: String) async -> String {
+    public func recognise(audio: Data, languageCode: String, hint: String) async -> String {
         setDiag {
             $0.lastAudioBytes = audio.count
             $0.lastAudioSeconds = wavDurationSeconds(bytes: audio.count)
@@ -68,13 +69,13 @@ final class WhisperScorer: SpeechScorer, @unchecked Sendable {
 
         do {
             let kit = try await loadPipe()
-            // `hint` becomes Whisper's initial prompt — it biases the decoder toward
-            // the expected phrase, the same idea as SFSpeech contextualStrings.
+            // NB: the `hint` (target text) is deliberately NOT used. An earlier
+            // version's comment claimed it biased the decoder, but the wiring was
+            // dead (promptTokens: nil) — and post-honesty-fix we don't WANT to
+            // feed the grader the answer. Constrain only the language.
             let options = DecodingOptions(
                 task: .transcribe,
-                language: String(languageCode.prefix(2)).lowercased(),
-                usePrefillPrompt: true,
-                promptTokens: nil
+                language: String(languageCode.prefix(2)).lowercased()
             )
             let results = try await kit.transcribe(audioPath: url.path, decodeOptions: options)
             let text = results.map(\.text).joined(separator: " ")
@@ -107,12 +108,12 @@ final class WhisperScorer: SpeechScorer, @unchecked Sendable {
 }
 
 /// True when the app was built with the WhisperKit dependency present.
-let whisperAvailable = true
+public let whisperAvailable = true
 
 #else
 
 // Offline build: WhisperKit dependency absent. The picker still appears but the
 // whisper option is disabled; AppModel falls back to SystemScorer.
-let whisperAvailable = false
+public let whisperAvailable = false
 
 #endif

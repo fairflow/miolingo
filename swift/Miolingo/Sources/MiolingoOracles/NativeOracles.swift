@@ -10,10 +10,11 @@ import MiolingoCore
 // =====================================================================
 
 /// TTS via AVSpeechSynthesizer (offline, multilingual, no API key).
-final class SystemTTS: TTSEngine, @unchecked Sendable {
+public final class SystemTTS: TTSEngine, @unchecked Sendable {
+    public init() {}
     private let synth = AVSpeechSynthesizer()
 
-    func speak(_ text: String, languageCode: String, rate: Double) {
+    public func speak(_ text: String, languageCode: String, rate: Double) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         let u = AVSpeechUtterance(string: text)
@@ -35,14 +36,15 @@ final class SystemTTS: TTSEngine, @unchecked Sendable {
         return AVSpeechSynthesisVoice(language: "en-US")
     }
 
-    func stop() { synth.stopSpeaking(at: .immediate) }
+    public func stop() { synth.stopSpeaking(at: .immediate) }
 }
 
 /// TTS via the espeak binary (plays through the default output). Selectable as an
 /// alternative voice engine — makes the Speech setting genuinely switchable.
-final class EspeakTTS: TTSEngine, @unchecked Sendable {
+public final class EspeakTTS: TTSEngine, @unchecked Sendable {
+    public init() {}
     private var proc: Process?
-    func speak(_ text: String, languageCode: String, rate: Double) {
+    public func speak(_ text: String, languageCode: String, rate: Double) {
         guard Espeak.available, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         stop()
         let p = Process()
@@ -51,28 +53,29 @@ final class EspeakTTS: TTSEngine, @unchecked Sendable {
         try? p.run()          // async; speaks through the default audio device
         proc = p
     }
-    func stop() { if proc?.isRunning == true { proc?.terminate() }; proc = nil }
+    public func stop() { if proc?.isRunning == true { proc?.terminate() }; proc = nil }
 }
 
 /// Live diagnostics for one recognise() call — surfaced in Settings so the
 /// "nothing recognised" failure mode is never a black box. Captured on every
 /// call (success or failure).
-struct ScorerDiagnostics: Sendable {
-    var authStatus = "—"          // human-readable SFSpeechRecognizer.authorizationStatus()
-    var recogniserExists = false  // SFSpeechRecognizer(locale:) returned non-nil
-    var isAvailable = false       // recogniser.isAvailable
-    var supportsOnDevice = false  // recogniser.supportsOnDeviceRecognition
-    var usedOnDevice = false      // which path the last attempt actually used
-    var lastAudioBytes = 0        // size of the WAV handed to the recogniser
-    var lastAudioSeconds = 0.0    // estimated recording duration (silence/too-short check)
-    var lastHint = ""             // contextualStrings hint used to bias recognition
-    var lastError = ""            // recogniser error description, if any
-    var lastHeardText = ""        // raw transcript before espeak (empty ⇒ true miss)
+public struct ScorerDiagnostics: Sendable {
+    public init() {}
+    public var authStatus = "—"          // human-readable SFSpeechRecognizer.authorizationStatus()
+    public var recogniserExists = false  // SFSpeechRecognizer(locale:) returned non-nil
+    public var isAvailable = false       // recogniser.isAvailable
+    public var supportsOnDevice = false  // recogniser.supportsOnDeviceRecognition
+    public var usedOnDevice = false      // which path the last attempt actually used
+    public var lastAudioBytes = 0        // size of the WAV handed to the recogniser
+    public var lastAudioSeconds = 0.0    // estimated recording duration (silence/too-short check)
+    public var lastHint = ""             // contextualStrings hint used to bias recognition
+    public var lastError = ""            // recogniser error description, if any
+    public var lastHeardText = ""        // raw transcript before espeak (empty ⇒ true miss)
 }
 
 /// Estimate the duration (seconds) of a 16 kHz mono 16-bit PCM WAV from byte
 /// count: header is 44 bytes, each sample is 2 bytes, 16000 samples/sec.
-func wavDurationSeconds(bytes: Int, sampleRate: Double = 16000, bytesPerSample: Int = 2) -> Double {
+public func wavDurationSeconds(bytes: Int, sampleRate: Double = 16000, bytesPerSample: Int = 2) -> Double {
     let dataBytes = max(0, bytes - 44)
     return Double(dataBytes) / (sampleRate * Double(bytesPerSample))
 }
@@ -80,13 +83,14 @@ func wavDurationSeconds(bytes: Int, sampleRate: Double = 16000, bytesPerSample: 
 /// recognisePhonemes via SFSpeechRecognizer (on-device) → recognised text →
 /// espeak IPA (the spec pipeline ASR→text→phonemes). Returns "" if
 /// unavailable/unauthorised, which the pure scorer treats as a miss.
-final class SystemScorer: SpeechScorer, @unchecked Sendable {
+public final class SystemScorer: SpeechScorer, @unchecked Sendable {
+    public init() {}
     private var activeTask: SFSpeechRecognitionTask?   // retained while running (calls are serial)
 
     /// Last call's diagnostics, readable from the UI thread.
     private let diagLock = NSLock()
     private var _diag = ScorerDiagnostics()
-    var diagnostics: ScorerDiagnostics {
+    public var diagnostics: ScorerDiagnostics {
         diagLock.lock(); defer { diagLock.unlock() }; return _diag
     }
     private func setDiag(_ mutate: (inout ScorerDiagnostics) -> Void) {
@@ -94,7 +98,7 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
     }
 
     /// Fire the one-time authorization prompt at launch (fire-and-forget).
-    static func requestAuthorization() {
+    public static func requestAuthorization() {
         SFSpeechRecognizer.requestAuthorization { _ in }
     }
 
@@ -102,11 +106,20 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
     /// when the launch-time status was still `.notDetermined`.
     private static func awaitAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
         await withCheckedContinuation { cont in
-            SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
+            var resumed = false
+            let lock = NSLock()
+            func finish(_ s: SFSpeechRecognizerAuthorizationStatus) {
+                lock.lock(); defer { lock.unlock() }
+                if !resumed { resumed = true; cont.resume(returning: s) }
+            }
+            SFSpeechRecognizer.requestAuthorization { finish($0) }
+            // headless processes may never get the auth callback (no UI to host
+            // the prompt) — resolve as denied after 5s rather than hang.
+            DispatchQueue.global().asyncAfter(deadline: .now() + 5) { finish(.denied) }
         }
     }
 
-    static func describe(_ s: SFSpeechRecognizerAuthorizationStatus) -> String {
+    public static func describe(_ s: SFSpeechRecognizerAuthorizationStatus) -> String {
         switch s {
         case .authorized:    return "authorized"
         case .denied:        return "denied"
@@ -116,7 +129,7 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
         }
     }
 
-    func recognise(audio: Data, languageCode: String, hint: String) async -> String {
+    public func recognise(audio: Data, languageCode: String, hint: String) async -> String {
         let text = await transcribe(audio: audio, languageCode: languageCode, hint: hint)
         guard !text.isEmpty else { return "" }
         // ASR text → phonemes (espeak), matching the target language voice.
@@ -196,12 +209,18 @@ final class SystemScorer: SpeechScorer, @unchecked Sendable {
                 }
                 if let error { finish(best, error.localizedDescription) }  // keep what we heard
             }
+            // SFSpeech occasionally delivers NEITHER a final result NOR an error —
+            // without a deadline the await hangs forever and the UI spins. Resolve
+            // with the best partial after 20s (short utterances finish in 1–3s).
+            DispatchQueue.global().asyncAfter(deadline: .now() + 20) {
+                finish(best, best.isEmpty ? "timed out (no result)" : "")
+            }
         }
     }
 }
 
 /// Map a Helm target code to a best-effort BCP-47 locale for the recogniser.
-func bcp47(_ code: String) -> String {
+public func bcp47(_ code: String) -> String {
     let map = ["en": "en-US", "fr": "fr-FR", "pt": "pt-BR",
                "de": "de-DE", "es": "es-ES", "it": "it-IT"]
     return map[code] ?? code

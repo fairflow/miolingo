@@ -22,7 +22,10 @@ final class Recorder: NSObject, ObservableObject {
         ]
         do {
             let r = try AVAudioRecorder(url: u, settings: settings)
-            r.record()
+            // record() returning false means NOTHING is being captured (e.g. mic
+            // unavailable) — silently claiming isRecording=true here produced
+            // empty 44-byte WAVs and "nothing recognised". Surface the failure.
+            guard r.prepareToRecord(), r.record() else { isRecording = false; return }
             recorder = r; url = u; isRecording = true
         } catch {
             isRecording = false

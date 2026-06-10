@@ -21,14 +21,24 @@ let package = Package(
             name: "MiolingoCore",
             linkerSettings: [.linkedLibrary("sqlite3")]
         ),
-        // The SwiftUI app: wraps MiolingoCore, supplies the native oracles
-        // (AVSpeechSynthesizer / SFSpeechRecognizer / espeak).
-        .executableTarget(
-            name: "Miolingo",
+        // The LIVE oracles (AVSpeech TTS, espeak TTS, SFSpeech + Whisper ASR) as a
+        // library, so both the app AND the headless test harness can drive them —
+        // the TTS→ASR closed loop made testable.
+        .target(
+            name: "MiolingoOracles",
             dependencies: [
                 "MiolingoCore",
                 .product(name: "WhisperKit", package: "WhisperKit"),
             ],
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+                .define("WHISPERKIT"),
+            ]
+        ),
+        // The SwiftUI app: wraps MiolingoCore, renders the views, hosts the oracles.
+        .executableTarget(
+            name: "Miolingo",
+            dependencies: ["MiolingoCore", "MiolingoOracles"],
             resources: [.process("Resources")],
             // The native oracle code (Speech/AVFoundation completion handlers)
             // predates strict-concurrency; core + tests stay Swift 6.
@@ -36,6 +46,17 @@ let package = Package(
                 .swiftLanguageMode(.v5),
                 // Gate WhisperScorer on this flag so the app still compiles if the
                 // WhisperKit dependency is removed for an offline build.
+                .define("WHISPERKIT"),
+            ]
+        ),
+        // Headless closed-loop harness: espeak GENERATES audio for known words
+        // (TTS), the selected ASR engine transcribes it, the pure scorer
+        // evaluates — the spec Speaker agent's round-trip law on real engines.
+        .executableTarget(
+            name: "MiolingoHarness",
+            dependencies: ["MiolingoCore", "MiolingoOracles"],
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
                 .define("WHISPERKIT"),
             ]
         ),

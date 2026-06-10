@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import Speech
+import MiolingoOracles
 import MiolingoCore
 
 enum Tab: String, CaseIterable, Identifiable {
@@ -174,21 +175,27 @@ final class AppModel {
         case .tooMany(let c):  return "Nothing loaded: \(c) rows exceeds the \(importLineLimit)-row limit."
         }
     }
-    func psSelect(_ i: Int) { ps.select(i) }
+    /// The "heard …" feedback belongs to ONE attempt: clear it whenever the
+    /// recording/item it described goes away (re-record, clear, navigation),
+    /// otherwise it leaks across items and even tabs (the stale "heard /ʃa/"
+    /// under Bonjour bug).
+    private func clearHeard() { lastRecognised = ""; lastRecognisedText = ""; lastAudioFingerprint = ""; captureStatus = "" }
+
+    func psSelect(_ i: Int) { ps.select(i); clearHeard() }
     // clear-then-record so a RE-record actually replaces the take. recordingMade
     // is a no-op when a recording already exists (spec: recording_made only when
     // rec===none; you re-record via clear_recording then recording_made). Without
     // the clear, every re-record was dropped and "Check" kept re-scoring the FIRST
     // recording — the constant-result bug.
-    func psRecorded(_ audio: Data) { ps.clearRecording(); ps.recordingMade(audio) }
-    func psClearRecording() { ps.clearRecording() }
-    func psNext() { ps.next() }
-    func psPrev() { ps.prev() }
-    func psClearMaterial() { ps.clearMaterial() }
+    func psRecorded(_ audio: Data) { ps.clearRecording(); ps.recordingMade(audio); clearHeard() }
+    func psClearRecording() { ps.clearRecording(); clearHeard() }
+    func psNext() { ps.next(); clearHeard() }
+    func psPrev() { ps.prev(); clearHeard() }
+    func psClearMaterial() { ps.clearMaterial(); clearHeard() }
     func psAttempt() async {                                   // attempt_made + langRead + ASR
         guard let rec = ps.rec else { return }
         isScoring = true; defer { isScoring = false }
-        // Bias ASR toward the expected phrase (contextualStrings) — known at recognition time.
+        // The target text is diagnostics-only (NOT fed to the recogniser — honesty).
         let hint = ps.phrases.isEmpty ? "" : targetOf(ps.phrases, ps.pos).text
         lastAudioFingerprint = AppModel.fingerprint(rec.audio)
         let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
@@ -196,8 +203,19 @@ final class AppModel {
         lastRecognisedText = lastHeard
         ps.score(recognisedPhonemes: phon, method: scoringMethod)
     }
+    /// Result of the last capture attempt — capturing a MULTI-WORD phrase is
+    /// rejected by validateWord (whitespace) and used to no-op SILENTLY.
+    var captureStatus = ""
+    private func capture(_ w: String) {
+        if validateWord(w) == nil {
+            captureStatus = "Couldn’t capture “\(w)” — only single words can be saved to vocabulary."
+        } else {
+            table.upsert(w); persistVocab()
+            captureStatus = "Captured “\(w)”."
+        }
+    }
     func psCapture() {                                         // capture_vocab → vocabUpsert
-        if let w = ps.captureWord { table.upsert(w); persistVocab() }
+        if let w = ps.captureWord { capture(w) }
     }
 
     // --- Vocab tab: writes go through VocabTable; params are Vocab-owned ---
@@ -254,17 +272,17 @@ final class AppModel {
     }
 
     // --- StoryReader ---
-    func storySetMode(_ m: ReadingMode) { story.setMode(m) }
-    func storySelectScene(_ s: Int) { story.selectScene(s) }
-    func storySelectItem(_ i: Int) { story.selectItem(i) }
-    func storyNext() { story.next() }
-    func storyPrev() { story.prev() }
-    func storyRecorded(_ audio: Data) { story.clearRecording(); story.recordingMade(audio) }
-    func storyClearRecording() { story.clearRecording() }
+    func storySetMode(_ m: ReadingMode) { story.setMode(m); clearHeard() }
+    func storySelectScene(_ s: Int) { story.selectScene(s); clearHeard() }
+    func storySelectItem(_ i: Int) { story.selectItem(i); clearHeard() }
+    func storyNext() { story.next(); clearHeard() }
+    func storyPrev() { story.prev(); clearHeard() }
+    func storyRecorded(_ audio: Data) { story.clearRecording(); story.recordingMade(audio); clearHeard() }
+    func storyClearRecording() { story.clearRecording(); clearHeard() }
     func storyAttempt() async {                                               // story_attempt_made + langRead + ASR
         guard let rec = story.rec else { return }
         isScoring = true; defer { isScoring = false }
-        // Bias ASR toward the expected phrase (contextualStrings) — known at recognition time.
+        // The target text is diagnostics-only (NOT fed to the recogniser — honesty).
         let hint = story.phrases.isEmpty ? "" : targetOf(story.phrases, story.pos).text
         lastAudioFingerprint = AppModel.fingerprint(rec.audio)
         let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
@@ -273,7 +291,7 @@ final class AppModel {
         story.score(recognisedPhonemes: phon, method: scoringMethod)
     }
     func storyCapture() {                                                     // story_capture_vocab → vocabUpsert
-        if let w = story.captureWord { table.upsert(w); persistVocab() }
+        if let w = story.captureWord { capture(w) }
     }
 
     // --- projections (the *View ports) ---

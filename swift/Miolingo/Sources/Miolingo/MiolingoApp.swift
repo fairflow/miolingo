@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import MiolingoOracles
 import MiolingoCore
 
 @main

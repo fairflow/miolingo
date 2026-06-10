@@ -2,12 +2,13 @@ import SwiftUI
 import Translation
 import AppKit
 import UniformTypeIdentifiers
+import MiolingoOracles
 import MiolingoCore
 
 /// App version + build. The build is the git short-hash, COMPILED IN via
 /// BuildInfo.stamp (make_app.sh writes it before building) — not read from the
 /// plist, so it can't be stale/cached.
-func appBuild() -> String { "0.5.0 (\(BuildInfo.stamp))" }
+func appBuild() -> String { "0.6.0 (\(BuildInfo.stamp))" }
 
 // =====================================================================
 // SwiftUI views — one per component (the *View projections rendered).
@@ -52,12 +53,12 @@ struct ScoreRing: View {
         ZStack {
             Circle().stroke(.quaternary, lineWidth: 5)
             Circle().trim(from: 0, to: max(0.001, min(1, similarity)))
-                .stroke(skin.scoreColor(similarity), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .stroke(exact ? skin.scoreGood : skin.scoreColor(similarity), style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .animation(.easeOut(duration: 0.45), value: similarity)
             Text(exact ? "✓" : "\(pct)%")
                 .font(.system(.subheadline, design: .rounded).weight(.bold))
-                .foregroundStyle(skin.scoreColor(similarity))
+                .foregroundStyle(exact ? skin.scoreGood : skin.scoreColor(similarity))
         }
         .frame(width: 52, height: 52)
     }
@@ -303,6 +304,10 @@ struct PracticeView: View {
                 }
                 if !s.alignment.isEmpty { PhonemeDiffView(alignment: s.alignment) }
                 Button("Capture to vocabulary") { model.psCapture() }
+                if !model.captureStatus.isEmpty {
+                    Text(model.captureStatus).font(.caption)
+                        .foregroundStyle(model.captureStatus.hasPrefix("Captured") ? Color.secondary : Color.orange)
+                }
             }
             HStack {
                 Button("◀ Prev") { model.psPrev() }.disabled(!model.ps.canPrev)
@@ -391,6 +396,10 @@ struct StoryView: View {
                 }
                 if !s.alignment.isEmpty { PhonemeDiffView(alignment: s.alignment) }
                 Button("Capture to vocabulary") { model.storyCapture() }
+                if !model.captureStatus.isEmpty {
+                    Text(model.captureStatus).font(.caption)
+                        .foregroundStyle(model.captureStatus.hasPrefix("Captured") ? Color.secondary : Color.orange)
+                }
             }
             navRow()
         }
