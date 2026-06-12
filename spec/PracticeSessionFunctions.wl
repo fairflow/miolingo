@@ -127,9 +127,17 @@ scoreDetail[user_String, correct_String] :=
    The result Association is what the agent wraps in scored[...] and the view
    publishes. (The recognised TEXT/word is an oracle detail surfaced by the skin,
    below the L1 boundary; L1 scores phonemes.) *)
+(* recognisedOf: held-until-concrete gate on the ORACLE's result. The old
+   ToString here coerced an UNINTERPRETED recognisePhonemes[...] term into its
+   printed form, which then got character-Levenshteined against the target IPA —
+   garbage scores (sim 0.02, 40 ins ops) whenever the oracle had no downvalues.
+   Gating on _String keeps the whole score SYMBOLIC until a real transcript
+   exists (the same discipline as vocabView[entries_List] / deleteFrom[id_Integer]). *)
+recognisedOf[r_String] := r;
+
 evaluate[target_, rec_, lang_List] :=
   scoreDetail[
-    normalisePhonemes[ToString[recognisePhonemes[audioOf[rec], Last[lang]]]],
+    normalisePhonemes[recognisedOf[recognisePhonemes[audioOf[rec], Last[lang]]]],
     normalisePhonemes[correctPhonemesOf[target]]];
 
 
