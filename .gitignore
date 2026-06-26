@@ -293,3 +293,9 @@ miolingo-development-sonnet-45.md
 scripts/clean_restart.py.broken
 
 tests/logs-fairflow-miolingo-claude-dev-src-app.py-2026-04-06T20_04_09.416Z.txt
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/

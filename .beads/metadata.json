@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "miolingo",
+  "project_id": "0e13a11e-1fdf-4104-9391-20702bc21bcc"
+}
