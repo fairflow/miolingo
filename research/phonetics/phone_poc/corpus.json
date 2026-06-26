@@ -1,0 +1,396 @@
+[
+  {
+    "id": "pt_ola",
+    "voice": "pt-pt",
+    "intended": "olá",
+    "spoken": "olá",
+    "kind": "correct",
+    "ref_phones": [
+      "ɔ",
+      "l",
+      "a"
+    ],
+    "ref_raw": "ɔ_l_ˈa",
+    "spoken_phones": [
+      "ɔ",
+      "l",
+      "a"
+    ],
+    "spoken_raw": "ɔ_l_ˈa",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/pt_ola_16k.wav"
+  },
+  {
+    "id": "pt_obrigado",
+    "voice": "pt-pt",
+    "intended": "obrigado",
+    "spoken": "obrigado",
+    "kind": "correct",
+    "ref_phones": [
+      "ɔ",
+      "b",
+      "ɹ",
+      "i",
+      "ɡ",
+      "a",
+      "d",
+      "ʊ"
+    ],
+    "ref_raw": "ˌɔ_b_ɹ_i_ɡ_ˈa_d_ʊ",
+    "spoken_phones": [
+      "ɔ",
+      "b",
+      "ɹ",
+      "i",
+      "ɡ",
+      "a",
+      "d",
+      "ʊ"
+    ],
+    "spoken_raw": "ˌɔ_b_ɹ_i_ɡ_ˈa_d_ʊ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/pt_obrigado_16k.wav"
+  },
+  {
+    "id": "pt_casa",
+    "voice": "pt-pt",
+    "intended": "casa",
+    "spoken": "casa",
+    "kind": "correct",
+    "ref_phones": [
+      "k",
+      "a",
+      "z",
+      "ɐ"
+    ],
+    "ref_raw": "k_ˈa_z_ɐ",
+    "spoken_phones": [
+      "k",
+      "a",
+      "z",
+      "ɐ"
+    ],
+    "spoken_raw": "k_ˈa_z_ɐ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/pt_casa_16k.wav"
+  },
+  {
+    "id": "pt_gato",
+    "voice": "pt-pt",
+    "intended": "gato",
+    "spoken": "gato",
+    "kind": "correct",
+    "ref_phones": [
+      "ɡ",
+      "a",
+      "t",
+      "ʊ"
+    ],
+    "ref_raw": "ɡ_ˈa_t_ʊ",
+    "spoken_phones": [
+      "ɡ",
+      "a",
+      "t",
+      "ʊ"
+    ],
+    "spoken_raw": "ɡ_ˈa_t_ʊ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/pt_gato_16k.wav"
+  },
+  {
+    "id": "pt_verde",
+    "voice": "pt-pt",
+    "intended": "verde",
+    "spoken": "verde",
+    "kind": "correct",
+    "ref_phones": [
+      "v",
+      "e",
+      "ɾ",
+      "ə",
+      "d",
+      "ɨ"
+    ],
+    "ref_raw": "v_ˈe_ɾ_ə_d_ɨ",
+    "spoken_phones": [
+      "v",
+      "e",
+      "ɾ",
+      "ə",
+      "d",
+      "ɨ"
+    ],
+    "spoken_raw": "v_ˈe_ɾ_ə_d_ɨ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/pt_verde_16k.wav"
+  },
+  {
+    "id": "ptbr_cachorro",
+    "voice": "pt-br",
+    "intended": "cachorro",
+    "spoken": "cachorro",
+    "kind": "correct",
+    "ref_phones": [
+      "k",
+      "a",
+      "ʃ",
+      "o",
+      "x",
+      "ʊ"
+    ],
+    "ref_raw": "k_ˌa_ʃ_ˈo_x_ʊ",
+    "spoken_phones": [
+      "k",
+      "a",
+      "ʃ",
+      "o",
+      "x",
+      "ʊ"
+    ],
+    "spoken_raw": "k_ˌa_ʃ_ˈo_x_ʊ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/ptbr_cachorro_16k.wav"
+  },
+  {
+    "id": "ptbr_obrigado",
+    "voice": "pt-br",
+    "intended": "obrigado",
+    "spoken": "obrigado",
+    "kind": "correct",
+    "ref_phones": [
+      "o",
+      "b",
+      "r",
+      "i",
+      "ɡ",
+      "a",
+      "d",
+      "ʊ"
+    ],
+    "ref_raw": "ˌo_b_r_i_ɡ_ˈa_d_ʊ",
+    "spoken_phones": [
+      "o",
+      "b",
+      "r",
+      "i",
+      "ɡ",
+      "a",
+      "d",
+      "ʊ"
+    ],
+    "spoken_raw": "ˌo_b_r_i_ɡ_ˈa_d_ʊ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/ptbr_obrigado_16k.wav"
+  },
+  {
+    "id": "fr_bonjour",
+    "voice": "fr-fr",
+    "intended": "bonjour",
+    "spoken": "bonjour",
+    "kind": "correct",
+    "ref_phones": [
+      "b",
+      "ɔ̃",
+      "ʒ",
+      "u",
+      "ʁ"
+    ],
+    "ref_raw": "b_ɔ̃_ʒ_ˈu_ʁ",
+    "spoken_phones": [
+      "b",
+      "ɔ̃",
+      "ʒ",
+      "u",
+      "ʁ"
+    ],
+    "spoken_raw": "b_ɔ̃_ʒ_ˈu_ʁ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/fr_bonjour_16k.wav"
+  },
+  {
+    "id": "fr_merci",
+    "voice": "fr-fr",
+    "intended": "merci",
+    "spoken": "merci",
+    "kind": "correct",
+    "ref_phones": [
+      "m",
+      "ɛ",
+      "ʁ",
+      "s",
+      "i"
+    ],
+    "ref_raw": "m_ɛ_ʁ_s_ˈi",
+    "spoken_phones": [
+      "m",
+      "ɛ",
+      "ʁ",
+      "s",
+      "i"
+    ],
+    "spoken_raw": "m_ɛ_ʁ_s_ˈi",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/fr_merci_16k.wav"
+  },
+  {
+    "id": "fr_chat",
+    "voice": "fr-fr",
+    "intended": "chat",
+    "spoken": "chat",
+    "kind": "correct",
+    "ref_phones": [
+      "ʃ",
+      "a"
+    ],
+    "ref_raw": "ʃ_ˈa",
+    "spoken_phones": [
+      "ʃ",
+      "a"
+    ],
+    "spoken_raw": "ʃ_ˈa",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/fr_chat_16k.wav"
+  },
+  {
+    "id": "fr_rouge",
+    "voice": "fr-fr",
+    "intended": "rouge",
+    "spoken": "rouge",
+    "kind": "correct",
+    "ref_phones": [
+      "ʁ",
+      "u",
+      "ʒ"
+    ],
+    "ref_raw": "ʁ_ˈu_ʒ",
+    "spoken_phones": [
+      "ʁ",
+      "u",
+      "ʒ"
+    ],
+    "spoken_raw": "ʁ_ˈu_ʒ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/fr_rouge_16k.wav"
+  },
+  {
+    "id": "fr_eau",
+    "voice": "fr-fr",
+    "intended": "eau",
+    "spoken": "eau",
+    "kind": "correct",
+    "ref_phones": [
+      "o"
+    ],
+    "ref_raw": "ˈo",
+    "spoken_phones": [
+      "o"
+    ],
+    "spoken_raw": "ˈo",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/fr_eau_16k.wav"
+  },
+  {
+    "id": "err_pt_gato_guto",
+    "voice": "pt-pt",
+    "intended": "gato",
+    "spoken": "guto",
+    "kind": "error",
+    "note": "wrong stressed vowel a->u",
+    "ref_phones": [
+      "ɡ",
+      "a",
+      "t",
+      "ʊ"
+    ],
+    "ref_raw": "ɡ_ˈa_t_ʊ",
+    "spoken_phones": [
+      "ɡ",
+      "u",
+      "t",
+      "ʊ"
+    ],
+    "spoken_raw": "ɡ_ˈu_t_ʊ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/err_pt_gato_guto_16k.wav"
+  },
+  {
+    "id": "err_pt_verde_vorde",
+    "voice": "pt-pt",
+    "intended": "verde",
+    "spoken": "vorde",
+    "kind": "error",
+    "note": "wrong vowel e->o",
+    "ref_phones": [
+      "v",
+      "e",
+      "ɾ",
+      "ə",
+      "d",
+      "ɨ"
+    ],
+    "ref_raw": "v_ˈe_ɾ_ə_d_ɨ",
+    "spoken_phones": [
+      "v",
+      "ɔ",
+      "ɾ",
+      "ə",
+      "d",
+      "ɨ"
+    ],
+    "spoken_raw": "v_ˈɔ_ɾ_ə_d_ɨ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/err_pt_verde_vorde_16k.wav"
+  },
+  {
+    "id": "err_fr_merci_marci",
+    "voice": "fr-fr",
+    "intended": "merci",
+    "spoken": "marci",
+    "kind": "error",
+    "note": "wrong vowel",
+    "ref_phones": [
+      "m",
+      "ɛ",
+      "ʁ",
+      "s",
+      "i"
+    ],
+    "ref_raw": "m_ɛ_ʁ_s_ˈi",
+    "spoken_phones": [
+      "m",
+      "a",
+      "ʁ",
+      "s",
+      "i"
+    ],
+    "spoken_raw": "m_a_ʁ_s_ˈi",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/err_fr_merci_marci_16k.wav"
+  },
+  {
+    "id": "err_fr_rouge_louge",
+    "voice": "fr-fr",
+    "intended": "rouge",
+    "spoken": "louge",
+    "kind": "error",
+    "note": "r->l substitution",
+    "ref_phones": [
+      "ʁ",
+      "u",
+      "ʒ"
+    ],
+    "ref_raw": "ʁ_ˈu_ʒ",
+    "spoken_phones": [
+      "l",
+      "u",
+      "ʒ"
+    ],
+    "spoken_raw": "l_ˈu_ʒ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/err_fr_rouge_louge_16k.wav"
+  },
+  {
+    "id": "err_fr_chat_char",
+    "voice": "fr-fr",
+    "intended": "chat",
+    "spoken": "char",
+    "kind": "error",
+    "note": "t vs r ending",
+    "ref_phones": [
+      "ʃ",
+      "a"
+    ],
+    "ref_raw": "ʃ_ˈa",
+    "spoken_phones": [
+      "ʃ",
+      "a",
+      "ʁ"
+    ],
+    "spoken_raw": "ʃ_ˈa_ʁ",
+    "wav16": "/private/tmp/claude-501/-Users-matthew-Software-working-adaptive-text-writing/cd97fda8-fa50-4d4f-89c9-1234dc1a23f7/scratchpad/phone_poc/audio/err_fr_chat_char_16k.wav"
+  }
+]

@@ -1,0 +1,252 @@
+{
+  "wav2vec2": {
+    "avg_per_correct": 0.528,
+    "avg_per_error_items_vs_intended": 0.647,
+    "rows": [
+      {
+        "id": "pt_ola",
+        "kind": "correct",
+        "per_intended": 0.667,
+        "per_spoken": 0.667,
+        "min_conf": 0.085,
+        "mean_conf": 0.223
+      },
+      {
+        "id": "pt_obrigado",
+        "kind": "correct",
+        "per_intended": 0.25,
+        "per_spoken": 0.25,
+        "min_conf": 0.299,
+        "mean_conf": 0.589
+      },
+      {
+        "id": "pt_casa",
+        "kind": "correct",
+        "per_intended": 0.5,
+        "per_spoken": 0.5,
+        "min_conf": 0.216,
+        "mean_conf": 0.392
+      },
+      {
+        "id": "pt_gato",
+        "kind": "correct",
+        "per_intended": 0.5,
+        "per_spoken": 0.5,
+        "min_conf": 0.234,
+        "mean_conf": 0.674
+      },
+      {
+        "id": "pt_verde",
+        "kind": "correct",
+        "per_intended": 0.5,
+        "per_spoken": 0.5,
+        "min_conf": 0.492,
+        "mean_conf": 0.565
+      },
+      {
+        "id": "ptbr_cachorro",
+        "kind": "correct",
+        "per_intended": 0.167,
+        "per_spoken": 0.167,
+        "min_conf": 0.252,
+        "mean_conf": 0.622
+      },
+      {
+        "id": "ptbr_obrigado",
+        "kind": "correct",
+        "per_intended": 0.25,
+        "per_spoken": 0.25,
+        "min_conf": 0.213,
+        "mean_conf": 0.492
+      },
+      {
+        "id": "fr_bonjour",
+        "kind": "correct",
+        "per_intended": 0.6,
+        "per_spoken": 0.6,
+        "min_conf": 0.661,
+        "mean_conf": 0.756
+      },
+      {
+        "id": "fr_merci",
+        "kind": "correct",
+        "per_intended": 0.4,
+        "per_spoken": 0.4,
+        "min_conf": 0.147,
+        "mean_conf": 0.616
+      },
+      {
+        "id": "fr_chat",
+        "kind": "correct",
+        "per_intended": 0.5,
+        "per_spoken": 0.5,
+        "min_conf": 0.161,
+        "mean_conf": 0.532
+      },
+      {
+        "id": "fr_rouge",
+        "kind": "correct",
+        "per_intended": 1.0,
+        "per_spoken": 1.0,
+        "min_conf": 0.251,
+        "mean_conf": 0.306
+      },
+      {
+        "id": "fr_eau",
+        "kind": "correct",
+        "per_intended": 1.0,
+        "per_spoken": 1.0,
+        "min_conf": 0.0,
+        "mean_conf": 0.0
+      },
+      {
+        "id": "err_pt_gato_guto",
+        "kind": "error",
+        "per_intended": 0.5,
+        "per_spoken": 0.25,
+        "min_conf": 0.265,
+        "mean_conf": 0.4
+      },
+      {
+        "id": "err_pt_verde_vorde",
+        "kind": "error",
+        "per_intended": 0.667,
+        "per_spoken": 0.667,
+        "min_conf": 0.208,
+        "mean_conf": 0.342
+      },
+      {
+        "id": "err_fr_merci_marci",
+        "kind": "error",
+        "per_intended": 0.4,
+        "per_spoken": 0.2,
+        "min_conf": 0.243,
+        "mean_conf": 0.592
+      },
+      {
+        "id": "err_fr_rouge_louge",
+        "kind": "error",
+        "per_intended": 0.667,
+        "per_spoken": 0.667,
+        "min_conf": 0.264,
+        "mean_conf": 0.505
+      },
+      {
+        "id": "err_fr_chat_char",
+        "kind": "error",
+        "per_intended": 1.0,
+        "per_spoken": 0.667,
+        "min_conf": 0.292,
+        "mean_conf": 0.578
+      }
+    ]
+  },
+  "allosaurus": {
+    "avg_per_correct": 0.803,
+    "avg_per_error_items_vs_intended": 0.83,
+    "rows": [
+      {
+        "id": "pt_ola",
+        "kind": "correct",
+        "per_intended": 0.667,
+        "per_spoken": 0.667
+      },
+      {
+        "id": "pt_obrigado",
+        "kind": "correct",
+        "per_intended": 0.75,
+        "per_spoken": 0.75
+      },
+      {
+        "id": "pt_casa",
+        "kind": "correct",
+        "per_intended": 0.5,
+        "per_spoken": 0.5
+      },
+      {
+        "id": "pt_gato",
+        "kind": "correct",
+        "per_intended": 0.5,
+        "per_spoken": 0.5
+      },
+      {
+        "id": "pt_verde",
+        "kind": "correct",
+        "per_intended": 0.833,
+        "per_spoken": 0.833
+      },
+      {
+        "id": "ptbr_cachorro",
+        "kind": "correct",
+        "per_intended": 1.0,
+        "per_spoken": 1.0
+      },
+      {
+        "id": "ptbr_obrigado",
+        "kind": "correct",
+        "per_intended": 0.625,
+        "per_spoken": 0.625
+      },
+      {
+        "id": "fr_bonjour",
+        "kind": "correct",
+        "per_intended": 1.2,
+        "per_spoken": 1.2
+      },
+      {
+        "id": "fr_merci",
+        "kind": "correct",
+        "per_intended": 0.4,
+        "per_spoken": 0.4
+      },
+      {
+        "id": "fr_chat",
+        "kind": "correct",
+        "per_intended": 0.5,
+        "per_spoken": 0.5
+      },
+      {
+        "id": "fr_rouge",
+        "kind": "correct",
+        "per_intended": 1.667,
+        "per_spoken": 1.667
+      },
+      {
+        "id": "fr_eau",
+        "kind": "correct",
+        "per_intended": 1.0,
+        "per_spoken": 1.0
+      },
+      {
+        "id": "err_pt_gato_guto",
+        "kind": "error",
+        "per_intended": 0.75,
+        "per_spoken": 0.5
+      },
+      {
+        "id": "err_pt_verde_vorde",
+        "kind": "error",
+        "per_intended": 0.833,
+        "per_spoken": 0.833
+      },
+      {
+        "id": "err_fr_merci_marci",
+        "kind": "error",
+        "per_intended": 0.4,
+        "per_spoken": 0.2
+      },
+      {
+        "id": "err_fr_rouge_louge",
+        "kind": "error",
+        "per_intended": 1.667,
+        "per_spoken": 1.667
+      },
+      {
+        "id": "err_fr_chat_char",
+        "kind": "error",
+        "per_intended": 0.5,
+        "per_spoken": 0.333
+      }
+    ]
+  }
+}

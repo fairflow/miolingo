@@ -1,0 +1,390 @@
+{
+  "wav2vec2": {
+    "name": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+    "load_t": 3.9493839740753174,
+    "avg_correct_per": 0.7076388888888889,
+    "rows": [
+      {
+        "id": "pt_ola",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/ɔ l a/",
+        "spoken_ipa": "/ɔ l a/",
+        "hyp": "/uo5 ŋ ɑ5/",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0,
+        "mean_conf": 0.223,
+        "min_conf": 0.085
+      },
+      {
+        "id": "pt_obrigado",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/ɔ b ɹ i ɡ a d ʊ/",
+        "spoken_ipa": "/ɔ b ɹ i ɡ a d ʊ/",
+        "hyp": "/ɑ b r i k a d u/",
+        "per_vs_intended": 0.5,
+        "per_vs_spoken": 0.5,
+        "mean_conf": 0.589,
+        "min_conf": 0.299
+      },
+      {
+        "id": "pt_casa",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/k a z ɐ/",
+        "spoken_ipa": "/k a z ɐ/",
+        "hyp": "/k ɑ5 ð ə1/",
+        "per_vs_intended": 0.75,
+        "per_vs_spoken": 0.75,
+        "mean_conf": 0.392,
+        "min_conf": 0.216
+      },
+      {
+        "id": "pt_gato",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/ɡ a t ʊ/",
+        "spoken_ipa": "/ɡ a t ʊ/",
+        "hyp": "/k ɑ5 t/",
+        "per_vs_intended": 0.75,
+        "per_vs_spoken": 0.75,
+        "mean_conf": 0.674,
+        "min_conf": 0.234
+      },
+      {
+        "id": "pt_verde",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/v e ɾ ə d ɨ/",
+        "spoken_ipa": "/v e ɾ ə d ɨ/",
+        "hyp": "/v eː d/",
+        "per_vs_intended": 0.5,
+        "per_vs_spoken": 0.5,
+        "mean_conf": 0.565,
+        "min_conf": 0.492
+      },
+      {
+        "id": "ptbr_cachorro",
+        "kind": "correct",
+        "voice": "pt-br",
+        "ref": "/k a ʃ o x ʊ/",
+        "spoken_ipa": "/k a ʃ o x ʊ/",
+        "hyp": "/k a ʃ o v ʊ/",
+        "per_vs_intended": 0.167,
+        "per_vs_spoken": 0.167,
+        "mean_conf": 0.622,
+        "min_conf": 0.252
+      },
+      {
+        "id": "ptbr_obrigado",
+        "kind": "correct",
+        "voice": "pt-br",
+        "ref": "/o b r i ɡ a d ʊ/",
+        "spoken_ipa": "/o b r i ɡ a d ʊ/",
+        "hyp": "/o b r i5 k ɑ5 t u5/",
+        "per_vs_intended": 0.625,
+        "per_vs_spoken": 0.625,
+        "mean_conf": 0.492,
+        "min_conf": 0.213
+      },
+      {
+        "id": "fr_bonjour",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/b ɔ̃ ʒ u ʁ/",
+        "spoken_ipa": "/b ɔ̃ ʒ u ʁ/",
+        "hyp": "/ɑ̃ ʒ u/",
+        "per_vs_intended": 0.6,
+        "per_vs_spoken": 0.6,
+        "mean_conf": 0.756,
+        "min_conf": 0.661
+      },
+      {
+        "id": "fr_merci",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/m ɛ ʁ s i/",
+        "spoken_ipa": "/m ɛ ʁ s i/",
+        "hyp": "/m iɛ5 n s i5/",
+        "per_vs_intended": 0.6,
+        "per_vs_spoken": 0.6,
+        "mean_conf": 0.616,
+        "min_conf": 0.147
+      },
+      {
+        "id": "fr_chat",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/ʃ a/",
+        "spoken_ipa": "/ʃ a/",
+        "hyp": "/s. ɑ5/",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0,
+        "mean_conf": 0.532,
+        "min_conf": 0.161
+      },
+      {
+        "id": "fr_rouge",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/ʁ u ʒ/",
+        "spoken_ipa": "/ʁ u ʒ/",
+        "hyp": "/a dʒ/",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0,
+        "mean_conf": 0.306,
+        "min_conf": 0.251
+      },
+      {
+        "id": "fr_eau",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/o/",
+        "spoken_ipa": "/o/",
+        "hyp": "//",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0,
+        "mean_conf": 0.0,
+        "min_conf": 0.0
+      },
+      {
+        "id": "err_pt_gato_guto",
+        "kind": "error",
+        "voice": "pt-pt",
+        "ref": "/ɡ a t ʊ/",
+        "spoken_ipa": "/ɡ u t ʊ/",
+        "hyp": "/ts. u5 t u5/",
+        "per_vs_intended": 0.75,
+        "per_vs_spoken": 0.75,
+        "mean_conf": 0.4,
+        "min_conf": 0.265
+      },
+      {
+        "id": "err_pt_verde_vorde",
+        "kind": "error",
+        "voice": "pt-pt",
+        "ref": "/v e ɾ ə d ɨ/",
+        "spoken_ipa": "/v ɔ ɾ ə d ɨ/",
+        "hyp": "/b aː ɡ d i/",
+        "per_vs_intended": 0.833,
+        "per_vs_spoken": 0.833,
+        "mean_conf": 0.342,
+        "min_conf": 0.208
+      },
+      {
+        "id": "err_fr_merci_marci",
+        "kind": "error",
+        "voice": "fr-fr",
+        "ref": "/m ɛ ʁ s i/",
+        "spoken_ipa": "/m a ʁ s i/",
+        "hyp": "/m a5 ŋ s i5/",
+        "per_vs_intended": 0.6,
+        "per_vs_spoken": 0.6,
+        "mean_conf": 0.592,
+        "min_conf": 0.243
+      },
+      {
+        "id": "err_fr_rouge_louge",
+        "kind": "error",
+        "voice": "fr-fr",
+        "ref": "/ʁ u ʒ/",
+        "spoken_ipa": "/l u ʒ/",
+        "hyp": "/n u ɡ/",
+        "per_vs_intended": 0.667,
+        "per_vs_spoken": 0.667,
+        "mean_conf": 0.505,
+        "min_conf": 0.264
+      },
+      {
+        "id": "err_fr_chat_char",
+        "kind": "error",
+        "voice": "fr-fr",
+        "ref": "/ʃ a/",
+        "spoken_ipa": "/ʃ a ʁ/",
+        "hyp": "/s. a5 n/",
+        "per_vs_intended": 1.5,
+        "per_vs_spoken": 1.0,
+        "mean_conf": 0.578,
+        "min_conf": 0.292
+      }
+    ]
+  },
+  "allosaurus": {
+    "name": "allosaurus(latest)",
+    "load_t": 0.03187131881713867,
+    "avg_correct_per": 0.8555555555555556,
+    "rows": [
+      {
+        "id": "pt_ola",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/ɔ l a/",
+        "spoken_ipa": "/ɔ l a/",
+        "hyp": "/o n a/",
+        "per_vs_intended": 0.667,
+        "per_vs_spoken": 0.667
+      },
+      {
+        "id": "pt_obrigado",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/ɔ b ɹ i ɡ a d ʊ/",
+        "spoken_ipa": "/ɔ b ɹ i ɡ a d ʊ/",
+        "hyp": "/a n w i a ɾ/",
+        "per_vs_intended": 0.75,
+        "per_vs_spoken": 0.75
+      },
+      {
+        "id": "pt_casa",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/k a z ɐ/",
+        "spoken_ipa": "/k a z ɐ/",
+        "hyp": "/k a m ə/",
+        "per_vs_intended": 0.5,
+        "per_vs_spoken": 0.5
+      },
+      {
+        "id": "pt_gato",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/ɡ a t ʊ/",
+        "spoken_ipa": "/ɡ a t ʊ/",
+        "hyp": "/ɡ a r i/",
+        "per_vs_intended": 0.5,
+        "per_vs_spoken": 0.5
+      },
+      {
+        "id": "pt_verde",
+        "kind": "correct",
+        "voice": "pt-pt",
+        "ref": "/v e ɾ ə d ɨ/",
+        "spoken_ipa": "/v e ɾ ə d ɨ/",
+        "hyp": "/m e o/",
+        "per_vs_intended": 0.833,
+        "per_vs_spoken": 0.833
+      },
+      {
+        "id": "ptbr_cachorro",
+        "kind": "correct",
+        "voice": "pt-br",
+        "ref": "/k a ʃ o x ʊ/",
+        "spoken_ipa": "/k a ʃ o x ʊ/",
+        "hyp": "/k i a ŋ s ə ŋ i/",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0
+      },
+      {
+        "id": "ptbr_obrigado",
+        "kind": "correct",
+        "voice": "pt-br",
+        "ref": "/o b r i ɡ a d ʊ/",
+        "spoken_ipa": "/o b r i ɡ a d ʊ/",
+        "hyp": "/ɔ n ɾ i a ɾ o/",
+        "per_vs_intended": 0.75,
+        "per_vs_spoken": 0.75
+      },
+      {
+        "id": "fr_bonjour",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/b ɔ̃ ʒ u ʁ/",
+        "spoken_ipa": "/b ɔ̃ ʒ u ʁ/",
+        "hyp": "/t ɔ̃ ŋ s ə w e/",
+        "per_vs_intended": 1.2,
+        "per_vs_spoken": 1.2
+      },
+      {
+        "id": "fr_merci",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/m ɛ ʁ s i/",
+        "spoken_ipa": "/m ɛ ʁ s i/",
+        "hyp": "/m e n s i/",
+        "per_vs_intended": 0.4,
+        "per_vs_spoken": 0.4
+      },
+      {
+        "id": "fr_chat",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/ʃ a/",
+        "spoken_ipa": "/ʃ a/",
+        "hyp": "/ʃ ɒ d/",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0
+      },
+      {
+        "id": "fr_rouge",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/ʁ u ʒ/",
+        "spoken_ipa": "/ʁ u ʒ/",
+        "hyp": "/ɒ w l̪ l i/",
+        "per_vs_intended": 1.667,
+        "per_vs_spoken": 1.667
+      },
+      {
+        "id": "fr_eau",
+        "kind": "correct",
+        "voice": "fr-fr",
+        "ref": "/o/",
+        "spoken_ipa": "/o/",
+        "hyp": "//",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0
+      },
+      {
+        "id": "err_pt_gato_guto",
+        "kind": "error",
+        "voice": "pt-pt",
+        "ref": "/ɡ a t ʊ/",
+        "spoken_ipa": "/ɡ u t ʊ/",
+        "hyp": "/l u t̪ ə/",
+        "per_vs_intended": 0.75,
+        "per_vs_spoken": 0.5
+      },
+      {
+        "id": "err_pt_verde_vorde",
+        "kind": "error",
+        "voice": "pt-pt",
+        "ref": "/v e ɾ ə d ɨ/",
+        "spoken_ipa": "/v ɔ ɾ ə d ɨ/",
+        "hyp": "/m a ʁ ɾ/",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 1.0
+      },
+      {
+        "id": "err_fr_merci_marci",
+        "kind": "error",
+        "voice": "fr-fr",
+        "ref": "/m ɛ ʁ s i/",
+        "spoken_ipa": "/m a ʁ s i/",
+        "hyp": "/m ɑ s i/",
+        "per_vs_intended": 0.4,
+        "per_vs_spoken": 0.4
+      },
+      {
+        "id": "err_fr_rouge_louge",
+        "kind": "error",
+        "voice": "fr-fr",
+        "ref": "/ʁ u ʒ/",
+        "spoken_ipa": "/l u ʒ/",
+        "hyp": "/z o ŋ v e/",
+        "per_vs_intended": 1.667,
+        "per_vs_spoken": 1.667
+      },
+      {
+        "id": "err_fr_chat_char",
+        "kind": "error",
+        "voice": "fr-fr",
+        "ref": "/ʃ a/",
+        "spoken_ipa": "/ʃ a ʁ/",
+        "hyp": "/ʃ ɒ m/",
+        "per_vs_intended": 1.0,
+        "per_vs_spoken": 0.667
+      }
+    ]
+  }
+}
