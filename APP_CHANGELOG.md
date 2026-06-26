@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.13-claude-dev] - 2026-06-27
+
+### Added
+
+- espeak-ng phoneme inventory + Tier-1+2 allophony fold-map (src/ipa/) feeding the weighted phone-distance scorer; reproducible miner in scripts/espeak_mine.py
+
+
 ## [7.9.12-claude-dev] - 2026-04-26
 
 ### Changed

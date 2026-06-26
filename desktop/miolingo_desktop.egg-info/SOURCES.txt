@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+miolingo_desktop/__init__.py
+miolingo_desktop/main.py
+miolingo_desktop.egg-info/PKG-INFO
+miolingo_desktop.egg-info/SOURCES.txt
+miolingo_desktop.egg-info/dependency_links.txt
+miolingo_desktop.egg-info/entry_points.txt
+miolingo_desktop.egg-info/requires.txt
+miolingo_desktop.egg-info/top_level.txt
+miolingo_desktop/core/__init__.py
+miolingo_desktop/data/__init__.py
+miolingo_desktop/resources/__init__.py
+miolingo_desktop/ui/__init__.py
