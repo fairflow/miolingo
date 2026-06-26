@@ -1,0 +1,1024 @@
+{
+  "_meta": {
+    "generated_by": "scripts/espeak_mine.py",
+    "espeak_version": "eSpeak NG text-to-speech: 1.51.1  Data at: /opt/local/share/espeak-ng-data",
+    "phsource": "/Users/matthew/Software/working/adaptive-text/espeak-ng/phsource",
+    "policy": "tier1+2 (mechanical variants + context-predictable native allophony; cross-dialect NOT folded)",
+    "note": "fold-map is context-free; canonical[seg] -> class rep. Stress marks stripped. elision_candidates are deletions, recorded for the scorer to optionally discount, not folded."
+  },
+  "pt": {
+    "table": "pt",
+    "chain": [
+      "base",
+      "base1",
+      "base2",
+      "pt"
+    ],
+    "inventory": [
+      "a",
+      "aɪ",
+      "aʊ",
+      "aː",
+      "b",
+      "d",
+      "e",
+      "eɪ",
+      "eʊ",
+      "f",
+      "i",
+      "iʊ",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "oɪ",
+      "p",
+      "s",
+      "t",
+      "u",
+      "ũ",
+      "v",
+      "w",
+      "z",
+      "ŋ",
+      "ɐ",
+      "ɐ̃",
+      "ɐ̃ʊ̃",
+      "ɑ",
+      "ɔ",
+      "ə",
+      "ɛ",
+      "ɡ",
+      "ɨ",
+      "ɲ",
+      "ɹ",
+      "ɾ",
+      "ʁ",
+      "ʃ",
+      "ʊ",
+      "ʎ",
+      "ʒ"
+    ],
+    "inventory_counts": {
+      "ɐ": 77,
+      "ɨ": 63,
+      "t": 61,
+      "u": 57,
+      "d": 55,
+      "k": 53,
+      "ʊ": 52,
+      "o": 50,
+      "ɹ": 48,
+      "s": 44,
+      "ŋ": 42,
+      "ʃ": 39,
+      "m": 39,
+      "e": 38,
+      "a": 37,
+      "i": 37,
+      "w": 37,
+      "p": 34,
+      "v": 28,
+      "ɾ": 25,
+      "f": 25,
+      "l": 21,
+      "eɪ": 20,
+      "ɛ": 18,
+      "ɐ̃": 17,
+      "b": 15,
+      "ɡ": 15,
+      "ə": 13,
+      "ɔ": 11,
+      "eʊ": 10,
+      "z": 10,
+      "n": 8,
+      "ɲ": 7,
+      "ʒ": 7,
+      "oɪ": 5,
+      "ɐ̃ʊ̃": 5,
+      "ɑ": 5,
+      "ʁ": 4,
+      "aɪ": 3,
+      "aʊ": 2,
+      "ũ": 2,
+      "aː": 2,
+      "j": 2,
+      "ʎ": 1,
+      "iʊ": 1
+    },
+    "tolerated_pairs": [
+      {
+        "pair": [
+          "j",
+          "ɨ"
+        ],
+        "sources": [
+          "i/--ChangePhoneme-->j"
+        ]
+      },
+      {
+        "pair": [
+          "w",
+          "ʊ"
+        ],
+        "sources": [
+          "U--ChangePhoneme-->w"
+        ]
+      },
+      {
+        "pair": [
+          "z",
+          "ʃ"
+        ],
+        "sources": [
+          "s#--ChangePhoneme-->z"
+        ]
+      }
+    ],
+    "elision_candidates": [
+      {
+        "from": "a",
+        "name": "a",
+        "rule": "ChangePhoneme"
+      }
+    ],
+    "tier1_same_ipa_audit": {
+      "a": [
+        "a",
+        "a/"
+      ],
+      "ɐ": [
+        "&",
+        "&/"
+      ],
+      "ɨ": [
+        "i/",
+        "y"
+      ]
+    }
+  },
+  "pt-pt": {
+    "table": "pt-pt",
+    "chain": [
+      "base",
+      "base1",
+      "base2",
+      "pt",
+      "pt-pt"
+    ],
+    "inventory": [
+      "a",
+      "aɪ",
+      "aʊ",
+      "aː",
+      "b",
+      "d",
+      "e",
+      "eɪ",
+      "eʊ",
+      "f",
+      "i",
+      "iʊ",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "oɪ",
+      "p",
+      "s",
+      "t",
+      "u",
+      "ũ",
+      "v",
+      "w",
+      "z",
+      "ŋ",
+      "ɐ",
+      "ɐ̃",
+      "ɐ̃ʊ̃",
+      "ɑ",
+      "ɔ",
+      "ə",
+      "ɛ",
+      "ɡ",
+      "ɨ",
+      "ɲ",
+      "ɹ",
+      "ɾ",
+      "ʁ",
+      "ʃ",
+      "ʊ",
+      "ʎ",
+      "ʒ"
+    ],
+    "inventory_counts": {
+      "ɐ": 77,
+      "ɨ": 63,
+      "t": 61,
+      "u": 57,
+      "d": 55,
+      "k": 53,
+      "ʊ": 52,
+      "o": 50,
+      "ɹ": 48,
+      "s": 44,
+      "ŋ": 42,
+      "ʃ": 39,
+      "m": 39,
+      "e": 38,
+      "a": 37,
+      "i": 37,
+      "w": 37,
+      "p": 34,
+      "v": 28,
+      "ɾ": 25,
+      "f": 25,
+      "l": 21,
+      "eɪ": 20,
+      "ɛ": 18,
+      "ɐ̃": 17,
+      "b": 15,
+      "ɡ": 15,
+      "ə": 13,
+      "ɔ": 11,
+      "eʊ": 10,
+      "z": 10,
+      "n": 8,
+      "ɲ": 7,
+      "ʒ": 7,
+      "oɪ": 5,
+      "ɐ̃ʊ̃": 5,
+      "ɑ": 5,
+      "ʁ": 4,
+      "aɪ": 3,
+      "aʊ": 2,
+      "ũ": 2,
+      "aː": 2,
+      "j": 2,
+      "ʎ": 1,
+      "iʊ": 1
+    },
+    "tolerated_pairs": [
+      {
+        "pair": [
+          "a",
+          "ɐ"
+        ],
+        "sources": [
+          "a--ChangeIfNotStressed-->&"
+        ]
+      },
+      {
+        "pair": [
+          "e",
+          "ɨ"
+        ],
+        "sources": [
+          "e--ChangeIfUnstressed-->y"
+        ]
+      },
+      {
+        "pair": [
+          "o",
+          "u"
+        ],
+        "sources": [
+          "o--ChangeIfNotStressed-->u"
+        ]
+      },
+      {
+        "pair": [
+          "w",
+          "ʊ"
+        ],
+        "sources": [
+          "U--ChangePhoneme-->w"
+        ]
+      },
+      {
+        "pair": [
+          "ɛ",
+          "ɨ"
+        ],
+        "sources": [
+          "E--ChangeIfUnstressed-->y"
+        ]
+      },
+      {
+        "pair": [
+          "ʃ",
+          "ʒ"
+        ],
+        "sources": [
+          "s#--ChangePhoneme-->Z"
+        ]
+      }
+    ],
+    "elision_candidates": [
+      {
+        "from": "r",
+        "name": "x",
+        "rule": "ChangePhoneme"
+      }
+    ],
+    "tier1_same_ipa_audit": {
+      "a": [
+        "a",
+        "a/"
+      ],
+      "w": [
+        "w",
+        "w2"
+      ],
+      "ɐ": [
+        "&",
+        "&/"
+      ],
+      "ɨ": [
+        "i/",
+        "y"
+      ]
+    }
+  },
+  "fr": {
+    "table": "fr",
+    "chain": [
+      "base",
+      "base1",
+      "fr"
+    ],
+    "inventory": [
+      "a",
+      "a-",
+      "aː",
+      "b",
+      "d",
+      "e",
+      "e-",
+      "f",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "oː",
+      "p",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "y",
+      "z",
+      "ø",
+      "œ̃",
+      "ɑ̃",
+      "ɔ",
+      "ɔ̃",
+      "ə",
+      "ə-",
+      "ɛ",
+      "ɛ̃",
+      "ɡ",
+      "ʁ",
+      "ʃ",
+      "ʒ"
+    ],
+    "inventory_counts": {
+      "a": 63,
+      "ʁ": 54,
+      "s": 54,
+      "ɛ": 50,
+      "v": 44,
+      "l": 42,
+      "e": 41,
+      "t": 39,
+      "i": 39,
+      "k": 36,
+      "ʒ": 33,
+      "u": 33,
+      "p": 32,
+      "ə-": 31,
+      "d": 29,
+      "ɑ̃": 29,
+      "y": 23,
+      "m": 20,
+      "b": 17,
+      "n": 17,
+      "f": 17,
+      "w": 16,
+      "j": 16,
+      "ɔ": 16,
+      "ɔ̃": 15,
+      "ɛ̃": 15,
+      "ə": 10,
+      "ʃ": 10,
+      "o": 9,
+      "z": 6,
+      "ø": 5,
+      "ɡ": 4,
+      "œ̃": 3,
+      "a-": 2,
+      "oː": 1,
+      "e-": 1,
+      "aː": 1
+    },
+    "tolerated_pairs": [
+      {
+        "pair": [
+          "i",
+          "j"
+        ],
+        "sources": [
+          "i--ChangePhoneme-->j"
+        ]
+      },
+      {
+        "pair": [
+          "s",
+          "z"
+        ],
+        "sources": [
+          "z3--ChangePhoneme-->z"
+        ]
+      },
+      {
+        "pair": [
+          "ə",
+          "ʌ"
+        ],
+        "sources": [
+          "V--ChangeIfDiminished-->@"
+        ]
+      }
+    ],
+    "elision_candidates": [
+      {
+        "from": "ʁ",
+        "name": "r",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "ʁ",
+        "name": "r",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "l",
+        "name": "l",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "l",
+        "name": "l",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "l",
+        "name": "l/2",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "i",
+        "name": "i",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "w",
+        "name": "w",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "t",
+        "name": "t3",
+        "rule": "ChangePhoneme"
+      }
+    ],
+    "tier1_same_ipa_audit": {
+      "l": [
+        "l",
+        "l/",
+        "l/2"
+      ],
+      "s": [
+        "s",
+        "z3"
+      ],
+      "t": [
+        "t",
+        "t3"
+      ],
+      "w": [
+        "w",
+        "w/"
+      ],
+      "y": [
+        "j.",
+        "y"
+      ],
+      "ʁ": [
+        "r",
+        "r/",
+        "r/2"
+      ]
+    }
+  },
+  "nl": {
+    "table": "nl",
+    "chain": [
+      "base",
+      "base1",
+      "nl"
+    ],
+    "inventory": [
+      "aː",
+      "b",
+      "d",
+      "eː",
+      "f",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "oː",
+      "p",
+      "r",
+      "s",
+      "t",
+      "tʲ",
+      "u",
+      "v",
+      "x",
+      "y",
+      "z",
+      "ŋ",
+      "œy",
+      "ɑ",
+      "ɔ",
+      "ɔː",
+      "ə",
+      "ɛ",
+      "ɛɪ",
+      "ɣ",
+      "ɪ",
+      "ɪː",
+      "ɵ",
+      "ɾ",
+      "ʃ",
+      "ʋ",
+      "ʌʊ"
+    ],
+    "inventory_counts": {
+      "t": 118,
+      "ə": 92,
+      "n": 77,
+      "k": 62,
+      "r": 52,
+      "aː": 50,
+      "ɪ": 50,
+      "h": 49,
+      "l": 49,
+      "ɑ": 41,
+      "ɛ": 39,
+      "s": 36,
+      "m": 29,
+      "d": 26,
+      "ɣ": 25,
+      "b": 24,
+      "ʋ": 23,
+      "ɔ": 22,
+      "eː": 22,
+      "i": 21,
+      "j": 20,
+      "u": 19,
+      "p": 19,
+      "f": 15,
+      "v": 14,
+      "x": 13,
+      "ɵ": 13,
+      "ŋ": 9,
+      "ɛɪ": 8,
+      "z": 7,
+      "oː": 6,
+      "y": 5,
+      "ʌʊ": 4,
+      "œy": 3,
+      "ɪː": 2,
+      "tʲ": 2,
+      "ɔː": 2,
+      "ʃ": 1,
+      "ɾ": 1
+    },
+    "tolerated_pairs": [
+      {
+        "pair": [
+          "eː",
+          "ə"
+        ],
+        "sources": [
+          "e#--ChangeIfUnstressed-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ə",
+          "ɛ"
+        ],
+        "sources": [
+          "E2--ChangeIfDiminished-->@"
+        ]
+      }
+    ],
+    "elision_candidates": [
+      {
+        "from": "t",
+        "name": "t",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "t",
+        "name": "d",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "p",
+        "name": "p",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "p",
+        "name": "b",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "s",
+        "name": "s",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "s",
+        "name": "z",
+        "rule": "ChangePhoneme"
+      }
+    ],
+    "tier1_same_ipa_audit": {
+      "eː": [
+        "e#",
+        "e:"
+      ],
+      "p": [
+        "b",
+        "p"
+      ],
+      "s": [
+        "s",
+        "z"
+      ],
+      "t": [
+        "d",
+        "t"
+      ],
+      "x": [
+        "Q",
+        "x"
+      ],
+      "ɛ": [
+        "E",
+        "E2"
+      ]
+    }
+  },
+  "en": {
+    "table": "en-rp",
+    "chain": [
+      "base",
+      "base1",
+      "en",
+      "en-rp"
+    ],
+    "inventory": [
+      "a",
+      "aɪ",
+      "aɪə",
+      "aʊ",
+      "b",
+      "d",
+      "dʒ",
+      "eə",
+      "eɪ",
+      "f",
+      "h",
+      "i",
+      "iə",
+      "iː",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "p",
+      "s",
+      "t",
+      "tʃ",
+      "uː",
+      "v",
+      "w",
+      "z",
+      "ð",
+      "ŋ",
+      "ɐ",
+      "ɑː",
+      "ɒ",
+      "ɔː",
+      "ə",
+      "əl",
+      "əʊ",
+      "ɛ",
+      "ɜː",
+      "ɡ",
+      "ɪ",
+      "ɹ",
+      "ʃ",
+      "ʊ",
+      "ʌ",
+      "θ"
+    ],
+    "inventory_counts": {
+      "t": 60,
+      "ɪ": 45,
+      "aɪ": 45,
+      "m": 44,
+      "n": 41,
+      "d": 38,
+      "uː": 36,
+      "k": 35,
+      "l": 33,
+      "s": 30,
+      "iː": 28,
+      "j": 28,
+      "h": 24,
+      "ɹ": 24,
+      "ɛ": 24,
+      "z": 24,
+      "ə": 22,
+      "w": 22,
+      "p": 22,
+      "a": 21,
+      "ɒ": 20,
+      "f": 19,
+      "ŋ": 15,
+      "aʊ": 13,
+      "ʌ": 12,
+      "ɐ": 11,
+      "eɪ": 11,
+      "ɑː": 11,
+      "ɡ": 10,
+      "v": 10,
+      "əʊ": 9,
+      "ʊ": 9,
+      "i": 9,
+      "ɔː": 9,
+      "ð": 9,
+      "b": 7,
+      "tʃ": 6,
+      "θ": 5,
+      "eə": 5,
+      "iə": 5,
+      "dʒ": 3,
+      "ɜː": 3,
+      "əl": 2,
+      "ʃ": 2,
+      "aɪə": 2
+    },
+    "tolerated_pairs": [
+      {
+        "pair": [
+          "a",
+          "ɐ"
+        ],
+        "sources": [
+          "a#2--ChangePhoneme-->a#",
+          "a--ChangeIfDiminished-->a#"
+        ]
+      },
+      {
+        "pair": [
+          "d",
+          "t"
+        ],
+        "sources": [
+          "d#--ChangePhoneme-->d"
+        ]
+      },
+      {
+        "pair": [
+          "n",
+          "ŋ"
+        ],
+        "sources": [
+          "n--ChangePhoneme-->N"
+        ]
+      },
+      {
+        "pair": [
+          "r",
+          "ɹ"
+        ],
+        "sources": [
+          "r---ChangePhoneme-->r"
+        ]
+      },
+      {
+        "pair": [
+          "s",
+          "z"
+        ],
+        "sources": [
+          "z#--ChangePhoneme-->z",
+          "z/2--ChangePhoneme-->z"
+        ]
+      },
+      {
+        "pair": [
+          "ɒ",
+          "ə"
+        ],
+        "sources": [
+          "0#--ChangePhoneme-->@",
+          "0--ChangeIfDiminished-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ɒ",
+          "əʊ"
+        ],
+        "sources": [
+          "oU#--ChangePhoneme-->0"
+        ]
+      },
+      {
+        "pair": [
+          "ɔ",
+          "ə"
+        ],
+        "sources": [
+          "O--ChangeIfDiminished-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ɔː",
+          "ə"
+        ],
+        "sources": [
+          "O:--ChangeIfDiminished-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ə",
+          "əʊ"
+        ],
+        "sources": [
+          "oU#--ChangePhoneme-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ə",
+          "ɛ"
+        ],
+        "sources": [
+          "E#--ChangePhoneme-->@",
+          "E--ChangeIfDiminished-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ə",
+          "ɜː"
+        ],
+        "sources": [
+          "3:--ChangeIfDiminished-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ə",
+          "ɪ"
+        ],
+        "sources": [
+          "@2--ChangePhoneme-->I2"
+        ]
+      },
+      {
+        "pair": [
+          "ə",
+          "ʌ"
+        ],
+        "sources": [
+          "V--ChangeIfDiminished-->@"
+        ]
+      },
+      {
+        "pair": [
+          "ɛ",
+          "ɪ"
+        ],
+        "sources": [
+          "E--ChangeIfDiminished-->I2",
+          "e#--ChangePhoneme-->I"
+        ]
+      }
+    ],
+    "elision_candidates": [
+      {
+        "from": "l",
+        "name": "l",
+        "rule": "ChangePhoneme"
+      },
+      {
+        "from": "l",
+        "name": "l",
+        "rule": "ChangePhoneme"
+      }
+    ],
+    "tier1_same_ipa_audit": {
+      "a": [
+        "A#",
+        "a",
+        "a#2",
+        "a2",
+        "aa"
+      ],
+      "aɪə": [
+        "aI3",
+        "aI@"
+      ],
+      "iə": [
+        "i@",
+        "i@3"
+      ],
+      "s": [
+        "z#",
+        "z/2"
+      ],
+      "t": [
+        "d#",
+        "t#",
+        "t2"
+      ],
+      "ɑː": [
+        "A:",
+        "A@"
+      ],
+      "ɒ": [
+        "0",
+        "0#",
+        "02",
+        "O2"
+      ],
+      "ɔː": [
+        "O:",
+        "O@",
+        "o@"
+      ],
+      "ə": [
+        "3",
+        "@",
+        "@#",
+        "@2"
+      ],
+      "əʊ": [
+        "oU",
+        "oU#"
+      ],
+      "ɛ": [
+        "E",
+        "E#",
+        "E2",
+        "e#"
+      ],
+      "ɪ": [
+        "I",
+        "I#",
+        "I2",
+        "I2#"
+      ],
+      "ʊ": [
+        "@5",
+        "U"
+      ]
+    }
+  }
+}
