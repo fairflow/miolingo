@@ -171,11 +171,21 @@ def practice_word_from_audio(
 
         # Score
         algorithm = settings.get("comparison_algorithm", "edit_distance")
-        exact_match, similarity, edit_distance = compare_phonemes(
-            user_phonemes_normalized,
-            correct_phonemes_normalized,
-            algorithm=algorithm,
-        )
+        if algorithm == "weighted_phone":
+            # Phone-level weighted distance over IPA, with the espeak-ng fold-map
+            # tolerating accent variation (miolingo-8f0). Lazy import so panphon
+            # only loads when this algorithm is actually selected.
+            from scoring.phone_distance import score as _phone_score
+            _r = _phone_score(user_ipa, correct_ipa, voice)
+            exact_match = _r.exact_match
+            similarity = _r.similarity
+            edit_distance = round(_r.distance, 3)
+        else:
+            exact_match, similarity, edit_distance = compare_phonemes(
+                user_phonemes_normalized,
+                correct_phonemes_normalized,
+                algorithm=algorithm,
+            )
 
         result = {
             "target": text,

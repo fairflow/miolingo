@@ -386,9 +386,24 @@ def render_settings_panel():
         # Keep 'model' in sync for backwards compatibility
         st.session_state.settings['model'] = st.session_state.settings['whisper_model_size']
 
-        # Only edit_distance is implemented; positional was removed.
-        st.session_state.settings['comparison_algorithm'] = 'edit_distance'
-        st.caption("Scoring algorithm: edit_distance")
+        # Scoring algorithm: char-level edit distance (default) or phone-level
+        # weighted distance over IPA with the espeak-ng accent fold-map.
+        _algos = ['edit_distance', 'weighted_phone']
+        _algo_labels = {
+            'edit_distance': 'edit_distance (character-level)',
+            'weighted_phone': 'weighted_phone (IPA feature distance + accent fold-map)',
+        }
+        st.session_state.settings['comparison_algorithm'] = st.selectbox(
+            "Scoring Algorithm",
+            _algos,
+            index=_algos.index(
+                st.session_state.settings.get('comparison_algorithm', 'edit_distance')
+            ),
+            format_func=lambda a: _algo_labels.get(a, a),
+            help="weighted_phone scores at the phone level: phonetically-near "
+                 "substitutions and tolerated accent variation cost less than "
+                 "genuine errors.",
+        )
 
         # ── Audio Processing ─────────────────────────────────────────────────
         st.markdown("**🎚️ Audio Processing**")
