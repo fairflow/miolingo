@@ -20,7 +20,7 @@ source /Users/matthew/Software/working/miolingo/venv/bin/activate
 
 # 1. Start from a clean, up-to-date base branch.
 git fetch origin
-git switch -c claude/<descriptive-name> origin/claude/dev-swept
+git switch -c claude/<descriptive-name> origin/claude/spec
 
 # 2. Do the work — edit code, run tests, run the app if UI changed.
 pytest tests/unit/ -q             # fast feedback
@@ -64,7 +64,7 @@ After the PR merges, before starting the next piece of work, **reset the worktre
 
 ```bash
 git fetch origin
-git reset --hard origin/claude/dev-swept
+git reset --hard origin/claude/spec
 ```
 
 If the reset would lose uncommitted work, `git stash push -u` first.
@@ -75,9 +75,9 @@ If the reset would lose uncommitted work, `git stash push -u` first.
 
 The reasoning behind each step — so if the script breaks or the model changes, the next agent can reconstruct the workflow.
 
-### Step 1 — Fresh branch from `origin/claude/dev-swept`
+### Step 1 — Fresh branch from `origin/claude/spec`
 
-The explicit `origin/claude/dev-swept` argument is critical. Without it, a new branch inherits its parent's tracking branch. Worktree branches often inherit `origin/claude/dev-swept` as upstream, which means a later `git push` (without a refspec) would push **directly to dev-swept**, bypassing PR review. The `PreToolUse` git-push hook blocks this, but the hook is a safety net, not a substitute for doing the git command correctly.
+The explicit `origin/claude/spec` argument is critical. Without it, a new branch inherits its parent's tracking branch. Worktree branches often inherit `origin/claude/spec` as upstream, which means a later `git push` (without a refspec) would push **directly to claude/spec**, bypassing PR review. The `PreToolUse` git-push hook blocks this, but the hook is a safety net, not a substitute for doing the git command correctly.
 
 Never reuse a branch that has already had PRs merged from it — the old commits linger locally and make subsequent PRs re-show already-merged changes.
 
@@ -89,14 +89,14 @@ Never reuse a branch that has already had PRs merged from it — the old commits
 - commits both with message `vX.Y.Z-claude-dev: version bump`
 - annotates the new commit with tag `vX.Y.Z-claude-dev`
 
-**Do not pass `--push`.** The `--push` flag runs `git push origin HEAD` which respects the branch's upstream — and on a fresh worktree branch that upstream is still `origin/claude/dev-swept`. That would push the bump commit onto the base branch, not into a PR.
+**Do not pass `--push`.** The `--push` flag runs `git push origin HEAD` which respects the branch's upstream — and on a fresh worktree branch that upstream is still `origin/claude/spec`. That would push the bump commit onto the base branch, not into a PR.
 
 The `create-pr.sh` script's version check now compares HEAD against `origin/$BASE_BRANCH` (not against the last git tag), so bumping before calling `create-pr.sh` is the correct order. Earlier versions of the script used `git describe` and failed when the bump-commit-tag sat at HEAD; if you see a "version not bumped" warning despite having bumped, the script is out of date — pull `main` and try again.
 
 ### Step 5 — `create-pr.sh`
 
 The script:
-1. Reads `CLAUDE_BRANCH_TARGET` from `scripts/pr-config.env` (currently `claude/dev-swept`).
+1. Reads `CLAUDE_BRANCH_TARGET` from `scripts/pr-config.env` (currently `claude/spec`).
 2. Checks there is no open PR already on this branch (preventing duplicate PRs).
 3. Compares `src/config.py __version__` on HEAD vs `origin/$BASE_BRANCH`; fails if they match.
 4. Pushes using the explicit `HEAD:refs/heads/<branch>` form — bypasses the `PreToolUse` hook AND is safe regardless of upstream inheritance.
@@ -124,7 +124,7 @@ All scripts live in `scripts/`. Paths shown are relative to the repo root.
 |---|---|
 | `bump_version.py` | Bump version + changelog entry + local git tag. See flags below. |
 | `create-pr.sh` | Push branch + raise PR targeting `CLAUDE_BRANCH_TARGET`. |
-| `pr-config.env` | Config: `CLAUDE_BRANCH_TARGET=<branch>`. Update when the target branch rotates (e.g. dev-swept → dev). |
+| `pr-config.env` | Config: `CLAUDE_BRANCH_TARGET=<branch>`. Update when the target branch rotates (e.g. claude/spec → dev). |
 
 `bump_version.py` flags:
 - positional: `app` (default) or `admin` — selects which version file to edit
@@ -187,8 +187,8 @@ Port convention (memorise):
 ## Things that look like bugs but aren't
 
 - **The sidebar version doesn't update after a merge.** Streamlit caches aggressively. Stop+start the server (`scripts/dev_server.sh stop && scripts/dev_server.sh`), not just a page reload.
-- **`git status` says "up to date" but I just merged a PR.** The local branch tracking was probably set to the PR branch, not to dev-swept. See step 6 and the reset recipe above.
-- **`gh pr create` complains about "no commits between".** You forgot to commit or you're on the base branch itself. `git log origin/claude/dev-swept..HEAD --oneline` should show your commits.
+- **`git status` says "up to date" but I just merged a PR.** The local branch tracking was probably set to the PR branch, not to claude/spec. See step 6 and the reset recipe above.
+- **`gh pr create` complains about "no commits between".** You forgot to commit or you're on the base branch itself. `git log origin/claude/spec..HEAD --oneline` should show your commits.
 
 ## Things that ARE bugs — fix them, don't work around them
 
