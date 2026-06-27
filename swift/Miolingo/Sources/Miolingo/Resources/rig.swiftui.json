@@ -1,0 +1,8 @@
+{ "schema": "rig/1", "for": "Helm",
+  "fittings": {
+    "set_source": "choice.menu",
+    "set_target": "choice.menu",
+    "set_tts": "choice.segmented",
+    "set_speed": "slider",
+    "view": "panel"
+  } }

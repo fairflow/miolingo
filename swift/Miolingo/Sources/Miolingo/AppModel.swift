@@ -1,0 +1,317 @@
+import Foundation
+import Observation
+import Speech
+import MiolingoOracles
+import MiolingoCore
+
+enum Tab: String, CaseIterable, Identifiable {
+    case practice = "Practice", story = "Story", vocab = "Vocabulary", settings = "Settings"
+    var id: String { rawValue }
+    var icon: String {
+        switch self {
+        case .practice: return "mic.fill"
+        case .story:    return "book.fill"
+        case .vocab:    return "tray.full.fill"
+        case .settings: return "slider.horizontal.3"
+        }
+    }
+}
+
+// =====================================================================
+// AppModel — composes the components (= mioCore) and wires the restricted
+// cross-component channels (vocabUpsert / goPractice / langRead / vocabRead)
+// as direct calls: these are the τ's the walk harness auto-fires. All ports
+// the UI invokes funnel through here, mirroring MioCore.wl.
+// =====================================================================
+@MainActor @Observable
+final class AppModel {
+    var helm: Helm
+    var ps: PracticeSession
+    var table: VocabTable
+    var vocab: Vocab
+    var story: StoryReader
+
+    // transient UI
+    var selectedTab: Tab = .practice
+    var psBrowsing = false        // open_practice taken; choosing what to load
+    var lastError: String?
+    var lastRecognised = ""       // what ASR heard (phonemes) — visible feedback
+    var lastRecognisedText = ""   // the recognised PHRASE (words) — surfaced in results
+    var lastAudioFingerprint = "" // size + hash of the audio actually fed to ASR (proves it varies)
+    var isScoring = false
+
+    /// Cheap content fingerprint of the audio handed to the recogniser, so the
+    /// diagnostics can show that distinct recordings really do differ.
+    static func fingerprint(_ d: Data) -> String {
+        var h: UInt32 = 5381
+        for b in d { h = (h &* 33) &+ UInt32(b) }
+        return String(format: "%d B · %08x", d.count, h)
+    }
+
+    /// Active visual skin (L3 styling). `.miolingo` is the default; `.system`
+    /// preserves the plain earlier look. Switchable in Settings → Appearance.
+    var skin: Skin = .miolingo
+
+    /// User-selectable phoneme scoring method (Settings → Recognition).
+    var scoringMethod: ScoringMethod = .editDistance
+
+    private let db: Database
+    private let systemTTS = SystemTTS()
+    private let espeakTTS = EspeakTTS()
+    private let systemScorer: SystemScorer    // SFSpeech path (always present)
+    private let enrich: EnrichOracle
+    #if WHISPERKIT
+    private var whisper: WhisperScorer?       // current Whisper instance (lazily built per model)
+    private var whisperModel: WhisperModel?
+    #endif
+
+    init() {
+        let database = (try? Database(path: Database.defaultPath()))
+            ?? ((try? Database(path: NSTemporaryDirectory() + "miolingo.sqlite"))!)
+        db = database
+        helm = database.loadHelm()
+        table = VocabTable(entries: database.loadEntries())
+        ps = PracticeSession()
+        vocab = Vocab()
+        story = StoryReader(library: BundledStoryLibrary.shared)
+        systemScorer = SystemScorer()
+        // translation from the bundled lexicon + IPA from espeak (offline autofill).
+        enrich = DictionaryEnrichOracle(table: AppModel.loadLexicon(),
+                                        useEspeakIPA: Espeak.available)
+    }
+
+    /// The bundled offline lexicon (targetCode → word → native translation).
+    private static func loadLexicon() -> [String: [String: String]] {
+        guard let url = BundledResource.url(forResource: "lexicon", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let raw = try? JSONDecoder().decode([String: [String: String]].self, from: data)
+        else { return [:] }
+        return raw
+    }
+
+    /// The scorer for the engine selected on Helm (helm.asr); Whisper uses the
+    /// selected model (helm.asrModel), built lazily and reused until the model
+    /// changes. Falls back to SFSpeech when Whisper isn't built in.
+    private var activeScorer: SpeechScorer {
+        #if WHISPERKIT
+        if helm.asr == .whisper {
+            if whisper == nil || whisperModel != helm.asrModel {
+                whisper = WhisperScorer(model: helm.asrModel.rawValue)
+                whisperModel = helm.asrModel
+            }
+            return whisper!
+        }
+        #endif
+        return systemScorer
+    }
+    /// Whether the Whisper engine can actually be selected (built with WhisperKit).
+    var whisperEngineAvailable: Bool {
+        #if WHISPERKIT
+        return true
+        #else
+        return false
+        #endif
+    }
+    func setAsr(_ a: ASRKind) { helm.setAsr(a); persistHelm() }
+    func setAsrModel(_ m: WhisperModel) { helm.setAsrModel(m); persistHelm() }
+
+    // --- persistence ---
+    private func persistVocab() { db.saveEntries(table.entries) }
+    private func persistHelm() { db.saveHelm(helm) }
+    func languages() -> [(code: String, name: String)] { db.languages() }
+
+    // --- Helm ports ---
+    func setSource(_ s: String) { helm.setSource(s); persistHelm() }
+    func setTarget(_ t: String) { helm.setTarget(t); persistHelm() }
+    /// Source is stored as a NAME (spec); the UI picks it by CODE like the target,
+    /// so both can be dropdowns over the same `languages` list (mutually exclusive).
+    var sourceCode: String { nativeCode }
+    func setSourceByCode(_ code: String) {
+        setSource(languages().first { $0.code == code }?.name ?? code)
+    }
+    /// Pick source/target keeping them DISTINCT by SWAPPING on collision (so any
+    /// configuration, including a straight swap, is reachable in one action).
+    func chooseSource(_ code: String) {
+        if code == helm.target { setTarget(sourceCode) }   // collision → swap
+        setSourceByCode(code)
+    }
+    func chooseTarget(_ code: String) {
+        if code == sourceCode { setSourceByCode(helm.target) }   // collision → swap
+        setTarget(code)
+    }
+    func setTTS(_ e: TTSKind)   { helm.setTTS(e); persistHelm() }
+    func setSpeed(_ w: Int)     { helm.setSpeed(w); persistHelm() }
+
+    // --- TTS (read Helm; AVSpeech) ---
+    func speak(_ text: String) {
+        // honour the selected TTS engine (Helm.tts); google falls back to system.
+        switch helm.tts {
+        case .espeak:
+            espeakTTS.speak(text, languageCode: helm.target, rate: Double(helm.speed))
+        case .system, .google:
+            systemTTS.speak(text, languageCode: bcp47(helm.target), rate: Double(helm.speed))
+        }
+    }
+
+    // --- PracticeSession flow ---
+    func openPractice() { psBrowsing = true }                 // open_practice → (vocabRead) → PSBrowse
+    func loadAllVocab() { ps.load(practiseList(table.read(), filter: nil)); psBrowsing = false }
+    func loadFilteredVocab(_ q: String) {
+        ps.load(practiseList(table.read(), filter: q)); psBrowsing = false
+    }
+    func loadMaterial(_ ph: [Phrase]) { ps.load(ph) }         // load_material
+
+    /// Phrase import (paste or file) → load_material. Same ingest shape as vocab.
+    @discardableResult
+    func importPhrasesText(_ contents: String) -> String {
+        let (ph, result) = importPhrases(ImportRequest(contents: contents, expectedTarget: helm.target))
+        switch result {
+        case .ok(let n):
+            if n > 0 { ps.load(ph) }
+            return "Loaded \(n) phrase\(n == 1 ? "" : "s")."
+        case .noHeader:        return "Nothing loaded: first line must be a (target, source) header, e.g. (\(helm.target), en)."
+        case .targetMismatch(let ft, let e):
+            return "Nothing loaded: file target ‘\(ft)’ ≠ your target ‘\(e)’. Set Target to ‘\(ft)’, or fix the header."
+        case .tooMany(let c):  return "Nothing loaded: \(c) rows exceeds the \(importLineLimit)-row limit."
+        }
+    }
+    /// The "heard …" feedback belongs to ONE attempt: clear it whenever the
+    /// recording/item it described goes away (re-record, clear, navigation),
+    /// otherwise it leaks across items and even tabs (the stale "heard /ʃa/"
+    /// under Bonjour bug).
+    private func clearHeard() { lastRecognised = ""; lastRecognisedText = ""; lastAudioFingerprint = ""; captureStatus = "" }
+
+    func psSelect(_ i: Int) { ps.select(i); clearHeard() }
+    // clear-then-record so a RE-record actually replaces the take. recordingMade
+    // is a no-op when a recording already exists (spec: recording_made only when
+    // rec===none; you re-record via clear_recording then recording_made). Without
+    // the clear, every re-record was dropped and "Check" kept re-scoring the FIRST
+    // recording — the constant-result bug.
+    func psRecorded(_ audio: Data) { ps.clearRecording(); ps.recordingMade(audio); clearHeard() }
+    func psClearRecording() { ps.clearRecording(); clearHeard() }
+    func psNext() { ps.next(); clearHeard() }
+    func psPrev() { ps.prev(); clearHeard() }
+    func psClearMaterial() { ps.clearMaterial(); clearHeard() }
+    func psAttempt() async {                                   // attempt_made + langRead + ASR
+        guard let rec = ps.rec else { return }
+        isScoring = true; defer { isScoring = false }
+        // The target text is diagnostics-only (NOT fed to the recogniser — honesty).
+        let hint = ps.phrases.isEmpty ? "" : targetOf(ps.phrases, ps.pos).text
+        lastAudioFingerprint = AppModel.fingerprint(rec.audio)
+        let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
+        lastRecognised = phon
+        lastRecognisedText = lastHeard
+        ps.score(recognisedPhonemes: phon, method: scoringMethod)
+    }
+    /// Result of the last capture attempt — capturing a MULTI-WORD phrase is
+    /// rejected by validateWord (whitespace) and used to no-op SILENTLY.
+    var captureStatus = ""
+    private func capture(_ w: String) {
+        if validateWord(w) == nil {
+            captureStatus = "Couldn’t capture “\(w)” — only single words can be saved to vocabulary."
+        } else {
+            table.upsert(w); persistVocab()
+            captureStatus = "Captured “\(w)”."
+        }
+    }
+    func psCapture() {                                         // capture_vocab → vocabUpsert
+        if let w = ps.captureWord { capture(w) }
+    }
+
+    // --- Vocab tab: writes go through VocabTable; params are Vocab-owned ---
+    func openVocab() { vocab.openVocab() }
+    func setSort(_ s: VocabSort) { vocab.setSort(s) }
+    func setFilter(_ q: String?) { vocab.setFilter(q) }
+    func beginEdit(_ id: Int) { vocab.beginEdit(id) }
+    func cancelEdit() { vocab.cancelEdit() }
+    func vocabAdd(_ word: String) { table.upsert(word); persistVocab() }      // add → vocabUpsert
+    @discardableResult
+    func vocabImport(_ contents: String) -> String {                          // import_bulk → vocabImport
+        let (out, result) = importOutcome(table.entries,
+            ImportRequest(contents: contents, expectedTarget: helm.target))
+        table.entries = out; persistVocab()
+        switch result {
+        case .ok(let n):        return "Imported \(n) new word\(n == 1 ? "" : "s")."
+        case .noHeader:         return "Nothing imported: first line must be a (target, source) header, e.g. (\(helm.target), en)."
+        case .targetMismatch(let ft, let e):
+            return "Nothing imported: file target ‘\(ft)’ ≠ your target ‘\(e)’. Set Target to ‘\(ft)’, or fix the header."
+        case .tooMany(let c):   return "Nothing imported: \(c) rows exceeds the \(importLineLimit)-row limit."
+        }
+    }
+    func vocabDelete(_ id: Int) { table.remove(id); persistVocab() }          // delete → vocabRemove
+    func vocabUpdate(id: Int, fields: [String: String]) {                     // update → vocabAmend
+        table.amend(id: id, fields: fields); vocab.endEdit(); persistVocab()
+    }
+    func vocabAutofill(_ id: Int) {                                           // autofill → langRead + vocabAmend
+        let f = autofillFields(table.read(), id: id, lang: helm.langPair, oracle: enrich)
+        if !f.isEmpty { table.amend(id: id, fields: f); persistVocab() }
+    }
+
+    /// Native-language CODE for the source NAME Helm stores (for translation target).
+    var nativeCode: String {
+        ["English": "en", "French": "fr", "Portuguese": "pt",
+         "German": "de", "Spanish": "es", "Italian": "it"][helm.source] ?? "en"
+    }
+
+    /// Autofill driven by the live Apple Translation framework (VocabView supplies
+    /// `translation`); espeak still provides the IPA via the enrich oracle. Both
+    /// honour only-empty / never-overwrite. `translation == nil` falls back to the
+    /// offline lexicon path.
+    func applyAutofill(id: Int, translation: String?) {
+        var fields = autofillFields(table.read(), id: id, lang: helm.langPair, oracle: enrich)
+        if let t = translation?.trimmingCharacters(in: .whitespaces), !t.isEmpty,
+           let row = table.read().first(where: { $0.id == id }),
+           (row.translation ?? "").isEmpty {
+            fields["translation"] = t.lowercased()   // recovered: app stores translations lower-case
+        }
+        if !fields.isEmpty { table.amend(id: id, fields: fields); persistVocab() }
+    }
+    func practiseFromVocab() {                                                // practise_vocab → goPractice → PS pull
+        ps.load(practiseList(table.read(), filter: vocab.filter))
+        selectedTab = .practice
+    }
+
+    // --- StoryReader ---
+    func storySetMode(_ m: ReadingMode) { story.setMode(m); clearHeard() }
+    func storySelectScene(_ s: Int) { story.selectScene(s); clearHeard() }
+    func storySelectItem(_ i: Int) { story.selectItem(i); clearHeard() }
+    func storyNext() { story.next(); clearHeard() }
+    func storyPrev() { story.prev(); clearHeard() }
+    func storyRecorded(_ audio: Data) { story.clearRecording(); story.recordingMade(audio); clearHeard() }
+    func storyClearRecording() { story.clearRecording(); clearHeard() }
+    func storyAttempt() async {                                               // story_attempt_made + langRead + ASR
+        guard let rec = story.rec else { return }
+        isScoring = true; defer { isScoring = false }
+        // The target text is diagnostics-only (NOT fed to the recogniser — honesty).
+        let hint = story.phrases.isEmpty ? "" : targetOf(story.phrases, story.pos).text
+        lastAudioFingerprint = AppModel.fingerprint(rec.audio)
+        let phon = await activeScorer.recognise(audio: rec.audio, languageCode: helm.target, hint: hint)
+        lastRecognised = phon
+        lastRecognisedText = lastHeard
+        story.score(recognisedPhonemes: phon, method: scoringMethod)
+    }
+    func storyCapture() {                                                     // story_capture_vocab → vocabUpsert
+        if let w = story.captureWord { capture(w) }
+    }
+
+    // --- projections (the *View ports) ---
+    var vocabVM: VocabViewModel { vocab.view(entries: table.entries) }
+    var sceneCount: Int { BundledStoryLibrary.shared.sceneCount }
+
+    // --- ASR diagnostics (Settings → Diagnostics) ---
+    /// Live status of the last SFSpeech recognise() attempt.
+    var scorerDiagnostics: ScorerDiagnostics? { systemScorer.diagnostics }
+    /// The Speech Recognition TCC status right now (separate from microphone).
+    var speechAuthStatus: String {
+        SystemScorer.describe(SFSpeechRecognizer.authorizationStatus())
+    }
+    /// Raw transcript the active engine last heard (words before espeak).
+    private var lastHeard: String {
+        #if WHISPERKIT
+        if helm.asr == .whisper, let w = whisper {
+            return w.diagnostics.lastHeardText
+        }
+        #endif
+        return systemScorer.diagnostics.lastHeardText
+    }
+}

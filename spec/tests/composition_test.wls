@@ -49,7 +49,7 @@ Print[bar];
 ps0 = call["PS", {}, 0, none, none];
 vs0 = call["Vocab", signedIn, alpha, none, none];          (* (i): no entries *)
 ch0 = call["VocabTable", {}];                            (* the store owns the entries *)
-helm0 = call["Helm", "English", "fr", google, 250];
+helm0 = call["Helm", "English", "fr", google, 250, system, base];
 R = {label["vocabUpsert"], label["goPractice"], label["langRead"],
      label["vocabRead"], label["vocabUpsert"], label["vocabImport"], label["vocabRemove"], label["vocabAmend"]};
 parTerm = par[par[par[ps0, vs0], helm0], ch0];

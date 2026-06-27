@@ -1,0 +1,46 @@
+{
+  "fr": {
+    "bonjour": "hello",
+    "au revoir": "goodbye",
+    "à bientôt": "see you soon",
+    "comment ça va?": "how are you?",
+    "je m'appelle marie": "my name is Marie",
+    "merci": "thank you",
+    "oui": "yes",
+    "non": "no",
+    "chat": "cat",
+    "chien": "dog",
+    "souris": "mouse",
+    "maison": "house",
+    "eau": "water",
+    "pain": "bread",
+    "livre": "book",
+    "ami": "friend",
+    "jour": "day",
+    "nuit": "night"
+  },
+  "pt": {
+    "olá": "hello",
+    "bom dia": "good morning",
+    "obrigado": "thank you",
+    "gato": "cat",
+    "cão": "dog",
+    "casa": "house",
+    "água": "water",
+    "pão": "bread",
+    "livro": "book",
+    "amigo": "friend"
+  },
+  "es": {
+    "hola": "hello",
+    "adiós": "goodbye",
+    "gracias": "thank you",
+    "gato": "cat",
+    "perro": "dog",
+    "casa": "house",
+    "agua": "water",
+    "pan": "bread",
+    "libro": "book",
+    "amigo": "friend"
+  }
+}

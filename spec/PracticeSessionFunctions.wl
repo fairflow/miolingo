@@ -73,17 +73,72 @@ comparePhonemes[user_String, correct_String] := Module[{dist, maxLen},
     "distance" -> dist|>];
 
 
+(* --- normalisePhonemes[ipa] : the scoring normalisation (phonemes.py
+   normalize_for_phoneme_scoring). Strip word-boundary whitespace so scoring is
+   on pronunciation phonemes only. We feed CLEAN IPA (espeak --ipa, stress already
+   removed) — NOT espeak's -x internal codes — so whitespace removal suffices; the
+   pause-phoneme markers the app also stripped only arise from -x output. *)
+normalisePhonemes[ipa_String] := StringReplace[ipa, Whitespace -> ""];
+
+(* --- alignPhonemes[user, correct] : the matched/unmatched structure
+   (comparison.py get_edit_operations) — a Levenshtein BACKTRACE aligning the
+   target (correct) against the user's phonemes. Returns a list of segments
+     <|"op" -> equal|sub|ins|del, "target" -> _, "user" -> _|>
+   oriented target-vs-user (as practice_tab.py _colorize_diff renders, two parallel
+   rows): equal = same phoneme; sub = differing phonemes; ins = user has an extra
+   phoneme (target ""); del = target phoneme missing from the user ("" user). The
+   skin colours these (sub/ins/del/equal). Pure; this is the heart of the feedback. *)
+alignPhonemes[user_String, correct_String] := Module[
+  {a = Characters[correct], b = Characters[user], m, n, dp, ops, i, j},
+  m = Length[a]; n = Length[b];
+  dp = Table[0, {m + 1}, {n + 1}];
+  Do[dp[[i + 1, 1]] = i, {i, 0, m}];
+  Do[dp[[1, j + 1]] = j, {j, 0, n}];
+  Do[
+    dp[[i + 1, j + 1]] = If[a[[i]] === b[[j]], dp[[i, j]],
+      1 + Min[dp[[i, j + 1]], dp[[i + 1, j]], dp[[i, j]]]],
+    {i, 1, m}, {j, 1, n}];
+  ops = {}; i = m; j = n;
+  While[i > 0 || j > 0,
+    Which[
+      i > 0 && j > 0 && a[[i]] === b[[j]],
+        PrependTo[ops, <|"op" -> "equal", "target" -> a[[i]], "user" -> b[[j]]|>]; i--; j--,
+      i > 0 && j > 0 && dp[[i + 1, j + 1]] == dp[[i, j]] + 1,
+        PrependTo[ops, <|"op" -> "sub", "target" -> a[[i]], "user" -> b[[j]]|>]; i--; j--,
+      j > 0 && dp[[i + 1, j + 1]] == dp[[i + 1, j]] + 1,
+        PrependTo[ops, <|"op" -> "ins", "target" -> "", "user" -> b[[j]]|>]; j--,
+      True,
+        PrependTo[ops, <|"op" -> "del", "target" -> a[[i]], "user" -> ""|>]; i--]];
+  ops];
+
+(* --- scoreDetail[user, correct] : the FULL scored result the practice pane
+   shows — the comparePhonemes numbers PLUS the phoneme strings and the alignment.
+   A superset of comparePhonemes (keeps exact_match/similarity/distance), so older
+   consumers still read those keys. *)
+scoreDetail[user_String, correct_String] :=
+  Join[comparePhonemes[user, correct],
+    <|"user" -> user, "target" -> correct, "alignment" -> alignPhonemes[user, correct]|>];
+
 (* --- evaluate[target, rec, lang] : the scoring of an attempt -----------
-   PURE core (comparePhonemes) composed with the ASR oracle. The recorded
-   audio is recognised to phonemes (IO oracle, in the target language), then
-   compared against the target item's correct phonemes (pure). lang is the
-   BORROWED {source, target} pair pulled from Helm at attempt_made; the ASR
-   uses Last[lang] (the target code). The result Association is what the agent
-   wraps in scored[...]. *)
+   PURE core (scoreDetail) composed with the ASR oracle. The recorded audio is
+   recognised to phonemes (IO oracle, in the target language), both sides are
+   normalised, then aligned + scored (pure). lang is the BORROWED {source, target}
+   pair pulled from Helm at attempt_made; the ASR uses Last[lang] (the target code).
+   The result Association is what the agent wraps in scored[...] and the view
+   publishes. (The recognised TEXT/word is an oracle detail surfaced by the skin,
+   below the L1 boundary; L1 scores phonemes.) *)
+(* recognisedOf: held-until-concrete gate on the ORACLE's result. The old
+   ToString here coerced an UNINTERPRETED recognisePhonemes[...] term into its
+   printed form, which then got character-Levenshteined against the target IPA —
+   garbage scores (sim 0.02, 40 ins ops) whenever the oracle had no downvalues.
+   Gating on _String keeps the whole score SYMBOLIC until a real transcript
+   exists (the same discipline as vocabView[entries_List] / deleteFrom[id_Integer]). *)
+recognisedOf[r_String] := r;
+
 evaluate[target_, rec_, lang_List] :=
-  comparePhonemes[
-    ToString[recognisePhonemes[audioOf[rec], Last[lang]]],
-    correctPhonemesOf[target]];
+  scoreDetail[
+    normalisePhonemes[recognisedOf[recognisePhonemes[audioOf[rec], Last[lang]]]],
+    normalisePhonemes[correctPhonemesOf[target]]];
 
 
 (* --- sessionView[phrases, pos, rec, res] : read-only view projection ----

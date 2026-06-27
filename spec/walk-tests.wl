@@ -98,6 +98,17 @@ walkTests = <|
     vis["attempt_made"],                            (* langRead auto-fires for scoring *)
     vis["capture_vocab", "souris"]},                (* vocabUpsert auto-fires (relay to Vocab) *)
 
+  (* --- USER-as-environment: the recording VALUE is the TTS oracle term
+     synthAudio[text, lang] — the closed-loop shape (Speaker.wl models the same
+     user as an AGENT; speaker_test.wls gives the oracle pair its round-trip law
+     and asserts exact-match/control scores; the Swift MiolingoHarness runs the
+     law on the real engines). Here the plan just drives the ports with the
+     synth-audio value — it must complete on BOTH compositions. *)
+  "user-speaks-target" -> {
+    vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
+    vis["recording_made", synthAudio["chat", "fr"]],
+    vis["attempt_made"]},                           (* langRead auto-fires for scoring *)
+
   (* --- sync: Vocab practise_vocab (FILTERED) -> PS pull (goPractice+vocabRead) ---
      a filter is set, so PS pulls then shapes with the filtered subset. *)
   "sync-practise" -> {

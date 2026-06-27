@@ -27,6 +27,7 @@ assert["import_bulk -> Vocab",    pm["import_bulk"] === "Vocab"];
 assert["load_material -> PS",  pm["load_material"] === "PS"];
 assert["set_target -> Helm",   pm["set_target"] === "Helm"];
 assert["set_speed -> Helm",    pm["set_speed"] === "Helm"];
+assert["set_asr -> Helm",      pm["set_asr"] === "Helm"];
 (* the view ports are renamed per agent to match the composition *)
 assert["pSView -> PS",   pm["pSView"] === "PS"];
 assert["vocabView -> Vocab",   pm["vocabView"] === "Vocab"];
