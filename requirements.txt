@@ -20,6 +20,9 @@ argon2-cffi==25.1.0
 paramiko<3.0
 sshtunnel>=0.4.0
 
+# Phonetic scoring: articulatory feature vectors for weighted phone-distance
+panphon>=0.22
+
 # Note: espeak-ng needs to be installed system-wide on the deployment server
 # For local development: ./configure && make && make install
 
