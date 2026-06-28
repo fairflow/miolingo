@@ -12,7 +12,7 @@ from scoring.phone_distance import score
 
 
 def test_foldmap_data_shipped_in_app():
-    assert set(fold_map.languages()) == {"pt", "pt-pt", "fr", "nl", "en"}
+    assert set(fold_map.languages()) == {"pt-br", "pt-pt", "fr", "nl", "en"}
     assert "1.51.1" in fold_map.meta()["espeak_version"]
 
 

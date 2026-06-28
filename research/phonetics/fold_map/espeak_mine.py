@@ -46,9 +46,19 @@ DEFAULT_OUT = Path(__file__).resolve().parent / "espeak_fold_map.json"
 MATERIALS = REPO / "language_materials"
 
 # voice -> (phoneme-table, phrasebook text key)
+#
+# Track A (inventory) runs `espeak-ng -v <voice>`; Track B (allophony) parses
+# the phsource <phoneme-table>. The two MUST name the same dialect or the entry
+# mixes one dialect's inventory with another's rules. espeak's voice<->table
+# naming is inverted for Portuguese:
+#   voice pt-BR (Brazilian) loads phsource table `pt`    (include ph_pt_brazil)
+#   voice pt   (European)   loads phsource table `pt-pt` (include ph_portugal)
+# so the Brazilian entry is voice=pt-br/table=pt and the European entry is
+# voice=pt-pt/table=pt-pt. Miolingo's Portuguese is Brazilian (default voice
+# pt-br); pt-pt is mined for completeness.
 LANGS = {
-    "pt":    ("pt",    "portuguese"),   # Brazilian Portuguese
-    "pt-pt": ("pt-pt", "portuguese"),   # European Portuguese (corpus shared w/ pt)
+    "pt-br": ("pt",    "portuguese"),   # Brazilian: voice pt-BR + table pt
+    "pt-pt": ("pt-pt", "portuguese"),   # European:  voice pt   + table pt-pt
     "fr":    ("fr",    "french"),
     "nl":    ("nl",    "dutch"),
     "en":    ("en-rp", "english"),

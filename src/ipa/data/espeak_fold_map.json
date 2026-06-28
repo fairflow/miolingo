@@ -6,7 +6,7 @@
     "policy": "tier1+2 (mechanical variants + context-predictable native allophony; cross-dialect NOT folded)",
     "note": "fold-map is context-free; canonical[seg] -> class rep. Stress marks stripped. elision_candidates are deletions, recorded for the scorer to optionally discount, not folded."
   },
-  "pt": {
+  "pt-br": {
     "table": "pt",
     "chain": [
       "base",
@@ -21,6 +21,7 @@
       "aː",
       "b",
       "d",
+      "dʒ",
       "e",
       "eɪ",
       "eʊ",
@@ -35,87 +36,95 @@
       "o",
       "oɪ",
       "p",
+      "r",
       "s",
       "t",
+      "tʃ",
       "u",
       "ũ",
       "v",
       "w",
+      "x",
+      "y",
       "z",
+      "æ",
       "ŋ",
-      "ɐ",
       "ɐ̃",
       "ɐ̃ʊ̃",
-      "ɑ",
       "ɔ",
       "ə",
       "ɛ",
       "ɡ",
-      "ɨ",
       "ɲ",
-      "ɹ",
       "ɾ",
-      "ʁ",
       "ʃ",
       "ʊ",
-      "ʎ",
       "ʒ"
     ],
     "inventory_counts": {
-      "ɐ": 77,
-      "ɨ": 63,
-      "t": 61,
-      "u": 57,
-      "d": 55,
+      "o": 94,
+      "s": 79,
+      "a": 73,
+      "e": 72,
+      "t": 59,
+      "ʊ": 55,
       "k": 53,
-      "ʊ": 52,
-      "o": 50,
-      "ɹ": 48,
-      "s": 44,
-      "ŋ": 42,
-      "ʃ": 39,
-      "m": 39,
-      "e": 38,
-      "a": 37,
+      "ŋ": 49,
+      "r": 43,
+      "æ": 41,
       "i": 37,
-      "w": 37,
+      "w": 34,
       "p": 34,
+      "m": 32,
+      "d": 31,
+      "ɾ": 30,
       "v": 28,
-      "ɾ": 25,
+      "y": 27,
       "f": 25,
-      "l": 21,
+      "dʒ": 24,
       "eɪ": 20,
       "ɛ": 18,
+      "l": 17,
       "ɐ̃": 17,
+      "u": 16,
       "b": 15,
       "ɡ": 15,
       "ə": 13,
-      "ɔ": 11,
+      "z": 11,
       "eʊ": 10,
-      "z": 10,
+      "ɔ": 8,
       "n": 8,
+      "j": 8,
+      "aʊ": 7,
       "ɲ": 7,
-      "ʒ": 7,
+      "ʒ": 6,
       "oɪ": 5,
       "ɐ̃ʊ̃": 5,
-      "ɑ": 5,
-      "ʁ": 4,
+      "ʃ": 4,
+      "x": 4,
       "aɪ": 3,
-      "aʊ": 2,
+      "tʃ": 2,
       "ũ": 2,
       "aː": 2,
-      "j": 2,
-      "ʎ": 1,
       "iʊ": 1
     },
     "tolerated_pairs": [
       {
         "pair": [
-          "j",
-          "ɨ"
+          "i",
+          "j"
         ],
         "sources": [
           "i/--ChangePhoneme-->j"
+        ]
+      },
+      {
+        "pair": [
+          "s",
+          "z"
+        ],
+        "sources": [
+          "s#--ChangePhoneme-->z"
         ]
       },
       {
@@ -125,15 +134,6 @@
         ],
         "sources": [
           "U--ChangePhoneme-->w"
-        ]
-      },
-      {
-        "pair": [
-          "z",
-          "ʃ"
-        ],
-        "sources": [
-          "s#--ChangePhoneme-->z"
         ]
       }
     ],
@@ -149,13 +149,13 @@
         "a",
         "a/"
       ],
-      "ɐ": [
+      "i": [
+        "i",
+        "i/"
+      ],
+      "æ": [
         "&",
         "&/"
-      ],
-      "ɨ": [
-        "i/",
-        "y"
       ]
     }
   },

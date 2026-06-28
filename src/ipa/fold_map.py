@@ -24,7 +24,9 @@ _DATA = Path(__file__).resolve().parent / "data" / "espeak_fold_map.json"
 
 # App/voice language codes -> fold-map keys.
 _ALIASES = {
-    "pt": "pt", "pt-br": "pt", "pt_br": "pt", "br": "pt",
+    # Miolingo's Portuguese is Brazilian (default voice pt-br), so bare "pt"
+    # resolves to the Brazilian fold-map. European is reachable via pt-pt.
+    "pt": "pt-br", "pt-br": "pt-br", "pt_br": "pt-br", "br": "pt-br",
     "pt-pt": "pt-pt", "pt_pt": "pt-pt",
     "fr": "fr", "fr-fr": "fr",
     "nl": "nl", "nl-be": "nl", "flemish": "nl",
