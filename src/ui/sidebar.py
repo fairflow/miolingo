@@ -405,6 +405,12 @@ def render_settings_panel():
                  "genuine errors.",
         )
 
+        # Both scoring channels (comprehensibility + accuracy) now always run and
+        # display together (miolingo-7w3), so the old 'Pronunciation source'
+        # selector is gone. Default the setting to 'comprehensibility' for the
+        # primary saved score; the result view shows both regardless.
+        st.session_state.settings.setdefault('realization_source', 'comprehensibility')
+
         # ── Audio Processing ─────────────────────────────────────────────────
         st.markdown("**🎚️ Audio Processing**")
 

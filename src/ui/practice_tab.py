@@ -372,13 +372,22 @@ def render_practice_results(result, key_prefix="practice"):
                 height=0,
             )
     else:
-        score_col1, score_col2 = st.columns([2, 1])
-        with score_col1:
-            st.info(f"📊 Score: {result['similarity']:.1%}")
-        with score_col2:
-            if result.get('edit_distance') is not None:
-                st.metric("Edit Distance", result['edit_distance'],
-                        help="Number of edits needed to match target")
+        # Dual-channel summary (miolingo-7w3) — show BOTH always; the gap is the
+        # diagnostic. Comprehensibility = what a listener (Whisper) understood;
+        # Accuracy = how close the sounds you PRODUCED are (phones from audio).
+        _understood = result['target'].lower().translate(
+            str.maketrans('', '', string.punctuation)
+        ) == result['recognized'].lower().translate(
+            str.maketrans('', '', string.punctuation)
+        )
+        _acc = result.get('accuracy_similarity')
+        # One compact line so it never responsively stacks: comprehensibility +
+        # accuracy together. The gap between them is the diagnostic.
+        _u = "✓ understood" if _understood else f"✗ heard “{result['recognized']}”"
+        _p = f"🎯 **{_acc:.0%}** pronunciation" if _acc is not None else "🎯 — pronunciation"
+        st.markdown(f"🗣️ {_u}  ·  {_p}")
+        st.caption("Understood = did a listener (Whisper) get the word, forgiving accent · "
+                   "Pronunciation = how close your actual sounds were, from the recording")
 
     # F2: let the user capture a single word from a multi-word practice phrase.
     _render_practice_vocab_capture(result, key_prefix)
@@ -407,7 +416,12 @@ def render_practice_results(result, key_prefix="practice"):
         correct_phonemes_no_space = result.get('correct_phonemes_normalized') or normalize_for_phoneme_scoring(result.get('correct_phonemes', ''))
         user_phonemes_no_space = result.get('user_phonemes_normalized') or normalize_for_phoneme_scoring(result.get('user_phonemes', ''))
 
-        phonemes_match = correct_phonemes_no_space == user_phonemes_no_space
+        # Trust the scorer's verdict (it reflects whichever channel produced
+        # user_ipa — text or acoustic). Falling back to the string compare only
+        # if exact_match is absent keeps legacy results working (miolingo-dsq).
+        phonemes_match = result.get(
+            'exact_match', correct_phonemes_no_space == user_phonemes_no_space
+        )
         text_matches = target_clean == recognized_clean
         score_is_high = result['similarity'] >= 0.95
 

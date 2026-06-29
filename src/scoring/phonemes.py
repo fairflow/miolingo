@@ -74,6 +74,12 @@ def get_ipa(text: str, voice: str = "pt-br") -> str:
     """
     try:
         espeak_cmd = get_espeak_path()
+        # Normalize the typographic apostrophe U+2019 -> U+0027: with the curly
+        # form some espeak/G2P paths fail to recognise elision and spell the word
+        # out (c'est -> /k s t/). This also fixes targets copied from text that
+        # uses smart quotes. (miolingo-0x9: same bug found in the Common Phone
+        # dataset's reference labels.)
+        text = text.replace("’", "'")
         result = subprocess.run(
             [espeak_cmd, "-v", voice, "--ipa", "-q", text],
             capture_output=True,
@@ -81,6 +87,9 @@ def get_ipa(text: str, voice: str = "pt-br") -> str:
             check=True
         )
         ipa = result.stdout.strip()
+        # espeak emits voice-switch markers like "(en)...(fr)" when it thinks a
+        # word is foreign; strip these language tags so they don't pollute the IPA.
+        ipa = re.sub(r"\([a-z]{2,3}(?:-[a-z]+)?\)", "", ipa)
         ipa = ' '.join(ipa.split())
         return ipa
     except (subprocess.CalledProcessError, FileNotFoundError) as e:

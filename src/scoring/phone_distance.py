@@ -20,6 +20,7 @@ research/phonetics/phone_distance/ (beads miolingo-8f0).
 """
 from __future__ import annotations
 
+import math
 import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
@@ -99,16 +100,32 @@ def fold_map_is_tolerated(lang: str, a: str, b: str) -> bool:
         return False            # no fold-map for this language -> nothing folded
 
 
-def score(user_ipa: str, target_ipa: str, lang: str | None = None) -> Result:
+def score(user_ipa: str, target_ipa: str, lang: str | None = None,
+          gain: float = 1.0, exp: float = 1.0, sqrt_norm: bool = False) -> Result:
     """Weighted phone-distance score of user_ipa against target_ipa.
 
     lang is a fold-map key / voice code (pt, pt-pt, fr, nl, en, pt-br, ...). When
     given, tolerated accent substitutions cost 0; when None, every substitution
     is scored purely on feature distance.
+
+    Accuracy curve (miolingo-7w3/h8q) — defaults are NO-OP so the legacy
+    weighted_phone algorithm is unchanged:
+      gain, exp : steepen each substitution cost -> min(1, (cost*gain)**exp).
+                  panphon raw feature distances are compressed (ɛ→a≈0.12), so
+                  without this even clear vowel errors barely register.
+      sqrt_norm : divide total distance by 1.5*sqrt(len) instead of len, so a
+                  single real error stays visible in a long phrase (else one
+                  error / 11 phones ≈ 99%). For the ACCURACY channel only;
+                  comprehensibility scoring stays lenient (defaults).
     """
     t = segment(target_ipa)
     u = segment(user_ipa)
     m, n = len(t), len(u)
+
+    def _curve(c: float) -> float:
+        if c <= 0.0:
+            return 0.0
+        return min(1.0, (c * gain) ** exp)
 
     # DP weighted Levenshtein; dp[i][j] = cost aligning t[:i] with u[:j].
     dp = [[0.0] * (n + 1) for _ in range(m + 1)]
@@ -118,7 +135,7 @@ def score(user_ipa: str, target_ipa: str, lang: str | None = None) -> Result:
         dp[0][j] = j * _INDEL_COST
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-            sub = dp[i - 1][j - 1] + _sub_cost(t[i - 1], u[j - 1], lang)
+            sub = dp[i - 1][j - 1] + _curve(_sub_cost(t[i - 1], u[j - 1], lang))
             dele = dp[i - 1][j] + _INDEL_COST
             ins = dp[i][j - 1] + _INDEL_COST
             dp[i][j] = min(sub, dele, ins)
@@ -128,7 +145,7 @@ def score(user_ipa: str, target_ipa: str, lang: str | None = None) -> Result:
     i, j = m, n
     while i > 0 or j > 0:
         if i > 0 and j > 0:
-            c = _sub_cost(t[i - 1], u[j - 1], lang)
+            c = _curve(_sub_cost(t[i - 1], u[j - 1], lang))
             if abs(dp[i][j] - (dp[i - 1][j - 1] + c)) < 1e-9:
                 if c == 0.0:
                     ops.append(Op("match", t[i - 1], u[j - 1], 0.0, False))
@@ -147,7 +164,10 @@ def score(user_ipa: str, target_ipa: str, lang: str | None = None) -> Result:
     ops.reverse()
 
     distance = dp[m][n]
-    denom = max(m, n) or 1
+    if sqrt_norm:
+        denom = 1.5 * math.sqrt(max(m, n)) or 1
+    else:
+        denom = max(m, n) or 1
     similarity = max(0.0, 1.0 - distance / denom)
     return Result(
         exact_match=(t == u),
