@@ -133,6 +133,38 @@ def save_current_session():
 
 
 # ---------------------------------------------------------------------------
+# Debug audio injection — feed a saved .wav in place of the mic (miolingo-7w3)
+# ---------------------------------------------------------------------------
+
+def _maybe_inject_test_audio(key_prefix):
+    """In debug mode, offer a picker of saved .wav files to stand in for a live
+    recording (mic is unavailable when an agent drives the shared browser).
+    Returns a BytesIO of the chosen wav (so .getvalue() works like st.audio_input),
+    or None. The dir is MIO_AUDIO_DUMP_DIR if set, else scratchpad recordings."""
+    import os
+    import streamlit as st
+    if not st.session_state.get("settings", {}).get("debug_mode", False):
+        return None
+    test_dir = os.environ.get("MIO_AUDIO_DUMP_DIR", "")
+    if not test_dir or not os.path.isdir(test_dir):
+        return None
+    wavs = sorted(f for f in os.listdir(test_dir) if f.lower().endswith(".wav"))
+    if not wavs:
+        return None
+    with st.expander("🧪 Debug: inject test audio (no mic)", expanded=False):
+        choice = st.selectbox("Saved recording to use as the recording",
+                              ["(none)"] + wavs, key=f"{key_prefix}_test_audio_pick")
+        if choice and choice != "(none)":
+            with open(os.path.join(test_dir, choice), "rb") as fh:
+                import io
+                buf = io.BytesIO(fh.read())
+                buf.name = choice  # mimic UploadedFile
+                st.caption(f"Using {choice} in place of the microphone.")
+                return buf
+    return None
+
+
+# ---------------------------------------------------------------------------
 # render_practice_interface
 # ---------------------------------------------------------------------------
 
@@ -169,6 +201,14 @@ def render_practice_interface(text, key_prefix="practice"):
 
     # Streamlit's built-in audio input with dynamic key (unique per mode)
     audio_data = st.audio_input("Click to record", key=f"{key_prefix}_audio_input_{st.session_state[audio_key_name]}")
+
+    # DEBUG audio-injection (miolingo-7w3): when the mic is unavailable (e.g. an
+    # agent driving the shared browser), let a saved .wav stand in for a live
+    # recording so the full Results flow can be exercised. Debug-mode only; the
+    # injected audio is a REAL prior recording, replayed — not fabricated.
+    _injected = _maybe_inject_test_audio(key_prefix)
+    if _injected is not None:
+        audio_data = _injected
 
     # Show recording tip after the recording widget (mobile-friendly)
     language_name = st.session_state.language
