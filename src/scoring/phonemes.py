@@ -90,6 +90,10 @@ def get_ipa(text: str, voice: str = "pt-br") -> str:
         # espeak emits voice-switch markers like "(en)...(fr)" when it thinks a
         # word is foreign; strip these language tags so they don't pollute the IPA.
         ipa = re.sub(r"\([a-z]{2,3}(?:-[a-z]+)?\)", "", ipa)
+        # Drop espeak's weak-word/clitic marker '-' (e.g. "ʒə-"): not a phone, and
+        # it caused spurious scoring mismatches (miolingo-7w3). Stress (ˈˌ) is KEPT
+        # here so the reference IPA shown to the learner marks stress.
+        ipa = ipa.replace("-", "")
         ipa = ' '.join(ipa.split())
         return ipa
     except (subprocess.CalledProcessError, FileNotFoundError) as e:

@@ -32,8 +32,12 @@ from ipa import fold_map
 _FT = panphon.FeatureTable()
 _N_FEATURES = 24
 
-# espeak/get_ipa decorations to drop before phone alignment.
-_DROP = set("ˈˌˑ.|‖ ")          # stress, syllable, phrase marks, spaces
+# espeak/get_ipa decorations to drop before phone alignment. Stress (ˈˌ) is
+# dropped because the acoustic recognizer can't emit it, so scoring it would be
+# unfair; it is KEPT on the reference IPA shown to the learner. '-' is espeak's
+# weak-word/clitic marker (e.g. "ʒə-"); '‿' is the liaison tie — neither is a
+# phone, so both are dropped before alignment (miolingo-7w3).
+_DROP = set("ˈˌˑ.|‖ -‿")        # stress, syllable/phrase marks, spaces, clitic '-', liaison tie
 _INDEL_COST = 1.0               # insertion/deletion cost (a whole missing phone)
 _SIGNIFICANT = 0.34             # substitution cost above this = flagged as error
 
