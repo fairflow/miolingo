@@ -63,13 +63,31 @@ text read from the page, layout observations, anything unexpected>"
 - `bd show <id>` → read the REPORT, make code fixes.
 - Append a follow-up `REQUEST:` for re-test, or `bd close <id>` when done.
 
-## The irreducible human step
+## The trigger — minimise what the human pastes
 
-Neither agent is notified when the other writes. So **one nudge per cycle**:
-- to the browser agent: *"check the ux-bridge"* (it runs `bd list --label ux-bridge`)
-- to Claude Code: *"report's in"* (it runs `bd show <id>`)
+Neither agent is notified when the other writes, so the human gives **one FIXED
+trigger per cycle — never crafted, always the same constant phrase**:
 
-That nudge is the only relay — no content is copy-pasted between agents.
+- to the browser agent: **`check the ux-bridge`**
+- to Claude Code: **`report's in`**
+
+For this to work, the bd issue must be **fully self-contained**: Claude Code
+writes the URL, steps, and checklist INTO the issue, so the browser agent needs
+NO pasted instructions — it learns everything by reading the issue. The human
+never copies content between agents; the three-word trigger is the entire relay.
+
+**Browser agent, on hearing `check the ux-bridge`, does exactly:**
+
+```bash
+bd list --label ux-bridge --status open   # find the open exchange
+bd show <id>                               # read EVERYTHING: URL, steps, checklist
+# perform it on the running app, then:
+bd update <id> --append-notes "REPORT: <answers, verbatim page text, observations>"
+```
+
+No further prompting needed. If the mic is blocked (agent-driven browser), open
+the debug "🧪 inject test audio (no mic)" expander near the record button and
+pick a saved recording to stand in for a live capture, then proceed.
 
 ## Scope
 
