@@ -133,6 +133,49 @@ def save_current_session():
 
 
 # ---------------------------------------------------------------------------
+# Debug audio injection — feed a saved .wav in place of the mic (miolingo-7w3)
+# ---------------------------------------------------------------------------
+
+def _maybe_inject_test_audio(key_prefix):
+    """In debug mode, offer a picker of saved .wav files to stand in for a live
+    recording (mic is unavailable when an agent drives the shared browser).
+    Returns a BytesIO of the chosen wav (so .getvalue() works like st.audio_input),
+    or None. The dir is MIO_AUDIO_DUMP_DIR if set, else scratchpad recordings."""
+    import os
+    import streamlit as st
+    _dbg = st.session_state.get("settings", {}).get("debug_mode", False)
+    # Diagnostic breadcrumb: always emit a one-liner so an agent can see WHY the
+    # injector is/ isn't shown (distinguishes "gate False" from "code not running").
+    st.caption(f"[injector gate] debug_mode={_dbg}")
+    if not _dbg:
+        return None
+    with st.expander("🧪 Debug: inject test audio (no mic)", expanded=True):
+        # Directory of saved .wav files: env var default, else type a path here
+        # (agent-drivable in the browser; no env-var prefix needed).
+        default_dir = os.environ.get("MIO_AUDIO_DUMP_DIR", "")
+        test_dir = st.text_input("Folder of .wav recordings", value=default_dir,
+                                 key=f"{key_prefix}_test_audio_dir")
+        if not test_dir or not os.path.isdir(test_dir):
+            if test_dir:
+                st.caption("Folder not found.")
+            return None
+        wavs = sorted(f for f in os.listdir(test_dir) if f.lower().endswith(".wav"))
+        if not wavs:
+            st.caption("No .wav files in that folder.")
+            return None
+        choice = st.selectbox("Saved recording to use as the recording",
+                              ["(none)"] + wavs, key=f"{key_prefix}_test_audio_pick")
+        if choice and choice != "(none)":
+            with open(os.path.join(test_dir, choice), "rb") as fh:
+                import io
+                buf = io.BytesIO(fh.read())
+                buf.name = choice  # mimic UploadedFile
+                st.caption(f"Using {choice} in place of the microphone.")
+                return buf
+    return None
+
+
+# ---------------------------------------------------------------------------
 # render_practice_interface
 # ---------------------------------------------------------------------------
 
@@ -169,6 +212,14 @@ def render_practice_interface(text, key_prefix="practice"):
 
     # Streamlit's built-in audio input with dynamic key (unique per mode)
     audio_data = st.audio_input("Click to record", key=f"{key_prefix}_audio_input_{st.session_state[audio_key_name]}")
+
+    # DEBUG audio-injection (miolingo-7w3): when the mic is unavailable (e.g. an
+    # agent driving the shared browser), let a saved .wav stand in for a live
+    # recording so the full Results flow can be exercised. Debug-mode only; the
+    # injected audio is a REAL prior recording, replayed — not fabricated.
+    _injected = _maybe_inject_test_audio(key_prefix)
+    if _injected is not None:
+        audio_data = _injected
 
     # Show recording tip after the recording widget (mobile-friendly)
     language_name = st.session_state.language
@@ -462,42 +513,53 @@ def render_practice_results(result, key_prefix="practice"):
                 st.write("(no IPA available)")
             st.caption("Your Pronunciation")
 
-        target_ipa_no_space = "".join(correct_ipa.split())
-        user_ipa_no_space = "".join(user_ipa.split())
+        # Diff over PHONES using the SAME normalization the scorer uses
+        # (scoring.phone_distance.segment → _clean strips stress, '-', ties,
+        # spaces). This keeps the displayed comparison consistent with the score
+        # and removes stray artefacts (no leftover stress marks, clitic '-', or
+        # filler glyphs that look like phones). (miolingo-7w3)
+        from scoring.phone_distance import segment as _segment
+        target_segs = _segment(correct_ipa)
+        user_segs = _segment(user_ipa)
 
-        st.write("**Detailed IPA comparison (whitespace ignored):**")
-        if target_ipa_no_space and target_ipa_no_space == user_ipa_no_space:
-            st.success("🎯 IPA is identical!")
-        elif target_ipa_no_space or user_ipa_no_space:
-            # Legend for color-coded diff
-            st.caption("**Legend:** 🟦 Different sound · 🟩 Sound you added · 🟥 Sound missing from target")
+        st.write("**Detailed phone comparison:**")
+        if target_segs and target_segs == user_segs:
+            st.success("🎯 Phones are identical!")
+        elif target_segs or user_segs:
+            # Legend — use a vertical bar separator so it can't be confused with
+            # any in-diff marker; missing/added phones are shown as a gap '∅'.
+            st.caption("**Legend:** 🟦 different sound │ 🟩 sound you added │ 🟥 sound missing │ ∅ = gap (nothing there)")
 
-            def _colorize_diff(target: str, user: str) -> tuple[str, str]:
+            GAP = "∅"
+
+            def _colorize_diff(target: list, user: list) -> tuple[str, str]:
                 # replace: light blue, insert: light green, delete: light pink.
                 matcher_local = SequenceMatcher(None, target, user)
                 target_chunks: list[str] = []
                 user_chunks: list[str] = []
 
+                def _join(segs):
+                    return _html.escape(" ".join(segs))
+
                 for tag, i1, i2, j1, j2 in matcher_local.get_opcodes():
                     t_seg = target[i1:i2]
                     u_seg = user[j1:j2]
-
                     if tag == 'equal':
-                        target_chunks.append(_html.escape(t_seg))
-                        user_chunks.append(_html.escape(u_seg))
+                        target_chunks.append(_join(t_seg))
+                        user_chunks.append(_join(u_seg))
                     elif tag == 'replace':
-                        target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
-                        user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(u_seg)}</span>')
+                        target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_join(t_seg)}</span>')
+                        user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_join(u_seg)}</span>')
                     elif tag == 'insert':
-                        target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape("·" * len(u_seg))}</span>')
-                        user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape(u_seg)}</span>')
+                        target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{GAP}</span>')
+                        user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_join(u_seg)}</span>')
                     elif tag == 'delete':
-                        target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
-                        user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape("·" * len(t_seg))}</span>')
+                        target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_join(t_seg)}</span>')
+                        user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{GAP}</span>')
 
-                return ''.join(target_chunks), ''.join(user_chunks)
+                return ' '.join(c for c in target_chunks if c), ' '.join(c for c in user_chunks if c)
 
-            matcher = SequenceMatcher(None, target_ipa_no_space, user_ipa_no_space)
+            matcher = SequenceMatcher(None, target_segs, user_segs)
             operations = matcher.get_opcodes()
             substitutions = [op for op in operations if op[0] == 'replace']
             insertions = [op for op in operations if op[0] == 'insert']
@@ -505,37 +567,31 @@ def render_practice_results(result, key_prefix="practice"):
             matches = sum(i2 - i1 for tag, i1, i2, j1, j2 in operations if tag == 'equal')
             st.write(f"**Operations:** {matches} matches, {len(substitutions)} substitutions, {len(insertions)} insertions, {len(deletions)} deletions")
 
-            target_html, user_html = _colorize_diff(target_ipa_no_space, user_ipa_no_space)
+            target_html, user_html = _colorize_diff(target_segs, user_segs)
             mono_wrap_start = '<div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \'Liberation Mono\', \'Courier New\', monospace; white-space: pre-wrap;">'
             mono_wrap_end = '</div>'
 
             col_t, col_u = st.columns(2)
             with col_t:
                 st.markdown(mono_wrap_start + target_html + mono_wrap_end, unsafe_allow_html=True)
-                st.caption("Target (normalized) - substitutions/insertions/deletions highlighted")
+                st.caption("Target phones — differences highlighted")
             with col_u:
                 st.markdown(mono_wrap_start + user_html + mono_wrap_end, unsafe_allow_html=True)
-                st.caption("Your Pronunciation (normalized) - substitutions/insertions/deletions highlighted")
+                st.caption("Your phones — differences highlighted")
         else:
             st.info("No IPA available for detailed comparison.")
 
-        with st.expander("Technical: eSpeak phoneme codes used for scoring", expanded=False):
-            st.write("**eIPA (eSpeak -x) with word spacing:**")
-            col_xa, col_xb = st.columns(2)
-            with col_xa:
-                st.code(result.get('correct_phonemes', ''), language=None)
-                st.caption("Target")
-            with col_xb:
-                st.code(result.get('user_phonemes', ''), language=None)
-                st.caption("Your Pronunciation")
-
-            target_phonemes_no_space = result.get('correct_phonemes_normalized', '')
-            user_phonemes_no_space = result.get('user_phonemes_normalized', '')
-            st.write("**eIPA used for scoring (whitespace removed):**")
-            col_n1, col_n2 = st.columns(2)
-            with col_n1:
-                st.code(target_phonemes_no_space, language=None)
-                st.caption("Target (normalized)")
-            with col_n2:
-                st.code(user_phonemes_no_space, language=None)
-                st.caption("Your Pronunciation (normalized)")
+        # Raw eSpeak -x ASCII phoneme codes (e.g. "mErs'i") are an internal
+        # scoring representation, NOT IPA — confusing next to the clean IPA, and
+        # now inconsistent (the accuracy channel's user side is IPA, the target
+        # is -x codes). Show this only in debug mode, clearly labelled as codes.
+        if st.session_state.get('settings', {}).get('debug_mode', False):
+            with st.expander("Technical (debug): eSpeak -x ASCII phoneme codes", expanded=False):
+                st.caption("These are eSpeak's internal ASCII codes, not IPA — for scoring diagnostics only.")
+                col_xa, col_xb = st.columns(2)
+                with col_xa:
+                    st.code(result.get('correct_phonemes', ''), language=None)
+                    st.caption("Target (eSpeak -x)")
+                with col_xb:
+                    st.code(result.get('user_phonemes', ''), language=None)
+                    st.caption("Your Pronunciation")
