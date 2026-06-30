@@ -577,23 +577,17 @@ def render_practice_results(result, key_prefix="practice"):
         else:
             st.info("No IPA available for detailed comparison.")
 
-        with st.expander("Technical: eSpeak phoneme codes used for scoring", expanded=False):
-            st.write("**eIPA (eSpeak -x) with word spacing:**")
-            col_xa, col_xb = st.columns(2)
-            with col_xa:
-                st.code(result.get('correct_phonemes', ''), language=None)
-                st.caption("Target")
-            with col_xb:
-                st.code(result.get('user_phonemes', ''), language=None)
-                st.caption("Your Pronunciation")
-
-            target_phonemes_no_space = result.get('correct_phonemes_normalized', '')
-            user_phonemes_no_space = result.get('user_phonemes_normalized', '')
-            st.write("**eIPA used for scoring (whitespace removed):**")
-            col_n1, col_n2 = st.columns(2)
-            with col_n1:
-                st.code(target_phonemes_no_space, language=None)
-                st.caption("Target (normalized)")
-            with col_n2:
-                st.code(user_phonemes_no_space, language=None)
-                st.caption("Your Pronunciation (normalized)")
+        # Raw eSpeak -x ASCII phoneme codes (e.g. "mErs'i") are an internal
+        # scoring representation, NOT IPA — confusing next to the clean IPA, and
+        # now inconsistent (the accuracy channel's user side is IPA, the target
+        # is -x codes). Show this only in debug mode, clearly labelled as codes.
+        if st.session_state.get('settings', {}).get('debug_mode', False):
+            with st.expander("Technical (debug): eSpeak -x ASCII phoneme codes", expanded=False):
+                st.caption("These are eSpeak's internal ASCII codes, not IPA — for scoring diagnostics only.")
+                col_xa, col_xb = st.columns(2)
+                with col_xa:
+                    st.code(result.get('correct_phonemes', ''), language=None)
+                    st.caption("Target (eSpeak -x)")
+                with col_xb:
+                    st.code(result.get('user_phonemes', ''), language=None)
+                    st.caption("Your Pronunciation")
