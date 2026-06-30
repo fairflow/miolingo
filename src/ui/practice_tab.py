@@ -145,13 +145,20 @@ def _maybe_inject_test_audio(key_prefix):
     import streamlit as st
     if not st.session_state.get("settings", {}).get("debug_mode", False):
         return None
-    test_dir = os.environ.get("MIO_AUDIO_DUMP_DIR", "")
-    if not test_dir or not os.path.isdir(test_dir):
-        return None
-    wavs = sorted(f for f in os.listdir(test_dir) if f.lower().endswith(".wav"))
-    if not wavs:
-        return None
     with st.expander("🧪 Debug: inject test audio (no mic)", expanded=False):
+        # Directory of saved .wav files: env var default, else type a path here
+        # (agent-drivable in the browser; no env-var prefix needed).
+        default_dir = os.environ.get("MIO_AUDIO_DUMP_DIR", "")
+        test_dir = st.text_input("Folder of .wav recordings", value=default_dir,
+                                 key=f"{key_prefix}_test_audio_dir")
+        if not test_dir or not os.path.isdir(test_dir):
+            if test_dir:
+                st.caption("Folder not found.")
+            return None
+        wavs = sorted(f for f in os.listdir(test_dir) if f.lower().endswith(".wav"))
+        if not wavs:
+            st.caption("No .wav files in that folder.")
+            return None
         choice = st.selectbox("Saved recording to use as the recording",
                               ["(none)"] + wavs, key=f"{key_prefix}_test_audio_pick")
         if choice and choice != "(none)":
