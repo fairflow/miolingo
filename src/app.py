@@ -75,6 +75,7 @@ from typing import Dict, List, Optional
 import subprocess
 import tempfile
 import os
+import functools
 
 # Import authentication module
 import app_mysql
@@ -174,6 +175,20 @@ def save_settings(settings: Dict):
 # now go through the imported versions. Where needed, pass st.secrets and
 # app_mysql explicitly.
 # ============================================================================
+
+
+@functools.lru_cache(maxsize=1)
+def _build_stamp() -> str:
+    """git HEAD short-hash of the RUNNING server's code, computed once at first
+    render. Lets a browser agent confirm the served app matches current source."""
+    import subprocess
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        h = subprocess.run(["git", "-C", here, "rev-parse", "--short", "HEAD"],
+                           capture_output=True, text=True, timeout=2).stdout.strip()
+        return h or "unknown"
+    except Exception:
+        return "unknown"
 
 
 # ============================================================================
@@ -432,6 +447,12 @@ def main():
 
     flag = flag_emojis.get(st.session_state.language, "🌍")
     st.title(f"Miolingo · Multi-language · Practicing: {flag} {st.session_state.language}")
+
+    # Build stamp (debug only): proves which code the RUNNING server serves, so a
+    # browser agent can confirm the rendered app matches current source rather
+    # than reasoning from on-disk files that may have drifted (miolingo-7w3).
+    if st.session_state.get('settings', {}).get('debug_mode', False):
+        st.caption(f"build {_build_stamp()}")
 
     # Show announcements for main app
     show_announcements('app')
