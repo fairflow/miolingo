@@ -143,9 +143,13 @@ def _maybe_inject_test_audio(key_prefix):
     or None. The dir is MIO_AUDIO_DUMP_DIR if set, else scratchpad recordings."""
     import os
     import streamlit as st
-    if not st.session_state.get("settings", {}).get("debug_mode", False):
+    _dbg = st.session_state.get("settings", {}).get("debug_mode", False)
+    # Diagnostic breadcrumb: always emit a one-liner so an agent can see WHY the
+    # injector is/ isn't shown (distinguishes "gate False" from "code not running").
+    st.caption(f"[injector gate] debug_mode={_dbg}")
+    if not _dbg:
         return None
-    with st.expander("🧪 Debug: inject test audio (no mic)", expanded=False):
+    with st.expander("🧪 Debug: inject test audio (no mic)", expanded=True):
         # Directory of saved .wav files: env var default, else type a path here
         # (agent-drivable in the browser; no env-var prefix needed).
         default_dir = os.environ.get("MIO_AUDIO_DUMP_DIR", "")
