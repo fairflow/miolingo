@@ -502,42 +502,53 @@ def render_practice_results(result, key_prefix="practice"):
                 st.write("(no IPA available)")
             st.caption("Your Pronunciation")
 
-        target_ipa_no_space = "".join(correct_ipa.split())
-        user_ipa_no_space = "".join(user_ipa.split())
+        # Diff over PHONES using the SAME normalization the scorer uses
+        # (scoring.phone_distance.segment → _clean strips stress, '-', ties,
+        # spaces). This keeps the displayed comparison consistent with the score
+        # and removes stray artefacts (no leftover stress marks, clitic '-', or
+        # filler glyphs that look like phones). (miolingo-7w3)
+        from scoring.phone_distance import segment as _segment
+        target_segs = _segment(correct_ipa)
+        user_segs = _segment(user_ipa)
 
-        st.write("**Detailed IPA comparison (whitespace ignored):**")
-        if target_ipa_no_space and target_ipa_no_space == user_ipa_no_space:
-            st.success("🎯 IPA is identical!")
-        elif target_ipa_no_space or user_ipa_no_space:
-            # Legend for color-coded diff
-            st.caption("**Legend:** 🟦 Different sound · 🟩 Sound you added · 🟥 Sound missing from target")
+        st.write("**Detailed phone comparison:**")
+        if target_segs and target_segs == user_segs:
+            st.success("🎯 Phones are identical!")
+        elif target_segs or user_segs:
+            # Legend — use a vertical bar separator so it can't be confused with
+            # any in-diff marker; missing/added phones are shown as a gap '∅'.
+            st.caption("**Legend:** 🟦 different sound │ 🟩 sound you added │ 🟥 sound missing │ ∅ = gap (nothing there)")
 
-            def _colorize_diff(target: str, user: str) -> tuple[str, str]:
+            GAP = "∅"
+
+            def _colorize_diff(target: list, user: list) -> tuple[str, str]:
                 # replace: light blue, insert: light green, delete: light pink.
                 matcher_local = SequenceMatcher(None, target, user)
                 target_chunks: list[str] = []
                 user_chunks: list[str] = []
 
+                def _join(segs):
+                    return _html.escape(" ".join(segs))
+
                 for tag, i1, i2, j1, j2 in matcher_local.get_opcodes():
                     t_seg = target[i1:i2]
                     u_seg = user[j1:j2]
-
                     if tag == 'equal':
-                        target_chunks.append(_html.escape(t_seg))
-                        user_chunks.append(_html.escape(u_seg))
+                        target_chunks.append(_join(t_seg))
+                        user_chunks.append(_join(u_seg))
                     elif tag == 'replace':
-                        target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
-                        user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_html.escape(u_seg)}</span>')
+                        target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_join(t_seg)}</span>')
+                        user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_join(u_seg)}</span>')
                     elif tag == 'insert':
-                        target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape("·" * len(u_seg))}</span>')
-                        user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_html.escape(u_seg)}</span>')
+                        target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{GAP}</span>')
+                        user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_join(u_seg)}</span>')
                     elif tag == 'delete':
-                        target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape(t_seg)}</span>')
-                        user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_html.escape("·" * len(t_seg))}</span>')
+                        target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_join(t_seg)}</span>')
+                        user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{GAP}</span>')
 
-                return ''.join(target_chunks), ''.join(user_chunks)
+                return ' '.join(c for c in target_chunks if c), ' '.join(c for c in user_chunks if c)
 
-            matcher = SequenceMatcher(None, target_ipa_no_space, user_ipa_no_space)
+            matcher = SequenceMatcher(None, target_segs, user_segs)
             operations = matcher.get_opcodes()
             substitutions = [op for op in operations if op[0] == 'replace']
             insertions = [op for op in operations if op[0] == 'insert']
@@ -545,17 +556,17 @@ def render_practice_results(result, key_prefix="practice"):
             matches = sum(i2 - i1 for tag, i1, i2, j1, j2 in operations if tag == 'equal')
             st.write(f"**Operations:** {matches} matches, {len(substitutions)} substitutions, {len(insertions)} insertions, {len(deletions)} deletions")
 
-            target_html, user_html = _colorize_diff(target_ipa_no_space, user_ipa_no_space)
+            target_html, user_html = _colorize_diff(target_segs, user_segs)
             mono_wrap_start = '<div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \'Liberation Mono\', \'Courier New\', monospace; white-space: pre-wrap;">'
             mono_wrap_end = '</div>'
 
             col_t, col_u = st.columns(2)
             with col_t:
                 st.markdown(mono_wrap_start + target_html + mono_wrap_end, unsafe_allow_html=True)
-                st.caption("Target (normalized) - substitutions/insertions/deletions highlighted")
+                st.caption("Target phones — differences highlighted")
             with col_u:
                 st.markdown(mono_wrap_start + user_html + mono_wrap_end, unsafe_allow_html=True)
-                st.caption("Your Pronunciation (normalized) - substitutions/insertions/deletions highlighted")
+                st.caption("Your phones — differences highlighted")
         else:
             st.info("No IPA available for detailed comparison.")
 
