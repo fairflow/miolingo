@@ -21,6 +21,27 @@ product-critical languages Common Phone cannot (**Dutch and Portuguese**).
 
 ---
 
+## Bake-off result (CP-FR, 150 utt, weighted metric) — 2026-07-01
+
+Committed harness `research/phonetics/phone_poc/cp_eval.py` (miolingo-2yv), scoring
+audio-derived IPA vs espeak-G2P reference with the app's `weighted_phone` metric
+(mean 1 − similarity; lower = better):
+
+| model | mean weighted error | vs prior 0x9 | status |
+|-------|--------------------:|--------------|--------|
+| **cnam** (French specialist, shipped) | **0.0126** | 0.015 ✓ | 150/150 clean |
+| **fb** (multilingual fallback) | **0.0719** | 0.066 ✓ | 150/150 clean |
+| pklumpp | — | — | **failed 150/150** |
+
+**The specialist beats the fallback ~5.7× on real audio**, reproducing the earlier
+scratch numbers → the reproducible harness is validated. Both *new* candidates were
+non-drop-in: **ZIPA** is k2/Zipformer + undeclared licence (excluded by design);
+**pklumpp** ships weights only (no processor/vocab on HF) → `AutoProcessor` fails.
+pklumpp integration tracked as **miolingo-dky** (needs the author's 101-symbol vocab
++ hand-built processor).
+
+---
+
 ## Candidate models
 
 ### ZIPA — lead candidate (universal)

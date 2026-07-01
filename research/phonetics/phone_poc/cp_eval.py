@@ -51,6 +51,10 @@ from scoring.phone_distance import score     # noqa: E402  weighted_phone metric
 MODELS = {
     "fb": "facebook/wav2vec2-lv-60-espeak-cv-ft",
     "cnam": "Cnam-LMSSC/wav2vec2-french-phonemizer",
+    # pklumpp ships WEIGHTS ONLY (no processor/tokenizer/vocab in the HF repo), so
+    # AutoProcessor.from_pretrained fails. Decoding its CTC output needs the
+    # author's exact 101-IPA-symbol vocab + a hand-built Wav2Vec2Processor -- see
+    # follow-up bead. Left registered so the harness records the blocker.
     "pklumpp": "pklumpp/Wav2Vec2_CommonPhone",
 }
 
@@ -111,12 +115,13 @@ def main() -> None:
     for label in wanted:
         model_id = MODELS[label]
         print(f"\n=== {label} ({model_id}) ===")
-        t0, werr, per_plain, fails = time.time(), [], [], 0
+        t0, werr, fails, last_err = time.time(), [], 0, None
         for i, it in enumerate(items, 1):
             try:
                 hyp = recognize(model_id, it["wav"])
             except Exception as e:  # noqa: BLE001 - record and continue
                 fails += 1
+                last_err = str(e)
                 if fails <= 3:
                     print(f"  ! {Path(it['wav']).name}: {e}")
                 continue
@@ -125,15 +130,18 @@ def main() -> None:
             if i % 25 == 0:
                 print(f"  {i}/{len(items)} mean_werr={sum(werr)/len(werr):.4f}")
         n_ok = len(werr)
-        mean_werr = sum(werr) / n_ok if n_ok else float("nan")
-        summary[label] = {
+        mean_werr = round(sum(werr) / n_ok, 4) if n_ok else None
+        rec = {
             "model_id": model_id,
             "n_scored": n_ok,
             "n_failed": fails,
-            "mean_weighted_error": round(mean_werr, 4),
+            "mean_weighted_error": mean_werr,
             "load_and_run_s": round(time.time() - t0, 1),
         }
-        print(f"  -> mean_weighted_error={mean_werr:.4f}  ({n_ok} ok, {fails} failed)")
+        if mean_werr is None:
+            rec["error"] = last_err
+        summary[label] = rec
+        print(f"  -> mean_weighted_error={mean_werr}  ({n_ok} ok, {fails} failed)")
 
     out = {
         "corpus": "common_phone",
@@ -149,8 +157,13 @@ def main() -> None:
     out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", "utf-8")
     print(f"\nwrote {out_path}")
     print("\nRANKING (lower = better):")
-    for label, r in sorted(summary.items(), key=lambda kv: kv[1]["mean_weighted_error"]):
-        print(f"  {label:8} {r['mean_weighted_error']:.4f}  ({r['model_id']})")
+    ranked = sorted(summary.items(),
+                    key=lambda kv: (kv[1]["mean_weighted_error"] is None,
+                                    kv[1]["mean_weighted_error"] or 0.0))
+    for label, r in ranked:
+        val = r["mean_weighted_error"]
+        cell = f"{val:.4f}" if val is not None else f"FAILED ({r.get('error','')[:40]})"
+        print(f"  {label:8} {cell}  ({r['model_id']})")
 
 
 if __name__ == "__main__":
