@@ -37,7 +37,8 @@ Print[hr]; Print["2. transGroup / inputsFirst"]; Print[hr];
 (* a real tau transition: drive capture_vocab so vocabUpsert is pending *)
 sV = Last[walkSteps[transVP, mioCore,
    {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "S"|>}],
-    vis["recording_made", "audio"], vis["attempt_made"], tau["langRead"], vis["capture_vocab", "chat"]}]["states"]];
+    vis["recording_made", "audio"], vis["attempt_made"],
+    tau["langRead"], tau["progressAppend"], vis["capture_vocab", "chat"]}]["states"]];
 tauTr = SelectFirst[readyTransitions[transVP, sV], isTauAct[First[#]] &];
 assert["a tau transition groups into internal (tau)",
   transGroup[pm, tauTr] === "internal (\[Tau])"];
@@ -54,11 +55,12 @@ Print[hr]; Print["3. the SETTLED mioCore ready set partitions cleanly (no 'other
 (* Vocab gates behind open_vocab so it contributes that; StoryReader is live (browse
    mode) so it contributes its view/mode/nav ports; PS (empty) and Helm contribute
    too. VocabTable's ports are all restricted (internal τ), so it never appears in the
-   external grouping. *)
+   external grouping. ProgressTable DOES appear: its append is restricted but its
+   query surface (progressRead + statsView/historyView) is external. *)
 sInit = Last[walkSteps[transVP, mioCore, {}, "AutoTau" -> True]["states"]];
 grp = GroupBy[readyTransitions[transVP, sInit], transGroup[pm, #] &];
-assert["groups are exactly {Vocab, PS, Helm, StoryReader}",
-  Sort[Keys[grp]] === {"Helm", "PS", "StoryReader", "Vocab"}];
+assert["groups are exactly {Vocab, PS, Helm, StoryReader, ProgressTable}",
+  Sort[Keys[grp]] === Sort[{"Helm", "PS", "ProgressTable", "StoryReader", "Vocab"}]];
 assert["no port falls into 'other'", ! KeyExistsQ[grp, "other"]];
 
 Print[hr]; Print["4. auto-grouping registry — walkUI groups known systems by default"]; Print[hr];
@@ -75,8 +77,16 @@ asrItem    = SelectFirst[$walkCloud, #["item"] === "recognisePhonemes" &];
 assert["enrichOracle active when autofill is ready",  cloudActiveQ[enrichItem, {"autofill", "delete"}]];
 assert["enrichOracle NOT active without autofill",  ! cloudActiveQ[enrichItem, {"add", "set_sort"}]];
 assert["recognisePhonemes active on attempt_made",   cloudActiveQ[asrItem, {"attempt_made"}]];
-assert["stats/history never auto-active (not modelled, no ports)",
-  ! cloudActiveQ[SelectFirst[$walkCloud, #["item"] === "stats / history" &], {"add", "attempt_made", "autofill"}]];
+(* the "stats / history — not yet recovered" item is GONE (ProgressTable owns the
+   log now; the cloud shrinks as owners are modelled); what remains external is
+   the real DB and the clock/user identity, which light on the writing ports *)
+assert["stats/history item retired from the cloud (recovered)",
+  ! MemberQ[#["item"] & /@ $walkCloud, "stats / history"]];
+clockItem = SelectFirst[$walkCloud, #["item"] === "clock + user identity" &];
+assert["clock/user-identity active on attempt_made (the row is stamped at insert)",
+  cloudActiveQ[clockItem, {"attempt_made"}]];
+assert["clock/user-identity NOT active on a non-writing port",
+  ! cloudActiveQ[clockItem, {"add", "set_sort"}]];
 assert["cloudPanel builds (Head OpenerView)", Head[cloudPanel[transVP, mioCore]] === OpenerView];
 
 Print[hr];

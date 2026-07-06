@@ -62,7 +62,8 @@ Two tiers: **interactive agents** (UI-facing) and **store agents** (the data tie
 | Session / language | `Helm` | Interactive — finite-choice settings; **owns the (source, target) language pair** | **recovered + composed** ‡ |
 | Vocab store | `VocabTable` | **Store** — the persisted vocab collection (DB `vocab_entries`) | **recovered + composed** |
 | Story Reader | `StoryReader` | Interactive — narrative nav + 3 modes; one shared position; practice mode mirrors `PSActive` | **recovered + composed** |
-| Stats / History † | (read projections over a `Ledger` store) | view ports backed by store queries — **not** standalone interactive agents | Medium |
+| Attempt store | `ProgressTable` | **Store** — the persisted attempt log (DB `user_progress`); PS + StoryReader scoring write it via restricted `progressAppend` | **recovered + composed** † |
+| Stats / History † | `statsView` / `historyView` **on `ProgressTable`** | view ports backed by store queries — **not** standalone interactive agents | **recovered** (as query projections) |
 | Mode Navigation | ~~`ModeSelector`~~ **eliminated** | each mode carries its own *visible* entry instead | — |
 
 Correction from the previous draft: the read-only "displays" are most likely *view ports on* the stateful agents (a published `view!` projection rendered by a skin), not agents in their own right. Promote one to a standalone agent only if it genuinely owns state; otherwise it is a presentation of another agent's projection. Decide this deliberately per component.
@@ -78,7 +79,7 @@ Store agents are named after their **table**, not generically, because table-fai
 | `chRead`/`chUpsert`/`chImport`/`chRemove`/`chAmend`, `vAdd` | `vocabRead`/`vocabUpsert`/`vocabImport`/`vocabRemove`/`vocabAmend` | table-scoped channels (multiple stores can't share generic `ch*` — a reader couldn't route). `vAdd` (PS capture) collapsed into `vocabUpsert` (same upsert, two writers) |
 | `vSView` (view port) | `vocabView` | follows the `decap[name]<>"View"` rule |
 
-`Helm` keeps its nautical name (it's a controller, not a store). Future store tables follow the same scheme (`Ledger`/`AttemptTable`… for stats/history).
+`Helm` keeps its nautical name (it's a controller, not a store). Store tables follow the same scheme: the stats/history store — placeholder-named `Ledger`/`AttemptTable` in earlier drafts — landed as **`ProgressTable`** (the table is `user_progress`), with table-scoped channels `progressRead`/`progressAppend` (append-only: `save_practice` is a plain INSERT, no upsert — contrast `vocabUpsert`).
 
 **‡ Helm and how the language reaches its consumers.** Helm is composed into
 `mioCore` as a **pure parallel** agent (no restricted sync): it *owns* the
@@ -110,7 +111,9 @@ depend on the language, **that** edge must enter the model as a restricted sync 
 and, being a guard over *borrowed* data, is the one case that may force a
 calculus extension (see below).
 
-**† Stats / History and the external store (a rigging issue).** Treating these as *view ports* is correct only under the current modelling assumption that each component stores its own domain data in-process. In any sensible implementation, stats and history are retrieved from an **external store**, not held by the component. Rigging that external store into the system — where the data lives, who reads/writes it, how a view port is backed by a *query* rather than in-process state — is a key **rig** concern, and the question of *how* it is done may itself need to enter the model (an external-store agent / port), not be left wholly to L3. Flagged for when stats/history (and persistence generally) are recovered.
+**† Stats / History and the external store (a rigging issue — now recovered, 2026-07-06).** Treating these as *view ports* is correct only under the current modelling assumption that each component stores its own domain data in-process. In any sensible implementation, stats and history are retrieved from an **external store**, not held by the component. Rigging that external store into the system — where the data lives, who reads/writes it, how a view port is backed by a *query* rather than in-process state — is a key **rig** concern, and the question of *how* it is done may itself need to enter the model (an external-store agent / port), not be left wholly to L3.
+
+*Resolution:* the store entered the model as **`ProgressTable`** (the `user_progress` table), on the VocabTable pattern. The data flow it completes: every scored attempt is **written as part of scoring** — the chain `attempt_made · langRead(τ) · progressAppend(τ)` in both practice loops (the app's `_persist_result` → `save_practice` runs inside the scoring path, with **two writers** on one channel, the `vocabUpsert` precedent) — and Statistics / History are the store's **query projections** `statsView!(statsOf records)` / `historyView!(historyOf records)`, not standalone agents and not PS state. `progressAppend` is restricted (only scoring writes, as in the app); `progressRead` (the raw SELECT surface) stays external until the first internal borrower restricts it, exactly as `vocabRead` was. Records **carry** their `language_code` (baked in from the `langRead` borrow at write time), so per-language filtering of the reads is presentation over the published projection — no borrow at read time; a filtered-at-source *query port* (a value-carrying read) is the remaining rig option if one is ever wanted. Out of the model, honestly in the cloud: `user_id` (L1 is single-user) and `practice_date` (the DB's clock stamps rows; insertion order stands in for date order). What remains of `†` generally is rigging the model stores to the *real* MySQL tables — see `walk.wl`'s cloud inventory. See `spec/docs/progress-table-recovery.md`.
 
 ## Borrowed vs Owned Data (decision)
 

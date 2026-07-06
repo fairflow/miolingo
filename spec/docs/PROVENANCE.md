@@ -70,6 +70,7 @@ indexed below). Columns:
 | Helm (session/language) | `HelmRecovered.wl` | `helm-recovery.md` | recovered (table: back-fill pending) |
 | VocabTable (vocab store) | `VocabTableRecovered.wl` | `vocab-table-recovery.md` | recovered + composed |
 | Story Reader | `StoryReaderRecovered.wl` | `story-reader-recovery.md` | recovered + composed (one position — a deliberate deviation; loop written per-context, an engine boundary case) |
+| ProgressTable (attempt store) | `ProgressTableRecovered.wl` | `progress-table-recovery.md` | recovered + composed (table shipped with the recovery) |
 
 (Names per the 2026-06-03 rename — ARCHITECTURE.md "Naming": the tab is `Vocab`, the store `VocabTable`; channels are `vocab*`. The worked example below predates the rename and keeps its original names.)
 

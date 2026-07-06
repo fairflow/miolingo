@@ -388,12 +388,15 @@ $walkCloud = {
   <|"item" -> "recognisePhonemes", "owner" -> "external ASR / acoustic model",
     "why" -> "PS scoring recognises audio -> phonemes outside the model; only the target-language pull (langRead) is in it.",
     "ports" -> {"attempt_made"}|>,
-  <|"item" -> "vocab persistence", "owner" -> "external store (DB)",
-    "why" -> "entries are modelled in Vocab state in-process; really an external store. To become a DB agent (ARCHITECTURE \[Dagger]).",
-    "ports" -> {"add", "import_bulk", "delete", "update", "update_notes", "autofill"}|>,
-  <|"item" -> "stats / history", "owner" -> "external store (query-backed views)",
-    "why" -> "not yet recovered; will be queries/views on the external store, not in-process state.",
-    "ports" -> {}|>};
+  <|"item" -> "DB persistence", "owner" -> "the real MySQL tables",
+    "why" -> "VocabTable + ProgressTable model the stores IN the system; the actual vocab_entries / user_progress tables (connections, SQL, durability) stay outside. Rigging the model stores to the real DB is the \[Dagger] rig concern.",
+    "ports" -> {"add", "import_bulk", "delete", "update", "update_notes", "autofill", "capture_vocab", "story_capture_vocab"}|>,
+  <|"item" -> "clock + user identity", "owner" -> "the DB / auth layer",
+    "why" -> "user_progress rows are stamped practice_date = NOW[] and keyed by user_id at insert; L1 is single-user with no clock, so ProgressTable's insertion order stands in for the date order and both columns stay outside.",
+    "ports" -> {"attempt_made", "story_attempt_made"}|>};
+(* (the former "stats / history — not yet recovered" item is GONE: ProgressTable
+   now owns the attempt log and statsView/historyView are its query projections —
+   the cloud shrinks as owners are modelled, as langRead removed the language.) *)
 cloudActiveQ[item_Association, readyNames_List] := IntersectingQ[item["ports"], readyNames];
 cloudActiveQ::usage = "cloudActiveQ[item, readyPortNames] is True iff a currently-ready port would consult this external item (so the cloud panel highlights it).";
 (* the set of cloud-item names CONSULTED at state s — walkUI pops the panel open

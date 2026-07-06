@@ -33,9 +33,12 @@ readyTaus[tf_, s_] := Select[readyTransitions[tf, s], isTauAct[First[#]] &];
    its vocabRead prefix, so an internal tau is pending. Under the (i) store form the
    capture relay is a SEQUENCE of taus: vocabRead (Vocab reads) → vocabUpsert (PS→Vocab) → vocabUpsert
    (Vocab→store) → vocabRead — autoTau fires them to stability, landing the word in the
-   store. (Setup plan keeps the explicit langRead; it is PS-side, no AutoTau.) *)
+   store. (Setup plan keeps the explicit langRead AND progressAppend — the scoring
+   chain is attempt_made · langRead · progressAppend since the ProgressTable
+   recovery, and both are PS-side, no AutoTau.) *)
 plan = {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "S"|>}],
-        vis["recording_made", "audio"], vis["attempt_made"], tau["langRead"], vis["capture_vocab", "chat"]};
+        vis["recording_made", "audio"], vis["attempt_made"],
+        tau["langRead"], tau["progressAppend"], vis["capture_vocab", "chat"]};
 
 check[label_, tf_, s0_] := Module[{s, a, stable},
   Print[hr]; Print[label]; Print[hr];
