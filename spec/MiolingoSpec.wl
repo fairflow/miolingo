@@ -53,4 +53,7 @@ mioGet["PracticeSessionFunctions.wl"];
    agent — no control guard reads the language, so no restricted sync. *)
 mioGet["HelmFunctions.wl"];
 mioGet["StoryFunctions.wl"];   (* sceneOf (story-content boundary) + storyView *)
+mioGet["ProgressFunctions.wl"];   (* attempt-store functions; before MioCore for the
+                                     same eager-projection reason as HelmFunctions
+                                     (statsOf[{}]/historyOf[{}] compute at merge) *)
 mioGet["MioCore.wl"];

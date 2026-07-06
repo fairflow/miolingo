@@ -95,10 +95,16 @@ defineAgent["StoryPractice", {scene, pos, rec, res},
       precede[coLabel["story_recording_made", binding[audio]],
         call["StoryReader", scene, pos, practice, recorded[audio], none]],
       choice[
+        (* scoring PERSISTS here too: story practice runs the SAME
+           render_practice_interface (story_tab.py:279) whose _persist_result
+           saves every attempt — so the SECOND writer on progressAppend (the
+           vocabUpsert two-writer precedent). Chain mirrors PSActive's. *)
         precede[coLabel["story_attempt_made"],
           precede[coLabel["langRead", binding[lp]],
-            call["StoryReader", scene, pos, practice, rec,
-              scored[evaluate[targetOf[sceneOf[scene], pos], rec, lp]]]]],
+            precede[label["progressAppend",
+                param[attemptRecord[targetOf[sceneOf[scene], pos], rec, lp]]],
+              call["StoryReader", scene, pos, practice, rec,
+                scored[evaluate[targetOf[sceneOf[scene], pos], rec, lp]]]]]],
         precede[coLabel["story_clear_recording"],
           call["StoryReader", scene, pos, practice, none, none]]]],
     if[pos < Length[sceneOf[scene]] - 1,

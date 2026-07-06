@@ -42,14 +42,18 @@ $rca = With[{e = Environment["RCA_CORE"]},
   If[StringQ[e] && e =!= "", e,
      "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl"]];
 
-(* Oldest engine commit this spec requires — PR #36 (walk + replayTrace),
-   which descends from native guard/choice (#33), substVv guard-ground (#34)
-   and transNamed[relabel] (#35). Bump when adopting newer engine capability. *)
-$minEngineSha = "5bcc031";
+(* Oldest engine commit this spec requires — the comprehension capture fix
+   + compiled transVP/transNamed (branch compiled-trans-capture-fix; the
+   spec's binders ps/m/s were mangled in value-sync successors before it,
+   and walk_sequences_test needs the compiled speed). Descends from PR #36
+   (walk + replayTrace) <- #35 transNamed[relabel] <- #34 substVv
+   guard-ground <- #33 native guard/choice. Bump when adopting newer
+   engine capability. *)
+$minEngineSha = "fd7afae9f";
 
 mioGet::usage = "mioGet[\"file.wl\"] Gets a spec file by name, relative to $specDir (this spec directory, derived from paths.wl's own location).";
 loadEngine::usage = "loadEngine[] Gets the RCA engine ($rca = $RCA_CORE env var, else the canonical checkout) AND asserts (git merge-base --is-ancestor) that the checkout contains $minEngineSha, aborting loudly on divergence. The shared coordinate between the spec and engine repos.";
-loadRecoveredBase::usage = "loadRecoveredBase[] loads discipline.wl + the recovered agents (PracticeSessionRecovered.wl, VocabRecovered.wl, HelmRecovered.wl, VocabTableRecovered.wl) in order — the common base every spec consumer loads first. MioCore composes PS/Vocab/Helm; VocabTable is defined here and composed at the (i) migration.";
+loadRecoveredBase::usage = "loadRecoveredBase[] loads discipline.wl + the recovered agents (PracticeSessionRecovered.wl, VocabRecovered.wl, HelmRecovered.wl, VocabTableRecovered.wl, StoryReaderRecovered.wl, ProgressTableRecovered.wl) in order — the common base every spec consumer loads first. MioCore composes them all.";
 
 mioGet[file_String] := Get[$specDir <> file];
 
@@ -82,4 +86,7 @@ loadRecoveredBase[] := (
   mioGet["HelmRecovered.wl"];    (* third recovered agent; MioCore composes it *)
   mioGet["VocabTableRecovered.wl"];    (* the external store; defined here, composed
                                          into MioCore at the (i) migration (PR-2) *)
-  mioGet["StoryReaderRecovered.wl"]);  (* narrative tab; practice mode mirrors PSActive *)
+  mioGet["StoryReaderRecovered.wl"];   (* narrative tab; practice mode mirrors PSActive *)
+  mioGet["ProgressTableRecovered.wl"]);  (* the attempt store (user_progress); PS +
+                                         StoryReader scoring write it, stats/history
+                                         are its query projections *)

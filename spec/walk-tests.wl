@@ -9,7 +9,8 @@
      vis["port"]          take a visible action by port name (no value)
      vis["port", value]   take a value-carrying input port, supplying value
    The internal syncs (vocabUpsert / goPractice / langRead / vocabRead — the VocabTable reads
-   and writes) are fired AUTOMATICALLY between steps by walkSteps' maximal-progress
+   and writes — and progressAppend, the attempt-log write after scoring) are fired
+   AUTOMATICALLY between steps by walkSteps' maximal-progress
    mode ("AutoTau" -> True) — so plans stay readable and robust as new internal
    syncs are added (no plan edits). (A plan MAY still force a specific sync with
    tau["chan"] when a step is genuinely ambiguous; none need to here.)
@@ -198,6 +199,21 @@ walkTests = <|
     vis["add", <|"word" -> "casa", "translation" -> "house"|>],
     vis["set_sort", recent],
     vis["export"]},
+
+  (* --- sync: scoring APPENDS to the attempt store (progressAppend) -------
+     every scored attempt is persisted (the app's _persist_result); after two
+     attempts the store's query projections (statsView / historyView) publish
+     the log. The view steps are self-loops — they just take the output. *)
+  "sync-progress" -> {
+    vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>,
+                          <|"text" -> "chien", "translation" -> "dog", "ipa" -> "ʃjɛ̃"|>}],
+    vis["recording_made", "audio-A"],
+    vis["attempt_made"],                            (* langRead + progressAppend auto-fire *)
+    vis["next_item_requested"],
+    vis["recording_made", "audio-B"],
+    vis["attempt_made"],                            (* second row appended *)
+    vis["statsView"],
+    vis["historyView"]},
 
   (* --- full end-to-end: both syncs in one run ------------------------- *)
   "full-roundtrip" -> {

@@ -58,6 +58,15 @@
    appear in the external ready set (it is internal); it is enabled as a tau only
    while a borrower waits at langRead? (currently: just after `autofill`). PS
    scoring is the next borrower to wire (b2).
+
+   ATTEMPT LOG (2026-07-06): ProgressTable (the user_progress store) is composed
+   in, resolving the † Stats/History incompleteness. progressAppend is RESTRICTED
+   with two writers — PS.attempt_made and StoryReader.story_attempt_made, whose
+   scoring chains are now attempt_made · langRead(τ) · progressAppend(τ) — so
+   every scored attempt lands in the store, as _persist_result does in the app.
+   The external ready set additionally shows progressRead (the raw SELECT
+   surface; no internal borrower yet) and the statsView / historyView query
+   projections (the Statistics / History tabs).
    ===================================================================== *)
 
 (* The component decomposition, named once and reused: by merge/mergeDefined to
@@ -69,14 +78,22 @@ mioComponents =
    "Vocab"       -> call["Vocab", signedIn, alpha, none, none],   (* (i): NO entries — they live in VocabTable *)
    "Helm"        -> call["Helm", "English", "fr", google, 250, system, base],
    "VocabTable"  -> call["VocabTable", {}],                       (* the persisted collection, owned here *)
-   "StoryReader" -> call["StoryReader", 0, 0, browse, none, none]};  (* narrative tab; practice mode
+   "StoryReader" -> call["StoryReader", 0, 0, browse, none, none],  (* narrative tab; practice mode
        mirrors PSActive, capturing via vocabUpsert + scoring via langRead — no NEW restricted channels *)
+   "ProgressTable" -> call["ProgressTable", {}]};  (* the attempt store (user_progress):
+       PS + StoryReader scoring APPEND via progressAppend (restricted); Statistics /
+       History are its statsView/historyView query projections — the † recovery *)
 
 mioRestricted = {label["goPractice"], label["langRead"],
                  (* the VocabTable channels: the Vocab tab and PS read/write the store
                     internally. vocabUpsert has two writers (tab add + PS capture). *)
                  label["vocabRead"], label["vocabUpsert"], label["vocabImport"],
-                 label["vocabRemove"], label["vocabAmend"]};
+                 label["vocabRemove"], label["vocabAmend"],
+                 (* the ProgressTable write channel: two writers (PS attempt_made +
+                    StoryReader story_attempt_made — both loops persist via
+                    _persist_result). progressRead stays EXTERNAL (no internal
+                    borrower yet), as do the statsView/historyView projections. *)
+                 label["progressAppend"]};
 
 mioCore = merge[mioComponents, mioRestricted];
 
