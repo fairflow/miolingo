@@ -42,10 +42,14 @@ $rca = With[{e = Environment["RCA_CORE"]},
   If[StringQ[e] && e =!= "", e,
      "/Users/matthew/Projects/private/Mathematica/RCA/RCA_core.wl"]];
 
-(* Oldest engine commit this spec requires — PR #36 (walk + replayTrace),
-   which descends from native guard/choice (#33), substVv guard-ground (#34)
-   and transNamed[relabel] (#35). Bump when adopting newer engine capability. *)
-$minEngineSha = "5bcc031";
+(* Oldest engine commit this spec requires — the comprehension capture fix
+   + compiled transVP/transNamed (branch compiled-trans-capture-fix; the
+   spec's binders ps/m/s were mangled in value-sync successors before it,
+   and walk_sequences_test needs the compiled speed). Descends from PR #36
+   (walk + replayTrace) <- #35 transNamed[relabel] <- #34 substVv
+   guard-ground <- #33 native guard/choice. Bump when adopting newer
+   engine capability. *)
+$minEngineSha = "fd7afae9f";
 
 mioGet::usage = "mioGet[\"file.wl\"] Gets a spec file by name, relative to $specDir (this spec directory, derived from paths.wl's own location).";
 loadEngine::usage = "loadEngine[] Gets the RCA engine ($rca = $RCA_CORE env var, else the canonical checkout) AND asserts (git merge-base --is-ancestor) that the checkout contains $minEngineSha, aborting loudly on divergence. The shared coordinate between the spec and engine repos.";
