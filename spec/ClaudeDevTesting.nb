@@ -1,0 +1,175 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      6998,        167]
+NotebookOptionsPosition[      4526,        120]
+NotebookOutlinePosition[      4868,        135]
+CellTagsIndexPosition[      4825,        132]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Miolingo spec \[LongDash] driving notebook", "Title",ExpressionUUID->"65003cc9-1e94-4b24-8df4-1578d8cd7ba9"],
+
+Cell["\<\
+Loads the L1 spec + walk harness from THIS notebook's directory, so it drives \
+whichever checkout it lives in. To drive a different checkout, set specDir to \
+that checkout's spec/ path instead.\
+\>", "Text",ExpressionUUID->"ec5dc349-252d-432f-a10c-9714a8da13a4"],
+
+Cell[CellGroupData[{
+
+Cell["Startup", "Section",ExpressionUUID->"7100d48d-c301-48b5-80b2-df764da0b79d"],
+
+Cell["\<\
+Fresh kernel first when reloading after engine or spec changes \
+(MiolingoSpec.wl is otherwise a clean full reload \[LongDash] it re-Gets the \
+engine, which resets agentDefs).\
+\>", "Text",ExpressionUUID->"40d8258f-ee2d-4040-8b2c-2ee87f713349"],
+
+Cell["Quit[]", "Input",ExpressionUUID->"9f6e5f78-e105-4293-816c-9d2082986a75"],
+
+Cell["specDir = NotebookDirectory[];", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"cae8848f-f7fb-446e-b6e6-7bd88b7ed3a3"],
+
+Cell["Get[FileNameJoin[{specDir, \"MiolingoSpec.wl\"}]];", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"27e349ed-39c5-4705-b429-5bcadcced29b"],
+
+Cell["Get[FileNameJoin[{specDir, \"walk.wl\"}]];", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"176ba92d-25de-4e09-aceb-0f7a2e21d504"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Walk the composed system", "Section",ExpressionUUID->"6f844d3b-9ec6-4cc7-855b-b452f0ba1099"],
+
+Cell["\<\
+The call-based twin, stepped with transNamed \[LongDash] the compact layout: \
+toolbar (Reset / Back / Forward / auto-\[Tau] / build stamp), data view as \
+tabs (one per view port \[LongDash] click to recover the others), collapsible \
+cloud + runners + trace. Tick auto-\[Tau] so the internal syncs (langRead, \
+vocabRead, progressAppend, \[Ellipsis]) fire between your steps.\
+\>", "Text",ExpressionUUID->"5553da6f-1fe7-42ec-bf23-bcd88c8311c3"],
+
+Cell["walkUI[mioCoreD, \"TransitionFunction\" -> transNamed]", "Input",ExpressionUUID->"79bb0884-44fc-49f4-9ad0-7cabe3866958"],
+
+Cell["\<\
+Shorthands: walkMioD[] is the cell above; walkMio[] is the mu-term twin \
+(mioCore, transVP). The pre-compression stacked data view is \"DataLayout\" \
+-> \"Stack\":\
+\>", "Text",ExpressionUUID->"21709381-e58b-4970-9ed2-23772681737d"],
+
+Cell["\<\
+walkUI[mioCoreD, \"TransitionFunction\" -> transNamed, \"DataLayout\" -> \
+\"Stack\"]\
+\>", "Input",ExpressionUUID->"d0bccefa-509e-494a-9db3-19fd7733315b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Inspect without the GUI", "Section",ExpressionUUID->"b8e7d755-a18b-4dbc-a6c8-b048b4b7ac60"],
+
+Cell["readyTransitions[transNamed, mioCoreD][[All, 1]] // Column", "Input",ExpressionUUID->"9f4bf985-047f-48cb-9305-2048b517a1b9"],
+
+Cell["viewProjections[transNamed, mioCoreD] // Map[Short[#, 2] &]", "Input",ExpressionUUID->"0bceb0ef-3901-4827-bbf5-859476aeed45"],
+
+Cell["\<\
+Run a curated plan headlessly and read the final projections (the same plans \
+as walkUI's Run-test menu):\
+\>", "Text",ExpressionUUID->"2e084dd7-10d9-4fd0-ba8f-5b4daefebdc7"],
+
+Cell["\<\
+w = walkSteps[transNamed, mioCoreD, walkTests[\"sync-progress\"], \"AutoTau\" \
+-> True];
+viewProjections[transNamed, Last[w[\"states\"]]][\"statsView\"]\
+\>", "Input",ExpressionUUID->"3e836241-f49f-4b66-a9c9-dc7d0dc74cbb"],
+
+Cell["?walkUI", "Input",ExpressionUUID->"fe011ae1-804f-4fbc-aa46-7b3cc4618b9c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Headless tests", "Section",ExpressionUUID->"8142d81d-5029-4faf-b407-b0d7eff5ef42"],
+
+Cell["\<\
+The suite is spec/tests/*.wls, one wolframscript kernel each. From a shell:  \
+for f in spec/tests/*.wls; do wolframscript -file \"$f\"; done \[LongDash] or \
+run one from here:\
+\>", "Text",ExpressionUUID->"18d02192-ee59-4855-b51b-0cb64db9a79a"],
+
+Cell["\<\
+RunProcess[{\"wolframscript\", \"-file\", FileNameJoin[{specDir, \"tests\", \
+\"progress_flow_test.wls\"}]}][\"StandardOutput\"] // Print\
+\>", "Input",ExpressionUUID->"34617d76-82f5-4f17-8206-6da370fc7a2e"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1100, 850},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 8, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"ff674e7c-40ad-431a-901f-08ea1b2989a2"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 114, 0, 70, "Title",ExpressionUUID->"65003cc9-1e94-4b24-8df4-1578d8cd7ba9"],
+Cell[693, 24, 274, 4, 70, "Text",ExpressionUUID->"ec5dc349-252d-432f-a10c-9714a8da13a4"],
+Cell[CellGroupData[{
+Cell[992, 32, 81, 0, 70, "Section",ExpressionUUID->"7100d48d-c301-48b5-80b2-df764da0b79d"],
+Cell[1076, 34, 255, 4, 70, "Text",ExpressionUUID->"40d8258f-ee2d-4040-8b2c-2ee87f713349"],
+Cell[1334, 40, 78, 0, 70, "Input",ExpressionUUID->"9f6e5f78-e105-4293-816c-9d2082986a75"],
+Cell[1415, 42, 132, 2, 70, "Input",ExpressionUUID->"cae8848f-f7fb-446e-b6e6-7bd88b7ed3a3",
+ InitializationCell->True],
+Cell[1550, 46, 152, 2, 70, "Input",ExpressionUUID->"27e349ed-39c5-4705-b429-5bcadcced29b",
+ InitializationCell->True],
+Cell[1705, 50, 144, 2, 70, "Input",ExpressionUUID->"176ba92d-25de-4e09-aceb-0f7a2e21d504",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1886, 57, 98, 0, 70, "Section",ExpressionUUID->"6f844d3b-9ec6-4cc7-855b-b452f0ba1099"],
+Cell[1987, 59, 456, 6, 70, "Text",ExpressionUUID->"5553da6f-1fe7-42ec-bf23-bcd88c8311c3"],
+Cell[2446, 67, 126, 0, 70, "Input",ExpressionUUID->"79bb0884-44fc-49f4-9ad0-7cabe3866958"],
+Cell[2575, 69, 244, 4, 70, "Text",ExpressionUUID->"21709381-e58b-4970-9ed2-23772681737d"],
+Cell[2822, 75, 165, 3, 70, "Input",ExpressionUUID->"d0bccefa-509e-494a-9db3-19fd7733315b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3024, 83, 97, 0, 70, "Section",ExpressionUUID->"b8e7d755-a18b-4dbc-a6c8-b048b4b7ac60"],
+Cell[3124, 85, 130, 0, 70, "Input",ExpressionUUID->"9f4bf985-047f-48cb-9305-2048b517a1b9"],
+Cell[3257, 87, 131, 0, 70, "Input",ExpressionUUID->"0bceb0ef-3901-4827-bbf5-859476aeed45"],
+Cell[3391, 89, 185, 3, 70, "Text",ExpressionUUID->"2e084dd7-10d9-4fd0-ba8f-5b4daefebdc7"],
+Cell[3579, 94, 233, 4, 70, "Input",ExpressionUUID->"3e836241-f49f-4b66-a9c9-dc7d0dc74cbb"],
+Cell[3815, 100, 79, 0, 70, "Input",ExpressionUUID->"fe011ae1-804f-4fbc-aa46-7b3cc4618b9c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3931, 105, 88, 0, 70, "Section",ExpressionUUID->"8142d81d-5029-4faf-b407-b0d7eff5ef42"],
+Cell[4022, 107, 256, 4, 70, "Text",ExpressionUUID->"18d02192-ee59-4855-b51b-0cb64db9a79a"],
+Cell[4281, 113, 217, 3, 70, "Input",ExpressionUUID->"34617d76-82f5-4f17-8206-6da370fc7a2e"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
