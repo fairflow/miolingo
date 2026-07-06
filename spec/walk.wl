@@ -40,7 +40,7 @@ traceView::usage = "traceView[traceSymbol] renders the condensed event log of a 
 traceToPlan::usage = "traceToPlan[trace] turns a recorded event log (list of eventOf Associations) BACK into an executable plan \[LongDash] a list of vis[\"port\"] / vis[\"port\", value] / tau[\"chan\"] entries, values inline. The FULL trace is kept, INCLUDING the internal \[Tau]'s (as tau[chan]): in manual-\[Tau] mode they replay literally; in auto-\[Tau] mode Run trace drops them and re-fires them itself. Inverse of eventLog for replay.";
 normalisePlan::usage = "normalisePlan[expr] canonicalises a typed/pasted trace to a plan list, or returns $Failed. Accepts a list of vis/tau entries as-is, OR a pasted raw event log (list of eventOf Associations) which it converts via traceToPlan.";
 stateDisplay::usage = "stateDisplay[s] gives a compact render of the CCS process state s (foldAgentDisplay \:043e normalizeSC) \[LongDash] where you are / where a transition leads.";
-walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests (\"Run test\") OR an ad-hoc trace you type in the \"Trace:\" field (\"Run trace\"), step Back/Forward through a run, and record a trace. The Trace field takes a plan — a list of vis[\"port\"] / vis[\"port\", value] / tau[\"chan\"], or a pasted Copy-trace — and runs it from the initial agent, HONOURING the maximal-progress checkbox just like manual stepping: box ON = auto-τ (external actions only, pasted τ's dropped); box OFF = manual-τ (the τ's in the trace are driven literally). Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
+walkUI::usage = "walkUI[agent, opts] is the interactive Dynamic harness: drive the simulation, type real values into ready input ports, see the data-compaction views + current state + per-transition derivative, run value-carrying test sequences from walkTests (\"Run test\") OR an ad-hoc trace you type in the \"Trace:\" field (\"Run trace\"), step Back/Forward through a run, and record a trace. The COMPRESSED layout is the default: a single toolbar row (Reset/Back/Forward, the maximal-progress toggle, the build stamp), the data view as a TabView (one tab per view port; \"DataLayout\" -> \"Stack\" restores the stacked panels), and the runners + trace folded into openers (the trace opener shows a live event count) — everything recovers on click. The Trace field takes a plan — a list of vis[\"port\"] / vis[\"port\", value] / tau[\"chan\"], or a pasted Copy-trace — and runs it from the initial agent, HONOURING the maximal-progress checkbox just like manual stepping: box ON = auto-τ (external actions only, pasted τ's dropped); box OFF = manual-τ (the τ's in the trace are driven literally). Option \"TransitionFunction\" -> transVP (mu-term, e.g. mioCore) | transNamed (call form, e.g. mioCoreD).";
 
 (* ---------------------------------------------------------------------
    readyTransitions[tf, s] : the enabled transitions at state s as a list
@@ -252,6 +252,26 @@ dataView[tf_, s_] := Module[{projs = viewProjections[tf, s]},
     Style["(no view ports ready)", Italic, GrayLevel[0.5]],
     Column[KeyValueMap[viewPanel[#1, forceProj[#2]] &, projs], Spacings -> 0.8]]];
 
+(* dataViewTabs[tf, s, Dynamic[sel]] : the COMPRESSED data view — one tab per
+   view port instead of a stack of panels. With six view ports in mioCore
+   (pSView / vocabView / helmView / storyReaderView / statsView / historyView)
+   the stacked panels dominated the harness; tabs show ONE projection and
+   recover the rest on click (compress-then-recover). Keys are sorted so a tab
+   keeps its position across steps; `sel` (a Dynamic index, persisted by
+   walkUI) is clamped when the ready view-port set shrinks (e.g. PS
+   mid-handoff). The stacked dataView remains available via walkUI's
+   "DataLayout" -> "Stack". *)
+dataViewTabs::usage = "dataViewTabs[tf, s, sel] renders the state's published projections as a TabView (one tab per view port, selection sel persisting across steps) — the compressed form of dataView.";
+SetAttributes[dataViewTabs, HoldRest];
+dataViewTabs[tf_, s_, sel_] := Module[{projs = viewProjections[tf, s], ks},
+  If[projs === <||>,
+    Style["(no view ports ready)", Italic, GrayLevel[0.5]],
+    ks = Sort[Keys[projs]];
+    If[! (1 <= sel <= Length[ks]), sel = 1];
+    TabView[
+      (# -> viewPanel[#, forceProj[projs[#]]]) & /@ ks,
+      Dynamic[sel], ImageSize -> Automatic]]];
+
 (* Per-event render: port + polarity glyph + the value as a NAKED expression
    (no ToString — Wolfram boxes read fine), dropping the {} wrapper for <=1
    parameter (eventOf wraps every value in a list; we unwrap the singleton).
@@ -300,9 +320,10 @@ normalisePlan[expr_] := Which[
    bulky values in Short. Copy emits the EXECUTABLE plan (traceToPlan) so it round-
    trips into Run trace; eventLogForm (string form) is kept for the text round-trip
    (trace_io_test). *)
-SetAttributes[traceView, HoldFirst];
-traceView[trace_, short_ : False] := Column[{
-  Style["Trace (condensed event log)", Bold],
+(* traceBody: the log pane + Copy button WITHOUT the title, so walkUI can put
+   the title on a collapsible opener (with a live event count) instead. *)
+SetAttributes[{traceBody, traceView}, HoldFirst];
+traceBody[trace_, short_ : False] := Column[{
   Pane[Dynamic[If[trace === {},
         Style["(no steps yet)", Italic, GrayLevel[0.5]],
         Column[eventRow[#, short] & /@ trace, Spacings -> 0.15]]],
@@ -311,6 +332,9 @@ traceView[trace_, short_ : False] := Column[{
      straight back into the Run-trace field AND is the readable vis/tau form. *)
   Button["Copy trace \[SelectionPlaceholder]", CopyToClipboard[traceToPlan[trace]],
     Enabled -> Dynamic[trace =!= {}]]}];
+traceView[trace_, short_ : False] := Column[{
+  Style["Trace (condensed event log)", Bold],
+  traceBody[trace, short]}];
 
 (* ---------------------------------------------------------------------
    walkUI[agent, opts] : the integrated harness. Drive the sim, PLAY THE
@@ -444,26 +468,63 @@ walkVersion[dir_] := Module[{run, sha, subj, date, dirty, pr},
     If[dirty, " \[CenterDot] +local edits", ""]]];
 $walkDir = DirectoryName[$InputFileName];
 
-Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> Automatic};
+Options[walkUI] = {"TransitionFunction" -> transVP, "Components" -> Automatic,
+  (* "Tabs" (default): the data view is a TabView, one tab per view port —
+     the compressed layout. "Stack": the original stacked panels. *)
+  "DataLayout" -> "Tabs"};
 walkUI[agent_, opts : OptionsPattern[]] := With[
   {tf = OptionValue["TransitionFunction"],
    (* Automatic (the default): group if `agent` is a registered composed system,
       else flat. An explicit list / {} overrides. *)
-   components = Replace[OptionValue["Components"], Automatic :> defaultComponents[agent]]},
+   components = Replace[OptionValue["Components"], Automatic :> defaultComponents[agent]],
+   dataLayout = OptionValue["DataLayout"]},
   With[{pmap = If[components === {}, <||>, componentPortMap[components]],
         ver = walkVersion[$walkDir]},
   DynamicModule[{cur = agent, trace = {}, hist = {}, inVals = <||>, future = {},
      maxprog = False, stateOpen = False, cloudOpen = False,
      shortTrace = True, prevCloudActive = cloudActiveNames[tf, agent],
      testSel = First[Keys[If[ValueQ[walkTests], walkTests, <||>]], None],
-     userPlan = ""},
+     userPlan = "", dataTab = 1, runnersOpen = False, traceOpen = False},
     Dynamic[
       Module[{trans = readyTransitions[tf, cur]},
         Framed[Column[{
 
-          (* build stamp (captured when THIS cell was created) \[LongDash] confirms which
-             spec build you're running; a stale cell shows an old PR#/SHA *)
-          Style["spec build: " <> ver, GrayLevel[0.35], 13],
+          (* toolbar: build stamp (captured when THIS cell was created — a stale
+             cell shows an old PR#/SHA), the run controls, and the maximal-
+             progress toggle, in ONE row. Back pushes the current step onto a
+             `future` stack; Forward replays it; a fresh step clears `future`
+             (you've branched off the redo line). The maxprog checkbox is a
+             SIMULATION strategy (auto-fire internal syncs between your
+             actions), not a language change; switching it ON also settles the
+             current state. The system plays the SYSTEM for you; you still play
+             the user (and the world). *)
+          Row[{
+            Button["Reset \[CenterDot]", cur = agent; hist = {}; trace = {};
+               future = {}; inVals = <||>],
+            Spacer[2],
+            Button["\[LeftArrow] Back",
+              If[hist =!= {},
+                AppendTo[future, {cur, Last[trace]}];
+                cur = Last[hist]; hist = Most[hist]; trace = Most[trace];
+                inVals = <||>],
+              Enabled -> Dynamic[hist =!= {}]],
+            Spacer[2],
+            Button["Forward \[RightArrow]",
+              If[future =!= {},
+                Module[{f = Last[future]},
+                  AppendTo[hist, cur]; cur = f[[1]]; AppendTo[trace, f[[2]]];
+                  future = Most[future]; inVals = <||>]],
+              Enabled -> Dynamic[future =!= {}]],
+            Spacer[10],
+            Checkbox[Dynamic[maxprog, (maxprog = #;
+                 If[TrueQ[#],
+                   With[{a = autoTau[tf, cur]},
+                     hist = Join[hist, a["states"]];
+                     trace = Join[trace, a["events"]]; cur = a["state"]]]) &]],
+            Spacer[4],
+            Style["auto-\[Tau] (maximal progress)", GrayLevel[0.35], 11],
+            Spacer[14],
+            Style["spec build: " <> ver, GrayLevel[0.45], 11]}],
 
           (* collapsible (default closed) so the process term doesn't eat space;
              open state persists across steps via stateOpen *)
@@ -473,7 +534,12 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
             Dynamic[stateOpen]],
 
           Style["Data view \[LongDash] published projections", Bold, 13],
-          dataView[tf, cur],
+          (* compressed by default: one tab per view port (six in mioCore);
+             the other projections recover on click. "DataLayout" -> "Stack"
+             restores the original stacked panels. *)
+          If[dataLayout === "Stack",
+            dataView[tf, cur],
+            dataViewTabs[tf, cur, dataTab]],
 
           (* the cloud: external data the agents read but don't own (collapsible;
              open state persists across steps via cloudOpen); items light up when
@@ -481,18 +547,6 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
           cloudPanel[tf, cur, Dynamic[cloudOpen]],
 
           Style["Transitions \[LongDash] click to step; type into input ports", Bold, 13],
-          (* maximal-progress toggle: a SIMULATION strategy (auto-fire internal
-             syncs between your actions), not a language change. Switching it ON
-             also settles the current state. The system plays the SYSTEM for you;
-             you still play the user (and the world). *)
-          Row[{Checkbox[Dynamic[maxprog, (maxprog = #;
-                 If[TrueQ[#],
-                   With[{a = autoTau[tf, cur]},
-                     hist = Join[hist, a["states"]];
-                     trace = Join[trace, a["events"]]; cur = a["state"]]]) &]],
-               Spacer[4],
-               Style["Auto-advance internal syncs (maximal progress)",
-                 GrayLevel[0.35], 11]}],
           If[trans === {},
             Style["(deadlocked \[LongDash] no transitions)", Italic, GrayLevel[0.5]],
             With[{row = Function[tr,
@@ -558,26 +612,12 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                     KeyExistsQ[grp, #] &],
                   Spacings -> 0.5]]]]],
 
-          (* Back / Forward scrub the run: Back pushes the current step onto a
-             `future` stack; Forward replays it. A fresh step or Run test clears
-             `future` (you've branched off the redo line). *)
-          Row[{
-            Button["\[LeftArrow] Back",
-              If[hist =!= {},
-                AppendTo[future, {cur, Last[trace]}];
-                cur = Last[hist]; hist = Most[hist]; trace = Most[trace];
-                inVals = <||>],
-              Enabled -> Dynamic[hist =!= {}]],
-            Spacer[4],
-            Button["Forward \[RightArrow]",
-              If[future =!= {},
-                Module[{f = Last[future]},
-                  AppendTo[hist, cur]; cur = f[[1]]; AppendTo[trace, f[[2]]];
-                  future = Most[future]; inVals = <||>]],
-              Enabled -> Dynamic[future =!= {}]],
-            Spacer[6],
-            Button["Reset \[CenterDot]", cur = agent; hist = {}; trace = {};
-               future = {}; inVals = <||>]}],
+          (* the RUNNERS (Run test / Run trace), folded away until wanted \[LongDash]
+             they are setup gestures, not stepping gestures, so they don't earn
+             standing space. Opener state persists via runnersOpen. *)
+          OpenerView[{
+            Style["Run a test / a typed trace \[Ellipsis]", Bold, 13],
+            Column[{
 
           (* Run a value-carrying test sequence from walkTests \[LongDash] no typing:
              replays the chosen plan FROM THE INITIAL AGENT, setting the trace
@@ -595,7 +635,8 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                Spacer[4],
                Button["Run test \[FilledRightTriangle]",
                  (* "AutoTau" -> True : the plans list only external actions, so
-                    fire the internal syncs (vocabUpsert/goPractice/langRead/vocabRead) for us *)
+                    fire the internal syncs (vocabUpsert/goPractice/langRead/
+                    vocabRead/progressAppend) for us *)
                  Module[{w = walkSteps[tf, agent, walkTests[testSel], "AutoTau" -> True]},
                    hist = Most[w["states"]]; trace = eventLog[w];
                    cur = Last[w["states"]]; future = {}; inVals = <||>],
@@ -641,11 +682,21 @@ walkUI[agent_, opts : OptionsPattern[]] := With[
                  "AUTO-\[Tau] (box ticked): list external actions only — τ's auto-fire (pasted τ's ignored).",
                  "MANUAL-\[Tau] (box clear): τ's in the trace are driven literally — tick the box above to auto-fire them instead."] <>
               " vis[\"port\"] · vis[\"port\", value] · tau[\"chan\"].",
-            GrayLevel[0.45], 10]],
+            GrayLevel[0.45], 10]]
 
-          Row[{Checkbox[Dynamic[shortTrace]], Spacer[4],
-               Style["Short trace values (truncate bulky data)", GrayLevel[0.35], 11]}],
-          traceView[trace, shortTrace]
+            }, Spacings -> 0.8]},
+            Dynamic[runnersOpen]],
+
+          (* the TRACE, folded with a live event count on the opener label \[LongDash]
+             glance at the count, recover the log on click. Opener state
+             persists via traceOpen. *)
+          OpenerView[{
+            Dynamic[Style[Row[{"Trace (", Length[trace], " events)"}], Bold, 13]],
+            Column[{
+              Row[{Checkbox[Dynamic[shortTrace]], Spacer[4],
+                   Style["Short trace values (truncate bulky data)", GrayLevel[0.35], 11]}],
+              traceBody[trace, shortTrace]}, Spacings -> 0.5]},
+            Dynamic[traceOpen]]
 
         }, Spacings -> 1.2], FrameStyle -> GrayLevel[0.7], RoundingRadius -> 4]],
       TrackedSymbols :> {cur, inVals, testSel, future, maxprog, shortTrace, userPlan}]]]];
