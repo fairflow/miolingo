@@ -61,12 +61,21 @@
 
    ATTEMPT LOG (2026-07-06): ProgressTable (the user_progress store) is composed
    in, resolving the † Stats/History incompleteness. progressAppend is RESTRICTED
-   with two writers — PS.attempt_made and StoryReader.story_attempt_made, whose
-   scoring chains are now attempt_made · langRead(τ) · progressAppend(τ) — so
+   with two writers — PS.attempt_made and StoryReader.story_attempt_made — so
    every scored attempt lands in the store, as _persist_result does in the app.
    The external ready set additionally shows progressRead (the raw SELECT
    surface; no internal borrower yet) and the statsView / historyView query
    projections (the Statistics / History tabs).
+
+   NARROWED SCORING BORROW (2026-07-06, targetRead): the language pair is
+   ASYMMETRIC — source is an authoring parameter (enrichment renders into it),
+   target is the practice identity (what is presented, scored, and keyed in
+   user_progress). Scoring consumes ONLY the target code, so its borrow is the
+   narrow targetRead (also restricted), not the langRead pair: the chains are
+   attempt_made · targetRead(τ) · progressAppend(τ). Consequence, now a
+   PROPERTY OF THE PORT STRUCTURE: a bilingual user switching the source
+   mid-practice cannot affect a practice record — the dependency does not
+   exist. langRead (the full pair) remains the enrichment borrow (autofill).
    ===================================================================== *)
 
 (* The component decomposition, named once and reused: by merge/mergeDefined to
@@ -79,12 +88,12 @@ mioComponents =
    "Helm"        -> call["Helm", "English", "fr", google, 250, system, base],
    "VocabTable"  -> call["VocabTable", {}],                       (* the persisted collection, owned here *)
    "StoryReader" -> call["StoryReader", 0, 0, browse, none, none],  (* narrative tab; practice mode
-       mirrors PSActive, capturing via vocabUpsert + scoring via langRead — no NEW restricted channels *)
+       mirrors PSActive, capturing via vocabUpsert + scoring via targetRead — no NEW restricted channels *)
    "ProgressTable" -> call["ProgressTable", {}]};  (* the attempt store (user_progress):
        PS + StoryReader scoring APPEND via progressAppend (restricted); Statistics /
        History are its statsView/historyView query projections — the † recovery *)
 
-mioRestricted = {label["goPractice"], label["langRead"],
+mioRestricted = {label["goPractice"], label["langRead"], label["targetRead"],
                  (* the VocabTable channels: the Vocab tab and PS read/write the store
                     internally. vocabUpsert has two writers (tab add + PS capture). *)
                  label["vocabRead"], label["vocabUpsert"], label["vocabImport"],

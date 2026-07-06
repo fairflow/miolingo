@@ -410,7 +410,7 @@ $walkCloud = {
     "why" -> "Vocab.autofill's translation + IPA are produced OUTSIDE the model; only the (source,target) pull (langRead) is in it.",
     "ports" -> {"autofill"}|>,
   <|"item" -> "recognisePhonemes", "owner" -> "external ASR / acoustic model",
-    "why" -> "PS scoring recognises audio -> phonemes outside the model; only the target-language pull (langRead) is in it.",
+    "why" -> "PS scoring recognises audio -> phonemes outside the model; only the target-code pull (targetRead) is in it.",
     "ports" -> {"attempt_made"}|>,
   <|"item" -> "DB persistence", "owner" -> "the real MySQL tables",
     "why" -> "VocabTable + ProgressTable model the stores IN the system; the actual vocab_entries / user_progress tables (connections, SQL, durability) stay outside. Rigging the model stores to the real DB is the \[Dagger] rig concern.",

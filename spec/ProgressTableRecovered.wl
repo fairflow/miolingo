@@ -24,7 +24,7 @@
    PROJECTIONS on the store (statsView / historyView), not standalone
    interactive agents and not state held by PS. PS/StoryReader only WRITE,
    through the restricted append channel — completing the data flow
-     attempt_made · langRead(τ) · progressAppend(τ)  →  records
+     attempt_made · targetRead(τ) · progressAppend(τ)  →  records
      → statsView!(statsOf records) / historyView!(historyOf records).
 
    STATE: ProgressTable[records] — the persisted attempt log (list, in
@@ -61,7 +61,9 @@
    write time from the langRead borrow), so the projection can be filtered
    downstream without borrowing at read time. The day a filtered-at-source
    query port is wanted, it enters as a value-carrying read (a query
-   protocol) — the † rigging question, now concrete.
+   protocol) — the † rigging question, now concrete. (2026-07-06: the
+   write-time borrow NARROWED to targetRead — records carry exactly the
+   target code, the practice identity; see MioCore.wl.)
 
    LEAF agent (every branch loops back to ProgressTable) — no sub-agent
    expansion. Value-functions (appendAttempt/statsOf/historyOf/

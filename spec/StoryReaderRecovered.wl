@@ -84,9 +84,10 @@ defineAgent["StoryBrowse", {scene, pos},
    (see PSActive's note + story-reader-recovery.md on why it isn't one shared
    definition). Value-functions ARE shared (targetOf, evaluate). Capture relays to
    VocabTable on vocabUpsert (the same store channel PS capture uses); scoring
-   borrows the language from Helm on langRead (a τ). Both stay UNPREFIXED — they are
-   the store / Helm channels, shared by design; only the user-facing inputs carry
-   story_. Successors return to StoryReader (practice mode), preserving (scene,pos). *)
+   borrows the TARGET code from Helm on targetRead (a τ — the narrow read; see
+   PSActive). All stay UNPREFIXED — they are the store / Helm channels, shared by
+   design; only the user-facing inputs carry story_. Successors return to
+   StoryReader (practice mode), preserving (scene,pos). *)
 defineAgent["StoryPractice", {scene, pos, rec, res},
   choice[
     precede[coLabel["story_select_item", binding[i]],
@@ -98,13 +99,15 @@ defineAgent["StoryPractice", {scene, pos, rec, res},
         (* scoring PERSISTS here too: story practice runs the SAME
            render_practice_interface (story_tab.py:279) whose _persist_result
            saves every attempt — so the SECOND writer on progressAppend (the
-           vocabUpsert two-writer precedent). Chain mirrors PSActive's. *)
+           vocabUpsert two-writer precedent). Chain mirrors PSActive's,
+           including the NARROW borrow: targetRead (the code), not the
+           langRead pair — see PSActive's note. *)
         precede[coLabel["story_attempt_made"],
-          precede[coLabel["langRead", binding[lp]],
+          precede[coLabel["targetRead", binding[tc]],
             precede[label["progressAppend",
-                param[attemptRecord[targetOf[sceneOf[scene], pos], rec, lp]]],
+                param[attemptRecord[targetOf[sceneOf[scene], pos], rec, tc]]],
               call["StoryReader", scene, pos, practice, rec,
-                scored[evaluate[targetOf[sceneOf[scene], pos], rec, lp]]]]]],
+                scored[evaluate[targetOf[sceneOf[scene], pos], rec, tc]]]]]],
         precede[coLabel["story_clear_recording"],
           call["StoryReader", scene, pos, practice, none, none]]]],
     if[pos < Length[sceneOf[scene]] - 1,
