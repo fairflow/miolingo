@@ -51,6 +51,15 @@ story_attempt_made  · langRead?(lp) · progressAppend!(attemptRecord …) · St
 
 ## Decisions a reviewer should check
 
+**Review verdicts (Matthew, 2026-07-06, PR #186):** 1 accepted · 2 **open**
+(recommendation on the table: restore `recognized_phrase` as a distinct
+uninterpreted `transcriptOf[audio, lang]` oracle term for schema parity —
+awaiting sign-off) · 3 resolved by the **targetRead narrowing** (scoring now
+borrows only the target code; the asymmetry is stated in ARCHITECTURE.md
+"The language pair is asymmetric"; records stay in ONE store keyed by
+target) · 4 accepted · 5 provisional — filling out tracked as bead
+`miolingo-99j`.
+
 1. **Naming.** `ProgressTable`, not `Ledger`/`AttemptTable`: the naming rule
    ("store agents are named after their table") post-dates the placeholder
    and wins. Rename is a one-file-set mechanical change if rejected.

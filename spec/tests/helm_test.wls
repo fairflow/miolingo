@@ -27,11 +27,11 @@ sG = call["Helm", "English", "fr", google, 250, system, base];   (* tts = google
 sE = call["Helm", "English", "fr", espeak, 250, system, base];    (* tts = espeak *)
 
 Print[hr]; Print["1. ports — set_speed is gated on tts === espeak"]; Print[hr];
-(* langRead is the internal READ port (a borrower pulls {source,target} from it);
-   STANDALONE it is unrestricted so it shows here — in mioCore it is restricted
-   to an internal tau and does NOT appear externally. *)
-assert["google: view + langRead + set_source/target/tts + set_asr, NO set_speed",
-  ports[sG] === {"langRead", "set_asr", "set_source", "set_target", "set_tts", "view"}];
+(* langRead/targetRead are the internal READ ports (a borrower pulls the pair /
+   the target code); STANDALONE they are unrestricted so they show here — in
+   mioCore they are restricted to internal taus and do NOT appear externally. *)
+assert["google: view + langRead + targetRead + set_source/target/tts + set_asr, NO set_speed",
+  ports[sG] === {"langRead", "set_asr", "set_source", "set_target", "set_tts", "targetRead", "view"}];
 assert["espeak: + set_speed appears",
   MemberQ[ports[sE], "set_speed"]];
 assert["set_speed absent unless espeak", !MemberQ[ports[sG], "set_speed"]];
@@ -39,10 +39,14 @@ assert["set_speed absent unless espeak", !MemberQ[ports[sG], "set_speed"]];
 assert["set_asr always present", MemberQ[ports[sG], "set_asr"]];
 assert["set_asr_model absent unless whisper", !MemberQ[ports[sG], "set_asr_model"]];
 
-(* langRead emits the (source, target) pair the borrowers pull *)
+(* langRead emits the (source, target) pair; targetRead is the NARROW read —
+   only the target code (the scoring borrow; the asymmetry principle) *)
 assert["langRead carries {source, target}",
   With[{t = SelectFirst[readyTransitions[transNamed, sG], portName[First[#]] === "langRead" &]},
     First[Cases[First[t], param[p_] :> p, Infinity], None] === {"English", "fr"}]];
+assert["targetRead carries ONLY the target code",
+  With[{t = SelectFirst[readyTransitions[transNamed, sG], portName[First[#]] === "targetRead" &]},
+    First[Cases[First[t], param[p_] :> p, Infinity], None] === "fr"]];
 
 Print[hr]; Print["2. helmView projection — the (source,target) pair others read"]; Print[hr];
 v = view[sG];

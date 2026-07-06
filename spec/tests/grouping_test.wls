@@ -38,7 +38,7 @@ Print[hr]; Print["2. transGroup / inputsFirst"]; Print[hr];
 sV = Last[walkSteps[transVP, mioCore,
    {vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "S"|>}],
     vis["recording_made", "audio"], vis["attempt_made"],
-    tau["langRead"], tau["progressAppend"], vis["capture_vocab", "chat"]}]["states"]];
+    tau["targetRead"], tau["progressAppend"], vis["capture_vocab", "chat"]}]["states"]];
 tauTr = SelectFirst[readyTransitions[transVP, sV], isTauAct[First[#]] &];
 assert["a tau transition groups into internal (tau)",
   transGroup[pm, tauTr] === "internal (\[Tau])"];
