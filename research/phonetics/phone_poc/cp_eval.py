@@ -65,20 +65,21 @@ MODELS = {
     # 42-symbol IPA inventory (not espeak convention) -- scoring still runs on
     # panphon feature distance, but a symbol map may sharpen it.
     "caiocrocha-pt": "caiocrocha/wav2vec2-large-xlsr-53-phoneme-portuguese",
-    # pklumpp ships WEIGHTS ONLY (no processor/tokenizer/vocab in the HF repo), so
-    # AutoProcessor.from_pretrained fails. Decoding its CTC output needs the
-    # author's exact 101-IPA-symbol vocab + a hand-built Wav2Vec2Processor -- see
-    # follow-up bead. Left registered so the harness records the blocker.
+    # pklumpp ships WEIGHTS ONLY + a custom class; loaded via audio/pklumpp_ctc.py
+    # (Russian specialist, 0.073 err). pr._load returns (None, model) for it.
     "pklumpp": "pklumpp/Wav2Vec2_CommonPhone",
 }
 
 
 def recognize(model_id: str, wav_path: str) -> str:
-    """Audio -> space-separated IPA via the app's loader + CTC argmax decode."""
+    """Audio -> space-separated IPA via the app's cached loader + CTC decode."""
     import torch
 
-    processor, model = pr._load(model_id)
+    processor, model = pr._load(model_id)   # cached; (None, model) for pklumpp
     audio = pr._load_audio_16k(wav_path)
+    if processor is None:                   # pklumpp custom decode
+        from audio import pklumpp_ctc
+        return pklumpp_ctc.decode(model, audio)
     inputs = processor(audio, sampling_rate=16000, return_tensors="pt").input_values
     with torch.no_grad():
         logits = model(inputs).logits
