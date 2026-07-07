@@ -303,6 +303,12 @@ def render_settings_panel():
                     "date": datetime.now().isoformat(),
                     "practices": []
                 }
+            # Target language changed: evict the previous language's A2P model so we
+            # don't pin two large recognizers in memory (miolingo-s06). Cheap no-op
+            # if nothing is loaded (comprehensibility-only path never imported torch).
+            from audio import phone_recognizer as _pr
+            if _pr.loaded_model_ids():
+                _pr.unload_all_except_voice(st.session_state.material_language)
 
         # Safety: ensure session exists for current language
         if st.session_state.language not in st.session_state.current_sessions:
@@ -410,6 +416,12 @@ def render_settings_panel():
         # selector is gone. Default the setting to 'comprehensibility' for the
         # primary saved score; the result view shows both regardless.
         st.session_state.settings.setdefault('realization_source', 'comprehensibility')
+
+        # ── A2P Recognizer (accuracy channel, miolingo-3ym) ──────────────────
+        # Testing aid: show which acoustic phone-recognizer model is active for the
+        # current target language, let it be overridden per language, keep the fb
+        # backstop selectable, and surface / free what's loaded in memory (s06).
+        _render_a2p_recognizer_selector()
 
         # ── Audio Processing ─────────────────────────────────────────────────
         st.markdown("**🎚️ Audio Processing**")
@@ -538,6 +550,59 @@ def _render_story_link(lang_code: str):
     if lang_code in stories:
         url, label = stories[lang_code]
         st.markdown(f"- [{label}]({url})")
+
+
+def _render_a2p_recognizer_selector():
+    """Sidebar panel (miolingo-3ym): show / override the acoustic phone-recognizer
+    model for the CURRENT target language, keep the fb backstop selectable, and
+    surface + free the large models loaded in memory (miolingo-s06).
+
+    A testing aid — it reminds the tester which model produced a given accuracy
+    score and lets them A/B models per language. The override is remembered per
+    language in settings and re-applied to the recognizer module each render.
+    """
+    from audio import phone_recognizer as pr
+
+    voice = st.session_state.get('material_language') or 'fr'
+    overrides = st.session_state.settings.setdefault('a2p_overrides', {})
+    # Re-apply persisted per-language overrides to the (module-global) recognizer.
+    for _v, _mid in overrides.items():
+        pr.set_model_override(_v, _mid)
+
+    with st.expander("🗣️ A2P Recognizer (accuracy channel)", expanded=False):
+        labels = list(pr.KNOWN_MODELS)
+        cur_mid = overrides.get(voice, "")
+        cur_label = next((l for l, m in pr.KNOWN_MODELS.items() if m == cur_mid),
+                         labels[0])
+        sel = st.selectbox(
+            f"Model for '{voice}'",
+            labels,
+            index=labels.index(cur_label),
+            help="Override the audio→IPA recognizer for THIS language. 'Auto' uses "
+                 "the benched default; the fb entries are the multilingual "
+                 "backstop. Remembered per language.",
+        )
+        sel_mid = pr.KNOWN_MODELS[sel]
+        if sel_mid != cur_mid:
+            if sel_mid:
+                overrides[voice] = sel_mid
+            else:
+                overrides.pop(voice, None)
+            pr.set_model_override(voice, sel_mid)
+            _save_settings(st.session_state.settings)
+
+        active = pr.model_for_voice(voice)
+        default = pr.default_model_for_voice(voice)
+        st.caption(f"Active: `{active.split('/')[-1]}`")
+        if active != default:
+            st.caption(f"↳ default for '{voice}' is `{default.split('/')[-1]}`")
+
+        loaded = pr.loaded_model_ids()
+        st.caption("In memory: " +
+                   (", ".join(f"`{m.split('/')[-1]}`" for m in loaded) or "none"))
+        if loaded and st.button("♻️ Unload A2P models", key="a2p_unload"):
+            pr.unload()
+            st.rerun()
 
 
 def _save_settings(settings: dict):

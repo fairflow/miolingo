@@ -205,6 +205,7 @@ paper PERs mispredicted Spanish** — always bench:
 | **de** | CP-de | 0.1141 | **0.0426** | hk-de **1.0** (empty output) | **fallback** — hk-de unusable |
 | **pt-br** | FLEURS | 0.1542 | **0.1143** | caiocrocha 0.1156 | **fallback** — specialist ties, no gain |
 | **nl** | FLEURS | 0.1447 | 0.1116 | **clementapa 0.086** | **clementapa specialist** |
+| **ru** | CP-ru | 0.1333 | 0.1400 | **pklumpp 0.0733** | **pklumpp specialist** |
 | fr *(prior)* | CP-fr | 0.0719 | — | **cnam 0.0126** | cnam specialist |
 
 **`fb-xlsr` beat the old `lv-60` fb on all 5 benched languages** (es/it/de/pt-br/nl;
@@ -225,9 +226,22 @@ for everything else**, `lv-60` retained as a selectable backstop.
 | es/de/pt/pt-br/ru/en/… | **facebook/wav2vec2-xlsr-53-espeak-cv-ft** | fallback beat every specialist tested for these + beat lv-60 everywhere |
 | *(backstop)* | facebook/wav2vec2-lv-60-espeak-cv-ft | previous default, kept selectable (miolingo-3ym) |
 
-Not yet benched: **ru** (pklumpp CC0, best-lang 6.6% PER — needs dky processor build),
-**pt-pt** (no specialist exists), **en**. ZIPA (all-lang frontier) still needs the
-ONNX runtime path.
+**ru now benched + wired (miolingo-dky closed):** pklumpp's HF repo is weights-only
+with a custom class, so it's reconstructed in `src/audio/pklumpp_ctc.py` (vendored
+class + the exact 101-symbol vocab from github.com/PKlumpp/phd_model; state dict
+loaded directly, audio standardized, greedy CTC). It won ru **0.073 vs fb-xlsr 0.140**
+and is wired as the `ru` default. Note ru is the *only* language where xlsr-53 did
+not beat lv-60 (0.140 vs 0.133) — both fallbacks lose to pklumpp regardless.
+
+Still open: **pt-pt** (no specialist exists), **en** (unbenched). ZIPA (all-lang
+frontier) still needs the ONNX runtime path. The flyout model-selector (miolingo-3ym)
+and load-on-demand/unload-on-switch lifecycle (miolingo-s06) are now implemented.
+
+### Final wiring (all specialists benched on real audio)
+
+`fr→cnam · it→cnam-it · nl→clementapa · ru→pklumpp · es/de/pt/pt-br/en→xlsr-53
+fallback · lv-60 backstop`. The sidebar "🗣️ A2P Recognizer" expander lets a tester
+override any language's model live and unload the large models.
 
 **Two decisive outcomes:**
 1. **`fb-xlsr` (xlsr-53-espeak) beats the old `lv-60` fb on both es and it** (and same
