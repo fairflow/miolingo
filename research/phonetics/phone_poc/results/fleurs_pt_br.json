@@ -1,0 +1,32 @@
+{
+  "corpus": "fleurs",
+  "lang": "pt-br",
+  "split": "test",
+  "n_requested": 150,
+  "n_items": 150,
+  "reference": "espeak-G2P('pt-br') of transcript (weighted_phone metric)",
+  "metric": "mean 1 - phone_distance.similarity",
+  "results": {
+    "fb": {
+      "model_id": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.1542,
+      "load_and_run_s": 81.3
+    },
+    "fb-xlsr": {
+      "model_id": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.1143,
+      "load_and_run_s": 80.5
+    },
+    "caiocrocha-pt": {
+      "model_id": "caiocrocha/wav2vec2-large-xlsr-53-phoneme-portuguese",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.1156,
+      "load_and_run_s": 179.4
+    }
+  }
+}

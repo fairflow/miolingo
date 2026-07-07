@@ -6,10 +6,16 @@ docs/research/phonetics/FINDING_audio_to_ipa_gap.md, miolingo-7w3): it reports
 what the learner actually PRODUCED, as opposed to the comprehensibility channel
 (Whisper -> espeak) which reports what a listener would have UNDERSTOOD.
 
-Recognizer choice is per-language (validated in miolingo-0x9 on Common Phone
-French against a sentence-level espeak reference, weighted_phone metric):
-  - French  -> Cnam-LMSSC/wav2vec2-french-phonemizer  (specialist, ~0.015 err)
-  - other   -> facebook/wav2vec2-lv-60-espeak-cv-ft    (multilingual fallback)
+Recognizer choice is per-language and EMPIRICAL (Common Phone weighted_phone
+bake-off, cp_eval.py, miolingo-0x9):
+  - French  -> Cnam-LMSSC/wav2vec2-french-phonemizer    (specialist, ~0.013 err)
+  - Italian -> Cnam-LMSSC/wav2vec2-italian-phonemizer   (specialist, 0.046 err)
+  - Dutch   -> Clementapa/wav2vec2-base-960h-phoneme-reco-dutch (specialist, 0.086)
+  - other   -> facebook/wav2vec2-xlsr-53-espeak-cv-ft   (multilingual fallback)
+No specialist wired for Spanish/German/pt-BR: each benched WORSE than or equal to
+the xlsr-53 fallback (es cnam-es 0.071>0.036 truncates; de hk-de emits empty; pt-BR
+caiocrocha 0.116~0.114 tie). The fallback itself beat the old lv-60 on all 5 benched
+langs. Paper PERs mispredicted Spanish -- always bench on real audio (cp_eval.py).
 Both are wav2vec2 phoneme-CTC models that emit espeak-ng-convention IPA (same
 convention as our espeak targets), output phones directly from audio, and load
 via transformers AutoModelForCTC. Allosaurus was evaluated and dropped: weaker
@@ -26,14 +32,34 @@ import functools
 from typing import Callable, Optional
 
 # espeak voice code (or its language prefix) -> HuggingFace phoneme-CTC model id.
+# Per-language choice is EMPIRICAL, from the Common Phone weighted_phone bake-off
+# (cp_eval.py, 2026-07-07), NOT from paper PERs -- which mispredicted Spanish:
+#   fr: cnam 0.013 << fb           -> specialist
+#   it: cnam-it 0.046 < fb 0.085   -> specialist
+#   es: cnam-es 0.071 > fb-xlsr 0.036 -> specialist LOSES (truncates full sentences)
+#       so Spanish rides the fallback, no specialist wired.
+# The Cnam-LMSSC family (wav2vec2-base + linear-CTC, espeak-convention IPA) is a
+# true drop-in but is NOT uniformly good -- bench before trusting each one.
 _FRENCH_MODEL = "Cnam-LMSSC/wav2vec2-french-phonemizer"
-_MULTILINGUAL_MODEL = "facebook/wav2vec2-lv-60-espeak-cv-ft"
+_ITALIAN_MODEL = "Cnam-LMSSC/wav2vec2-italian-phonemizer"
+# Dutch specialist: clementapa beat both fallbacks on FLEURS-nl (0.086 vs xlsr
+# 0.112 vs lv-60 0.145). Licence undeclared -> clear before ship (miolingo-0x9
+# reframe: test-only for now). nl-be/Flemish rides this via the prefix fallback.
+_DUTCH_MODEL = "Clementapa/wav2vec2-base-960h-phoneme-reco-dutch"
+
+# Multilingual fallback. xlsr-53 beat the old lv-60 on BOTH benched langs
+# (es 0.036<0.060, it 0.065<0.085), same espeak-IPA output + loader -> new default.
+# lv-60 kept as a selectable backstop (see miolingo-3ym flyout selector).
+_MULTILINGUAL_MODEL = "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
+_MULTILINGUAL_MODEL_LV60 = "facebook/wav2vec2-lv-60-espeak-cv-ft"
 
 _VOICE_TO_MODEL = {
     "fr": _FRENCH_MODEL,
     "fr-fr": _FRENCH_MODEL,
     "fr-be": _FRENCH_MODEL,
     "fr-ch": _FRENCH_MODEL,
+    "it": _ITALIAN_MODEL,
+    "nl": _DUTCH_MODEL,
 }
 
 

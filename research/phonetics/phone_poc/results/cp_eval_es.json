@@ -1,0 +1,32 @@
+{
+  "corpus": "common_phone",
+  "lang": "es",
+  "split": "test",
+  "n_requested": 150,
+  "n_items": 150,
+  "reference": "espeak-G2P of transcript (weighted_phone metric)",
+  "metric": "mean 1 - phone_distance.similarity",
+  "results": {
+    "fb": {
+      "model_id": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0603,
+      "load_and_run_s": 46.7
+    },
+    "fb-xlsr": {
+      "model_id": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0364,
+      "load_and_run_s": 113.2
+    },
+    "cnam-es": {
+      "model_id": "Cnam-LMSSC/wav2vec2-spanish-phonemizer",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0708,
+      "load_and_run_s": 70.3
+    }
+  }
+}

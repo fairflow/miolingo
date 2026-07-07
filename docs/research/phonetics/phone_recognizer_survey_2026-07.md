@@ -95,6 +95,11 @@ pklumpp integration tracked as **miolingo-dky** (needs the author's 101-symbol v
 
 ## Per-language recommendation
 
+> **Superseded / expanded by the 2026-07-07 specialist sweep below** (6-agent
+> deep search across de/nl/es/it/pt-br/pt-pt/ru + a universal-model sweep). The
+> table here is the original ZIPA-centric view; the sweep found **drop-in
+> per-language specialists** that change the near-term plan. Read both.
+
 | Tier | Language | Recommendation |
 |------|----------|----------------|
 | Product-critical | **nl / nl-be** | Adopt **ZIPA** (`dut`). Fallback: Clementapa (weak, 20.8% PER, no licence) — prefer ZIPA. |
@@ -160,6 +165,142 @@ Phone French set with the **weighted_phone** metric; separately stand up a pt-BR
 
 ---
 
+# Per-language specialist sweep — 2026-07-07
+
+**Method:** 6 parallel deep-search agents (de · nl/nl-be · es+it · pt-br/pt-pt ·
+ru · universal-multilingual), every model id + licence verified live against the
+HuggingFace API. Goal: for each product language, find a **specialist that beats
+the `fb` fallback**, preferring HF `AutoModelForCTC` drop-ins that emit
+espeak-convention IPA (zero integration, like the shipped French `Cnam` model).
+
+**The single biggest finding: the Cnam-LMSSC group (authors of our shipped French
+model) also publish MIT-licensed Spanish and Italian phonemizers of the *identical*
+architecture** — genuine two-line drop-ins. Spanish and Italian go from "fallback"
+to "solved" for the cost of two dict entries.
+
+## Consolidated decision table
+
+| Lang | Best specialist | Licence | Integration | Reported acc. | Verdict |
+|------|-----------------|---------|-------------|---------------|---------|
+| **fr** | `Cnam-LMSSC/wav2vec2-french-phonemizer` *(shipped)* | MIT | drop-in, espeak-IPA | 0.013 weighted (our bake-off) | keep |
+| **es** | `Cnam-LMSSC/wav2vec2-spanish-phonemizer` | **MIT** | **drop-in, espeak-IPA** | 2.94% PER (MLS-es) | **WIRE NOW** (2-line) + bench |
+| **it** | `Cnam-LMSSC/wav2vec2-italian-phonemizer` | **MIT** | **drop-in, espeak-IPA** | 4.34% PER (MLS-it) | **WIRE NOW** (2-line) + bench |
+| **pt-br** | `caiocrocha/wav2vec2-large-xlsr-53-phoneme-portuguese` | Apache-2.0 | drop-in, own 42-sym IPA (symbol-map check) | ~0.16 PER (CORAA, 10h thesis) | bench first, then wire |
+| **de** | `HK0712/Wav2Vec2_German_IPA` | **UNDECLARED (blocker)** | drop-in, espeak-IPA; weak `wav2vec2-base` backbone | none published | licence-clear + bench; else `kgnlp/allophant` (Apache, custom pkg) |
+| **nl / nl-be** | `Clementapa/wav2vec2-base-960h-phoneme-reco-dutch` | **UNDECLARED (blocker)** | drop-in, espeak-IPA; weak `base` backbone | 20.8% PER (CV-nl) | licence-clear + bench; academic HuBERT (Radboud, JASMIN, 23.1% PER) unreleased — email authors |
+| **ru** | `pklumpp/Wav2Vec2_CommonPhone` | **CC0** | weights load, but **no processor/vocab on HF** (build = miolingo-dky); 101-sym → symbol map | 6.6% PER (its *best* lang) | dky reconstruct + bench |
+| **pt-pt** | **none exists** | — | — | — | no EP phone specialist anywhere (INESC-ID CAMÕES is text-ASR); fallback or fine-tune |
+| **en** | `pklumpp` (11% PER) or `bookbot/wav2vec2-ljspeech-gruut` (0.99% LJSpeech, gruut) | CC0 / Apache | symbol map | — | optional, low priority |
+
+## Bench results — Common Phone + FLEURS (2026-07-07)
+
+The sweep's recommendations were then **benched on real audio** (150 utt/lang,
+`cp_eval.py` weighted_phone metric vs espeak-G2P reference; lower = better). **The
+paper PERs mispredicted Spanish** — always bench:
+
+| Lang | corpus | fb (lv-60) | **fb-xlsr** | specialist | winner |
+|------|--------|-----------:|------------:|-----------:|--------|
+| **es** | CP-es | 0.0603 | **0.0364** | cnam-es **0.0708** | **fallback** — specialist *loses* |
+| **it** | CP-it | 0.0849 | 0.0645 | **cnam-it 0.0461** | **cnam-it specialist** |
+| **de** | CP-de | 0.1141 | **0.0426** | hk-de **1.0** (empty output) | **fallback** — hk-de unusable |
+| **pt-br** | FLEURS | 0.1542 | **0.1143** | caiocrocha 0.1156 | **fallback** — specialist ties, no gain |
+| **nl** | FLEURS | 0.1447 | 0.1116 | **clementapa 0.086** | **clementapa specialist** |
+| fr *(prior)* | CP-fr | 0.0719 | — | **cnam 0.0126** | cnam specialist |
+
+**`fb-xlsr` beat the old `lv-60` fb on all 5 benched languages** (es/it/de/pt-br/nl;
+de biggest at 0.043 vs 0.114). The xlsr-53 fallback is the real workhorse — strong
+enough that specialists only clear it for **fr** (0.013), **it** (0.046) and **nl**
+(0.086). `hk-de` emits empty strings (placeholder student model → unusable);
+`caiocrocha` pt-BR ties the fallback (a symbol map for its 42-sym inventory might
+tip it, but no gain as-is). Net wiring: **fr/it/nl specialists + xlsr-53 fallback
+for everything else**, `lv-60` retained as a selectable backstop.
+
+### Final wiring (branch `claude/a2p-es-it-specialists`, `_VOICE_TO_MODEL`)
+
+| voice | model | why |
+|-------|-------|-----|
+| fr (+fr-*) | Cnam french-phonemizer | specialist 0.013 |
+| it | Cnam italian-phonemizer | specialist 0.046 |
+| nl (+nl-be) | Clementapa dutch | specialist 0.086 (licence: clear before ship) |
+| es/de/pt/pt-br/ru/en/… | **facebook/wav2vec2-xlsr-53-espeak-cv-ft** | fallback beat every specialist tested for these + beat lv-60 everywhere |
+| *(backstop)* | facebook/wav2vec2-lv-60-espeak-cv-ft | previous default, kept selectable (miolingo-3ym) |
+
+Not yet benched: **ru** (pklumpp CC0, best-lang 6.6% PER — needs dky processor build),
+**pt-pt** (no specialist exists), **en**. ZIPA (all-lang frontier) still needs the
+ONNX runtime path.
+
+**Two decisive outcomes:**
+1. **`fb-xlsr` (xlsr-53-espeak) beats the old `lv-60` fb on both es and it** (and same
+   loader/convention) → adopted as the new `_MULTILINGUAL_MODEL` default; `lv-60`
+   retained as a selectable backstop.
+2. **`cnam-es` truncates full sentences** (drops function words + trailing segments —
+   e.g. `es mjembɾo ðel konsexo θjuðaðano estatal ðe poðemos` → `mjembɾo ðe konsexo
+   θjuðaðao esals`) and loses to *both* fallbacks. Spanish therefore gets **no
+   specialist** — it rides the improved fallback. The Cnam family is excellent for
+   fr/it but **not uniformly** — the "same authors ∴ same quality" assumption failed.
+
+Caveat: es/it/de have **no fold-map** entry yet, so their weighted scores use panphon
+feature distance *without* allophony tolerance — relative ranking is sound, absolute
+numbers would tighten with a mined fold-map (extend `espeak_mine.py`, cf. miolingo-als).
+
+## Two universal levers (orthogonal to the per-language specialists)
+
+1. **`facebook/wav2vec2-xlsr-53-espeak-cv-ft`** (Apache-2.0) — the XLSR-53,
+   60-language sibling of our current LV-60 `fb`. **Same loader, same
+   espeak-convention IPA → literally zero integration.** XLSR-53 transfers better
+   cross-lingually than the English-centric LV-60, so a one-line swap of the
+   `_MULTILINGUAL_MODEL` fallback likely lifts **every** non-specialist language at
+   once (de, pt, pt-br, nl, ru). Needs only an A/B confirmation. **Cheapest
+   broad-coverage win available.**
+2. **ZIPA** (`anyspeech/zipa-*`) — the accuracy frontier: PFER 2.70 on seen langs,
+   dominates `fb` across all 9, PHOIBLE IPA. **But** HF weight cards are
+   licence-blank (code is MIT — archive the repo LICENSE as provenance) and it is
+   Zipformer/k2 or **ONNX**, not `AutoModelForCTC`. Roadmap item: adopt only with an
+   ONNX inference path. Best single-model universal replacement long-term.
+
+## Integration taxonomy (how much work each tier is)
+
+- **Zero integration (espeak-IPA, already consumed):** the `fb` family
+  (`lv-60`, `xlsr-53`) and the **Cnam es/it/fr** specialists.
+- **Drop-in but needs an IPA symbol-map:** `pklumpp` (101-sym), `caiocrocha`
+  pt-br (42-sym), `bookbot`-gruut, `neurlang` ipa-whisper (seq2seq, not CTC).
+- **Non-HF runtime required:** ZIPA (k2/ONNX), Allosaurus (GPL — blocked),
+  XEUS/POWSM/PhoneticXEUS (ESPnet; licences undeclared / NC).
+
+## Licence blockers (shipped commercial desktop app)
+
+- **Clean:** Cnam es/it/fr (MIT), caiocrocha pt-br (Apache), pklumpp (CC0),
+  both `fb` espeak variants (Apache), `kgnlp/allophant` (Apache), `bookbot` (Apache).
+- **Undeclared → clear before shipping:** `HK0712` German, `Clementapa` Dutch,
+  `snu-nia-12/*`, ZIPA HF weight cards, PhoneticXEUS, POWSM.
+- **Hard blockers:** Meta MMS + SeamlessM4T + XEUS (CC-BY-NC), Allosaurus (GPL-3.0).
+  MMS also emits orthographic text, not phones — doubly unusable.
+
+## Recommended action ladder (fastest → slowest to "A2P for many languages")
+
+1. **Now, ~free:** wire **es + it** Cnam specialists into `_VOICE_TO_MODEL`
+   (`src/audio/phone_recognizer.py`). Clean-specialist coverage {fr} → {fr, es, it}.
+2. **Now, ~free:** A/B **`xlsr-53-espeak`** vs the current `lv-60` fallback on
+   pt/nl; if it wins, swap `_MULTILINGUAL_MODEL` — lifts all remaining langs at once.
+3. **Bench-then-ship:** pt-br (`caiocrocha`, Apache) — verify the thesis PER on real
+   audio, add symbol-map if needed.
+4. **Licence-clear + bench:** de (`HK0712`) and nl (`Clementapa`) — open HF licence
+   discussions in parallel; keep `allophant` (Apache) as the de fallback.
+5. **Symbol-map tier:** finish **miolingo-dky** (pklumpp processor/vocab) → unlocks
+   the CC0 best-in-class for ru (and a strong de/es/it/en comparator).
+6. **Roadmap:** ZIPA via ONNX — single universal model, needs runtime work.
+7. **Genuine gap:** pt-pt has **no** off-the-shelf specialist — fallback for now;
+   a purpose-built EP fine-tune is the only path to a real pt-PT model.
+
+## Eval corpora recap (for benching the above)
+
+Common Phone = `{de,en,es,fr,it,ru}` gives hand/force-aligned gold for **es, it, de,
+ru** head-to-heads *today* (run `research/phonetics/phone_poc/cp_eval.py --lang <l>`).
+**pt-br:** CORAA / UFPAlign. **nl/nl-be:** JASMIN-CGN (incl. Flemish + L2). No gold
+exists for **pt-pt**.
+
+---
+
 ### Sources (primary)
 - ZIPA: aclanthology.org/2025.acl-long.961 · arXiv 2505.23170 · github.com/lingjzhu/zipa
 - pklumpp/Wav2Vec2_CommonPhone (HF) · Dieck 2022 Interspeech (Common Phone) · arXiv 2201.05912
@@ -168,3 +309,11 @@ Phone French set with the **weighted_phone** metric; separately stand up a pt-BR
 - Allosaurus: github.com/xinjli/allosaurus · arXiv 2002.11800
 - BranchShine: arXiv 2606.22824
 - Corpora: UFPAlign (s13634-022-00844-9) · CORAA NURC-SP · JASMIN-CGN · JRMeyer CV forced alignments · WebMAUS (IFADV/MLS)
+
+### Sources (2026-07-07 specialist sweep)
+- Cnam-LMSSC phonemizers: huggingface.co/Cnam-LMSSC/wav2vec2-{spanish,italian,french}-phonemizer (MIT)
+- pt-br: huggingface.co/caiocrocha/wav2vec2-large-xlsr-53-phoneme-portuguese (Apache-2.0, CORAA)
+- de: huggingface.co/HK0712/Wav2Vec2_German_IPA (licence undeclared)
+- nl: huggingface.co/Clementapa/wav2vec2-base-960h-phoneme-reco-dutch (licence undeclared) · Radboud CLST child-speech: arXiv 2406.07060 / 2506.11079 (unreleased)
+- universal: huggingface.co/facebook/wav2vec2-xlsr-53-espeak-cv-ft (Apache-2.0) · huggingface.co/kgnlp/allophant (Apache, custom pkg) · POWSM arXiv 2510.24992 · ZIPA anyspeech/zipa-* (HF cards licence-blank; code MIT)
+- pt-pt (no phone specialist): INESC-ID CAMÕES text-ASR, arXiv 2508.19721
