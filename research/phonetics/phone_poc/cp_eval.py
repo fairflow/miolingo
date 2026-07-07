@@ -50,7 +50,21 @@ from scoring.phone_distance import score     # noqa: E402  weighted_phone metric
 # Recognizer registry: label -> HuggingFace CTC model id.
 MODELS = {
     "fb": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+    # xlsr-53 sibling of fb: same espeak-IPA output + loader, better cross-lingual
+    # transfer than the English-centric lv-60. A/B candidate for the fallback.
+    "fb-xlsr": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+    # Cnam-LMSSC phonemizer family (French shipped; Spanish/Italian added 2026-07-07).
     "cnam": "Cnam-LMSSC/wav2vec2-french-phonemizer",
+    "cnam-es": "Cnam-LMSSC/wav2vec2-spanish-phonemizer",
+    "cnam-it": "Cnam-LMSSC/wav2vec2-italian-phonemizer",
+    # German + Dutch specialists (licence undeclared -> test-only until ship, per
+    # the 2026-07-07 reframe). Both are espeak-IPA drop-ins on weak base backbones.
+    "hk-de": "HK0712/Wav2Vec2_German_IPA",
+    "clementapa-nl": "Clementapa/wav2vec2-base-960h-phoneme-reco-dutch",
+    # Brazilian Portuguese specialist (XLSR-53, Apache-2.0, CORAA-trained). Its own
+    # 42-symbol IPA inventory (not espeak convention) -- scoring still runs on
+    # panphon feature distance, but a symbol map may sharpen it.
+    "caiocrocha-pt": "caiocrocha/wav2vec2-large-xlsr-53-phoneme-portuguese",
     # pklumpp ships WEIGHTS ONLY (no processor/tokenizer/vocab in the HF repo), so
     # AutoProcessor.from_pretrained fails. Decoding its CTC output needs the
     # author's exact 101-IPA-symbol vocab + a hand-built Wav2Vec2Processor -- see

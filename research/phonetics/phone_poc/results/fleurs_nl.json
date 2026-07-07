@@ -1,0 +1,32 @@
+{
+  "corpus": "fleurs",
+  "lang": "nl",
+  "split": "test",
+  "n_requested": 150,
+  "n_items": 150,
+  "reference": "espeak-G2P('nl') of transcript (weighted_phone metric)",
+  "metric": "mean 1 - phone_distance.similarity",
+  "results": {
+    "fb": {
+      "model_id": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.1447,
+      "load_and_run_s": 62.6
+    },
+    "fb-xlsr": {
+      "model_id": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.1116,
+      "load_and_run_s": 62.1
+    },
+    "clementapa-nl": {
+      "model_id": "Clementapa/wav2vec2-base-960h-phoneme-reco-dutch",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.086,
+      "load_and_run_s": 58.9
+    }
+  }
+}
