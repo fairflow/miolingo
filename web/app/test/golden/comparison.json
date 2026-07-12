@@ -1,0 +1,314 @@
+{
+ "generator": "web/oracle/scripts/gen_golden.py",
+ "cases": [
+  {
+   "user": "kitten",
+   "correct": "sitting",
+   "levenshtein": 3,
+   "exact": false,
+   "similarity": 0.5714285714285714,
+   "distance": 3,
+   "ops": [
+    {
+     "op": "substitute",
+     "target": "s",
+     "user": "k"
+    },
+    {
+     "op": "match",
+     "target": "i",
+     "user": "i"
+    },
+    {
+     "op": "match",
+     "target": "t",
+     "user": "t"
+    },
+    {
+     "op": "match",
+     "target": "t",
+     "user": "t"
+    },
+    {
+     "op": "substitute",
+     "target": "i",
+     "user": "e"
+    },
+    {
+     "op": "match",
+     "target": "n",
+     "user": "n"
+    },
+    {
+     "op": "delete",
+     "target": "g",
+     "user": ""
+    }
+   ]
+  },
+  {
+   "user": "",
+   "correct": "",
+   "levenshtein": 0,
+   "exact": true,
+   "similarity": 0.0,
+   "distance": 0,
+   "ops": []
+  },
+  {
+   "user": "abc",
+   "correct": "",
+   "levenshtein": 3,
+   "exact": false,
+   "similarity": 0.0,
+   "distance": 3,
+   "ops": [
+    {
+     "op": "insert",
+     "target": "",
+     "user": "a"
+    },
+    {
+     "op": "insert",
+     "target": "",
+     "user": "b"
+    },
+    {
+     "op": "insert",
+     "target": "",
+     "user": "c"
+    }
+   ]
+  },
+  {
+   "user": "",
+   "correct": "abc",
+   "levenshtein": 3,
+   "exact": false,
+   "similarity": 0.0,
+   "distance": 3,
+   "ops": [
+    {
+     "op": "delete",
+     "target": "a",
+     "user": ""
+    },
+    {
+     "op": "delete",
+     "target": "b",
+     "user": ""
+    },
+    {
+     "op": "delete",
+     "target": "c",
+     "user": ""
+    }
+   ]
+  },
+  {
+   "user": "ʃa",
+   "correct": "ʃa",
+   "levenshtein": 0,
+   "exact": true,
+   "similarity": 1.0,
+   "distance": 0,
+   "ops": [
+    {
+     "op": "match",
+     "target": "ʃ",
+     "user": "ʃ"
+    },
+    {
+     "op": "match",
+     "target": "a",
+     "user": "a"
+    }
+   ]
+  },
+  {
+   "user": "ʃjɛ̃",
+   "correct": "ʃjɛ",
+   "levenshtein": 1,
+   "exact": false,
+   "similarity": 0.75,
+   "distance": 1,
+   "ops": [
+    {
+     "op": "match",
+     "target": "ʃ",
+     "user": "ʃ"
+    },
+    {
+     "op": "match",
+     "target": "j",
+     "user": "j"
+    },
+    {
+     "op": "match",
+     "target": "ɛ",
+     "user": "ɛ"
+    },
+    {
+     "op": "insert",
+     "target": "",
+     "user": "̃"
+    }
+   ]
+  },
+  {
+   "user": "bɔ̃ʒuʁ",
+   "correct": "bɔ̃ʒyʁ",
+   "levenshtein": 1,
+   "exact": false,
+   "similarity": 0.8333333333333334,
+   "distance": 1,
+   "ops": [
+    {
+     "op": "match",
+     "target": "b",
+     "user": "b"
+    },
+    {
+     "op": "match",
+     "target": "ɔ",
+     "user": "ɔ"
+    },
+    {
+     "op": "match",
+     "target": "̃",
+     "user": "̃"
+    },
+    {
+     "op": "match",
+     "target": "ʒ",
+     "user": "ʒ"
+    },
+    {
+     "op": "substitute",
+     "target": "y",
+     "user": "u"
+    },
+    {
+     "op": "match",
+     "target": "ʁ",
+     "user": "ʁ"
+    }
+   ]
+  },
+  {
+   "user": "kom",
+   "correct": "kɔm",
+   "levenshtein": 1,
+   "exact": false,
+   "similarity": 0.6666666666666667,
+   "distance": 1,
+   "ops": [
+    {
+     "op": "match",
+     "target": "k",
+     "user": "k"
+    },
+    {
+     "op": "substitute",
+     "target": "ɔ",
+     "user": "o"
+    },
+    {
+     "op": "match",
+     "target": "m",
+     "user": "m"
+    }
+   ]
+  },
+  {
+   "user": "obɾiɡadʊ",
+   "correct": "obɾiɡˈadu",
+   "levenshtein": 2,
+   "exact": false,
+   "similarity": 0.7777777777777778,
+   "distance": 2,
+   "ops": [
+    {
+     "op": "match",
+     "target": "o",
+     "user": "o"
+    },
+    {
+     "op": "match",
+     "target": "b",
+     "user": "b"
+    },
+    {
+     "op": "match",
+     "target": "ɾ",
+     "user": "ɾ"
+    },
+    {
+     "op": "match",
+     "target": "i",
+     "user": "i"
+    },
+    {
+     "op": "match",
+     "target": "ɡ",
+     "user": "ɡ"
+    },
+    {
+     "op": "delete",
+     "target": "ˈ",
+     "user": ""
+    },
+    {
+     "op": "match",
+     "target": "a",
+     "user": "a"
+    },
+    {
+     "op": "match",
+     "target": "d",
+     "user": "d"
+    },
+    {
+     "op": "substitute",
+     "target": "u",
+     "user": "ʊ"
+    }
+   ]
+  },
+  {
+   "user": "a b c",
+   "correct": "abc",
+   "levenshtein": 2,
+   "exact": false,
+   "similarity": 0.6,
+   "distance": 2,
+   "ops": [
+    {
+     "op": "match",
+     "target": "a",
+     "user": "a"
+    },
+    {
+     "op": "insert",
+     "target": "",
+     "user": " "
+    },
+    {
+     "op": "match",
+     "target": "b",
+     "user": "b"
+    },
+    {
+     "op": "insert",
+     "target": "",
+     "user": " "
+    },
+    {
+     "op": "match",
+     "target": "c",
+     "user": "c"
+    }
+   ]
+  }
+ ]
+}

@@ -12,13 +12,14 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "src"))
 
-from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
@@ -48,15 +49,64 @@ def _espeak_path() -> str | None:
 
 @app.get("/api/health", response_model=schemas.Health)
 def health() -> schemas.Health:
+    import engines
     from audio.phone_recognizer import _VOICE_TO_MODEL
 
+    model, loaded = engines.whisper_status()
     return schemas.Health(
         ok=True,
         espeak=_espeak_path(),
-        whisper=schemas.WhisperStatus(),  # loads on first /api/attempt (M3)
+        whisper=schemas.WhisperStatus(model=model, loaded=loaded),
         a2p_langs=sorted(_VOICE_TO_MODEL),
         translate_available=False,  # wired in M8
     )
+
+
+@app.post("/api/attempt", response_model=schemas.AttemptResponse)
+async def attempt(
+    audio: UploadFile = File(...),
+    target: str = Form(...),
+    lang: str = Form(...),
+    algorithm: str = Form("weighted_phone"),
+    whisper_model: str = Form("base"),
+    silence_threshold: float = Form(0.01),
+) -> schemas.AttemptResponse:
+    """THE one round-trip: audio + target in → ASR text, both IPA channels,
+    both scores, per-phone ops out (src/scoring/practice.py, streamlit-free)."""
+    import pipeline
+
+    if algorithm not in ("weighted_phone", "edit_distance"):
+        raise HTTPException(422, f"unknown algorithm {algorithm!r}")
+    audio_bytes = await audio.read()
+    if not audio_bytes:
+        raise HTTPException(422, "empty audio upload")
+    try:
+        return pipeline.score_attempt(
+            audio_bytes,
+            target=target,
+            voice=lang,
+            algorithm=algorithm,
+            whisper_model=whisper_model,
+            silence_threshold=silence_threshold,
+        )
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(422, f"audio decode failed (ffmpeg): {e}") from e
+
+
+@app.post("/api/tts")
+def tts(req: schemas.TtsRequest) -> Response:
+    """Target-pronunciation audio; X-Tts-Engine reports the engine used
+    (fallback chain google_cloud → gtts → espeak, per src/audio/tts.py)."""
+    import engines
+
+    try:
+        audio_bytes, media_type, engine = engines.generate_tts(
+            req.text, req.lang, engine=req.engine, speed=req.speed, slow=req.slow
+        )
+    except RuntimeError as e:
+        raise HTTPException(503, str(e)) from e
+    return Response(content=audio_bytes, media_type=media_type,
+                    headers={"X-Tts-Engine": engine})
 
 
 @app.post("/api/g2p", response_model=schemas.G2pResponse)
