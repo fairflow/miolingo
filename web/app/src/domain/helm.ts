@@ -82,6 +82,15 @@ export function trainingNameOf(code: string): string {
   return TRAINING_NAMES[code] ?? code;
 }
 
+/** Inverse of trainingNameOf: language NAME → material code ("English"→"en").
+ * Unknown names pass through lowercased (best effort for material lookup). */
+export function codeOfName(name: string): string {
+  for (const [code, n] of Object.entries(TRAINING_NAMES)) {
+    if (n.toLowerCase() === name.toLowerCase()) return code;
+  }
+  return name.toLowerCase();
+}
+
 export interface HelmView {
   readonly source: string;
   readonly target: string;

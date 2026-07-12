@@ -72,6 +72,16 @@ export function captureWord(s: PS): string | null {
   return s.res !== null ? targetOf(s.phrases, s.pos).text : null;
 }
 
+/** The current target's text ('' when the queue is empty). */
+export function targetText(s: PS): string {
+  return targetOf(s.phrases, s.pos).text;
+}
+
+/** The current item, or null on an empty queue. */
+export function currentItem(s: PS): Phrase | null {
+  return s.phrases.length === 0 ? null : targetOf(s.phrases, s.pos);
+}
+
 export function isEmpty(s: PS): boolean {
   return s.phrases.length === 0;
 }
