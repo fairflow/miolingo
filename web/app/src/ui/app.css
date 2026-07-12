@@ -1,0 +1,81 @@
+/* Theme = CSS custom properties on :root (astro convention). Dark is the
+   default; light overrides via .light on <html>. Components use only vars. */
+
+:root {
+  --bg: #14161a;
+  --bg-card: #1e2128;
+  --fg: #e8e6e3;
+  --fg-muted: #9a978f;
+  --accent: #4fa3ff;
+  --ok: #4caf7d;
+  --warn: #e0a437;
+  --err: #e05c5c;
+  --border: #33363e;
+  --radius: 8px;
+  color-scheme: dark;
+}
+
+:root.light {
+  --bg: #faf9f7;
+  --bg-card: #ffffff;
+  --fg: #23252a;
+  --fg-muted: #6d6a63;
+  --accent: #1a6fd4;
+  --border: #ddd9d2;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+}
+
+main {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.muted {
+  color: var(--fg-muted);
+}
