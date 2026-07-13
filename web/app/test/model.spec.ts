@@ -12,7 +12,7 @@ vi.mock('../src/oracle/client.js', () => ({
   health: vi.fn(),
 }));
 
-import { attempt } from '../src/oracle/client.js';
+import { attempt, fetchMaterial, materialsIndex } from '../src/oracle/client.js';
 import { AppModel, channelToScore } from '../src/app/model.svelte.js';
 import { db } from '../src/store/db.js';
 import { phrase } from '../src/domain/types.js';
@@ -51,6 +51,7 @@ describe('AppModel wiring (stubbed oracle)', () => {
     await db.vocab.clear();
     await db.practiceLog.clear();
     await db.settings.clear();
+    vi.clearAllMocks();
     vi.mocked(attempt).mockResolvedValue(fakeResponse());
     model = new AppModel();
   });
@@ -150,6 +151,56 @@ describe('AppModel wiring (stubbed oracle)', () => {
     const ok = model.importBulk('(fr,en)\nsouris|mouse|[suʁi]');
     expect(ok).toEqual({ kind: 'ok', added: 1 });
     expect(model.entries.map((e) => e.word)).toContain('souris');
+  });
+
+  it('story: loads scenes, practises with origin=story, mode-switch preserves position', async () => {
+    vi.mocked(materialsIndex).mockResolvedValue({
+      files: [
+        { path: 'unified/stories/scene-01.json', kind: 'stories', meta: {} },
+        { path: 'unified/stories/scene-02.json', kind: 'stories', meta: {} },
+      ],
+    });
+    vi.mocked(fetchMaterial).mockImplementation((path: string) =>
+      Promise.resolve({
+        meta: { languages: ['fr', 'en'] },
+        phrases: [
+          { id: `${path}-1`, text: { fr: 'Bonjour', en: 'Hello' }, ipa: { fr: '[bɔ̃ʒuʁ]' } },
+          { id: `${path}-2`, text: { fr: 'Merci', en: 'Thanks' }, ipa: { fr: '[mɛʁsi]' } },
+        ],
+      }),
+    );
+    await model.loadStory();
+    expect(model.storyScenes).toHaveLength(2);
+
+    model.storyNext(); // pos 1
+    model.setStoryMode('practice'); // PRESERVES (scene, pos)
+    expect(model.storyReader.pos).toBe(1);
+    expect(model.storyReader.mode).toBe('practice');
+
+    vi.mocked(attempt).mockResolvedValue(fakeResponse({ target: 'Merci', target_ipa: 'mɛʁsi' }));
+    await model.storyRecordingMade(take());
+    expect(model.storyReader.res?.exactMatch).toBe(true);
+    expect(model.lastStoryAttempt).not.toBeNull();
+    expect(vi.mocked(attempt).mock.calls.at(-1)![0].target).toBe('Merci');
+
+    const log = await db.practiceLog.toArray();
+    expect(log.at(-1)!).toMatchObject({ origin: 'story', target: 'Merci' });
+
+    model.storyCapture(); // story_capture_vocab → the SAME VocabTable store
+    expect(model.entries.some((e) => e.word === 'merci')).toBe(true);
+    expect(model.storyReader.pos).toBe(1); // capture does not move the position
+
+    model.selectScene(1); // new scene → pos resets
+    expect(model.storyReader.pos).toBe(0);
+    expect(model.lastStoryAttempt).toBeNull(); // lifecycle slaved to story res
+  });
+
+  it('story recording is guarded outside practice mode', async () => {
+    model.storyScenes = [[phrase('Bonjour', 'Hello', 'bɔ̃ʒuʁ')]];
+    expect(model.storyReader.mode).toBe('browse');
+    await model.storyRecordingMade(take());
+    expect(model.storyReader.rec).toBeNull(); // guard: browse mode holds nothing
+    expect(vi.mocked(attempt)).not.toHaveBeenCalled();
   });
 
   it('channelToScore maps oracle ops onto the spec alignment shape', () => {
