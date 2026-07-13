@@ -30,6 +30,12 @@
               <td class="num">{e.timesSeen}</td>
               <td class="notes">{e.notes ?? ''}</td>
               <td class="actions">
+                {#if e.translation === null || e.ipa === null}
+                  <button
+                    title="autofill missing translation/IPA (never overwrites)"
+                    onclick={() => void model.autofillEntry(e.id)}>🪄</button
+                  >
+                {/if}
                 <button title="edit" onclick={() => model.beginEdit(e.id)}>✏️</button>
                 <button title="delete" onclick={() => model.removeEntry(e.id)}>🗑</button>
               </td>

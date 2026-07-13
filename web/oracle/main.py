@@ -58,7 +58,57 @@ def health() -> schemas.Health:
         espeak=_espeak_path(),
         whisper=schemas.WhisperStatus(model=model, loaded=loaded),
         a2p_langs=sorted(_VOICE_TO_MODEL),
-        translate_available=False,  # wired in M8
+        translate_available=engines.translate_available(),
+    )
+
+
+@app.post("/api/translate", response_model=schemas.TranslateResponse)
+def translate(req: schemas.TranslateRequest) -> schemas.TranslateResponse:
+    """Provider-chain translation (src/translation.py, stateless). 503 when no
+    provider key is configured — the UI hides translate features on that."""
+    import engines
+
+    if not engines.translate_available():
+        raise HTTPException(503, "no translation provider configured")
+    try:
+        return schemas.TranslateResponse(
+            translation=engines.translate(req.text, req.source_lang, req.target_lang)
+        )
+    except RuntimeError as e:
+        raise HTTPException(502, str(e)) from e
+
+
+@app.post("/api/minimal-pairs", response_model=schemas.MinimalPairsResponse)
+def minimal_pairs(req: schemas.MinimalPairsRequest) -> schemas.MinimalPairsResponse:
+    """Minimal-pair practice items from the caller's word list (usually the
+    learner's vocabulary): espeak phonemes per word, then the app's pair
+    finder + practice formatting (src/ipa/minimal_pairs.py, verbatim)."""
+    from ipa.minimal_pairs import generate_minimal_pair_practice_list
+    from scoring.phonemes import get_phonemes
+
+    if _espeak_path() is None:
+        raise HTTPException(503, "espeak binary not found")
+    vocab = [
+        {
+            "text": it.text,
+            "translation": it.translation or "",
+            "ipa": it.ipa or "",
+            "phonemes": get_phonemes(it.text, req.lang),
+        }
+        for it in req.items
+    ]
+    pairs = generate_minimal_pair_practice_list(
+        vocab, max_pairs=req.max_pairs, lang_code=req.lang.split("-")[0]
+    )
+    return schemas.MinimalPairsResponse(
+        phrases=[
+            schemas.PracticePhrase(
+                text=p.get("text", ""),
+                translation=p.get("translation", ""),
+                ipa=(p.get("ipa") or "").strip("[]"),
+            )
+            for p in pairs
+        ]
     )
 
 

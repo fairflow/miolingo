@@ -16,6 +16,11 @@
 
 ## Storage
 
+- **Dexie `add()`/`bulkAdd()` MUTATE the object you pass** — the assigned
+  auto-increment id is written back into it. Importing data and then
+  comparing against the source object mysteriously fails. Clone before
+  insert (`{ ...row }`). (Found by the export→import identity test, M5.)
+
 - **IndexedDB is per-origin** — changing the dev port silently "loses" all
   data. Ports are pinned (8330/8331, strictPort). Export/import JSON is the
   recovery path; call `navigator.storage.persist()` once at startup (M4).

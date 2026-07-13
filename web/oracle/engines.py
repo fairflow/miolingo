@@ -82,18 +82,55 @@ def transcribe_whisper(audio_file: str, model_name: str, lang_code: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _google_api_key() -> str | None:
-    """Env first, then the repo's .streamlit/secrets.toml (the creds source)."""
-    key = os.environ.get("MIOLINGO_GOOGLE_TTS_KEY")
-    if key:
-        return key
-    try:
-        import tomllib
+_SECRETS: dict | None = None
 
-        secrets = tomllib.loads((REPO / ".streamlit" / "secrets.toml").read_text("utf-8"))
-        return secrets.get("google_cloud_tts_api_key")
-    except (OSError, ValueError):
-        return None
+
+def load_secrets() -> dict:
+    """The repo's .streamlit/secrets.toml as a plain dict (empty if absent).
+    The creds source for TTS and translation provider keys; cached."""
+    global _SECRETS
+    if _SECRETS is None:
+        try:
+            import tomllib
+
+            _SECRETS = tomllib.loads(
+                (REPO / ".streamlit" / "secrets.toml").read_text("utf-8")
+            )
+        except (OSError, ValueError):
+            _SECRETS = {}
+    return _SECRETS
+
+
+def _google_api_key() -> str | None:
+    """Env first, then secrets.toml."""
+    return os.environ.get("MIOLINGO_GOOGLE_TTS_KEY") or load_secrets().get(
+        "google_cloud_tts_api_key"
+    )
+
+
+def translate_available() -> bool:
+    """Whether the configured translation provider has a usable key."""
+    try:
+        from translation import get_translation_provider, validate_translation_api_key
+
+        secrets = load_secrets()
+        ok, _ = validate_translation_api_key(get_translation_provider(secrets), secrets)
+        return bool(ok)
+    except Exception:  # noqa: BLE001 - degrade to "not available"
+        return False
+
+
+def translate(text: str, source_lang: str, target_lang: str) -> str:
+    """Translate via src/translation.py's provider chain (language NAMES).
+    Stateless: no cache module. Raises RuntimeError on provider errors."""
+    from translation import get_translation_from_llm
+
+    result = get_translation_from_llm(
+        text, source_lang, target_lang, secrets=load_secrets(), db_module=None
+    )
+    if result.startswith("[error:"):
+        raise RuntimeError(result)
+    return result
 
 
 def tts_espeak(text: str, voice: str, speed: int = 140, pitch: int = 35) -> tuple[bytes, str]:

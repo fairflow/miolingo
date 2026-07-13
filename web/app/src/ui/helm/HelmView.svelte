@@ -7,6 +7,7 @@
   import { health } from '../../oracle/client.js';
   import type { OracleHealth } from '../../oracle/types.js';
   import type { TTSKind, WhisperModel } from '../../domain/types.js';
+  import { setTheme, theme } from '../../store/prefs.svelte.js';
 
   const view = $derived(helm.helmView(model.helm));
 
@@ -85,6 +86,17 @@
       </select>
     </label>
   {/if}
+
+  <label>
+    Theme
+    <select
+      value={theme.value}
+      onchange={(e) => setTheme(e.currentTarget.value as 'dark' | 'light')}
+    >
+      <option value="dark">dark</option>
+      <option value="light">light</option>
+    </select>
+  </label>
 
   {#if info !== null}
     <p class="muted small">

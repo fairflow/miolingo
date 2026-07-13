@@ -23,3 +23,29 @@ export function initTabSync(): void {
     ui.tab = parseTab(window.location.hash);
   });
 }
+
+// --- theme (dark default; .light class on <html> flips the CSS vars) -----
+export type Theme = 'dark' | 'light';
+
+export const theme = $state<{ value: Theme }>({ value: 'dark' });
+
+export function setTheme(t: Theme): void {
+  theme.value = t;
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.toggle('light', t === 'light');
+  }
+  try {
+    localStorage.setItem('miolingo.theme', t);
+  } catch {
+    /* private mode etc. — theme just won't persist */
+  }
+}
+
+export function initTheme(): void {
+  try {
+    const saved = localStorage.getItem('miolingo.theme');
+    setTheme(saved === 'light' ? 'light' : 'dark');
+  } catch {
+    /* defaults stand */
+  }
+}

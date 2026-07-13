@@ -23,7 +23,15 @@ import type {
   Score,
   VocabEntry,
 } from '../domain/types.js';
-import { attempt, fetchMaterial, materialsIndex, tts } from '../oracle/client.js';
+import {
+  attempt,
+  fetchMaterial,
+  g2p,
+  materialsIndex,
+  minimalPairs,
+  translate,
+  tts,
+} from '../oracle/client.js';
 import type { AttemptChannel, AttemptResponse } from '../oracle/types.js';
 import { db, loadHelm, saveHelm, type VocabRow } from '../store/db.js';
 
@@ -393,6 +401,72 @@ export class AppModel {
         sourceName: 'story',
       });
     }
+  }
+
+  // --- M8 degradable extras (hidden when health.translate_available=false) --
+  /** Free-text mode: source-language lines → translated target phrases with
+   * G2P IPA, loaded as the practice queue. */
+  async freeTextPractise(sourceText: string): Promise<void> {
+    const lines = sourceText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l !== '');
+    if (lines.length === 0) return;
+    const sourceName = this.helm.source; // langRead
+    const targetName = helmFns.trainingNameOf(this.helm.target);
+    const translated = await Promise.all(
+      lines.map((line) => translate(line, sourceName, targetName)),
+    );
+    const ipa = await g2p(translated, this.helm.target);
+    this.loadMaterial(
+      translated.map((text, i) => ({
+        text,
+        translation: lines[i] ?? '',
+        ipa: ipa.items[i]?.ipa ?? '',
+      })),
+    );
+  }
+
+  /** Vocab autofill: borrow the language pair fresh, fetch translation (word
+   * is target-language → translate INTO the source) + espeak IPA, and apply
+   * the domain's only-empty/never-overwrite policy. */
+  async autofillEntry(id: number): Promise<void> {
+    const row = this.entries.find((e) => e.id === id);
+    if (row === undefined) return;
+    const needsTranslation = row.translation == null || row.translation === '';
+    const needsIpa = row.ipa == null || row.ipa === '';
+    if (!needsTranslation && !needsIpa) return;
+    const fill: vocabFns.EnrichFill = {
+      translation: needsTranslation
+        ? await translate(
+            row.displayWord,
+            helmFns.trainingNameOf(this.helm.target),
+            this.helm.source,
+          ).catch(() => null)
+        : null,
+      ipa: needsIpa
+        ? await g2p([row.displayWord], this.helm.target)
+            .then((r) => r.items[0]?.ipa ?? null)
+            .catch(() => null)
+        : null,
+    };
+    const fields = vocabFns.autofillFields(this.entries, id, fill);
+    if (Object.keys(fields).length > 0) {
+      this.#setEntries(vocabFns.updateEntry(this.entries, id, fields), null);
+    }
+  }
+
+  /** Minimal-pairs source: pairs generated from the learner's vocabulary. */
+  async minimalPairsPractise(): Promise<void> {
+    const res = await minimalPairs(
+      this.entries.map((e) => ({
+        text: e.displayWord,
+        translation: e.translation,
+        ipa: e.ipa,
+      })),
+      this.helm.target,
+    );
+    if (res.phrases.length > 0) this.loadMaterial(res.phrases);
   }
 
   // --- TTS (Speaker oracle) ----------------------------------------------
