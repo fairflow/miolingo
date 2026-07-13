@@ -36,6 +36,48 @@ class G2pResponse(BaseModel):
     items: list[G2pItem]
 
 
+class AttemptOp(BaseModel):
+    """One aligned phone/char operation, target-oriented (the diff the UI
+    renders verbatim — always from the same scorer that produced the numbers)."""
+
+    kind: str  # match | substitute | insert | delete
+    target: str  # '' for insert
+    user: str  # '' for delete
+    significant: bool  # costly enough to flag as a real error
+
+
+class AttemptChannel(BaseModel):
+    ipa: str
+    similarity: float | None  # None when the channel produced nothing
+    exact: bool
+    distance: float | None
+    ops: list[AttemptOp]
+
+
+class AttemptTimings(BaseModel):
+    asr: int
+    a2p: int
+    total: int
+
+
+class AttemptResponse(BaseModel):
+    target: str
+    recognized_text: str
+    target_ipa: str
+    algorithm: str
+    comprehensibility: AttemptChannel
+    accuracy: AttemptChannel
+    timings_ms: AttemptTimings
+
+
+class TtsRequest(BaseModel):
+    text: str
+    lang: str  # espeak voice code, e.g. "fr", "pt-br"
+    engine: str | None = None  # google_cloud | gtts | espeak; None = chain
+    speed: int = 140  # espeak wpm
+    slow: bool = False  # gtts/google slow mode
+
+
 class MaterialsFile(BaseModel):
     path: str  # under /materials/, e.g. "unified/phrases/common-phrases-001.json"
     kind: str  # phrases | phrasebook | stories
