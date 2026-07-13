@@ -129,6 +129,29 @@ describe('AppModel wiring (stubbed oracle)', () => {
     expect(model.ps.phrases).toEqual([phrase('chat', 'cat', 'ʃa')]);
   });
 
+  it('vocab table ops write through to Dexie (ids re-assigned, identity [lang+word])', async () => {
+    model.captureVocab({ word: 'chat', translation: 'cat' });
+    model.captureVocab('chien');
+    await vi.waitFor(async () => expect(await db.vocab.count()).toBe(2));
+
+    model.removeEntry(model.entries.find((e) => e.word === 'chat')!.id);
+    await vi.waitFor(async () => expect(await db.vocab.count()).toBe(1));
+    expect((await db.vocab.toArray())[0]!.word).toBe('chien');
+
+    model.amendEntry(model.entries[0]!.id, { translation: 'dog' });
+    await vi.waitFor(async () =>
+      expect((await db.vocab.toArray())[0]!.translation).toBe('dog'),
+    );
+  });
+
+  it('importBulk guards on the borrowed target language', () => {
+    const bad = model.importBulk('(en,fr)\nx|y');
+    expect(bad.kind).toBe('targetMismatch'); // helm.target is fr
+    const ok = model.importBulk('(fr,en)\nsouris|mouse|[suʁi]');
+    expect(ok).toEqual({ kind: 'ok', added: 1 });
+    expect(model.entries.map((e) => e.word)).toContain('souris');
+  });
+
   it('channelToScore maps oracle ops onto the spec alignment shape', () => {
     const res = fakeResponse({
       comprehensibility: {
