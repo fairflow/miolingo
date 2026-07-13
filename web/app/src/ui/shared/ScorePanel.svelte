@@ -1,19 +1,19 @@
 <script lang="ts">
-  // Dual-channel results: comprehensibility (what a listener understood) vs
-  // accuracy (what the mouth produced) — the GAP is the diagnostic. All
-  // numbers/diffs verbatim from the oracle's last attempt; rendering is gated
-  // on the PS view's score presence (single gating source).
-  import { model } from '../../app/model.svelte.js';
-  import * as ps from '../../domain/practiceSession.js';
-  import IpaDiff from './IpaDiff.svelte';
+  // Dual-channel results — the GAP between comprehensibility and accuracy is
+  // the diagnostic. Prop-driven (Quick Practice and Story Practice share it);
+  // everything shown comes verbatim from the oracle response.
+  import type { AttemptResponse } from '../../oracle/types.js';
+  import IpaDiff from '../practice/IpaDiff.svelte';
 
-  const view = $derived(ps.psView(model.ps));
-  const res = $derived(model.lastAttempt);
+  const {
+    res,
+    error,
+  }: { res: AttemptResponse | null; error: string | null } = $props();
 
   const pct = (x: number | null): string => (x === null ? '—' : `${Math.round(x * 100)}%`);
 </script>
 
-{#if view.score !== null && res !== null}
+{#if res !== null}
   <div class="card score">
     <p class="heard muted">
       Heard: <em>{res.recognized_text || '(nothing)'}</em>
@@ -37,9 +37,9 @@
       {/if}
     </div>
   </div>
-{:else if model.error !== null}
+{:else if error !== null}
   <div class="card">
-    <p class="errline">⚠️ {model.error}</p>
+    <p class="errline">⚠️ {error}</p>
     <p class="muted">Is the oracle running? Re-record to try again.</p>
   </div>
 {/if}

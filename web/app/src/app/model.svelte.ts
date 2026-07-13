@@ -9,6 +9,7 @@
 // =====================================================================
 
 import * as ps from '../domain/practiceSession.js';
+import * as story from '../domain/storyReader.js';
 import * as helmFns from '../domain/helm.js';
 import * as vocabFns from '../domain/vocabFunctions.js';
 import * as vocabTab from '../domain/vocab.js';
@@ -22,7 +23,7 @@ import type {
   Score,
   VocabEntry,
 } from '../domain/types.js';
-import { attempt, fetchMaterial, tts } from '../oracle/client.js';
+import { attempt, fetchMaterial, materialsIndex, tts } from '../oracle/client.js';
 import type { AttemptChannel, AttemptResponse } from '../oracle/types.js';
 import { db, loadHelm, saveHelm, type VocabRow } from '../store/db.js';
 
@@ -70,6 +71,22 @@ export class AppModel {
   scoring = $state(false);
   error = $state<string | null>(null);
 
+  // --- StoryReader slice (ONE narrative position; modes are affordances) --
+  storyReader = $state<story.StoryReader>(story.initialStoryReader);
+  /** Scenes for the current language, from unified stories (one file each). */
+  storyScenes = $state<Phrase[][]>([]);
+  storyLoading = $state(false);
+  lastStoryAttempt = $state<AttemptResponse | null>(null);
+
+  /** The story-content boundary: a StoryLibrary over the fetched scenes. */
+  get storyLib(): story.StoryLibrary {
+    const scenes = this.storyScenes;
+    return {
+      sceneCount: scenes.length,
+      scene: (i: number) => scenes[i] ?? [],
+    };
+  }
+
   async hydrate(): Promise<void> {
     this.helm = await loadHelm(helmFns.defaultHelm);
     await this.reloadEntries();
@@ -96,6 +113,8 @@ export class AppModel {
     await saveHelm($state.snapshot(this.helm) as helmFns.Helm);
     if (langChanged) {
       this.#sync(ps.clearMaterial(this.ps)); // stale-language queue is meaningless
+      this.storyScenes = []; // story content is per language too
+      this.#syncStory(story.initialStoryReader);
       await this.reloadEntries();
     }
   }
@@ -267,6 +286,112 @@ export class AppModel {
       });
     } catch {
       /* logging must never break the practice loop */
+    }
+  }
+
+  // --- StoryReader channels ------------------------------------------------
+  async loadStory(): Promise<void> {
+    this.storyLoading = true;
+    try {
+      const idx = await materialsIndex();
+      const sceneFiles = idx.files
+        .filter((f) => f.kind === 'stories')
+        .sort((a, b) => (a.path < b.path ? -1 : 1));
+      const source = helmFns.codeOfName(this.helm.source); // langRead
+      const docs = await Promise.all(
+        sceneFiles.map((f) => fetchMaterial<UnifiedDoc>(f.path)),
+      );
+      this.storyScenes = docs
+        .map((d) => phrasesFor(d, this.helm.target, source))
+        .filter((scene) => scene.length > 0);
+      this.#syncStory(story.initialStoryReader); // fresh narrative position
+    } catch {
+      this.storyScenes = [];
+    } finally {
+      this.storyLoading = false;
+    }
+  }
+
+  #syncStory(next: story.StoryReader): void {
+    this.storyReader = next;
+    if (next.res === null) this.lastStoryAttempt = null;
+  }
+
+  setStoryMode(m: story.StoryReader['mode']): void {
+    this.#syncStory(story.setMode(this.storyReader, m)); // preserves (scene,pos)
+  }
+
+  selectScene(s: number): void {
+    this.#syncStory(story.selectScene(this.storyReader, s)); // resets pos
+  }
+
+  storySelectItem(i: number): void {
+    this.#syncStory(story.selectItem(this.storyReader, this.storyLib, i));
+  }
+
+  storyNext(): void {
+    this.#syncStory(story.next(this.storyReader, this.storyLib));
+  }
+
+  storyPrev(): void {
+    this.#syncStory(story.prev(this.storyReader));
+  }
+
+  storyClearRecording(): void {
+    this.#syncStory(story.clearRecording(this.storyReader));
+  }
+
+  /** Story practice: the SAME loop as PSActive, over the scene's phrases,
+   * logging origin 'story' and capturing to the same VocabTable store. */
+  async storyRecordingMade(audio: Blob): Promise<void> {
+    const lib = this.storyLib;
+    const held = story.recordingMade(this.storyReader, audio);
+    if (held === this.storyReader) return; // guarded (mode/dup)
+    this.#syncStory(held);
+    this.scoring = true;
+    this.error = null;
+    try {
+      const target = story.phrasesOf(held, lib)[held.pos];
+      const res = await attempt({
+        audio,
+        target: target?.text ?? '',
+        lang: this.helm.target, // langRead
+        algorithm: 'weighted_phone',
+        whisperModel: this.helm.asrModel,
+      });
+      this.lastStoryAttempt = res;
+      this.storyReader = story.attemptMade(
+        this.storyReader,
+        channelToScore(res, res.comprehensibility),
+      );
+      await this.#logAttempt(res, 'story');
+      if (res.comprehensibility.exact && isSingleWord(res.target)) {
+        this.captureVocab({
+          word: res.target,
+          translation: target?.translation ?? null,
+          ipa: res.target_ipa,
+          sourceName: 'story',
+        });
+      }
+    } catch (e: unknown) {
+      this.error = String(e);
+      this.#syncStory(story.clearRecording(this.storyReader));
+    } finally {
+      this.scoring = false;
+    }
+  }
+
+  /** story_capture_vocab — gated on a score by the domain. */
+  storyCapture(): void {
+    const w = story.captureWord(this.storyReader, this.storyLib);
+    if (w !== null) {
+      const item = story.phrasesOf(this.storyReader, this.storyLib)[this.storyReader.pos];
+      this.captureVocab({
+        word: w,
+        translation: item?.translation ?? null,
+        ipa: item?.ipa ?? null,
+        sourceName: 'story',
+      });
     }
   }
 

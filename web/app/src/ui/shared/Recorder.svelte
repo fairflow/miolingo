@@ -1,11 +1,20 @@
 <script lang="ts">
-  // MediaRecorder → one Blob per take, sent as-is (the oracle ffmpeg-
-  // normalizes any container — webm/opus on Chrome/Firefox, mp4 on Safari).
-  // Enablement comes ONLY from the ready-set props (spec invariant).
-  import { model } from '../../app/model.svelte.js';
-  import * as ps from '../../domain/practiceSession.js';
-
-  const ready = $derived(ps.psReady(model.ps));
+  // MediaRecorder → one Blob per take (webm/opus on Chrome/Firefox, mp4 on
+  // Safari; the oracle ffmpeg-normalizes). Prop-driven so Quick Practice and
+  // Story Practice share it; enablement comes ONLY from ready-set props.
+  const {
+    canRecord,
+    canClear,
+    busy,
+    onBlob,
+    onClear,
+  }: {
+    canRecord: boolean;
+    canClear: boolean;
+    busy: boolean;
+    onBlob: (blob: Blob) => void;
+    onClear: () => void;
+  } = $props();
 
   let recording = $state(false);
   let recorder: MediaRecorder | null = null;
@@ -32,7 +41,7 @@
         const blob = new Blob(chunks, { type: recorder?.mimeType ?? 'audio/webm' });
         if (replayUrl !== null) URL.revokeObjectURL(replayUrl);
         replayUrl = URL.createObjectURL(blob);
-        void model.recordingMade(blob); // recording_made → attempt_made
+        onBlob(blob); // recording_made → attempt_made (wired by the caller)
       };
       recorder.start();
       recording = true;
@@ -47,7 +56,7 @@
   }
 
   function clear(): void {
-    model.clearRecording(); // the clear-then-record re-record idiom
+    onClear(); // the clear-then-record re-record idiom
     if (replayUrl !== null) {
       URL.revokeObjectURL(replayUrl);
       replayUrl = null;
@@ -59,17 +68,13 @@
   {#if recording}
     <button class="rec live" onclick={stop}>⏹ Stop</button>
   {:else}
-    <button class="rec" onclick={start} disabled={!ready.canRecord || model.scoring}>
-      🎙️ Record
-    </button>
+    <button class="rec" onclick={start} disabled={!canRecord || busy}>🎙️ Record</button>
   {/if}
-  <button onclick={clear} disabled={!ready.canClearRecording || model.scoring}>
-    ↺ Re-record
-  </button>
-  {#if replayUrl !== null && ready.canClearRecording}
+  <button onclick={clear} disabled={!canClear || busy}>↺ Re-record</button>
+  {#if replayUrl !== null && canClear}
     <audio src={replayUrl} controls></audio>
   {/if}
-  {#if model.scoring}
+  {#if busy}
     <span class="muted">scoring…</span>
   {/if}
   {#if micError !== null}
