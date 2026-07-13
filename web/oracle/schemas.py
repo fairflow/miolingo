@@ -78,6 +78,38 @@ class TtsRequest(BaseModel):
     slow: bool = False  # gtts/google slow mode
 
 
+class TranslateRequest(BaseModel):
+    text: str
+    source_lang: str  # language NAME, e.g. "English" (the provider convention)
+    target_lang: str  # language NAME, e.g. "French"
+
+
+class TranslateResponse(BaseModel):
+    translation: str
+
+
+class MinimalPairItem(BaseModel):
+    text: str
+    translation: str | None = None
+    ipa: str | None = None
+
+
+class MinimalPairsRequest(BaseModel):
+    items: list[MinimalPairItem]
+    lang: str  # espeak voice code
+    max_pairs: int = 20
+
+
+class PracticePhrase(BaseModel):
+    text: str
+    translation: str = ""
+    ipa: str = ""
+
+
+class MinimalPairsResponse(BaseModel):
+    phrases: list[PracticePhrase]
+
+
 class MaterialsFile(BaseModel):
     path: str  # under /materials/, e.g. "unified/phrases/common-phrases-001.json"
     kind: str  # phrases | phrasebook | stories

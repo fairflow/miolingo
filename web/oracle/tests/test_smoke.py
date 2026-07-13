@@ -44,3 +44,22 @@ def test_materials_static_serves_indexed_file():
     r = client.get(f"/materials/{first}")
     assert r.status_code == 200
     assert "phrases" in r.json()
+
+
+def test_translate_degrades_when_unconfigured_or_works():
+    r = client.post("/api/translate", json={
+        "text": "hello", "source_lang": "English", "target_lang": "French"})
+    # Either a real provider is configured (200 + text) or it must 503 —
+    # never a silent wrong answer.
+    assert r.status_code in (200, 502, 503)
+    if r.status_code == 200:
+        assert r.json()["translation"].strip()
+
+
+def test_minimal_pairs_from_word_list():
+    words = [{"text": w} for w in ("casa", "cama", "cassa", "gato", "pato")]
+    r = client.post("/api/minimal-pairs", json={"items": words, "lang": "it"})
+    assert r.status_code == 200
+    phrases = r.json()["phrases"]
+    assert phrases, "expected at least one minimal pair from the fixture words"
+    assert all(p["text"] for p in phrases)

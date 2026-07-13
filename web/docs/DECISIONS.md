@@ -31,6 +31,20 @@ index endpoint. One source of truth; no build-time copy step to drift.
 `src/app_language_materials.py` imports streamlit, so the sidecar walks the
 unified layout itself (~20 lines) rather than importing it.
 
+## 2026-07-13 — Persisted vocab rows drop domain ids
+
+Identity is [lang+word]; Dexie auto-assigns row ids on write-through. The
+domain's per-language id sequences would collide on the global primary key.
+In-memory ids stay stable within a session; they are never exported.
+
+## 2026-07-13 — Translation reuses src/translation.py, degradable
+
+The provider chain (Google/OpenAI via secrets.toml or env) runs stateless
+(no cache table). /api/translate 503s without a key; the UI hides free-text
+and autofill on health.translate_available. Minimal pairs are computed
+server-side by the app's own src/ipa/minimal_pairs.py over the learner's
+vocabulary (espeak phonemes per word) rather than porting 300 lines to TS.
+
 ## 2026-07-12 — Displayed scores come from the oracle only
 
 Every number/diff shown about an attempt is taken verbatim from the
