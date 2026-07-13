@@ -11,8 +11,17 @@
 import * as ps from '../domain/practiceSession.js';
 import * as helmFns from '../domain/helm.js';
 import * as vocabFns from '../domain/vocabFunctions.js';
+import * as vocabTab from '../domain/vocab.js';
+import { exportCsv, importOutcome } from '../domain/vocabImportExport.js';
 import { phrasesFor, type UnifiedDoc } from '../domain/materials.js';
-import type { AlignOp, Capture, Phrase, Score, VocabEntry } from '../domain/types.js';
+import type {
+  AlignOp,
+  Capture,
+  ImportResult,
+  Phrase,
+  Score,
+  VocabEntry,
+} from '../domain/types.js';
 import { attempt, fetchMaterial, tts } from '../oracle/client.js';
 import type { AttemptChannel, AttemptResponse } from '../oracle/types.js';
 import { db, loadHelm, saveHelm, type VocabRow } from '../store/db.js';
@@ -52,6 +61,9 @@ export class AppModel {
   /** VocabTable's owned store for the CURRENT target language (vocabRead
    * reads this fresh; rows carry lang + wall-clock beyond the domain entry). */
   entries = $state<VocabRow[]>([]);
+  /** The Vocab TAB's UI params (sort/filter/editing) — the spec's Vocab
+   * agent; the collection itself lives in `entries` (VocabTable). */
+  vocab = $state<vocabTab.Vocab>(vocabTab.initialVocab);
   /** The full dual-channel result of the last scored attempt (display only;
    * lifecycle slaved to ps.res — see #sync). */
   lastAttempt = $state<AttemptResponse | null>(null);
@@ -157,27 +169,83 @@ export class AppModel {
     }
   }
 
-  /** capture_vocab · vocabUpsert — ATOMIC: one synchronous state write, then
-   * write-through persistence. The PS slice is untouched (no view flicker). */
-  captureVocab(w: Capture | string): void {
-    const before = this.entries;
-    const after = vocabFns.addEntry(before, w) as VocabEntry[];
+  /** Decorate domain entries with the row fields (lang, wall-clock), then
+   * write the current language's table through to Dexie. Persisted rows drop
+   * the in-memory domain ids (identity is [lang+word]; Dexie auto-assigns). */
+  #setEntries(after: readonly VocabEntry[], touchedKey: string | null): void {
     const now = nowIso();
-    const key = typeof w === 'string' ? w : w.word;
-    const norm = vocabFns.validateWord(key);
     this.entries = after.map((e) => {
       const row = e as VocabRow;
-      const touched = norm !== null && e.word === norm.key;
       return {
         ...row,
         lang: row.lang ?? this.helm.target,
         firstSeenAt: row.firstSeenAt ?? now,
-        lastSeenAt: touched ? now : (row.lastSeenAt ?? now),
+        lastSeenAt: touchedKey !== null && e.word === touchedKey ? now : (row.lastSeenAt ?? now),
       };
     });
-    void db.vocab.bulkPut($state.snapshot(this.entries) as VocabRow[]).catch(() => {
-      /* persistence is write-through best-effort; the in-memory table rules */
+    const rows = ($state.snapshot(this.entries) as VocabRow[]).map(
+      ({ id: _id, ...rest }) => rest,
+    );
+    void db
+      .transaction('rw', db.vocab, async () => {
+        await db.vocab.where('lang').equals(this.helm.target).delete();
+        await db.vocab.bulkAdd(rows as VocabRow[]);
+      })
+      .catch(() => {
+        /* persistence is write-through best-effort; the in-memory table rules */
+      });
+  }
+
+  /** capture_vocab · vocabUpsert — ATOMIC: one synchronous state write, then
+   * write-through persistence. The PS slice is untouched (no view flicker). */
+  captureVocab(w: Capture | string): void {
+    const key = typeof w === 'string' ? w : w.word;
+    const norm = vocabFns.validateWord(key);
+    this.#setEntries(vocabFns.addEntry(this.entries, w), norm?.key ?? null);
+  }
+
+  // --- Vocab tab (external channels + table write-throughs) --------------
+  setVocabSort(s: vocabTab.Vocab['sort']): void {
+    this.vocab = vocabTab.setSort(this.vocab, s);
+  }
+
+  setVocabFilter(q: string | null): void {
+    this.vocab = vocabTab.setFilter(this.vocab, q);
+  }
+
+  beginEdit(id: number): void {
+    this.vocab = vocabTab.beginEdit(this.vocab, id);
+  }
+
+  cancelEdit(): void {
+    this.vocab = vocabTab.cancelEdit(this.vocab);
+  }
+
+  removeEntry(id: number): void {
+    this.#setEntries(vocabFns.deleteFrom(this.entries, id), null);
+  }
+
+  amendEntry(id: number, fields: Readonly<Record<string, string>>): void {
+    this.#setEntries(vocabFns.updateEntry(this.entries, id, fields), null);
+    this.vocab = vocabTab.endEdit(this.vocab);
+  }
+
+  amendNotes(id: number, notes: string | null): void {
+    this.#setEntries(vocabFns.updateNotesIn(this.entries, id, notes), null);
+  }
+
+  /** import_bulk — header target-guarded against the borrowed language. */
+  importBulk(contents: string): ImportResult {
+    const { entries, result } = importOutcome(this.entries, {
+      contents,
+      expectedTarget: this.helm.target,
     });
+    if (result.kind === 'ok') this.#setEntries(entries, null);
+    return result;
+  }
+
+  exportCsvString(): string {
+    return exportCsv(this.entries);
   }
 
   async #logAttempt(res: AttemptResponse, origin: 'quick' | 'story' | 'vocab'): Promise<void> {
