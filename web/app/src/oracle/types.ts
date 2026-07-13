@@ -23,6 +23,42 @@ export interface G2pResponse {
   items: G2pItem[];
 }
 
+/** One aligned op from the oracle's scorer (target-oriented). */
+export interface AttemptOp {
+  kind: 'match' | 'substitute' | 'insert' | 'delete';
+  target: string;
+  user: string;
+  significant: boolean;
+}
+
+export interface AttemptChannel {
+  ipa: string;
+  /** null when the channel produced nothing (e.g. A2P unavailable). */
+  similarity: number | null;
+  exact: boolean;
+  distance: number | null;
+  ops: AttemptOp[];
+}
+
+export interface AttemptTimings {
+  asr: number;
+  a2p: number;
+  total: number;
+}
+
+/** POST /api/attempt — everything displayed about an attempt, verbatim. */
+export interface AttemptResponse {
+  target: string;
+  recognized_text: string;
+  target_ipa: string;
+  algorithm: string;
+  comprehensibility: AttemptChannel;
+  accuracy: AttemptChannel;
+  timings_ms: AttemptTimings;
+}
+
+export type Algorithm = 'weighted_phone' | 'edit_distance';
+
 /** One unified-materials file as listed by GET /api/materials. */
 export interface MaterialsFile {
   /** Path under /materials/, e.g. "unified/phrases/common-phrases-001.json". */
