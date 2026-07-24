@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Manim build output (the final mp4/gif live in media/ and are committed)
+media/videos/
+media/images/
+media/Tex/
+media/texts/
+
+.DS_Store
