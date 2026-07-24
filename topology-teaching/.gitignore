@@ -10,4 +10,7 @@ media/images/
 media/Tex/
 media/texts/
 
+# Lean build output
+lean/.lake/
+
 .DS_Store

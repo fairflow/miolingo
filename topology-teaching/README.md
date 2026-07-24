@@ -96,6 +96,24 @@ computed in part 2. Full quality: [`media/KleinGluing.mp4`](media/KleinGluing.mp
 manim -qm src/manim_klein.py KleinGluing
 ```
 
+## 5. The proof leg (Lean 4 + Mathlib)
+
+`lean/TopologyTeaching/Surfaces.lean` is the third reading — **proof**. It models
+the torus as `Circle × Circle` and machine-checks the point-set facts (compact,
+Hausdorff, continuous-image-of-compact, and the extreme-value theorem on `T²`),
+then leaves graded `sorry` exercises (connected, path-connected, closed map) and
+sketches the bridge to the algebra leg: `π₁(T²) ≅ ℤ²` abelianises to the
+`H₁ = ℤ²` computed in part 2, and the Klein bottle's `ℤ ⊕ ℤ/2` is the same
+torsion `surface_homology.py` prints.
+
+> ⚠️ Written against a recent Mathlib but **not compiled in CI** — verify names
+> against your version (`exact?`, [loogle](https://loogle.lean-lang.org)). Setup
+> in [`lean/README.md`](lean/README.md).
+
+```bash
+cd lean && lake update && lake exe cache get && lake build
+```
+
 ---
 
 ## Setup
@@ -112,8 +130,8 @@ the [Manim install guide](https://docs.manim.community/en/stable/installation.ht
 
 - more surfaces in `SURFACES` (connected sums, non-orientable words);
 - an octagon → genus-2 gluing animation (the surface from part 1);
-- pair each surface with a formal proof leg in **Lean 4 + Mathlib**
-  (`Mathlib/Topology/…`) — the natural "image → algebra → proof" progression.
+- finish the Lean exercises in `lean/` and build the Klein-bottle quotient +
+  its `π₁` — completing the "image → algebra → proof" progression.
 
 ## License
 

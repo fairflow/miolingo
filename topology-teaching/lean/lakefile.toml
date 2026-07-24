@@ -1,0 +1,12 @@
+name = "topologyTeaching"
+defaultTargets = ["TopologyTeaching"]
+
+# Mathlib from the Reservoir registry. `lake update` pins a revision; then
+# align ./lean-toolchain with Mathlib's (see README) so `lake exe cache get`
+# can fetch prebuilt oleans instead of compiling Mathlib from scratch.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+
+[[lean_lib]]
+name = "TopologyTeaching"
