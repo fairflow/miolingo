@@ -86,10 +86,12 @@ is `π₁(T²) ≅ ℤ × ℤ`, and `H₁` is its abelianisation (Hurewicz).  In
 * `π₁(S¹) ≅ ℤ` sits in the circle's homotopy theory — start there;
 * `π₁(X × Y) ≅ π₁(X) × π₁(Y)` then gives `π₁(T²) ≅ ℤ × ℤ`.
 
-A realistic target to build toward:
+A realistic target to build toward — **cracked in `Pi1Torus.lean`**, where the
+assembly `π₁(T²) ≅ ℤ × ℤ` is proved outright from two ingredients (`π₁` of a
+product, and `π₁(S¹) ≅ ℤ`):
 
-    example : FundamentalGroup Torus (1, 1) ≃* Multiplicative (ℤ × ℤ) := by
-      sorry
+    theorem fundamentalGroup_torus :
+        FundamentalGroup Torus (1, 1) ≃* Multiplicative ℤ × Multiplicative ℤ
 
 The **Klein bottle** has no off-the-shelf Mathlib type.  Model it as the
 quotient of `ℝ²` (or `[0,1]²`) by `(x, 0) ~ (x, 1)` and `(0, y) ~ (1, 1 - y)`,

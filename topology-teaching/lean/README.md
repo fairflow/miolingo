@@ -16,7 +16,7 @@ then leaves graded exercises and a sketched bridge to the homology that
 |------|---------|
 | **A — proved** | `T²` is compact and Hausdorff; continuous image of a compact space is compact; the extreme-value theorem on `T²`. |
 | **B — exercises** | `T²` is connected; path-connected; a continuous map out of `T²` into a Hausdorff space is closed. (Replace each `sorry`.) |
-| **C — project** | The bridge to the algebra leg: `π₁(T²) ≅ ℤ²` (abelianises to the computed `H₁ = ℤ²`); and the Klein bottle as a quotient, with `π₁ = ⟨a,b | abab⁻¹⟩` and torsion `ℤ ⊕ ℤ/2`. |
+| **C — bridge** | `Pi1Torus.lean`: `π₁(T²) ≅ ℤ²` (abelianises to the computed `H₁ = ℤ²`). The assembly is **proved outright** from two ingredients — `π₁` of a product (P) and `π₁(S¹) ≅ ℤ` (C) — which are left as annotated `sorry`s. Klein bottle as a quotient (`π₁ = ⟨a,b\|abab⁻¹⟩`, torsion `ℤ ⊕ ℤ/2`) is the next project. |
 
 ## Setup
 
