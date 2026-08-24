@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.9.13-claude-dev] - 2026-06-27
+
+### Added
+
+- Selectable weighted_phone scoring algorithm: phone-level IPA feature distance with the espeak-ng accent fold-map (edit_distance remains default).
+
+
 ## [7.9.12-claude-dev] - 2026-04-26
 
 ### Changed

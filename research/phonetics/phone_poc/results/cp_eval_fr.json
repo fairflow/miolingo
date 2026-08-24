@@ -1,0 +1,33 @@
+{
+  "corpus": "common_phone",
+  "lang": "fr",
+  "split": "test",
+  "n_requested": 150,
+  "n_items": 150,
+  "reference": "espeak-G2P of transcript (weighted_phone metric)",
+  "metric": "mean 1 - phone_distance.similarity",
+  "results": {
+    "fb": {
+      "model_id": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0719,
+      "load_and_run_s": 34.5
+    },
+    "cnam": {
+      "model_id": "Cnam-LMSSC/wav2vec2-french-phonemizer",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0126,
+      "load_and_run_s": 15.3
+    },
+    "pklumpp": {
+      "model_id": "pklumpp/Wav2Vec2_CommonPhone",
+      "n_scored": 0,
+      "n_failed": 150,
+      "mean_weighted_error": null,
+      "load_and_run_s": 464.4,
+      "error": "Unrecognized processing class in pklumpp/Wav2Vec2_CommonPhone. Can't instantiate a processor, a tokenizer, an image processor, a video processor or a feature extractor for this model. Make sure the repository contains the files of at least one of those processing classes."
+    }
+  }
+}
