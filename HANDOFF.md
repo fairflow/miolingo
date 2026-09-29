@@ -3,6 +3,9 @@
 > Source: Matthew's handover artifact (claude.ai), imported 2026-09-29. It supersedes both
 > earlier versions of this handover. The step-1 inventory is in
 > [`docs/dev-docs/REALISED_PHONE_INVENTORY.md`](docs/dev-docs/REALISED_PHONE_INVENTORY.md).
+> **Implementation status, test results and the approval checklist:**
+> [`docs/dev-docs/REALISED_PHONE_RESULTS.md`](docs/dev-docs/REALISED_PHONE_RESULTS.md);
+> data model: [`docs/dev-docs/REALISED_PHONE_SPEC.md`](docs/dev-docs/REALISED_PHONE_SPEC.md).
 
 ## Goal
 
