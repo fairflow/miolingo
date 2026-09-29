@@ -158,10 +158,18 @@ Check the mfa-models site for exact model names per language. Miolingo calls MFA
 
 ## Open questions (ask Matthew, don't assume)
 
-- Where the existing test harness and results live, and their format; which models already have
-  results worth reusing. *(Partly answered from the repo — see the inventory; confirm.)*
-- Which L1s to support first (presumably English), and which L2 first.
-- Whether Miolingo already holds native recordings per item.
+Answered 2026-09-29:
+
+- **First pair: L1 English → L2 Spanish.**
+- **Native recordings:** some exist, for tests — probably French. They are not in the repo:
+  the debug archive hook (`src/scoring/practice.py` ~L245, miolingo-0x9) writes takes to
+  `$MIO_AUDIO_DUMP_DIR` on the M4 with a `log.jsonl` sidecar whose `voice` field gives the
+  language. For native **Spanish** exemplars and golden clips, use Common Phone es
+  (`~/datasets/common_phone/CP`, CC0), which the bake-off already reads.
+- Existing harness/results: see the inventory.
+
+Still open:
+
 - Diagram/illustration source for articulatory content (licence).
 - External serving choice (port forwarding vs authenticated tunnel) and user limits.
 - Learner audio retention policy (default: discard after analysis).
