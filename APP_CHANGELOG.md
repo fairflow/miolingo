@@ -10,6 +10,15 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.10.0-claude-dev] - 2026-09-29
+
+### Added
+
+- Realised-phone identification, en->es /r/ slice (miolingo-6vo): MFA alignment, Parselmouth rhotic detector, constrained xlsr-53 evidence, agree/disagree verdicts, model registry with approval gate (nothing approved).
+- Debug-only 'Realised phones (experimental)' panel under Practice results: see/hear learner vs native, spectrogram/occlusion/F3 charts, draft coaching ladder.
+- Learner model (research priors, escalation, evidence-backed improvement feedback), golden/calibration/eval scripts, smoke results.
+
+
 ## [7.9.13-claude-dev] - 2026-06-27
 
 ### Added

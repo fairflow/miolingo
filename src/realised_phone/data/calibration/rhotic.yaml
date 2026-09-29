@@ -1,0 +1,35 @@
+# Rhotic detector thresholds (HANDOFF §1b source 3). NOT calibrated on real data yet.
+# Seeded from phonetics literature + synthetic tests; replace with the output of
+#   scripts/realised_phone/calibrate_rhotic.py --manifest <labelled clips>
+# and record provenance below. Detector refuses nothing on calibrated: false, but the
+# registry entry stays `candidate` until Matthew approves calibrated results.
+calibrated: false
+provenance:
+  method: "defaults; literature ranges (trill ~20-30 Hz occlusion rate, 2-3 contacts;
+           tap single contact ~20-30 ms; English approximant r: F3 strongly lowered)"
+  clips: "smoke only (not calibration): 8 LibriSpeech dummy utts (English [ɹ], MFA english_mfa);
+          8 MINDS-14 es-ES phone utts (native Spanish, MFA spanish_mfa)"
+  date: null
+
+envelope:
+  lowpass_hz: 60.0     # envelope smoothing: keeps 13-40 Hz contact rate, drops pitch ripple
+  hop_ms: 1.0
+  bandpass_hz: [300, 4000]   # voiced energy band; occlusions dip here
+
+occlusion:
+  min_depth_db: 5.0          # dip prominence vs surrounding maxima
+  max_width_ms: 40.0         # wider than this = stop closure / pause, not a contact
+  min_separation_ms: 18.0    # contacts closer than this are merged
+  edge_tolerance_ms: 15.0    # count dips this far outside the aligned segment (MFA boundary slop)
+
+trill:
+  min_contacts: 2
+  interval_ms: [25.0, 75.0]  # 13-40 Hz contact rate accepted
+
+formant:
+  max_formant_hz: 5500.0
+  f3_ratio_max: 0.78         # segment F3 (20th pct) / utterance median F3 -> "lowered"
+  ref_min_frames: 10
+  min_low_fraction: 0.5      # share of voiced segment frames that must be lowered (not one glitch)
+  min_hf_energy_db: -30.0    # energy >4.1 kHz vs total. Measured: LibriSpeech 16 kHz -9..-14 dB;
+                             # MINDS-14 phone audio -37..-48 dB. Below = narrowband, F3 unreliable

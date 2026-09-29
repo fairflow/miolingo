@@ -486,6 +486,10 @@ def render_practice_results(result, key_prefix="practice"):
         elif not text_matches and not score_is_high:
             st.warning("⚠️ Different words recognized - try speaking more clearly")
 
+    # Realised-phone analysis (miolingo-6vo): debug-only, es only, unapproved models.
+    from ui.realised_phone_panel import render as _render_realised_phones
+    _render_realised_phones(result, key_prefix)
+
     # Detailed phoneme analysis — full width below the two columns
     if st.checkbox("🔍 Show detailed phoneme analysis", key=f"{key_prefix}_show_detail"):
         st.markdown("---")

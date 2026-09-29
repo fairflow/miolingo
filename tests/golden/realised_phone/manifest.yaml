@@ -1,0 +1,67 @@
+# Golden clips for realised-phone verdicts (HANDOFF "Next step" 4, beads miolingo-6vo.4).
+#
+# Two levels:
+#   detector  -- one labelled token: align `text` with `aligner`, take the `occurrence`-th
+#                phone labelled `phone`, run the detector, expect `class` (or `abstain_ok`).
+#                Used for English [ɹ] tokens from English speech (a Spanish aligner has no ɹ).
+#   pipeline  -- full analyse(): expect verdicts per (word, target).
+# Paths may use ${ENV} vars. Clips live OUTSIDE the repo (Common Phone on the M4,
+# MIO_AUDIO_DUMP_DIR recordings, LibriSpeech via HF). Missing clips are skipped.
+#
+# Run:  venv/bin/python scripts/realised_phone/run_golden.py [--allow-candidates]
+# Status of this list: seed entries only -- fill in real Common Phone es ids and your own
+# learner/English-r recordings (native trill, tap, English ɹ, ʁ) on the M4.
+
+clips:
+  # --- English [ɹ] in English speech (LibriSpeech dummy set, CC-BY-4.0) -------------------
+  - id: libri-grave-r
+    level: detector
+    wav: ${MIO_GOLDEN_DIR}/libri/wb3.wav
+    text: "he has grave doubts whether sir frederick leighton's work is really greek after all and can discover in it but little of rocky ithaca"
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    detector: rhotic
+    phone: ɹ
+    occurrence: 1
+    class: english_r
+  - id: libri-interesting-r
+    level: detector
+    wav: ${MIO_GOLDEN_DIR}/libri/wb1.wav
+    text: "nor is mister quilter's manner less interesting than his matter"
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    detector: rhotic
+    phone: ɹ
+    occurrence: 2
+    class: english_r
+
+  # --- Native Spanish (Common Phone es) -- TO FILL on the M4 --------------------------------
+  - id: cp-es-trill-TODO
+    level: pipeline
+    wav: ${CP_ROOT}/es/wav/REPLACE_ME.wav
+    text: "REPLACE with the CP transcript containing rr / word-initial r"
+    l1: en
+    expect:
+      - {word: perro, target: r, class: trill}
+  - id: cp-es-tap-TODO
+    level: pipeline
+    wav: ${CP_ROOT}/es/wav/REPLACE_ME.wav
+    text: "REPLACE with a CP transcript containing intervocalic r"
+    l1: en
+    expect:
+      - {word: pero, target: ɾ, class: tap}
+
+  # --- Learner recordings (MIO_AUDIO_DUMP_DIR on the M4) -- TO FILL -------------------------
+  - id: learner-perro-english-r-TODO
+    level: pipeline
+    wav: ${MIO_AUDIO_DUMP_DIR}/el-perro-rojo_000.wav
+    text: "el perro rojo"
+    l1: en
+    expect:
+      - {word: perro, target: r, class: english_r}
+  - id: learner-perro-uvular-TODO
+    level: pipeline
+    wav: ${MIO_AUDIO_DUMP_DIR}/el-perro-rojo_001.wav
+    text: "el perro rojo"
+    l1: en
+    # the detector never asserts uvular: the correct outcome is "uncertain", not a wrong class
+    expect:
+      - {word: perro, target: r, status: uncertain}
