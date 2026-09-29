@@ -1,7 +1,7 @@
 # Handoff: Miolingo — realised-phone identification, corrective coaching, adaptive practice
 
 > Source: Matthew's handover artifact (claude.ai), imported 2026-09-29. It supersedes both
-> earlier versions of this handover. The step-1 inventory it asks for is in
+> earlier versions of this handover. The step-1 inventory is in
 > [`docs/dev-docs/REALISED_PHONE_INVENTORY.md`](docs/dev-docs/REALISED_PHONE_INVENTORY.md).
 
 ## Goal
