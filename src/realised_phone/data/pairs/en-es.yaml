@@ -1,0 +1,103 @@
+# Candidate inventory: L1 English -> L2 Spanish (HANDOFF §1a).
+# Target keys are the canonical phones as the aligner labels them (MFA spanish_mfa, IPA).
+# For each target: canonical ∪ known L1-transfer substitutes ∪ dialect variants.
+# `class` groups phones the evidence sources can't reliably separate and that share feedback.
+# DRAFT by Claude for Matthew's review -- sources in ../priors/en-es.yaml.
+pair: {l1: en, l2: es}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  r:
+    name: alveolar trill (rr, word-initial r, r after n/l/s)
+    detector: rhotic
+    # Tap/trill contrast is neutralised in codas (Hualde 2005): either is correct there.
+    accept: {coda: [trill, tap]}
+    candidates:
+      - {phone: r, class: trill, kind: canonical}
+      - {phone: ɾ, class: tap, kind: l1_transfer,
+         note: "single tap for the trill; the most common learner substitution"}
+      - {phone: ɹ, class: english_r, kind: l1_transfer, note: "English approximant r"}
+      - {phone: ɻ, class: english_r, kind: l1_transfer, note: "retroflex/bunched English r"}
+      - {phone: ʁ, class: uvular, kind: other,
+         note: "uvular r (French/German-type); also some Caribbean realisations of rr"}
+  ɾ:
+    name: alveolar tap (single r between vowels / in clusters / codas)
+    detector: rhotic
+    accept: {coda: [tap, trill]}
+    candidates:
+      - {phone: ɾ, class: tap, kind: canonical}
+      - {phone: r, class: trill, kind: dialect,
+         note: "trill for tap: over-application; emphatic codas trill in many dialects"}
+      - {phone: ɹ, class: english_r, kind: l1_transfer}
+      - {phone: ɻ, class: english_r, kind: l1_transfer}
+      - {phone: ʁ, class: uvular, kind: other}
+
+  # --- inventory only (no detector yet; slice is /r/). Kept so the data model is exercised.
+  p:
+    name: voiceless bilabial stop (short-lag VOT)
+    detector: null   # planned: vot
+    candidates:
+      - {phone: p, class: unaspirated, kind: canonical}
+      - {phone: pʰ, class: aspirated, kind: l1_transfer}
+  t̪:
+    name: voiceless dental stop (short-lag VOT)
+    detector: null   # planned: vot
+    candidates:
+      - {phone: t̪, class: unaspirated, kind: canonical}
+      - {phone: tʰ, class: aspirated, kind: l1_transfer, note: "aspirated AND alveolar"}
+      - {phone: ɾ, class: flap, kind: l1_transfer, note: "American English intervocalic t-flapping"}
+  k:
+    name: voiceless velar stop (short-lag VOT)
+    detector: null   # planned: vot
+    candidates:
+      - {phone: k, class: unaspirated, kind: canonical}
+      - {phone: kʰ, class: aspirated, kind: l1_transfer}
+  ð:
+    name: dental approximant (intervocalic /d/)
+    detector: null
+    candidates:
+      - {phone: ð, class: approximant, kind: canonical}
+      - {phone: d, class: stop, kind: l1_transfer, note: "no spirantisation"}
+      - {phone: ɾ, class: flap, kind: l1_transfer}
+  β:
+    name: bilabial approximant (intervocalic /b/)
+    detector: null
+    candidates:
+      - {phone: β, class: approximant, kind: canonical}
+      - {phone: b, class: stop, kind: l1_transfer}
+      - {phone: v, class: labiodental, kind: l1_transfer, note: "orthographic v"}
+  ɣ:
+    name: velar approximant (intervocalic /g/)
+    detector: null
+    candidates:
+      - {phone: ɣ, class: approximant, kind: canonical}
+      - {phone: ɡ, class: stop, kind: l1_transfer}
+  x:
+    name: voiceless velar fricative (j, g+e/i)
+    detector: null   # planned: spectral centre of gravity
+    candidates:
+      - {phone: x, class: velar_fricative, kind: canonical}
+      - {phone: h, class: glottal, kind: dialect, note: "Caribbean/Andalusian; also English h"}
+      - {phone: k, class: stop, kind: l1_transfer}
+  l:
+    name: clear alveolar lateral
+    detector: null
+    candidates:
+      - {phone: l, class: clear, kind: canonical}
+      - {phone: ɫ, class: dark, kind: l1_transfer, note: "English dark l in codas"}
+  e:
+    name: mid front vowel (monophthong)
+    detector: null   # planned: F1/F2
+    candidates:
+      - {phone: e, class: monophthong, kind: canonical}
+      - {phone: eɪ, class: diphthong, kind: l1_transfer}
+      - {phone: ə, class: reduced, kind: l1_transfer, note: "unstressed reduction"}
+  o:
+    name: mid back rounded vowel (monophthong)
+    detector: null   # planned: F1/F2
+    candidates:
+      - {phone: o, class: monophthong, kind: canonical}
+      - {phone: oʊ, class: diphthong, kind: l1_transfer}
+      - {phone: ə, class: reduced, kind: l1_transfer}

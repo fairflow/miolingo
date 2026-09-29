@@ -23,6 +23,14 @@ sshtunnel>=0.4.0
 # Phonetic scoring: articulatory feature vectors for weighted phone-distance
 panphon>=0.22
 
+# Realised-phone identification (src/realised_phone, HANDOFF.md): acoustic
+# detectors (Praat via Parselmouth), data files (YAML), signal processing.
+# Forced alignment uses Montreal Forced Aligner in its own conda env -- see
+# src/realised_phone/align.py (MIO_MFA_CMD / MIO_MFA_MODELS).
+praat-parselmouth>=0.4.3
+pyyaml>=6.0
+scipy>=1.10
+
 # Note: espeak-ng needs to be installed system-wide on the deployment server
 # For local development: ./configure && make && make install
 

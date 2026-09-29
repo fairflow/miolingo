@@ -1,0 +1,79 @@
+# Research priors: L1 English -> L2 Spanish expected difficulty (HANDOFF §4).
+# DRAFT compiled by Claude for Matthew's review. `citation_verified: false` on every entry:
+# the references are standard works in the area but each claim must be checked against the
+# source before this file is marked reviewed. Difficulty is QUALITATIVE on purpose -- no
+# numbers are attributed to the literature; the mapping to Beta pseudo-counts is ours
+# (see `difficulty_to_prior`) and is a tunable modelling choice, not a finding.
+pair: {l1: en, l2: es}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+difficulty_to_prior:        # Beta(alpha, beta) over P(correct production); alpha+beta = strength
+  high:   {alpha: 1.0, beta: 4.0}    # expect ~20% correct initially, weak prior (strength 5)
+  medium: {alpha: 2.5, beta: 2.5}    # ~50%
+  low:    {alpha: 4.0, beta: 1.0}    # ~80%
+
+references:
+  flege1995: >-
+    Flege, J. E. (1995). Second language speech learning: Theory, findings, and problems.
+    In W. Strange (Ed.), Speech Perception and Linguistic Experience (pp. 233-277). York Press.
+  besttyler2007: >-
+    Best, C. T., & Tyler, M. D. (2007). Nonnative and second-language speech perception:
+    Commonalities and complementarities. In O.-S. Bohn & M. J. Munro (Eds.), Language
+    Experience in Second Language Speech Learning (pp. 13-34). John Benjamins.
+  hualde2005: >-
+    Hualde, J. I. (2005). The Sounds of Spanish. Cambridge University Press.
+  liskerabramson1964: >-
+    Lisker, L., & Abramson, A. S. (1964). A cross-language study of voicing in initial stops:
+    Acoustical measurements. Word, 20(3), 384-422.
+  face2006: >-
+    Face, T. L. (2006). Intervocalic rhotic pronunciation by adult learners of Spanish as a
+    second language. In C. A. Klee & T. L. Face (Eds.), Selected Proceedings of the 7th
+    Conference on the Acquisition of Spanish and Portuguese as First and Second Languages
+    (pp. 47-58). Cascadilla Proceedings Project.
+  zampini1994: >-
+    Zampini, M. L. (1994). The role of native language transfer and task formality in the
+    acquisition of Spanish spirantization. Hispania, 77(3), 470-481.
+
+# target phone -> context -> {difficulty, expected_errors (realised classes), why, refs}
+priors:
+  r:
+    _default:
+      difficulty: high
+      expected_errors: [tap, english_r]
+      why: >-
+        No trill in English: under SLM a "new" category with no L1 counterpart that learners
+        must build; in practice commonly replaced by a tap or English approximant.
+      refs: [flege1995, face2006, hualde2005]
+      citation_verified: false
+    coda:
+      difficulty: low
+      expected_errors: [english_r]
+      why: "Tap/trill neutralised in codas; only r-colouring is an error."
+      refs: [hualde2005]
+      citation_verified: false
+  ɾ:
+    _default:
+      difficulty: medium
+      expected_errors: [english_r]
+      why: >-
+        American English has a flap [ɾ] as an allophone of /t d/ (water, ladder), so the
+        gesture exists (PAM-L2: can assimilate well) but learners map orthographic r to
+        English [ɹ].
+      refs: [besttyler2007, face2006]
+      citation_verified: false
+    intervocalic:
+      difficulty: medium
+      expected_errors: [english_r, trill]
+      why: "pero/perro contrast; English [ɹ] transfer and some trill over-application."
+      refs: [face2006]
+      citation_verified: false
+  p: {_default: {difficulty: medium, expected_errors: [aspirated], why: "English long-lag VOT for /p t k/ vs Spanish short-lag.", refs: [liskerabramson1964], citation_verified: false}}
+  t̪: {_default: {difficulty: medium, expected_errors: [aspirated, flap], why: "Long-lag VOT; alveolar place; intervocalic flapping.", refs: [liskerabramson1964, hualde2005], citation_verified: false}}
+  k: {_default: {difficulty: medium, expected_errors: [aspirated], why: "Long-lag VOT.", refs: [liskerabramson1964], citation_verified: false}}
+  ð: {_default: {difficulty: high, expected_errors: [stop], why: "Spirantisation of /d/ not transferred; learners keep stops.", refs: [zampini1994, hualde2005], citation_verified: false}}
+  β: {_default: {difficulty: high, expected_errors: [stop, labiodental], why: "Spirantisation; orthographic v -> [v].", refs: [zampini1994], citation_verified: false}}
+  ɣ: {_default: {difficulty: high, expected_errors: [stop], why: "Spirantisation of /g/.", refs: [zampini1994], citation_verified: false}}
+  e: {_default: {difficulty: medium, expected_errors: [diphthong, reduced], why: "English [eɪ] diphthong and unstressed reduction.", refs: [hualde2005], citation_verified: false}}
+  o: {_default: {difficulty: medium, expected_errors: [diphthong, reduced], why: "English [oʊ] diphthong and unstressed reduction.", refs: [hualde2005], citation_verified: false}}
