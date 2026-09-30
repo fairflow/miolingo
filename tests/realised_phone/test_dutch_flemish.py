@@ -126,3 +126,33 @@ def test_learner_treats_accent_as_partial_slip_without_escalation():
     for _ in range(3):
         m.update(_flemish_g("stop"))
     assert m.coaching_rung("ɣ", "stop") >= 1
+
+
+def test_flemish_g_uses_its_own_recognizer(tmp_path, monkeypatch):
+    import soundfile as sf
+    from realised_phone import recognizer as recmod
+    from realised_phone.model import AlignedInterval, Alignment
+    from realised_phone.pipeline import Sources, analyse
+    assert inventory.load("en", "nl-be").target("ɣ").recognizer == "clementapa-dutch"
+    assert inventory.load("en", "nl").target("ɣ").recognizer is None
+    calls = []
+
+    def fake(model_id, wav):
+        calls.append(model_id)
+        vocab = {"r": 0, "ɾ": 1, "ɣ": 2, "x": 3, "k": 4, "a": 5}
+        p = np.full((40, len(vocab)), 0.05)
+        p[:, 2 if "Clementapa" in model_id else 0] = 0.8
+        return recmod.Posteriors(p / p.sum(1, keepdims=True), vocab)
+    monkeypatch.setattr(recmod, "ctc_posteriors", fake)
+    x, _ = _signal("fricative", voiced=True)
+    wav = tmp_path / "rogge.wav"
+    sf.write(wav, x, SR)
+    al = Alignment(words=[AlignedInterval(0.0, 0.49, "rogge")],
+                   phones=[AlignedInterval(0.0, 0.1, "r", 0), AlignedInterval(0.1, 0.2, "ɔ", 0),
+                           AlignedInterval(0.2, 0.29, "ɣ", 0), AlignedInterval(0.29, 0.49, "ə", 0)])
+    a = analyse(str(wav), "rogge", "en", "nl-be", transcript="rogge", allow_candidates=True,
+                sources=Sources(aligner=lambda _w, _t: al))
+    rec_ids = {v.target: [e.source_id for e in v.evidence if e.source == "recognizer"] for v in a.verdicts}
+    assert rec_ids["r"] == ["fb-xlsr-53-espeak"] and rec_ids["ɣ"] == ["clementapa-dutch"]
+    assert {"fb-xlsr-53-espeak", "clementapa-dutch"} <= set(a.sources)
+    assert any("not modelled separately" in n for n in a.notes)          # nl-be uses the nl aligner entry

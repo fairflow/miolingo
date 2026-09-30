@@ -158,6 +158,59 @@ on the test split:
 It doesn't fix French [ʁ] after a stop, which is still sometimes read as a tap: that dip is part of
 the uvular sound itself. Result files: `results/rhotics_cp-test-*-stopfix.json`.
 
+## Dutch (Netherlands) and Flemish (2026-09-30)
+
+These are **distinct models** (`en-nl`, `en-nl-be`):
+
+| | Netherlands | Flemish |
+|---|---|---|
+| r | trill, tap and uvular accepted; the English-like r is accepted in codas (native "Gooise r") | trill, tap and uvular only |
+| g | voiceless and voiced both fine | voiced soft g; a Netherlands-style g is an **accent** (penalty 0.3), not an error |
+
+**Data:**
+- **Netherlands:** FLEURS `nl_nl` test (364 utterances; FLEURS has no speaker IDs).
+- **Flemish:** the only open multi-utterance source is **one male speaker** (400 utterances, cut
+  from Common Voice). The Flemish rows below are a **sanity check, not validation**.
+- **Error stand-ins:** Common Phone English test ([ɹ] for r; [k ɡ] and [h] for g/ch).
+- **Aligner:** MFA `dutch_cv` 2.0.0, whose dictionary is rule-generated and crude (*een* → [eːn]).
+  It's shared by both varieties.
+
+**r** (non-coda):
+
+| | Recognizer | Confident & correct | Coverage | English r caught |
+|---|---|---|---|---|
+| Netherlands | **xlsr-53** | 99.6% | 20% | 38% of tokens, all right |
+| Netherlands | Clementapa | 100% | 2% | **0%**: it calls English r "trill" 311/437 |
+| Flemish (1 speaker) | xlsr-53 | 100% | 25% | 38%, all right |
+
+**g/ch**, with the new dorsal detector (stop vs fricative) plus a recognizer. Each native token
+is judged against its own target (ch /x/ or g /ɣ/):
+
+| | Recognizer | Confident & correct | Coverage | English k/g caught | Native g confirmed |
+|---|---|---|---|---|---|
+| Netherlands | **xlsr-53** | 99.1% | 19% | 46%, all right | 12% |
+| Netherlands | Clementapa | 98.9% | 14% | 35% | 11% |
+| Flemish (1 speaker) | xlsr-53 | 99.2% | 15% | 46% | **0%**: it never names voiced [ɣ] |
+| Flemish (1 speaker) | **Clementapa** | 98.5% | 16% | 35% | **13%** (37/38 right) |
+
+**Choices:**
+- xlsr-53 for everything in Netherlands Dutch and for the Flemish r.
+- **Clementapa for the Flemish g**, via a per-target `recognizer:` field in `en-nl-be.yaml`.
+  Judging soft vs harsh g needs a model that can name the voiced [ɣ]. Clementapa is testing-only
+  (licence undeclared).
+
+**Known gaps:**
+- English [h] for g/ch is never confident. The recognizer hears it (109/123), but the detector
+  deliberately doesn't decide [h] vs [x], because on this data that only separates on recording
+  differences.
+- Coverage is lower than for Spanish or French (15–25%) because native Dutch r and g vary so much.
+- The Flemish voiced/voiceless thresholds are uncalibrated.
+- **Flemish needs multi-speaker data** to be validated: Common Voice nl, which has Belgian accent
+  tags, or CGN.
+
+Result files: `results/rhotics_test-en-nl-r-*.json`, `dorsal_test-en-nl-*.json`,
+`rhotics_vl1spk-en-nlbe-r.json`, `dorsal_vl1spk-en-nlbe-*.json`.
+
 ## Smoke results (2026-09-29, cloud container) — *not* approval evidence
 
 `research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json`

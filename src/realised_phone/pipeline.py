@@ -115,9 +115,21 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
     # 3. Sources for segments
     rid = source_for(reg, "recognizer", l2, notes)
     re_ = _use(rid) if rid else None
-    rec = None
-    if re_ is not None:
-        rec = src.recognizer or RecognizerSource(re_.id, re_.version)
+    # Recognizer per target: the L2 default, unless the pair file names one for the target
+    # (e.g. Flemish /ɣ/ -> clementapa-dutch, which can name the voiced 'zachte g').
+    recs: dict = {}          # registry id -> (entry, RecognizerSource) | None (refused / failed)
+
+    def _rec_for(tgt):
+        if src.recognizer is not None:                    # injected (tests): used for all targets
+            return (re_, src.recognizer) if re_ is not None else None
+        rid_t = tgt.recognizer or (re_.id if re_ is not None else None)
+        if rid_t is None:
+            return None
+        if rid_t not in recs:
+            e = re_ if (re_ is not None and rid_t == re_.id) else _use(rid_t)
+            recs[rid_t] = (e, RecognizerSource(e.id, e.version)) if e is not None else None
+        return recs[rid_t]
+
     x, sr = _load_wav(wav_path)
     total = len(x) / sr
 
@@ -146,24 +158,27 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
                     "detector", de.id, de.version, de.status, sc, pc,
                     de.params.get("margin", 0.3), measurements=m, window=(ph.start, ph.end)))
         # source 2: recognizer on the aligned window
-        if rec is not None:
-            w = window(ph, re_.params.get("pad_s", 0.03), total)
+        rr = _rec_for(tgt)
+        if rr is not None:
+            e, rec = rr
+            w = window(ph, e.params.get("pad_s", 0.03), total)
             try:
                 sc, unsup = candidate_scores(rec.posteriors(wav_path), w, tgt.phones)
                 raw_max = max(sc.values(), default=0.0)
                 # Too little posterior mass in the window: normalising would inflate
                 # noise into a "decision", so the recognizer abstains (scores kept for trace).
-                floor = re_.params.get("min_raw", 0.02)
+                floor = e.params.get("min_raw", 0.02)
+                used[e.id] = e.status
                 evidence.append(comb.make_evidence(
-                    "recognizer", re_.id, re_.version, re_.status,
+                    "recognizer", e.id, e.version, e.status,
                     sc if raw_max >= floor else {}, pc,
-                    re_.params.get("margin", 0.25), unsupported=unsup, window=w,
+                    e.params.get("margin", 0.25), unsupported=unsup, window=w,
                     measurements={"raw_scores": {k: round(v, 4) for k, v in sc.items()},
                                   "raw_max": round(raw_max, 4), "min_raw": floor}))
             except Exception as ex:  # noqa: BLE001 - model optional; record, don't fail
-                notes.append(f"recognizer unavailable: {ex}")
-                used.pop(re_.id, None)
-                rec = None
+                notes.append(f"recognizer {e.id} unavailable: {ex}")
+                used.pop(e.id, None)
+                recs[e.id] = None
         if not evidence:
             continue          # no usable source for this target: nothing to report
         v = comb.combine(evidence, pc, min_agreeing_sources)

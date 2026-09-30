@@ -107,6 +107,9 @@
   languages: [nl]
   results:
     - research/phonetics/phone_poc/results/fleurs_nl.json   # 0.086 mean weighted err, n=150 (FLEURS nl)
+    - research/phonetics/realised_phone/results/rhotics_test-en-nl-r-clementapa-dutch.json  # r: blind to English r
+    - research/phonetics/realised_phone/results/dorsal_vl1spk-en-nlbe-clementapa-dutch.json # Flemish g: names voiced ɣ
+  # Used per target: Flemish /ɣ/ (en-nl-be.yaml `recognizer:`); xlsr-53 elsewhere for nl.
   # Licence undeclared. Matthew 2026-09-30: may be used for TESTING. Shipping needs the licence
   # cleared plus approval. Listed after xlsr-53 (which covers nl) until an nl evaluation shows
   # which one is better as realised-phone evidence (cf. cnam-french: a native-only phonemizer
@@ -135,7 +138,9 @@
   kind: detector
   version: "0.1.0"
   languages: [nl, nl-be]
-  results: []   # see calibration/dorsal.yaml
+  results:
+    - research/phonetics/realised_phone/results/dorsal_test-en-nl-fb-xlsr-53-espeak.json
+    - research/phonetics/realised_phone/results/dorsal_vl1spk-en-nlbe-clementapa-dutch.json
   status: candidate
   approved_by: null
   approved_on: null
