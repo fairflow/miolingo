@@ -38,7 +38,7 @@ import yaml  # noqa: E402
 
 from realised_phone import corpora  # noqa: E402
 from realised_phone.tokens import EN_LABELS, ES_LABELS, rhotic_tokens  # noqa: E402
-from realised_phone.detectors.rhotic import RhoticDetector, load_calibration  # noqa: E402
+from realised_phone.detectors.rhotic import is_stop, RhoticDetector, load_calibration  # noqa: E402
 
 CLASSES = ("trill", "tap", "english_r")
 
@@ -54,7 +54,7 @@ def collect(stream, det):
     out = []
     for t in stream:
         p = t["phone"]
-        m = det.measure(t["x"], t["sr"], (p.start, p.end))
+        m = det.measure(t["x"], t["sr"], (p.start, p.end), after_stop=is_stop(t.get("prev", "")))
         out.append({"label": t["label"], "context": t["context"], "m": m, "wav": t["wav"]})
     return out
 

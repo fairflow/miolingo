@@ -24,6 +24,10 @@ occlusion:
   max_width_ms: 40.0         # wider than this = stop closure / pause, not a contact
   min_separation_ms: 18.0    # contacts closer than this are merged
   edge_tolerance_ms: 15.0    # count dips this far outside the aligned segment (MFA boundary slop)
+  after_stop_ignore_ms: 10.0 # r right after a stop: ignore dips before seg start + 10 ms (the
+                             # stop's closure/release). CP dev r-after-stop tokens (0/10/20/30/40 ms):
+                             # 10 ms cut English ɹ->"tap" 59->9 and es tap->"trill" 39->9, raised
+                             # es tap 118->133; >=20 ms starts erasing real es taps (tres).
 
 trill:
   min_contacts: 2

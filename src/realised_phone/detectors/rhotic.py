@@ -60,9 +60,19 @@ def envelope_db(x: np.ndarray, sr: int, cal: dict) -> tuple[np.ndarray, np.ndarr
     return idx / sr, 20 * np.log10(a[idx])
 
 
+_STOP_BASES = set("pbtdkgɡcɟqʔ")
+
+
+def is_stop(label: str) -> bool:
+    """Oral stop (incl. aspirated/dental variants like pʰ, t̪, d̪; affricates tʃ, dʒ)."""
+    return bool(label) and label[0] in _STOP_BASES
+
+
 def find_occlusions(t: np.ndarray, env_db: np.ndarray, seg: tuple[float, float],
-                    cal: dict) -> list[dict]:
-    """Brief intensity dips inside the (tolerance-widened) segment."""
+                    cal: dict, after_stop: bool = False) -> list[dict]:
+    """Brief intensity dips inside the (tolerance-widened) segment. After a stop, the
+    closure/release at the start of the segment is not a tongue contact of the r:
+    dips before seg start + occlusion.after_stop_ignore_ms are ignored."""
     from scipy.signal import find_peaks, peak_widths
     if len(env_db) < 5:
         return []
@@ -76,7 +86,8 @@ def find_occlusions(t: np.ndarray, env_db: np.ndarray, seg: tuple[float, float],
     tol = occ["edge_tolerance_ms"] / 1000
     out = []
     for k, i in enumerate(idx):
-        if not (seg[0] - tol <= t[i] <= seg[1] + tol):
+        lo = (seg[0] + occ.get("after_stop_ignore_ms", 0.0) / 1000) if after_stop else seg[0] - tol
+        if not (lo <= t[i] <= seg[1] + tol):
             continue
         if widths[k] > occ["max_width_ms"]:
             continue
@@ -128,9 +139,10 @@ class RhoticDetector:
     def __init__(self, calibration: Optional[dict] = None):
         self.cal = calibration or load_calibration()
 
-    def measure(self, x: np.ndarray, sr: int, seg: tuple[float, float]) -> dict:
+    def measure(self, x: np.ndarray, sr: int, seg: tuple[float, float],
+                after_stop: bool = False) -> dict:
         t, env = envelope_db(x, sr, self.cal)
-        occl = find_occlusions(t, env, seg, self.cal)
+        occl = find_occlusions(t, env, seg, self.cal, after_stop)
         intervals = [round((b["t"] - a["t"]) * 1000, 1) for a, b in zip(occl, occl[1:])]
         ts, f2, f3 = formant_tracks(x, sr, self.cal)
         voiced = voiced_mask(x, sr, ts)
@@ -158,6 +170,7 @@ class RhoticDetector:
                 "f2_ratio": None if f2_ratio is None else round(f2_ratio, 3),
                 "voiced_fraction": None if voiced_frac is None else round(voiced_frac, 3),
                 "duration_ms": round((seg[1] - seg[0]) * 1000, 1),
+                "after_stop": after_stop,
                 "calibrated": bool(self.cal.get("calibrated"))}
 
     def scores(self, m: dict, candidates: list[str], phone_class: dict[str, str]) -> dict[str, float]:

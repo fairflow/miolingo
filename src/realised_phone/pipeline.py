@@ -25,6 +25,7 @@ from realised_phone import gate as gate_mod
 from realised_phone import inventory as inv
 from realised_phone.align import AlignmentError, context_of, mfa_align, window
 from realised_phone.detectors import DETECTORS
+from realised_phone.detectors.rhotic import is_stop
 from realised_phone.model import Alignment, AttemptAnalysis, GateResult, Verdict
 from realised_phone.recognizer import RecognizerSource, candidate_scores
 from realised_phone.registry import APPROVED, ModelNotApproved, Registry
@@ -137,7 +138,9 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
             de = _use(_detector_registry_id(tgt.detector))
             if de is not None:
                 det = src.detectors.get(tgt.detector) or DETECTORS[tgt.detector]()
-                m = det.measure(x, sr, (ph.start, ph.end))
+                prev = al.phones[i - 1] if i > 0 and ph.start - al.phones[i - 1].end < 0.03 else None
+                m = det.measure(x, sr, (ph.start, ph.end),
+                                after_stop=bool(prev) and is_stop(prev.label))
                 sc = det.scores(m, tgt.phones, pc)
                 evidence.append(comb.make_evidence(
                     "detector", de.id, de.version, de.status, sc, pc,

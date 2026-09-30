@@ -35,7 +35,7 @@ from realised_phone.tokens import EN_LABELS, ES_LABELS, FR_LABELS, rhotic_tokens
 PROFILES = {"es": ("spanish_mfa", "spanish_mfa", ES_LABELS),
             "en": ("english_mfa", "english_us_mfa", EN_LABELS),
             "fr": ("french_mfa", "french_mfa", FR_LABELS)}
-from realised_phone.detectors.rhotic import RhoticDetector, load_calibration  # noqa: E402
+from realised_phone.detectors.rhotic import is_stop, RhoticDetector, load_calibration  # noqa: E402
 from realised_phone.recognizer import RecognizerSource, candidate_scores  # noqa: E402
 from realised_phone.registry import Registry  # noqa: E402
 
@@ -125,7 +125,7 @@ def main() -> int:
     for stream in streams:
         for t in stream:
             p = t["phone"]
-            m = det.measure(t["x"], t["sr"], (p.start, p.end))
+            m = det.measure(t["x"], t["sr"], (p.start, p.end), after_stop=is_stop(t.get("prev", "")))
             evs = [comb.make_evidence("detector", de.id, de.version, de.status,
                                       det.scores(m, target.phones, pc), pc, de.params["margin"])]
             if rec is not None:

@@ -43,6 +43,12 @@ def _path(p: str) -> str:
     return os.path.expanduser(os.path.expandvars(p))
 
 
+def _after_stop(al, p) -> bool:
+    from realised_phone.detectors.rhotic import is_stop
+    i = al.phones.index(p)
+    return i > 0 and p.start - al.phones[i - 1].end < 0.03 and is_stop(al.phones[i - 1].label)
+
+
 def _outcome(status: str, got: str, expected: str) -> str:
     if status in ("uncertain", "no_evidence") or got in (None, "abstain"):
         return "abstain"
@@ -61,6 +67,7 @@ def _combined(c: dict, wav: str, allow_candidates: bool) -> dict:
     if len(hits) < c.get("occurrence", 1):
         return {"id": c["id"], "result": "fail", "why": f"only {len(hits)} [{c['phone']}] aligned"}
     p = hits[c.get("occurrence", 1) - 1]
+    after_stop = _after_stop(al, p)
     x, sr = sf.read(wav, dtype="float64")
     x = x.mean(axis=1) if x.ndim > 1 else x
     from realised_phone.pipeline import source_for
@@ -72,7 +79,7 @@ def _combined(c: dict, wav: str, allow_candidates: bool) -> dict:
     re_ = reg.require(source_for(reg, "recognizer", l2), allow_candidates)
     det = DETECTORS["rhotic"]()
     evs = [comb.make_evidence("detector", de.id, de.version, de.status,
-                              det.scores(det.measure(x, sr, (p.start, p.end)), tgt.phones, pc), pc,
+                              det.scores(det.measure(x, sr, (p.start, p.end), after_stop), tgt.phones, pc), pc,
                               de.params["margin"])]
     try:
         sc, _ = candidate_scores(RecognizerSource(re_.id, re_.version).posteriors(wav),
@@ -106,7 +113,7 @@ def run_clip(c: dict, allow_candidates: bool) -> dict:
         x, sr = sf.read(wav, dtype="float64")
         tgt = inventory.load("en", "es").target("r")        # rhotic candidate classes
         det = DETECTORS[c["detector"]]()
-        m = det.measure(x, sr, (p.start, p.end))
+        m = det.measure(x, sr, (p.start, p.end), _after_stop(al, p))
         sc = det.scores(m, tgt.phones, tgt.phone_class)
         got = tgt.phone_class[max(sc, key=sc.get)] if sc else "abstain"
         ok = got == c["class"] or (got == "abstain" and c.get("abstain_ok"))

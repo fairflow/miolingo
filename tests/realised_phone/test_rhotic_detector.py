@@ -56,3 +56,17 @@ def test_silence_segment_does_not_crash():
     x = 1e-4 * np.random.default_rng(0).standard_normal(SR // 2)
     m = d.measure(x, SR, (0.2, 0.3))
     assert d.scores(m, T.phones, T.phone_class) in ({}, {"ɾ": 0.8, "r": 0.2})
+
+
+def test_stop_release_dip_ignored_after_a_stop():
+    from realised_phone.detectors.rhotic import is_stop
+    from synth import _dip_env
+    assert is_stop("t") and is_stop("pʰ") and is_stop("d̪") and not is_stop("s") and not is_stop("a")
+    x, seg = vrv("english_r")
+    x = x * _dip_env(len(x), [seg[0] + 0.004], 0.014, 25.0)     # a release-like dip at the r onset
+    d = RhoticDetector()
+    assert d.measure(x, SR, seg)["n_occlusions"] == 1                    # counted as a contact...
+    assert d.measure(x, SR, seg, after_stop=True)["n_occlusions"] == 0   # ...unless after a stop
+    # a real tap contact 20 ms in is still counted after a stop
+    xt, segt = vrv("tap")
+    assert d.measure(xt, SR, segt, after_stop=True)["n_occlusions"] == 1
