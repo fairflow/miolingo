@@ -175,8 +175,8 @@ Answered 2026-09-29:
   priors and, where available, aligner/recognizer entries. They differ in the r (Netherlands:
   approximant coda r is native; Flanders: alveolar/uvular r) and the g (Netherlands [x]; Flanders
   softer [ɣ] or palatal), so the same learner sound can be correct in one and an error in the other.
-- Open: whether the Clementapa Dutch recognizer (licence undeclared, "test-only") may be used
-  for testing.
+- The Clementapa Dutch recognizer (licence undeclared) **may be used for testing** (Matthew,
+  2026-09-30). Shipping it to learners still needs the licence cleared and approval.
 - **Native recordings:** some exist, for tests — probably French. They are not in the repo:
   the debug archive hook (`src/scoring/practice.py` ~L245, miolingo-0x9) writes takes to
   `$MIO_AUDIO_DUMP_DIR` on the M4 with a `log.jsonl` sidecar whose `voice` field gives the

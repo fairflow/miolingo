@@ -91,6 +91,21 @@
   approved_on: null
   params: {margin: 0.25, pad_s: 0.03, min_raw: 0.02}
 
+- id: clementapa-dutch
+  kind: recognizer
+  version: "Clementapa/wav2vec2-base-960h-phoneme-reco-dutch"
+  languages: [nl]
+  results:
+    - research/phonetics/phone_poc/results/fleurs_nl.json   # 0.086 mean weighted err, n=150 (FLEURS nl)
+  # Licence undeclared. Matthew 2026-09-30: may be used for TESTING. Shipping needs the licence
+  # cleared plus approval. Listed after xlsr-53 (which covers nl) until an nl evaluation shows
+  # which one is better as realised-phone evidence (cf. cnam-french: a native-only phonemizer
+  # can be blind to L1 sounds).
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.25, pad_s: 0.03, min_raw: 0.02, licence: undeclared, use: testing-only}
+
 - id: rhotic-detector
   kind: detector
   version: "0.1.0"
