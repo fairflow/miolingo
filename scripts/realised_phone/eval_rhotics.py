@@ -34,6 +34,28 @@ from realised_phone.recognizer import RecognizerSource, candidate_scores  # noqa
 from realised_phone.registry import Registry  # noqa: E402
 
 
+def _cached_posteriors(cache_dir: str):
+    """Wrap ctc_posteriors with an on-disk cache so repeated evaluations (e.g. two
+    calibrations) don't re-run the recognizer."""
+    import numpy as np
+    from realised_phone.recognizer import Posteriors, ctc_posteriors
+
+    d = Path(cache_dir)
+    d.mkdir(parents=True, exist_ok=True)
+
+    def fn(model_id: str, wav: str) -> Posteriors:
+        f = d / f"{model_id.replace('/', '__')}__{Path(wav).stem}.npz"
+        if f.exists():
+            z = np.load(f, allow_pickle=False)
+            return Posteriors(z["probs"], dict(zip(z["tokens"].tolist(), z["cols"].tolist())))
+        p = ctc_posteriors(model_id, wav)
+        toks = list(p.vocab)
+        np.savez_compressed(f, probs=p.probs.astype(np.float16), tokens=np.array(toks),
+                            cols=np.array([p.vocab[t] for t in toks]))
+        return p
+    return fn
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cp-root")
@@ -50,12 +72,14 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--no-recognizer", action="store_true")
     ap.add_argument("--calibration", help="rhotic calibration YAML to evaluate (default: shipped)")
+    ap.add_argument("--post-cache", help="dir to cache recognizer posteriors (.npz per utterance)")
     args = ap.parse_args()
 
     reg = Registry.load()
     re_ = reg.get("fb-xlsr-53-espeak")
     de = reg.get("rhotic-detector")
-    rec = None if args.no_recognizer else RecognizerSource(re_.id, re_.version)
+    rec = None if args.no_recognizer else RecognizerSource(
+        re_.id, re_.version, posterior_fn=_cached_posteriors(args.post_cache) if args.post_cache else None)
     import yaml
     cal = (yaml.safe_load(Path(args.calibration).read_text(encoding="utf-8")) if args.calibration
            else load_calibration())
