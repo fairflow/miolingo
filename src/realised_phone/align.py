@@ -110,7 +110,9 @@ def mfa_align_batch(items: list[dict], acoustic_model: str, dictionary: str,
     cache = Path(cache_dir) / acoustic_model if cache_dir else None
     if cache:
         cache.mkdir(parents=True, exist_ok=True)
-    todo = [it for it in items if not (cache and (cache / f"{it['id']}.json").exists())]
+    done = lambda it: cache and ((cache / f"{it['id']}.json").exists()  # noqa: E731
+                                 or (cache / f"{it['id']}.failed").exists())
+    todo = [it for it in items if not done(it)]
     if todo:
         am, dic = _resolve_models(acoustic_model, dictionary)
         cmd_prefix = shlex.split(os.environ.get("MIO_MFA_CMD", "mfa"))
@@ -124,15 +126,20 @@ def mfa_align_batch(items: list[dict], acoustic_model: str, dictionary: str,
             cmd = cmd_prefix + ["align", str(corpus), dic, am, str(out), "--output_format", "json",
                                 "-j", str(jobs), "--clean", "--quiet"]
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-            if proc.returncode != 0:
-                tail = (proc.stderr or proc.stdout or "").strip().splitlines()[-3:]
-                raise AlignmentError("MFA align failed: " + " | ".join(tail))
+            msg = (proc.stderr or proc.stdout or "").strip()
+            # MFA exits non-zero when NO utterance aligns (e.g. a batch of only
+            # previously-failed ones: "try a larger beam"); that is per-utterance
+            # failure, not a broken setup -- anything else is raised.
+            if proc.returncode != 0 and "beam" not in msg:
+                raise AlignmentError("MFA align failed: " + " | ".join(msg.splitlines()[-3:]))
             for it in todo:
                 f = out / it["id"] / f"{it['id']}.json"
                 if f.exists() and cache:
                     (cache / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
                 elif f.exists():
                     it["_json"] = f.read_text(encoding="utf-8")
+                elif cache:                     # remember: don't retry every run
+                    (cache / f"{it['id']}.failed").write_text(msg[-500:], encoding="utf-8")
     result = {}
     for it in items:
         raw = (cache / f"{it['id']}.json").read_text(encoding="utf-8") if cache and \

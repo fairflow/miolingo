@@ -53,8 +53,9 @@ def test_batch_alignment_maps_caches_and_drops(tmp_path, monkeypatch):
     assert r["u1"].words[-1].label == "correctamente"
     assert (cache / "spanish_mfa" / "u1.json").exists()
     assert log.read_text() == "1"
-    # second call: everything cached except the dropped one -> MFA runs only for it
-    r2 = mfa_align_batch(items[:2], "spanish_mfa", "spanish_mfa", cache_dir=str(cache))
+    assert (cache / "spanish_mfa" / "dropped.failed").exists()
+    # second call: aligned and failed utterances are both cached -> MFA not run again
+    r2 = mfa_align_batch(items, "spanish_mfa", "spanish_mfa", cache_dir=str(cache))
     assert set(r2) == {"u1", "u2"} and log.read_text() == "1"
     assert json.loads((cache / "spanish_mfa" / "u2.json").read_text())["tiers"]
 
@@ -67,3 +68,29 @@ def test_batch_without_cache(tmp_path, monkeypatch):
     r = mfa_align_batch([{"id": "u1", "wav": str(wav), "text": "correctamente"}],
                         "spanish_mfa", "spanish_mfa")
     assert r["u1"].oov == [] and os.path.exists(wav)
+
+
+def test_batch_of_only_unalignable_utterances_does_not_raise(tmp_path, monkeypatch):
+    exe = tmp_path / "mfa"
+    exe.write_text(f"#!{sys.executable}\nimport sys\nprint('try a larger beam', file=sys.stderr)\nsys.exit(1)\n")
+    exe.chmod(exe.stat().st_mode | stat.S_IEXEC)
+    monkeypatch.setenv("MIO_MFA_CMD", str(exe))
+    wav = tmp_path / "a.wav"
+    wav.write_bytes(b"RIFF")
+    cache = tmp_path / "cache"
+    r = mfa_align_batch([{"id": "bad", "wav": str(wav), "text": "nada"}], "spanish_mfa",
+                        "spanish_mfa", cache_dir=str(cache))
+    assert r == {} and (cache / "spanish_mfa" / "bad.failed").exists()
+
+
+def test_other_mfa_errors_still_raise(tmp_path, monkeypatch):
+    import pytest
+    from realised_phone.align import AlignmentError
+    exe = tmp_path / "mfa"
+    exe.write_text(f"#!{sys.executable}\nimport sys\nprint('Could not find fstcompile', file=sys.stderr)\nsys.exit(1)\n")
+    exe.chmod(exe.stat().st_mode | stat.S_IEXEC)
+    monkeypatch.setenv("MIO_MFA_CMD", str(exe))
+    wav = tmp_path / "a.wav"
+    wav.write_bytes(b"RIFF")
+    with pytest.raises(AlignmentError):
+        mfa_align_batch([{"id": "x", "wav": str(wav), "text": "nada"}], "spanish_mfa", "spanish_mfa")
