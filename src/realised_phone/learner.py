@@ -90,12 +90,12 @@ class LearnerModel:
         if w == 0.0 or ok is None:
             return
         st = self.state(v.target, v.context)
-        if ok:
-            st.alpha += w
-        else:
-            st.beta += w
+        pen = v.penalty if v.penalty is not None else (0.0 if ok else 1.0)
+        # accent-level variants (0 < penalty < 1) count as a partial slip, not a full error
+        st.alpha += w * (1.0 - pen)
+        st.beta += w * pen
         st.history.append((ts if ts is not None else time.time(), bool(ok), v.status))
-        if v.status == CONFIDENT:
+        if v.status == CONFIDENT and pen in (0.0, 1.0):   # accents never escalate coaching
             self._escalate(v, ok)
 
     # --- escalation (§3) -----------------------------------------------------

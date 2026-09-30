@@ -172,7 +172,7 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
             target=tgt.phone, target_class=tgt.canonical.cls,
             word=al.words[w_i].label if w_i >= 0 else "", word_index=w_i, phone_index=i,
             start=ph.start, end=ph.end, context=ctx, evidence=evidence,
-            accepted_classes=tgt.accepted_classes(ctx), **v))
+            accepted_classes=tgt.accepted_classes(ctx), mild=dict(tgt.mild), **v))
 
     return AttemptAnalysis(target_text, l1, l2, g, al, verdicts, used,
                            learner_visible=bool(used) and all(s == APPROVED for s in used.values()),

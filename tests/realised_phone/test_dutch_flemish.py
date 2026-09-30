@@ -90,3 +90,39 @@ def test_flemish_falls_back_to_dutch_aligner_with_a_note():
     assert "not modelled separately" in notes[0]
     assert source_for(reg, "aligner", "nl", []) == "mfa-dutch_cv"
     assert reg.get("clementapa-dutch").params["use"] == "testing-only"
+
+
+def _flemish_g(realised_class, status="confident"):
+    from realised_phone.model import Verdict
+    t = inventory.load("en", "nl-be").target("ɣ")
+    return Verdict(target="ɣ", target_class=t.canonical.cls, word="goed", word_index=0, phone_index=0,
+                   start=0.1, end=0.2, context="word_initial", status=status,
+                   realised_class=realised_class, accepted_classes=t.accepted_classes("word_initial"),
+                   mild=dict(t.mild))
+
+
+def test_netherlands_g_in_flemish_is_a_gentle_accent_not_an_error():
+    acc = _flemish_g("fricative")                       # harsh Netherlands g
+    assert acc.correct is False and acc.penalty == pytest.approx(0.3) and acc.severity == "accent"
+    assert "~" in acc.describe()
+    err = _flemish_g("stop")                            # English [ɡ]: a real error
+    assert err.penalty == 1.0 and err.severity == "error"
+    ok = _flemish_g("voiced_fricative")
+    assert ok.penalty == 0.0 and ok.severity == "correct"
+    assert _flemish_g(None, status="uncertain").penalty is None
+    # Netherlands model: the same sound is simply correct
+    assert inventory.load("en", "nl").target("ɣ").mild == {}
+
+
+def test_learner_treats_accent_as_partial_slip_without_escalation():
+    from realised_phone.learner import LearnerModel
+    m = LearnerModel("en", "nl-be")
+    st = m.state("ɣ", "word_initial")
+    a0, b0 = st.alpha, st.beta
+    for _ in range(5):
+        m.update(_flemish_g("fricative"))
+    assert st.alpha == pytest.approx(a0 + 5 * 0.7) and st.beta == pytest.approx(b0 + 5 * 0.3)
+    assert m.coaching_rung("ɣ", "fricative") == 0       # accents never escalate the ladder
+    for _ in range(3):
+        m.update(_flemish_g("stop"))
+    assert m.coaching_rung("ɣ", "stop") >= 1

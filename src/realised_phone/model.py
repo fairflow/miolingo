@@ -81,6 +81,7 @@ class Verdict:
     confidence: float = 0.0
     evidence: list[Evidence] = field(default_factory=list)
     accepted_classes: list[str] = field(default_factory=list)  # empty = [target_class]
+    mild: dict[str, float] = field(default_factory=dict)       # class -> penalty (accent level)
 
     @property
     def correct(self) -> Optional[bool]:
@@ -91,6 +92,22 @@ class Verdict:
             return None
         return self.realised_class in ok
 
+    @property
+    def penalty(self) -> Optional[float]:
+        """For the scorer: 0 = correct, 1 = error, in between = accent-level variant (e.g. a
+        Netherlands-style g in Flemish, 0.3). None when undecided (uncertain / no evidence)."""
+        ok = self.correct
+        if ok is None:
+            return None
+        if ok:
+            return 0.0
+        return self.mild.get(self.realised_class, 1.0)
+
+    @property
+    def severity(self) -> Optional[str]:
+        p = self.penalty
+        return None if p is None else ("correct" if p == 0 else "error" if p >= 1 else "accent")
+
     def describe(self) -> str:
         """One-line learner/debug wording. Never overstates: uncertain says so."""
         if self.status == NO_EVIDENCE:
@@ -99,12 +116,14 @@ class Verdict:
             return (f"/{self.target}/ in '{self.word}': uncertain between "
                     + " and ".join(self.between))
         shown = self.realised_phone or self.realised_class
-        ok = "✓" if self.correct else "✗"
+        ok = {"correct": "✓", "accent": "~", "error": "✗"}.get(self.severity or "", "?")
         return f"/{self.target}/ in '{self.word}': realised [{shown}] {ok} ({self.status})"
 
     def to_dict(self) -> dict:
         d = asdict(self)
         d["correct"] = self.correct
+        d["penalty"] = self.penalty
+        d["severity"] = self.severity
         return d
 
 
