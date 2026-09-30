@@ -26,12 +26,18 @@ def common_phone(cp_root: str, lang: str, split: str = "test", n: int = 0) -> It
                     return
 
 
-def tsv(path: str) -> Iterator[dict]:
-    """Lines 'wav<TAB>text' (relative paths resolved against the TSV's folder)."""
+def tsv(path: str, n: int = 0) -> Iterator[dict]:
+    """Lines 'wav<TAB>text[<TAB>speaker]' (relative paths resolved against the TSV's
+    folder), e.g. list.tsv from scripts/realised_phone/extract_cp_parquet.py."""
     base = Path(path).parent
     for line in Path(path).read_text(encoding="utf-8").splitlines():
         if not line.strip() or line.startswith("#"):
             continue
-        wav, text = line.split("\t", 1)
+        wav, text, *rest = line.split("\t")
         p = Path(os.path.expandvars(os.path.expanduser(wav)))
-        yield {"wav": str(p if p.is_absolute() else base / p), "text": text.strip()}
+        p = p if p.is_absolute() else base / p
+        yield {"wav": str(p), "text": text.strip(), "id": p.stem,
+               "speaker": rest[0].strip() if rest else ""}
+        n -= 1
+        if n == 0:
+            return

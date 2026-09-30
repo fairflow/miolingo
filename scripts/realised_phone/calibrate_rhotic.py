@@ -126,10 +126,12 @@ def main() -> int:
                                         exclude_contexts=("coda",), **kw), det)
     if args.en_cp and args.cp_root:
         tokens += collect(rhotic_tokens(corpora.common_phone(args.cp_root, "en", args.split, args.en_n),
-                                        args.en_model, args.en_dict, EN_LABELS, "english", **kw), det)
+                                        args.en_model, args.en_dict, EN_LABELS, "english",
+                                        exclude_contexts=("coda",), **kw), det)
     if args.english_tsv:
+        # codas excluded: non-rhotic accents drop coda [ɹ], so its label would be wrong
         tokens += collect(rhotic_tokens(corpora.tsv(args.english_tsv), args.en_model, args.en_dict,
-                                        EN_LABELS, "english", **kw), det)
+                                        EN_LABELS, "english", exclude_contexts=("coda",), **kw), det)
     if not tokens:
         print("no tokens collected", file=sys.stderr)
         return 2
