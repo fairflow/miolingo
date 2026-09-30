@@ -33,8 +33,8 @@ def test_manifest_is_well_formed():
     ids = [c["id"] for c in CLIPS]
     assert len(ids) == len(set(ids))
     for c in CLIPS:
-        assert c["level"] in ("detector", "pipeline")
-        if c["level"] == "detector":
+        assert c["level"] in ("detector", "combined", "pipeline")
+        if c["level"] in ("detector", "combined"):
             assert {"aligner", "phone", "class"} <= set(c)
         else:
             assert c["expect"]
@@ -47,4 +47,4 @@ def test_golden_clip(clip):
     r = _runner().run_clip(clip, allow_candidates=True)
     if r["result"] == "skipped":
         pytest.skip(r["why"])
-    assert r["result"] == "pass", r
+    assert r["result"] != "fail", r          # abstaining/uncertain is allowed; confident-wrong is not

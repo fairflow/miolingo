@@ -10,6 +10,14 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.11.0-claude-dev] - 2026-09-30
+
+### Changed
+
+- Realised-phone rhotic detector calibrated on Common Phone dev; Common Phone test results (confident verdicts 97.9% correct at 47% coverage; trill weakest) recorded as registry evidence -- nothing approved.
+- Batch MFA alignment with cache; Common Phone extraction from the HF Parquet release; alignment check vs Common Phone IPA; 24 Common Phone golden clips (0 confident-wrong).
+
+
 ## [7.10.0-claude-dev] - 2026-09-29
 
 ### Added
