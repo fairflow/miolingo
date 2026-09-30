@@ -1,0 +1,236 @@
+# Golden clips for realised-phone verdicts (HANDOFF "Next step" 4, beads miolingo-6vo.4).
+#
+# Levels:
+#   detector  -- one labelled token: align `text` with `aligner`, take the `occurrence`-th
+#                phone labelled `phone`, run the detector alone, expect `class`.
+#   combined  -- same token, detector + recognizer combined (as the pipeline would).
+#                Used for English [ɹ] tokens from English speech (a Spanish aligner has no ɹ).
+#   pipeline  -- full analyse(): expect verdicts per (word, target).
+# Outcomes: pass / abstain (uncertain: allowed) / soft_fail (tentative wrong) / fail
+# (confident wrong). Only `fail` fails the run -- accuracy over coverage.
+# Paths may use ${ENV} vars. Clips live OUTSIDE the repo (Common Phone on the M4,
+# MIO_AUDIO_DUMP_DIR recordings, LibriSpeech via HF). Missing clips are skipped.
+# Common Phone clips: extract with scripts/realised_phone/extract_cp_parquet.py (test split,
+# es from test-0000{1,2}, en from test-00000) into $MIO_GOLDEN_DIR/cp/<lang>/test/.
+#
+# Run:  venv/bin/python scripts/realised_phone/run_golden.py [--allow-candidates]
+# Still to add: learner recordings (English-L1 Spanish, incl. [ʁ]) from the M4 -- the
+# -TODO entries below. No [ʁ] clip exists yet; the detector never asserts uvular.
+
+clips:
+  # --- English [ɹ] in English speech (LibriSpeech dummy set, CC-BY-4.0) -------------------
+  - id: libri-grave-r
+    level: detector
+    wav: ${MIO_GOLDEN_DIR}/libri/wb3.wav
+    text: "he has grave doubts whether sir frederick leighton's work is really greek after all and can discover in it but little of rocky ithaca"
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    detector: rhotic
+    phone: ɹ
+    occurrence: 1
+    class: english_r
+  - id: libri-interesting-r
+    level: detector
+    wav: ${MIO_GOLDEN_DIR}/libri/wb1.wav
+    text: "nor is mister quilter's manner less interesting than his matter"
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    detector: rhotic
+    phone: ɹ
+    occurrence: 2
+    class: english_r
+
+  # --- Common Phone es TEST (native Spanish), chosen at random (seed 20260930) among tokens where
+  #     Common Phone's IPA and MFA agree on tap/trill, non-coda, one speaker per clip.
+  - id: cp-es-trill-19702754
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_19702754.wav
+    text: "En su poesía y narrativa están presentes la muerte, el amor y la soledad."
+    l1: en
+    expect:
+      - {word: narrativa, target: r, class: trill}   # intervocalic
+  - id: cp-es-trill-20983782
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_20983782.wav
+    text: "Se encontró que el equipo de radioterapia estaba bien calibrado y trabajaba correctamente."
+    l1: en
+    expect:
+      - {word: radioterapia, target: r, class: trill}   # word_initial
+  - id: cp-es-trill-21981685
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_21981685.wav
+    text: "Todo ello según un profundo estudio realizado por Rafael Gandía."
+    l1: en
+    expect:
+      - {word: realizado, target: r, class: trill}   # word_initial
+  - id: cp-es-trill-19652808
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_19652808.wav
+    text: "Contaba con un consejo asesor y editaban una revista llamada Photo-Notes."
+    l1: en
+    expect:
+      - {word: revista, target: r, class: trill}   # word_initial
+  - id: cp-es-trill-20273026
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_20273026.wav
+    text: "Al contacto con la piel provoca dolor y enrojecimiento."
+    l1: en
+    expect:
+      - {word: enrojecimiento, target: r, class: trill}   # post_nls
+  - id: cp-es-trill-19263675
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_19263675.wav
+    text: "En algunos países ha obtenido reconocimiento legal oficial como religión."
+    l1: en
+    expect:
+      - {word: religión, target: r, class: trill}   # word_initial
+  - id: cp-es-trill-22201926
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_22201926.wav
+    text: "Al año siguiente, grabaron la producción musical titulada Te regalo todo."
+    l1: en
+    expect:
+      - {word: regalo, target: r, class: trill}   # word_initial
+  - id: cp-es-trill-20312434
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_20312434.wav
+    text: "Durante la Segunda Guerra Mundial, se unió a la Resistencia."
+    l1: en
+    expect:
+      - {word: guerra, target: r, class: trill}   # intervocalic
+  - id: cp-es-tap-20440555
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_20440555.wav
+    text: "Se alimentan de pequeños peces y crustáceos."
+    l1: en
+    expect:
+      - {word: crustáceos, target: ɾ, class: tap}   # onset_cluster
+  - id: cp-es-tap-18314969
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_18314969.wav
+    text: "todos dentro del barco , ¡ ya ! ¡ vamos , vamos !"
+    l1: en
+    expect:
+      - {word: dentro, target: ɾ, class: tap}   # onset_cluster
+  - id: cp-es-tap-21971037
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_21971037.wav
+    text: "Una batería del Cuartel General incluía una sección de control de disparo."
+    l1: en
+    expect:
+      - {word: general, target: ɾ, class: tap}   # intervocalic
+  - id: cp-es-tap-19633884
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_19633884.wav
+    text: "Las flores masculinas o estaminadas presentan un androceo con estambres rígidos, pilosos."
+    l1: en
+    expect:
+      - {word: presentan, target: ɾ, class: tap}   # onset_cluster
+  - id: cp-es-tap-22207671
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_22207671.wav
+    text: "Las fiestas en honor a San Sebastián se celebran en el mes de enero."
+    l1: en
+    expect:
+      - {word: enero, target: ɾ, class: tap}   # intervocalic
+  - id: cp-es-tap-18311421
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_18311421.wav
+    text: "Hace mucho tiempo que te esperamos."
+    l1: en
+    expect:
+      - {word: esperamos, target: ɾ, class: tap}   # intervocalic
+  - id: cp-es-tap-21974932
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_21974932.wav
+    text: "Fue censurada durante la dictadura militar."
+    l1: en
+    expect:
+      - {word: censurada, target: ɾ, class: tap}   # intervocalic
+  - id: cp-es-tap-19141343
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/es/test/common_voice_es_19141343.wav
+    text: "En Roma le fue consagrada una basílica."
+    l1: en
+    expect:
+      - {word: consagrada, target: ɾ, class: tap}   # onset_cluster
+  # --- Common Phone en TEST: English [ɹ] (onsets/intervocalic), CP and MFA agree on r count.
+  - id: cp-en-r-18664471
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_18664471.wav
+    text: "It’s a present from the White King and Queen."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 2   # 'from', onset_cluster
+    class: english_r
+  - id: cp-en-r-24123849
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_24123849.wav
+    text: "The original Salt Palace contained a dance hall, theater, and bicycle racing track."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'original', intervocalic
+    class: english_r
+  - id: cp-en-r-17573070
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_17573070.wav
+    text: "Pay and spray, stay and pray, play and sway, what did you say?"
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'spray', onset_cluster
+    class: english_r
+  - id: cp-en-r-23939352
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_23939352.wav
+    text: "“Yes, she shall have them all,” she replied, beaming with joy."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'replied', word_initial
+    class: english_r
+  - id: cp-en-r-25045679
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_25045679.wav
+    text: "The rest of the field was set on Saturday."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'rest', word_initial
+    class: english_r
+  - id: cp-en-r-18711145
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_18711145.wav
+    text: "Bajofondo Tango Club and the Gotan Project have fused tango with electronica."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'project', onset_cluster
+    class: english_r
+  - id: cp-en-r-20917610
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_20917610.wav
+    text: "The athletic teams compete as members of the Capital Area Activities Conference."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'area', intervocalic
+    class: english_r
+  - id: cp-en-r-122574
+    level: combined
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_122574.wav
+    text: "Two men wearing white tshirts are working at a meat counter."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'wearing', intervocalic
+    class: english_r
+
+  # --- Learner recordings (MIO_AUDIO_DUMP_DIR on the M4) -- TO FILL -------------------------
+  - id: learner-perro-english-r-TODO
+    level: pipeline
+    wav: ${MIO_AUDIO_DUMP_DIR}/el-perro-rojo_000.wav
+    text: "el perro rojo"
+    l1: en
+    expect:
+      - {word: perro, target: r, class: english_r}
+  - id: learner-perro-uvular-TODO
+    level: pipeline
+    wav: ${MIO_AUDIO_DUMP_DIR}/el-perro-rojo_001.wav
+    text: "el perro rojo"
+    l1: en
+    # the detector never asserts uvular: the correct outcome is "uncertain", not a wrong class
+    expect:
+      - {word: perro, target: r, status: uncertain}

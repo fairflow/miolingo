@@ -1,0 +1,26 @@
+{
+  "name": "miolingo-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Miolingo web port (M1 scaffold): Svelte 5 SPA over the phonetics oracle sidecar",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dexie": "^4.4.4"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.1.0",
+    "@types/node": "^26.1.0",
+    "fake-indexeddb": "^6.2.5",
+    "svelte": "^5.0.0",
+    "typescript": "^5.5.0",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "corpus": "common_phone",
+  "lang": "it",
+  "split": "test",
+  "n_requested": 150,
+  "n_items": 150,
+  "reference": "espeak-G2P of transcript (weighted_phone metric)",
+  "metric": "mean 1 - phone_distance.similarity",
+  "results": {
+    "fb": {
+      "model_id": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0849,
+      "load_and_run_s": 37.5
+    },
+    "fb-xlsr": {
+      "model_id": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0645,
+      "load_and_run_s": 35.3
+    },
+    "cnam-it": {
+      "model_id": "Cnam-LMSSC/wav2vec2-italian-phonemizer",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0461,
+      "load_and_run_s": 54.5
+    }
+  }
+}

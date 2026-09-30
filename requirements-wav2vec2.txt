@@ -4,3 +4,7 @@
 transformers>=4.30.0
 torch>=2.0.0
 librosa>=0.10.0
+# espeak-IPA phoneme CTC models (xlsr-53-espeak, lv-60-espeak) load a
+# Wav2Vec2PhonemeCTCTokenizer, which needs phonemizer (+ system espeak-ng)
+phonemizer>=3.2
+resampy>=0.4

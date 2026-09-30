@@ -1,0 +1,108 @@
+# Corrective coaching ladder, L1 English -> L2 Spanish (HANDOFF §3).
+# DRAFT by Claude. Nothing ships unreviewed: the loader refuses status: draft entries
+# unless allow_draft=True (debug). Matthew reviews, edits, and sets status: reviewed.
+# Keyed "<target>><realised_class>". Rungs in order: contrast, articulation, perception,
+# drills, stabilisation. `contrast.auto` is generated from PanPhon features at load time;
+# PanPhon has no trill/tap feature, so the manner difference is authored in `manner`.
+pair: {l1: en, l2: es}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+ladders:
+  "r>tap":
+    status: draft
+    contrast:
+      manner: >-
+        You made one quick tap of the tongue. Spanish "rr" (and r at the start of a word,
+        or after n, l, s) needs a TRILL: the tongue tip vibrates against the ridge behind
+        the top teeth two to four times.
+    articulation:
+      text: >-
+        Rest the tongue tip lightly just behind the upper front teeth (the alveolar ridge),
+        keep it relaxed -- not pressed. Blow a steady stream of air over it so it flaps on
+        its own, the way lips flutter when you blow a raspberry. The vibration comes from
+        airflow, not from moving the tongue on purpose.
+      diagram: null   # mid-sagittal diagram: source/licence to be decided (open question)
+    perception:
+      minimal_pairs: [[pero, perro], [caro, carro], [cero, cerro], [para, parra], [coro, corro], [moro, morro]]
+      task: same_different
+    drills:
+      - {step: "tap in pero", items: [pero, para, cara, toro]}
+      - {step: "fast repeated taps", items: ["pero-pero-pero", "para-para-para"]}
+      - {step: "tr / dr onsets", items: [tres, tren, trabajo, drama, dragón, madre]}
+      - {step: "trill in isolation", items: ["rrrr", "prrr", "trrr"]}
+      - {step: "trill in words", items: [perro, carro, rojo, rápido, Enrique, alrededor]}
+    stabilisation:
+      phrases: ["el perro corre", "un carro rojo", "Roberto está en Roma"]
+      sentences: ["Erre con erre cigarro, erre con erre barril.", "El perro de Rosa corre rápido por la carretera."]
+
+  "r>english_r":
+    status: draft
+    contrast:
+      manner: >-
+        That was an English-style r: the tongue bunched or curled back without touching the
+        roof of the mouth. Spanish rr needs the tongue TIP to touch the ridge behind the
+        upper teeth and vibrate.
+    articulation:
+      text: >-
+        Bring the tongue tip forward and up to the alveolar ridge (where you say "t" or "d").
+        Don't curl it back and don't round your lips. Start from a "d" position, then relax
+        and blow so the tip vibrates.
+      diagram: null
+    perception:
+      minimal_pairs: [[pero, perro], [caro, carro]]
+      task: same_different
+      contrast_audio: "native trill vs learner's own English r (from this attempt)"
+    drills:
+      - {step: "tip contact via d", items: [da, de, di, "dra", "dre"]}
+      - {step: "tap in pero", items: [pero, para, cara]}
+      - {step: "tr / dr onsets", items: [tres, drama, madre]}
+      - {step: "trill in isolation", items: ["rrrr", "trrr"]}
+      - {step: "trill in words", items: [perro, rojo, carro]}
+    stabilisation:
+      phrases: ["el perro rojo", "Ramón corre"]
+      sentences: ["Erre con erre cigarro, erre con erre barril."]
+
+  "ɾ>english_r":
+    status: draft
+    contrast:
+      manner: >-
+        That was an English r. The single Spanish r between vowels is a quick TAP of the
+        tongue tip -- the same movement as the "tt" in American English "butter" or "dd" in
+        "ladder", not the English r sound.
+    articulation:
+      text: >-
+        Say American "butter" and "ladder" quickly: the middle sound is the Spanish tap.
+        Now say "pot a" fast -> "pota", then "pero". Keep the lips unrounded and the tongue
+        tip forward.
+      diagram: null
+    perception:
+      minimal_pairs: [[pero, perro], [cara, carra]]
+      task: same_different
+    drills:
+      - {step: "flap from English", items: ["butter -> bura", "ladder -> lara", "pot a -> pora"]}
+      - {step: "tap in words", items: [pero, para, cara, toro, hora, mira]}
+      - {step: "tap in clusters", items: [tres, gracias, brazo, otro]}
+    stabilisation:
+      phrases: ["para mí", "ahora no", "cara a cara"]
+      sentences: ["Pero ahora quiero comer pera."]
+
+  "ɾ>trill":
+    status: draft
+    contrast:
+      manner: >-
+        You trilled. Between vowels a single r is ONE quick tap; a trill there makes pero
+        (but) sound like perro (dog).
+    articulation:
+      text: "Make one light, fast contact and let go immediately -- think of a single 'd' flick."
+      diagram: null
+    perception:
+      minimal_pairs: [[pero, perro], [caro, carro], [cero, cerro]]
+      task: same_different
+    drills:
+      - {step: "single tap", items: [pero, cara, toro, hora]}
+      - {step: "alternate tap/trill", items: ["pero / perro", "caro / carro", "cero / cerro"]}
+    stabilisation:
+      phrases: ["pero no", "cara bonita"]
+      sentences: ["El perro no es caro, pero es raro."]

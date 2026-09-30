@@ -1,0 +1,67 @@
+# Model / detector registry (HANDOFF §5).
+#
+# HARD RULE: the app refuses to use anything whose status is not `approved`.
+# Only Matthew sets `approved` (with approved_by / approved_on) after reviewing `results`.
+# Candidates may run only with allow_candidates=True (debug/testing); such analyses are
+# marked learner_visible=False and must not be shown to learners.
+#
+# status: candidate -> approved -> retired
+
+- id: whisper-gate
+  kind: gate
+  version: "openai-whisper (app setting)"
+  languages: [es, fr, it, pt, de, nl, ru, en]
+  results: []   # gate-only use; no realised-phone results yet
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {min_word_recall: 0.6}
+
+- id: mfa-spanish_mfa
+  kind: aligner
+  version: "3.2.0"   # acoustic model meta.json (release tag acoustic-spanish_mfa-v3.3.0)
+  languages: [es]
+  phones: [a, b, c, d̪, e, f, h, i, j, k, l, m, n, o, p, r, s, tʃ, t̪, u, v, w, x, z, ç, ð,
+           ŋ, ɟ, ɟʝ, ɡ, ɣ, ɱ, ɲ, ɾ, ʃ, ʎ, ʝ, β, θ]   # (+ nasalised vowels); no ɹ ɻ ʁ
+  results:
+    - research/phonetics/realised_phone/results/align_cp-es-test.json
+  # vs Common Phone's own IPA alignment (400 es test utts): rhotic midpoint |diff| median 11 ms,
+  # 73% within 20 ms; tap/trill agree on 612/614 non-coda rhotics (codas: MFA dictionary
+  # writes trill where CP writes tap -- neutralised there, both accepted).
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params:
+    acoustic_model: spanish_mfa
+    dictionary: spanish_mfa
+
+- id: fb-xlsr-53-espeak
+  kind: recognizer
+  version: "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
+  languages: [es, it, de, pt-br, nl, ru]
+  results:
+    - research/phonetics/phone_poc/results/cp_eval_es.json   # 0.0364 mean weighted err, n=150
+    # constrained candidate scoring in aligned windows:
+    - research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json   # smoke
+    - research/phonetics/realised_phone/results/rhotics_cp-test-cal-dev.json   # Common Phone test
+  # CP test (non-coda, decided tokens): tap 560/581, trill 84/98, English [ɹ] 391/408 (from
+  # English speakers -- not yet English-L1 learners speaking Spanish).
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.25, pad_s: 0.03, min_raw: 0.02}
+
+- id: rhotic-detector
+  kind: detector
+  version: "0.1.0"
+  languages: [es]
+  results:
+    - research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json   # smoke
+    - research/phonetics/realised_phone/results/rhotics_cp-test-shipped.json   # CP test, defaults
+    - research/phonetics/realised_phone/results/rhotics_cp-test-cal-dev.json   # CP test, calibrated
+    # Calibrated on CP dev (calibration/rhotic.yaml). Alone it is weak (dev balanced acc 0.66);
+    # its value is as a second, independent vote: combined confident accuracy 0.979.
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.3, calibration: calibration/rhotic.yaml}

@@ -10,6 +10,30 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.11.0-claude-dev] - 2026-09-30
+
+### Changed
+
+- Realised-phone rhotic detector calibrated on Common Phone dev; Common Phone test results (confident verdicts 97.9% correct at 47% coverage; trill weakest) recorded as registry evidence -- nothing approved.
+- Batch MFA alignment with cache; Common Phone extraction from the HF Parquet release; alignment check vs Common Phone IPA; 24 Common Phone golden clips (0 confident-wrong).
+
+
+## [7.10.0-claude-dev] - 2026-09-29
+
+### Added
+
+- Realised-phone identification, en->es /r/ slice (miolingo-6vo): MFA alignment, Parselmouth rhotic detector, constrained xlsr-53 evidence, agree/disagree verdicts, model registry with approval gate (nothing approved).
+- Debug-only 'Realised phones (experimental)' panel under Practice results: see/hear learner vs native, spectrogram/occlusion/F3 charts, draft coaching ladder.
+- Learner model (research priors, escalation, evidence-backed improvement feedback), golden/calibration/eval scripts, smoke results.
+
+
+## [7.9.13-claude-dev] - 2026-06-27
+
+### Added
+
+- Selectable weighted_phone scoring algorithm: phone-level IPA feature distance with the espeak-ng accent fold-map (edit_distance remains default).
+
+
 ## [7.9.12-claude-dev] - 2026-04-26
 
 ### Changed

@@ -48,6 +48,8 @@ new_tunnel = SSHTunnelForwarder(...)
 | `src/scoring/practice.py` | ~170 | Practice orchestration: silence trim, ASR, scoring pipeline |
 | `src/audio/tts.py` | ~280 | TTS engines: eSpeak, Google Cloud, gTTS + fallback dispatcher |
 | `src/audio/asr.py` | ~180 | ASR: Whisper, Wav2Vec2 transcription + model loaders |
+| `src/realised_phone/` | ~1,430 | Realised-phone identification (HANDOFF.md): MFA alignment, rhotic detector, constrained recognizer evidence, verdicts, model registry + approval gate, learner model, coaching. Spec: `docs/dev-docs/REALISED_PHONE_SPEC.md` |
+| `src/ui/realised_phone_panel.py` | ~170 | Debug-only "Realised phones (experimental)" panel under Practice results (es, unapproved models) |
 | `src/app_mysql.py` | 1,890 | Database layer — auth, progress, sessions, data persistence |
 | `src/app_language_materials.py` | 373 | Language material loading (phrases, words, stories by language/level) |
 | `src/session_manager.py` | 272 | Streamlit session state management |
