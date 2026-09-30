@@ -37,7 +37,7 @@ import numpy as np  # noqa: E402
 import yaml  # noqa: E402
 
 from realised_phone import corpora  # noqa: E402
-from realised_phone.align import AlignmentError, context_of, mfa_align  # noqa: E402
+from realised_phone.tokens import EN_LABELS, ES_LABELS, rhotic_tokens  # noqa: E402
 from realised_phone.detectors.rhotic import RhoticDetector, load_calibration  # noqa: E402
 
 CLASSES = ("trill", "tap", "english_r")
@@ -50,27 +50,12 @@ def permissive(cal: dict) -> dict:
     return c
 
 
-def collect(items, acoustic_model, dictionary, label_of, det, limit_ctx=None):
-    import soundfile as sf
+def collect(stream, det):
     out = []
-    for it in items:
-        try:
-            al = mfa_align(it["wav"], it["text"], acoustic_model, dictionary)
-        except AlignmentError as e:
-            print(f"skip {it['wav']}: {e}", file=sys.stderr)
-            continue
-        x, sr = sf.read(it["wav"], dtype="float64")
-        if x.ndim > 1:
-            x = x.mean(axis=1)
-        for i, p in enumerate(al.phones):
-            lab = label_of.get(p.label)
-            if lab is None:
-                continue
-            ctx = context_of(al, i)
-            if limit_ctx and ctx in limit_ctx:
-                continue
-            m = det.measure(x, sr, (p.start, p.end))
-            out.append({"label": lab, "context": ctx, "m": m, "wav": it["wav"]})
+    for t in stream:
+        p = t["phone"]
+        m = det.measure(t["x"], t["sr"], (p.start, p.end))
+        out.append({"label": t["label"], "context": t["context"], "m": m, "wav": t["wav"]})
     return out
 
 
@@ -113,10 +98,15 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cp-root")
     ap.add_argument("--lang", default="es")
-    ap.add_argument("--split", default="test")
+    ap.add_argument("--split", default="dev", help="Common Phone split to calibrate on "
+                    "(default dev; keep test for eval_rhotics.py)")
     ap.add_argument("--n", type=int, default=200)
     ap.add_argument("--native-tsv", help="wav<TAB>text native Spanish (alternative to --cp-root)")
     ap.add_argument("--english-tsv")
+    ap.add_argument("--en-cp", action="store_true", help="English [ɹ] tokens from Common Phone en")
+    ap.add_argument("--en-n", type=int, default=150)
+    ap.add_argument("--cache", default=None, help="alignment cache dir (reused across runs)")
+    ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--es-model", default="spanish_mfa")
     ap.add_argument("--es-dict", default="spanish_mfa")
     ap.add_argument("--en-model", default="english_mfa")
@@ -128,14 +118,18 @@ def main() -> int:
     base = load_calibration()
     det = RhoticDetector(permissive(base))
     tokens = []
+    kw = dict(cache_dir=args.cache, jobs=args.jobs)
     if args.cp_root or args.native_tsv:
         items = (corpora.common_phone(args.cp_root, args.lang, args.split, args.n) if args.cp_root
                  else corpora.tsv(args.native_tsv))
-        tokens += collect(items, args.es_model, args.es_dict, {"r": "trill", "ɾ": "tap"}, det,
-                          limit_ctx={"coda"})
+        tokens += collect(rhotic_tokens(items, args.es_model, args.es_dict, ES_LABELS, "native_es",
+                                        exclude_contexts=("coda",), **kw), det)
+    if args.en_cp and args.cp_root:
+        tokens += collect(rhotic_tokens(corpora.common_phone(args.cp_root, "en", args.split, args.en_n),
+                                        args.en_model, args.en_dict, EN_LABELS, "english", **kw), det)
     if args.english_tsv:
-        tokens += collect(corpora.tsv(args.english_tsv), args.en_model, args.en_dict,
-                          {"ɹ": "english_r"}, det)
+        tokens += collect(rhotic_tokens(corpora.tsv(args.english_tsv), args.en_model, args.en_dict,
+                                        EN_LABELS, "english", **kw), det)
     if not tokens:
         print("no tokens collected", file=sys.stderr)
         return 2
@@ -178,7 +172,8 @@ def main() -> int:
     cal["provenance"] = {
         "method": "scripts/realised_phone/calibrate_rhotic.py grid search, balanced accuracy "
                   f"on decided tokens, coverage >= {args.min_coverage}",
-        "clips": {"native": args.cp_root or args.native_tsv, "english": args.english_tsv,
+        "clips": {"native": args.cp_root or args.native_tsv, "split": args.split,
+                  "english": ("Common Phone en " + args.split) if args.en_cp else args.english_tsv,
                   "counts": dict(Counter(t["label"] for t in tokens))},
         "result": {"balanced_accuracy": bal, "coverage": cov,
                    "confusion": {k: dict(v) for k, v in conf.items()}},

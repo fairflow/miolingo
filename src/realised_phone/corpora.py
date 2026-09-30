@@ -19,7 +19,8 @@ def common_phone(cp_root: str, lang: str, split: str = "test", n: int = 0) -> It
         for row in csv.DictReader(f):
             wav = d / "wav" / f"{Path(row['audio file']).stem}.wav"
             if wav.exists():
-                yield {"wav": str(wav), "text": row["text"]}
+                yield {"wav": str(wav), "text": row["text"], "id": wav.stem,
+                       "speaker": row.get("client_id") or row.get("speaker") or ""}
                 k += 1
                 if n and k >= n:
                     return

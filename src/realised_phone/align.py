@@ -64,12 +64,7 @@ def mfa_align(wav_path: str, text: str, acoustic_model: str, dictionary: str,
               *, source_id: str = "", version: str = "", status: str = "",
               timeout: float = 120.0) -> Alignment:
     cmd_prefix = shlex.split(os.environ.get("MIO_MFA_CMD", "mfa"))
-    models = os.environ.get("MIO_MFA_MODELS")
-    am, dic = acoustic_model, dictionary
-    if models:
-        m = Path(models)
-        am = str(m / acoustic_model) if (m / acoustic_model).exists() else str(m / f"{acoustic_model}.zip")
-        dic = str(m / f"{dictionary}.dict")
+    am, dic = _resolve_models(acoustic_model, dictionary)
     with tempfile.TemporaryDirectory(prefix="mio_mfa_") as td:
         txt = Path(td) / "utt.txt"
         txt.write_text(" ".join(words_of(text)), encoding="utf-8")
@@ -89,6 +84,64 @@ def mfa_align(wav_path: str, text: str, acoustic_model: str, dictionary: str,
                             source_id, version, status)
     al.oov = [w for w in words_of(text) if w not in {x.label for x in al.words}]
     return al
+
+
+def _resolve_models(acoustic_model: str, dictionary: str) -> tuple[str, str]:
+    models = os.environ.get("MIO_MFA_MODELS")
+    if not models:
+        return acoustic_model, dictionary
+    m = Path(models)
+    am = str(m / acoustic_model) if (m / acoustic_model).exists() else str(m / f"{acoustic_model}.zip")
+    return am, str(m / f"{dictionary}.dict")
+
+
+def mfa_align_batch(items: list[dict], acoustic_model: str, dictionary: str,
+                    cache_dir: Optional[str] = None, jobs: int = 4,
+                    timeout: float = 6 * 3600.0) -> dict[str, Alignment]:
+    """Align many utterances with ONE `mfa align` run (model loaded once) --
+    for evaluation/calibration, where align_one's per-call start-up dominates.
+
+    items: [{"id", "wav", "text"}]; ids must be filesystem-safe and unique.
+    Each utterance gets its own speaker directory so MFA's per-speaker
+    adaptation never mixes utterances. Results are cached as
+    <cache_dir>/<acoustic_model>/<id>.json (MFA JSON) and reused.
+    Returns {id: Alignment}; utterances MFA could not align are absent.
+    """
+    cache = Path(cache_dir) / acoustic_model if cache_dir else None
+    if cache:
+        cache.mkdir(parents=True, exist_ok=True)
+    todo = [it for it in items if not (cache and (cache / f"{it['id']}.json").exists())]
+    if todo:
+        am, dic = _resolve_models(acoustic_model, dictionary)
+        cmd_prefix = shlex.split(os.environ.get("MIO_MFA_CMD", "mfa"))
+        with tempfile.TemporaryDirectory(prefix="mio_mfa_batch_") as td:
+            corpus, out = Path(td) / "corpus", Path(td) / "out"
+            for it in todo:
+                d = corpus / it["id"]
+                d.mkdir(parents=True)
+                (d / f"{it['id']}.wav").symlink_to(Path(it["wav"]).resolve())
+                (d / f"{it['id']}.lab").write_text(" ".join(words_of(it["text"])), encoding="utf-8")
+            cmd = cmd_prefix + ["align", str(corpus), dic, am, str(out), "--output_format", "json",
+                                "-j", str(jobs), "--clean", "--quiet"]
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+            if proc.returncode != 0:
+                tail = (proc.stderr or proc.stdout or "").strip().splitlines()[-3:]
+                raise AlignmentError("MFA align failed: " + " | ".join(tail))
+            for it in todo:
+                f = out / it["id"] / f"{it['id']}.json"
+                if f.exists() and cache:
+                    (cache / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+                elif f.exists():
+                    it["_json"] = f.read_text(encoding="utf-8")
+    result = {}
+    for it in items:
+        raw = (cache / f"{it['id']}.json").read_text(encoding="utf-8") if cache and \
+            (cache / f"{it['id']}.json").exists() else it.pop("_json", None)
+        if raw:
+            al = parse_mfa_json(json.loads(raw))
+            al.oov = [w for w in words_of(it["text"]) if w not in {x.label for x in al.words}]
+            result[it["id"]] = al
+    return result
 
 
 def context_of(alignment: Alignment, i: int) -> str:
