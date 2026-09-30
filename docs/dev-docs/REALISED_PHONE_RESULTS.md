@@ -131,6 +131,15 @@ The same method was used: Common Phone test split, non-coda tokens, both sources
   become uncertain. English → Spanish went from 97.9% at 47% to **98.2% at 46%**.
 - It shouldn't be relied on alone.
 
+**Golden clips:** 24 new ones, chosen the same way as the Spanish ones. Results: 15 pass,
+9 uncertain, **0 confidently wrong**. Across the whole manifest (50 clips): 34 pass, 14 uncertain,
+2 tentative-and-wrong, 0 confidently wrong.
+- **Next detector fix:** 4 of the 9 uncertain cases are French [ʁ] straight after a stop
+  (*trente*, *précis*, *crabiers*, *projets*). The stop's closure and release look like a
+  tongue-tip contact, so the detector says "tap" while the recognizer says "uvular".
+- English [ɹ] in *grave*/*principles* had the same issue. Ignoring a dip at the very start of an
+  r that follows a stop should fix both.
+
 Result files: `results/rhotics_cp-test-fr-en.json`, `rhotics_cp-test-en-fr-xlsr.json`,
 `rhotics_cp-test-en-fr.json` (Cnam), `rhotics_cp-test-en-es-uvcue.json`.
 
