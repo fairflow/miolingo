@@ -1,15 +1,18 @@
-# Rhotic detector thresholds (HANDOFF §1b source 3). NOT calibrated on real data yet.
-# Seeded from phonetics literature + synthetic tests; replace with the output of
-#   scripts/realised_phone/calibrate_rhotic.py --manifest <labelled clips>
-# and record provenance below. Detector refuses nothing on calibrated: false, but the
-# registry entry stays `candidate` until Matthew approves calibrated results.
-calibrated: false
+# Rhotic detector thresholds (HANDOFF §1b source 3), calibrated on data by
+#   scripts/realised_phone/calibrate_rhotic.py  (grid search, balanced accuracy on decided
+#   tokens, coverage >= 0.6) on the Common Phone DEV split, then checked on the TEST split.
+# Calibrated != approved: the registry entry stays `candidate` until Matthew approves.
+calibrated: true
 provenance:
-  method: "defaults; literature ranges (trill ~20-30 Hz occlusion rate, 2-3 contacts;
-           tap single contact ~20-30 ms; English approximant r: F3 strongly lowered)"
-  clips: "smoke only (not calibration): 8 LibriSpeech dummy utts (English [ɹ], MFA english_mfa);
-          8 MINDS-14 es-ES phone utts (native Spanish, MFA spanish_mfa)"
-  date: null
+  method: "calibrate_rhotic.py grid search on Common Phone dev (HF pklumpp/CommonPhoneDataset,
+           CC0): es 400 utts / 136 speakers, en 400 utts / 202 speakers, <=3 utts per speaker;
+           labels = MFA canonical phones (es r->trill, ɾ->tap; en ɹ->english_r), codas excluded"
+  clips: {tap: 571, trill: 134, english_r: 436}
+  dev_result: {balanced_accuracy: 0.664, coverage: 0.680}
+  test_check: "research/phonetics/realised_phone/results/rhotics_cp-test-cal-dev.json:
+               combined confident accuracy 0.979 at coverage 0.474 (shipped defaults: 0.969 / 0.485)"
+  changed_from_defaults: {occlusion.min_depth_db: "5 -> 8", trill.interval_ms: "[25, 75] -> [25, 60]"}
+  date: "2026-09-30"
 
 envelope:
   lowpass_hz: 60.0     # envelope smoothing: keeps 13-40 Hz contact rate, drops pitch ripple
@@ -17,14 +20,14 @@ envelope:
   bandpass_hz: [300, 4000]   # voiced energy band; occlusions dip here
 
 occlusion:
-  min_depth_db: 5.0          # dip prominence vs surrounding maxima
+  min_depth_db: 8.0          # dip prominence vs surrounding maxima
   max_width_ms: 40.0         # wider than this = stop closure / pause, not a contact
   min_separation_ms: 18.0    # contacts closer than this are merged
   edge_tolerance_ms: 15.0    # count dips this far outside the aligned segment (MFA boundary slop)
 
 trill:
   min_contacts: 2
-  interval_ms: [25.0, 75.0]  # 13-40 Hz contact rate accepted
+  interval_ms: [25.0, 60.0]  # 17-40 Hz contact rate accepted
 
 formant:
   max_formant_hz: 5500.0

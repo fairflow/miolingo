@@ -23,7 +23,11 @@
   languages: [es]
   phones: [a, b, c, d̪, e, f, h, i, j, k, l, m, n, o, p, r, s, tʃ, t̪, u, v, w, x, z, ç, ð,
            ŋ, ɟ, ɟʝ, ɡ, ɣ, ɱ, ɲ, ɾ, ʃ, ʎ, ʝ, β, θ]   # (+ nasalised vowels); no ɹ ɻ ʁ
-  results: []   # alignment accuracy not yet measured (needs CP es TextGrid comparison)
+  results:
+    - research/phonetics/realised_phone/results/align_cp-es-test.json
+  # vs Common Phone's own IPA alignment (400 es test utts): rhotic midpoint |diff| median 11 ms,
+  # 73% within 20 ms; tap/trill agree on 612/614 non-coda rhotics (codas: MFA dictionary
+  # writes trill where CP writes tap -- neutralised there, both accepted).
   status: candidate
   approved_by: null
   approved_on: null
@@ -37,10 +41,11 @@
   languages: [es, it, de, pt-br, nl, ru]
   results:
     - research/phonetics/phone_poc/results/cp_eval_es.json   # 0.0364 mean weighted err, n=150
-    # constrained candidate scoring in aligned windows -- SMOKE set only (phone-band es + LibriSpeech):
-    - research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json
-  # Smoke: names English [ɹ] in 32/33 aligned windows; never favours ɹ on native Spanish
-  # (max 0.03); tap/trill right on 34/38 native tokens. Needs a CP-es + learner run to approve.
+    # constrained candidate scoring in aligned windows:
+    - research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json   # smoke
+    - research/phonetics/realised_phone/results/rhotics_cp-test-cal-dev.json   # Common Phone test
+  # CP test (non-coda, decided tokens): tap 560/581, trill 84/98, English [ɹ] 391/408 (from
+  # English speakers -- not yet English-L1 learners speaking Spanish).
   status: candidate
   approved_by: null
   approved_on: null
@@ -51,8 +56,11 @@
   version: "0.1.0"
   languages: [es]
   results:
-    - research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json   # SMOKE only
-    # + tests/realised_phone/test_rhotic_detector.py (synthetic cue logic). Not calibrated.
+    - research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json   # smoke
+    - research/phonetics/realised_phone/results/rhotics_cp-test-shipped.json   # CP test, defaults
+    - research/phonetics/realised_phone/results/rhotics_cp-test-cal-dev.json   # CP test, calibrated
+    # Calibrated on CP dev (calibration/rhotic.yaml). Alone it is weak (dev balanced acc 0.66);
+    # its value is as a second, independent vote: combined confident accuracy 0.979.
   status: candidate
   approved_by: null
   approved_on: null

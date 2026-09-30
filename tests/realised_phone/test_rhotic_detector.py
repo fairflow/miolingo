@@ -32,8 +32,9 @@ def test_classes_across_voices(kind, expected, f0):
 def test_trill_measurements_are_traceable():
     _, m, _ = top_class("trill")
     assert m["n_occlusions"] >= 2
-    assert all(25 <= iv <= 75 for iv in m["intervals_ms"])
-    assert m["calibrated"] is False
+    lo, hi = RhoticDetector().cal["trill"]["interval_ms"]
+    assert all(lo <= iv <= hi for iv in m["intervals_ms"])
+    assert m["calibrated"] is RhoticDetector().cal["calibrated"]   # carried into evidence
 
 
 def test_english_r_splits_evenly_over_indistinguishable_class():

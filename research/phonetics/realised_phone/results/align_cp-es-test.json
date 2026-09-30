@@ -1,0 +1,36 @@
+{
+ "label": "test",
+ "tsv": "/opt/cpdata/es/test/list.tsv",
+ "date": "2026-09-30",
+ "aligner": "mfa spanish_mfa (acoustic 3.2.0) vs Common Phone MAU IPA",
+ "n_utterances": 400,
+ "n_rhotics_paired": 1015,
+ "skipped": {
+  "rhotic_count_mismatch": 80
+ },
+ "boundary_abs_diff_s": {
+  "start": {
+   "median": 0.006,
+   "p90": 0.046,
+   "mean": 0.0293
+  },
+  "end": {
+   "median": 0.014,
+   "p90": 0.054,
+   "mean": 0.0339
+  },
+  "midpoint": {
+   "median": 0.011,
+   "p90": 0.044,
+   "mean": 0.0284
+  }
+ },
+ "midpoint_within_20ms": 0.734,
+ "class_agreement": {
+  "cp_tap->mfa_tap": 696,
+  "cp_tap->mfa_trill": 197,
+  "cp_trill->mfa_tap": 1,
+  "cp_trill->mfa_trill": 121
+ },
+ "class_agreement_rate": 0.805
+}
