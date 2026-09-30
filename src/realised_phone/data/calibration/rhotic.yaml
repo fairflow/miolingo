@@ -36,3 +36,14 @@ formant:
   min_low_fraction: 0.5      # share of voiced segment frames that must be lowered (not one glitch)
   min_hf_energy_db: -30.0    # energy >4.1 kHz vs total. Measured: LibriSpeech 16 kHz -9..-14 dB;
                              # MINDS-14 phone audio -37..-48 dB. Below = narrowband, F3 unreliable
+
+uvular:
+  # Positive uvular cue (French [ʁ]/[χ]/[ʀ]). Rule chosen on Common Phone DEV (fr [ʁ] 558,
+  # en [ɹ] 436, es tap 571 / trill 134 tokens, non-coda) as the best simple rule with <=5%
+  # false uvular on tap/trill and <=5% on English r: recall 0.44, FP tap/trill 0.05, FP ɹ 0.01.
+  # Caveat: uvular tokens are all French speakers and tap/trill all Spanish -- some separation
+  # may be speaker/recording, not phonetics. Test-split check: results/rhotics_cp-*-fr*.json.
+  f3_ratio_min: 0.9        # F3 not lowered (English [ɹ] lowers it)
+  f2_ratio_max: 0.95       # tongue body backed -> F2 lower than the speaker's median ...
+  voiced_max: 0.5          # ... or mostly devoiced ([χ] after voiceless consonants)
+  min_duration_ms: 70.0    # taps are short

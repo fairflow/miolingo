@@ -1,0 +1,21 @@
+# L1-agnostic candidate inventory for L2 French, used when no <l1>-fr.yaml exists.
+# Union of r-substitutes across the app's source languages. DRAFT for Matthew's review.
+pair: {l1: any, l2: fr}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  ʁ:
+    name: uvular r
+    detector: rhotic
+    candidates:
+      - {phone: ʁ, class: uvular, kind: canonical}
+      - {phone: χ, class: uvular, kind: dialect, note: "devoiced after voiceless consonants -- correct"}
+      - {phone: ʀ, class: uvular, kind: dialect}
+      - {phone: ɹ, class: english_r, kind: l1_transfer, note: "English; some Dutch codas"}
+      - {phone: ɻ, class: english_r, kind: l1_transfer}
+      - {phone: r, class: trill, kind: l1_transfer, note: "Spanish, Italian, Portuguese (EU) speakers; regional French"}
+      - {phone: ɾ, class: tap, kind: l1_transfer, note: "Spanish, Italian, Portuguese speakers"}
+      - {phone: x, class: velar_glottal, kind: l1_transfer, note: "Spanish/Portuguese speakers"}
+      - {phone: h, class: velar_glottal, kind: l1_transfer, note: "Brazilian Portuguese speakers"}

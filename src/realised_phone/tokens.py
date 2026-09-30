@@ -14,6 +14,7 @@ from realised_phone.align import context_of, mfa_align_batch
 
 ES_LABELS = {"r": "trill", "ɾ": "tap"}
 EN_LABELS = {"ɹ": "english_r"}
+FR_LABELS = {"ʁ": "uvular"}      # MFA french_mfa label for French r
 
 
 def rhotic_tokens(items: Iterable[dict], acoustic_model: str, dictionary: str,

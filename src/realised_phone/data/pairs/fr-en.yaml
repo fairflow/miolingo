@@ -1,0 +1,72 @@
+# Candidate inventory: L1 French -> L2 English (HANDOFF §1a). Targets keyed by the
+# aligner's IPA labels (MFA english_mfa + english_us_mfa dictionary). DRAFT by Claude for
+# Matthew's review; sources in ../priors/fr-en.yaml.
+pair: {l1: fr, l2: en}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  ɹ:
+    name: English approximant r (red, very, tree)
+    detector: rhotic
+    # Codas are not judged: non-rhotic accents (British, Australian...) drop coda r, and an
+    # absent sound can't be told apart from a badly aligned one.
+    skip: [coda]
+    candidates:
+      - {phone: ɹ, class: english_r, kind: canonical}
+      - {phone: ɻ, class: english_r, kind: dialect, note: "retroflex/bunched variant -- correct"}
+      - {phone: ʁ, class: uvular, kind: l1_transfer, note: "French uvular r: the main error"}
+      - {phone: χ, class: uvular, kind: l1_transfer, note: "devoiced, after voiceless consonants (tree, price)"}
+      - {phone: ʀ, class: uvular, kind: l1_transfer}
+      - {phone: r, class: trill, kind: other, note: "alveolar trill (regional French)"}
+      - {phone: ɾ, class: tap, kind: dialect, note: "tap: Scottish/older British, some intervocalic -- Matthew to decide"}
+
+  # --- inventory only (no detector yet); planned detectors noted -----------------------------
+  θ:
+    name: voiceless dental fricative (think, bath)
+    detector: null   # planned: fricative place (spectral centre of gravity; [s] much higher)
+    candidates:
+      - {phone: θ, class: dental_fricative, kind: canonical}
+      - {phone: s, class: sibilant, kind: l1_transfer, note: "think -> sink: the classic French substitution"}
+      - {phone: t, class: stop, kind: l1_transfer}
+      - {phone: f, class: labiodental, kind: l1_transfer}
+  ð:
+    name: voiced dental fricative (this, mother)
+    detector: null   # planned: fricative place + voicing; MFA variant d̪ for 'the' is already evidence
+    candidates:
+      - {phone: ð, class: dental_fricative, kind: canonical}
+      - {phone: z, class: sibilant, kind: l1_transfer}
+      - {phone: d, class: stop, kind: l1_transfer}
+      - {phone: d̪, class: stop, kind: l1_transfer}
+      - {phone: v, class: labiodental, kind: l1_transfer}
+  h:
+    name: glottal fricative (hat, happy)
+    detector: null   # planned: aspiration noise before the vowel
+    candidates:
+      - {phone: h, class: glottal, kind: canonical}
+      - {phone: ʔ, class: glottal_stop, kind: l1_transfer, note: "h-dropping often leaves a vowel onset or glottal stop"}
+  pʰ:
+    name: aspirated voiceless bilabial stop (pat), long-lag VOT
+    detector: null   # planned: vot (shared with en-fr)
+    candidates:
+      - {phone: pʰ, class: aspirated, kind: canonical}
+      - {phone: p, class: unaspirated, kind: l1_transfer, note: "French short-lag VOT: can sound like [b]"}
+  tʰ:
+    name: aspirated voiceless alveolar stop (top)
+    detector: null   # planned: vot
+    candidates:
+      - {phone: tʰ, class: aspirated, kind: canonical}
+      - {phone: t, class: unaspirated, kind: l1_transfer}
+  kʰ:
+    name: aspirated voiceless velar stop (cat)
+    detector: null   # planned: vot
+    candidates:
+      - {phone: kʰ, class: aspirated, kind: canonical}
+      - {phone: k, class: unaspirated, kind: l1_transfer}
+  ɪ:
+    name: lax high front vowel (ship, bit)
+    detector: null   # planned: F1/F2 + duration
+    candidates:
+      - {phone: ɪ, class: lax, kind: canonical}
+      - {phone: i, class: tense, kind: l1_transfer, note: "ship -> sheep: French has one [i]"}

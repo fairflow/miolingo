@@ -1,0 +1,22 @@
+# L1-agnostic candidate inventory for L2 English, used when no <l1>-en.yaml exists.
+# Union of r-substitutes across the app's source languages. DRAFT for Matthew's review.
+pair: {l1: any, l2: en}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  ɹ:
+    name: English approximant r
+    detector: rhotic
+    skip: [coda]     # non-rhotic accents drop coda r; deletion isn't detectable
+    candidates:
+      - {phone: ɹ, class: english_r, kind: canonical}
+      - {phone: ɻ, class: english_r, kind: dialect}
+      - {phone: ʁ, class: uvular, kind: l1_transfer, note: "French, German, Dutch, Portuguese (EU)"}
+      - {phone: χ, class: uvular, kind: l1_transfer}
+      - {phone: ʀ, class: uvular, kind: l1_transfer}
+      - {phone: r, class: trill, kind: l1_transfer, note: "Spanish, Italian speakers"}
+      - {phone: ɾ, class: tap, kind: l1_transfer, note: "Spanish, Italian, Portuguese speakers"}
+      - {phone: x, class: velar_glottal, kind: l1_transfer}
+      - {phone: h, class: velar_glottal, kind: l1_transfer, note: "Brazilian Portuguese speakers"}

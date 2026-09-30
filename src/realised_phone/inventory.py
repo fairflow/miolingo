@@ -42,6 +42,7 @@ class Target:
     detector: Optional[str]
     candidates: list[Candidate]
     accept: dict[str, list[str]] = field(default_factory=dict)  # context -> correct classes
+    skip: list[str] = field(default_factory=list)   # contexts never judged (e.g. English coda r)
 
     def accepted_classes(self, context: str) -> list[str]:
         """Classes counted as correct in this context (default: canonical class only)."""
@@ -91,5 +92,5 @@ def load(l1: str, l2: str) -> PairInventory:
         if sum(c.kind == "canonical" for c in cands) != 1:
             raise ValueError(f"{path}: target {key} needs exactly one canonical candidate")
         targets[norm_ipa(key)] = Target(norm_ipa(key), t.get("name", ""), t.get("detector"),
-                                        cands, t.get("accept") or {})
+                                        cands, t.get("accept") or {}, t.get("skip") or [])
     return PairInventory(l1, raw["pair"]["l2"], raw.get("status", "draft"), targets, generic)

@@ -1,0 +1,72 @@
+# Candidate inventory: L1 English -> L2 French (HANDOFF §1a). Targets keyed by the
+# aligner's IPA labels (MFA french_mfa). DRAFT by Claude for Matthew's review;
+# sources in ../priors/en-fr.yaml.
+pair: {l1: en, l2: fr}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  ʁ:
+    name: uvular r (rouge, trois, pour)
+    detector: rhotic
+    candidates:
+      - {phone: ʁ, class: uvular, kind: canonical}
+      - {phone: χ, class: uvular, kind: dialect, note: "devoiced ʁ after voiceless consonants (trois, prendre) -- correct"}
+      - {phone: ʀ, class: uvular, kind: dialect, note: "uvular trill -- correct, emphatic/older"}
+      - {phone: ɹ, class: english_r, kind: l1_transfer, note: "English approximant r: the main error"}
+      - {phone: ɻ, class: english_r, kind: l1_transfer}
+      - {phone: r, class: trill, kind: dialect, note: "alveolar trill: regional/older French, not the standard target"}
+      - {phone: ɾ, class: tap, kind: l1_transfer, note: "tap (e.g. learners who also speak Spanish)"}
+    # accepted: the uvular class only (standard French). Alveolar r is regional -- Matthew to decide.
+
+  # --- inventory only (no detector yet); planned detectors noted -----------------------------
+  y:
+    name: close front rounded vowel (tu, rue)
+    detector: null   # planned: F1/F2/F3 (rounding lowers F2/F3 vs [i]; front vs [u])
+    candidates:
+      - {phone: y, class: front_rounded, kind: canonical}
+      - {phone: u, class: back_rounded, kind: l1_transfer, note: "tu -> tout: the classic error"}
+      - {phone: ʉ, class: back_rounded, kind: l1_transfer, note: "English fronted 'goose' vowel"}
+      - {phone: i, class: front_unrounded, kind: l1_transfer}
+      - {phone: ju, class: glide_u, kind: l1_transfer, note: "English 'you'-type [ju]"}
+  u:
+    name: close back rounded vowel (tout, vous)
+    detector: null   # planned: F2
+    candidates:
+      - {phone: u, class: back_rounded, kind: canonical}
+      - {phone: ʉ, class: fronted, kind: l1_transfer, note: "English fronted [ʉ] (goose-fronting)"}
+      - {phone: uː, class: back_rounded, kind: l1_transfer}
+      - {phone: ʊ, class: lax, kind: l1_transfer}
+  ɑ̃:
+    name: nasal vowel (dans, temps)
+    detector: null   # planned: nasality / following [n] check
+    candidates:
+      - {phone: ɑ̃, class: nasal, kind: canonical}
+      - {phone: ɑn, class: vowel_plus_n, kind: l1_transfer, note: "oral vowel + [n]/[ŋ]"}
+      - {phone: ɔ̃, class: other_nasal, kind: l1_transfer, note: "dans/dont confusion"}
+  ɔ̃:
+    name: nasal vowel (bon, nom)
+    detector: null
+    candidates:
+      - {phone: ɔ̃, class: nasal, kind: canonical}
+      - {phone: ɔn, class: vowel_plus_n, kind: l1_transfer}
+      - {phone: ɑ̃, class: other_nasal, kind: l1_transfer}
+  p:
+    name: voiceless bilabial stop, short-lag VOT
+    detector: null   # planned: vot
+    candidates:
+      - {phone: p, class: unaspirated, kind: canonical}
+      - {phone: pʰ, class: aspirated, kind: l1_transfer}
+  t:
+    name: voiceless dental stop, short-lag VOT
+    detector: null   # planned: vot
+    candidates:
+      - {phone: t, class: unaspirated, kind: canonical}
+      - {phone: tʰ, class: aspirated, kind: l1_transfer}
+  k:
+    name: voiceless velar stop, short-lag VOT
+    detector: null   # planned: vot
+    candidates:
+      - {phone: k, class: unaspirated, kind: canonical}
+      - {phone: kʰ, class: aspirated, kind: l1_transfer}

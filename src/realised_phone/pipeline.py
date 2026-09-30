@@ -29,9 +29,13 @@ from realised_phone.model import Alignment, AttemptAnalysis, GateResult, Verdict
 from realised_phone.recognizer import RecognizerSource, candidate_scores
 from realised_phone.registry import APPROVED, ModelNotApproved, Registry
 
-# Default source ids per L2 (registry ids).
-ALIGNER_FOR = {"es": "mfa-spanish_mfa"}
-RECOGNIZER_FOR = {"es": "fb-xlsr-53-espeak"}
+
+def source_for(reg: Registry, kind: str, l2: str, notes: Optional[list] = None) -> Optional[str]:
+    """Registry id of the first `kind` (aligner/recognizer) entry for L2 (dialect first)."""
+    e, dialect_fallback = reg.find(kind, l2)
+    if e is not None and dialect_fallback and notes is not None:
+        notes.append(f"{kind} {e.id} is for {l2.split('-')[0]}; dialect {l2} not modelled separately")
+    return e.id if e else None
 
 
 @dataclass
@@ -91,7 +95,7 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
         return _empty(target_text, l1, l2, g, used, notes)
 
     # 2. Align
-    aid = ALIGNER_FOR.get(l2)
+    aid = source_for(reg, "aligner", l2, notes)
     ae = _use(aid) if aid else None
     if ae is None:
         notes.append(f"no usable aligner for {l2}")
@@ -108,7 +112,7 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
         notes.append(f"words not in aligner dictionary: {', '.join(al.oov)}")
 
     # 3. Sources for segments
-    rid = RECOGNIZER_FOR.get(l2)
+    rid = source_for(reg, "recognizer", l2, notes)
     re_ = _use(rid) if rid else None
     rec = None
     if re_ is not None:
@@ -123,6 +127,9 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
         tgt = pair.target(ph.label)
         if tgt is None or tgt.phone not in scope:
             continue
+        ctx = context_of(al, i)
+        if ctx in tgt.skip:
+            continue          # e.g. English coda r: not judged (see pair file)
         pc = tgt.phone_class
         evidence = []
         # source 3: detector
@@ -158,7 +165,6 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
             continue          # no usable source for this target: nothing to report
         v = comb.combine(evidence, pc, min_agreeing_sources)
         w_i = ph.word_index if ph.word_index is not None else -1
-        ctx = context_of(al, i)
         verdicts.append(Verdict(
             target=tgt.phone, target_class=tgt.canonical.cls,
             word=al.words[w_i].label if w_i >= 0 else "", word_index=w_i, phone_index=i,

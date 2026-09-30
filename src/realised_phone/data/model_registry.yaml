@@ -35,10 +35,41 @@
     acoustic_model: spanish_mfa
     dictionary: spanish_mfa
 
+- id: mfa-french_mfa
+  kind: aligner
+  version: "3.0.0"   # acoustic model meta.json (release tag acoustic-french_mfa-v3.0.0)
+  languages: [fr]
+  results: []
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {acoustic_model: french_mfa, dictionary: french_mfa}
+
+- id: mfa-english_mfa
+  kind: aligner
+  version: "english_mfa (release acoustic-english_mfa-v3.1.0) + english_us_mfa dictionary"
+  languages: [en]
+  results: []
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+
+- id: cnam-french
+  kind: recognizer
+  version: "Cnam-LMSSC/wav2vec2-french-phonemizer"
+  languages: [fr]
+  results:
+    - research/phonetics/phone_poc/results/cp_eval_fr.json   # 0.0126 mean weighted err, n=150 (app default for fr)
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.25, pad_s: 0.03, min_raw: 0.02}
+
 - id: fb-xlsr-53-espeak
   kind: recognizer
   version: "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
-  languages: [es, it, de, pt-br, nl, ru]
+  languages: [es, it, de, pt-br, nl, ru, en]   # en: app fallback, not benched on en
   results:
     - research/phonetics/phone_poc/results/cp_eval_es.json   # 0.0364 mean weighted err, n=150
     # constrained candidate scoring in aligned windows:

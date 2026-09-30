@@ -28,7 +28,13 @@ sys.path.insert(0, str(ROOT / "src"))
 from realised_phone import combine as comb  # noqa: E402
 from realised_phone import corpora, inventory  # noqa: E402
 from realised_phone.align import window  # noqa: E402
-from realised_phone.tokens import EN_LABELS, ES_LABELS, rhotic_tokens  # noqa: E402
+from realised_phone.pipeline import source_for  # noqa: E402
+from realised_phone.tokens import EN_LABELS, ES_LABELS, FR_LABELS, rhotic_tokens  # noqa: E402
+
+# language of the SPEECH in a token list -> (aligner model, dictionary, phone -> label)
+PROFILES = {"es": ("spanish_mfa", "spanish_mfa", ES_LABELS),
+            "en": ("english_mfa", "english_us_mfa", EN_LABELS),
+            "fr": ("french_mfa", "french_mfa", FR_LABELS)}
 from realised_phone.detectors.rhotic import RhoticDetector, load_calibration  # noqa: E402
 from realised_phone.recognizer import RecognizerSource, candidate_scores  # noqa: E402
 from realised_phone.registry import Registry  # noqa: E402
@@ -73,10 +79,16 @@ def main() -> int:
     ap.add_argument("--no-recognizer", action="store_true")
     ap.add_argument("--calibration", help="rhotic calibration YAML to evaluate (default: shipped)")
     ap.add_argument("--post-cache", help="dir to cache recognizer posteriors (.npz per utterance)")
+    ap.add_argument("--pair", default="en-es", help="L1-L2 whose inventory/recognizer to evaluate")
+    ap.add_argument("--target", default="r", help="target phone in the L2 inventory (r for es, ʁ for fr, ɹ for en)")
+    ap.add_argument("--tokens", action="append", default=[], metavar="LANG=TSV",
+                    help="token list whose speech is in LANG (es/en/fr); repeatable. E.g. for en-fr: "
+                         "fr=<native French> en=<English speech as the English-r stand-in>")
     args = ap.parse_args()
+    l1, l2 = args.pair.split("-", 1)
 
     reg = Registry.load()
-    re_ = reg.get("fb-xlsr-53-espeak")
+    re_ = reg.get(source_for(reg, "recognizer", l2))
     de = reg.get("rhotic-detector")
     rec = None if args.no_recognizer else RecognizerSource(
         re_.id, re_.version, posterior_fn=_cached_posteriors(args.post_cache) if args.post_cache else None)
@@ -84,7 +96,8 @@ def main() -> int:
     cal = (yaml.safe_load(Path(args.calibration).read_text(encoding="utf-8")) if args.calibration
            else load_calibration())
     det = RhoticDetector(cal)
-    target = inventory.load("en", "es").target("r")          # same candidates/classes for r and ɾ
+    # candidates/classes of the target (for es, r and ɾ share them)
+    target = inventory.load(l1, l2).target(args.target)
     pc = target.phone_class
 
     kw = dict(cache_dir=args.cache, jobs=args.jobs)
@@ -99,6 +112,13 @@ def main() -> int:
     if args.english_tsv:
         streams.append(rhotic_tokens(corpora.tsv(args.english_tsv), "english_mfa", "english_us_mfa",
                                      EN_LABELS, "english", **kw))
+
+    for spec in args.tokens:
+        lang, tsv = spec.split("=", 1)
+        am, dic, labels = PROFILES[lang]
+        excl = ("coda",) if lang == "en" else ()      # non-rhotic accents drop coda [ɹ]
+        streams.append(rhotic_tokens(corpora.tsv(tsv), am, dic, labels, f"{lang}_speech",
+                                     exclude_contexts=excl, **kw))
 
     rows = []
     for stream in streams:
@@ -133,6 +153,7 @@ def main() -> int:
     confident = [r for r in non_coda if r["verdict"] == "confident"]
     summary = {
         "label": args.label, "date": dt.date.today().isoformat(),
+        "pair": args.pair, "target": args.target, "accepted_classes": target.accepted_classes("intervocalic"),
         "sources": {"detector": f"{de.id} {de.version} (calibrated={cal.get('calibrated')}, "
                                     f"calibration={args.calibration or 'shipped'})",
                     "recognizer": None if rec is None else f"{re_.id} {re_.version}"},
