@@ -8,6 +8,11 @@ Run the realised-phone golden clips (tests/golden/realised_phone/manifest.yaml).
 
 --allow-candidates is needed until models are approved (the run is a TEST of
 candidates -- exactly the evidence Matthew reviews before approving).
+Outcomes (accuracy of what the learner is shown outranks coverage):
+  pass      verdict class matches the expected class
+  abstain   uncertain / no evidence -- the system declined; not a failure
+  soft_fail tentative verdict with the wrong class (never shown to learners)
+  fail      confident verdict with the wrong class, or expectation not checkable
 Exit status 1 if any present clip fails; missing clips are reported as skipped.
 Clips whose id ends in -TODO are placeholders and always skipped.
 """
@@ -26,7 +31,8 @@ sys.path.insert(0, str(ROOT / "src"))
 import yaml  # noqa: E402
 
 from realised_phone import inventory  # noqa: E402
-from realised_phone.align import mfa_align  # noqa: E402
+from realised_phone import combine as comb  # noqa: E402
+from realised_phone.align import mfa_align, window  # noqa: E402
 from realised_phone.detectors import DETECTORS  # noqa: E402
 from realised_phone.pipeline import analyse  # noqa: E402
 
@@ -37,10 +43,56 @@ def _path(p: str) -> str:
     return os.path.expanduser(os.path.expandvars(p))
 
 
+def _outcome(status: str, got: str, expected: str) -> str:
+    if status in ("uncertain", "no_evidence") or got in (None, "abstain"):
+        return "abstain"
+    if got == expected:
+        return "pass"
+    return "fail" if status == "confident" else "soft_fail"
+
+
+def _combined(c: dict, wav: str, allow_candidates: bool) -> dict:
+    """English-aligned token: detector + recognizer on the window, combined."""
+    import soundfile as sf
+    from realised_phone.recognizer import RecognizerSource, candidate_scores
+    from realised_phone.registry import Registry
+    al = mfa_align(wav, c["text"], c["aligner"]["acoustic_model"], c["aligner"]["dictionary"])
+    hits = [p for p in al.phones if p.label == inventory.norm_ipa(c["phone"])]
+    if len(hits) < c.get("occurrence", 1):
+        return {"id": c["id"], "result": "fail", "why": f"only {len(hits)} [{c['phone']}] aligned"}
+    p = hits[c.get("occurrence", 1) - 1]
+    x, sr = sf.read(wav, dtype="float64")
+    x = x.mean(axis=1) if x.ndim > 1 else x
+    tgt = inventory.load("en", "es").target("r")
+    pc = tgt.phone_class
+    reg = Registry.load()
+    de, re_ = reg.require("rhotic-detector", allow_candidates), reg.require("fb-xlsr-53-espeak", allow_candidates)
+    det = DETECTORS["rhotic"]()
+    evs = [comb.make_evidence("detector", de.id, de.version, de.status,
+                              det.scores(det.measure(x, sr, (p.start, p.end)), tgt.phones, pc), pc,
+                              de.params["margin"])]
+    try:
+        sc, _ = candidate_scores(RecognizerSource(re_.id, re_.version).posteriors(wav),
+                                 window(p, re_.params["pad_s"]), tgt.phones)
+        if max(sc.values(), default=0) >= re_.params["min_raw"]:
+            evs.append(comb.make_evidence("recognizer", re_.id, re_.version, re_.status, sc, pc,
+                                          re_.params["margin"]))
+    except Exception as ex:  # noqa: BLE001 - recognizer optional
+        note = f"recognizer unavailable: {ex}"
+    else:
+        note = ""
+    v = comb.combine(evs, pc)
+    got = v["realised_class"]
+    return {"id": c["id"], "result": _outcome(v["status"], got, c["class"]), "expected": c["class"],
+            "got": got or f"uncertain {v['between']}", "status": v["status"], "note": note}
+
+
 def run_clip(c: dict, allow_candidates: bool) -> dict:
     wav = _path(c["wav"])
     if c["id"].endswith("-TODO") or "$" in wav or not Path(wav).exists():
         return {"id": c["id"], "result": "skipped", "why": f"missing: {wav}"}
+    if c["level"] == "combined":
+        return _combined(c, wav, allow_candidates)
     if c["level"] == "detector":
         import soundfile as sf
         al = mfa_align(wav, c["text"], c["aligner"]["acoustic_model"], c["aligner"]["dictionary"])
@@ -59,16 +111,25 @@ def run_clip(c: dict, allow_candidates: bool) -> dict:
                 "got": got, "measurements": m}
     a = analyse(wav, c["text"], c.get("l1", "en"), c.get("l2", "es"),
                 transcript=c["text"], skip_gate=True, allow_candidates=allow_candidates)
-    fails = []
+    outcomes, why = [], []
     for exp in c["expect"]:
         v = next((v for v in a.verdicts if v.word == exp["word"] and v.target == inventory.norm_ipa(exp["target"])), None)
         if v is None:
-            fails.append(f"no verdict for /{exp['target']}/ in {exp['word']}")
-        elif "status" in exp and v.status != exp["status"]:
-            fails.append(f"{exp['word']}: status {v.status} != {exp['status']}")
-        elif "class" in exp and v.realised_class != exp["class"]:
-            fails.append(f"{exp['word']}: {v.describe()} (expected {exp['class']})")
-    return {"id": c["id"], "result": "fail" if fails else "pass", "why": fails, "notes": a.notes}
+            outcomes.append("fail")
+            why.append(f"no verdict for /{exp['target']}/ in {exp['word']} ({'; '.join(a.notes)})")
+        elif "status" in exp:
+            ok = v.status == exp["status"]
+            outcomes.append("pass" if ok else "fail")
+            if not ok:
+                why.append(f"{exp['word']}: status {v.status} != {exp['status']}")
+        else:
+            o = _outcome(v.status, v.realised_class, exp["class"])
+            outcomes.append(o)
+            if o != "pass":
+                why.append(f"{exp['word']}: {v.describe()} (expected {exp['class']})")
+    order = ["fail", "soft_fail", "abstain", "pass"]
+    worst = min(outcomes, key=order.index) if outcomes else "fail"
+    return {"id": c["id"], "result": worst, "why": why, "notes": a.notes}
 
 
 def main() -> int:
@@ -81,7 +142,8 @@ def main() -> int:
     results = [run_clip(c, args.allow_candidates) for c in clips]
     for r in results:
         print(f"{r['result']:8s} {r['id']}  {r.get('got', '')} {r.get('why', '')}")
-    counts = {k: sum(r["result"] == k for r in results) for k in ("pass", "fail", "skipped")}
+    counts = {k: sum(r["result"] == k for r in results)
+              for k in ("pass", "abstain", "soft_fail", "fail", "skipped")}
     print(counts)
     if args.json:
         Path(args.json).write_text(json.dumps(results, ensure_ascii=False, indent=1, default=str))
