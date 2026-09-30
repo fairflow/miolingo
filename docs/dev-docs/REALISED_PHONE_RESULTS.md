@@ -143,6 +143,21 @@ The same method was used: Common Phone test split, non-coda tokens, both sources
 Result files: `results/rhotics_cp-test-fr-en.json`, `rhotics_cp-test-en-fr-xlsr.json`,
 `rhotics_cp-test-en-fr.json` (Cnam), `rhotics_cp-test-en-es-uvcue.json`.
 
+## Stop-release fix (2026-09-30)
+
+When an r follows a stop, the detector now ignores dips in the first 10 ms of the r. Those dips
+are the stop's closure and release, not a tongue contact. The window was chosen on dev and checked
+on the test split:
+
+| Pair | Before | After | English r, confident & correct |
+|---|---|---|---|
+| English → Spanish | 98.2% at 46% | **98.8% at 47%** | 98.2% → **100%** |
+| English → French | 98.3% at 35% | **99.1% at 34%** | 98.2% → **100%** |
+| French → English | 98.3% at 35% | **99.1% at 34%** | 98.2% → **100%** |
+
+It doesn't fix French [ʁ] after a stop, which is still sometimes read as a tap: that dip is part of
+the uvular sound itself. Result files: `results/rhotics_cp-test-*-stopfix.json`.
+
 ## Smoke results (2026-09-29, cloud container) — *not* approval evidence
 
 `research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json`
