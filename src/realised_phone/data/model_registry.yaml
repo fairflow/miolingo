@@ -55,6 +55,16 @@
   approved_on: null
   params: {acoustic_model: english_mfa, dictionary: english_us_mfa}
 
+- id: mfa-dutch_cv
+  kind: aligner
+  version: "2.0.0 (dutch_cv acoustic + dictionary; Epitran-derived IPA, crude: een -> eː n)"
+  languages: [nl]   # nl-be falls back to this with a "dialect not modelled separately" note
+  results: []
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {acoustic_model: dutch_cv, dictionary: dutch_cv}
+
 - id: fb-xlsr-53-espeak
   kind: recognizer
   version: "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
@@ -120,3 +130,13 @@
   approved_by: null
   approved_on: null
   params: {margin: 0.3, calibration: calibration/rhotic.yaml}
+
+- id: dorsal-detector
+  kind: detector
+  version: "0.1.0"
+  languages: [nl, nl-be]
+  results: []   # see calibration/dorsal.yaml
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.3, calibration: calibration/dorsal.yaml}

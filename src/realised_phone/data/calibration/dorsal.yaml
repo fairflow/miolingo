@@ -1,0 +1,22 @@
+# Dorsal (g/ch) detector thresholds (HANDOFF §1b source 3: fricative vs stop vs [h]).
+# Stop-vs-fricative rule chosen on DEV tokens: FLEURS nl dev [x]/[ɣ] (517, labelled fricative)
+# vs Common Phone en dev [k]/[kʰ]/[ɡ] (442, stop) -- the substitutes English speakers produce.
+# Constraint: <=5% of either class called the other; result: accuracy 0.90 on decided tokens,
+# coverage 0.44 (fricative recall 0.38, stop 0.42). Detector alone is weak by design: it is a
+# second vote next to the recognizer. [h] vs [x] is NOT decided here: on this data it separates
+# only on spectral balance, which confounds FLEURS vs Common Voice recording conditions.
+calibrated: true
+provenance:
+  dev: "FLEURS nl_nl validation (171 utts, no speaker ids) + Common Phone en dev (400 utts / 202 spk)"
+  date: "2026-09-30"
+frame_ms: 5.0
+stop:
+  closure_max_db: -35.0      # quietest 5 ms frame vs loud speech (90th pct of the utterance)
+  spread_min_db: 12.0        # closure-to-burst level swing
+fricative:
+  closure_min_db: -18.0      # no real silence inside the segment
+  spread_max_db: 10.0        # steady noise
+voicing:                     # UNCALIBRATED (one Flemish speaker only): voiced [ɣ ʝ] vs voiceless [x χ]
+  calibrated: false
+  voiced_min: 0.6
+  voiceless_max: 0.3

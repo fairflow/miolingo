@@ -18,11 +18,20 @@ import tempfile
 
 import streamlit as st
 
-SUPPORTED_L2 = {"es"}
-
-
 def _l2_code(settings: dict) -> str:
-    return (settings.get("voice") or "").lower().split("-")[0]
+    """Target-language key: the voice code when a dialect-specific model exists (e.g. 'nl-be'
+    for Flemish -- distinct from 'nl'), else the base language."""
+    from realised_phone.inventory import DATA_DIR
+    voice = (settings.get("voice") or "").lower()
+    if "-" in voice and (DATA_DIR / "pairs" / f"any-{voice}.yaml").exists():
+        return voice
+    return voice.split("-")[0]
+
+
+def _supported(l2: str) -> bool:
+    """Any target language with an aligner in the registry (dialects via their base)."""
+    from realised_phone.registry import Registry
+    return Registry.load().find("aligner", l2)[0] is not None
 
 
 def _l1_code(source_language: str):
@@ -34,7 +43,7 @@ def _l1_code(source_language: str):
 def pair_for(settings: dict, source_language: str):
     """(l1, l2) if the realised-phone panel applies, else None."""
     l2, l1 = _l2_code(settings), _l1_code(source_language)
-    if l2 not in SUPPORTED_L2 or not l1 or l1 == l2:
+    if not l1 or l1 == l2.split("-")[0] or not _supported(l2):
         return None
     return l1, l2
 

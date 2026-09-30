@@ -41,12 +41,12 @@ class Target:
     name: str
     detector: Optional[str]
     candidates: list[Candidate]
-    accept: dict[str, list[str]] = field(default_factory=dict)  # context -> correct classes
+    accept: dict[str, list[str]] = field(default_factory=dict)  # context ("*" = any) -> correct classes
     skip: list[str] = field(default_factory=list)   # contexts never judged (e.g. English coda r)
 
     def accepted_classes(self, context: str) -> list[str]:
         """Classes counted as correct in this context (default: canonical class only)."""
-        return self.accept.get(context, [self.canonical.cls])
+        return self.accept.get(context) or self.accept.get("*") or [self.canonical.cls]
 
     @property
     def canonical(self) -> Candidate:
@@ -75,8 +75,8 @@ class PairInventory:
 
 @lru_cache(maxsize=None)
 def load(l1: str, l2: str) -> PairInventory:
-    if l1 == l2:
-        raise ValueError(f"source and target language are the same ({l1}): no L1->L2 pair")
+    if l1 == l2 or l1 == l2.split("-")[0]:
+        raise ValueError(f"source and target language are the same ({l1} / {l2}): no L1->L2 pair")
     path = DATA_DIR / "pairs" / f"{l1}-{l2}.yaml"
     generic = not path.exists()
     if generic:

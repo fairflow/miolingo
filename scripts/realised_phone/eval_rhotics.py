@@ -31,11 +31,19 @@ from realised_phone.align import window  # noqa: E402
 from realised_phone.pipeline import source_for  # noqa: E402
 from realised_phone.tokens import EN_LABELS, ES_LABELS, FR_LABELS, rhotic_tokens  # noqa: E402
 
-# language of the SPEECH in a token list -> (aligner model, dictionary, phone -> label)
-PROFILES = {"es": ("spanish_mfa", "spanish_mfa", ES_LABELS),
-            "en": ("english_mfa", "english_us_mfa", EN_LABELS),
-            "fr": ("french_mfa", "french_mfa", FR_LABELS)}
-from realised_phone.detectors.rhotic import is_stop, RhoticDetector, load_calibration  # noqa: E402
+# language of the SPEECH in a token list -> (aligner model, dictionary, phone -> label) per
+# target detector. Label "native" = a native speaker's own target sound: counted correct when
+# the verdict is any class accepted for the token's context (e.g. Dutch r: trill/tap/uvular).
+PROFILES = {
+    "rhotic": {"es": ("spanish_mfa", "spanish_mfa", ES_LABELS),
+               "en": ("english_mfa", "english_us_mfa", EN_LABELS),
+               "fr": ("french_mfa", "french_mfa", FR_LABELS),
+               "nl": ("dutch_cv", "dutch_cv", {"r": "native"})},
+    "dorsal": {"nl": ("dutch_cv", "dutch_cv", {"x": "native", "ɣ": "native"}),
+               "en": ("english_mfa", "english_us_mfa", {"kʰ": "stop", "k": "stop", "ɡ": "stop", "h": "glottal"})},
+}
+from realised_phone.detectors import DETECTORS  # noqa: E402
+from realised_phone.detectors.rhotic import is_stop, load_calibration  # noqa: E402
 from realised_phone.recognizer import RecognizerSource, candidate_scores  # noqa: E402
 from realised_phone.registry import Registry  # noqa: E402
 
@@ -60,6 +68,12 @@ def _cached_posteriors(cache_dir: str):
                             cols=np.array([p.vocab[t] for t in toks]))
         return p
     return fn
+
+
+def _correct(label: str, verdict_class, target, context: str) -> bool:
+    if label == "native":
+        return verdict_class in target.accepted_classes(context)
+    return verdict_class == label
 
 
 def main() -> int:
@@ -90,15 +104,16 @@ def main() -> int:
 
     reg = Registry.load()
     re_ = reg.get(args.recognizer or source_for(reg, "recognizer", l2))
-    de = reg.get("rhotic-detector")
+    target = inventory.load(l1, l2).target(args.target)
+    de = reg.get(f"{target.detector}-detector")
     rec = None if args.no_recognizer else RecognizerSource(
         re_.id, re_.version, posterior_fn=_cached_posteriors(args.post_cache) if args.post_cache else None)
     import yaml
+    det_cls = DETECTORS[target.detector]
     cal = (yaml.safe_load(Path(args.calibration).read_text(encoding="utf-8")) if args.calibration
-           else load_calibration())
-    det = RhoticDetector(cal)
+           else det_cls().cal)
+    det = det_cls(cal)
     # candidates/classes of the target (for es, r and ɾ share them)
-    target = inventory.load(l1, l2).target(args.target)
     pc = target.phone_class
 
     kw = dict(cache_dir=args.cache, jobs=args.jobs)
@@ -116,8 +131,8 @@ def main() -> int:
 
     for spec in args.tokens:
         lang, tsv = spec.split("=", 1)
-        am, dic, labels = PROFILES[lang]
-        excl = ("coda",) if lang == "en" else ()      # non-rhotic accents drop coda [ɹ]
+        am, dic, labels = PROFILES[target.detector][lang]
+        excl = ("coda",) if (lang == "en" and target.detector == "rhotic") else ()  # non-rhotic accents drop coda [ɹ]
         streams.append(rhotic_tokens(corpora.tsv(tsv), am, dic, labels, f"{lang}_speech",
                                      exclude_contexts=excl, **kw))
 
@@ -142,7 +157,9 @@ def main() -> int:
                          "recognizer": (evs[1].top_class if evs[1].decisive else "abstain") if rec else None,
                          "recognizer_margin": evs[1].margin if rec else None,
                          "verdict": v["status"], "verdict_class": v["realised_class"],
-                         "f3_ratio": m["f3_ratio"], "n_occlusions": m["n_occlusions"]})
+                         "correct": _correct(t["label"], v["realised_class"], target, t["context"]),
+                         **{k: m.get(k) for k in ("f3_ratio", "n_occlusions", "closure_db", "spread_db",
+                                                  "voiced_fraction")}})
 
     def confusion(key, subset):
         c = defaultdict(Counter)
@@ -165,7 +182,7 @@ def main() -> int:
                      "recognizer": confusion("recognizer", non_coda) if rec else None,
                      "verdict_status": confusion("verdict", non_coda),
                      "confident_class": confusion("verdict_class", confident),
-                     "confident_accuracy": (sum(r["verdict_class"] == r["label"] for r in confident) / len(confident))
+                     "confident_accuracy": (sum(r["correct"] for r in confident) / len(confident))
                      if confident else None,
                      "confident_coverage": len(confident) / len(non_coda) if non_coda else None},
         "coda": {"verdict_class": confusion("verdict_class", [r for r in rows if r["context"] == "coda"])},

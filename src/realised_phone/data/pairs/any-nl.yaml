@@ -1,0 +1,49 @@
+# L1-agnostic inventory for L2 Dutch (Netherlands), used when no <l1>-nl.yaml exists; same content as en-nl for now (HANDOFF §1a). Targets keyed by the aligner's IPA labels
+# (MFA dutch_cv 2.0.0: Epitran-derived dictionary; r, x, ɣ). DRAFT by Claude for Matthew's review.
+# Netherlands Dutch and Flemish are DISTINCT models (Matthew, 2026-09-30); Flemish: en-nl-be.yaml.
+pair: {l1: any, l2: nl}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  r:
+    name: "Dutch r (rood, water, groot)"
+    detector: rhotic
+    # onsets: tongue-tip trill/tap and uvular r are all native variants;
+    # codas: the approximant 'Gooise r' [ɹ]-like is native in the Netherlands -> English r accepted
+    accept: {"*": [trill, tap, uvular], coda: [trill, tap, uvular, english_r]}
+    candidates:
+      - {phone: r, class: trill, kind: canonical}
+      - {phone: ɾ, class: tap, kind: dialect}
+      - {phone: ʀ, class: uvular, kind: dialect}
+      - {phone: ʁ, class: uvular, kind: dialect}
+      - {phone: χ, class: uvular, kind: dialect, note: "devoiced uvular r"}
+      - {phone: ɹ, class: english_r, kind: l1_transfer, note: "English approximant r"}
+      - {phone: ɻ, class: english_r, kind: l1_transfer}
+  x:
+    name: "voiceless velar fricative (ch, and g in the Netherlands: licht, school, goed)"
+    detector: dorsal
+    accept: {"*": [fricative, voiced_fricative]}
+    candidates:
+      - {phone: x, class: fricative, kind: canonical}
+      - {phone: ɣ, class: voiced_fricative, kind: dialect}
+      - {phone: χ, class: fricative, kind: dialect, note: "uvular 'harde g' (Netherlands, esp. north)"}
+      - {phone: ç, class: fricative, kind: dialect, note: "fronted ch after front vowels (south, Flanders)"}
+      - {phone: ʝ, class: voiced_fricative, kind: dialect, note: "palatal 'zachte g' (Flanders, Limburg)"}
+      - {phone: k, class: stop, kind: l1_transfer, note: "English k for ch (school -> [skoːl])"}
+      - {phone: ɡ, class: stop, kind: l1_transfer, note: "English g for Dutch g (goed -> [ɡut])"}
+      - {phone: h, class: glottal, kind: l1_transfer, note: "English h for ch/g (licht -> [lɪht])"}
+  ɣ:
+    name: "g (goed, gaan) -- in the Netherlands mostly devoiced to [x] or [χ]; both fine"
+    detector: dorsal
+    accept: {"*": [fricative, voiced_fricative]}
+    candidates:
+      - {phone: ɣ, class: voiced_fricative, kind: canonical}
+      - {phone: x, class: fricative, kind: dialect}
+      - {phone: χ, class: fricative, kind: dialect, note: "uvular 'harde g' (Netherlands, esp. north)"}
+      - {phone: ç, class: fricative, kind: dialect, note: "fronted ch after front vowels (south, Flanders)"}
+      - {phone: ʝ, class: voiced_fricative, kind: dialect, note: "palatal 'zachte g' (Flanders, Limburg)"}
+      - {phone: k, class: stop, kind: l1_transfer, note: "English k for ch (school -> [skoːl])"}
+      - {phone: ɡ, class: stop, kind: l1_transfer, note: "English g for Dutch g (goed -> [ɡut])"}
+      - {phone: h, class: glottal, kind: l1_transfer, note: "English h for ch/g (licht -> [lɪht])"}
