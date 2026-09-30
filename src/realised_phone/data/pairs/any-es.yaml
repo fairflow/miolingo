@@ -1,0 +1,44 @@
+# L1-agnostic candidate inventory for L2 Spanish (HANDOFF §1a).
+# Used when no specific <l1>-es.yaml exists. Any source language != target is allowed and the
+# source language IS the learner's first language (Matthew, 2026-09-30), so the candidate
+# set is the union of r-substitutes produced by the app's source languages:
+#   English / Dutch  -> approximant [ɹ] [ɻ]
+#   French / German / Dutch -> uvular [ʁ] [ʀ] [χ]
+#   Portuguese (BR)  -> [h] [x] [χ] for rr / initial r; (EU) uvular [ʁ]
+#   Italian          -> has trill and tap already; errors mostly length/contexts
+# A specific pair file (e.g. fr-es.yaml) may later narrow this and carry pair-specific priors.
+# DRAFT by Claude for Matthew's review.
+pair: {l1: any, l2: es}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  r:
+    name: alveolar trill (rr, word-initial r, r after n/l/s)
+    detector: rhotic
+    accept: {coda: [trill, tap]}
+    candidates:
+      - {phone: r, class: trill, kind: canonical}
+      - {phone: ɾ, class: tap, kind: l1_transfer, note: "single tap for the trill"}
+      - {phone: ɹ, class: english_r, kind: l1_transfer, note: "approximant r (English, some Dutch)"}
+      - {phone: ɻ, class: english_r, kind: l1_transfer}
+      - {phone: ʁ, class: uvular, kind: l1_transfer, note: "French, German, Dutch, European Portuguese"}
+      - {phone: ʀ, class: uvular, kind: l1_transfer, note: "uvular trill (some German/Dutch/French)"}
+      - {phone: χ, class: uvular, kind: l1_transfer, note: "voiceless uvular fricative"}
+      - {phone: x, class: velar_glottal, kind: l1_transfer, note: "Brazilian Portuguese rr; also Caribbean Spanish"}
+      - {phone: h, class: velar_glottal, kind: l1_transfer, note: "Brazilian Portuguese rr; also Caribbean Spanish"}
+  ɾ:
+    name: alveolar tap (single r between vowels / in clusters / codas)
+    detector: rhotic
+    accept: {coda: [tap, trill]}
+    candidates:
+      - {phone: ɾ, class: tap, kind: canonical}
+      - {phone: r, class: trill, kind: dialect}
+      - {phone: ɹ, class: english_r, kind: l1_transfer}
+      - {phone: ɻ, class: english_r, kind: l1_transfer}
+      - {phone: ʁ, class: uvular, kind: l1_transfer}
+      - {phone: ʀ, class: uvular, kind: l1_transfer}
+      - {phone: χ, class: uvular, kind: l1_transfer}
+      - {phone: x, class: velar_glottal, kind: l1_transfer, note: "Brazilian Portuguese coda r"}
+      - {phone: h, class: velar_glottal, kind: l1_transfer}

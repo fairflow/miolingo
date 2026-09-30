@@ -1,0 +1,143 @@
+# Corrective coaching ladders for L2 Spanish that apply whatever the learner's first language
+# (HANDOFF §3). A pair file (e.g. en-es.yaml) adds or overrides ladders for its L1.
+# DRAFT by Claude. Refused unless reviewed (allow_draft=True for debug only).
+# Keyed "<target>><realised_class>"; rungs: contrast, articulation, perception, drills, stabilisation.
+pair: {l1: any, l2: es}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+ladders:
+  "r>tap":
+    status: draft
+    contrast:
+      manner: >-
+        You made one quick tap of the tongue. Spanish "rr" (and r at the start of a word,
+        or after n, l, s) needs a TRILL: the tongue tip vibrates against the ridge behind
+        the top teeth two to four times.
+    articulation:
+      text: >-
+        Rest the tongue tip lightly just behind the upper front teeth (the alveolar ridge),
+        keep it relaxed -- not pressed. Blow a steady stream of air over it so it flaps on
+        its own, the way lips flutter when you blow a raspberry. The vibration comes from
+        airflow, not from moving the tongue on purpose.
+      diagram: null   # mid-sagittal diagram: source/licence to be decided (open question)
+    perception:
+      minimal_pairs: [[pero, perro], [caro, carro], [cero, cerro], [para, parra], [coro, corro], [moro, morro]]
+      task: same_different
+    drills:
+      - {step: "tap in pero", items: [pero, para, cara, toro]}
+      - {step: "fast repeated taps", items: ["pero-pero-pero", "para-para-para"]}
+      - {step: "tr / dr onsets", items: [tres, tren, trabajo, drama, dragón, madre]}
+      - {step: "trill in isolation", items: ["rrrr", "prrr", "trrr"]}
+      - {step: "trill in words", items: [perro, carro, rojo, rápido, Enrique, alrededor]}
+    stabilisation:
+      phrases: ["el perro corre", "un carro rojo", "Roberto está en Roma"]
+      sentences: ["Erre con erre cigarro, erre con erre barril.", "El perro de Rosa corre rápido por la carretera."]
+
+  "ɾ>trill":
+    status: draft
+    contrast:
+      manner: >-
+        You trilled. Between vowels a single r is ONE quick tap; a trill there makes pero
+        (but) sound like perro (dog).
+    articulation:
+      text: "Make one light, fast contact and let go immediately -- think of a single 'd' flick."
+      diagram: null
+    perception:
+      minimal_pairs: [[pero, perro], [caro, carro], [cero, cerro]]
+      task: same_different
+    drills:
+      - {step: "single tap", items: [pero, cara, toro, hora]}
+      - {step: "alternate tap/trill", items: ["pero / perro", "caro / carro", "cero / cerro"]}
+    stabilisation:
+      phrases: ["pero no", "cara bonita"]
+      sentences: ["El perro no es caro, pero es raro."]
+
+  "r>uvular":
+    status: draft
+    contrast:
+      manner: >-
+        That r was made at the back of the throat (uvular, as in French or German r). Spanish r
+        is made at the FRONT: the tongue tip vibrates against the ridge behind the upper teeth.
+    articulation:
+      text: >-
+        Keep the back of the tongue low and relaxed -- nothing should happen in the throat.
+        Bring the tongue TIP up to where you say "t" or "d" and let the air flow over it.
+        Start from "d": say "da-da-da" fast, then soften the contact until the tip flutters.
+      diagram: null
+    perception:
+      minimal_pairs: [[pero, perro], [caro, carro]]
+      task: same_different
+      contrast_audio: "native trill vs the learner's own throat r (from this attempt)"
+    drills:
+      - {step: "tip contact via d", items: [da, de, "dada", "dra", "dre"]}
+      - {step: "tap in pero", items: [pero, para, cara, toro]}
+      - {step: "tr / dr onsets", items: [tres, drama, madre, otro]}
+      - {step: "trill in isolation", items: ["rrrr", "trrr"]}
+      - {step: "trill in words", items: [perro, rojo, carro, Enrique]}
+    stabilisation:
+      phrases: ["el perro rojo", "Ramón corre"]
+      sentences: ["Erre con erre cigarro, erre con erre barril."]
+
+  "ɾ>uvular":
+    status: draft
+    contrast:
+      manner: >-
+        That was a throat r. The single Spanish r is one quick TAP of the tongue tip at the
+        front of the mouth, like a very fast "d".
+    articulation:
+      text: "Say 'eda' very fast, then 'era': the tip taps once where it touched for d."
+      diagram: null
+    perception:
+      minimal_pairs: [[pero, perro], [cara, cada]]
+      task: same_different
+    drills:
+      - {step: "d to tap", items: ["eda -> era", "ida -> ira", "oda -> ora"]}
+      - {step: "tap in words", items: [pero, para, hora, mira]}
+      - {step: "tap in clusters", items: [tres, gracias, brazo, otro]}
+    stabilisation:
+      phrases: ["para mí", "ahora no"]
+      sentences: ["Pero ahora quiero comer pera."]
+
+  "r>velar_glottal":
+    status: draft
+    contrast:
+      manner: >-
+        That r sounded like an "h" or a "j" (made in the throat or at the back of the mouth,
+        as Brazilian Portuguese rr often is). Spanish rr is a TRILL of the tongue tip at the front.
+    articulation:
+      text: >-
+        Don't breathe it out from the throat. Put the tongue tip up behind the upper teeth
+        (the "t/d" spot) and blow so the tip vibrates. Voice it: it should buzz, not hiss.
+      diagram: null
+    perception:
+      minimal_pairs: [[perro, pejo], [carro, cajo], [rojo, jojo]]
+      task: same_different
+    drills:
+      - {step: "tip contact via d", items: [da, de, "dra", "dre"]}
+      - {step: "tr / dr onsets", items: [tres, drama, madre]}
+      - {step: "trill in isolation", items: ["rrrr", "trrr"]}
+      - {step: "trill in words", items: [perro, rojo, carro, rico]}
+    stabilisation:
+      phrases: ["el carro rojo", "Rita ríe"]
+      sentences: ["Erre con erre cigarro, erre con erre barril."]
+
+  "ɾ>velar_glottal":
+    status: draft
+    contrast:
+      manner: >-
+        That r sounded like an "h" or "j". Between vowels or after a consonant, Spanish r is a
+        single quick tap of the tongue tip at the front, never a breathy sound.
+    articulation:
+      text: "Say 'eda' very fast, then 'era'. The tongue tip does all the work; the throat stays quiet."
+      diagram: null
+    perception:
+      minimal_pairs: [[pero, pejo], [cara, caja]]
+      task: same_different
+    drills:
+      - {step: "d to tap", items: ["eda -> era", "oda -> ora"]}
+      - {step: "tap in words and codas", items: [pero, hora, mar, comer]}
+    stabilisation:
+      phrases: ["por favor", "para mí"]
+      sentences: ["Voy a comer por la tarde."]

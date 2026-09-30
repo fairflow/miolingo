@@ -163,7 +163,12 @@ Check the mfa-models site for exact model names per language. Miolingo calls MFA
 
 Answered 2026-09-29:
 
-- **First pair: L1 English → L2 Spanish.**
+- **First pair built: L1 English → L2 Spanish.** This is the first pair to *build*, not the learner
+  population.
+- **The source language is the learner's first language (L1)** (answered 2026-09-30). Learners can
+  be assumed to have more mastery of it than of the target. **Every pair with source ≠ target is
+  allowed.** Pairs without a specific file use the L1-agnostic `any-<l2>.yaml` inventory and
+  coaching data.
 - **Native recordings:** some exist, for tests — probably French. They are not in the repo:
   the debug archive hook (`src/scoring/practice.py` ~L245, miolingo-0x9) writes takes to
   `$MIO_AUDIO_DUMP_DIR` on the M4 with a `log.jsonl` sidecar whose `voice` field gives the

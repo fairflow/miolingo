@@ -85,7 +85,7 @@ def test_draft_coaching_is_refused_without_flag():
     d = coaching.step("en", "es", "r", "tap", 4, allow_draft=True)
     assert d["name"] == "drills" and d["steps"][0]["step"] == "tap in pero"
     assert coaching.step("en", "es", "r", "tap", 99, allow_draft=True)["name"] == "stabilisation"
-    assert coaching.step("en", "es", "r", "uvular", 1, allow_draft=True) is None
+    assert coaching.step("fr", "es", "r", "english_r", 1, allow_draft=True) is None   # no ladder
 
 
 def test_panphon_cannot_separate_trill_from_tap():
@@ -104,3 +104,14 @@ def test_uncertain_between_accepted_classes_counts_as_correct():
     before = m.state("r", "coda").p_correct
     m.update(v)                                      # uncertain never moves the estimate
     assert m.state("r", "coda").p_correct == before
+
+
+def test_coaching_layers_l1_specific_over_l1_agnostic():
+    en = coaching.load("en", "es")["ladders"]
+    fr = coaching.load("fr", "es")["ladders"]
+    assert {"r>tap", "ɾ>trill", "r>english_r"} <= set(en)          # generic + English-specific
+    assert {"r>tap", "r>uvular", "r>velar_glottal"} <= set(fr)
+    assert "r>english_r" not in fr                                    # English-only content
+    c = coaching.step("fr", "es", "r", "uvular", 2, allow_draft=True)
+    assert c["name"] == "articulation" and "tip" in c["text"]
+    assert prior_for("fr", "es", "r", "intervocalic")[:2] == (1.0, 1.0)   # no fr priors yet

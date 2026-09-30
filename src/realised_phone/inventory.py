@@ -2,6 +2,11 @@
 Pair-specific candidate inventory (HANDOFF §1a): for each target phone of L2,
 the canonical phone plus known L1-transfer substitutes and dialect variants,
 grouped into feedback classes. Data: data/pairs/<l1>-<l2>.yaml.
+
+The learner's first language (L1) is the app's source language, and any
+source != target pair is allowed. When no specific <l1>-<l2>.yaml exists,
+the L1-agnostic data/pairs/any-<l2>.yaml is used (union of substitutes across
+the app's source languages); `generic` is then True.
 """
 
 from __future__ import annotations
@@ -61,6 +66,7 @@ class PairInventory:
     l2: str
     status: str
     targets: dict[str, Target] = field(default_factory=dict)
+    generic: bool = False          # loaded from any-<l2>.yaml (no pair-specific file)
 
     def target(self, phone: str) -> Optional[Target]:
         return self.targets.get(norm_ipa(phone))
@@ -68,9 +74,15 @@ class PairInventory:
 
 @lru_cache(maxsize=None)
 def load(l1: str, l2: str) -> PairInventory:
+    if l1 == l2:
+        raise ValueError(f"source and target language are the same ({l1}): no L1->L2 pair")
     path = DATA_DIR / "pairs" / f"{l1}-{l2}.yaml"
+    generic = not path.exists()
+    if generic:
+        path = DATA_DIR / "pairs" / f"any-{l2}.yaml"
     if not path.exists():
-        raise FileNotFoundError(f"No candidate inventory for pair {l1}->{l2}: {path}")
+        raise FileNotFoundError(f"No candidate inventory for target language {l2} "
+                                f"(neither {l1}-{l2}.yaml nor any-{l2}.yaml)")
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     targets = {}
     for key, t in raw["targets"].items():
@@ -80,4 +92,4 @@ def load(l1: str, l2: str) -> PairInventory:
             raise ValueError(f"{path}: target {key} needs exactly one canonical candidate")
         targets[norm_ipa(key)] = Target(norm_ipa(key), t.get("name", ""), t.get("detector"),
                                         cands, t.get("accept") or {})
-    return PairInventory(raw["pair"]["l1"], raw["pair"]["l2"], raw.get("status", "draft"), targets)
+    return PairInventory(l1, raw["pair"]["l2"], raw.get("status", "draft"), targets, generic)

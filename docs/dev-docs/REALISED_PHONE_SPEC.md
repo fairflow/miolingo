@@ -24,7 +24,16 @@ The resulting analysis then carries `learner_visible = False`, and the UI must n
 
 ## Records
 
-### Pair inventory — `data/pairs/<l1>-<l2>.yaml`
+### Pair inventory — `data/pairs/<l1>-<l2>.yaml`, fallback `data/pairs/any-<l2>.yaml`
+
+L1 is the app's **source language**, which is the learner's first language. Any pair with
+source ≠ target is allowed; `load("es", "es")` raises. When no `<l1>-<l2>.yaml` exists, the
+L1-agnostic `any-<l2>.yaml` is used and `PairInventory.generic` is True. That file holds the union
+of substitutes across the app's source languages. For Spanish r these are: approximant [ɹ ɻ]
+(English, Dutch), uvular [ʁ ʀ χ] (French, German, Dutch, European Portuguese), and velar/glottal
+[x h] (Brazilian Portuguese). Coaching data layers the same way: `any-<l2>` ladders plus
+`<l1>-<l2>` ladders, where specific ones override. Research priors exist only for specific pairs;
+without one, the learner model starts uninformative (Beta(1, 1)).
 
 ```yaml
 pair: {l1: en, l2: es}
