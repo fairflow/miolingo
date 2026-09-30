@@ -70,9 +70,12 @@ def _cached_posteriors(cache_dir: str):
     return fn
 
 
-def _correct(label: str, verdict_class, target, context: str) -> bool:
+def _correct(label: str, verdict_class, target, context: str, own_target=None) -> bool:
+    """'native' tokens are judged against THEIR OWN target phone when the inventory has one
+    (a Flemish ch [x] against /x/, not against /ɣ/), else against the evaluated target."""
     if label == "native":
-        return verdict_class in target.accepted_classes(context)
+        t = own_target or target
+        return verdict_class in t.accepted_classes(context)
     return verdict_class == label
 
 
@@ -104,7 +107,8 @@ def main() -> int:
 
     reg = Registry.load()
     re_ = reg.get(args.recognizer or source_for(reg, "recognizer", l2))
-    target = inventory.load(l1, l2).target(args.target)
+    pair_inv = inventory.load(l1, l2)
+    target = pair_inv.target(args.target)
     de = reg.get(f"{target.detector}-detector")
     rec = None if args.no_recognizer else RecognizerSource(
         re_.id, re_.version, posterior_fn=_cached_posteriors(args.post_cache) if args.post_cache else None)
@@ -157,7 +161,9 @@ def main() -> int:
                          "recognizer": (evs[1].top_class if evs[1].decisive else "abstain") if rec else None,
                          "recognizer_margin": evs[1].margin if rec else None,
                          "verdict": v["status"], "verdict_class": v["realised_class"],
-                         "correct": _correct(t["label"], v["realised_class"], target, t["context"]),
+                         "phone": p.label,
+                         "correct": _correct(t["label"], v["realised_class"], target, t["context"],
+                                             pair_inv.target(p.label)),
                          **{k: m.get(k) for k in ("f3_ratio", "n_occlusions", "closure_db", "spread_db",
                                                   "voiced_fraction")}})
 
