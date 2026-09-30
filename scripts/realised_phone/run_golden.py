@@ -63,10 +63,13 @@ def _combined(c: dict, wav: str, allow_candidates: bool) -> dict:
     p = hits[c.get("occurrence", 1) - 1]
     x, sr = sf.read(wav, dtype="float64")
     x = x.mean(axis=1) if x.ndim > 1 else x
-    tgt = inventory.load("en", "es").target("r")
+    from realised_phone.pipeline import source_for
+    l1, l2 = c.get("pair", "en-es").split("-", 1)
+    tgt = inventory.load(l1, l2).target(c.get("target", "r"))     # judged against this L2 target
     pc = tgt.phone_class
     reg = Registry.load()
-    de, re_ = reg.require("rhotic-detector", allow_candidates), reg.require("fb-xlsr-53-espeak", allow_candidates)
+    de = reg.require("rhotic-detector", allow_candidates)
+    re_ = reg.require(source_for(reg, "recognizer", l2), allow_candidates)
     det = DETECTORS["rhotic"]()
     evs = [comb.make_evidence("detector", de.id, de.version, de.status,
                               det.scores(det.measure(x, sr, (p.start, p.end)), tgt.phones, pc), pc,

@@ -101,6 +101,39 @@ What each source contributes (non-coda test tokens where the source reached a de
 here comes from English speech, and learner recordings (including [ʁ]) are still needed. They
 are the `-TODO` entries in the golden manifest.
 
+## English ↔ French (2026-09-30)
+
+The same method was used: Common Phone test split, non-coda tokens, both sources combined.
+- **Native French [ʁ]:** 400 utterances from 136 speakers.
+- **Native English [ɹ]:** the same 400 English test utterances as above.
+- **Error stand-ins:** each language's r is judged against the *other* language's target. This
+  is not learner speech; learners speaking the target language are still needed.
+
+| Pair | Tokens | Confident & correct | Coverage | The main error, caught confidently |
+|---|---|---|---|---|
+| **French → English** (target [ɹ]) | 1022 | **98.3%** | 35% | French r (uvular): 31% of tokens, 98.4% right |
+| **English → French** (target [ʁ]), xlsr-53 | 1022 | **98.3%** | 35% | English r: 39% of tokens, 98.2% right |
+| English → French, Cnam French recognizer | 1022 | 97.8% | 22% | English r: **5%**. Cnam calls English r "uvular" 275/437 times |
+
+**Recognizer choice for French:**
+- Cnam is the app's French specialist and is excellent on native French, but it knows only
+  French sounds. As a source of evidence for *which* sound a learner made, a model that also knows
+  the learner's L1 sounds is needed.
+- So xlsr-53 is now listed first for `fr` in the registry. Cnam keeps its role in the app's
+  existing accuracy scoring; that part is unchanged.
+
+**Uvular cue** (new, in `calibration/rhotic.yaml`):
+- The rule: F3 not lowered, and (F2 backed or mostly devoiced), and ≥ 70 ms.
+- Picked on dev, where it had 5% false alarms on Spanish tap/trill. On the Spanish **test**
+  split it fires on 20% of trills (taps 2%), which confirms the caveat that part of what it learned
+  is French-vs-Spanish speaker differences.
+- It does no harm to Spanish: the recognizer never agrees on "uvular" there, so those tokens
+  become uncertain. English → Spanish went from 97.9% at 47% to **98.2% at 46%**.
+- It shouldn't be relied on alone.
+
+Result files: `results/rhotics_cp-test-fr-en.json`, `rhotics_cp-test-en-fr-xlsr.json`,
+`rhotics_cp-test-en-fr.json` (Cnam), `rhotics_cp-test-en-es-uvcue.json`.
+
 ## Smoke results (2026-09-29, cloud container) — *not* approval evidence
 
 `research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json`

@@ -18,7 +18,7 @@ def test_registry_find_by_language_and_dialect():
     reg = Registry.load()
     notes = []
     assert source_for(reg, "aligner", "fr", notes) == "mfa-french_mfa"
-    assert source_for(reg, "recognizer", "fr", notes) == "cnam-french"
+    assert source_for(reg, "recognizer", "fr", notes) == "fb-xlsr-53-espeak"   # knows ɹ; cnam does not
     assert source_for(reg, "aligner", "en", notes) == "mfa-english_mfa"
     assert source_for(reg, "aligner", "es", notes) == "mfa-spanish_mfa"
     assert notes == []
