@@ -81,6 +81,7 @@ def main() -> int:
     ap.add_argument("--post-cache", help="dir to cache recognizer posteriors (.npz per utterance)")
     ap.add_argument("--pair", default="en-es", help="L1-L2 whose inventory/recognizer to evaluate")
     ap.add_argument("--target", default="r", help="target phone in the L2 inventory (r for es, ʁ for fr, ɹ for en)")
+    ap.add_argument("--recognizer", help="registry id to use instead of the L2's first recognizer")
     ap.add_argument("--tokens", action="append", default=[], metavar="LANG=TSV",
                     help="token list whose speech is in LANG (es/en/fr); repeatable. E.g. for en-fr: "
                          "fr=<native French> en=<English speech as the English-r stand-in>")
@@ -88,7 +89,7 @@ def main() -> int:
     l1, l2 = args.pair.split("-", 1)
 
     reg = Registry.load()
-    re_ = reg.get(source_for(reg, "recognizer", l2))
+    re_ = reg.get(args.recognizer or source_for(reg, "recognizer", l2))
     de = reg.get("rhotic-detector")
     rec = None if args.no_recognizer else RecognizerSource(
         re_.id, re_.version, posterior_fn=_cached_posteriors(args.post_cache) if args.post_cache else None)
