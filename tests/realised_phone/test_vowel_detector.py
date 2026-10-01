@@ -43,3 +43,38 @@ def test_shipped_calibration_has_the_french_models():
     cal = VowelDetector().cal
     assert {"y", "u", "i", "ʉ"} <= set(cal["models"]) and cal["calibrated"] is True
     assert cal["models"]["y"]["mean"][1] > cal["models"]["u"]["mean"][1]   # y front, u back
+
+
+# --- shipped backness-only vote ------------------------------------------------------------
+
+def test_shipped_vote_is_front_back_only():
+    d = VowelDetector()
+    sc = d.scores(m(1.3), T.phones, T.phone_class)            # front
+    assert set(sc) == {"y", "u"} and sc["y"] > 0.85           # i and ʉ get nothing
+    sc = d.scores(m(0.7), T.phones, T.phone_class)            # back: tu -> tout
+    assert sc["u"] > 0.9
+    assert d.compatible_classes("front_rounded", T.phones, T.phone_class) == \
+        ["front_rounded", "front_unrounded", "goose"]
+    tu = inventory.load("en", "fr").target("u")               # target u: front mass -> goose
+    sc = d.scores(m(1.3), tu.phones, tu.phone_class)
+    assert set(sc) == {"ʉ", "u"} and sc["ʉ"] > 0.85
+
+
+def _ev(source, scores, pc, compatible=()):
+    from realised_phone.combine import make_evidence
+    e = make_evidence(source, source, "t", "candidate", scores, pc, 0.3)
+    e.compatible = list(compatible)
+    return e
+
+
+def test_coarse_front_vote_does_not_contradict_a_recognizer_i():
+    from realised_phone.combine import combine
+    from realised_phone.model import CONFIDENT, TENTATIVE, UNCERTAIN
+    pc = T.phone_class
+    front = _ev("detector", {"y": 0.95, "u": 0.05}, pc, ["front_unrounded", "goose"])
+    r = combine([front, _ev("recognizer", {"i": 0.9, "y": 0.1}, pc)], pc)
+    assert r["status"] == TENTATIVE and r["realised_class"] == "front_unrounded"
+    r = combine([front, _ev("recognizer", {"y": 0.9, "i": 0.1}, pc)], pc)
+    assert r["status"] == CONFIDENT and r["realised_class"] == "front_rounded"
+    r = combine([front, _ev("recognizer", {"u": 0.9, "y": 0.1}, pc)], pc)   # real disagreement
+    assert r["status"] == UNCERTAIN

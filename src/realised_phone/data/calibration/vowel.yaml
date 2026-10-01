@@ -5,6 +5,13 @@ features:
 - f2r
 - f3r
 max_formant_hz: 5500.0
+# Backness-only vote (see detectors/vowel.py). The four models are all kept: i and ʉ are
+# reference only (the 4-way posterior was too weak to vote on CP test, 2026-10-01).
+vote:
+  features: [f2r]
+  groups:
+    front: [y, i, ʉ]
+    back: [u, uː, ʊ]
 provenance:
   script: scripts/realised_phone/calibrate_vowel.py
   date: '2026-10-01'

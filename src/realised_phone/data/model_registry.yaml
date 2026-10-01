@@ -71,6 +71,7 @@
   languages: [es, it, de, pt-br, nl, ru, en, fr]   # en: app fallback, not benched on en
   # fr: chosen over cnam-french for realised-phone evidence because it knows L1 phones (ɹ);
   # CP test en-fr: English r confident 39% (98.2% right) vs 5% with cnam-french.
+  # en-fr vowels: CP test y 145/164 native right, i 170/178, u 32/34 (recognizer alone).
   results:
     - research/phonetics/phone_poc/results/cp_eval_es.json   # 0.0364 mean weighted err, n=150
     # constrained candidate scoring in aligned windows:
@@ -150,7 +151,11 @@
   kind: detector
   version: "0.1.0"
   languages: [fr]
-  results: []   # see calibration/vowel.yaml
+  results:
+    - research/phonetics/realised_phone/results/vowel_cp-test-en-fr-y.json   # tu: 96.3% at 33%
+    - research/phonetics/realised_phone/results/vowel_cp-test-en-fr-u.json   # tout: no false alarms; misses goose
+    - research/phonetics/realised_phone/results/vowel4way_cp-test-en-fr-y.json  # rejected 4-way variant
+  # Backness-only vote (front/back via F2 ratio); 4-way y/i/u/goose was too weak to vote.
   status: candidate
   approved_by: null
   approved_on: null

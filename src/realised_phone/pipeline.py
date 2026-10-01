@@ -154,9 +154,8 @@ def analyse(wav_path: str, target_text: str, l1: str, l2: str, *,
                 m = det.measure(x, sr, (ph.start, ph.end),
                                 after_stop=bool(prev) and is_stop(prev.label))
                 sc = det.scores(m, tgt.phones, pc)
-                evidence.append(comb.make_evidence(
-                    "detector", de.id, de.version, de.status, sc, pc,
-                    de.params.get("margin", 0.3), measurements=m, window=(ph.start, ph.end)))
+                evidence.append(comb.detector_evidence(
+                    det, de, sc, tgt.phones, pc, measurements=m, window=(ph.start, ph.end)))
         # source 2: recognizer on the aligned window
         rr = _rec_for(tgt)
         if rr is not None:

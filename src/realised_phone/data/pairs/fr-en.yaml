@@ -48,19 +48,19 @@ targets:
       - {phone: ʔ, class: glottal_stop, kind: l1_transfer, note: "h-dropping often leaves a vowel onset or glottal stop"}
   pʰ:
     name: aspirated voiceless bilabial stop (pat), long-lag VOT
-    detector: null   # planned: vot (shared with en-fr)
+    detector: null   # VOT detector tried and rejected (59% balanced acc. on CP; results doc)
     candidates:
       - {phone: pʰ, class: aspirated, kind: canonical}
       - {phone: p, class: unaspirated, kind: l1_transfer, note: "French short-lag VOT: can sound like [b]"}
   tʰ:
     name: aspirated voiceless alveolar stop (top)
-    detector: null   # planned: vot
+    detector: null   # VOT detector tried and rejected (59% balanced acc. on CP; results doc)
     candidates:
       - {phone: tʰ, class: aspirated, kind: canonical}
       - {phone: t, class: unaspirated, kind: l1_transfer}
   kʰ:
     name: aspirated voiceless velar stop (cat)
-    detector: null   # planned: vot
+    detector: null   # VOT detector tried and rejected (59% balanced acc. on CP; results doc)
     candidates:
       - {phone: kʰ, class: aspirated, kind: canonical}
       - {phone: k, class: unaspirated, kind: l1_transfer}

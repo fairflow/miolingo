@@ -4,9 +4,15 @@ e.g. French /y/"). Speaker-normalised formants at the vowel's middle half:
 F1, F2, F3 divided by the speaker's median over voiced frames of the same utterance.
 
 Each modelled vowel (data/calibration/vowel.yaml) is a diagonal Gaussian in that space,
-fitted on dev tokens by scripts/realised_phone/calibrate_vowel.py. Scores are posteriors
-(equal priors) over the candidate phones that have a model; candidates without one get
-nothing (the detector is blind to them, e.g. [ju]). Near-ties therefore never vote.
+fitted on dev tokens by scripts/realised_phone/calibrate_vowel.py.
+
+It votes on BACKNESS only (calibration `vote`): on Common Phone test the four-way
+y/i/u/goose posterior named native French [y] correctly only 36% of the time, but F2
+alone separates front [y] from back [u] (results doc, 2026-10-01). Each group's
+representative model (y for front, u for back) is scored on the vote features; the group's
+mass goes to the first group member among the target's candidates, and
+`compatible_classes` tells the combiner which classes a "front" or "back" vote cannot
+tell apart (front: y and i), so a recognizer [i] is not a disagreement.
 """
 
 from __future__ import annotations
@@ -57,17 +63,18 @@ class VowelDetector:
             out[name + "r"] = None if (v is None or not ref) else round(v / ref, 4)
         return out
 
-    def posteriors(self, m: dict, phones: list[str]) -> dict[str, float]:
+    def posteriors(self, m: dict, phones: list[str], features=FEATURES) -> dict[str, float]:
         models = self.cal.get("models") or {}
-        if any(m.get(f) is None for f in FEATURES):
+        if any(m.get(f) is None for f in features):
             return {}
-        z = np.array([m[f] for f in FEATURES])
+        idx = [FEATURES.index(f) for f in features]
+        z = np.array([m[f] for f in features])
         ll = {}
         for p in phones:
             mod = models.get(norm_ipa(p))
             if mod is None:
                 continue
-            mu, sd = np.array(mod["mean"]), np.array(mod["sd"])
+            mu, sd = np.array(mod["mean"])[idx], np.array(mod["sd"])[idx]
             ll[p] = float(-0.5 * np.sum(((z - mu) / sd) ** 2) - np.sum(np.log(sd)))
         if len(ll) < 2:
             return {}                      # nothing to discriminate
@@ -76,5 +83,36 @@ class VowelDetector:
         tot = sum(e.values())
         return {p: v / tot for p, v in e.items()}
 
+    def _groups(self, candidates: list[str]) -> dict[str, tuple[str, str]]:
+        """group -> (representative model, candidate that receives the group's mass)."""
+        vote = self.cal.get("vote") or {}
+        out = {}
+        cands = [norm_ipa(c) for c in candidates]
+        for g, members in (vote.get("groups") or {}).items():
+            members = [norm_ipa(p) for p in members]
+            rep = next((p for p in members if p in (self.cal.get("models") or {})), None)
+            dest = next((p for p in members if p in cands), None)
+            if rep and dest:
+                out[g] = (rep, dest)
+        return out
+
     def scores(self, m: dict, candidates: list[str], phone_class: dict[str, str]) -> dict[str, float]:
-        return self.posteriors(m, candidates)
+        vote = self.cal.get("vote")
+        if not vote:
+            return self.posteriors(m, candidates)
+        groups = self._groups(candidates)
+        if len(groups) < 2:
+            return {}
+        sub = VowelDetector({**self.cal, "vote": None, "features": vote["features"]})
+        post = sub.posteriors(m, [rep for rep, _ in groups.values()], vote["features"])
+        return {dest: post[rep] for rep, dest in groups.values() if rep in post}
+
+    def compatible_classes(self, top_class: str, candidates: list[str],
+                           phone_class: dict[str, str]) -> list[str]:
+        """Classes of every candidate in the same backness group as top_class."""
+        vote = self.cal.get("vote") or {}
+        for members in (vote.get("groups") or {}).values():
+            classes = {phone_class[norm_ipa(p)] for p in members if norm_ipa(p) in phone_class}
+            if top_class in classes:
+                return sorted(classes)
+        return [top_class]

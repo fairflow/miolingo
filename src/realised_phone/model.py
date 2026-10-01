@@ -59,6 +59,9 @@ class Evidence:
     decisive: bool
     margin: float                      # class-level top - second
     top_class: Optional[str] = None
+    # classes this source cannot tell apart from its top_class (a front/back-only vowel
+    # vote says "front" for both [y] and [i]); empty = it separates every class
+    compatible: list[str] = field(default_factory=list)
     unsupported: list[str] = field(default_factory=list)
     measurements: dict = field(default_factory=dict)
     window: tuple[float, float] = (0.0, 0.0)

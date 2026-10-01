@@ -249,7 +249,47 @@ length without needing other utterances. Calibration (`scripts/realised_phone/ca
 
 Mean F2 ratio: y 1.15, u 0.78, i 1.28, English goose 1.03. Note that English "goose" lies between French y and u.
 
-*Test-set evaluation (Common Phone test, `vowel_cp-test-en-fr-{y,u}.json`) is running; results will be added here.*
+**First attempt: four-way posterior over y / i / u / goose with all three ratios. Too weak.** On Common Phone test
+native French [y] was named y only 43/120 times, against goose 34, i 32 and u 11. The detector then *disagreed* with
+a correct recognizer on 42 native tokens, so only 4/164 native [y] were confirmed. Kept as
+`vowel4way_cp-test-en-fr-{y,u}.json`.
+
+**Shipped: a backness-only vote.** F2 ratio alone separates front [y] (1.16) from back [u] (0.85). The detector now
+says only "front" or "back" (calibration `vote`). A "front" vote is *compatible* with [y], [i] and goose. So when the
+recognizer hears [i], the combiner does not count it as a disagreement: the verdict is tentative [i]. That is the
+new `Evidence.compatible` / `combine._narrow` rule. A real disagreement, front vs [u], is still *uncertain*.
+
+Common Phone test, non-coda tokens (xlsr-53 recognizer plus vowel detector):
+
+| target y (*tu*) | tokens | confident | confident and right |
+|---|---|---|---|
+| native French [y] | 164 | 109 | **109** (all), up from 4 |
+| French [u] as the error (*tu → tout*) | 34 | 22 | **21** |
+| French [i] as the error | 178 | 1 | 0 (171 tentative [i]) |
+| English goose [ʉ] as the error | 35 | 3 | 0 (2 said back, 1 said y) |
+| **all** | | 33% coverage | **96.3%** confident accuracy |
+
+| target u (*tout*) | tokens | confident | confident and right |
+|---|---|---|---|
+| native French [u] | 34 | 21 | **21** (no false alarms) |
+| English goose [ʉ] as the error | 35 | 13 | 0 (all called back [u]) |
+
+How to read this:
+
+- *Tu → tout*, the main English-L1 error, is caught confidently 62% of the time.
+- Native [y] is confirmed 66% of the time, with no false confirmations.
+- [i] for [y] is only ever *tentative*, because the recognizer alone separates rounding. Tentative verdicts never
+  count as errors.
+- **English goose for French u is not detected.** All 13 confident "goose" misses say back [u], meaning "correct".
+  The failure is safe: it never accuses a learner wrongly, it just lets the error through. The goose labels are also
+  weak ground truth: Common Phone writes English /uː/ as ʉː by convention, whatever the speaker's accent, and the
+  detector itself heard 15 of the 35 as back. Measuring this properly needs real English-L1 learners.
+- A confident [y] means two sources rule out [u], but only the recognizer rules out [i].
+
+Results:
+
+- `vowel_cp-test-en-fr-y.json`
+- `vowel_cp-test-en-fr-u.json`.
 
 ## Smoke results (2026-09-29, cloud container) — *not* approval evidence
 

@@ -152,8 +152,7 @@ def main() -> int:
         for t in stream:
             p = t["phone"]
             m = det.measure(t["x"], t["sr"], (p.start, p.end), after_stop=is_stop(t.get("prev", "")))
-            evs = [comb.make_evidence("detector", de.id, de.version, de.status,
-                                      det.scores(m, target.phones, pc), pc, de.params["margin"])]
+            evs = [comb.detector_evidence(det, de, det.scores(m, target.phones, pc), target.phones, pc)]
             if rec is not None:
                 sc, _un = candidate_scores(rec.posteriors(t["wav"]), window(p, re_.params["pad_s"]), target.phones)
                 raw = max(sc.values(), default=0.0)

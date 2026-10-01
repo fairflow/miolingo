@@ -20,10 +20,10 @@ targets:
       - {phone: ɾ, class: tap, kind: l1_transfer, note: "tap (e.g. learners who also speak Spanish)"}
     # accepted: the uvular class only (standard French). Alveolar r is regional -- Matthew to decide.
 
-  # --- inventory only (no detector yet); planned detectors noted -----------------------------
+  # --- y, u: vowel detector (front/back vote only). Others: inventory only (recognizer, at most tentative) ---
   y:
     name: close front rounded vowel (tu, rue)
-    detector: vowel   # speaker-normalised F1/F2/F3 Gaussians (calibration/vowel.yaml)
+    detector: vowel   # front/back vote from speaker-normalised F2 (calibration/vowel.yaml)
     candidates:
       - {phone: y, class: front_rounded, kind: canonical}
       - {phone: u, class: back_rounded, kind: l1_transfer, note: "tu -> tout: the classic error"}
@@ -54,19 +54,19 @@ targets:
       - {phone: ɑ̃, class: other_nasal, kind: l1_transfer}
   p:
     name: voiceless bilabial stop, short-lag VOT
-    detector: null   # planned: vot
+    detector: null   # VOT detector tried and rejected (59% balanced acc. on CP; results doc)
     candidates:
       - {phone: p, class: unaspirated, kind: canonical}
       - {phone: pʰ, class: aspirated, kind: l1_transfer}
   t:
     name: voiceless dental stop, short-lag VOT
-    detector: null   # planned: vot
+    detector: null   # VOT detector tried and rejected (59% balanced acc. on CP; results doc)
     candidates:
       - {phone: t, class: unaspirated, kind: canonical}
       - {phone: tʰ, class: aspirated, kind: l1_transfer}
   k:
     name: voiceless velar stop, short-lag VOT
-    detector: null   # planned: vot
+    detector: null   # VOT detector tried and rejected (59% balanced acc. on CP; results doc)
     candidates:
       - {phone: k, class: unaspirated, kind: canonical}
       - {phone: kʰ, class: aspirated, kind: l1_transfer}
