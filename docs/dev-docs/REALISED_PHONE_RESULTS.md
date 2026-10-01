@@ -211,6 +211,46 @@ is judged against its own target (ch /x/ or g /ɣ/):
 Result files: `results/rhotics_test-en-nl-r-*.json`, `dorsal_test-en-nl-*.json`,
 `rhotics_vl1spk-en-nlbe-r.json`, `dorsal_vl1spk-en-nlbe-*.json`.
 
+## English ↔ French vowels and aspiration (2026-10-01)
+
+### Aspiration (English p t k vs French short-lag p t k): no detector shipped — negative result
+
+I tried a voice-onset-time (VOT) measurement: the time from the burst to the start of voicing, inside the
+MFA window for word-initial p/t/k. Data: Common Phone dev, 859 French and 486 English stops.
+
+| | French (unaspirated) | English (aspirated) |
+|---|---|---|
+| median VOT | 24 ms | 32 ms |
+| inter-quartile range | 5–40 ms | 5–63 ms |
+
+Textbook values are about 15 ms for French and 60–80 ms for English. On crowd-sourced phone audio the two
+distributions overlap almost completely. The **best single threshold (55 ms) gets 59% balanced accuracy**, and
+even the extremes only reach 62–70%. Two causes:
+
+- voicing onset is smeared by pitch-tracker lag;
+- low-band hum and noise read as "voicing" during the aspiration.
+
+That is not good enough to vote, so **there is no VOT detector**. Aspiration stays a recognizer-only target
+(fr-en `pʰ tʰ kʰ`, en-fr `p t k`): its verdicts can be at most *tentative*. Tentative verdicts are never shown as
+errors and never escalate coaching. A usable VOT detector would need cleaner audio (learner recordings in the
+app) or a learned burst/voicing model. Scratch script: `vot_vowel_feats.py` (not committed).
+
+### French /y/ vs /u/ (tu / tout) and English "goose": vowel detector
+
+`detectors/vowel.py` models each vowel as a diagonal Gaussian over the F1/F2/F3 ratios measured at the middle half of
+the vowel. Each ratio is divided by the speaker's own median over voiced frames, which normalises for vocal-tract
+length without needing other utterances. Calibration (`scripts/realised_phone/calibrate_vowel.py` →
+`calibration/vowel.yaml`) uses Common Phone dev:
+
+- French y: n 321;
+- French u: n 189;
+- French i: n 797;
+- English goose [ʉ]: n 202.
+
+Mean F2 ratio: y 1.15, u 0.78, i 1.28, English goose 1.03. Note that English "goose" lies between French y and u.
+
+*Test-set evaluation (Common Phone test, `vowel_cp-test-en-fr-{y,u}.json`) is running; results will be added here.*
+
 ## Smoke results (2026-09-29, cloud container) — *not* approval evidence
 
 `research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json`
