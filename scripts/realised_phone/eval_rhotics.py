@@ -135,7 +135,14 @@ def main() -> int:
 
     for spec in args.tokens:
         lang, tsv = spec.split("=", 1)
-        am, dic, labels = PROFILES[target.detector][lang]
+        override = None
+        if ":" in tsv:                    # LANG=TSV:phone=label,phone=label (explicit labels)
+            tsv, mp = tsv.rsplit(":", 1)
+            override = dict(kv.split("=", 1) for kv in mp.split(","))
+        am, dic, labels = PROFILES.get(target.detector, PROFILES["rhotic"]).get(lang) or \
+            (*{"fr": ("french_mfa", "french_mfa"), "en": ("english_mfa", "english_us_mfa"),
+               "es": ("spanish_mfa", "spanish_mfa"), "nl": ("dutch_cv", "dutch_cv")}[lang], {})
+        labels = override or labels
         excl = ("coda",) if (lang == "en" and target.detector == "rhotic") else ()  # non-rhotic accents drop coda [ɹ]
         streams.append(rhotic_tokens(corpora.tsv(tsv), am, dic, labels, f"{lang}_speech",
                                      exclude_contexts=excl, **kw))

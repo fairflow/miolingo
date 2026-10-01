@@ -23,19 +23,19 @@ targets:
   # --- inventory only (no detector yet); planned detectors noted -----------------------------
   y:
     name: close front rounded vowel (tu, rue)
-    detector: null   # planned: F1/F2/F3 (rounding lowers F2/F3 vs [i]; front vs [u])
+    detector: vowel   # speaker-normalised F1/F2/F3 Gaussians (calibration/vowel.yaml)
     candidates:
       - {phone: y, class: front_rounded, kind: canonical}
       - {phone: u, class: back_rounded, kind: l1_transfer, note: "tu -> tout: the classic error"}
-      - {phone: ʉ, class: back_rounded, kind: l1_transfer, note: "English fronted 'goose' vowel"}
+      - {phone: ʉ, class: goose, kind: l1_transfer, note: "English fronted 'goose' vowel"}
       - {phone: i, class: front_unrounded, kind: l1_transfer}
       - {phone: ju, class: glide_u, kind: l1_transfer, note: "English 'you'-type [ju]"}
   u:
     name: close back rounded vowel (tout, vous)
-    detector: null   # planned: F2
+    detector: vowel
     candidates:
       - {phone: u, class: back_rounded, kind: canonical}
-      - {phone: ʉ, class: fronted, kind: l1_transfer, note: "English fronted [ʉ] (goose-fronting)"}
+      - {phone: ʉ, class: goose, kind: l1_transfer, note: "English fronted [ʉ] (goose-fronting)"}
       - {phone: uː, class: back_rounded, kind: l1_transfer}
       - {phone: ʊ, class: lax, kind: l1_transfer}
   ɑ̃:

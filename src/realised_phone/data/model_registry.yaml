@@ -145,3 +145,13 @@
   approved_by: null
   approved_on: null
   params: {margin: 0.3, calibration: calibration/dorsal.yaml}
+
+- id: vowel-detector
+  kind: detector
+  version: "0.1.0"
+  languages: [fr]
+  results: []   # see calibration/vowel.yaml
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.3, calibration: calibration/vowel.yaml}
