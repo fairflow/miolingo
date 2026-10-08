@@ -1,0 +1,459 @@
+{
+ "corpus": "speechocean762 test (Apache-2.0; Mandarin-L1 learners of English, 5 expert raters)",
+ "labels": "correct: phone accuracy >= 1.6 of 2; error: <= 1.0; disputed: 1.2-1.4",
+ "results": [
+  {
+   "model": "anyspeech/zipa-large-crctc-500k (model.fp16.onnx, CC BY 4.0)",
+   "n_utts": 2500,
+   "n_correct": 44097,
+   "n_error": 2149,
+   "false_rejection": 0.2848,
+   "detection_recall": 0.8734,
+   "precision": 0.13,
+   "f1": 0.2263,
+   "disputed_rejected": 0.7061,
+   "by_age": {
+    "child": {
+     "n_correct": 20423,
+     "n_error": 717,
+     "false_rejection": 0.3143,
+     "detection_recall": 0.8787,
+     "precision": 0.0894,
+     "f1": 0.1623,
+     "disputed_rejected": 0.7841
+    },
+    "adult": {
+     "n_correct": 23674,
+     "n_error": 1432,
+     "false_rejection": 0.2594,
+     "detection_recall": 0.8708,
+     "precision": 0.1688,
+     "f1": 0.2828,
+     "disputed_rejected": 0.6486
+    }
+   },
+   "substitutions": {
+    "n": 570,
+    "flagged": 0.9193,
+    "model_heard_what_learner_said": 0.3263,
+    "model_heard_the_canonical_phone": 0.0807
+   },
+   "deletions": {
+    "n": 396,
+    "model_also_deleted": 0.4141
+   },
+   "unidentifiable_or_distorted": {
+    "n": 446,
+    "flagged": 0.8341
+   },
+   "unmapped_symbols": {
+    "?ɤ": 448,
+    "?ɥ": 14
+   },
+   "examples_substitution": [
+    {
+     "canonical": "HH",
+     "learner_said": "SH",
+     "model_heard": "SH",
+     "match": true,
+     "n": 11
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "IH",
+     "model_heard": "IY",
+     "match": false,
+     "n": 9
+    },
+    {
+     "canonical": "AH",
+     "learner_said": "IH",
+     "model_heard": "EY",
+     "match": false,
+     "n": 8
+    },
+    {
+     "canonical": "AH",
+     "learner_said": "OW",
+     "model_heard": "OW",
+     "match": true,
+     "n": 8
+    },
+    {
+     "canonical": "AW",
+     "learner_said": "OW",
+     "model_heard": "OW",
+     "match": true,
+     "n": 6
+    },
+    {
+     "canonical": "AE",
+     "learner_said": "AA",
+     "model_heard": "AA",
+     "match": true,
+     "n": 6
+    },
+    {
+     "canonical": "UH",
+     "learner_said": "AA",
+     "model_heard": "UH",
+     "match": false,
+     "n": 6
+    },
+    {
+     "canonical": "EY",
+     "learner_said": "AH",
+     "model_heard": "AA",
+     "match": false,
+     "n": 6
+    },
+    {
+     "canonical": "AY",
+     "learner_said": "IH",
+     "model_heard": "IY",
+     "match": false,
+     "n": 5
+    },
+    {
+     "canonical": "AY",
+     "learner_said": "IH",
+     "model_heard": "EY",
+     "match": false,
+     "n": 5
+    },
+    {
+     "canonical": "AH",
+     "learner_said": "EY",
+     "model_heard": "EY",
+     "match": true,
+     "n": 5
+    },
+    {
+     "canonical": "T",
+     "learner_said": "D",
+     "model_heard": "T",
+     "match": false,
+     "n": 5
+    },
+    {
+     "canonical": "AY",
+     "learner_said": "EY",
+     "model_heard": "EY",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "EY",
+     "learner_said": "AY",
+     "model_heard": "AY",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "IH",
+     "model_heard": "EH",
+     "match": false,
+     "n": 4
+    },
+    {
+     "canonical": "UH",
+     "learner_said": "AH",
+     "model_heard": "AA",
+     "match": false,
+     "n": 4
+    },
+    {
+     "canonical": "DH",
+     "learner_said": "T",
+     "model_heard": "T",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "D",
+     "learner_said": "V",
+     "model_heard": "V",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "AY",
+     "learner_said": "IY",
+     "model_heard": "IY",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "EY",
+     "learner_said": "AE",
+     "model_heard": "AE",
+     "match": true,
+     "n": 3
+    },
+    {
+     "canonical": "IH",
+     "learner_said": "EH",
+     "model_heard": "EY",
+     "match": false,
+     "n": 3
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "IH",
+     "model_heard": "EY",
+     "match": false,
+     "n": 3
+    },
+    {
+     "canonical": "DH",
+     "learner_said": "S",
+     "model_heard": "S",
+     "match": true,
+     "n": 3
+    },
+    {
+     "canonical": "AE",
+     "learner_said": "AH",
+     "model_heard": "AA",
+     "match": false,
+     "n": 3
+    },
+    {
+     "canonical": "EY",
+     "learner_said": "EH",
+     "model_heard": "EH",
+     "match": true,
+     "n": 3
+    }
+   ]
+  },
+  {
+   "model": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+   "n_utts": 2500,
+   "n_correct": 44097,
+   "n_error": 2149,
+   "false_rejection": 0.2664,
+   "detection_recall": 0.8818,
+   "precision": 0.1389,
+   "f1": 0.24,
+   "disputed_rejected": 0.7391,
+   "by_age": {
+    "child": {
+     "n_correct": 20423,
+     "n_error": 717,
+     "false_rejection": 0.2735,
+     "detection_recall": 0.8801,
+     "precision": 0.1015,
+     "f1": 0.182,
+     "disputed_rejected": 0.7736
+    },
+    "adult": {
+     "n_correct": 23674,
+     "n_error": 1432,
+     "false_rejection": 0.2603,
+     "detection_recall": 0.8827,
+     "precision": 0.1702,
+     "f1": 0.2854,
+     "disputed_rejected": 0.7136
+    }
+   },
+   "substitutions": {
+    "n": 570,
+    "flagged": 0.9544,
+    "model_heard_what_learner_said": 0.4211,
+    "model_heard_the_canonical_phone": 0.0456
+   },
+   "deletions": {
+    "n": 396,
+    "model_also_deleted": 0.4646
+   },
+   "unidentifiable_or_distorted": {
+    "n": 446,
+    "flagged": 0.8206
+   },
+   "unmapped_symbols": {
+    "?5": 196,
+    "?.": 36,
+    "?ɬ": 1
+   },
+   "examples_substitution": [
+    {
+     "canonical": "AH",
+     "learner_said": "IH",
+     "model_heard": "EY",
+     "match": false,
+     "n": 10
+    },
+    {
+     "canonical": "HH",
+     "learner_said": "SH",
+     "model_heard": "SH",
+     "match": true,
+     "n": 10
+    },
+    {
+     "canonical": "AY",
+     "learner_said": "IH",
+     "model_heard": "EY",
+     "match": false,
+     "n": 9
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "IH",
+     "model_heard": "IY",
+     "match": false,
+     "n": 8
+    },
+    {
+     "canonical": "AW",
+     "learner_said": "OW",
+     "model_heard": "OW",
+     "match": true,
+     "n": 7
+    },
+    {
+     "canonical": "AH",
+     "learner_said": "OW",
+     "model_heard": "OW",
+     "match": true,
+     "n": 7
+    },
+    {
+     "canonical": "EY",
+     "learner_said": "AH",
+     "model_heard": "AA",
+     "match": false,
+     "n": 7
+    },
+    {
+     "canonical": "UH",
+     "learner_said": "AA",
+     "model_heard": "AO",
+     "match": false,
+     "n": 6
+    },
+    {
+     "canonical": "AH",
+     "learner_said": "EY",
+     "model_heard": "EY",
+     "match": true,
+     "n": 6
+    },
+    {
+     "canonical": "AY",
+     "learner_said": "EY",
+     "model_heard": "EY",
+     "match": true,
+     "n": 5
+    },
+    {
+     "canonical": "TH",
+     "learner_said": "T",
+     "model_heard": "T",
+     "match": true,
+     "n": 5
+    },
+    {
+     "canonical": "T",
+     "learner_said": "D",
+     "model_heard": "D",
+     "match": true,
+     "n": 5
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "IH",
+     "model_heard": "EY",
+     "match": false,
+     "n": 4
+    },
+    {
+     "canonical": "AE",
+     "learner_said": "AH",
+     "model_heard": "AA",
+     "match": false,
+     "n": 4
+    },
+    {
+     "canonical": "DH",
+     "learner_said": "S",
+     "model_heard": "S",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "IH",
+     "model_heard": "IH",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "EY",
+     "learner_said": "AY",
+     "model_heard": "AY",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "AY",
+     "learner_said": "IH",
+     "model_heard": "IY",
+     "match": false,
+     "n": 4
+    },
+    {
+     "canonical": "AE",
+     "learner_said": "AA",
+     "model_heard": "AA",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "AH",
+     "learner_said": "AA",
+     "model_heard": "AA",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "D",
+     "learner_said": "V",
+     "model_heard": "V",
+     "match": true,
+     "n": 4
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "EY",
+     "model_heard": "IY",
+     "match": false,
+     "n": 4
+    },
+    {
+     "canonical": "IY",
+     "learner_said": "ER",
+     "model_heard": "AA",
+     "match": false,
+     "n": 4
+    },
+    {
+     "canonical": "EY",
+     "learner_said": "AE",
+     "model_heard": "AE",
+     "match": true,
+     "n": 3
+    },
+    {
+     "canonical": "EH",
+     "learner_said": "ER",
+     "model_heard": "AH",
+     "match": false,
+     "n": 3
+    }
+   ]
+  }
+ ]
+}
