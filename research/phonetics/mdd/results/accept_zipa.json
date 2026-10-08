@@ -1,0 +1,931 @@
+{
+ "what": "A[expected][heard]: expert acceptance (0..1) when the model hears `heard` for `expected`; fitted on speechocean762 train",
+ "table": {
+  "AA": {
+   "AE": {
+    "accepted": 0.98,
+    "soft_n": 57.9
+   },
+   "<DEL>": {
+    "accepted": 0.822,
+    "soft_n": 24.8
+   },
+   "R": {
+    "accepted": 0.968,
+    "soft_n": 23.0
+   },
+   "<other>": {
+    "accepted": 0.915,
+    "soft_n": 18.2
+   },
+   "OW": {
+    "accepted": 0.912,
+    "soft_n": 16.1
+   },
+   "AO": {
+    "accepted": 0.858,
+    "soft_n": 14.2
+   }
+  },
+  "AE": {
+   "AA": {
+    "accepted": 0.907,
+    "soft_n": 251.9
+   },
+   "AH": {
+    "accepted": 0.961,
+    "soft_n": 172.6
+   },
+   "AY": {
+    "accepted": 0.94,
+    "soft_n": 92.5
+   },
+   "EH": {
+    "accepted": 0.942,
+    "soft_n": 91.4
+   },
+   "<other>": {
+    "accepted": 0.872,
+    "soft_n": 45.6
+   },
+   "<DEL>": {
+    "accepted": 0.854,
+    "soft_n": 35.4
+   }
+  },
+  "AH": {
+   "AA": {
+    "accepted": 0.939,
+    "soft_n": 906.2
+   },
+   "OW": {
+    "accepted": 0.874,
+    "soft_n": 337.5
+   },
+   "<DEL>": {
+    "accepted": 0.819,
+    "soft_n": 262.7
+   },
+   "AO": {
+    "accepted": 0.916,
+    "soft_n": 256.1
+   },
+   "<other>": {
+    "accepted": 0.889,
+    "soft_n": 227.5
+   },
+   "ER": {
+    "accepted": 0.943,
+    "soft_n": 168.1
+   }
+  },
+  "AO": {
+   "OW": {
+    "accepted": 0.916,
+    "soft_n": 92.6
+   },
+   "R": {
+    "accepted": 0.971,
+    "soft_n": 54.1
+   },
+   "AA": {
+    "accepted": 0.841,
+    "soft_n": 52.3
+   },
+   "ER": {
+    "accepted": 0.928,
+    "soft_n": 44.9
+   },
+   "<other>": {
+    "accepted": 0.835,
+    "soft_n": 29.8
+   },
+   "<DEL>": {
+    "accepted": 0.755,
+    "soft_n": 20.6
+   }
+  },
+  "AW": {
+   "OW": {
+    "accepted": 0.891,
+    "soft_n": 56.7
+   },
+   "AA": {
+    "accepted": 0.87,
+    "soft_n": 49.0
+   },
+   "UH": {
+    "accepted": 0.886,
+    "soft_n": 15.1
+   },
+   "AO": {
+    "accepted": 0.747,
+    "soft_n": 13.8
+   },
+   "<other>": {
+    "accepted": 0.805,
+    "soft_n": 11.5
+   },
+   "<DEL>": {
+    "accepted": 0.745,
+    "soft_n": 5.8
+   }
+  },
+  "AY": {
+   "AA": {
+    "accepted": 0.894,
+    "soft_n": 112.0
+   },
+   "IY": {
+    "accepted": 0.896,
+    "soft_n": 77.5
+   },
+   "<other>": {
+    "accepted": 0.854,
+    "soft_n": 40.9
+   },
+   "EH": {
+    "accepted": 0.772,
+    "soft_n": 32.1
+   },
+   "<DEL>": {
+    "accepted": 0.793,
+    "soft_n": 26.5
+   },
+   "IH": {
+    "accepted": 0.876,
+    "soft_n": 25.9
+   }
+  },
+  "B": {
+   "P": {
+    "accepted": 0.963,
+    "soft_n": 179.0
+   },
+   "<DEL>": {
+    "accepted": 0.838,
+    "soft_n": 23.0
+   },
+   "<other>": {
+    "accepted": 0.932,
+    "soft_n": 15.5
+   },
+   "AH": {
+    "accepted": 0.967,
+    "soft_n": 9.6
+   },
+   "AA": {
+    "accepted": 0.914,
+    "soft_n": 8.8
+   },
+   "W": {
+    "accepted": 0.963,
+    "soft_n": 8.2
+   }
+  },
+  "CH": {
+   "T": {
+    "accepted": 0.89,
+    "soft_n": 25.7
+   }
+  },
+  "D": {
+   "T": {
+    "accepted": 0.932,
+    "soft_n": 308.0
+   },
+   "<DEL>": {
+    "accepted": 0.724,
+    "soft_n": 120.0
+   },
+   "<other>": {
+    "accepted": 0.863,
+    "soft_n": 67.2
+   },
+   "AH": {
+    "accepted": 0.931,
+    "soft_n": 37.0
+   },
+   "DH": {
+    "accepted": 0.952,
+    "soft_n": 27.8
+   },
+   "ER": {
+    "accepted": 0.917,
+    "soft_n": 27.1
+   }
+  },
+  "DH": {
+   "<DEL>": {
+    "accepted": 0.874,
+    "soft_n": 125.1
+   },
+   "T": {
+    "accepted": 0.865,
+    "soft_n": 123.5
+   },
+   "S": {
+    "accepted": 0.9,
+    "soft_n": 94.5
+   },
+   "<other>": {
+    "accepted": 0.906,
+    "soft_n": 93.3
+   },
+   "Z": {
+    "accepted": 0.936,
+    "soft_n": 52.9
+   },
+   "EY": {
+    "accepted": 0.895,
+    "soft_n": 28.2
+   }
+  },
+  "EH": {
+   "EY": {
+    "accepted": 0.841,
+    "soft_n": 108.3
+   },
+   "AA": {
+    "accepted": 0.839,
+    "soft_n": 88.9
+   },
+   "AY": {
+    "accepted": 0.889,
+    "soft_n": 61.8
+   },
+   "AH": {
+    "accepted": 0.849,
+    "soft_n": 58.2
+   },
+   "AE": {
+    "accepted": 0.935,
+    "soft_n": 53.3
+   },
+   "<other>": {
+    "accepted": 0.789,
+    "soft_n": 52.5
+   }
+  },
+  "ER": {
+   "<other>": {
+    "accepted": 0.839,
+    "soft_n": 38.0
+   },
+   "EH": {
+    "accepted": 0.827,
+    "soft_n": 35.5
+   },
+   "AA": {
+    "accepted": 0.76,
+    "soft_n": 35.3
+   },
+   "EY": {
+    "accepted": 0.784,
+    "soft_n": 32.4
+   },
+   "AO": {
+    "accepted": 0.881,
+    "soft_n": 32.2
+   },
+   "AH": {
+    "accepted": 0.893,
+    "soft_n": 28.3
+   }
+  },
+  "EY": {
+   "EH": {
+    "accepted": 0.858,
+    "soft_n": 66.1
+   },
+   "AA": {
+    "accepted": 0.773,
+    "soft_n": 65.0
+   },
+   "IY": {
+    "accepted": 0.695,
+    "soft_n": 44.1
+   },
+   "AY": {
+    "accepted": 0.77,
+    "soft_n": 35.5
+   },
+   "IH": {
+    "accepted": 0.866,
+    "soft_n": 24.2
+   },
+   "<other>": {
+    "accepted": 0.749,
+    "soft_n": 23.2
+   }
+  },
+  "F": {
+   "V": {
+    "accepted": 0.974,
+    "soft_n": 24.0
+   },
+   "<DEL>": {
+    "accepted": 0.801,
+    "soft_n": 22.2
+   },
+   "<other>": {
+    "accepted": 0.924,
+    "soft_n": 17.7
+   },
+   "UW": {
+    "accepted": 0.851,
+    "soft_n": 9.3
+   },
+   "AH": {
+    "accepted": 0.977,
+    "soft_n": 7.4
+   },
+   "ER": {
+    "accepted": 0.975,
+    "soft_n": 6.0
+   }
+  },
+  "G": {
+   "K": {
+    "accepted": 0.971,
+    "soft_n": 117.2
+   },
+   "<other>": {
+    "accepted": 0.93,
+    "soft_n": 14.0
+   },
+   "<DEL>": {
+    "accepted": 0.925,
+    "soft_n": 11.8
+   },
+   "OW": {
+    "accepted": 0.927,
+    "soft_n": 7.6
+   },
+   "AA": {
+    "accepted": 0.951,
+    "soft_n": 5.7
+   }
+  },
+  "HH": {
+   "<DEL>": {
+    "accepted": 0.918,
+    "soft_n": 66.4
+   },
+   "EY": {
+    "accepted": 0.982,
+    "soft_n": 56.4
+   },
+   "<other>": {
+    "accepted": 0.933,
+    "soft_n": 43.8
+   },
+   "AY": {
+    "accepted": 0.987,
+    "soft_n": 30.2
+   },
+   "AA": {
+    "accepted": 0.957,
+    "soft_n": 29.3
+   },
+   "EH": {
+    "accepted": 0.968,
+    "soft_n": 20.4
+   }
+  },
+  "IH": {
+   "IY": {
+    "accepted": 0.966,
+    "soft_n": 635.5
+   },
+   "EY": {
+    "accepted": 0.942,
+    "soft_n": 218.6
+   },
+   "EH": {
+    "accepted": 0.918,
+    "soft_n": 172.6
+   },
+   "<DEL>": {
+    "accepted": 0.705,
+    "soft_n": 146.5
+   },
+   "<other>": {
+    "accepted": 0.865,
+    "soft_n": 121.7
+   },
+   "AH": {
+    "accepted": 0.908,
+    "soft_n": 90.4
+   }
+  },
+  "IY": {
+   "EY": {
+    "accepted": 0.921,
+    "soft_n": 227.2
+   },
+   "EH": {
+    "accepted": 0.916,
+    "soft_n": 139.9
+   },
+   "IH": {
+    "accepted": 0.91,
+    "soft_n": 72.2
+   },
+   "<DEL>": {
+    "accepted": 0.75,
+    "soft_n": 58.7
+   },
+   "<other>": {
+    "accepted": 0.841,
+    "soft_n": 57.0
+   },
+   "Y": {
+    "accepted": 0.965,
+    "soft_n": 35.3
+   }
+  },
+  "JH": {
+   "T": {
+    "accepted": 0.831,
+    "soft_n": 13.7
+   },
+   "<other>": {
+    "accepted": 0.866,
+    "soft_n": 8.7
+   },
+   "D": {
+    "accepted": 0.935,
+    "soft_n": 8.5
+   },
+   "CH": {
+    "accepted": 0.958,
+    "soft_n": 8.0
+   },
+   "ZH": {
+    "accepted": 0.949,
+    "soft_n": 6.3
+   }
+  },
+  "K": {
+   "CH": {
+    "accepted": 0.989,
+    "soft_n": 55.5
+   },
+   "<DEL>": {
+    "accepted": 0.79,
+    "soft_n": 44.6
+   },
+   "<other>": {
+    "accepted": 0.893,
+    "soft_n": 28.5
+   },
+   "T": {
+    "accepted": 0.776,
+    "soft_n": 25.5
+   },
+   "G": {
+    "accepted": 0.973,
+    "soft_n": 22.4
+   },
+   "SH": {
+    "accepted": 0.98,
+    "soft_n": 15.8
+   }
+  },
+  "L": {
+   "<DEL>": {
+    "accepted": 0.797,
+    "soft_n": 137.9
+   },
+   "<other>": {
+    "accepted": 0.842,
+    "soft_n": 60.3
+   },
+   "OW": {
+    "accepted": 0.92,
+    "soft_n": 55.0
+   },
+   "AH": {
+    "accepted": 0.96,
+    "soft_n": 42.2
+   },
+   "R": {
+    "accepted": 0.893,
+    "soft_n": 40.4
+   },
+   "UH": {
+    "accepted": 0.911,
+    "soft_n": 40.2
+   }
+  },
+  "M": {
+   "<DEL>": {
+    "accepted": 0.747,
+    "soft_n": 63.9
+   },
+   "N": {
+    "accepted": 0.834,
+    "soft_n": 47.7
+   },
+   "NG": {
+    "accepted": 0.899,
+    "soft_n": 32.2
+   },
+   "<other>": {
+    "accepted": 0.829,
+    "soft_n": 22.9
+   },
+   "UW": {
+    "accepted": 0.897,
+    "soft_n": 12.3
+   },
+   "R": {
+    "accepted": 0.841,
+    "soft_n": 9.3
+   }
+  },
+  "N": {
+   "<DEL>": {
+    "accepted": 0.808,
+    "soft_n": 195.8
+   },
+   "NG": {
+    "accepted": 0.923,
+    "soft_n": 182.1
+   },
+   "<other>": {
+    "accepted": 0.846,
+    "soft_n": 73.5
+   },
+   "AH": {
+    "accepted": 0.96,
+    "soft_n": 66.2
+   },
+   "T": {
+    "accepted": 0.709,
+    "soft_n": 45.4
+   },
+   "IH": {
+    "accepted": 0.727,
+    "soft_n": 34.9
+   }
+  },
+  "NG": {
+   "N": {
+    "accepted": 0.924,
+    "soft_n": 81.6
+   },
+   "<DEL>": {
+    "accepted": 0.609,
+    "soft_n": 47.1
+   },
+   "IY": {
+    "accepted": 0.884,
+    "soft_n": 12.9
+   },
+   "<other>": {
+    "accepted": 0.798,
+    "soft_n": 11.7
+   },
+   "T": {
+    "accepted": 0.685,
+    "soft_n": 5.8
+   }
+  },
+  "OW": {
+   "AO": {
+    "accepted": 0.796,
+    "soft_n": 26.6
+   },
+   "AA": {
+    "accepted": 0.657,
+    "soft_n": 22.8
+   },
+   "<other>": {
+    "accepted": 0.758,
+    "soft_n": 17.5
+   },
+   "<DEL>": {
+    "accepted": 0.6,
+    "soft_n": 15.7
+   },
+   "UH": {
+    "accepted": 0.881,
+    "soft_n": 15.1
+   },
+   "UW": {
+    "accepted": 0.862,
+    "soft_n": 10.6
+   }
+  },
+  "P": {
+   "<DEL>": {
+    "accepted": 0.788,
+    "soft_n": 16.7
+   },
+   "<other>": {
+    "accepted": 0.876,
+    "soft_n": 9.2
+   },
+   "B": {
+    "accepted": 0.92,
+    "soft_n": 8.5
+   },
+   "AH": {
+    "accepted": 0.963,
+    "soft_n": 6.2
+   },
+   "T": {
+    "accepted": 0.739,
+    "soft_n": 5.9
+   }
+  },
+  "R": {
+   "<DEL>": {
+    "accepted": 0.84,
+    "soft_n": 122.6
+   },
+   "<other>": {
+    "accepted": 0.886,
+    "soft_n": 73.2
+   },
+   "ER": {
+    "accepted": 0.928,
+    "soft_n": 44.3
+   },
+   "W": {
+    "accepted": 0.873,
+    "soft_n": 40.7
+   },
+   "AA": {
+    "accepted": 0.855,
+    "soft_n": 39.9
+   },
+   "L": {
+    "accepted": 0.63,
+    "soft_n": 34.6
+   }
+  },
+  "S": {
+   "<DEL>": {
+    "accepted": 0.805,
+    "soft_n": 111.4
+   },
+   "Z": {
+    "accepted": 0.957,
+    "soft_n": 68.2
+   },
+   "<other>": {
+    "accepted": 0.88,
+    "soft_n": 59.9
+   },
+   "T": {
+    "accepted": 0.796,
+    "soft_n": 37.8
+   },
+   "IH": {
+    "accepted": 0.898,
+    "soft_n": 25.4
+   },
+   "EY": {
+    "accepted": 0.873,
+    "soft_n": 21.1
+   }
+  },
+  "SH": {
+   "S": {
+    "accepted": 0.843,
+    "soft_n": 29.2
+   },
+   "<DEL>": {
+    "accepted": 0.855,
+    "soft_n": 24.7
+   },
+   "<other>": {
+    "accepted": 0.865,
+    "soft_n": 19.8
+   },
+   "EY": {
+    "accepted": 0.874,
+    "soft_n": 15.9
+   },
+   "AH": {
+    "accepted": 0.96,
+    "soft_n": 13.2
+   },
+   "IH": {
+    "accepted": 0.877,
+    "soft_n": 8.3
+   }
+  },
+  "T": {
+   "<DEL>": {
+    "accepted": 0.797,
+    "soft_n": 202.5
+   },
+   "<other>": {
+    "accepted": 0.856,
+    "soft_n": 108.2
+   },
+   "D": {
+    "accepted": 0.942,
+    "soft_n": 91.1
+   },
+   "ER": {
+    "accepted": 0.921,
+    "soft_n": 49.0
+   },
+   "AH": {
+    "accepted": 0.897,
+    "soft_n": 46.6
+   },
+   "CH": {
+    "accepted": 0.958,
+    "soft_n": 43.3
+   }
+  },
+  "TH": {
+   "S": {
+    "accepted": 0.859,
+    "soft_n": 78.3
+   },
+   "<DEL>": {
+    "accepted": 0.692,
+    "soft_n": 20.0
+   },
+   "<other>": {
+    "accepted": 0.721,
+    "soft_n": 15.7
+   },
+   "T": {
+    "accepted": 0.555,
+    "soft_n": 14.8
+   },
+   "Z": {
+    "accepted": 0.791,
+    "soft_n": 8.4
+   },
+   "EY": {
+    "accepted": 0.749,
+    "soft_n": 6.1
+   }
+  },
+  "UH": {
+   "UW": {
+    "accepted": 0.933,
+    "soft_n": 180.5
+   },
+   "OW": {
+    "accepted": 0.881,
+    "soft_n": 78.1
+   },
+   "AO": {
+    "accepted": 0.859,
+    "soft_n": 21.9
+   },
+   "<DEL>": {
+    "accepted": 0.859,
+    "soft_n": 21.2
+   },
+   "<other>": {
+    "accepted": 0.842,
+    "soft_n": 19.9
+   },
+   "AA": {
+    "accepted": 0.439,
+    "soft_n": 12.5
+   }
+  },
+  "UW": {
+   "OW": {
+    "accepted": 0.918,
+    "soft_n": 206.3
+   },
+   "<DEL>": {
+    "accepted": 0.835,
+    "soft_n": 41.5
+   },
+   "<other>": {
+    "accepted": 0.85,
+    "soft_n": 38.8
+   },
+   "AO": {
+    "accepted": 0.756,
+    "soft_n": 26.5
+   },
+   "UH": {
+    "accepted": 0.881,
+    "soft_n": 19.9
+   },
+   "W": {
+    "accepted": 0.86,
+    "soft_n": 8.8
+   }
+  },
+  "V": {
+   "F": {
+    "accepted": 0.878,
+    "soft_n": 60.2
+   },
+   "W": {
+    "accepted": 0.855,
+    "soft_n": 43.7
+   },
+   "<DEL>": {
+    "accepted": 0.83,
+    "soft_n": 35.3
+   },
+   "<other>": {
+    "accepted": 0.867,
+    "soft_n": 30.3
+   },
+   "AH": {
+    "accepted": 0.953,
+    "soft_n": 18.8
+   },
+   "OW": {
+    "accepted": 0.855,
+    "soft_n": 12.6
+   }
+  },
+  "W": {
+   "<DEL>": {
+    "accepted": 0.809,
+    "soft_n": 57.6
+   },
+   "<other>": {
+    "accepted": 0.887,
+    "soft_n": 34.1
+   },
+   "EY": {
+    "accepted": 0.973,
+    "soft_n": 31.0
+   },
+   "AA": {
+    "accepted": 0.83,
+    "soft_n": 17.0
+   },
+   "UW": {
+    "accepted": 0.944,
+    "soft_n": 15.7
+   },
+   "EH": {
+    "accepted": 0.967,
+    "soft_n": 15.5
+   }
+  },
+  "Y": {
+   "<DEL>": {
+    "accepted": 0.953,
+    "soft_n": 72.7
+   },
+   "OW": {
+    "accepted": 0.98,
+    "soft_n": 48.1
+   },
+   "<other>": {
+    "accepted": 0.971,
+    "soft_n": 22.8
+   },
+   "R": {
+    "accepted": 0.979,
+    "soft_n": 7.9
+   },
+   "EY": {
+    "accepted": 0.901,
+    "soft_n": 6.9
+   },
+   "UW": {
+    "accepted": 0.983,
+    "soft_n": 6.7
+   }
+  },
+  "Z": {
+   "S": {
+    "accepted": 0.861,
+    "soft_n": 230.2
+   },
+   "<DEL>": {
+    "accepted": 0.71,
+    "soft_n": 94.6
+   },
+   "<other>": {
+    "accepted": 0.811,
+    "soft_n": 56.6
+   },
+   "T": {
+    "accepted": 0.819,
+    "soft_n": 49.0
+   },
+   "IH": {
+    "accepted": 0.723,
+    "soft_n": 18.5
+   },
+   "IY": {
+    "accepted": 0.838,
+    "soft_n": 17.0
+   }
+  }
+ }
+}

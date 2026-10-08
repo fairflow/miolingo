@@ -66,6 +66,10 @@ def evaluate(path, df):
         cor, err = s[a >= 1.6], s[a <= 1.0]
         out = {"n_phones": int(m.sum()), "n_correct": len(cor), "n_error": len(err),
                "pcc": round(float(np.corrcoef(s, a)[0, 1]), 4), "auc": round(float(auc(cor, err)), 4)}
+        for fr in (0.05, 0.10, 0.20):     # ROC operating points: errors caught at a set false-rejection rate
+            t = float(np.quantile(cor, fr)); tp = int((err < t).sum()); fp = int((cor < t).sum())
+            out[f"at_false_rejection_{fr:.2f}"] = {"recall": round(tp / max(1, len(err)), 4),
+                                                  "precision": round(tp / max(1, tp + fp), 4)}
         for t in (0.5, 0.2):
             fp, tp = int((cor < t).sum()), int((err < t).sum())
             rec, prec = tp / max(1, len(err)), tp / max(1, tp + fp)
