@@ -241,6 +241,239 @@
    ]
   },
   {
+   "model": "anyspeech/zipa-large-crctc-500k (model.fp16.onnx, CC BY 4.0) + learned acceptance (so762 train)",
+   "n_utts": 2500,
+   "n_phones": 47369,
+   "n_correct": 44097,
+   "n_error": 2149,
+   "pcc": 0.4863,
+   "auc": 0.902,
+   "at_false_rejection_0.05": {
+    "recall": 0.517,
+    "precision": 0.335
+   },
+   "at_false_rejection_0.10": {
+    "recall": 0.7022,
+    "precision": 0.2551
+   },
+   "at_false_rejection_0.20": {
+    "recall": 0.8576,
+    "precision": 0.1731
+   },
+   "t0.5": {
+    "false_rejection": 0.0,
+    "recall": 0.0019,
+    "precision": 1.0,
+    "f1": 0.0037
+   },
+   "t0.2": {
+    "false_rejection": 0.0,
+    "recall": 0.0,
+    "precision": 0.0,
+    "f1": 0.0
+   },
+   "children (<16)": {
+    "n_phones": 21617,
+    "n_correct": 20423,
+    "n_error": 717,
+    "pcc": 0.4252,
+    "auc": 0.8959,
+    "at_false_rejection_0.05": {
+     "recall": 0.5049,
+     "precision": 0.2616
+    },
+    "at_false_rejection_0.10": {
+     "recall": 0.6764,
+     "precision": 0.1922
+    },
+    "at_false_rejection_0.20": {
+     "recall": 0.848,
+     "precision": 0.1296
+    },
+    "t0.5": {
+     "false_rejection": 0.0,
+     "recall": 0.0,
+     "precision": 0.0,
+     "f1": 0.0
+    },
+    "t0.2": {
+     "false_rejection": 0.0,
+     "recall": 0.0,
+     "precision": 0.0,
+     "f1": 0.0
+    }
+   },
+   "adults": {
+    "n_phones": 25752,
+    "n_correct": 23674,
+    "n_error": 1432,
+    "pcc": 0.5315,
+    "auc": 0.9084,
+    "at_false_rejection_0.05": {
+     "recall": 0.5426,
+     "precision": 0.3966
+    },
+    "at_false_rejection_0.10": {
+     "recall": 0.7214,
+     "precision": 0.3037
+    },
+    "at_false_rejection_0.20": {
+     "recall": 0.8666,
+     "precision": 0.2077
+    },
+    "t0.5": {
+     "false_rejection": 0.0,
+     "recall": 0.0028,
+     "precision": 1.0,
+     "f1": 0.0056
+    },
+    "t0.2": {
+     "false_rejection": 0.0,
+     "recall": 0.0,
+     "precision": 0.0,
+     "f1": 0.0
+    }
+   },
+   "substitutions": {
+    "n": 570,
+    "flagged": 0.007,
+    "best_is_what_learner_said": 0.3509,
+    "top_alternative_is_what_learner_said": 0.3684,
+    "model_still_prefers_canonical": 0.0404
+   },
+   "deletions": {
+    "n": 396,
+    "flagged": 0.0,
+    "best_is_deletion": 0.5682
+   },
+   "unidentifiable_or_distorted": {
+    "n": 446,
+    "flagged": 0.0
+   },
+   "top_substitutions": [
+    {
+     "expected": "AH",
+     "learner_said": "OW",
+     "model_best": "OW",
+     "n": 9
+    },
+    {
+     "expected": "EH",
+     "learner_said": "IH",
+     "model_best": "IY",
+     "n": 8
+    },
+    {
+     "expected": "AH",
+     "learner_said": "IH",
+     "model_best": "EY",
+     "n": 7
+    },
+    {
+     "expected": "UH",
+     "learner_said": "AA",
+     "model_best": "AA",
+     "n": 6
+    },
+    {
+     "expected": "AW",
+     "learner_said": "OW",
+     "model_best": "OW",
+     "n": 6
+    },
+    {
+     "expected": "AE",
+     "learner_said": "AA",
+     "model_best": "AA",
+     "n": 6
+    },
+    {
+     "expected": "AH",
+     "learner_said": "EY",
+     "model_best": "EY",
+     "n": 6
+    },
+    {
+     "expected": "AY",
+     "learner_said": "IH",
+     "model_best": "IY",
+     "n": 5
+    },
+    {
+     "expected": "HH",
+     "learner_said": "SH",
+     "model_best": "SH",
+     "n": 5
+    },
+    {
+     "expected": "AY",
+     "learner_said": "EY",
+     "model_best": "EY",
+     "n": 4
+    },
+    {
+     "expected": "DH",
+     "learner_said": "S",
+     "model_best": "S",
+     "n": 4
+    },
+    {
+     "expected": "EY",
+     "learner_said": "AY",
+     "model_best": "AY",
+     "n": 4
+    },
+    {
+     "expected": "AY",
+     "learner_said": "IH",
+     "model_best": "EY",
+     "n": 4
+    },
+    {
+     "expected": "AE",
+     "learner_said": "AH",
+     "model_best": "AA",
+     "n": 4
+    },
+    {
+     "expected": "UH",
+     "learner_said": "AH",
+     "model_best": "AA",
+     "n": 4
+    },
+    {
+     "expected": "TH",
+     "learner_said": "T",
+     "model_best": "T",
+     "n": 4
+    },
+    {
+     "expected": "EY",
+     "learner_said": "AH",
+     "model_best": "AA",
+     "n": 4
+    },
+    {
+     "expected": "DH",
+     "learner_said": "T",
+     "model_best": "T",
+     "n": 4
+    },
+    {
+     "expected": "D",
+     "learner_said": "V",
+     "model_best": "V",
+     "n": 4
+    },
+    {
+     "expected": "AY",
+     "learner_said": "IY",
+     "model_best": "IY",
+     "n": 4
+    }
+   ]
+  },
+  {
    "model": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
    "n_utts": 2500,
    "n_phones": 47369,
@@ -474,30 +707,30 @@
    ]
   },
   {
-   "model": "anyspeech/zipa-large-crctc-500k (model.fp16.onnx, CC BY 4.0) + learned acceptance (so762 train)",
+   "model": "facebook/wav2vec2-xlsr-53-espeak-cv-ft + learned acceptance (so762 train)",
    "n_utts": 2500,
    "n_phones": 47369,
    "n_correct": 44097,
    "n_error": 2149,
-   "pcc": 0.4863,
-   "auc": 0.902,
+   "pcc": 0.5428,
+   "auc": 0.9186,
    "at_false_rejection_0.05": {
-    "recall": 0.517,
-    "precision": 0.335
+    "recall": 0.59,
+    "precision": 0.3655
    },
    "at_false_rejection_0.10": {
-    "recall": 0.7022,
-    "precision": 0.2551
+    "recall": 0.7538,
+    "precision": 0.269
    },
    "at_false_rejection_0.20": {
-    "recall": 0.8576,
-    "precision": 0.1731
+    "recall": 0.8953,
+    "precision": 0.1792
    },
    "t0.5": {
     "false_rejection": 0.0,
-    "recall": 0.0019,
+    "recall": 0.0093,
     "precision": 1.0,
-    "f1": 0.0037
+    "f1": 0.0184
    },
    "t0.2": {
     "false_rejection": 0.0,
@@ -509,25 +742,25 @@
     "n_phones": 21617,
     "n_correct": 20423,
     "n_error": 717,
-    "pcc": 0.4252,
-    "auc": 0.8959,
+    "pcc": 0.495,
+    "auc": 0.9178,
     "at_false_rejection_0.05": {
-     "recall": 0.5049,
-     "precision": 0.2616
+     "recall": 0.576,
+     "precision": 0.2878
     },
     "at_false_rejection_0.10": {
-     "recall": 0.6764,
-     "precision": 0.1922
+     "recall": 0.7503,
+     "precision": 0.2084
     },
     "at_false_rejection_0.20": {
-     "recall": 0.848,
-     "precision": 0.1296
+     "recall": 0.8912,
+     "precision": 0.1353
     },
     "t0.5": {
      "false_rejection": 0.0,
-     "recall": 0.0,
-     "precision": 0.0,
-     "f1": 0.0
+     "recall": 0.0014,
+     "precision": 1.0,
+     "f1": 0.0028
     },
     "t0.2": {
      "false_rejection": 0.0,
@@ -540,25 +773,25 @@
     "n_phones": 25752,
     "n_correct": 23674,
     "n_error": 1432,
-    "pcc": 0.5315,
-    "auc": 0.9084,
+    "pcc": 0.5731,
+    "auc": 0.9195,
     "at_false_rejection_0.05": {
-     "recall": 0.5426,
-     "precision": 0.3966
+     "recall": 0.6075,
+     "precision": 0.4242
     },
     "at_false_rejection_0.10": {
-     "recall": 0.7214,
-     "precision": 0.3037
+     "recall": 0.7633,
+     "precision": 0.3158
     },
     "at_false_rejection_0.20": {
-     "recall": 0.8666,
-     "precision": 0.2077
+     "recall": 0.898,
+     "precision": 0.2137
     },
     "t0.5": {
      "false_rejection": 0.0,
-     "recall": 0.0028,
+     "recall": 0.0133,
      "precision": 1.0,
-     "f1": 0.0056
+     "f1": 0.0262
     },
     "t0.2": {
      "false_rejection": 0.0,
@@ -569,26 +802,26 @@
    },
    "substitutions": {
     "n": 570,
-    "flagged": 0.007,
-    "best_is_what_learner_said": 0.3509,
-    "top_alternative_is_what_learner_said": 0.3684,
-    "model_still_prefers_canonical": 0.0404
+    "flagged": 0.0281,
+    "best_is_what_learner_said": 0.3965,
+    "top_alternative_is_what_learner_said": 0.4035,
+    "model_still_prefers_canonical": 0.0211
    },
    "deletions": {
     "n": 396,
     "flagged": 0.0,
-    "best_is_deletion": 0.5682
+    "best_is_deletion": 0.7247
    },
    "unidentifiable_or_distorted": {
     "n": 446,
-    "flagged": 0.0
+    "flagged": 0.0045
    },
    "top_substitutions": [
     {
-     "expected": "AH",
-     "learner_said": "OW",
-     "model_best": "OW",
-     "n": 9
+     "expected": "HH",
+     "learner_said": "SH",
+     "model_best": "SH",
+     "n": 11
     },
     {
      "expected": "EH",
@@ -597,16 +830,16 @@
      "n": 8
     },
     {
-     "expected": "AH",
-     "learner_said": "IH",
-     "model_best": "EY",
+     "expected": "UH",
+     "learner_said": "AA",
+     "model_best": "AO",
      "n": 7
     },
     {
-     "expected": "UH",
-     "learner_said": "AA",
-     "model_best": "AA",
-     "n": 6
+     "expected": "AY",
+     "learner_said": "IH",
+     "model_best": "IY",
+     "n": 7
     },
     {
      "expected": "AW",
@@ -615,39 +848,69 @@
      "n": 6
     },
     {
-     "expected": "AE",
-     "learner_said": "AA",
-     "model_best": "AA",
+     "expected": "AH",
+     "learner_said": "IH",
+     "model_best": "EY",
      "n": 6
     },
     {
      "expected": "AH",
-     "learner_said": "EY",
-     "model_best": "EY",
+     "learner_said": "OW",
+     "model_best": "OW",
+     "n": 6
+    },
+    {
+     "expected": "TH",
+     "learner_said": "T",
+     "model_best": "T",
+     "n": 6
+    },
+    {
+     "expected": "T",
+     "learner_said": "D",
+     "model_best": "D",
      "n": 6
     },
     {
      "expected": "AY",
-     "learner_said": "IH",
-     "model_best": "IY",
+     "learner_said": "EY",
+     "model_best": "EY",
      "n": 5
     },
     {
-     "expected": "HH",
-     "learner_said": "SH",
-     "model_best": "SH",
+     "expected": "EY",
+     "learner_said": "AH",
+     "model_best": "AA",
      "n": 5
     },
     {
      "expected": "AY",
-     "learner_said": "EY",
+     "learner_said": "IH",
+     "model_best": "EY",
+     "n": 5
+    },
+    {
+     "expected": "EH",
+     "learner_said": "IH",
      "model_best": "EY",
      "n": 4
     },
     {
-     "expected": "DH",
-     "learner_said": "S",
-     "model_best": "S",
+     "expected": "AE",
+     "learner_said": "AH",
+     "model_best": "AA",
+     "n": 4
+    },
+    {
+     "expected": "IH",
+     "learner_said": "EH",
+     "model_best": "<DEL>",
+     "n": 4
+    },
+    {
+     "expected": "EH",
+     "learner_said": "IH",
+     "model_best": "IH",
      "n": 4
     },
     {
@@ -657,51 +920,21 @@
      "n": 4
     },
     {
-     "expected": "AY",
-     "learner_said": "IH",
-     "model_best": "EY",
-     "n": 4
-    },
-    {
      "expected": "AE",
-     "learner_said": "AH",
+     "learner_said": "AA",
      "model_best": "AA",
      "n": 4
     },
     {
-     "expected": "UH",
-     "learner_said": "AH",
-     "model_best": "AA",
-     "n": 4
-    },
-    {
-     "expected": "TH",
-     "learner_said": "T",
-     "model_best": "T",
-     "n": 4
-    },
-    {
-     "expected": "EY",
-     "learner_said": "AH",
-     "model_best": "AA",
-     "n": 4
-    },
-    {
-     "expected": "DH",
-     "learner_said": "T",
-     "model_best": "T",
+     "expected": "AH",
+     "learner_said": "IH",
+     "model_best": "IH",
      "n": 4
     },
     {
      "expected": "D",
      "learner_said": "V",
      "model_best": "V",
-     "n": 4
-    },
-    {
-     "expected": "AY",
-     "learner_said": "IY",
-     "model_best": "IY",
      "n": 4
     }
    ]
