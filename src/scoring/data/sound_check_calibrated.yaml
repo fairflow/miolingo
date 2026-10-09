@@ -98,3 +98,263 @@ languages:
     calibrated_on: cphf:/opt/cphf/dev-0.parquet:de (n=400)
     model: facebook/wav2vec2-xlsr-53-espeak-cv-ft
     native_test_flag_rate: 0.0649
+  es:
+    inventory:
+    - a
+    - ai
+    - aɪ
+    - aʊ
+    - b
+    - d
+    - e
+    - ee
+    - eɪ
+    - eʊ
+    - f
+    - i
+    - ie
+    - j
+    - ja
+    - k
+    - l
+    - m
+    - n
+    - o
+    - oɪ
+    - p
+    - pː
+    - r
+    - s
+    - t
+    - tʃ
+    - u
+    - ui
+    - w
+    - x
+    - ð
+    - ŋ
+    - ɛ
+    - ɡ
+    - ɣ
+    - ɲ
+    - ɾ
+    - ʎ
+    - ʝ
+    - β
+    - θ
+    ok_threshold: 0.3481
+    off_threshold: 0.02
+    accept_learned:
+      ʎ:
+        ɣ: 0.7
+        tʃ: 0.7
+        j: 0.7
+        l: 0.7
+      pː:
+        p: 0.7
+      ja:
+        a: 0.7
+      ui:
+        i: 0.7
+        u: 0.7
+      r:
+        ɾ: 0.7
+      ee:
+        e: 0.7
+      eɪ:
+        aɪ: 0.7
+        i: 0.7
+      ɛ:
+        e: 0.7
+      ŋ:
+        n: 0.7
+      ie:
+        e: 0.7
+    unreliable:
+    - eɪ
+    calibrated_on: tsv:/opt/cpdata/es/dev/list.tsv (n=300)
+    model: facebook/wav2vec2-xlsr-53-espeak-cv-ft
+    native_test_flag_rate: 0.0694
+  fr:
+    inventory:
+    - a
+    - b
+    - d
+    - e
+    - f
+    - h
+    - i
+    - j
+    - k
+    - l
+    - m
+    - n
+    - o
+    - p
+    - s
+    - t
+    - u
+    - v
+    - w
+    - y
+    - z
+    - ø
+    - œ
+    - ɑ
+    - ɒ
+    - ɔ
+    - ə
+    - ɛ
+    - ɜ
+    - ɡ
+    - ɪ
+    - ɲ
+    - ɹ
+    - ʁ
+    - ʃ
+    - ʊ
+    - ʒ
+    - ː
+    - ̃
+    ok_threshold: 0.7336
+    off_threshold: 0.1131
+    accept_learned:
+      ː:
+        ʁ: 0.7
+    unreliable:
+    - ː
+    calibrated_on: tsv:/opt/cpdata/fr/dev/list.tsv (n=300)
+    model: Cnam-LMSSC/wav2vec2-french-phonemizer
+    native_test_flag_rate: 0.0592
+  en:
+    inventory:
+    - a
+    - aɪ
+    - aɪə
+    - aʊ
+    - b
+    - d
+    - dʒ
+    - eə
+    - eɪ
+    - f
+    - h
+    - i
+    - iə
+    - iː
+    - j
+    - k
+    - l
+    - m
+    - n
+    - p
+    - s
+    - t
+    - ts
+    - tʃ
+    - uː
+    - v
+    - w
+    - z
+    - ð
+    - ŋ
+    - ɐ
+    - ɑː
+    - ɑːɹ
+    - ɒ
+    - ɔɪ
+    - ɔː
+    - ɔːɹ
+    - ə
+    - əʊ
+    - ɛ
+    - ɛɹ
+    - ɜː
+    - ɡ
+    - ɪ
+    - ɪɹ
+    - ɹ
+    - ʃ
+    - ʊ
+    - ʊə
+    - ʌ
+    - ʒ
+    - θ
+    ok_threshold: 0.1644
+    off_threshold: 0.02
+    accept_learned:
+      a:
+        ɛ: 0.7
+        ɑː: 0.7
+      ɔː:
+        ɑː: 0.7
+        ɔːɹ: 0.7
+        uː: 0.7
+        aʊ: 0.7
+      əʊ:
+        aʊ: 0.7
+        ʊ: 0.7
+      ɐ:
+        ɛ: 0.7
+        ə: 0.7
+      ɒ:
+        ɑː: 0.7
+        ʌ: 0.7
+      ɛɹ:
+        ɛ: 0.7
+        ɹ: 0.7
+      iə:
+        iː: 0.7
+        ɐ: 0.7
+        ɪ: 0.7
+        ə: 0.7
+      i:
+        iː: 0.7
+      eə:
+        ɛ: 0.7
+      ts:
+        s: 0.7
+        t: 0.7
+      ɜː:
+        ɹ: 0.7
+      ɑː:
+        aʊ: 0.7
+        aɪ: 0.7
+      ɔɪ:
+        aʊ: 0.7
+        ɔːɹ: 0.7
+      ʌ:
+        a: 0.7
+      ɔːɹ:
+        ɔː: 0.7
+        ɹ: 0.7
+      ɑːɹ:
+        ɑː: 0.7
+      aɪə:
+        aɪ: 0.7
+      θ:
+        t: 0.7
+      ŋ:
+        n: 0.7
+      ʊə:
+        uː: 0.7
+      ʒ:
+        ʃ: 0.7
+      aʊ:
+        ɑː: 0.7
+        aɪ: 0.7
+      ʊ:
+        uː: 0.7
+      ɪɹ:
+        ɹ: 0.7
+    unreliable:
+    - a
+    - eə
+    - iə
+    - ɒ
+    - ɔɪ
+    - əʊ
+    - ʊə
+    calibrated_on: cphf:/opt/cphf/dev-0.parquet:en (n=300)
+    model: facebook/wav2vec2-xlsr-53-espeak-cv-ft
+    native_test_flag_rate: 0.0626

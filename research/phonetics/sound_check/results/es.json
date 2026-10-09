@@ -1,0 +1,140 @@
+{
+ "voice": "es",
+ "model": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+ "n_dev_utts": 300,
+ "n_test_utts": 300,
+ "calibration": {
+  "ok_threshold": 0.3481,
+  "off_threshold": 0.02
+ },
+ "inventory_size": 42,
+ "accept_learned": {
+  "ʎ": {
+   "ɣ": 0.7,
+   "tʃ": 0.7,
+   "j": 0.7,
+   "l": 0.7
+  },
+  "pː": {
+   "p": 0.7
+  },
+  "ja": {
+   "a": 0.7
+  },
+  "ui": {
+   "i": 0.7,
+   "u": 0.7
+  },
+  "r": {
+   "ɾ": 0.7
+  },
+  "ee": {
+   "e": 0.7
+  },
+  "eɪ": {
+   "aɪ": 0.7,
+   "i": 0.7
+  },
+  "ɛ": {
+   "e": 0.7
+  },
+  "ŋ": {
+   "n": 0.7
+  },
+  "ie": {
+   "e": 0.7
+  }
+ },
+ "unreliable": [
+  "eɪ"
+ ],
+ "native_test": {
+  "phones": 14394,
+  "check": 0.0404,
+  "off": 0.029,
+  "most_flagged_sounds": [
+   {
+    "sound": "d",
+    "flagged": 0.214,
+    "n": 131
+   },
+   {
+    "sound": "tʃ",
+    "flagged": 0.214,
+    "n": 28
+   },
+   {
+    "sound": "b",
+    "flagged": 0.211,
+    "n": 57
+   },
+   {
+    "sound": "w",
+    "flagged": 0.203,
+    "n": 153
+   },
+   {
+    "sound": "ŋ",
+    "flagged": 0.182,
+    "n": 22
+   },
+   {
+    "sound": "ɣ",
+    "flagged": 0.169,
+    "n": 130
+   },
+   {
+    "sound": "ja",
+    "flagged": 0.15,
+    "n": 80
+   },
+   {
+    "sound": "ʎ",
+    "flagged": 0.132,
+    "n": 38
+   },
+   {
+    "sound": "β",
+    "flagged": 0.122,
+    "n": 294
+   },
+   {
+    "sound": "x",
+    "flagged": 0.122,
+    "n": 98
+   }
+  ]
+ },
+ "simulated_english_speaker_errors": {
+  "ɾ->ɹ": {
+   "n": 150,
+   "flagged": 1.0,
+   "off": 0.9,
+   "heard_the_native_sound": 0.7
+  },
+  "r->ɹ": {
+   "n": 104,
+   "flagged": 0.99,
+   "off": 0.971,
+   "heard_the_native_sound": 0.76
+  },
+  "β->v": {
+   "n": 150,
+   "flagged": 0.8,
+   "off": 0.42,
+   "heard_the_native_sound": 0.547
+  },
+  "e->eɪ": {
+   "n": 150,
+   "flagged": 0.0,
+   "off": 0.0,
+   "heard_the_native_sound": 0.0
+  },
+  "o->oʊ": {
+   "n": 150,
+   "flagged": 1.0,
+   "off": 0.987,
+   "heard_the_native_sound": 0.94
+  }
+ }
+}
