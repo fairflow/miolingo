@@ -79,3 +79,14 @@ def test_quiet_recording_is_levelled_but_silence_is_not_blown_up():
     loud = 0.8 * np.sin(2 * np.pi * 200 * t)
     y, _ = sf.read(io.BytesIO(trim_silence(_wav(loud))[0]))
     assert np.max(np.abs(y)) == pytest.approx(0.8, abs=0.01)  # already loud: untouched
+
+
+def test_weighted_score_follows_sound_check_rules():
+    # German ö is "not judged" (the recognizer writes ə even for natives): no cost
+    r = score("məçtə", "mœçtə", "de")
+    assert r.distance == pytest.approx(0.0)
+    # partly accepted variant costs proportionally less than an unrelated vowel
+    part = score("baːn", "bɑːn", "de").distance          # aː for ɑː: accepted 1 -> free
+    short = score("ban", "bɑːn", "de").distance          # a for ɑː: accepted 0.6
+    wrong = score("bin", "bɑːn", "de").distance
+    assert part == pytest.approx(0.0) and 0 < short < wrong

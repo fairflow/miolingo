@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.12.3-claude-dev] - 2026-10-09
+
+### Fixed
+
+- Pronunciation % uses the sound check's rules: sounds the recognizer can't judge (German ö/ü/eu) no longer cost, partly accepted variants cost proportionally less.
+
+
 ## [7.12.2-claude-dev] - 2026-10-09
 
 ### Fixed

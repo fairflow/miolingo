@@ -132,20 +132,30 @@ def _sub_cost(target: str, user: str, lang: str | None) -> float:
         return 0.0
     if lang is not None and fold_map_is_tolerated(lang, target, user):
         return 0.0
-    if lang is not None and _sound_check_accepts(lang, target, user):
+    credit = _sound_check_credit(lang, target, user) if lang is not None else 0.0
+    if credit >= 1.0:
         return 0.0
-    return _feature_distance(target, user)
+    return _feature_distance(target, user) * (1.0 - credit)
 
 
-def _sound_check_accepts(lang: str, target: str, user: str) -> bool:
-    """Variants the sound check fully accepts (data/sound_check.yaml, weight 1), e.g.
-    German r: espeak [ɾ] vs trilled [r] / uvular [ʁ]. Keeps both scores consistent for
-    languages the espeak fold-map does not cover (de, es, it)."""
+def _sound_check_credit(lang: str, target: str, user: str) -> float:
+    """How far the sound check accepts `user` for `target` (0..1), so both scores agree:
+      1   the target sound is one the recognizer cannot judge for this language
+          (calibrated `unreliable`, e.g. German ö/ü: natives' own ö is often written ə)
+      w   accept-list weight (data/sound_check.yaml): 1 = same sound (German trilled
+          or uvular r for espeak ɾ), 0.6 = partly (short [a] for long [ɑː])
+    Covers languages the espeak fold-map does not (de, es, it)."""
     try:
         from scoring.sound_check import lang_config
-        return float((lang_config(lang).get("accept") or {}).get(target, {}).get(user, 0)) >= 1.0
+        cfg = lang_config(lang)
     except Exception:
-        return False
+        return 0.0
+    if target in (cfg.get("unreliable") or []):
+        return 1.0
+    try:
+        return max(0.0, min(1.0, float((cfg.get("accept") or {}).get(target, {}).get(user, 0))))
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def fold_map_is_tolerated(lang: str, a: str, b: str) -> bool:
