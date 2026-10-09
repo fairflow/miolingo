@@ -1,0 +1,53 @@
+# Research priors: L1 English -> L2 French. DRAFT by Claude for Matthew's review;
+# `citation_verified: false` on every entry. Difficulty is qualitative; the Beta mapping is ours.
+pair: {l1: en, l2: fr}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+difficulty_to_prior:
+  high:   {alpha: 1.0, beta: 4.0}
+  medium: {alpha: 2.5, beta: 2.5}
+  low:    {alpha: 4.0, beta: 1.0}
+
+references:
+  flege1987: >-
+    Flege, J. E. (1987). The production of "new" and "similar" phones in a foreign language:
+    Evidence for the effect of equivalence classification. Journal of Phonetics, 15(1), 47-65.
+  flege1995: >-
+    Flege, J. E. (1995). Second language speech learning: Theory, findings, and problems.
+    In W. Strange (Ed.), Speech Perception and Linguistic Experience (pp. 233-277). York Press.
+  besttyler2007: >-
+    Best, C. T., & Tyler, M. D. (2007). Nonnative and second-language speech perception:
+    Commonalities and complementarities. In O.-S. Bohn & M. J. Munro (Eds.), Language
+    Experience in Second Language Speech Learning (pp. 13-34). John Benjamins.
+  caramazza1973: >-
+    Caramazza, A., Yeni-Komshian, G. H., Zurif, E. B., & Carbone, E. (1973). The acquisition of
+    a new phonological contrast: The case of stop consonants in French-English bilinguals.
+    Journal of the Acoustical Society of America, 54(2), 421-428.
+
+priors:
+  ʁ:
+    _default:
+      difficulty: high
+      expected_errors: [english_r]
+      why: "No uvular r in English; learners map French r onto English [ɹ] (equivalence classification)."
+      refs: [flege1995, besttyler2007]
+      citation_verified: false
+  y:
+    _default:
+      difficulty: high
+      expected_errors: [back_rounded, glide_u]
+      why: "'New' vowel with no English counterpart; produced as [u] or [ju] (Flege 1987 studied exactly /y/ vs /u/)."
+      refs: [flege1987]
+      citation_verified: false
+  u:
+    _default:
+      difficulty: medium
+      expected_errors: [fronted]
+      why: "'Similar' vowel: English /u/ is fronted, so learners carry over a too-front [ʉ] (Flege 1987)."
+      refs: [flege1987]
+      citation_verified: false
+  p: {_default: {difficulty: medium, expected_errors: [aspirated], why: "English long-lag VOT carried into French short-lag stops.", refs: [caramazza1973], citation_verified: false}}
+  t: {_default: {difficulty: medium, expected_errors: [aspirated], why: "Long-lag VOT.", refs: [caramazza1973], citation_verified: false}}
+  k: {_default: {difficulty: medium, expected_errors: [aspirated], why: "Long-lag VOT.", refs: [caramazza1973], citation_verified: false}}

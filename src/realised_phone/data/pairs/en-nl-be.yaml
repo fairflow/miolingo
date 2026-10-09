@@ -1,0 +1,53 @@
+# Candidate inventory: L1 English -> L2 Flemish (Belgian Dutch) (HANDOFF §1a). Targets keyed by the aligner's IPA labels
+# (MFA dutch_cv 2.0.0: Epitran-derived dictionary; r, x, ɣ). DRAFT by Claude for Matthew's review.
+# Distinct from en-nl.yaml. VALIDATION: only one open Flemish speaker so far -- see REALISED_PHONE_RESULTS.md.
+pair: {l1: en, l2: nl-be}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+targets:
+  r:
+    name: "Flemish r (rood, water) -- alveolar trill/tap or uvular; no approximant r"
+    detector: rhotic
+    accept: {"*": [trill, tap, uvular]}
+    candidates:
+      - {phone: r, class: trill, kind: canonical}
+      - {phone: ɾ, class: tap, kind: dialect}
+      - {phone: ʀ, class: uvular, kind: dialect}
+      - {phone: ʁ, class: uvular, kind: dialect}
+      - {phone: χ, class: uvular, kind: dialect, note: "devoiced uvular r"}
+      - {phone: ɹ, class: english_r, kind: l1_transfer, note: "English approximant r"}
+      - {phone: ɻ, class: english_r, kind: l1_transfer}
+  x:
+    name: "ch (licht, school) -- softer velar/palatal fricative in Flanders"
+    detector: dorsal
+    accept: {"*": [fricative]}
+    candidates:
+      - {phone: x, class: fricative, kind: canonical}
+      - {phone: ɣ, class: voiced_fricative, kind: dialect}
+      - {phone: χ, class: fricative, kind: dialect, note: "uvular 'harde g' (Netherlands, esp. north)"}
+      - {phone: ç, class: fricative, kind: dialect, note: "fronted ch after front vowels (south, Flanders)"}
+      - {phone: ʝ, class: voiced_fricative, kind: dialect, note: "palatal 'zachte g' (Flanders, Limburg)"}
+      - {phone: k, class: stop, kind: l1_transfer, note: "English k for ch (school -> [skoːl])"}
+      - {phone: ɡ, class: stop, kind: l1_transfer, note: "English g for Dutch g (goed -> [ɡut])"}
+      - {phone: h, class: glottal, kind: l1_transfer, note: "English h for ch/g (licht -> [lɪht])"}
+  ɣ:
+    name: "g (goed, gaan) -- voiced 'zachte g' [ɣ]/[ʝ] in Flanders"
+    detector: dorsal
+    # A Netherlands-style voiceless/uvular g (class 'fricative') is not the Flemish target but is
+    # an ACCENT, not an error: scored gently (Matthew, 2026-09-30). Penalty 0..1 for the scorer.
+    accept: {"*": [voiced_fricative]}
+    mild: {fricative: 0.3}
+    # xlsr-53 never names the voiced [ɣ] (Flemish test, 1 speaker: native soft g confirmed 0%);
+    # clementapa-dutch does (13%, 37/38 right). Clementapa is testing-only (licence undeclared).
+    recognizer: clementapa-dutch
+    candidates:
+      - {phone: ɣ, class: voiced_fricative, kind: canonical}
+      - {phone: x, class: fricative, kind: dialect}
+      - {phone: χ, class: fricative, kind: dialect, note: "uvular 'harde g' (Netherlands, esp. north)"}
+      - {phone: ç, class: fricative, kind: dialect, note: "fronted ch after front vowels (south, Flanders)"}
+      - {phone: ʝ, class: voiced_fricative, kind: dialect, note: "palatal 'zachte g' (Flanders, Limburg)"}
+      - {phone: k, class: stop, kind: l1_transfer, note: "English k for ch (school -> [skoːl])"}
+      - {phone: ɡ, class: stop, kind: l1_transfer, note: "English g for Dutch g (goed -> [ɡut])"}
+      - {phone: h, class: glottal, kind: l1_transfer, note: "English h for ch/g (licht -> [lɪht])"}

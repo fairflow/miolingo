@@ -14,6 +14,7 @@ from realised_phone.align import context_of, mfa_align_batch
 
 ES_LABELS = {"r": "trill", "ɾ": "tap"}
 EN_LABELS = {"ɹ": "english_r"}
+FR_LABELS = {"ʁ": "uvular"}      # MFA french_mfa label for French r
 
 
 def rhotic_tokens(items: Iterable[dict], acoustic_model: str, dictionary: str,
@@ -37,6 +38,8 @@ def rhotic_tokens(items: Iterable[dict], acoustic_model: str, dictionary: str,
             ctx = context_of(al, i)
             if ctx in exclude_contexts:
                 continue
+            prev = al.phones[i - 1] if i > 0 and p.start - al.phones[i - 1].end < 0.03 else None
             yield {"wav": it["wav"], "utt": it["id"], "speaker": it.get("speaker", ""),
+                   "prev": prev.label if prev else "",
                    "x": x, "sr": sr, "phone": p, "label": lab, "context": ctx, "source": source,
                    "word": al.words[p.word_index].label if p.word_index is not None else ""}

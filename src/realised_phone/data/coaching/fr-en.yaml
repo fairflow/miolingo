@@ -1,0 +1,32 @@
+# Corrective coaching, L1 French -> L2 English (HANDOFF §3). DRAFT by Claude; refused unless reviewed.
+pair: {l1: fr, l2: en}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+ladders:
+  "ɹ>uvular":
+    status: draft
+    contrast:
+      manner: >-
+        That was a French r, made at the back of the throat. The English r is made at the FRONT:
+        the tongue tip curls up (or the tongue bunches) towards the roof of the mouth WITHOUT
+        touching it, and the throat stays completely quiet -- no friction.
+    articulation:
+      text: >-
+        Relax the back of the tongue. Lift the tongue tip towards the ridge behind the top teeth,
+        but stop before it touches; pull it slightly back. Round the lips a little. Start from a
+        long [ə] ("uh") and slowly lift the tip: the sound colours into "rrr" with no noise.
+      diagram: null   # licence TBD
+    perception:
+      minimal_pairs: [[right, light], [red, led], [pray, play], [arrive, alive]]
+      task: same_different
+      contrast_audio: "native English r vs the learner's own French r (from this attempt)"
+    drills:
+      - {step: "from [ə] to r", items: ["uh-r", "er", "her", "bird"]}
+      - {step: "r between vowels", items: [very, sorry, carry, arrow]}
+      - {step: "word-initial r", items: [red, right, road, rain]}
+      - {step: "r clusters", items: [tree, dream, price, green, three]}
+    stabilisation:
+      phrases: ["a red rose", "right around", "three trees"]
+      sentences: ["Robert rarely reads really rough reviews."]

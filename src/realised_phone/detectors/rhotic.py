@@ -9,8 +9,10 @@ Rhotic detector (HANDOFF §1b source 3): trill vs tap vs English approximant r.
   otherwise  abstain (e.g. no occlusion, no F3 lowering: approximant tap [ɾ̞],
              uvular, or a bad alignment) -- the detector does not guess.
 
-[ɹ] vs [ɻ] and [ʁ] are NOT separated here: english_r scores are split evenly
-over the class, and uvular is never asserted. Thresholds come from
+  uvular     F3 NOT lowered, and (F2 lowered or mostly unvoiced), and long enough
+             -- a conservative cue (CP dev: 44% of French [ʁ], 5% false on es
+             tap/trill, 1% on English [ɹ]); only when uvular is a candidate.
+[ɹ] vs [ɻ] are NOT separated here: english_r scores are split evenly over the class. Thresholds come from
 data/calibration/rhotic.yaml.
 """
 
@@ -58,9 +60,19 @@ def envelope_db(x: np.ndarray, sr: int, cal: dict) -> tuple[np.ndarray, np.ndarr
     return idx / sr, 20 * np.log10(a[idx])
 
 
+_STOP_BASES = set("pbtdkgɡcɟqʔ")
+
+
+def is_stop(label: str) -> bool:
+    """Oral stop (incl. aspirated/dental variants like pʰ, t̪, d̪; affricates tʃ, dʒ)."""
+    return bool(label) and label[0] in _STOP_BASES
+
+
 def find_occlusions(t: np.ndarray, env_db: np.ndarray, seg: tuple[float, float],
-                    cal: dict) -> list[dict]:
-    """Brief intensity dips inside the (tolerance-widened) segment."""
+                    cal: dict, after_stop: bool = False) -> list[dict]:
+    """Brief intensity dips inside the (tolerance-widened) segment. After a stop, the
+    closure/release at the start of the segment is not a tongue contact of the r:
+    dips before seg start + occlusion.after_stop_ignore_ms are ignored."""
     from scipy.signal import find_peaks, peak_widths
     if len(env_db) < 5:
         return []
@@ -74,7 +86,8 @@ def find_occlusions(t: np.ndarray, env_db: np.ndarray, seg: tuple[float, float],
     tol = occ["edge_tolerance_ms"] / 1000
     out = []
     for k, i in enumerate(idx):
-        if not (seg[0] - tol <= t[i] <= seg[1] + tol):
+        lo = (seg[0] + occ.get("after_stop_ignore_ms", 0.0) / 1000) if after_stop else seg[0] - tol
+        if not (lo <= t[i] <= seg[1] + tol):
             continue
         if widths[k] > occ["max_width_ms"]:
             continue
@@ -83,13 +96,20 @@ def find_occlusions(t: np.ndarray, env_db: np.ndarray, seg: tuple[float, float],
     return out
 
 
-def f3_track(x: np.ndarray, sr: int, cal: dict) -> tuple[np.ndarray, np.ndarray]:
+def formant_tracks(x: np.ndarray, sr: int, cal: dict) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """(times, F2, F3) via Praat Burg."""
     import parselmouth
     snd = parselmouth.Sound(x.astype(np.float64), sampling_frequency=sr)
     fm = snd.to_formant_burg(time_step=0.005, max_number_of_formants=5,
                              maximum_formant=cal["formant"]["max_formant_hz"])
     ts = np.array(fm.ts())
+    f2 = np.array([fm.get_value_at_time(2, tt) for tt in ts], dtype=float)
     f3 = np.array([fm.get_value_at_time(3, tt) for tt in ts], dtype=float)
+    return ts, f2, f3
+
+
+def f3_track(x: np.ndarray, sr: int, cal: dict) -> tuple[np.ndarray, np.ndarray]:
+    ts, _f2, f3 = formant_tracks(x, sr, cal)
     return ts, f3
 
 
@@ -119,12 +139,18 @@ class RhoticDetector:
     def __init__(self, calibration: Optional[dict] = None):
         self.cal = calibration or load_calibration()
 
-    def measure(self, x: np.ndarray, sr: int, seg: tuple[float, float]) -> dict:
+    def measure(self, x: np.ndarray, sr: int, seg: tuple[float, float],
+                after_stop: bool = False) -> dict:
         t, env = envelope_db(x, sr, self.cal)
-        occl = find_occlusions(t, env, seg, self.cal)
+        occl = find_occlusions(t, env, seg, self.cal, after_stop)
         intervals = [round((b["t"] - a["t"]) * 1000, 1) for a, b in zip(occl, occl[1:])]
-        ts, f3 = f3_track(x, sr, self.cal)
+        ts, f2, f3 = formant_tracks(x, sr, self.cal)
         voiced = voiced_mask(x, sr, ts)
+        seg_frames = (ts >= seg[0]) & (ts <= seg[1])
+        v2 = np.isfinite(f2) & voiced
+        f2_ratio = (float(np.nanmedian(f2[v2 & seg_frames]) / np.nanmedian(f2[v2]))
+                    if (v2 & seg_frames).sum() >= 2 else None)
+        voiced_frac = float(np.mean(voiced[seg_frames])) if seg_frames.sum() else None
         ok = np.isfinite(f3) & voiced
         ref = float(np.median(f3[ok])) if ok.sum() >= self.cal["formant"]["ref_min_frames"] else None
         in_seg = ok & (ts >= seg[0]) & (ts <= seg[1])
@@ -141,6 +167,10 @@ class RhoticDetector:
                 "f3_low_fraction": None if low_frac is None else round(low_frac, 3),
                 "hf_energy_db": round(hf, 1),
                 "f3_reliable": hf >= fcal["min_hf_energy_db"],
+                "f2_ratio": None if f2_ratio is None else round(f2_ratio, 3),
+                "voiced_fraction": None if voiced_frac is None else round(voiced_frac, 3),
+                "duration_ms": round((seg[1] - seg[0]) * 1000, 1),
+                "after_stop": after_stop,
                 "calibrated": bool(self.cal.get("calibrated"))}
 
     def scores(self, m: dict, candidates: list[str], phone_class: dict[str, str]) -> dict[str, float]:
@@ -155,11 +185,21 @@ class RhoticDetector:
                    and m["f3_ratio"] <= fcal["f3_ratio_max"]
                    and (m["f3_low_fraction"] or 0.0) >= fcal["min_low_fraction"])
         cls: dict[str, float]
+        uv = self.cal.get("uvular")
+        uvular = (uv is not None and "uvular" in {phone_class.get(p) for p in candidates}
+                  and m["f3_reliable"] and m["f3_ratio"] is not None
+                  and m["f3_ratio"] > uv["f3_ratio_min"]
+                  and ((m.get("f2_ratio") is not None and m["f2_ratio"] <= uv["f2_ratio_max"])
+                       or (m.get("voiced_fraction") is not None and m["voiced_fraction"] < uv["voiced_max"]))
+                  and m.get("duration_ms", 0) >= uv["min_duration_ms"])
         # F3 lowering first: on real English [ɹ] (LibriSpeech, MFA-aligned) the F3
         # cue is consistent while dip counting picks up neighbouring stop closures
         # (grave, principles). A tap/trill does not lower F3 like this.
         if lowered:
             cls = {"english_r": 0.85, "tap": 0.075, "trill": 0.075}
+        elif uvular:
+            # before contact counting: a uvular trill [ʀ] also shows periodic dips
+            cls = {"uvular": 0.8, "tap": 0.1, "trill": 0.1}
         elif n >= tr["min_contacts"] and regular:
             cls = {"trill": 0.85, "tap": 0.15}
         elif n >= tr["min_contacts"]:            # several dips, irregular spacing

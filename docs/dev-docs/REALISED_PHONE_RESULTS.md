@@ -101,6 +101,196 @@ What each source contributes (non-coda test tokens where the source reached a de
 here comes from English speech, and learner recordings (including [ʁ]) are still needed. They
 are the `-TODO` entries in the golden manifest.
 
+## English ↔ French (2026-09-30)
+
+The same method was used: Common Phone test split, non-coda tokens, both sources combined.
+- **Native French [ʁ]:** 400 utterances from 136 speakers.
+- **Native English [ɹ]:** the same 400 English test utterances as above.
+- **Error stand-ins:** each language's r is judged against the *other* language's target. This
+  is not learner speech; learners speaking the target language are still needed.
+
+| Pair | Tokens | Confident & correct | Coverage | The main error, caught confidently |
+|---|---|---|---|---|
+| **French → English** (target [ɹ]) | 1022 | **98.3%** | 35% | French r (uvular): 31% of tokens, 98.4% right |
+| **English → French** (target [ʁ]), xlsr-53 | 1022 | **98.3%** | 35% | English r: 39% of tokens, 98.2% right |
+| English → French, Cnam French recognizer | 1022 | 97.8% | 22% | English r: **5%**. Cnam calls English r "uvular" 275/437 times |
+
+**Recognizer choice for French:**
+- Cnam is the app's French specialist and is excellent on native French, but it knows only
+  French sounds. As a source of evidence for *which* sound a learner made, a model that also knows
+  the learner's L1 sounds is needed.
+- So xlsr-53 is now listed first for `fr` in the registry. Cnam keeps its role in the app's
+  existing accuracy scoring; that part is unchanged.
+
+**Uvular cue** (new, in `calibration/rhotic.yaml`):
+- The rule: F3 not lowered, and (F2 backed or mostly devoiced), and ≥ 70 ms.
+- Picked on dev, where it had 5% false alarms on Spanish tap/trill. On the Spanish **test**
+  split it fires on 20% of trills (taps 2%), which confirms the caveat that part of what it learned
+  is French-vs-Spanish speaker differences.
+- It does no harm to Spanish: the recognizer never agrees on "uvular" there, so those tokens
+  become uncertain. English → Spanish went from 97.9% at 47% to **98.2% at 46%**.
+- It shouldn't be relied on alone.
+
+**Golden clips:** 24 new ones, chosen the same way as the Spanish ones. Results: 15 pass,
+9 uncertain, **0 confidently wrong**. Across the whole manifest (50 clips): 34 pass, 14 uncertain,
+2 tentative-and-wrong, 0 confidently wrong.
+- **Next detector fix:** 4 of the 9 uncertain cases are French [ʁ] straight after a stop
+  (*trente*, *précis*, *crabiers*, *projets*). The stop's closure and release look like a
+  tongue-tip contact, so the detector says "tap" while the recognizer says "uvular".
+- English [ɹ] in *grave*/*principles* had the same issue. Ignoring a dip at the very start of an
+  r that follows a stop should fix both.
+
+Result files: `results/rhotics_cp-test-fr-en.json`, `rhotics_cp-test-en-fr-xlsr.json`,
+`rhotics_cp-test-en-fr.json` (Cnam), `rhotics_cp-test-en-es-uvcue.json`.
+
+## Stop-release fix (2026-09-30)
+
+When an r follows a stop, the detector now ignores dips in the first 10 ms of the r. Those dips
+are the stop's closure and release, not a tongue contact. The window was chosen on dev and checked
+on the test split:
+
+| Pair | Before | After | English r, confident & correct |
+|---|---|---|---|
+| English → Spanish | 98.2% at 46% | **98.8% at 47%** | 98.2% → **100%** |
+| English → French | 98.3% at 35% | **99.1% at 34%** | 98.2% → **100%** |
+| French → English | 98.3% at 35% | **99.1% at 34%** | 98.2% → **100%** |
+
+It doesn't fix French [ʁ] after a stop, which is still sometimes read as a tap: that dip is part of
+the uvular sound itself. Result files: `results/rhotics_cp-test-*-stopfix.json`.
+
+## Dutch (Netherlands) and Flemish (2026-09-30)
+
+These are **distinct models** (`en-nl`, `en-nl-be`):
+
+| | Netherlands | Flemish |
+|---|---|---|
+| r | trill, tap and uvular accepted; the English-like r is accepted in codas (native "Gooise r") | trill, tap and uvular only |
+| g | voiceless and voiced both fine | voiced soft g; a Netherlands-style g is an **accent** (penalty 0.3), not an error |
+
+**Data:**
+- **Netherlands:** FLEURS `nl_nl` test (364 utterances; FLEURS has no speaker IDs).
+- **Flemish:** the only open multi-utterance source is **one male speaker** (400 utterances, cut
+  from Common Voice). The Flemish rows below are a **sanity check, not validation**.
+- **Error stand-ins:** Common Phone English test ([ɹ] for r; [k ɡ] and [h] for g/ch).
+- **Aligner:** MFA `dutch_cv` 2.0.0, whose dictionary is rule-generated and crude (*een* → [eːn]).
+  It's shared by both varieties.
+
+**r** (non-coda):
+
+| | Recognizer | Confident & correct | Coverage | English r caught |
+|---|---|---|---|---|
+| Netherlands | **xlsr-53** | 99.6% | 20% | 38% of tokens, all right |
+| Netherlands | Clementapa | 100% | 2% | **0%**: it calls English r "trill" 311/437 |
+| Flemish (1 speaker) | xlsr-53 | 100% | 25% | 38%, all right |
+
+**g/ch**, with the new dorsal detector (stop vs fricative) plus a recognizer. Each native token
+is judged against its own target (ch /x/ or g /ɣ/):
+
+| | Recognizer | Confident & correct | Coverage | English k/g caught | Native g confirmed |
+|---|---|---|---|---|---|
+| Netherlands | **xlsr-53** | 99.1% | 19% | 46%, all right | 12% |
+| Netherlands | Clementapa | 98.9% | 14% | 35% | 11% |
+| Flemish (1 speaker) | xlsr-53 | 99.2% | 15% | 46% | **0%**: it never names voiced [ɣ] |
+| Flemish (1 speaker) | **Clementapa** | 98.5% | 16% | 35% | **13%** (37/38 right) |
+
+**Choices:**
+- xlsr-53 for everything in Netherlands Dutch and for the Flemish r.
+- **Clementapa for the Flemish g**, via a per-target `recognizer:` field in `en-nl-be.yaml`.
+  Judging soft vs harsh g needs a model that can name the voiced [ɣ]. Clementapa is testing-only
+  (licence undeclared).
+
+**Known gaps:**
+- English [h] for g/ch is never confident. The recognizer hears it (109/123), but the detector
+  deliberately doesn't decide [h] vs [x], because on this data that only separates on recording
+  differences.
+- Coverage is lower than for Spanish or French (15–25%) because native Dutch r and g vary so much.
+- The Flemish voiced/voiceless thresholds are uncalibrated.
+- **Flemish needs multi-speaker data** to be validated: Common Voice nl, which has Belgian accent
+  tags, or CGN.
+
+Result files: `results/rhotics_test-en-nl-r-*.json`, `dorsal_test-en-nl-*.json`,
+`rhotics_vl1spk-en-nlbe-r.json`, `dorsal_vl1spk-en-nlbe-*.json`.
+
+## English ↔ French vowels and aspiration (2026-10-01)
+
+### Aspiration (English p t k vs French short-lag p t k): no detector shipped — negative result
+
+I tried a voice-onset-time (VOT) measurement: the time from the burst to the start of voicing, inside the
+MFA window for word-initial p/t/k. Data: Common Phone dev, 859 French and 486 English stops.
+
+| | French (unaspirated) | English (aspirated) |
+|---|---|---|
+| median VOT | 24 ms | 32 ms |
+| inter-quartile range | 5–40 ms | 5–63 ms |
+
+Textbook values are about 15 ms for French and 60–80 ms for English. On crowd-sourced phone audio the two
+distributions overlap almost completely. The **best single threshold (55 ms) gets 59% balanced accuracy**, and
+even the extremes only reach 62–70%. Two causes:
+
+- voicing onset is smeared by pitch-tracker lag;
+- low-band hum and noise read as "voicing" during the aspiration.
+
+That is not good enough to vote, so **there is no VOT detector**. Aspiration stays a recognizer-only target
+(fr-en `pʰ tʰ kʰ`, en-fr `p t k`): its verdicts can be at most *tentative*. Tentative verdicts are never shown as
+errors and never escalate coaching. A usable VOT detector would need cleaner audio (learner recordings in the
+app) or a learned burst/voicing model. Scratch script: `vot_vowel_feats.py` (not committed).
+
+### French /y/ vs /u/ (tu / tout) and English "goose": vowel detector
+
+`detectors/vowel.py` models each vowel as a diagonal Gaussian over the F1/F2/F3 ratios measured at the middle half of
+the vowel. Each ratio is divided by the speaker's own median over voiced frames, which normalises for vocal-tract
+length without needing other utterances. Calibration (`scripts/realised_phone/calibrate_vowel.py` →
+`calibration/vowel.yaml`) uses Common Phone dev:
+
+- French y: n 321;
+- French u: n 189;
+- French i: n 797;
+- English goose [ʉ]: n 202.
+
+Mean F2 ratio: y 1.15, u 0.78, i 1.28, English goose 1.03. Note that English "goose" lies between French y and u.
+
+**First attempt: four-way posterior over y / i / u / goose with all three ratios. Too weak.** On Common Phone test
+native French [y] was named y only 43/120 times, against goose 34, i 32 and u 11. The detector then *disagreed* with
+a correct recognizer on 42 native tokens, so only 4/164 native [y] were confirmed. Kept as
+`vowel4way_cp-test-en-fr-{y,u}.json`.
+
+**Shipped: a backness-only vote.** F2 ratio alone separates front [y] (1.16) from back [u] (0.85). The detector now
+says only "front" or "back" (calibration `vote`). A "front" vote is *compatible* with [y], [i] and goose. So when the
+recognizer hears [i], the combiner does not count it as a disagreement: the verdict is tentative [i]. That is the
+new `Evidence.compatible` / `combine._narrow` rule. A real disagreement, front vs [u], is still *uncertain*.
+
+Common Phone test, non-coda tokens (xlsr-53 recognizer plus vowel detector):
+
+| target y (*tu*) | tokens | confident | confident and right |
+|---|---|---|---|
+| native French [y] | 164 | 109 | **109** (all), up from 4 |
+| French [u] as the error (*tu → tout*) | 34 | 22 | **21** |
+| French [i] as the error | 178 | 1 | 0 (171 tentative [i]) |
+| English goose [ʉ] as the error | 35 | 3 | 0 (2 said back, 1 said y) |
+| **all** | | 33% coverage | **96.3%** confident accuracy |
+
+| target u (*tout*) | tokens | confident | confident and right |
+|---|---|---|---|
+| native French [u] | 34 | 21 | **21** (no false alarms) |
+| English goose [ʉ] as the error | 35 | 13 | 0 (all called back [u]) |
+
+How to read this:
+
+- *Tu → tout*, the main English-L1 error, is caught confidently 62% of the time.
+- Native [y] is confirmed 66% of the time, with no false confirmations.
+- [i] for [y] is only ever *tentative*, because the recognizer alone separates rounding. Tentative verdicts never
+  count as errors.
+- **English goose for French u is not detected.** All 13 confident "goose" misses say back [u], meaning "correct".
+  The failure is safe: it never accuses a learner wrongly, it just lets the error through. The goose labels are also
+  weak ground truth: Common Phone writes English /uː/ as ʉː by convention, whatever the speaker's accent, and the
+  detector itself heard 15 of the 35 as back. Measuring this properly needs real English-L1 learners.
+- A confident [y] means two sources rule out [u], but only the recognizer rules out [i].
+
+Results:
+
+- `vowel_cp-test-en-fr-y.json`
+- `vowel_cp-test-en-fr-u.json`.
+
 ## Smoke results (2026-09-29, cloud container) — *not* approval evidence
 
 `research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json`

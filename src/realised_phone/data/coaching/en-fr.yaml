@@ -1,0 +1,91 @@
+# Corrective coaching, L1 English -> L2 French (HANDOFF §3). DRAFT by Claude; refused unless reviewed.
+pair: {l1: en, l2: fr}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+ladders:
+  "ʁ>english_r":
+    status: draft
+    contrast:
+      manner: >-
+        That was an English r: tongue tip raised, lips rounded. French r is made at the BACK of
+        the mouth: the back of the tongue comes close to the uvula, the tip stays down behind the
+        lower teeth.
+    articulation:
+      text: >-
+        Keep the tongue tip pressed behind your lower front teeth. Say "k" and "g" and feel where
+        the back of the tongue touches -- now make a soft, voiced friction just behind that spot,
+        like a gentle gargle or the "ch" in Scottish "loch", but voiced. Don't round your lips.
+      diagram: null   # licence TBD
+    perception:
+      minimal_pairs: [[roue, loup], [rang, lent], [rire, lire]]
+      task: same_different
+      contrast_audio: "native French r vs the learner's own English r (from this attempt)"
+    drills:
+      - {step: "from [k]/[g] to friction", items: ["aga -> agha", "ka -> kha -> ra"]}
+      - {step: "r after voiceless consonants (devoiced)", items: [trois, prendre, cru, fruit]}
+      - {step: "r between vowels", items: [Paris, arrêt, héros, tirer]}
+      - {step: "word-initial r", items: [rouge, rue, riz, rare]}
+      - {step: "word-final r", items: [pour, sur, mer, bonjour]}
+    stabilisation:
+      phrases: ["la rue rouge", "trois rats", "bonjour Robert"]
+      sentences: ["Le rat rond ronge la robe rouge de la reine."]
+
+  "y>back_rounded":
+    status: draft
+    contrast:
+      manner: >-
+        That was [u] as in "tout". French "u" ([y], as in "tu") keeps the tongue FORWARD, as for
+        "ee", while the lips are tightly rounded as for "oo".
+    articulation:
+      text: >-
+        Say a long "ee" ([i]). Without moving your tongue, round and push your lips forward as if
+        whistling. The sound changes from "ee" to [y]. If it slides to "oo", your tongue moved back.
+      diagram: null
+    perception:
+      minimal_pairs: [[tu, tout], [rue, roue], [vu, vous], [dessus, dessous], [pur, pour]]
+      task: same_different
+    drills:
+      - {step: "ee to y", items: ["iiii -> yyyy", "si -> su", "ni -> nu"]}
+      - {step: "y in words", items: [tu, vu, rue, lune, jupe, musique]}
+      - {step: "y vs u", items: ["tu / tout", "rue / roue", "dessus / dessous"]}
+    stabilisation:
+      phrases: ["tu as vu", "la rue", "une jupe"]
+      sentences: ["As-tu vu la tortue têtue dans la rue?"]
+  "y>goose":
+    status: draft
+    contrast:
+      manner: >-
+        That was close to the English "oo" in "goose" -- in between. French [y] needs the tongue
+        fully forward (as for "ee") with strongly rounded lips.
+    articulation:
+      text: "Start from 'ee', keep the tongue still, round the lips hard. Don't let the tongue drift back."
+      diagram: null
+    perception:
+      minimal_pairs: [[tu, tout], [vu, vous]]
+      task: same_different
+    drills:
+      - {step: "ee to y", items: ["iiii -> yyyy", "ti -> tu"]}
+      - {step: "y in words", items: [tu, vu, rue, plus]}
+    stabilisation:
+      phrases: ["tu as vu"]
+      sentences: ["As-tu vu la tortue têtue dans la rue?"]
+  "u>goose":
+    status: draft
+    contrast:
+      manner: >-
+        That was an English "oo" (as in "goose"), which is made too far forward. French [u]
+        ("tout", "vous") is fully BACK: tongue pulled back, lips tightly rounded.
+    articulation:
+      text: "Pull the tongue back as for 'k', round and protrude the lips. It should sound darker than English 'oo'."
+      diagram: null
+    perception:
+      minimal_pairs: [[tout, tu], [vous, vu], [roue, rue]]
+      task: same_different
+    drills:
+      - {step: "back u", items: [tout, vous, nous, sous, loup, fou]}
+      - {step: "u vs y", items: ["tout / tu", "vous / vu", "roue / rue"]}
+    stabilisation:
+      phrases: ["nous tous", "vous voulez"]
+      sentences: ["Où sont tous nos jouets roux?"]

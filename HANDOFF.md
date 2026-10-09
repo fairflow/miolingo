@@ -163,7 +163,20 @@ Check the mfa-models site for exact model names per language. Miolingo calls MFA
 
 Answered 2026-09-29:
 
-- **First pair: L1 English → L2 Spanish.**
+- **First pair built: L1 English → L2 Spanish.** This is the first pair to *build*, not the learner
+  population.
+- **The source language is the learner's first language (L1)** (answered 2026-09-30). Learners can
+  be assumed to have more mastery of it than of the target. **Every pair with source ≠ target is
+  allowed.** Pairs without a specific file use the L1-agnostic `any-<l2>.yaml` inventory and
+  coaching data.
+- **Pairs needed now** (2026-09-30), added one at a time: English→Spanish (done), English→French,
+  French→English, and English→Dutch **and** English→Flemish. Netherlands Dutch and Flemish are
+  **distinct models**, keyed by dialect (`nl` vs `nl-be`) with their own inventories, coaching,
+  priors and, where available, aligner/recognizer entries. They differ in the r (Netherlands:
+  approximant coda r is native; Flanders: alveolar/uvular r) and the g (Netherlands [x]; Flanders
+  softer [ɣ] or palatal), so the same learner sound can be correct in one and an error in the other.
+- The Clementapa Dutch recognizer (licence undeclared) **may be used for testing** (Matthew,
+  2026-09-30). Shipping it to learners still needs the licence cleared and approval.
 - **Native recordings:** some exist, for tests — probably French. They are not in the repo:
   the debug archive hook (`src/scoring/practice.py` ~L245, miolingo-0x9) writes takes to
   `$MIO_AUDIO_DUMP_DIR` on the M4 with a `log.jsonl` sidecar whose `voice` field gives the

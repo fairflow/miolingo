@@ -3,8 +3,9 @@
 # Levels:
 #   detector  -- one labelled token: align `text` with `aligner`, take the `occurrence`-th
 #                phone labelled `phone`, run the detector alone, expect `class`.
-#   combined  -- same token, detector + recognizer combined (as the pipeline would).
-#                Used for English [ɹ] tokens from English speech (a Spanish aligner has no ɹ).
+#   combined  -- same token, detector + recognizer combined (as the pipeline would), judged
+#                against `pair` (default en-es) / `target` (default r). Used for error stand-ins:
+#                speech in one language judged against another language's target.
 #   pipeline  -- full analyse(): expect verdicts per (word, target).
 # Outcomes: pass / abstain (uncertain: allowed) / soft_fail (tentative wrong) / fail
 # (confident wrong). Only `fail` fails the run -- accuracy over coverage.
@@ -217,6 +218,228 @@ clips:
     phone: ɹ
     occurrence: 1   # 'wearing', intervocalic
     class: english_r
+
+  # --- en-fr: native French [ʁ] (Common Phone fr TEST; CP IPA and MFA agree on the r count),
+  #     random (seed 20260930), non-coda, one speaker each. Expected: uvular (correct).
+  - id: cp-fr-r-19635340
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_19635340.wav
+    text: "Ruta Sepetys est une écrivaine lituanienne et américaine qui écrit principalement des fictions historiques."
+    l1: en
+    l2: fr
+    expect:
+      - {word: "américaine", target: ʁ, class: uvular}   # intervocalic
+  - id: cp-fr-r-17646049
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_17646049.wav
+    text: "quarante-deux rue de Luemschwiller, soixante-huit, cent trente à Walheim"
+    l1: en
+    l2: fr
+    expect:
+      - {word: "trente", target: ʁ, class: uvular}   # onset_cluster
+  - id: cp-fr-r-19134991
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_19134991.wav
+    text: "Otyg est actuellement suspendu par manque d'inspiration sur ce projet précis."
+    l1: en
+    l2: fr
+    expect:
+      - {word: "précis", target: ʁ, class: uvular}   # onset_cluster
+  - id: cp-fr-r-18909696
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_18909696.wav
+    text: "Allée des Crabiers à Petit-Bourg"
+    l1: en
+    l2: fr
+    expect:
+      - {word: "crabiers", target: ʁ, class: uvular}   # onset_cluster
+  - id: cp-fr-r-19625818
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_19625818.wav
+    text: "Television est le distributeur des productions télévisées du studio Warner Bros."
+    l1: en
+    l2: fr
+    expect:
+      - {word: "productions", target: ʁ, class: uvular}   # onset_cluster
+  - id: cp-fr-r-19261376
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_19261376.wav
+    text: "Les artistes pourront également s’y installer en résidence et être accompagnés dans leurs projets."
+    l1: en
+    l2: fr
+    expect:
+      - {word: "projets", target: ʁ, class: uvular}   # onset_cluster
+  # --- en-fr error stand-in: English [ɹ] judged against the French target [ʁ].
+  - id: enfr-en-r-23889382
+    level: combined
+    pair: en-fr
+    target: ʁ
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_23889382.wav
+    text: "Raspler is the cousin of writer Chris Claremont's current wife."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 2   # 'chris', onset_cluster
+    class: english_r
+  - id: enfr-en-r-267908
+    level: combined
+    pair: en-fr
+    target: ʁ
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_267908.wav
+    text: "We visited a concert in the famous opera house in Sydney."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'opera', intervocalic
+    class: english_r
+  - id: enfr-en-r-670459
+    level: combined
+    pair: en-fr
+    target: ʁ
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_670459.wav
+    text: "Motion parallax is a monocular depth cue."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'parallax', intervocalic
+    class: english_r
+  - id: enfr-en-r-22947654
+    level: combined
+    pair: en-fr
+    target: ʁ
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_22947654.wav
+    text: "The play used the original script for the episode."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 2   # 'script', onset_cluster
+    class: english_r
+  - id: enfr-en-r-18033966
+    level: combined
+    pair: en-fr
+    target: ʁ
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_18033966.wav
+    text: "A comet came within miles of the Earth, it almost obliterated the moon."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 1   # 'obliterated', intervocalic
+    class: english_r
+  - id: enfr-en-r-18711145
+    level: combined
+    pair: en-fr
+    target: ʁ
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_18711145.wav
+    text: "Bajofondo Tango Club and the Gotan Project have fused tango with electronica."
+    aligner: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+    phone: ɹ
+    occurrence: 2   # 'electronica', onset_cluster
+    class: english_r
+  # --- fr-en: native English [ɹ], full pipeline with L2 English. Expected: english_r (correct).
+  - id: cp-en-r-fren-24123849
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_24123849.wav
+    text: "The original Salt Palace contained a dance hall, theater, and bicycle racing track."
+    l1: fr
+    l2: en
+    expect:
+      - {word: "track", target: ɹ, class: english_r}   # onset_cluster
+  - id: cp-en-r-fren-218785
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_218785.wav
+    text: "And he knew that Egypt was in Africa."
+    l1: fr
+    l2: en
+    expect:
+      - {word: "africa", target: ɹ, class: english_r}   # onset_cluster
+  - id: cp-en-r-fren-23828912
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_23828912.wav
+    text: "The city also sees frequent snow during winter and early spring."
+    l1: fr
+    l2: en
+    expect:
+      - {word: "spring", target: ɹ, class: english_r}   # onset_cluster
+  - id: cp-en-r-fren-595912
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_595912.wav
+    text: "She got a drawing pad and began dedicating a few days a week to sketching her surroundings."
+    l1: fr
+    l2: en
+    expect:
+      - {word: "surroundings", target: ɹ, class: english_r}   # intervocalic
+  - id: cp-en-r-fren-15903802
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_15903802.wav
+    text: "Experts of geology agree: Yesterday's tsunami was just a herald of the imminent apocalypse."
+    l1: fr
+    l2: en
+    expect:
+      - {word: "herald", target: ɹ, class: english_r}   # intervocalic
+  - id: cp-en-r-fren-7957203
+    level: pipeline
+    wav: ${MIO_GOLDEN_DIR}/cp/en/test/common_voice_en_7957203.wav
+    text: "We are opening the a new location at ten eighty-seven Oak Street."
+    l1: fr
+    l2: en
+    expect:
+      - {word: "street", target: ɹ, class: english_r}   # onset_cluster
+  # --- fr-en error stand-in: French [ʁ] judged against the English target [ɹ].
+  - id: fren-fr-r-17307554
+    level: combined
+    pair: fr-en
+    target: ɹ
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_17307554.wav
+    text: "La parole est à Monsieur Frédéric Lefebvre."
+    aligner: {acoustic_model: french_mfa, dictionary: french_mfa}
+    phone: ʁ
+    occurrence: 1   # 'parole', intervocalic
+    class: uvular
+  - id: fren-fr-r-18954714
+    level: combined
+    pair: fr-en
+    target: ɹ
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_18954714.wav
+    text: "Au début de la Révolution, la Convention fait saisir tous les biens des émigrés."
+    aligner: {acoustic_model: french_mfa, dictionary: french_mfa}
+    phone: ʁ
+    occurrence: 3   # 'émigrés', onset_cluster
+    class: uvular
+  - id: fren-fr-r-20002999
+    level: combined
+    pair: fr-en
+    target: ɹ
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_20002999.wav
+    text: "Le lendemain, il marque son premier but face aux Blue Jackets de Columbus."
+    aligner: {acoustic_model: french_mfa, dictionary: french_mfa}
+    phone: ʁ
+    occurrence: 2   # 'premier', onset_cluster
+    class: uvular
+  - id: fren-fr-r-18975512
+    level: combined
+    pair: fr-en
+    target: ɹ
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_18975512.wav
+    text: "Menzies le nomma à nouveau Ministre du Crédit et du Développement."
+    aligner: {acoustic_model: french_mfa, dictionary: french_mfa}
+    phone: ʁ
+    occurrence: 1   # 'ministre', onset_cluster
+    class: uvular
+  - id: fren-fr-r-19454746
+    level: combined
+    pair: fr-en
+    target: ɹ
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_19454746.wav
+    text: "L’erhu fait partie des instruments traditionnels utilisés pour la musique de l'opéra chinois."
+    aligner: {acoustic_model: french_mfa, dictionary: french_mfa}
+    phone: ʁ
+    occurrence: 3   # 'traditionnels', onset_cluster
+    class: uvular
+  - id: fren-fr-r-19858211
+    level: combined
+    pair: fr-en
+    target: ɹ
+    wav: ${MIO_GOLDEN_DIR}/cp/fr/test/common_voice_fr_19858211.wav
+    text: "Le bénéfice secondaire, avantage supplétif au primaire, survient après coup, il consolide le trouble."
+    aligner: {acoustic_model: french_mfa, dictionary: french_mfa}
+    phone: ʁ
+    occurrence: 5   # 'après', onset_cluster
+    class: uvular
 
   # --- Learner recordings (MIO_AUDIO_DUMP_DIR on the M4) -- TO FILL -------------------------
   - id: learner-perro-english-r-TODO

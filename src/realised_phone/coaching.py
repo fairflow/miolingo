@@ -25,8 +25,14 @@ class DraftContent(RuntimeError):
 
 @lru_cache(maxsize=None)
 def load(l1: str, l2: str) -> dict:
-    p = DATA_DIR / "coaching" / f"{l1}-{l2}.yaml"
-    return yaml.safe_load(p.read_text(encoding="utf-8")) if p.exists() else {"ladders": {}}
+    """Pair-specific ladders, falling back to L1-agnostic any-<l2>.yaml for any
+    (target, realised) pair the specific file doesn't cover."""
+    out: dict = {"ladders": {}}
+    for name in (f"any-{l2}", f"{l1}-{l2}"):            # specific overrides generic
+        p = DATA_DIR / "coaching" / f"{name}.yaml"
+        if p.exists():
+            out["ladders"].update((yaml.safe_load(p.read_text(encoding="utf-8")) or {}).get("ladders") or {})
+    return out
 
 
 def feature_contrast(target: str, realised: str) -> list[str]:

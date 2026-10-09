@@ -1,0 +1,101 @@
+# Corrective coaching, L1 English -> L2 Flemish (HANDOFF §3). DRAFT by Claude; refused unless
+# reviewed. Distinct from en-nl.yaml: Flemish g is the voiced 'zachte g'; r is never approximant.
+pair: {l1: en, l2: nl-be}
+status: draft
+reviewed_by: null
+reviewed_on: null
+
+ladders:
+  "x>stop":
+    status: draft
+    contrast:
+      manner: >-
+        You closed your mouth completely, like an English k or g. Dutch ch and g are made with
+        the back of the tongue CLOSE to the roof of the mouth but not touching it: the air keeps
+        flowing and makes a rough, continuous friction -- like the ch in Scottish "loch".
+    articulation:
+      text: >-
+        Say "k" slowly and feel where the back of your tongue touches. Now lower it a hair so it
+        no longer seals and push air through: a long "xxxx". Keep it going, don't let it stop.
+      diagram: null
+    perception:
+      minimal_pairs: [[acht, akt], [lachen, lakken], [gat, kat], [goed, koud]]
+      task: same_different
+    drills:
+      - {step: "long friction", items: ["xxxx", "axa", "oxo"]}
+      - {step: "ch at the end", items: [acht, licht, nacht, toch]}
+      - {step: "soft voiced g at the start (Flemish)", items: [goed, gaan, geld, graag]}
+      - {step: "sch", items: [school, schip, schrijven]}
+    stabilisation:
+      phrases: ["goede morgen", "acht uur", "het is echt goed"]
+      sentences: ["Achtentachtig prachtige grachten."]
+  "x>glottal":
+    status: draft
+    contrast:
+      manner: >-
+        That sounded like an English h -- just breath. Dutch ch/g needs friction from the back
+        of the tongue against the soft palate, so it sounds rougher and stronger.
+    articulation:
+      text: "Start from 'k', loosen the contact slightly and blow: the sound should be scratchy, not breathy."
+      diagram: null
+    perception:
+      minimal_pairs: [[acht, hacht], [goed, hoed], [geel, heel]]
+      task: same_different
+    drills:
+      - {step: "h vs ch", items: ["hoed / goed", "heel / geel", "hard / gard"]}
+      - {step: "ch in words", items: [licht, lachen, toch, dag]}
+    stabilisation:
+      phrases: ["goede dag", "het is licht"]
+      sentences: ["Geef gauw de goede grote gele gieter."]
+  "ɣ>stop":
+    status: draft
+    contrast:
+      manner: >-
+        That was an English g (a closure). Flemish g is a soft, VOICED friction sound, never a closure --
+        like ch but with your voice humming through it.
+    articulation:
+      text: "Same place as ch, air flowing, no seal -- and keep your voice on (hum through it): a soft [ɣ]."
+      diagram: null
+    perception:
+      minimal_pairs: [[goed, koud], [geel, keel], [gaan, kaan]]
+      task: same_different
+    drills:
+      - {step: "g as friction", items: [goed, gaan, geven, groot, dag, weg]}
+    stabilisation:
+      phrases: ["goede morgen", "graag gedaan"]
+      sentences: ["Geef gauw de goede grote gele gieter."]
+  "r>english_r":
+    status: draft
+    contrast:
+      manner: >-
+        That was an English r. At the start of a word or syllable Dutch r is a tongue-tip tap or
+        trill, or a uvular r at the back. In Flemish this holds at the end of a syllable too.
+    articulation:
+      text: "For a tongue-tip r: say 'd' quickly between vowels ('ada' -> 'ara'). For a uvular r: see the French r ladder."
+      diagram: null
+    perception:
+      minimal_pairs: [[rood, lood], [rat, lat], [ram, lam]]
+      task: same_different
+    drills:
+      - {step: "r at the start", items: [rood, rijden, regen, rat]}
+      - {step: "r in clusters", items: [groot, trein, drie, brood]}
+    stabilisation:
+      phrases: ["rode rozen", "drie treinen"]
+      sentences: ["Rare rode ratten rennen rond."]
+  "ɣ>fricative":
+    status: draft
+    contrast:
+      manner: >-
+        Accent note, not an error: that g was the harsher, voiceless Netherlands g. In Flemish
+        the g is usually soft and voiced -- try letting your voice hum through it.
+    articulation:
+      text: "Keep the same tongue position but let your voice run through it, gently: [ɣ] rather than [x]."
+      diagram: null
+    perception:
+      minimal_pairs: [[goed, choed]]
+      task: same_different
+    drills:
+      - {step: "voiced soft g", items: [goed, gaan, geven, regen, liggen]}
+    stabilisation:
+      phrases: ["goeiemorgen", "graag gedaan"]
+      sentences: ["Geef gauw de goede grote gele gieter."]

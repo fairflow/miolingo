@@ -47,6 +47,17 @@ def make_evidence(source: str, source_id: str, version: str, status: str,
                     top_class=c1 if total > 0 else None, **extra)
 
 
+def detector_evidence(det, entry, scores: dict[str, float], candidates: list[str],
+                      phone_class: dict[str, str], **extra) -> Evidence:
+    """make_evidence for a detector, plus the classes its vote cannot separate."""
+    ev = make_evidence("detector", entry.id, entry.version, entry.status, scores, phone_class,
+                       entry.params.get("margin", 0.3), **extra)
+    if ev.top_class and hasattr(det, "compatible_classes"):
+        ev.compatible = [c for c in det.compatible_classes(ev.top_class, candidates, phone_class)
+                         if c != ev.top_class]
+    return ev
+
+
 def combine(evidence: list[Evidence], phone_class: dict[str, str],
             min_agreeing_sources: int = 2) -> dict:
     """Return verdict fields: status, realised_class, realised_phone, between, confidence."""
@@ -58,6 +69,16 @@ def combine(evidence: list[Evidence], phone_class: dict[str, str],
     voted = {e.top_class for e in votes}
 
     if len(voted) > 1:
+        narrowed = _narrow(votes)
+        if narrowed:
+            # Only a coarse source disagrees, and only because it cannot separate the
+            # classes: one source decided, so tentative at best.
+            conf = sum(class_scores(e.scores, phone_class).get(narrowed, 0.0) for e in votes
+                       if e.top_class == narrowed) / len(votes)
+            fine = [e for e in votes if e.top_class == narrowed]
+            return dict(status=TENTATIVE, realised_class=narrowed,
+                        realised_phone=_phone_within(narrowed, fine, phone_class),
+                        between=[], confidence=round(conf, 3))
         # Decisive sources disagree: say so, ranked by pooled support.
         pooled = _pooled(votes, phone_class)
         between = [c for c, _ in sorted(pooled.items(), key=lambda kv: -kv[1]) if c in voted]
@@ -76,6 +97,16 @@ def combine(evidence: list[Evidence], phone_class: dict[str, str],
     return dict(status=status, realised_class=cls,
                 realised_phone=_phone_within(cls, votes, phone_class),
                 between=[], confidence=round(conf, 3))
+
+
+def _narrow(votes: list[Evidence]) -> Optional[str]:
+    """The single class every vote is compatible with, when the votes differ only
+    because some sources are coarser (their `compatible` covers the others' class)."""
+    def ok(e: Evidence) -> set:
+        return set(e.compatible) | {e.top_class}
+    common = set.intersection(*(ok(e) for e in votes))
+    exact = {e.top_class for e in votes} & common
+    return exact.pop() if len(exact) == 1 else None
 
 
 def _pooled(evs: list[Evidence], phone_class: dict[str, str]) -> dict[str, float]:

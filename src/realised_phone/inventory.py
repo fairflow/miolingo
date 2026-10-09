@@ -2,6 +2,11 @@
 Pair-specific candidate inventory (HANDOFF §1a): for each target phone of L2,
 the canonical phone plus known L1-transfer substitutes and dialect variants,
 grouped into feedback classes. Data: data/pairs/<l1>-<l2>.yaml.
+
+The learner's first language (L1) is the app's source language, and any
+source != target pair is allowed. When no specific <l1>-<l2>.yaml exists,
+the L1-agnostic data/pairs/any-<l2>.yaml is used (union of substitutes across
+the app's source languages); `generic` is then True.
 """
 
 from __future__ import annotations
@@ -36,11 +41,14 @@ class Target:
     name: str
     detector: Optional[str]
     candidates: list[Candidate]
-    accept: dict[str, list[str]] = field(default_factory=dict)  # context -> correct classes
+    accept: dict[str, list[str]] = field(default_factory=dict)  # context ("*" = any) -> correct classes
+    skip: list[str] = field(default_factory=list)   # contexts never judged (e.g. English coda r)
+    mild: dict[str, float] = field(default_factory=dict)  # class -> penalty 0..1 (accent, not error)
+    recognizer: Optional[str] = None   # registry id overriding the L2's default recognizer
 
     def accepted_classes(self, context: str) -> list[str]:
         """Classes counted as correct in this context (default: canonical class only)."""
-        return self.accept.get(context, [self.canonical.cls])
+        return self.accept.get(context) or self.accept.get("*") or [self.canonical.cls]
 
     @property
     def canonical(self) -> Candidate:
@@ -61,6 +69,7 @@ class PairInventory:
     l2: str
     status: str
     targets: dict[str, Target] = field(default_factory=dict)
+    generic: bool = False          # loaded from any-<l2>.yaml (no pair-specific file)
 
     def target(self, phone: str) -> Optional[Target]:
         return self.targets.get(norm_ipa(phone))
@@ -68,9 +77,15 @@ class PairInventory:
 
 @lru_cache(maxsize=None)
 def load(l1: str, l2: str) -> PairInventory:
+    if l1 == l2 or l1 == l2.split("-")[0]:
+        raise ValueError(f"source and target language are the same ({l1} / {l2}): no L1->L2 pair")
     path = DATA_DIR / "pairs" / f"{l1}-{l2}.yaml"
+    generic = not path.exists()
+    if generic:
+        path = DATA_DIR / "pairs" / f"any-{l2}.yaml"
     if not path.exists():
-        raise FileNotFoundError(f"No candidate inventory for pair {l1}->{l2}: {path}")
+        raise FileNotFoundError(f"No candidate inventory for target language {l2} "
+                                f"(neither {l1}-{l2}.yaml nor any-{l2}.yaml)")
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     targets = {}
     for key, t in raw["targets"].items():
@@ -79,5 +94,7 @@ def load(l1: str, l2: str) -> PairInventory:
         if sum(c.kind == "canonical" for c in cands) != 1:
             raise ValueError(f"{path}: target {key} needs exactly one canonical candidate")
         targets[norm_ipa(key)] = Target(norm_ipa(key), t.get("name", ""), t.get("detector"),
-                                        cands, t.get("accept") or {})
-    return PairInventory(raw["pair"]["l1"], raw["pair"]["l2"], raw.get("status", "draft"), targets)
+                                        cands, t.get("accept") or {}, t.get("skip") or [],
+                                        {k: float(v) for k, v in (t.get("mild") or {}).items()},
+                                        t.get("recognizer"))
+    return PairInventory(l1, raw["pair"]["l2"], raw.get("status", "draft"), targets, generic)

@@ -24,7 +24,16 @@ The resulting analysis then carries `learner_visible = False`, and the UI must n
 
 ## Records
 
-### Pair inventory — `data/pairs/<l1>-<l2>.yaml`
+### Pair inventory — `data/pairs/<l1>-<l2>.yaml`, fallback `data/pairs/any-<l2>.yaml`
+
+L1 is the app's **source language**, which is the learner's first language. Any pair with
+source ≠ target is allowed; `load("es", "es")` raises. When no `<l1>-<l2>.yaml` exists, the
+L1-agnostic `any-<l2>.yaml` is used and `PairInventory.generic` is True. That file holds the union
+of substitutes across the app's source languages. For Spanish r these are: approximant [ɹ ɻ]
+(English, Dutch), uvular [ʁ ʀ χ] (French, German, Dutch, European Portuguese), and velar/glottal
+[x h] (Brazilian Portuguese). Coaching data layers the same way: `any-<l2>` ladders plus
+`<l1>-<l2>` ladders, where specific ones override. Research priors exist only for specific pairs;
+without one, the learner model starts uninformative (Beta(1, 1)).
 
 ```yaml
 pair: {l1: en, l2: es}
@@ -69,6 +78,8 @@ targets:
 | `between` | for `uncertain`: the top classes, e.g. `["tap", "trill"]` |
 | `correct` | `realised_class` ∈ accepted classes for the context (canonical, or tap+trill in codas); also true when `uncertain` only between accepted classes; else null unless confident/tentative |
 | `confidence` | mean decisive-source probability for the decided class |
+| `penalty` | **for the scorer**: 0 = correct, 1 = error, 0 < p < 1 = an accent-level variant from the target's `mild` map (e.g. a Netherlands-style g in Flemish: 0.3); `null` when undecided |
+| `severity` | `correct` / `accent` / `error` (derived from `penalty`) |
 | `evidence` | list of Evidence |
 
 ### Combination rule
@@ -83,6 +94,17 @@ targets:
 
 Accuracy of what the learner sees outranks coverage. Only `confident` verdicts from
 learner-visible analyses are shown to learners.
+
+### Accent-level variants (`mild`) and scoring
+
+A target may list classes that aren't its target, but that count as an **accent rather than an error**:
+`mild: {fricative: 0.3}` on Flemish /ɣ/ (Matthew, 2026-09-30: a Netherlands-style g should be
+marked more gently). Effects:
+- **The verdict** carries `penalty` 0.3 and severity `accent`, shown as `~` rather than `✗`.
+- **The learner model** counts it as a partial slip (α += 0.7·w, β += 0.3·w) and never escalates
+  the coaching ladder for it.
+- **The existing scorer**, when realised-phone verdicts are wired in, weights a phone's error by
+  `penalty` instead of counting it in full. Scoring stays outside this package.
 
 ### Context — computed from the alignment
 

@@ -12,7 +12,7 @@ from realised_phone.registry import Registry, RegistryEntry
 from conftest import perro_alignment
 from synth import SR, vrv
 
-VOCAB = {"r": 0, "ɾ": 1, "ɹ": 2, "e": 3, "o": 4}
+VOCAB = {"r": 0, "ɾ": 1, "ɹ": 2, "e": 3, "o": 4, "ʁ": 5, "h": 6, "x": 7, "χ": 8}
 
 
 def fake_recognizer(favour: str):
@@ -24,7 +24,7 @@ def fake_recognizer(favour: str):
     return RecognizerSource("fb-xlsr-53-espeak", "fake", posterior_fn=post)
 
 
-def run(tmp_path, kind, favour=None, registry=None, allow=True, transcript="el perro"):
+def run(tmp_path, kind, favour=None, registry=None, allow=True, transcript="el perro", l1="en"):
     x, seg = vrv(kind)
     wav = tmp_path / f"{kind}.wav"
     sf.write(wav, x / np.abs(x).max() * 0.9, SR)
@@ -35,7 +35,7 @@ def run(tmp_path, kind, favour=None, registry=None, allow=True, transcript="el p
         reg = Registry([e for e in Registry.load().entries() if e.kind != "recognizer"])
     else:
         reg = registry or Registry.load()
-    return analyse(str(wav), "perro", "en", "es", transcript=transcript,
+    return analyse(str(wav), "perro", l1, "es", transcript=transcript,
                    registry=reg, allow_candidates=allow, sources=src)
 
 
@@ -71,7 +71,7 @@ def test_disagreement_produces_uncertain(tmp_path):
 def test_recognizer_blind_candidates_reported(tmp_path):
     v = only(run(tmp_path, "trill", favour="r"))
     rec = next(e for e in v.evidence if e.source == "recognizer")
-    assert set(rec.unsupported) == {"ɻ", "ʁ"}      # not in the fake vocab
+    assert set(rec.unsupported) == {"ɻ"}           # not in the fake vocab
 
 
 def test_detector_only_is_tentative(tmp_path):
@@ -111,3 +111,15 @@ def test_analysis_serialises(tmp_path):
 @pytest.mark.parametrize("ctx_phones,expected", [(("e", "o"), "intervocalic")])
 def test_context_recorded(tmp_path, ctx_phones, expected):
     assert only(run(tmp_path, "trill", favour="r")).context == expected
+
+
+def test_portuguese_l1_throat_r_is_named_by_recognizer_only(tmp_path):
+    # no tongue-tip contacts, no F3 drop -> detector abstains; recognizer hears [h]
+    v = only(run(tmp_path, "none", favour="h", l1="pt"))
+    assert v.status == "tentative" and v.realised_class == "velar_glottal"
+    assert v.correct is False
+
+
+def test_french_l1_uvular_vs_detector_trill_is_uncertain(tmp_path):
+    v = only(run(tmp_path, "trill", favour="ʁ", l1="fr"))
+    assert v.status == "uncertain" and set(v.between) == {"trill", "uvular"}

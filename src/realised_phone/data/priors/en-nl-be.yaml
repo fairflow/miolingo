@@ -1,0 +1,22 @@
+# Research priors: L1 English -> L2 Flemish. DRAFT; citations unverified.
+pair: {l1: en, l2: nl-be}
+status: draft
+reviewed_by: null
+reviewed_on: null
+difficulty_to_prior:
+  high:   {alpha: 1.0, beta: 4.0}
+  medium: {alpha: 2.5, beta: 2.5}
+  low:    {alpha: 4.0, beta: 1.0}
+references:
+  flege1995: >-
+    Flege, J. E. (1995). Second language speech learning: Theory, findings, and problems.
+    In W. Strange (Ed.), Speech Perception and Linguistic Experience (pp. 233-277). York Press.
+  besttyler2007: >-
+    Best, C. T., & Tyler, M. D. (2007). Nonnative and second-language speech perception:
+    Commonalities and complementarities. In O.-S. Bohn & M. J. Munro (Eds.), Language
+    Experience in Second Language Speech Learning (pp. 13-34). John Benjamins.
+priors:
+  x: {_default: {difficulty: high, expected_errors: [stop, glottal], why: "No velar fricative in (most) English; learners substitute [k] or [h].", refs: [flege1995, besttyler2007], citation_verified: false}}
+  ɣ: {_default: {difficulty: high, expected_errors: [stop, glottal], why: "English g is a stop; learners use [ɡ] or [h].", refs: [flege1995, besttyler2007], citation_verified: false}}
+  r:
+    _default: {difficulty: medium, expected_errors: [english_r], why: "English approximant r in onsets -- never native in Flemish.", refs: [flege1995], citation_verified: false}

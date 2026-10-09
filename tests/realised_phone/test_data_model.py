@@ -30,9 +30,28 @@ def test_every_target_has_one_canonical_and_ipa_keys():
         assert "g" not in key  # ASCII g normalised to IPA ɡ
 
 
-def test_unknown_pair_raises():
+def test_any_source_language_falls_back_to_l1_agnostic_inventory():
+    # source language == learner's L1; any source != target is allowed (Matthew, 2026-09-30)
+    en = inventory.load("en", "es")
+    assert en.generic is False
+    for l1 in ("fr", "de", "pt", "it", "nl"):
+        inv = inventory.load(l1, l2="es")
+        assert inv.generic is True and inv.l1 == l1
+        r = inv.target("r")
+        assert r.canonical.phone == "r"
+        assert {"ʁ", "χ", "x", "h", "ɹ", "ɾ"} <= set(r.phones)
+        assert r.phone_class["ʁ"] == "uvular" and r.phone_class["h"] == "velar_glottal"
+        assert set(r.accepted_classes("coda")) == {"trill", "tap"}
+
+
+def test_same_source_and_target_is_not_a_pair():
+    with pytest.raises(ValueError):
+        inventory.load("es", "es")
+
+
+def test_unknown_target_language_raises():
     with pytest.raises(FileNotFoundError):
-        inventory.load("xx", "es")
+        inventory.load("en", "xx")
 
 
 def test_shipped_registry_loads_and_gates():

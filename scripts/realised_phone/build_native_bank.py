@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 from realised_phone import corpora, inventory  # noqa: E402
 from realised_phone.align import AlignmentError, mfa_align  # noqa: E402
 from realised_phone.registry import Registry  # noqa: E402
-from realised_phone.pipeline import ALIGNER_FOR  # noqa: E402
+from realised_phone.pipeline import source_for  # noqa: E402
 
 
 def main() -> None:
@@ -47,7 +47,8 @@ def main() -> None:
     pair = inventory.load(args.l1, args.lang)
     wanted = ([t.strip() for t in args.targets.split(",") if t.strip()]
               or [k for k, t in pair.targets.items() if t.detector])
-    ae = Registry.load().get(ALIGNER_FOR[args.lang])
+    reg = Registry.load()
+    ae = reg.get(source_for(reg, "aligner", args.lang))
     out = Path(args.bank).expanduser() / args.lang
     out.mkdir(parents=True, exist_ok=True)
     items = (corpora.common_phone(args.cp_root, args.lang, args.split, args.n) if args.cp_root

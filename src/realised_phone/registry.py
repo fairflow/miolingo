@@ -82,3 +82,16 @@ class Registry:
 
     def entries(self) -> list[RegistryEntry]:
         return list(self._entries.values())
+
+    def find(self, kind: str, lang: str) -> tuple[Optional[RegistryEntry], bool]:
+        """First entry of `kind` covering `lang`, in file order. Tries the exact
+        code (e.g. 'nl-be') first, then the base language ('nl'). Returns
+        (entry, dialect_fallback) -- dialect_fallback is True when only the base
+        language matched, so callers can note the dialect isn't modelled
+        separately. Status is NOT checked here; use require() on the id."""
+        lang = (lang or "").lower()
+        for code, fallback in ((lang, False), (lang.split("-")[0], True)):
+            for e in self._entries.values():
+                if e.kind == kind and code in [x.lower() for x in e.languages]:
+                    return e, fallback and code != lang
+        return None, False

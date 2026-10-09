@@ -35,21 +35,90 @@
     acoustic_model: spanish_mfa
     dictionary: spanish_mfa
 
+- id: mfa-french_mfa
+  kind: aligner
+  version: "3.0.0"   # acoustic model meta.json (release tag acoustic-french_mfa-v3.0.0)
+  languages: [fr]
+  results: []
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {acoustic_model: french_mfa, dictionary: french_mfa}
+
+- id: mfa-english_mfa
+  kind: aligner
+  version: "english_mfa (release acoustic-english_mfa-v3.1.0) + english_us_mfa dictionary"
+  languages: [en]
+  results: []
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {acoustic_model: english_mfa, dictionary: english_us_mfa}
+
+- id: mfa-dutch_cv
+  kind: aligner
+  version: "2.0.0 (dutch_cv acoustic + dictionary; Epitran-derived IPA, crude: een -> eː n)"
+  languages: [nl]   # nl-be falls back to this with a "dialect not modelled separately" note
+  results: []
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {acoustic_model: dutch_cv, dictionary: dutch_cv}
+
 - id: fb-xlsr-53-espeak
   kind: recognizer
   version: "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
-  languages: [es, it, de, pt-br, nl, ru]
+  languages: [es, it, de, pt-br, nl, ru, en, fr]   # en: app fallback, not benched on en
+  # fr: chosen over cnam-french for realised-phone evidence because it knows L1 phones (ɹ);
+  # CP test en-fr: English r confident 39% (98.2% right) vs 5% with cnam-french.
+  # en-fr vowels: CP test y 145/164 native right, i 170/178, u 32/34 (recognizer alone).
   results:
     - research/phonetics/phone_poc/results/cp_eval_es.json   # 0.0364 mean weighted err, n=150
     # constrained candidate scoring in aligned windows:
     - research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json   # smoke
-    - research/phonetics/realised_phone/results/rhotics_cp-test-cal-dev.json   # Common Phone test
+    - research/phonetics/realised_phone/results/rhotics_cp-test-cal-dev.json   # Common Phone test (en-es)
+    - research/phonetics/realised_phone/results/rhotics_cp-test-fr-en.json      # fr-en: 98.3% at 35%
+    - research/phonetics/realised_phone/results/rhotics_cp-test-en-fr-xlsr.json # en-fr: 98.3% at 35%
   # CP test (non-coda, decided tokens): tap 560/581, trill 84/98, English [ɹ] 391/408 (from
   # English speakers -- not yet English-L1 learners speaking Spanish).
   status: candidate
   approved_by: null
   approved_on: null
   params: {margin: 0.25, pad_s: 0.03, min_raw: 0.02}
+
+- id: cnam-french
+  kind: recognizer
+  version: "Cnam-LMSSC/wav2vec2-french-phonemizer"
+  languages: [fr]
+  results:
+    - research/phonetics/phone_poc/results/cp_eval_fr.json   # 0.0126 mean weighted err, n=150 (app default for fr)
+    - research/phonetics/realised_phone/results/rhotics_cp-test-en-fr.json
+  # Best on NATIVE French (app accuracy channel), but as a realised-phone source it is
+  # French-only: on English r it says uvular 275/437, so English->French learners' main error
+  # was confidently caught only 5% of the time. Listed AFTER xlsr-53, so registry.find()
+  # picks xlsr-53 for fr; kept here as the evidence for that choice.
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.25, pad_s: 0.03, min_raw: 0.02}
+
+- id: clementapa-dutch
+  kind: recognizer
+  version: "Clementapa/wav2vec2-base-960h-phoneme-reco-dutch"
+  languages: [nl]
+  results:
+    - research/phonetics/phone_poc/results/fleurs_nl.json   # 0.086 mean weighted err, n=150 (FLEURS nl)
+    - research/phonetics/realised_phone/results/rhotics_test-en-nl-r-clementapa-dutch.json  # r: blind to English r
+    - research/phonetics/realised_phone/results/dorsal_vl1spk-en-nlbe-clementapa-dutch.json # Flemish g: names voiced ɣ
+  # Used per target: Flemish /ɣ/ (en-nl-be.yaml `recognizer:`); xlsr-53 elsewhere for nl.
+  # Licence undeclared. Matthew 2026-09-30: may be used for TESTING. Shipping needs the licence
+  # cleared plus approval. Listed after xlsr-53 (which covers nl) until an nl evaluation shows
+  # which one is better as realised-phone evidence (cf. cnam-french: a native-only phonemizer
+  # can be blind to L1 sounds).
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.25, pad_s: 0.03, min_raw: 0.02, licence: undeclared, use: testing-only}
 
 - id: rhotic-detector
   kind: detector
@@ -65,3 +134,29 @@
   approved_by: null
   approved_on: null
   params: {margin: 0.3, calibration: calibration/rhotic.yaml}
+
+- id: dorsal-detector
+  kind: detector
+  version: "0.1.0"
+  languages: [nl, nl-be]
+  results:
+    - research/phonetics/realised_phone/results/dorsal_test-en-nl-fb-xlsr-53-espeak.json
+    - research/phonetics/realised_phone/results/dorsal_vl1spk-en-nlbe-clementapa-dutch.json
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.3, calibration: calibration/dorsal.yaml}
+
+- id: vowel-detector
+  kind: detector
+  version: "0.1.0"
+  languages: [fr]
+  results:
+    - research/phonetics/realised_phone/results/vowel_cp-test-en-fr-y.json   # tu: 96.3% at 33%
+    - research/phonetics/realised_phone/results/vowel_cp-test-en-fr-u.json   # tout: no false alarms; misses goose
+    - research/phonetics/realised_phone/results/vowel4way_cp-test-en-fr-y.json  # rejected 4-way variant
+  # Backness-only vote (front/back via F2 ratio); 4-way y/i/u/goose was too weak to vote.
+  status: candidate
+  approved_by: null
+  approved_on: null
+  params: {margin: 0.3, calibration: calibration/vowel.yaml}
