@@ -106,20 +106,33 @@ def _usable(tok: str) -> bool:
 
 
 def tokenize(ipa: str, vocab: dict[str, int]) -> list[tuple[str, int]]:
-    """Greedy longest-match of espeak IPA into recognizer tokens: [(token, word_index)]."""
-    vocab = {t: i for t, i in vocab.items() if _usable(t)}
+    """Segment espeak IPA into recognizer tokens: [(token, word_index)]. Per word, the
+    segmentation that drops the fewest symbols, then uses the fewest tokens (so "juː"
+    is j + uː, not "ju" + a dropped length mark)."""
+    vocab = {t for t in vocab if _usable(t)}
     longest = max(len(t) for t in vocab)
     out = []
     for wi, word in enumerate(ipa.split()):
         w = unicodedata.normalize("NFC", "".join(c for c in word if c not in STRIP))
-        i = 0
-        while i < len(w):
-            for n in range(min(longest, len(w) - i), 0, -1):
-                if w[i:i + n] in vocab:
-                    out.append((w[i:i + n], wi)); i += n
-                    break
-            else:
-                i += 1                      # symbol the recognizer has no token for
+        n = len(w)
+        best = [(0, 0, None)] + [(10**9, 10**9, None)] * n   # (skipped, tokens, back)
+        for i in range(n):
+            sk, tk, _ = best[i]
+            if sk >= 10**9:
+                continue
+            cand = best[i + 1]
+            if (sk + 1, tk) < cand[:2]:
+                best[i + 1] = (sk + 1, tk, (i, None))
+            for m in range(1, min(longest, n - i) + 1):
+                if w[i:i + m] in vocab and (sk, tk + 1) < best[i + m][:2]:
+                    best[i + m] = (sk, tk + 1, (i, w[i:i + m]))
+        toks, j = [], n
+        while j > 0:
+            i, t = best[j][2]
+            if t is not None:
+                toks.append(t)
+            j = i
+        out += [(t, wi) for t in reversed(toks)]
     return out
 
 
