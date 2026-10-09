@@ -12,7 +12,6 @@ languages:
     - h
     - iː
     - j
-    - ju
     - k
     - l
     - m
@@ -55,40 +54,7 @@ languages:
     - ʊ
     ok_threshold: 0.442
     off_threshold: 0.023
-    accept_learned:
-      ɔø:
-        ɔ: 0.7
-        aʊ: 0.7
-        aɪ: 0.7
-      tʃ:
-        ʃ: 0.7
-        t: 0.7
-      eː:
-        ə: 0.7
-      ɑ:
-        ɑː: 0.7
-        a: 0.7
-      øː:
-        ø: 0.7
-        yː: 0.7
-      r:
-        ɾ: 0.7
-      œ:
-        ɛ: 0.7
-        ə: 0.7
-        yː: 0.7
-      oː:
-        ʊ: 0.7
-      th:
-        t: 0.7
-      yː:
-        y: 0.7
-      ju:
-        uː: 0.7
-      pf:
-        f: 0.7
-      ɒ:
-        ɔ: 0.7
+    accept_learned: {}
     unreliable:
     - y
     - yː
@@ -97,7 +63,7 @@ languages:
     - ɔø
     calibrated_on: cphf:/opt/cphf/dev-0.parquet:de (n=400)
     model: facebook/wav2vec2-xlsr-53-espeak-cv-ft
-    native_test_flag_rate: 0.0649
+    native_test_flag_rate: 0.0655
   es:
     inventory:
     - a
@@ -145,31 +111,8 @@ languages:
     ok_threshold: 0.3481
     off_threshold: 0.02
     accept_learned:
-      ʎ:
-        ɣ: 0.7
-        tʃ: 0.7
-        j: 0.7
-        l: 0.7
-      pː:
-        p: 0.7
       ja:
         a: 0.7
-      ui:
-        i: 0.7
-        u: 0.7
-      r:
-        ɾ: 0.7
-      ee:
-        e: 0.7
-      eɪ:
-        aɪ: 0.7
-        i: 0.7
-      ɛ:
-        e: 0.7
-      ŋ:
-        n: 0.7
-      ie:
-        e: 0.7
     unreliable:
     - eɪ
     calibrated_on: tsv:/opt/cpdata/es/dev/list.tsv (n=300)
