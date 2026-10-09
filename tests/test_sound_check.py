@@ -76,3 +76,10 @@ def test_shipped_config_merges_hand_and_learned():
     assert c["accept"]["ɾ"]["ʁ"] == 1 and c["glottal_onsets"] is False
     assert ["ɾ", "ɹ"] in c["english_l1_errors"]
     assert sc.lang_config("de-de")["accept"]["ɾ"]["ʁ"] == 1        # dialect falls back to base
+
+
+def test_unreliable_sounds_are_unchecked_not_flagged(cfg):
+    cfg["unreliable"] = ["ɾ"]
+    r = sc.score(_lp(["ɹ", "a", "t"]), VOCAB, 0, "ɾat", "de")
+    assert r.phones[0].level == "unchecked" and r.phones[0].heard is None
+    assert not r.flagged and r.unchecked == ["ɾ"]

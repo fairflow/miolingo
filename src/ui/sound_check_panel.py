@@ -10,7 +10,7 @@ import html
 
 import streamlit as st
 
-COLOURS = {"ok": "#2e7d32", "check": "#ef6c00", "off": "#c62828"}
+COLOURS = {"ok": "#2e7d32", "check": "#ef6c00", "off": "#c62828", "unchecked": "#9e9e9e"}
 
 
 def _word_html(phones, word_ipa):
@@ -19,9 +19,10 @@ def _word_html(phones, word_ipa):
     out = []
     for p in phones:
         tip = ("sounds right" if p["level"] == "ok" else
+               "can't be judged reliably yet" if p["level"] == "unchecked" else
                f"probably said [{p['heard']}]" if p.get("heard") and p["heard"] != "∅" else
                "probably left out" if p.get("heard") == "∅" else "unclear")
-        style = (f"color:{COLOURS[p['level']]};font-weight:{'700' if p['level'] != 'ok' else '400'};"
+        style = (f"color:{COLOURS[p['level']]};font-weight:{'700' if p['level'] in ('check', 'off') else '400'};"
                  + ("text-decoration:underline wavy;" if p["level"] == "off" else ""))
         out.append(f"<span title='{html.escape(tip)} ({p['p_ok']:.0%})' style='{style}'>"
                    f"{html.escape(p['phone'])}</span>")
@@ -53,7 +54,7 @@ def render(result: dict, key_prefix: str = "practice") -> None:
                      f"<br><span style='font-size:.8em;opacity:.7'>{label}</span></span>")
     st.markdown("".join(cells), unsafe_allow_html=True)
 
-    flagged = [p for p in sc.get("phones") or [] if p["level"] != "ok"]
+    flagged = [p for p in sc.get("phones") or [] if p["level"] in ("check", "off")]
     if not flagged:
         st.success("Every sound was recognised as expected.")
     else:
@@ -67,9 +68,12 @@ def render(result: dict, key_prefix: str = "practice") -> None:
                      " — sounded left out" if p["heard"] == "∅" else f" — sounded like **[{p['heard']}]**")
             lines.append(f"- **[{p['phone']}]** in *{w}*: {what}{heard}")
         st.markdown("\n".join(lines))
+    if sc.get("unchecked"):
+        st.caption("Grey sounds (" + ", ".join(f"[{u}]" for u in sc["unchecked"]) +
+                   ") can't be judged reliably yet: the listening model also misjudges native speakers on them.")
     rate = sc.get("native_flag_rate")
     st.caption(
-        "Green = sounded as expected; orange = worth checking; red = probably off. "
+        "Green = sounded as expected; orange = worth checking; red = probably off; grey = not judged. "
         "Hover a sound for details. This is a listening model's best guess, not a verdict"
         + (f" — it also flags about {rate:.0%} of sounds from native speakers." if rate else
            " — not yet calibrated for this language.")

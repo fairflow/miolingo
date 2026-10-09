@@ -39,7 +39,7 @@ class PhoneVerdict:
     phone: str                  # expected sound (recognizer token)
     word_index: int             # index into the phrase's words
     p_ok: float                 # probability the expected or an accepted sound was said
-    level: str                  # "ok" | "check" | "off"
+    level: str                  # "ok" | "check" | "off" | "unchecked" (unreliable for this language)
     heard: Optional[str]        # most likely other sound (DEL = left out), when not ok
     p_heard: float = 0.0
 
@@ -54,7 +54,11 @@ class SoundCheck:
 
     @property
     def flagged(self) -> list[PhoneVerdict]:
-        return [p for p in self.phones if p.level != "ok"]
+        return [p for p in self.phones if p.level in ("check", "off")]
+
+    @property
+    def unchecked(self) -> list[str]:
+        return sorted({p.phone for p in self.phones if p.level == "unchecked"})
 
 
 @lru_cache(maxsize=None)
@@ -170,6 +174,7 @@ def score(log_probs, vocab: dict[str, int], blank: int, correct_ipa: str, voice:
     for (i, c), l in zip(where, ll):
         per[i][c] = float(l)
     ok_t, bad_t = float(cfg.get("ok_threshold", 0.5)), float(cfg.get("off_threshold", 0.15))
+    unreliable = set(cfg.get("unreliable") or [])
     for i, (t, wi) in enumerate(ref):
         if i in hidden:
             continue
@@ -181,8 +186,10 @@ def score(log_probs, vocab: dict[str, int], blank: int, correct_ipa: str, voice:
         p_ok = post.get(t, 0.0) + sum(float(w) * post.get(k, 0.0) for k, w in acc.items())
         p_ok = float(min(1.0, p_ok))
         level = "ok" if p_ok >= ok_t else "check" if p_ok >= bad_t else "off"
+        if t in unreliable:
+            level = "unchecked"
         others = [k for k in ks if k != t and float(acc.get(k, 0)) < 1.0]
-        heard = max(others, key=lambda k: post[k]) if others and level != "ok" else None
+        heard = max(others, key=lambda k: post[k]) if others and level in ("check", "off") else None
         res.phones.append(PhoneVerdict(t, wi, round(p_ok, 3), level, heard,
                                        round(float(post[heard]), 3) if heard else 0.0))
     return res
@@ -202,6 +209,7 @@ def as_dict(sc: SoundCheck) -> dict:
     from dataclasses import asdict
     cfg = lang_config(sc.language)
     return {**asdict(sc), "native_flag_rate": cfg.get("native_test_flag_rate"),
+            "unchecked": sc.unchecked,
             "calibrated": "calibrated_on" in cfg}
 
 

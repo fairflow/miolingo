@@ -113,10 +113,12 @@ def main():
     ap.add_argument("--test", required=True)
     ap.add_argument("--n", type=int, default=400)
     ap.add_argument("--cache")
-    ap.add_argument("--check-rate", type=float, default=0.08)
+    ap.add_argument("--check-rate", type=float, default=0.06)
     ap.add_argument("--off-rate", type=float, default=0.02)
     ap.add_argument("--min-count", type=int, default=3)
     ap.add_argument("--accept-weight", type=float, default=0.7)
+    ap.add_argument("--unreliable-rate", type=float, default=0.35,
+                    help="mark a sound unchecked when this share of native tokens score < 0.5")
     ap.add_argument("--accept-rate", type=float, default=0.10,
                     help="auto-accept a variant natives produce for >= this share of a sound")
     ap.add_argument("--min-off", type=float, default=0.02, help="floor for off_threshold")
@@ -163,19 +165,26 @@ def main():
     for k, d in hand.items():
         acc.setdefault(k, {}).update(d)
 
-    # 2b. thresholds from native dev, with the learned acceptance applied
+    # 2b. sounds the recognizer cannot judge for this language: natives' own productions
+    #     fall below p_ok 0.5 too often. Shown as "unchecked", excluded from thresholds.
     probe = {**probe, "accept": acc, "ok_threshold": 0.0}
-    p_dev = np.array([p.p_ok for r in run(dev, probe) for p in r.phones])
+    dev_res = run(dev, probe)
+    n_by, low_by = Counter(), Counter()
+    for r in dev_res:
+        for p in r.phones:
+            n_by[p.phone] += 1; low_by[p.phone] += p.p_ok < 0.5
+    unreliable = sorted(t for t in n_by if n_by[t] >= 15 and low_by[t] / n_by[t] >= a.unreliable_rate)
+    p_dev = np.array([p.p_ok for r in dev_res for p in r.phones if p.phone not in unreliable])
     ok_t = float(np.quantile(p_dev, a.check_rate))
     off_t = float(np.quantile(p_dev, a.off_rate))
     off_t = max(off_t, a.min_off)
     cal = {"inventory": inventory, "ok_threshold": round(ok_t, 4), "off_threshold": round(off_t, 4),
-           "accept_learned": learned}
+           "accept_learned": learned, "unreliable": unreliable}
     cal_run = {**cal, "accept": acc}
 
     # 3. evaluation on native test
     res_test = run(test, cal_run)
-    lv = Counter(p.level for r in res_test for p in r.phones)
+    lv = Counter(p.level for r in res_test for p in r.phones if p.level != "unchecked")
     nph = sum(lv.values())
     per_phone = Counter(); per_phone_flag = Counter()
     for r in res_test:
@@ -217,7 +226,7 @@ def main():
                                     "heard_the_native_sound": round(heard_ok / n, 3)}
     report = {"voice": v, "model": rec.model_id, "n_dev_utts": len(dev), "n_test_utts": len(test),
               "calibration": {k: cal[k] for k in ("ok_threshold", "off_threshold")},
-              "inventory_size": len(inventory), "accept_learned": learned,
+              "inventory_size": len(inventory), "accept_learned": learned, "unreliable": unreliable,
               "native_test": {"phones": nph, "check": round(lv["check"] / nph, 4), "off": round(lv["off"] / nph, 4),
                               "most_flagged_sounds": [{"sound": p, "flagged": f, "n": n} for p, f, n in worst]},
               "simulated_english_speaker_errors": sim}
