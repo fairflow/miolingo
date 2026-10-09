@@ -138,6 +138,13 @@ def _sub_cost(target: str, user: str, lang: str | None) -> float:
     return _feature_distance(target, user) * (1.0 - credit)
 
 
+_VOWEL_CHARS = set("aeiouyøœɛɔɪʊʏæɑəɐɜɒɨʉɯɤʌɶɵɘɞ")
+
+
+def _is_vowel(p: str) -> bool:
+    return bool(p) and p[0] in _VOWEL_CHARS
+
+
 def _sound_check_credit(lang: str, target: str, user: str) -> float:
     """How far the sound check accepts `user` for `target` (0..1), so both scores agree:
       1   the target sound is one the recognizer cannot judge for this language
@@ -150,8 +157,8 @@ def _sound_check_credit(lang: str, target: str, user: str) -> float:
         cfg = lang_config(lang)
     except Exception:
         return 0.0
-    if target in (cfg.get("unreliable") or []):
-        return 1.0
+    if target in (cfg.get("unreliable") or []) and _is_vowel(target) == _is_vowel(user):
+        return 1.0          # only like-for-like: the recognizer confuses vowels with vowels
     try:
         return max(0.0, min(1.0, float((cfg.get("accept") or {}).get(target, {}).get(user, 0))))
     except (TypeError, ValueError):
@@ -242,3 +249,32 @@ def score(user_ipa: str, target_ipa: str, lang: str | None = None,
         target_segs=t,
         user_segs=u,
     )
+
+
+def ops_by_word(user_ipa: str, target_ipa: str, lang: str | None = None) -> list[list[tuple]]:
+    """Display helper: the scorer's own alignment, grouped into the target's words.
+
+    Returns one list per target word of (kind, target, user, cost) with kind in
+    'match' | 'accepted' (a zero-cost substitution: tolerated accent variant, or a
+    sound the recognizer can't judge) | 'substitute' | 'insert' | 'delete'.
+    Inserted user phones join the word of the preceding target phone. Returns [] when
+    the per-word segmentation does not reproduce the scorer's (caller falls back)."""
+    import unicodedata
+    words = [w for w in target_ipa.split() if segment(w)]
+    word_of = [wi for wi, w in enumerate(words) for _ in segment(w)]
+    r = score(user_ipa, target_ipa, lang)
+    if len(word_of) != len(r.target_segs):
+        return []
+    out: list[list[tuple]] = [[] for _ in words]
+    ti = 0
+    nfc = lambda s: unicodedata.normalize("NFC", s)
+    for op in r.ops:
+        wi = word_of[min(ti, len(word_of) - 1)] if op.kind == "insert" and ti < len(word_of) else \
+            word_of[max(ti - 1, 0)] if op.kind == "insert" else word_of[ti]
+        kind = op.kind
+        if kind == "match" and op.target != op.user:
+            kind = "accepted"
+        out[wi].append((kind, nfc(op.target), nfc(op.user), op.cost))
+        if op.kind != "insert":
+            ti += 1
+    return out
