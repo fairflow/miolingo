@@ -12,7 +12,7 @@ three off unless the caller asked for something specific. Toggle: settings
 
 from __future__ import annotations
 
-import streamlit.components.v1 as components
+from ui.html_embed import embed_hidden
 
 _JS = """
 <script>
@@ -40,4 +40,4 @@ _JS = """
 
 def apply(settings: dict) -> None:
     """Call once per render, before st.audio_input."""
-    components.html(_JS % ("true" if settings.get("raw_microphone", True) else "false"), height=0)
+    embed_hidden(_JS % ("true" if settings.get("raw_microphone", True) else "false"))

@@ -18,7 +18,7 @@ Exports
 import string
 import html as _html
 import streamlit as st
-import streamlit.components.v1 as components
+from ui.html_embed import embed_hidden
 from datetime import datetime
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -336,7 +336,7 @@ def render_practice_results(result, key_prefix="practice"):
         st.success("🎉 PERFECT MATCH! Well done!")
         if should_play_sound:
             st.session_state.last_sound_played = result_id
-            components.html(
+            embed_hidden(
                 """
                 <script>
                 (function () {
@@ -376,13 +376,12 @@ def render_practice_results(result, key_prefix="practice"):
                 })();
                 </script>
                 """,
-                height=0,
             )
     elif result['similarity'] >= 0.90:
         st.success(f"✨ Excellent! {result['similarity']:.1%} - Almost perfect!")
         if should_play_sound:
             st.session_state.last_sound_played = result_id
-            components.html(
+            embed_hidden(
                 """
                 <script>
                 (function () {
@@ -422,7 +421,6 @@ def render_practice_results(result, key_prefix="practice"):
                 })();
                 </script>
                 """,
-                height=0,
             )
     else:
         # Dual-channel summary (miolingo-7w3) — show BOTH always; the gap is the
@@ -436,7 +434,8 @@ def render_practice_results(result, key_prefix="practice"):
         _acc = result.get('accuracy_similarity')
         # One compact line so it never responsively stacks: comprehensibility +
         # accuracy together. The gap between them is the diagnostic.
-        _u = "✓ understood" if _understood else f"✗ heard “{result['recognized']}”"
+        from scoring.comparison import display_recognized as _disp
+        _u = "✓ understood" if _understood else f"✗ heard “{_disp(result['recognized'], result['target'])}”"
         _p = f"🎯 **{_acc:.0%}** pronunciation" if _acc is not None else "🎯 — pronunciation"
         st.markdown(f"🗣️ {_u}  ·  {_p}")
         st.caption("Understood = did a listener (Whisper) get the word, forgiving accent · "
@@ -459,7 +458,8 @@ def render_practice_results(result, key_prefix="practice"):
 
     with col2:
         st.subheader("Your Pronunciation")
-        st.write(f"**Recognized:** {result['recognized']}")
+        from scoring.comparison import display_recognized
+        st.write(f"**Recognized:** {display_recognized(result['recognized'], result.get('target', ''))}")
         if result.get('user_ipa'):
             _uipa = result['user_ipa']
             try:   # recognizer output has no word boundaries: group by the target's words

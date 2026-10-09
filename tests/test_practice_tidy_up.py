@@ -52,8 +52,30 @@ def test_trim_keeps_a_quiet_ending_after_a_loud_start():
 def test_raw_mic_injection_follows_setting(monkeypatch):
     from ui import raw_mic
     seen = []
-    monkeypatch.setattr(raw_mic.components, "html", lambda html, height: seen.append(html))
+    monkeypatch.setattr(raw_mic, "embed_hidden", lambda html: seen.append(html))
     raw_mic.apply({"raw_microphone": True})
     raw_mic.apply({"raw_microphone": False})
     assert "__mioRawMic = true" in seen[0] and "__mioRawMic = false" in seen[1]
     assert "autoGainControl: false" in seen[0] and "noiseSuppression: false" in seen[0]
+
+
+def test_recognized_display_drops_punctuation_and_follows_target_case():
+    from scoring.comparison import display_recognized
+    assert display_recognized("ich möchte einen termin vereinbaren.",
+                              "Ich möchte einen Termin vereinbaren") == "Ich möchte einen Termin vereinbaren"
+    assert display_recognized("wo ist der bahnhof", "Wo ist der Bahnhof?") == "Wo ist der Bahnhof"
+    assert display_recognized("ich möchte einen termin vereinen.",
+                              "Ich möchte einen Termin vereinbaren") == "Ich möchte einen Termin vereinen"
+    assert display_recognized("c'est la vie!", "C’est la vie") == "C'est la vie"
+
+
+def test_quiet_recording_is_levelled_but_silence_is_not_blown_up():
+    from scoring.practice import trim_silence
+    sr = 16000
+    t = np.arange(sr) / sr
+    quiet = 0.02 * np.sin(2 * np.pi * 200 * t)
+    y, _ = sf.read(io.BytesIO(trim_silence(_wav(np.concatenate([np.zeros(sr // 2), quiet, np.zeros(sr // 2)])))[0]))
+    assert 0.3 < np.max(np.abs(y)) <= 0.75                    # x20 cap -> 0.4
+    loud = 0.8 * np.sin(2 * np.pi * 200 * t)
+    y, _ = sf.read(io.BytesIO(trim_silence(_wav(loud))[0]))
+    assert np.max(np.abs(y)) == pytest.approx(0.8, abs=0.01)  # already loud: untouched

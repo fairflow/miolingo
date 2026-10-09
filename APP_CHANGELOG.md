@@ -10,6 +10,15 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.12.2-claude-dev] - 2026-10-09
+
+### Fixed
+
+- Recognized text shown without punctuation and with the target's capitalisation (punctuation is never scored).
+- Quiet recordings (raw microphone) levelled before recognition: linear gain, capped at +26 dB.
+- Silenced Streamlit file-watcher 'No module named torchvision' log noise; hidden JS embeds use st.iframe.
+
+
 ## [7.12.1-claude-dev] - 2026-10-09
 
 ### Fixed
