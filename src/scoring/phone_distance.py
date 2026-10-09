@@ -70,6 +70,44 @@ def segment(ipa: str) -> list[str]:
     return _FT.ipa_segs(_clean(ipa))
 
 
+def group_by_target_words(user_ipa: str, target_ipa: str) -> str:
+    """Display helper: the recognizer's phone stream (no word boundaries) grouped into
+    the target's words by edit-distance alignment, e.g. 'ɪ ç m œ ç t ə' + 'ɪç mœçtə'
+    -> 'ɪç mœçtə'. Extra user phones join the word of the previous aligned phone."""
+    words = [w for w in target_ipa.split() if segment(w)]
+    tseg = [(p, wi) for wi, w in enumerate(words) for p in segment(w)]
+    useg = segment(user_ipa)
+    if not tseg or not useg:
+        return user_ipa
+    n, m = len(tseg), len(useg)
+    D = [[0.0] * (m + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        D[i][0] = i
+    for j in range(1, m + 1):
+        D[0][j] = j
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            D[i][j] = min(D[i - 1][j - 1] + (0 if tseg[i - 1][0] == useg[j - 1] else 0.9),
+                          D[i - 1][j] + 1, D[i][j - 1] + 1)
+    word_of = [None] * m
+    i, j = n, m
+    while j > 0:
+        if i > 0 and D[i][j] == D[i - 1][j - 1] + (0 if tseg[i - 1][0] == useg[j - 1] else 0.9):
+            word_of[j - 1] = tseg[i - 1][1]; i -= 1; j -= 1
+        elif i > 0 and D[i][j] == D[i - 1][j] + 1:
+            i -= 1
+        else:
+            word_of[j - 1] = tseg[max(i - 1, 0)][1]; j -= 1
+    out, cur = [], None
+    for p, w in zip(useg, word_of):
+        if out and w == cur:
+            out[-1] += p
+        else:
+            out.append(p); cur = w
+    import unicodedata
+    return unicodedata.normalize("NFC", " ".join(out))
+
+
 @dataclass
 class Op:
     kind: str          # 'match' | 'substitute' | 'insert' | 'delete'
@@ -94,7 +132,20 @@ def _sub_cost(target: str, user: str, lang: str | None) -> float:
         return 0.0
     if lang is not None and fold_map_is_tolerated(lang, target, user):
         return 0.0
+    if lang is not None and _sound_check_accepts(lang, target, user):
+        return 0.0
     return _feature_distance(target, user)
+
+
+def _sound_check_accepts(lang: str, target: str, user: str) -> bool:
+    """Variants the sound check fully accepts (data/sound_check.yaml, weight 1), e.g.
+    German r: espeak [ɾ] vs trilled [r] / uvular [ʁ]. Keeps both scores consistent for
+    languages the espeak fold-map does not cover (de, es, it)."""
+    try:
+        from scoring.sound_check import lang_config
+        return float((lang_config(lang).get("accept") or {}).get(target, {}).get(user, 0)) >= 1.0
+    except Exception:
+        return False
 
 
 def fold_map_is_tolerated(lang: str, a: str, b: str) -> bool:
