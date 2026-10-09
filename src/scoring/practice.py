@@ -159,23 +159,64 @@ def practice_word_from_audio(
             temp_audio, settings, language, warn_fn=warn_fn
         )
 
-        # User phonemes and IPA
-        user_phonemes = get_phonemes(recognized_text, voice)
-        user_ipa = get_ipa(recognized_text, voice)
+        # User phonemes and IPA — TWO complementary channels (miolingo-7w3):
+        #   "asr_text"  (comprehensibility): espeak-ng G2P of the recognized TEXT
+        #               — what a listener UNDERSTOOD (Whisper recovers the word
+        #               even from imperfect pronunciation).
+        #   "acoustic"  (accuracy): phones read DIRECTLY from the waveform via a
+        #               per-language phoneme-CTC recognizer (Cnam for fr, fb else)
+        #               — what the learner actually PRODUCED.
+        # The target IPA (correct_ipa) is phonemized whole-phrase by espeak, so
+        # liaison is handled for multi-word targets (miolingo-0x9); the acoustic
+        # channel therefore works for phrases, not just single words.
+        # Compute BOTH channels every attempt (miolingo-7w3) so the display can
+        # show comprehensibility AND accuracy together — the GAP between them is
+        # the diagnostic. realization_source only picks which is the PRIMARY
+        # similarity/user_ipa (back-compat); both are always stored.
+        # accept new names (comprehensibility/accuracy) and legacy (asr_text/acoustic)
+        realization_source = settings.get("realization_source", "comprehensibility")
 
-        # Normalise for comparison
-        correct_phonemes_normalized = normalize_for_phoneme_scoring(
-            correct_phonemes
-        )
-        user_phonemes_normalized = normalize_for_phoneme_scoring(user_phonemes)
+        # comprehensibility IPA = espeak G2P of the recognized word
+        comp_ipa = get_ipa(recognized_text, voice)
+        # accuracy IPA = phones read directly from the waveform (or "" if unavailable)
+        from audio.phone_recognizer import phones_from_audio
+        acc_ipa = phones_from_audio(temp_audio, voice, warn_fn=warn_fn)
 
-        # Score
         algorithm = settings.get("comparison_algorithm", "edit_distance")
-        exact_match, similarity, edit_distance = compare_phonemes(
-            user_phonemes_normalized,
-            correct_phonemes_normalized,
-            algorithm=algorithm,
-        )
+
+        def _score_channel(uipa, accuracy_curve):
+            """Return (exact, similarity, distance) for one channel's IPA."""
+            if not uipa:
+                return (False, 0.0, None)
+            if algorithm == "weighted_phone":
+                from scoring.phone_distance import score as _phone_score
+                if accuracy_curve:
+                    # stretched curve: real errors register, single error in a
+                    # long phrase stays visible (miolingo-7w3/h8q). Tunable.
+                    _r = _phone_score(uipa, correct_ipa, voice,
+                                      gain=4.0, exp=0.6, sqrt_norm=True)
+                else:
+                    _r = _phone_score(uipa, correct_ipa, voice)
+                return (_r.exact_match, _r.similarity, round(_r.distance, 3))
+            up = normalize_for_phoneme_scoring(uipa)
+            cp = normalize_for_phoneme_scoring(correct_ipa)
+            return compare_phonemes(up, cp, algorithm=algorithm)
+
+        comp_exact, comp_sim, comp_dist = _score_channel(comp_ipa, accuracy_curve=False)
+        acc_exact, acc_sim, acc_dist = _score_channel(acc_ipa, accuracy_curve=True)
+
+        # Primary channel (drives the legacy single-score fields + verdict).
+        use_accuracy = realization_source in ("accuracy", "acoustic") and bool(acc_ipa)
+        if use_accuracy:
+            user_ipa, user_phonemes = acc_ipa, acc_ipa
+            exact_match, similarity, edit_distance = acc_exact, acc_sim, acc_dist
+        else:
+            user_ipa = comp_ipa
+            user_phonemes = get_phonemes(recognized_text, voice)
+            exact_match, similarity, edit_distance = comp_exact, comp_sim, comp_dist
+
+        correct_phonemes_normalized = normalize_for_phoneme_scoring(correct_phonemes)
+        user_phonemes_normalized = normalize_for_phoneme_scoring(user_phonemes)
 
         result = {
             "target": text,
@@ -191,11 +232,49 @@ def practice_word_from_audio(
             "user_phonemes_normalized": user_phonemes_normalized,
             "user_audio_bytes": audio_bytes,
             "user_audio_trimmed_bytes": trimmed_wav_bytes,
+            # BOTH channels, always present, for the dual-channel display (7w3):
+            "comprehensibility_ipa": comp_ipa,
+            "comprehensibility_similarity": comp_sim,
+            "accuracy_ipa": acc_ipa,
+            "accuracy_similarity": acc_sim if acc_ipa else None,
         }
 
         # Delegate session persistence to caller
         if on_result is not None:
             on_result(result)
+
+        # DEBUG-ONLY (miolingo-0x9): ARCHIVE every recording so the acoustic
+        # recognizer can be evaluated on a real corpus. Each take is saved under
+        # MIO_AUDIO_DUMP_DIR as <target>_<NNN>.wav with a JSONL sidecar capturing
+        # the full scoring context. Throwaway hook on the audio-phones branch;
+        # not part of the feature. Guarded by debug_mode, silently best-effort,
+        # never overwrites (monotonic index).
+        if settings.get("debug_mode", False):
+            try:
+                import os, re, json, glob
+                _dir = os.environ.get("MIO_AUDIO_DUMP_DIR")
+                if _dir:
+                    os.makedirs(_dir, exist_ok=True)
+                    _slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "rec"
+                    _n = len(glob.glob(os.path.join(_dir, f"{_slug}_*.wav")))
+                    _stem = os.path.join(_dir, f"{_slug}_{_n:03d}")
+                    with open(_stem + ".wav", "wb") as _f:
+                        _f.write(trimmed_wav_bytes)
+                    with open(os.path.join(_dir, "log.jsonl"), "a") as _lf:
+                        _lf.write(json.dumps({
+                            "file": os.path.basename(_stem + ".wav"),
+                            "target": text,
+                            "voice": voice,
+                            "recognized": recognized_text,
+                            "realization_source": realization_source,
+                            "algorithm": algorithm,
+                            "user_ipa": user_ipa,
+                            "correct_ipa": correct_ipa,
+                            "similarity": similarity,
+                            "exact_match": exact_match,
+                        }) + "\n")
+            except Exception:
+                pass
 
         return result
 

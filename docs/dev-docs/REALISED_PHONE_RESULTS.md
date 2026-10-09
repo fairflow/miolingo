@@ -1,0 +1,189 @@
+# Realised-phone: status, test results, and what approval needs
+
+Companion to [`HANDOFF.md`](../../HANDOFF.md) and the [spec](REALISED_PHONE_SPEC.md).
+Beads: `miolingo-6vo` (.2 data model, .3 slice, .4 golden).
+
+## What is built (en → es, /r/ slice)
+
+| Handoff item | Where | State |
+|---|---|---|
+| Candidate inventory (§1a) | `src/realised_phone/data/pairs/en-es.yaml` | Draft for review. /r/ and /ɾ/ are active; VOT, spirants and vowels are data only. |
+| Source 1, extended-inventory alignment | — | Experimental track, not started (proposal below). |
+| Source 2, recognizer on the aligned window | `realised_phone/recognizer.py` | Works with xlsr-53. Candidates the model can't name are reported as `unsupported`. |
+| Source 3, contrast detector | `realised_phone/detectors/rhotic.py` | Rhotic detector (occlusions + F3). Thresholds calibrated on Common Phone dev. |
+| Combination (§1c) | `realised_phone/combine.py` | Sources agree → confident; they disagree → uncertain. |
+| Forced alignment | `realised_phone/align.py` | Calls MFA 3.x via `align_one` subprocess. |
+| Whisper gate | `realised_phone/gate.py` | Word recall of the target words, accent-insensitive. In practice it reuses the transcript already in the result. |
+| Model registry + approval gate (§5) | `realised_phone/registry.py`, `data/model_registry.yaml` | **Nothing is approved.** Candidates only run with `allow_candidates`, and their output is marked not learner-visible. |
+| See / hear (§2) | `realised_phone/view.py`, `src/ui/realised_phone_panel.py` | Debug-only panel: learner word/sound/slowed audio, native exemplar, spectrogram, occlusion and F3 plots. |
+| Native exemplar bank | `scripts/realised_phone/build_native_bank.py` | Script ready. The bank still has to be built on the M4 from Common Phone es. |
+| Coaching ladder (§3) | `realised_phone/coaching.py`, `data/coaching/en-es.yaml` | Draft content for r→tap, r→english_r, ɾ→english_r and ɾ→trill. Refused unless reviewed. |
+| Learner model (§4) | `realised_phone/learner.py`, `data/priors/en-es.yaml` | Beta per (phone, context), escalation, improvement feedback. The priors are a draft and the citations are unverified. |
+| Golden tests (step 4) | `tests/golden/realised_phone/manifest.yaml`, `scripts/realised_phone/run_golden.py` | 24 Common Phone clips plus 2 LibriSpeech: 0 confident-wrong. Learner entries are still TODO. |
+| Calibration | `scripts/realised_phone/calibrate_rhotic.py` | Run on Common Phone dev. The calibrated thresholds are shipped: `calibrated: true`. |
+| Evaluation for approval | `scripts/realised_phone/eval_rhotics.py`, `eval_alignment.py` | Common Phone test results are below. The registry `results` point to them. |
+| Common Phone data | `scripts/realised_phone/extract_cp_parquet.py` | Pulls Spanish and English from the Hugging Face Parquet release, a way round the 13 GB Zenodo tarball. |
+| Batch alignment | `realised_phone/align.py` `mfa_align_batch` | One MFA run per corpus, with a cache. Utterances MFA can't align are remembered and not retried. |
+
+Tests: `venv/bin/python -m pytest tests/realised_phone` has 58 unit tests. The golden tests
+run only when MFA and the clips are present.
+
+## Common Phone results (2026-09-30) — the evidence for your review
+
+This run used Common Phone from the author's Hugging Face release (`pklumpp/CommonPhoneDataset`,
+CC0, 16 kHz), extracted with `scripts/realised_phone/extract_cp_parquet.py`. At most 3
+utterances were taken per speaker.
+
+- **Calibration** used the dev split: 400 Spanish utterances (136 speakers) and 400 English
+  (202 speakers).
+- **Evaluation** used the test split: 400 Spanish (138 speakers) and 400 English (192 speakers).
+- **Labels** are the aligner's dictionary phones. Spanish [r] counts as trill and [ɾ] as tap;
+  English [ɹ] counts as English r, and English codas are excluded.
+- **Checking the labels:** Common Phone's own IPA alignment agrees with MFA on tap vs trill for
+  612 of 614 non-coda rhotics. Every disagreement is in a coda, where the MFA dictionary writes
+  a trill and the contrast is neutralised anyway.
+
+**Combined verdicts, non-coda, test split, with the dev-calibrated thresholds now shipped**
+(`results/rhotics_cp-test-cal-dev.json`):
+
+| label | tokens | confident | confident & correct | confident & wrong |
+|---|---|---|---|---|
+| tap (native es) | 613 | 362 (59%) | 360 (**99.4%**) | 1 as trill, 1 as English r |
+| trill (native es) | 153 | 38 (25%) | 31 (**81.6%**) | 6 as tap, 1 as English r |
+| English [ɹ] (English speakers) | 437 | 170 (39%) | 167 (**98.2%**) | 2 as trill, 1 as tap |
+| **all** | 1203 | 570 (47.4%) | **97.9%** | 12 |
+
+With the shipped *default* thresholds the result was 96.9% at 48.5% coverage
+(`results/rhotics_cp-test-shipped.json`). The calibrated thresholds improved held-out accuracy,
+so they were adopted in `calibration/rhotic.yaml`. Only two values changed: occlusion depth went
+from 5 to 8 dB, and the trill contact interval from 25–75 to 25–60 ms.
+
+What each source contributes (non-coda test tokens where the source reached a decision):
+- **Recognizer, xlsr-53 restricted to the candidates:**
+  - taps 560 of 581 right, trills 84 of 98, English [ɹ] 391 of 408;
+  - it abstains on about 8% of tokens.
+  - It is the strong source.
+- **Detector, occlusions + F3:**
+  - weak on its own: dev balanced accuracy 0.66 at 68% coverage;
+  - it confuses English [ɹ] with tap (stop releases next to the r look like contacts) and misreads trills.
+  - Its value is as an independent second vote. A confident verdict needs both sources to
+    agree, so each of the 12 confident errors is a case where both were wrong together.
+
+**Alignment** (`results/align_cp-es-test.json`): MFA against Common Phone's alignment.
+- Rhotic midpoint difference: median 11 ms, 90th percentile 44 ms.
+- 73% of rhotics are within 20 ms.
+- 80 of 400 utterances had a different number of rhotics in the two alignments and were skipped.
+
+**Golden clips** (`tests/golden/realised_phone/manifest.yaml`, 24 Common Phone test clips):
+- Chosen at random with a fixed seed from tokens both aligners agree on, one speaker per clip,
+  **not** filtered on our own output.
+- Results: 19 pass, 5 abstain (uncertain), 2 soft failures (tentative and wrong), **0 confident
+  wrong**.
+- The two LibriSpeech clips also pass.
+
+**Against the acceptance bar proposed below:**
+- Confident accuracy ≥ 95%: **met** (97.9%).
+- Coverage ≥ 50% per class: **not met.** Tap 59%, trill 25%, English r 39%.
+- No English-r claims on native speech: **not met strictly.** There were 2 confident English-r
+  verdicts among 766 native tokens.
+- **The trill class is the weak point.**
+  - Confident trill verdicts are wrong 18% of the time, and the errors are mostly "tap". In a
+    learner that would mean telling someone their correct trill was a tap.
+  - Some of these may be label noise: native read speech sometimes reduces a trill, and the
+    labels are dictionary forms, not what was actually heard. Listening to the 6 cases would
+    settle it. They're in the JSON with speaker, word and time.
+  - A cheap mitigation, if you want one (your call; I haven't changed anything):
+    1. Only show a "you made an error" verdict when it's confident *and* the recognizer's margin
+       is above a higher threshold.
+    2. Treat trill→tap verdicts as tentative until learner data exists.
+
+**What the Common Phone data can't show:** English-L1 learners speaking Spanish. English [ɹ]
+here comes from English speech, and learner recordings (including [ʁ]) are still needed. They
+are the `-TODO` entries in the golden manifest.
+
+## Smoke results (2026-09-29, cloud container) — *not* approval evidence
+
+`research/phonetics/realised_phone/results/rhotics_smoke-minds14es8-libri8.json`
+
+- **Native Spanish:** 8 MINDS-14 es-ES utterances. This is phone-band audio (8 kHz upsampled),
+  giving 27 [ɾ] and 11 [r] tokens.
+- **English [ɹ]:** 8 LibriSpeech utterances, 33 [ɹ] tokens. This is English speech, so it
+  stands in for "English r" but is not learner Spanish.
+- Alignment used MFA 3.4.2 with `spanish_mfa` 3.2.0 and `english_mfa` / `english_us_mfa`.
+
+Findings (non-coda tokens unless stated):
+- **Combined verdicts: 22 of 22 confident verdicts were correct**, at 52% coverage. The rest are
+  tentative or uncertain, never a wrong claim.
+- **Recognizer (xlsr-53, constrained to candidates):**
+  - It names English [ɹ] in 32 of 33 windows.
+  - On native Spanish it never favours [ɹ]; the highest [ɹ] share was 0.03.
+  - It gets tap vs trill right on 34 of 38 native tokens. Trills are often near-ties with tap,
+    so they fall below the margin and don't vote.
+- **Detector:**
+  - Taps: good (12 right, 3 abstain).
+  - Native trills: weak on this audio (2 of 8). Real trills in phone-band casual speech often
+    show only one clear contact.
+  - English [ɹ]: 23 of 33 before calibration.
+  - F3 is unreliable on narrowband audio, so the detector refuses to assert English r there.
+    It checks the energy above 4.1 kHz: LibriSpeech measures −9 to −14 dB, phone audio
+    −37 to −48 dB, and the cut-off is −30 dB.
+- **Real-data corrections to the design:**
+  - F3 lowering is checked before occlusion counting, because stop closures next to [ɹ]
+    (*grave*, *principles*) produce false dips.
+  - Tap and trill are both accepted in codas.
+  - A floor on the recognizer's raw posterior stops it deciding on near-silent windows.
+- Calibration on the same smoke tokens gives balanced accuracy 0.88 at 82% coverage. This
+  was **not** adopted: the set is too small and the audio is mismatched.
+
+## What approval needs (per source; your call)
+
+1. ~~Build the evaluation set from Common Phone es~~. Done from the cloud (above). Still needed:
+   **learner recordings** (English-L1 Spanish, from `$MIO_AUDIO_DUMP_DIR` or new ones), and the
+   native exemplar bank for the see/hear panel. The bank can also be built from the Common Phone
+   extract:
+   ```bash
+   export MIO_MFA_CMD="conda run -n mfa mfa"      # see install notes in HANDOFF.md
+   # Common Phone es from the HF Parquet shards (dev-00002 holds es; test-00001/2 hold es):
+   venv/bin/python scripts/realised_phone/extract_cp_parquet.py dev-00002-of-00004.parquet --lang es --split dev --out ~/datasets/cp_hf --n 2000 --per-speaker 10
+   venv/bin/python scripts/realised_phone/build_native_bank.py --tsv ~/datasets/cp_hf/es/dev/list.tsv --bank ~/datasets/miolingo_native_bank
+   # re-run the evaluation after adding learner clips (lists: wav<TAB>text<TAB>speaker):
+   venv/bin/python scripts/realised_phone/eval_rhotics.py --native-tsv ~/datasets/cp_hf/es/test/list.tsv --english-tsv <learner or English list> --cache ~/.cache/mio_align --post-cache ~/.cache/mio_post --label <name> --out research/phonetics/realised_phone/results/rhotics_<name>.json
+   ```
+2. **Golden manifest:** the Common Phone clips are done. Add **learner clips** (English-L1
+   Spanish, including an [ʁ] attempt) in place of the `-TODO` entries, then run
+   `scripts/realised_phone/run_golden.py --allow-candidates`.
+3. **Review** the inventory, priors (check each citation), coaching drafts and the
+   calibration output. Set `status: reviewed` or `status: approved` with `approved_by` and
+   `approved_on` in the YAML files.
+4. **Suggested acceptance bar** (a proposal; you decide): on CP-es + learner clips, confident
+   verdicts ≥ 95% correct, with trill/tap/english_r coverage ≥ 50% each, and no English-r
+   claims on native speech. Status on Common Phone: accuracy met (97.9%); coverage and the
+   no-English-r rule not yet met (see above). Trill is the weak class.
+
+## Experimental track: extended-inventory alignment (§1b source 1, §5)
+
+This is not on the critical path. It is proposed here so the pass/fail criteria are agreed
+**before** anything is run:
+
+- **Idea:** adapt the MFA Spanish model on pooled Spanish and English Common Voice audio,
+  using a merged IPA phone set so that [ɹ] exists as a unit. Then add variant pronunciations
+  (e.g. `perro  p e ɹ o`) and let the aligner choose between them.
+- **Comparison:** the same eval set as `eval_rhotics.py`. The aligner's variant choice is
+  treated as a third evidence source.
+- **Proposed pass criteria:**
+  - variant-choice accuracy ≥ the detector's accuracy on trill/tap/english_r;
+  - it must add confident coverage without lowering confident accuracy below the bar above;
+  - boundary error vs the CP MAU tier must not be worse than stock `spanish_mfa`.
+- **Proposed fail criteria:** any of the above missed; or GMM adaptation can't be trained
+  reproducibly on the M4 in a day. This matches your doubt that GMM training will be good
+  enough.
+
+## Environment notes
+
+- MFA is conda-forge only. `MIO_MFA_CMD` sets how it's invoked; if you give the env's `mfa`
+  path directly, that env's `bin/` must also be on `PATH` (for openfst and kaldi).
+  `MIO_MFA_MODELS` points at a models directory if you don't use `mfa model download`.
+- The xlsr-53 espeak tokenizer needs `phonemizer` and a system `espeak-ng`
+  (`requirements-wav2vec2.txt`).
+- Alignment latency is about 11 s per `align_one` call on a cloud container, including cold
+  start. Measure it on the M4; a long-lived aligner process is the obvious optimisation.

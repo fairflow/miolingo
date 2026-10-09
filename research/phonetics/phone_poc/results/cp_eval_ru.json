@@ -1,0 +1,32 @@
+{
+  "corpus": "common_phone",
+  "lang": "ru",
+  "split": "test",
+  "n_requested": 150,
+  "n_items": 150,
+  "reference": "espeak-G2P of transcript (weighted_phone metric)",
+  "metric": "mean 1 - phone_distance.similarity",
+  "results": {
+    "fb": {
+      "model_id": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.1333,
+      "load_and_run_s": 42.2
+    },
+    "fb-xlsr": {
+      "model_id": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.14,
+      "load_and_run_s": 39.9
+    },
+    "pklumpp": {
+      "model_id": "pklumpp/Wav2Vec2_CommonPhone",
+      "n_scored": 150,
+      "n_failed": 0,
+      "mean_weighted_error": 0.0733,
+      "load_and_run_s": 37.0
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{
+ "generator": "web/oracle/scripts/gen_golden.py",
+ "languages": [
+  "pt-br",
+  "pt-pt",
+  "fr",
+  "nl",
+  "en"
+ ],
+ "checks": [
+  {
+   "lang": "pt-br",
+   "a": "i",
+   "b": "j",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-br",
+   "a": "s",
+   "b": "z",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-br",
+   "a": "w",
+   "b": "ʊ",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-br",
+   "a": "a",
+   "b": "aɪ",
+   "tolerated": false
+  },
+  {
+   "lang": "pt-pt",
+   "a": "a",
+   "b": "ɐ",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-pt",
+   "a": "e",
+   "b": "ɨ",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-pt",
+   "a": "o",
+   "b": "u",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-pt",
+   "a": "w",
+   "b": "ʊ",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-pt",
+   "a": "ɛ",
+   "b": "ɨ",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-pt",
+   "a": "ʃ",
+   "b": "ʒ",
+   "tolerated": true
+  },
+  {
+   "lang": "pt-pt",
+   "a": "a",
+   "b": "aɪ",
+   "tolerated": false
+  },
+  {
+   "lang": "fr",
+   "a": "i",
+   "b": "j",
+   "tolerated": true
+  },
+  {
+   "lang": "fr",
+   "a": "s",
+   "b": "z",
+   "tolerated": true
+  },
+  {
+   "lang": "fr",
+   "a": "ə",
+   "b": "ʌ",
+   "tolerated": true
+  },
+  {
+   "lang": "fr",
+   "a": "a",
+   "b": "a-",
+   "tolerated": false
+  },
+  {
+   "lang": "nl",
+   "a": "eː",
+   "b": "ə",
+   "tolerated": true
+  },
+  {
+   "lang": "nl",
+   "a": "ə",
+   "b": "ɛ",
+   "tolerated": true
+  },
+  {
+   "lang": "nl",
+   "a": "aː",
+   "b": "b",
+   "tolerated": false
+  },
+  {
+   "lang": "en",
+   "a": "a",
+   "b": "ɐ",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "d",
+   "b": "t",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "n",
+   "b": "ŋ",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "r",
+   "b": "ɹ",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "s",
+   "b": "z",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "ɒ",
+   "b": "ə",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "ɒ",
+   "b": "əʊ",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "ɔ",
+   "b": "ə",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "ɔː",
+   "b": "ə",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "ə",
+   "b": "əʊ",
+   "tolerated": true
+  },
+  {
+   "lang": "en",
+   "a": "a",
+   "b": "aɪ",
+   "tolerated": false
+  }
+ ]
+}

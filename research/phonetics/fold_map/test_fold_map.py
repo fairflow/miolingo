@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fold_map  # noqa: E402
 
 
-ALL_LANGS = ["pt", "pt-pt", "fr", "nl", "en"]
+ALL_LANGS = ["pt-br", "pt-pt", "fr", "nl", "en"]
 
 
 @pytest.mark.parametrize("lang", ALL_LANGS)
@@ -27,20 +27,21 @@ def test_each_language_loads(lang):
 
 
 def test_language_aliases():
-    assert fold_map.tolerated_pairs("pt-br") == fold_map.tolerated_pairs("pt")
+    # bare "pt" resolves to Brazilian (Miolingo's Portuguese)
+    assert fold_map.tolerated_pairs("pt") == fold_map.tolerated_pairs("pt-br")
     assert fold_map.tolerated_pairs("en-gb") == fold_map.tolerated_pairs("en")
     with pytest.raises(KeyError):
         fold_map.tolerated_pairs("xx")
 
 
 def test_identity_always_tolerated():
-    assert fold_map.is_tolerated("pt", "a", "a")
+    assert fold_map.is_tolerated("pt-br", "a", "a")
 
 
 def test_tolerated_pairs_are_symmetric():
-    # pt s# -> z before voiced: a tolerated accent realization
-    assert fold_map.is_tolerated("pt", "z", "ʃ")
-    assert fold_map.is_tolerated("pt", "ʃ", "z")
+    # pt-br s -> z before voiced: a tolerated accent realization
+    assert fold_map.is_tolerated("pt-br", "s", "z")
+    assert fold_map.is_tolerated("pt-br", "z", "s")
 
 
 def test_pt_pt_unstressed_reduction_tolerated():

@@ -1,0 +1,6 @@
+# Sidecar-specific deps; the heavy stack (torch, transformers, whisper,
+# panphon, soundfile) comes from the repo venv it already lives in.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+httpx>=0.27  # starlette TestClient
