@@ -10,6 +10,14 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.12.4-claude-dev] - 2026-10-09
+
+### Fixed
+
+- Detailed phoneme analysis uses the scorer's own alignment: accepted variants / not-judged sounds shown as such, phones grouped into words (diphthongs kept together), weighted distance labelled.
+- Not-judged sounds (German ö/ü) are only excused when heard as another vowel, so the alignment can't shift onto consonants.
+
+
 ## [7.12.3-claude-dev] - 2026-10-09
 
 ### Fixed

@@ -20,7 +20,6 @@ import html as _html
 import streamlit as st
 from ui.html_embed import embed_hidden
 from datetime import datetime
-from difflib import SequenceMatcher
 from pathlib import Path
 
 import app_mysql
@@ -511,12 +510,19 @@ def render_practice_results(result, key_prefix="practice"):
         st.write(f"**Algorithm:** {st.session_state.settings.get('comparison_algorithm', 'edit_distance')}")
 
         if result.get('edit_distance') is not None:
-            st.write(f"**Edit Distance:** {result['edit_distance']} edit(s) needed")
+            if st.session_state.settings.get('comparison_algorithm') == 'weighted_phone':
+                st.write(f"**Weighted distance:** {result['edit_distance']} "
+                         "(sum of sound differences; 1.0 = one completely different sound)")
+            else:
+                st.write(f"**Edit Distance:** {result['edit_distance']} edit(s) needed")
 
         correct_ipa = result.get('correct_ipa', '') or ''
         user_ipa = result.get('user_ipa', '') or ''
 
-        st.write("**IPA (from eSpeak, for readability):**")
+        if result.get('accuracy_ipa') and user_ipa == result['accuracy_ipa']:
+            st.write("**IPA** (target from eSpeak; yours from the phone recognizer):")
+        else:
+            st.write("**IPA (from eSpeak, for readability):**")
         col_a, col_b = st.columns(2)
         with col_a:
             if correct_ipa:
@@ -526,78 +532,66 @@ def render_practice_results(result, key_prefix="practice"):
             st.caption("Target")
         with col_b:
             if user_ipa:
-                st.markdown(format_ipa(user_ipa), unsafe_allow_html=True)
+                try:
+                    from scoring.phone_distance import group_by_target_words as _grp
+                    _shown = _grp(user_ipa, correct_ipa) if correct_ipa else user_ipa
+                except Exception:
+                    _shown = user_ipa
+                st.markdown(format_ipa(_shown), unsafe_allow_html=True)
             else:
                 st.write("(no IPA available)")
             st.caption("Your Pronunciation")
 
-        # Diff over PHONES using the SAME normalization the scorer uses
-        # (scoring.phone_distance.segment → _clean strips stress, '-', ties,
-        # spaces). This keeps the displayed comparison consistent with the score
-        # and removes stray artefacts (no leftover stress marks, clitic '-', or
-        # filler glyphs that look like phones). (miolingo-7w3)
-        from scoring.phone_distance import segment as _segment
-        target_segs = _segment(correct_ipa)
-        user_segs = _segment(user_ipa)
+        # Phone comparison = the weighted scorer's OWN alignment and costs
+        # (scoring.phone_distance.ops_by_word), grouped into the target's words, so the
+        # display can never disagree with the score: accepted accent variants and
+        # sounds the recognizer can't judge (sound_check.yaml) are shown as such.
+        from scoring.phone_distance import ops_by_word as _ops_by_word
+        _voice = st.session_state.settings.get('voice', '')
+        _words = _ops_by_word(user_ipa, correct_ipa, _voice) if correct_ipa and user_ipa else []
 
         st.write("**Detailed phone comparison:**")
-        if target_segs and target_segs == user_segs:
-            st.success("🎯 Phones are identical!")
-        elif target_segs or user_segs:
-            # Legend — use a vertical bar separator so it can't be confused with
-            # any in-diff marker; missing/added phones are shown as a gap '∅'.
-            st.caption("**Legend:** 🟦 different sound │ 🟩 sound you added │ 🟥 sound missing │ ∅ = gap (nothing there)")
+        if not _words:
+            st.info("No IPA available for detailed comparison.")
+        else:
+            _all = [o for w in _words for o in w]
+            _n = {k: sum(1 for o in _all if o[0] == k)
+                  for k in ("match", "accepted", "substitute", "insert", "delete")}
+            if _n["substitute"] + _n["insert"] + _n["delete"] == 0:
+                st.success("🎯 Every sound matched" + (" (with accepted variants)" if _n["accepted"] else "") + "!")
+            st.caption("**Legend:** 🟦 different sound │ 🟩 sound you added │ 🟥 sound missing │ "
+                       "⬜ accepted variant / not judged │ ∅ = gap (nothing there)")
+            st.write(f"**Operations:** {_n['match']} matches, {_n['accepted']} accepted, "
+                     f"{_n['substitute']} substitutions, {_n['insert']} insertions, {_n['delete']} deletions")
+            _style = {"substitute": "background-color: #ADD8E6;", "insert": "background-color: #90EE90;",
+                      "delete": "background-color: #FFB6C6;",
+                      "accepted": "background-color: #EEEEEE; text-decoration: underline dotted;"}
 
-            GAP = "∅"
+            def _cell(text, kind, tip=""):
+                text = _html.escape(text)
+                if kind == "match":
+                    return text
+                t = f' title="{_html.escape(tip)}"' if tip else ""
+                return f'<span style="{_style[kind]} padding: 0 1px;"{t}>{text}</span>'
 
-            def _colorize_diff(target: list, user: list) -> tuple[str, str]:
-                # replace: light blue, insert: light green, delete: light pink.
-                matcher_local = SequenceMatcher(None, target, user)
-                target_chunks: list[str] = []
-                user_chunks: list[str] = []
-
-                def _join(segs):
-                    return _html.escape(" ".join(segs))
-
-                for tag, i1, i2, j1, j2 in matcher_local.get_opcodes():
-                    t_seg = target[i1:i2]
-                    u_seg = user[j1:j2]
-                    if tag == 'equal':
-                        target_chunks.append(_join(t_seg))
-                        user_chunks.append(_join(u_seg))
-                    elif tag == 'replace':
-                        target_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_join(t_seg)}</span>')
-                        user_chunks.append(f'<span style="background-color: #ADD8E6; padding: 0 2px;">{_join(u_seg)}</span>')
-                    elif tag == 'insert':
-                        target_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{GAP}</span>')
-                        user_chunks.append(f'<span style="background-color: #90EE90; padding: 0 2px;">{_join(u_seg)}</span>')
-                    elif tag == 'delete':
-                        target_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{_join(t_seg)}</span>')
-                        user_chunks.append(f'<span style="background-color: #FFB6C6; padding: 0 2px;">{GAP}</span>')
-
-                return ' '.join(c for c in target_chunks if c), ' '.join(c for c in user_chunks if c)
-
-            matcher = SequenceMatcher(None, target_segs, user_segs)
-            operations = matcher.get_opcodes()
-            substitutions = [op for op in operations if op[0] == 'replace']
-            insertions = [op for op in operations if op[0] == 'insert']
-            deletions = [op for op in operations if op[0] == 'delete']
-            matches = sum(i2 - i1 for tag, i1, i2, j1, j2 in operations if tag == 'equal')
-            st.write(f"**Operations:** {matches} matches, {len(substitutions)} substitutions, {len(insertions)} insertions, {len(deletions)} deletions")
-
-            target_html, user_html = _colorize_diff(target_segs, user_segs)
-            mono_wrap_start = '<div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \'Liberation Mono\', \'Courier New\', monospace; white-space: pre-wrap;">'
-            mono_wrap_end = '</div>'
-
+            _t_words, _u_words = [], []
+            for w in _words:
+                tw, uw = [], []
+                for kind, tp, up, cost in w:
+                    tip = ("accepted variant / not judged" if kind == "accepted" else
+                           f"cost {cost:.2f}" if kind == "substitute" else "")
+                    tw.append(_cell(tp or "∅", kind, tip))
+                    uw.append(_cell(up or "∅", kind, tip))
+                _t_words.append("".join(tw)); _u_words.append("".join(uw))
+            _mono = ('<div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, '
+                     '\'Liberation Mono\', \'Courier New\', monospace; white-space: pre-wrap; font-size: 1.1em;">')
             col_t, col_u = st.columns(2)
             with col_t:
-                st.markdown(mono_wrap_start + target_html + mono_wrap_end, unsafe_allow_html=True)
+                st.markdown(_mono + " ".join(_t_words) + "</div>", unsafe_allow_html=True)
                 st.caption("Target phones — differences highlighted")
             with col_u:
-                st.markdown(mono_wrap_start + user_html + mono_wrap_end, unsafe_allow_html=True)
+                st.markdown(_mono + " ".join(_u_words) + "</div>", unsafe_allow_html=True)
                 st.caption("Your phones — differences highlighted")
-        else:
-            st.info("No IPA available for detailed comparison.")
 
         # Raw eSpeak -x ASCII phoneme codes (e.g. "mErs'i") are an internal
         # scoring representation, NOT IPA — confusing next to the clean IPA, and
