@@ -486,6 +486,10 @@ def render_practice_results(result, key_prefix="practice"):
         elif not text_matches and not score_is_high:
             st.warning("⚠️ Different words recognized - try speaking more clearly")
 
+    # Sound check (per-sound feedback, all languages with a CTC recognizer).
+    from ui.sound_check_panel import render as _render_sound_check
+    _render_sound_check(result, key_prefix)
+
     # Realised-phone analysis (miolingo-6vo): debug-only, es only, unapproved models.
     from ui.realised_phone_panel import render as _render_realised_phones
     _render_realised_phones(result, key_prefix)

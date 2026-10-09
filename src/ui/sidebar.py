@@ -417,6 +417,15 @@ def render_settings_panel():
         # primary saved score; the result view shows both regardless.
         st.session_state.settings.setdefault('realization_source', 'comprehensibility')
 
+        # Sound check (per-sound feedback under the result): on by default.
+        st.session_state.settings['sound_check'] = st.checkbox(
+            "🎯 Sound check (beta)",
+            value=st.session_state.settings.get('sound_check', True),
+            help="After each attempt, highlight the sounds that were probably off "
+                 "and what they sounded like. Uses the same phone recognizer as the "
+                 "accuracy score; a best guess, not a verdict.",
+        )
+
         # ── A2P Recognizer (accuracy channel, miolingo-3ym) ──────────────────
         # Testing aid: show which acoustic phone-recognizer model is active for the
         # current target language, let it be overridden per language, keep the fb

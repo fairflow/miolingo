@@ -1,0 +1,100 @@
+# Sound check (src/scoring/sound_check.py): hand-written per-language rules.
+# Generated values (inventory, thresholds) live in sound_check_calibrated.yaml
+# (scripts/sound_check/calibrate.py) and are merged on top of `defaults`.
+#
+# accept: expected sound (recognizer token, espeak convention) -> {variant: weight}.
+#   weight 1   = listeners accept it as the same sound (never flagged)
+#   weight 0.x = partly accepted (an accent, not an error)
+#   "∅"        = leaving the sound out
+# english_l1_errors: typical English-speaker substitutions [expected, said]; used by
+#   the calibration script to simulate learner errors, and as documentation.
+# DRAFT by Claude, 2026-10-09 -- for Matthew's review.
+
+defaults:
+  min_peak: 0.02          # hypotheses: sounds the recognizer gives >= 2% somewhere
+  ok_threshold: 0.5       # overridden per language by calibration
+  off_threshold: 0.15
+
+languages:
+  de:
+    glottal_onsets: true      # optional [ʔ] before word-initial vowels (ein -> [ʔaɪn])
+    accept:
+      ɾ: {ʁ: 1, r: 1, ʀ: 1, χ: 1, ɐ: 1}     # espeak writes every German r as ɾ
+      ɜ: {ɐ: 1, ə: 0.7, a: 0.6, ɑ: 0.6, ∅: 0.3}   # -er ending (espeak ɜ): vocalised r
+      ɐ: {ɜ: 1, ə: 0.7, a: 0.6}
+      ə: {∅: 1, ɛ: 0.6, ɜ: 0.5}               # schwa elision: guten -> gut'n
+      ʔ: {∅: 1}                                # glottal stop optional
+      ç: {ɕ: 1, ʃ: 0.4, x: 0.3}                # ich: [ɕ] is regional; [ʃ] dialectal
+      x: {χ: 1}
+      ɑː: {aː: 1, a: 0.6, ɑ: 0.7}
+      a: {ɑ: 1, aː: 0.7}
+      z: {s: 0.6}                              # southern German voiceless s
+      iː: {i: 0.8, ɪ: 0.3}
+      uː: {u: 0.8, ʊ: 0.3}
+      yː: {y: 0.8, ʏ: 0.3}
+      eː: {e: 0.8, ɛ: 0.3}
+      oː: {o: 0.8, ɔ: 0.3}
+      øː: {ø: 0.8, œ: 0.3}
+      ɛː: {ɛ: 0.8, eː: 0.8}
+      ɪ: {ə: 0.5}
+      ʊ: {ə: 0.3}
+      ŋ: {n: 0.3}
+    english_l1_errors:
+      - [ɾ, ɹ]       # English r
+      - [yː, uː]     # Tür -> tour
+      - [ʏ, ʊ]       # Glück
+      - [øː, oː]     # schön
+      - [œ, ɜ]       # möchte
+      - [ç, k]       # ich -> ick
+      - [x, k]       # Bach -> back
+      - [ts, z]      # Zeit
+      - [v, w]       # Wein
+      - [eː, eɪ]     # See: English diphthong
+      - [oː, oʊ]     # so: English diphthong
+      - [ʃ, s]       # Stein, Sport: sp/st as English s
+
+  en:
+    accept:
+      ɹ: {ɻ: 1, r: 0.5, ɾ: 0.5}
+      t: {ɾ: 1, ʔ: 1}
+      d: {ɾ: 1}
+      ə: {ɐ: 1, ʌ: 0.8, ɪ: 0.7, ᵻ: 1, ∅: 0.5}
+      ᵻ: {ɪ: 1, ə: 1}
+      ɚ: {ɜ: 1, ə: 0.7}
+      iː: {i: 1}
+      uː: {u: 1}
+      ɑː: {ɑ: 1, ɒ: 0.8}
+    english_l1_errors: []
+
+  es:
+    accept:
+      ɾ: {r: 0.7}
+      β: {b: 1}
+      ð: {d: 1}
+      ɣ: {ɡ: 1}
+      s: {θ: 1, z: 1, h: 0.7}                  # seseo/ceceo, aspirated s
+      θ: {s: 1}
+      ʝ: {j: 1, ʎ: 1, ʒ: 1, ʃ: 0.8}
+    english_l1_errors:
+      - [ɾ, ɹ]
+      - [r, ɹ]
+      - [β, v]
+      - [e, eɪ]
+      - [o, oʊ]
+
+  fr:
+    accept:
+      ʁ: {χ: 1, ʀ: 1, r: 0.5}
+      ə: {∅: 1, ø: 1, œ: 1}
+      ɑ: {a: 1}
+      a: {ɑ: 1}
+      e: {ɛ: 0.8}
+      ɛ: {e: 0.8}
+      o: {ɔ: 0.7}
+      ɔ: {o: 0.7}
+    english_l1_errors:
+      - [ʁ, ɹ]
+      - [y, u]
+      - [ø, ɜ]
+      - [e, eɪ]
+      - [o, oʊ]

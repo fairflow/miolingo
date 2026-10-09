@@ -217,6 +217,38 @@ def _load_audio_16k(audio_file: str):
     return data
 
 
+_LAST_LOGITS: dict = {}   # (audio_file, size, mtime, model_id) -> log-probs, for sound_check reuse
+
+
+def _logits_key(audio_file: str, model_id: str):
+    import os
+    st = os.stat(audio_file)
+    return (audio_file, st.st_size, st.st_mtime_ns, model_id)
+
+
+def log_probs_from_audio(audio_file: str, voice: str):
+    """(log_probs (T, V) tensor, vocab {token: id}, blank id, model_id), or None when the
+    voice's recognizer has no CTC vocab (pklumpp) or cannot load. Reuses the logits of
+    the last phones_from_audio() call on the same file."""
+    model_id = model_for_voice(voice)
+    try:
+        processor, model = _load(model_id)
+    except Exception:
+        return None
+    if processor is None:
+        return None
+    import torch
+    key = _logits_key(audio_file, model_id)
+    logits = _LAST_LOGITS.get(key)
+    if logits is None:
+        audio = _load_audio_16k(audio_file)
+        inputs = processor(audio, sampling_rate=16000, return_tensors="pt").input_values
+        with torch.no_grad():
+            logits = model(inputs).logits[0]
+    tok = processor.tokenizer
+    return (torch.log_softmax(logits.float(), -1), tok.get_vocab(), tok.pad_token_id, model_id)
+
+
 def phones_from_audio(
     audio_file: str,
     voice: str = "fr",
@@ -262,6 +294,8 @@ def phones_from_audio(
             ).input_values
             with torch.no_grad():
                 logits = model(inputs).logits
+            _LAST_LOGITS.clear()
+            _LAST_LOGITS[_logits_key(audio_file, model_id)] = logits[0]
             ids = torch.argmax(logits, dim=-1)
             text = processor.batch_decode(ids)[0]
     except Exception as e:

@@ -239,6 +239,17 @@ def practice_word_from_audio(
             "accuracy_similarity": acc_sim if acc_ipa else None,
         }
 
+        # Sound check (per-sound feedback, any language with a CTC recognizer):
+        # which sounds of the target were probably off, and what was probably said.
+        # Reuses the accuracy channel's recognizer pass. Best-effort.
+        if settings.get("sound_check", True):
+            try:
+                from scoring.sound_check import check_audio, as_dict
+                _sc = check_audio(temp_audio, correct_ipa, voice)
+                result["sound_check"] = as_dict(_sc) if _sc is not None else None
+            except Exception as _e:  # never break practice over the check
+                result["sound_check"] = {"error": str(_e)}
+
         # Delegate session persistence to caller
         if on_result is not None:
             on_result(result)

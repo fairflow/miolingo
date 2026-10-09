@@ -140,6 +140,7 @@ DEFAULT_SETTINGS = {
     "gtts_slow": False,
     "source_language": "English",
     "debug_mode": False,
+    "sound_check": True,
 }
 
 # ---------------------------------------------------------------------------
