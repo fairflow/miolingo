@@ -32,27 +32,28 @@
    ===================================================================== *)
 
 
-(* --- attemptRecord[target, rec, lp] : the row a scoring chain writes ------
+(* --- attemptRecord[target, rec, tc] : the row a scoring chain writes ------
    What _persist_result (practice_tab.py:44) passes to save_practice, built
    from the SAME evaluate the chain wraps in scored[…] (value-passing CCS has
    no let; the duplicated evaluate term is the idiom, and with bodies loaded
-   both occurrences compute identically). lp is the BORROWED (source, target)
-   pair the chain just pulled on langRead — the record carries its language
-   (language_code = the target code), which is what lets reads filter
+   both occurrences compute identically). tc is the BORROWED target CODE the
+   chain just pulled on targetRead (the NARROW read — scoring never consumes
+   the source; ARCHITECTURE.md "The language pair is asymmetric") — the
+   record carries it as language_code, which is what lets reads filter
    per-language WITHOUT borrowing at read time.
    NB the app's recognized_phrase is the ASR transcript TEXT — an oracle
    detail below the L1 boundary (function-recovery.md: L1 scores phonemes);
    the recognised PHONEME string stands in for it here. *)
-attemptRow[r_Association, target_Association, lp_List] := <|
-  "language_code"     -> Last[lp],
+attemptRow[r_Association, target_Association, tc_String] := <|
+  "language_code"     -> tc,
   "target_phrase"     -> Lookup[target, "text", ""],
   "recognized_phrase" -> Lookup[r, "user", ""],
   "similarity_score"  -> Lookup[r, "similarity", 0],
   "perfect_match"     -> Lookup[r, "exact_match", False],
   "target_phonemes"   -> Lookup[r, "target", ""],
   "user_phonemes"     -> Lookup[r, "user", ""]|>;
-attemptRecord[target_, rec_, lp_List] :=
-  attemptRow[evaluate[target, rec, lp], target, lp];
+attemptRecord[target_, rec_, tc_] :=
+  attemptRow[evaluate[target, rec, tc], target, tc];
 
 (* --- appendAttempt[records, r] : save_practice's INSERT (app_mysql.py:1628).
    Plain append — NO dedup/upsert (every attempt is a new row; contrast

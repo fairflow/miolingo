@@ -6,7 +6,7 @@
 
    ProgressTable OWNS the persisted attempt log (the app's user_progress
    table); every scored attempt is WRITTEN to it as part of scoring — the
-   chain attempt_made · langRead(τ) · progressAppend(τ) — and Statistics /
+   chain attempt_made · targetRead(τ) · progressAppend(τ) — and Statistics /
    History are the store's query projections (statsView / historyView),
    not state held by PS. This was the † Stats/History incompleteness
    (ARCHITECTURE.md); this test pins the recovered flow so a future

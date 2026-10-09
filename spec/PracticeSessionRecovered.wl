@@ -110,18 +110,24 @@ defineAgent["PSActive", {phrases, pos, rec, res},
       choice[
         (* scoring PERSISTS: the app saves every scored attempt immediately
            (_persist_result -> save_practice, practice_tab.py:44), so the chain
-           is attempt_made · langRead(τ, borrow the language) · progressAppend(τ,
-           write the attempt to ProgressTable) — the write is part of scoring,
-           not a separate user action. Same mid-handoff NB as capture_vocab:
-           L3 must treat score-and-log as ATOMIC (no view flicker over the
-           two τ's). attemptRecord re-states the evaluate term (no let in
-           value-passing CCS); both occurrences compute identically. *)
+           is attempt_made · targetRead(τ, borrow the TARGET code) ·
+           progressAppend(τ, write the attempt to ProgressTable) — the write is
+           part of scoring, not a separate user action. The borrow is the
+           NARROW read (targetRead, not the langRead pair): practice identity
+           is the target — ASR and the attempt row consume only the code
+           (@src recognisePhonemes / save_practice's language_code) — so a
+           source switch provably cannot touch a practice record
+           (ARCHITECTURE.md "The language pair is asymmetric"). Same
+           mid-handoff NB as capture_vocab: L3 must treat score-and-log as
+           ATOMIC (no view flicker over the two τ's). attemptRecord re-states
+           the evaluate term (no let in value-passing CCS); both occurrences
+           compute identically. *)
         precede[coLabel["attempt_made"],
-          precede[coLabel["langRead", binding[lp]],
+          precede[coLabel["targetRead", binding[tc]],
             precede[label["progressAppend",
-                param[attemptRecord[targetOf[phrases, pos], rec, lp]]],
+                param[attemptRecord[targetOf[phrases, pos], rec, tc]]],
               call["PS", phrases, pos, rec,
-                scored[evaluate[targetOf[phrases, pos], rec, lp]]]]]],
+                scored[evaluate[targetOf[phrases, pos], rec, tc]]]]]],
         precede[coLabel["clear_recording"],
           call["PS", phrases, pos, none, none]]]],
     if[pos < Length[phrases] - 1,

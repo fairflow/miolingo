@@ -102,7 +102,10 @@ upstream of the port.
 Today that oracle→`helmView` read is still **implicit** (test data carries
 pre-baked `ipa`/`translation` values, correct by fiat). Making it explicit — the
 oracle call reading `(source, target)` from `helmView` — is now a **decided**
-matter: see **Borrowed vs owned data** below. In short, the consuming action
+matter: see **Borrowed vs owned data** below, and note that Helm exposes **two**
+internal read ports matching the pair's asymmetric roles (`langRead` = the full
+pair, for enrichment; `targetRead` = the code only, for scoring — see *The
+language pair is asymmetric*). In short, the consuming action
 *pulls* the language fresh through an internal port at the point of use; it is
 **not** pushed into a Vocab/PS cache. The one place a setting already gates a port
 is `set_speed` (`if[tts === espeak, …]`) — a genuine **control** dependency, but
@@ -158,10 +161,39 @@ progress). Helm remains the **sole owner**; oracles stay boundary functions
 (decision-A) but are now called *with* the language the read delivered.
 `espeakG2P[word, voice]` already has this shape (`voice` = the target read).
 
-*Status:* implemented for **both** borrowers, by the identical prefix-read, with
-Helm's `langRead!` restricted in `mioCore`:
-- **Vocab `autofill`** → `autofillIn[entries, id, lang]` → `enrichOracle[word, source, target]`;
-- **PS scoring** (`attempt_made`) → `evaluate[target, rec, lang]` → `recognisePhonemes[audio, targetCode]`.
+*Status:* implemented for **both** borrowers by the identical prefix-read idiom,
+each through the read that matches **what it consumes** (see *The language pair
+is asymmetric*, below), with both of Helm's read ports restricted in `mioCore`:
+- **Vocab `autofill`** → `langRead` (the full pair) → `enrichOracle[word, source, target]`;
+- **PS / StoryReader scoring** (`attempt_made` / `story_attempt_made`) →
+  `targetRead` (the target code only) → `recognisePhonemes[audio, targetCode]`.
+
+### The language pair is asymmetric (principle, 2026-07-06)
+
+The `(source, target)` pair is not symmetric in role:
+
+> **Source (native) is an *authoring parameter*** — it determines how
+> translations are built and how words are recorded (vocab entries carry a
+> translation rendered *into* the source). **Target (learned) is the
+> *practice identity*** — it determines what is presented, what is saved,
+> and how practices are keyed (`user_progress.language_code` is the target,
+> and only the target).
+
+The port structure now *states* this: enrichment borrows the full pair on
+`langRead`; scoring borrows only the code on **`targetRead`** (recovered from
+`language_state.py`'s `read_target_code` — the app's own narrow read). The
+scoring chains are `attempt_made · targetRead(τ) · progressAppend(τ)`.
+
+Two consequences:
+- **Source-independence of practice records is a theorem of the ports, not a
+  convention**: a bilingual user switching the source mid-practice cannot
+  affect a score or a logged attempt — the borrowed value does not contain a
+  source for anything to depend on (pinned by `language_flow_test` §5).
+- **One attempt store, keyed by target.** Practices for the same target
+  belong together regardless of the source in play (matching the app schema);
+  a source-split store would be invented, not recovered. Vocab remains
+  source-sensitive by the same principle — its entries genuinely consume both
+  halves.
 
 **External store (VocabTable) — the persistence counterpart, now modelled.** The
 vocab collection is owned by the **VocabTable** agent (the DB), not held in Vocab.

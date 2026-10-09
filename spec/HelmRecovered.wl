@@ -21,8 +21,16 @@
    PORTS (sidebar controls):
      view!         always — the helmView projection everyone reads
      langRead!     always — INTERNAL read port (restricted in mioCore): emits
-                   {source, target} for a borrower that pulls it at point of use
-                   (Vocab.autofill, PS.attempt_made scoring). Not a UI control.
+                   the full {source, target} pair for a borrower that needs
+                   BOTH halves at point of use — enrichment renders INTO the
+                   source (Vocab.autofill only). Not a UI control.
+     targetRead!   always — INTERNAL read port (restricted in mioCore): emits
+                   ONLY the target code — the app's read_target_code
+                   (language_state.py). The SCORING borrow (PS.attempt_made,
+                   StoryReader.story_attempt_made): practice identity is the
+                   TARGET; narrowing the borrow makes "a source switch cannot
+                   affect a practice record" a property of the port structure
+                   (ARCHITECTURE.md "The language pair is asymmetric").
      set_source    set the source (native) language name
      set_target    set the target language code (target_language mirrors it)
      set_tts       set the TTS engine
@@ -46,13 +54,19 @@ defineAgent["Helm", {source, target, tts, speed, asr, asrModel},
   choice[
     precede[label["view", param[helmView[source, target, tts, speed, asr, asrModel]]],
       call["Helm", source, target, tts, speed, asr, asrModel]],
-    (* internal READ port (restricted in mioCore): borrowers PULL the
-       (source, target) pair fresh at the point of use. A self-loop — always
-       offered, never changing Helm — so a consumer waiting at langRead?(lp)
-       is forced (by its own sequencing) to take it and gets Helm's CURRENT
-       value; no cached copy, no staleness. See ARCHITECTURE.md "Borrowed vs
-       owned data". Distinct from the external `view` projection. *)
+    (* internal READ ports (restricted in mioCore): borrowers PULL fresh at
+       the point of use. Self-loops — always offered, never changing Helm —
+       so a consumer waiting at the read is forced (by its own sequencing)
+       to take it and gets Helm's CURRENT value; no cached copy, no
+       staleness. See ARCHITECTURE.md "Borrowed vs owned data". Distinct
+       from the external `view` projection. TWO reads, matching the app's
+       read functions AND the asymmetry of the pair: langRead = the full
+       pair (enrichment needs both); targetRead = the target code only
+       (@src language_state.py read_target_code — scoring's borrow, so a
+       practice record provably cannot depend on the source). *)
     precede[label["langRead", param[{source, target}]],
+      call["Helm", source, target, tts, speed, asr, asrModel]],
+    precede[label["targetRead", param[target]],
       call["Helm", source, target, tts, speed, asr, asrModel]],
     precede[coLabel["set_source", binding[s]],
       call["Helm", s, target, tts, speed, asr, asrModel]],

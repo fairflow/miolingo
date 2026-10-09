@@ -8,7 +8,7 @@
    actions:
      vis["port"]          take a visible action by port name (no value)
      vis["port", value]   take a value-carrying input port, supplying value
-   The internal syncs (vocabUpsert / goPractice / langRead / vocabRead — the VocabTable reads
+   The internal syncs (vocabUpsert / goPractice / langRead / targetRead / vocabRead — the VocabTable reads
    and writes — and progressAppend, the attempt-log write after scoring) are fired
    AUTOMATICALLY between steps by walkSteps' maximal-progress
    mode ("AutoTau" -> True) — so plans stay readable and robust as new internal
@@ -96,7 +96,7 @@ walkTests = <|
     vis["recording_made", "audio-A"],
     vis["clear_recording"],
     vis["recording_made", "audio-B"],
-    vis["attempt_made"],                            (* langRead auto-fires for scoring *)
+    vis["attempt_made"],                            (* targetRead auto-fires for scoring *)
     vis["capture_vocab", "souris"]},                (* vocabUpsert auto-fires (relay to Vocab) *)
 
   (* --- USER-as-environment: the recording VALUE is the TTS oracle term
@@ -108,7 +108,7 @@ walkTests = <|
   "user-speaks-target" -> {
     vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
     vis["recording_made", synthAudio["chat", "fr"]],
-    vis["attempt_made"]},                           (* langRead auto-fires for scoring *)
+    vis["attempt_made"]},                           (* targetRead auto-fires for scoring *)
 
   (* --- sync: Vocab practise_vocab (FILTERED) -> PS pull (goPractice+vocabRead) ---
      a filter is set, so PS pulls then shapes with the filtered subset. *)
@@ -156,13 +156,13 @@ walkTests = <|
     vis["set_mode", browse]},
 
   (* --- Story Reader: practise a scene phrase end-to-end ---
-     enter practice mode, record, score (langRead τ from Helm), capture to the
+     enter practice mode, record, score (targetRead τ from Helm), capture to the
      store (vocabUpsert τ to VocabTable — the SAME channel Quick Practice uses),
      then advance. The practice loop is StoryReader's own (mirrors PSActive). *)
   "story-practice" -> {
     vis["set_mode", practice],
     vis["story_recording_made", "audio"],
-    vis["story_attempt_made"],                      (* langRead auto-fires (score) *)
+    vis["story_attempt_made"],                      (* targetRead auto-fires (score) *)
     vis["story_capture_vocab", "Bonjour"],          (* vocabUpsert -> VocabTable *)
     vis["story_next_item_requested"]},
 
@@ -179,7 +179,7 @@ walkTests = <|
   "sync-vadd" -> {
     vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>}],
     vis["recording_made", "audio"],
-    vis["attempt_made"],                            (* langRead auto-fires for scoring *)
+    vis["attempt_made"],                            (* targetRead auto-fires for scoring *)
     vis["capture_vocab", "chat"],                   (* vocabUpsert auto-fires -> VocabTable (direct) *)
     vis["open_vocab"]},                             (* now view the captured word in the tab *)
 
@@ -208,7 +208,7 @@ walkTests = <|
     vis["load_material", {<|"text" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>,
                           <|"text" -> "chien", "translation" -> "dog", "ipa" -> "ʃjɛ̃"|>}],
     vis["recording_made", "audio-A"],
-    vis["attempt_made"],                            (* langRead + progressAppend auto-fire *)
+    vis["attempt_made"],                            (* targetRead + progressAppend auto-fire *)
     vis["next_item_requested"],
     vis["recording_made", "audio-B"],
     vis["attempt_made"],                            (* second row appended *)
@@ -222,7 +222,7 @@ walkTests = <|
     vis["add", <|"word" -> "chat", "translation" -> "cat", "ipa" -> "ʃa"|>],
     vis["practise_vocab"],                          (* goPractice→vocabRead auto-fires *)
     vis["recording_made", "audio"],
-    vis["attempt_made"],                            (* langRead auto-fires for scoring *)
+    vis["attempt_made"],                            (* targetRead auto-fires for scoring *)
     vis["capture_vocab", "souris"]}                 (* vocabUpsert auto-fires (relay to Vocab) *)
 
 |>;

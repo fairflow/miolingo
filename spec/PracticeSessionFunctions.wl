@@ -119,14 +119,18 @@ scoreDetail[user_String, correct_String] :=
   Join[comparePhonemes[user, correct],
     <|"user" -> user, "target" -> correct, "alignment" -> alignPhonemes[user, correct]|>];
 
-(* --- evaluate[target, rec, lang] : the scoring of an attempt -----------
+(* --- evaluate[target, rec, tc] : the scoring of an attempt -------------
    PURE core (scoreDetail) composed with the ASR oracle. The recorded audio is
    recognised to phonemes (IO oracle, in the target language), both sides are
-   normalised, then aligned + scored (pure). lang is the BORROWED {source, target}
-   pair pulled from Helm at attempt_made; the ASR uses Last[lang] (the target code).
-   The result Association is what the agent wraps in scored[...] and the view
-   publishes. (The recognised TEXT/word is an oracle detail surfaced by the skin,
-   below the L1 boundary; L1 scores phonemes.) *)
+   normalised, then aligned + scored (pure). tc is the BORROWED target CODE
+   pulled from Helm at attempt_made via targetRead — the NARROW read: scoring
+   consumes only the target (practice identity), never the source, so the
+   borrow declares exactly that (ARCHITECTURE.md "The language pair is
+   asymmetric"). The lang_List form is kept below for the pre-narrowing
+   callers (round-trip law tests, ad-hoc use with a pair). The result
+   Association is what the agent wraps in scored[...] and the view publishes.
+   (The recognised TEXT/word is an oracle detail surfaced by the skin, below
+   the L1 boundary; L1 scores phonemes.) *)
 (* recognisedOf: held-until-concrete gate on the ORACLE's result. The old
    ToString here coerced an UNINTERPRETED recognisePhonemes[...] term into its
    printed form, which then got character-Levenshteined against the target IPA —
@@ -135,6 +139,11 @@ scoreDetail[user_String, correct_String] :=
    exists (the same discipline as vocabView[entries_List] / deleteFrom[id_Integer]). *)
 recognisedOf[r_String] := r;
 
+evaluate[target_, rec_, tc_String] :=
+  scoreDetail[
+    normalisePhonemes[recognisedOf[recognisePhonemes[audioOf[rec], tc]]],
+    normalisePhonemes[correctPhonemesOf[target]]];
+(* pair form: delegates to the code form on the target half (Last) *)
 evaluate[target_, rec_, lang_List] :=
   scoreDetail[
     normalisePhonemes[recognisedOf[recognisePhonemes[audioOf[rec], Last[lang]]]],
