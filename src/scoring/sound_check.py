@@ -94,8 +94,16 @@ def _with_glottal_onsets(ref: list[tuple[str, int]]) -> list[tuple[str, int]]:
     return out
 
 
+NO_MERGE = {"əl", "ən", "əm", "ɚl"}   # espeak syllabic clusters the recognizer emits split
+
+
+def _usable(tok: str) -> bool:
+    return tok not in NO_MERGE and not any(c in "?<>.!,:;\"'[]^0123456789" for c in tok)
+
+
 def tokenize(ipa: str, vocab: dict[str, int]) -> list[tuple[str, int]]:
     """Greedy longest-match of espeak IPA into recognizer tokens: [(token, word_index)]."""
+    vocab = {t: i for t, i in vocab.items() if _usable(t)}
     longest = max(len(t) for t in vocab)
     out = []
     for wi, word in enumerate(ipa.split()):

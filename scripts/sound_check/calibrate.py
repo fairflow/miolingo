@@ -144,7 +144,7 @@ def main():
 
     # 2a. learned acceptance: what natives regularly produce for an expected sound is
     #     accepted -- except the known English-speaker errors (never auto-accepted)
-    probe = {"inventory": inventory, "ok_threshold": 0.0, "off_threshold": 0.0}
+    probe = {"inventory": inventory, "ok_threshold": 0.5, "off_threshold": 0.0}
     banned = {tuple(e) for e in (sc.lang_config(v).get("english_l1_errors") or [])}
     tot, alt = Counter(), Counter()
     for r in run(dev, probe):
@@ -162,7 +162,7 @@ def main():
         acc.setdefault(k, {}).update(d)
 
     # 2b. thresholds from native dev, with the learned acceptance applied
-    probe = {**probe, "accept": acc}
+    probe = {**probe, "accept": acc, "ok_threshold": 0.0}
     p_dev = np.array([p.p_ok for r in run(dev, probe) for p in r.phones])
     ok_t = float(np.quantile(p_dev, a.check_rate))
     off_t = float(np.quantile(p_dev, a.off_rate))
