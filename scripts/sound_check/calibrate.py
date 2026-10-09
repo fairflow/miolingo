@@ -189,7 +189,9 @@ def main():
     per_phone = Counter(); per_phone_flag = Counter()
     for r in res_test:
         for p in r.phones:
-            per_phone[p.phone] += 1; per_phone_flag[p.phone] += p.level != "ok"
+            if p.level == "unchecked":
+                continue
+            per_phone[p.phone] += 1; per_phone_flag[p.phone] += p.level in ("check", "off")
     worst = sorted(((p, round(per_phone_flag[p] / per_phone[p], 3), per_phone[p])
                     for p in per_phone if per_phone[p] >= 20), key=lambda x: -x[1])[:10]
 
