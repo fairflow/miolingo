@@ -17,7 +17,7 @@ defaults:
 
 languages:
   de:
-    glottal_onsets: true      # optional [ʔ] before word-initial vowels (ein -> [ʔaɪn])
+    glottal_onsets: false     # tried: optional [ʔ] before word-initial vowels doubled native false flags (8.1% vs 4.3%)
     accept:
       ɾ: {ʁ: 1, r: 1, ʀ: 1, χ: 1, ɐ: 1}     # espeak writes every German r as ɾ
       ɜ: {ɐ: 1, ə: 0.7, a: 0.6, ɑ: 0.6, ∅: 0.3}   # -er ending (espeak ɜ): vocalised r

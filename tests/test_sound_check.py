@@ -73,6 +73,6 @@ def test_too_short_audio_is_not_checked(cfg):
 
 def test_shipped_config_merges_hand_and_learned():
     c = sc.lang_config("de")
-    assert c["accept"]["ɾ"]["ʁ"] == 1 and c["glottal_onsets"] is True
+    assert c["accept"]["ɾ"]["ʁ"] == 1 and c["glottal_onsets"] is False
     assert ["ɾ", "ɹ"] in c["english_l1_errors"]
     assert sc.lang_config("de-de")["accept"]["ɾ"]["ʁ"] == 1        # dialect falls back to base
