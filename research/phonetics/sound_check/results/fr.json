@@ -1,0 +1,98 @@
+{
+ "voice": "fr",
+ "model": "Cnam-LMSSC/wav2vec2-french-phonemizer",
+ "n_dev_utts": 300,
+ "n_test_utts": 300,
+ "calibration": {
+  "ok_threshold": 0.7336,
+  "off_threshold": 0.1131
+ },
+ "inventory_size": 39,
+ "accept_learned": {
+  "ː": {
+   "ʁ": 0.7
+  }
+ },
+ "unreliable": [
+  "ː"
+ ],
+ "native_test": {
+  "phones": 11843,
+  "check": 0.0396,
+  "off": 0.0196,
+  "most_flagged_sounds": [
+   {
+    "sound": "w",
+    "flagged": 0.159,
+    "n": 88
+   },
+   {
+    "sound": "z",
+    "flagged": 0.136,
+    "n": 220
+   },
+   {
+    "sound": "j",
+    "flagged": 0.125,
+    "n": 232
+   },
+   {
+    "sound": "œ",
+    "flagged": 0.118,
+    "n": 93
+   },
+   {
+    "sound": "ə",
+    "flagged": 0.115,
+    "n": 433
+   },
+   {
+    "sound": "̃",
+    "flagged": 0.089,
+    "n": 766
+   },
+   {
+    "sound": "ʃ",
+    "flagged": 0.085,
+    "n": 71
+   },
+   {
+    "sound": "n",
+    "flagged": 0.084,
+    "n": 310
+   },
+   {
+    "sound": "ɡ",
+    "flagged": 0.071,
+    "n": 84
+   },
+   {
+    "sound": "y",
+    "flagged": 0.07,
+    "n": 344
+   }
+  ]
+ },
+ "simulated_english_speaker_errors": {
+  "ʁ->ɹ": {
+   "n": 150,
+   "flagged": 1.0,
+   "off": 0.987,
+   "heard_the_native_sound": 0.987
+  },
+  "y->u": {
+   "n": 150,
+   "flagged": 1.0,
+   "off": 0.98,
+   "heard_the_native_sound": 0.953
+  },
+  "ø->ɜ": {
+   "n": 53,
+   "flagged": 1.0,
+   "off": 1.0,
+   "heard_the_native_sound": 0.981
+  },
+  "e->eɪ": "token not in recognizer vocab",
+  "o->oʊ": "token not in recognizer vocab"
+ }
+}

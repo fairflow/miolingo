@@ -1,0 +1,145 @@
+{
+ "voice": "de",
+ "model": "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
+ "n_dev_utts": 400,
+ "n_test_utts": 400,
+ "calibration": {
+  "ok_threshold": 0.442,
+  "off_threshold": 0.023
+ },
+ "inventory_size": 50,
+ "accept_learned": {},
+ "unreliable": [
+  "y",
+  "yː",
+  "øː",
+  "œ",
+  "ɔø"
+ ],
+ "native_test": {
+  "phones": 17633,
+  "check": 0.0423,
+  "off": 0.0232,
+  "most_flagged_sounds": [
+   {
+    "sound": "eː",
+    "flagged": 0.189,
+    "n": 339
+   },
+   {
+    "sound": "ts",
+    "flagged": 0.163,
+    "n": 264
+   },
+   {
+    "sound": "ɑ",
+    "flagged": 0.159,
+    "n": 44
+   },
+   {
+    "sound": "ɜ",
+    "flagged": 0.143,
+    "n": 314
+   },
+   {
+    "sound": "oː",
+    "flagged": 0.117,
+    "n": 266
+   },
+   {
+    "sound": "ç",
+    "flagged": 0.114,
+    "n": 289
+   },
+   {
+    "sound": "ɑː",
+    "flagged": 0.114,
+    "n": 316
+   },
+   {
+    "sound": "ɛ",
+    "flagged": 0.105,
+    "n": 636
+   },
+   {
+    "sound": "j",
+    "flagged": 0.104,
+    "n": 77
+   },
+   {
+    "sound": "ʊ",
+    "flagged": 0.101,
+    "n": 287
+   }
+  ]
+ },
+ "simulated_english_speaker_errors": {
+  "ɾ->ɹ": {
+   "n": 150,
+   "flagged": 0.987,
+   "off": 0.907,
+   "heard_the_native_sound": 0.793
+  },
+  "yː->uː": {
+   "n": 77,
+   "flagged": 0.961,
+   "off": 0.104,
+   "heard_the_native_sound": 0.325
+  },
+  "ʏ->ʊ": "token not in recognizer vocab",
+  "øː->oː": {
+   "n": 21,
+   "flagged": 1.0,
+   "off": 0.048,
+   "heard_the_native_sound": 0.0
+  },
+  "œ->ɜ": {
+   "n": 32,
+   "flagged": 1.0,
+   "off": 0.031,
+   "heard_the_native_sound": 0.219
+  },
+  "ç->k": {
+   "n": 150,
+   "flagged": 0.96,
+   "off": 0.96,
+   "heard_the_native_sound": 0.86
+  },
+  "x->k": {
+   "n": 110,
+   "flagged": 0.982,
+   "off": 0.982,
+   "heard_the_native_sound": 0.945
+  },
+  "ts->z": {
+   "n": 150,
+   "flagged": 0.933,
+   "off": 0.607,
+   "heard_the_native_sound": 0.813
+  },
+  "v->w": {
+   "n": 150,
+   "flagged": 1.0,
+   "off": 0.993,
+   "heard_the_native_sound": 0.94
+  },
+  "eː->eɪ": {
+   "n": 150,
+   "flagged": 1.0,
+   "off": 0.34,
+   "heard_the_native_sound": 0.753
+  },
+  "oː->oʊ": {
+   "n": 150,
+   "flagged": 1.0,
+   "off": 0.173,
+   "heard_the_native_sound": 0.773
+  },
+  "ʃ->s": {
+   "n": 150,
+   "flagged": 0.973,
+   "off": 0.867,
+   "heard_the_native_sound": 0.96
+  }
+ }
+}
