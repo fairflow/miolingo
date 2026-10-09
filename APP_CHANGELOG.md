@@ -10,6 +10,16 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.12.1-claude-dev] - 2026-10-09
+
+### Fixed
+
+- Raw microphone (sidebar, on by default): turns off the browser's auto-gain and noise suppression, which removed the quiet end of phrases.
+- Silence trim keeps quiet endings (95th-percentile reference, 400 ms tail).
+- German r variants (trilled, uvular, vocalised) no longer count as errors in the weighted_phone score.
+- 'Your Pronunciation' IPA grouped into the target's words.
+
+
 ## [7.12.0-claude-dev] - 2026-10-09
 
 ### Added

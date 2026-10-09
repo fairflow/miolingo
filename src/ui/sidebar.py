@@ -435,6 +435,14 @@ def render_settings_panel():
         # ── Audio Processing ─────────────────────────────────────────────────
         st.markdown("**🎚️ Audio Processing**")
 
+        st.session_state.settings['raw_microphone'] = st.checkbox(
+            "🎙️ Raw microphone",
+            value=st.session_state.settings.get('raw_microphone', True),
+            help="Turn off the browser's automatic gain and noise suppression. "
+                 "These can remove the quiet end of a phrase (e.g. '-baren' in "
+                 "'vereinbaren'). Takes effect from the next recording.",
+        )
+
         st.session_state.settings['silence_threshold'] = st.slider(
             "Silence Trim Threshold",
             min_value=0.001,

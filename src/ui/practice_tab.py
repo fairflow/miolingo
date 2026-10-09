@@ -211,6 +211,8 @@ def render_practice_interface(text, key_prefix="practice"):
     st.write("🎙️ **Now record your pronunciation:**")
 
     # Streamlit's built-in audio input with dynamic key (unique per mode)
+    from ui.raw_mic import apply as _raw_mic  # unprocessed mic (no AGC / noise suppression)
+    _raw_mic(st.session_state.get('settings', {}))
     audio_data = st.audio_input("Click to record", key=f"{key_prefix}_audio_input_{st.session_state[audio_key_name]}")
 
     # DEBUG audio-injection (miolingo-7w3): when the mic is unavailable (e.g. an
@@ -459,7 +461,13 @@ def render_practice_results(result, key_prefix="practice"):
         st.subheader("Your Pronunciation")
         st.write(f"**Recognized:** {result['recognized']}")
         if result.get('user_ipa'):
-            st.markdown(f"**IPA:** {format_ipa(result['user_ipa'])}", unsafe_allow_html=True)
+            _uipa = result['user_ipa']
+            try:   # recognizer output has no word boundaries: group by the target's words
+                from scoring.phone_distance import group_by_target_words
+                _uipa = group_by_target_words(_uipa, result.get('correct_ipa', '') or '')
+            except Exception:
+                pass
+            st.markdown(f"**IPA:** {format_ipa(_uipa)}", unsafe_allow_html=True)
 
         target_clean = result['target'].lower().translate(str.maketrans('', '', string.punctuation))
         recognized_clean = result['recognized'].translate(str.maketrans('', '', string.punctuation))

@@ -13,7 +13,7 @@ from typing import Dict
 # Version metadata
 # ---------------------------------------------------------------------------
 
-__version__ = "7.12.0-claude-dev"
+__version__ = "7.12.1-claude-dev"
 __app_name__ = "Pronunciation Trainer"
 __author__ = "Matthew Fairtlough & Contributors"
 __license__ = "GPL-3.0"
@@ -141,6 +141,7 @@ DEFAULT_SETTINGS = {
     "source_language": "English",
     "debug_mode": False,
     "sound_check": True,
+    "raw_microphone": True,
 }
 
 # ---------------------------------------------------------------------------

@@ -60,15 +60,19 @@ def trim_silence(
             for i in range(0, len(audio_data) - frame_length, frame_length)
         ])
 
-        threshold = silence_threshold * np.max(energy)
+        # Reference = 95th-percentile frame energy, not the single loudest frame: a loud
+        # first word (mic gain still settling) otherwise puts a quiet ending below the
+        # threshold and it is trimmed away ("vereinbaren" -> "vereinen").
+        threshold = silence_threshold * np.percentile(energy, 95)
         speech_frames = np.where(energy > threshold)[0]
 
         if len(speech_frames) > 0:
-            padding_samples = int(0.2 * sample_rate)  # 200 ms padding
+            padding_samples = int(0.2 * sample_rate)  # 200 ms before speech
+            tail_samples = int(0.4 * sample_rate)     # 400 ms after: fading final consonants
             start = max(0, speech_frames[0] * frame_length - padding_samples)
             end = min(
                 len(audio_data),
-                (speech_frames[-1] + 1) * frame_length + padding_samples,
+                (speech_frames[-1] + 1) * frame_length + tail_samples,
             )
             trimmed_audio = audio_data[start:end]
 
