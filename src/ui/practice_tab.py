@@ -468,6 +468,8 @@ def render_practice_results(result, key_prefix="practice"):
             except Exception:
                 pass
             st.markdown(f"**IPA:** {format_ipa(_uipa)}", unsafe_allow_html=True)
+            if result.get('accuracy_ipa') and result['user_ipa'] == result['accuracy_ipa']:
+                st.caption("Stress (ˈ ˌ) isn't assessed: the phone recognizer hears sounds, not which syllable you stressed.")
 
         target_clean = result['target'].lower().translate(str.maketrans('', '', string.punctuation))
         recognized_clean = result['recognized'].translate(str.maketrans('', '', string.punctuation))
