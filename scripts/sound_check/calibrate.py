@@ -116,7 +116,8 @@ def main():
     ap.add_argument("--check-rate", type=float, default=0.08)
     ap.add_argument("--off-rate", type=float, default=0.02)
     ap.add_argument("--min-count", type=int, default=3)
-    ap.add_argument("--accept-rate", type=float, default=0.05,
+    ap.add_argument("--accept-weight", type=float, default=0.7)
+    ap.add_argument("--accept-rate", type=float, default=0.10,
                     help="auto-accept a variant natives produce for >= this share of a sound")
     ap.add_argument("--min-off", type=float, default=0.02, help="floor for off_threshold")
     ap.add_argument("--write", action="store_true", help="update sound_check_calibrated.yaml")
@@ -154,8 +155,9 @@ def main():
                 alt[(p.phone, p.heard)] += 1
     learned = {}
     for (e, h), c in alt.items():
-        if c >= a.min_count and c / tot[e] >= a.accept_rate and (e, h) not in banned:
-            learned.setdefault(e, {})[h] = 1
+        if (c >= a.min_count and c / tot[e] >= a.accept_rate and (e, h) not in banned
+                and h != sc.DEL):                 # omissions: hand-written lists only
+            learned.setdefault(e, {})[h] = a.accept_weight
     hand = sc.lang_config(v).get("accept") or {}
     acc = {k: dict(d) for k, d in learned.items()}
     for k, d in hand.items():
