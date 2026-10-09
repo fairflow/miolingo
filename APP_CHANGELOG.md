@@ -10,6 +10,13 @@ required for any non-tooling bump so the log captures *what* changed, not
 just that something changed.
 
 
+## [7.12.0-claude-dev] - 2026-10-09
+
+### Added
+
+- Sound check (beta): after each attempt, highlights the sounds that were probably off and what they sounded like, for any target language with a phone recognizer (German, Spanish, French, English calibrated on native speakers). Sidebar toggle, on by default.
+
+
 ## [7.11.0-claude-dev] - 2026-09-30
 
 ### Changed
