@@ -9,6 +9,12 @@ Run with: streamlit run app.py
 """
 
 # Configuration, constants, and language definitions — now in config.py
+import logging as _logging
+# Streamlit's file watcher walks sys.modules; touching transformers' lazy image
+# modules (e.g. zoedepth) logs "No module named 'torchvision'" on every rerun.
+# Harmless (nothing in the app uses vision models) -- silence just that logger.
+_logging.getLogger("streamlit.watcher.local_sources_watcher").setLevel(_logging.ERROR)
+
 from config import (
     __version__, __app_name__, __author__, __license__,
     LANGUAGE_CONFIG, VOICE_LOCALE_NORMALIZATION, GOOGLE_CLOUD_VOICES,

@@ -75,6 +75,12 @@ def trim_silence(
                 (speech_frames[-1] + 1) * frame_length + tail_samples,
             )
             trimmed_audio = audio_data[start:end]
+            # Level: with the browser's auto-gain off (raw microphone) recordings can be
+            # very quiet. Linear gain so loud speech peaks near 0.7, at most +26 dB
+            # (x20) so near-silence is not blown up into noise. No compression.
+            peak = float(np.percentile(np.abs(trimmed_audio), 99.9)) if len(trimmed_audio) else 0.0
+            if 0 < peak < 0.35:
+                trimmed_audio = trimmed_audio * min(0.7 / peak, 20.0)
 
             trimmed_buffer = io.BytesIO()
             sf.write(trimmed_buffer, trimmed_audio, sample_rate, format="WAV")

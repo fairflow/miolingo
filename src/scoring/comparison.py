@@ -118,3 +118,22 @@ def compare_phonemes(user_phonemes: str, correct_phonemes: str,
     """
     # "positional" was removed; fall back to edit_distance for any unknown value
     return compare_phonemes_edit_distance(user_phonemes, correct_phonemes)
+
+
+def display_recognized(recognized: str, target: str) -> str:
+    """Recognized text for display, consistent with the target: punctuation dropped
+    (ASR punctuation is a guess about pauses and is never scored) and each word that
+    matches a target word ignoring case shown with the target's capitalisation.
+    e.g. ('ich möchte einen termin vereinbaren.', 'Ich möchte einen Termin vereinbaren')
+    -> 'Ich möchte einen Termin vereinbaren'."""
+    import re
+    import unicodedata
+
+    def words(s):
+        s = unicodedata.normalize("NFC", s.replace("’", "'"))
+        return [w for w in re.split(r"[^\w'-]+", s) if w.strip("'-")]
+
+    forms = {}
+    for w in words(target):
+        forms.setdefault(w.lower(), w)
+    return " ".join(forms.get(w.lower(), w) for w in words(recognized))
