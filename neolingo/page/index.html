@@ -117,7 +117,10 @@
   .take { margin-top: 6px; max-width: 100%; overflow-x: auto; }
   .recorder:empty { display: none; }
   .recorder { margin-top: 8px; }
-  .held { margin-top: 8px; }
+  .held { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .held .take { margin-top: 0; flex: 1 1 220px; min-width: 0; }
+  .judge:empty { display: none; }
+  .judge { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line, #ccc); }
   /* a status message is an event of the press: it flashes each time, also when its text is the same as before */
   .reason { color: var(--check); font-size: .9rem; min-height: 0; margin-top: 3px; }
   .reason:empty, .status:empty { display: none; }
@@ -255,6 +258,7 @@ var app = document.getElementById('app'), EXTRA = { takes: [], testList: '' };
 //   lists() -> Promise<[{name, variant, items: [{text, gloss}]}]>   lists to choose from in "Load a list of phrases"
 //   playTake(take) -> Promise                          plays the recording held; the page then shows "Play it"
 //   showTake(take, element)                            draws the recording held (its waveform) in the element
+//   judgeResult(take, element)                         a test harness's controls to judge the result shown
 // None of them is a press of the model.
 var HOST = window.NeolingoHost || {}, RECORDING = 0, LISTS = null;
 function hear(text, sc) {
@@ -489,16 +493,16 @@ function session(root, sc, r) {
     if (b.held) {
       // the take held can be looked at: Listen sends nothing to the engine (here it plays nothing, and says so)
       var lab = (tk.filter(function (t) { return t.id === b.take; })[0] || {}).label || b.take;
-      var heldRow = el('div', { 'class': 'held muted' }, [TEST ? 'Recording held: test recording \u201c' + lab + '\u201d.' : 'Recording held.']);
+      // the message, the Play it button and the take's picture: one row on a wide screen, wrapping on a narrow one
+      var heldRow = el('div', { 'class': 'held muted' }, [el('span', { text: TEST ? 'Recording held: test recording \u201c' + lab + '\u201d.' : 'Recording held.' })]);
       s.appendChild(heldRow);
       // looks of a real host, no press of the model: play the take held, and a picture of it drawn by the host
       if (!TEST && HOST.playTake) {
-        heldRow.appendChild(document.createTextNode(' '));
         heldRow.appendChild(btn('Play it', true, function () { Promise.resolve(HOST.playTake(b.take)).catch(function () {}); }, 'hear'));
       }
       if (!TEST && HOST.showTake) {
         var pic = el('div', { 'class': 'take', id: r === 1 ? 'take' : 'take-' + r });
-        s.appendChild(pic);
+        heldRow.appendChild(pic);
         try { HOST.showTake(b.take, pic); } catch (e) {}
       }
     }
@@ -545,7 +549,14 @@ function session(root, sc, r) {
             el('ul', { 'class': 'flags' }, res.flagLines.map(function (l) { return el('li', { text: l }); })),
             el('div', { 'class': 'legend', text: res.legend })
           ])])
-        ])
+        ]),
+        // instrumentation of a test harness, not the app: the host may draw controls to JUDGE this result (stored in
+        // its own archive). Nothing goes to the engine: no press of the model, no state of the app.
+        (HOST.judgeResult && res.current && b.held) ? (function () {
+          var jd = el('div', { 'class': 'judge', id: r === 1 ? 'judge' : 'judge-' + r });
+          try { HOST.judgeResult(b.take, jd); } catch (e) {}
+          return jd;
+        })() : null
       ]));
     }
     var yW = why();
