@@ -259,8 +259,9 @@ var app = document.getElementById('app'), EXTRA = { takes: [], testList: '' };
 //   playTake(take) -> Promise                          plays the recording held; the page then shows "Play it"
 //   showTake(take, element)                            draws the recording held (its waveform) in the element
 //   judgeResult(take, element)                         a test harness's controls to judge the result shown
+//   wordLists() -> Promise<[{name, lang, words: [text]}]>   lists to choose from in "Upload a list of words"
 // None of them is a press of the model.
-var HOST = window.NeolingoHost || {}, RECORDING = 0, LISTS = null;
+var HOST = window.NeolingoHost || {}, RECORDING = 0, LISTS = null, WORDLISTS = null;
 function hear(text, sc) {
   return btn('Hear it', true, function () { Promise.resolve(HOST.speak(text, sc.settings.practised, sc.settings.slow)).catch(function () {}); }, 'hear');
 }
@@ -648,6 +649,23 @@ function session(root, sc, r) {
     s.appendChild(el('div', { 'class': 'row', style: 'margin-top:12px' }, [nbtn('Practise these', b.practise, 'practise', 'primary')]));
     s.appendChild(el('details', { 'class': 'more', 'data-d': K('upload') }, [
       el('summary', { text: 'Upload a list of words' }),
+      HOST.wordLists ? (function () {
+        // the host's lists of words: choosing one fills the box with the words (a meaning after a bar is left out:
+        // the model looks meanings up); Upload is still the model's press
+        var sel = el('select', { 'aria-label': 'A list of words to upload' }, [el('option', { text: 'Choose a list\u2026', value: '' })]);
+        WORDLISTS = WORDLISTS || Promise.resolve(HOST.wordLists()).catch(function () { return []; });
+        WORDLISTS.then(function (ls) {
+          (ls || []).forEach(function (l, i) { sel.appendChild(el('option', { text: l.name + (l.lang ? ' (' + l.lang + ')' : ''), value: String(i) })); });
+          sel.addEventListener('change', function () {
+            var l = ls[Number(sel.value)];
+            if (!l || sel.value === '') return;
+            root.querySelector('[data-k="' + K('upload') + '"]').value =
+              (l.words || []).map(function (w) { return String(w).split('|')[0].trim(); }).filter(function (w) { return w; }).join('\n');
+            askAll();
+          });
+        });
+        return el('div', { 'class': 'row', style: 'margin-bottom:6px' }, [sel]);
+      })() : null,
       fileInto(function () { return root.querySelector('[data-k="' + K('upload') + '"]'); }, 'From a file', false),
       el('textarea', { 'data-k': K('upload'), 'aria-label': 'Words, one a line', placeholder: 'One word a line' }),
       el('div', { 'class': 'row' }, [ibtn('Upload', b.upload, 'upload', function () { return val('upload'); }, ['upload'], 'primary', yU)]), yU
