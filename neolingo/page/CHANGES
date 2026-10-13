@@ -1,3 +1,4 @@
+0.31	The settings are a view of their own: Settings opens it, Done returns to the app as you left it.
 0.30	Your practice list is kept for each language: a change of language, or a restart, shows it again with no import. Lists of words to choose from in Upload (where the host provides them).
 0.29	The recording held, its Play it button and its picture stand in one row on a wide screen.
 0.28	The recording held can be played and is shown (where the host provides it).

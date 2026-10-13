@@ -115,6 +115,8 @@
   li.now button.line { font-weight: 650; opacity: 1; }
   .take:empty { display: none; }
   .take { margin-top: 6px; max-width: 100%; overflow-x: auto; }
+  .setline { padding: 6px 0; gap: 10px; }
+  .setview { padding: 8px 0 14px; }
   .recorder:empty { display: none; }
   .recorder { margin-top: 8px; }
   .held { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
@@ -426,17 +428,27 @@ function session(root, sc, r) {
     return b;
   }
   var p = sc.settings;
-  root.appendChild(el('details', { 'class': 'settings', 'data-d': K('settings') }, [
-    el('summary', { text: sc.summary }),
-    el('div', { 'class': 'grid' }, [
-      el('label', {}, ['Your language', el('select', { on: { change: function (e) { press('own', e.target.value); } } },
-        sc.languages.map(function (l) { return el('option', { text: l.name, value: l.code, selected: l.code === p.own }); }))]),
-      el('label', {}, ['Language practised', el('select', { on: { change: function (e) { press('practised', e.target.value); } } },
-        sc.variants.map(function (v) { return el('option', { text: v.name, value: v.code, selected: v.code === p.practised }); }))]),
-      el('label', { 'class': 'inline' }, [el('input', { type: 'checkbox', checked: p.slow,
-        on: { change: function (e) { press('slow', e.target.checked); } } }), ' Slow speech'])
-    ])
-  ]));
+  // THE TWO MAJOR VIEWS: the app, with the settings in one line and a button to open them; or the settings view
+  // (the model's body `settings`), where the app's tabs and views are not shown. Opening and closing are presses.
+  if (sc.body.kind === 'settings') {
+    root.appendChild(el('div', { 'class': 'setview' }, [
+      el('div', { 'class': 'row', style: 'justify-content:space-between' }, [
+        el('h2', { text: 'Settings', style: 'margin:0' }), nbtn('Done', sc.closeSettings, 'closeSettings', 'primary')]),
+      el('div', { 'class': 'muted', style: 'margin:6px 0 10px', text: sc.summary }),
+      el('div', { 'class': 'grid' }, [
+        el('label', {}, ['Your language', el('select', { on: { change: function (e) { press('own', e.target.value); } } },
+          sc.languages.map(function (l) { return el('option', { text: l.name, value: l.code, selected: l.code === p.own }); }))]),
+        el('label', {}, ['Language practised', el('select', { on: { change: function (e) { press('practised', e.target.value); } } },
+          sc.variants.map(function (v) { return el('option', { text: v.name, value: v.code, selected: v.code === p.practised }); }))]),
+        el('label', { 'class': 'inline' }, [el('input', { type: 'checkbox', checked: p.slow,
+          on: { change: function (e) { press('slow', e.target.checked); } } }), ' Slow speech'])
+      ]),
+      status
+    ]));
+    return;
+  }
+  root.appendChild(el('div', { 'class': 'setline row', style: 'justify-content:space-between' }, [
+    el('span', { 'class': 'muted', text: sc.summary }), nbtn('Settings', sc.openSettings, 'openSettings', 'hear')]));
   root.appendChild(el('nav', { 'class': 'tabs', role: 'tablist' }, sc.tabs.map(function (t) {
     var tb = el('button', { role: 'tab', type: 'button', 'aria-selected': t.shown ? 'true' : 'false', text: t.view,
       'aria-disabled': t.offered ? 'false' : 'true' });
