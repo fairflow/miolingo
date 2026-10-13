@@ -104,6 +104,16 @@ it also reports, of the takes judged too harsh, how many now score higher.
 distribution, the lowest scores, the differing sound pairs, left out and extra sounds, warnings by sound, timings). The voices are synthetic: the
 report shows where the sources (espeak target, reference voice, recogniser) disagree, not how accurate the app is on learners.
 
+**Symbol study**: `venv/bin/python neolingo/tests/symbol_study.py evidence|measure|floor|targets` (rerun as the archive grows). `evidence` tabulates, per
+language, the differing aligned pairs (target -> heard) of the sweep (both voices) and of the owner's live takes (separate column, never
+evidence for inclusion) with the pair's panphon cost, its present cost and whether Miolingo's tables tolerate it, writes `var/study/symbol_pairs.md`
+and regenerates `data/symbol_equivalents.json` (committed: symbol pairs and counts only) by a mechanical rule stated at the top of that file.
+**The switch:** `NEOLINGO_EQUIV=1` makes the host enter each included pair as a tolerated pair (cost 0, target -> heard only) for its language and
+drop the sound-check warnings whose (sound, sounded like) is such a pair; default `0` (nothing changes). `measure` (loads the models, about 6 GB:
+run one such process at a time, preferably with `NEOLINGO_VAR` pointing at a scratch copy of `sweep/` and `archive/`) runs the sweep, the whole archive and
+wrong-reference controls with the switch off and on in one process and writes `var/study/measure.md`; `floor` reports the voiced seconds that
+`env.audible` measures for the sweep, the owner's takes and the silence / hiss / click cases; `targets` lists phrases that both voices score under 90.
+
 All outputs stay under `var/` (git-ignored; the archive holds the owner's own voice and must never be committed).
 
 ## Length

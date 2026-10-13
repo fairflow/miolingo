@@ -1,0 +1,945 @@
+{
+ "generated": "2026-10-13",
+ "script": "tests/symbol_study.py evidence",
+ "rule": "A pair (target sound -> sound heard) is included for a language when (1) BOTH reference voices (gtts, say) produced it in the sweep, (2) it occurs in at least 3 distinct phrases over both voices, and (3) the two sounds differ in panphon features by at most 100 thousandths (cost = round(1000 * sum|f_i(a) - f_i(b)| / 48) over the 24 features of data/cost_table.json; 42 = one feature differing fully, 83 = two; a->ae is 42, a->I is 167; a sound missing from the table fails).  Nothing else decides inclusion.  The owner's own takes are counted in a separate column and are never evidence for inclusion (they may be his accent).  Direction is target -> heard; a reverse pair is included only if its own counts pass.  'not_included_for_owner_to_decide' lists pairs with >= 2 occurrences that fail the rule, with the criterion failed.  The voices are synthetic.  Regenerate: tests/symbol_study.py evidence.",
+ "bound": {
+  "measure": "panphon feature distance, thousandths",
+  "max": 100,
+  "min_phrases": 3,
+  "voices": [
+   "gtts",
+   "say"
+  ]
+ },
+ "sweep": {
+  "en/gtts": 48,
+  "en/say": 48,
+  "fr/gtts": 48,
+  "fr/say": 47,
+  "de/gtts": 48,
+  "de/say": 46
+ },
+ "owner_takes_with_columns": 11,
+ "languages": {
+  "en": {
+   "included": [
+    {
+     "target": "a",
+     "heard": "æ",
+     "reference_counts": {
+      "gtts": 9,
+      "say": 15
+     },
+     "phrases": 13,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "unreliable target",
+     "reason": "produced by both reference voices (gtts 9, say 15) in 13 phrases; feature distance 42 <= 100; already tolerated, no change in cost; the owner has not produced it in his takes"
+    },
+    {
+     "target": "ɔː",
+     "heard": "oː",
+     "reference_counts": {
+      "gtts": 5,
+      "say": 5
+     },
+     "phrases": 5,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 42,
+     "miolingo_tables": "no",
+     "reason": "produced by both reference voices (gtts 5, say 5) in 5 phrases; feature distance 42 <= 100; the owner has not produced it in his takes"
+    },
+    {
+     "target": "ə",
+     "heard": "o",
+     "reference_counts": {
+      "gtts": 3,
+      "say": 6
+     },
+     "phrases": 5,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 83,
+     "miolingo_tables": "no",
+     "reason": "produced by both reference voices (gtts 3, say 6) in 5 phrases; feature distance 83 <= 100; the owner has not produced it in his takes"
+    },
+    {
+     "target": "ə",
+     "heard": "ɛ",
+     "reference_counts": {
+      "gtts": 6,
+      "say": 3
+     },
+     "phrases": 6,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "tolerated (cost 0)",
+     "reason": "produced by both reference voices (gtts 6, say 3) in 6 phrases; feature distance 42 <= 100; already tolerated, no change in cost; the owner has not produced it in his takes"
+    },
+    {
+     "target": "ɒ",
+     "heard": "ɔ",
+     "reference_counts": {
+      "gtts": 5,
+      "say": 3
+     },
+     "phrases": 6,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 0,
+     "miolingo_tables": "unreliable target",
+     "reason": "produced by both reference voices (gtts 5, say 3) in 6 phrases; feature distance 83 <= 100; already tolerated, no change in cost; the owner has not produced it in his takes"
+    },
+    {
+     "target": "ɐ",
+     "heard": "ə",
+     "reference_counts": {
+      "gtts": 4,
+      "say": 3
+     },
+     "phrases": 4,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 25,
+     "miolingo_tables": "accept 0.7",
+     "reason": "produced by both reference voices (gtts 4, say 3) in 4 phrases; feature distance 83 <= 100; the owner has not produced it in his takes"
+    },
+    {
+     "target": "ɒ",
+     "heard": "ʌ",
+     "reference_counts": {
+      "gtts": 4,
+      "say": 2
+     },
+     "phrases": 4,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 0,
+     "miolingo_tables": "accept 0.7",
+     "reason": "produced by both reference voices (gtts 4, say 2) in 4 phrases; feature distance 83 <= 100; already tolerated, no change in cost; the owner has not produced it in his takes"
+    },
+    {
+     "target": "ʌ",
+     "heard": "a",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 4
+     },
+     "phrases": 5,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 13,
+     "miolingo_tables": "accept 0.7",
+     "reason": "produced by both reference voices (gtts 1, say 4) in 5 phrases; feature distance 42 <= 100; the owner has not produced it in his takes"
+    }
+   ],
+   "not_included_for_owner_to_decide": [
+    {
+     "target": "iː",
+     "heard": "i",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "accept 1.0",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "a",
+     "heard": "ə",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 1
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 0,
+     "miolingo_tables": "unreliable target",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "t",
+     "heard": "d",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 3
+     },
+     "phrases": 3,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "tolerated (cost 0)",
+     "fails": [
+      "not produced by gtts"
+     ],
+     "reason": "fails the rule: not produced by gtts"
+    },
+    {
+     "target": "ɛ",
+     "heard": "ɪ",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 1
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "tolerated (cost 0)",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "a",
+     "heard": "p",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 375,
+     "cost_present": 0,
+     "miolingo_tables": "unreliable target",
+     "fails": [
+      "1 phrase (< 3)",
+      "feature distance 375 > 100"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3); feature distance 375 > 100"
+    },
+    {
+     "target": "a",
+     "heard": "ɑː",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 62,
+     "cost_present": 0,
+     "miolingo_tables": "accept 0.7",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3)"
+    },
+    {
+     "target": "e",
+     "heard": "ɛ",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 42,
+     "miolingo_tables": "no",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3)"
+    },
+    {
+     "target": "i",
+     "heard": "iː",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 13,
+     "miolingo_tables": "accept 0.7",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3)"
+    },
+    {
+     "target": "m",
+     "heard": "n",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 104,
+     "cost_present": 104,
+     "miolingo_tables": "no",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)",
+      "feature distance 104 > 100"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3); feature distance 104 > 100"
+    },
+    {
+     "target": "s",
+     "heard": "z",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "tolerated (cost 0)",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    },
+    {
+     "target": "t",
+     "heard": "p",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 104,
+     "cost_present": 104,
+     "miolingo_tables": "no",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)",
+      "feature distance 104 > 100"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3); feature distance 104 > 100"
+    },
+    {
+     "target": "uː",
+     "heard": "ə",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 208,
+     "cost_present": 208,
+     "miolingo_tables": "no",
+     "fails": [
+      "1 phrase (< 3)",
+      "feature distance 208 > 100"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3); feature distance 208 > 100"
+    },
+    {
+     "target": "ð",
+     "heard": "n",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 167,
+     "cost_present": 167,
+     "miolingo_tables": "no",
+     "fails": [
+      "1 phrase (< 3)",
+      "feature distance 167 > 100"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3); feature distance 167 > 100"
+    },
+    {
+     "target": "ɒ",
+     "heard": "ɑː",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 104,
+     "cost_present": 0,
+     "miolingo_tables": "accept 0.7",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)",
+      "feature distance 104 > 100"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3); feature distance 104 > 100"
+    },
+    {
+     "target": "ə",
+     "heard": "ɪ",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 0,
+     "miolingo_tables": "tolerated (cost 0)",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3)"
+    },
+    {
+     "target": "ə",
+     "heard": "ɾ",
+     "reference_counts": {
+      "gtts": 0,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 292,
+     "cost_present": 292,
+     "miolingo_tables": "no",
+     "fails": [
+      "not produced by gtts",
+      "2 phrases (< 3)",
+      "feature distance 292 > 100"
+     ],
+     "reason": "fails the rule: not produced by gtts; 2 phrases (< 3); feature distance 292 > 100"
+    },
+    {
+     "target": "ɪ",
+     "heard": "ə",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 0,
+     "miolingo_tables": "tolerated (cost 0)",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    }
+   ]
+  },
+  "fr": {
+   "included": [],
+   "not_included_for_owner_to_decide": [
+    {
+     "target": "j",
+     "heard": "i",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 0,
+     "miolingo_tables": "tolerated (cost 0)",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "ɛ",
+     "heard": "e",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 8,
+     "miolingo_tables": "accept 0.8",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    }
+   ]
+  },
+  "de": {
+   "included": [
+    {
+     "target": "ɑː",
+     "heard": "a",
+     "reference_counts": {
+      "gtts": 6,
+      "say": 4
+     },
+     "phrases": 6,
+     "owner": {
+      "count": 1,
+      "phrases": 1
+     },
+     "cost_base": 62,
+     "cost_present": 25,
+     "miolingo_tables": "accept 0.6",
+     "reason": "produced by both reference voices (gtts 6, say 4) in 6 phrases; feature distance 62 <= 100; the owner also produces it"
+    },
+    {
+     "target": "yː",
+     "heard": "uː",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 5
+     },
+     "phrases": 5,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "unreliable target",
+     "reason": "produced by both reference voices (gtts 2, say 5) in 5 phrases; feature distance 42 <= 100; already tolerated, no change in cost; the owner has not produced it in his takes"
+    },
+    {
+     "target": "œ",
+     "heard": "ɛ",
+     "reference_counts": {
+      "gtts": 4,
+      "say": 3
+     },
+     "phrases": 4,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "unreliable target",
+     "reason": "produced by both reference voices (gtts 4, say 3) in 4 phrases; feature distance 42 <= 100; already tolerated, no change in cost; the owner has not produced it in his takes"
+    },
+    {
+     "target": "œ",
+     "heard": "ə",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 3
+     },
+     "phrases": 3,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 0,
+     "miolingo_tables": "unreliable target",
+     "reason": "produced by both reference voices (gtts 2, say 3) in 3 phrases; feature distance 83 <= 100; already tolerated, no change in cost; the owner has not produced it in his takes"
+    }
+   ],
+   "not_included_for_owner_to_decide": [
+    {
+     "target": "øː",
+     "heard": "ø",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 3
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "accept 0.8",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "ɜ",
+     "heard": "ɛ",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 4,
+      "phrases": 1
+     },
+     "cost_base": 42,
+     "cost_present": 42,
+     "miolingo_tables": "no",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3); the owner also produces it (4)"
+    },
+    {
+     "target": "eː",
+     "heard": "ə",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 125,
+     "cost_present": 125,
+     "miolingo_tables": "no",
+     "fails": [
+      "2 phrases (< 3)",
+      "feature distance 125 > 100"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3); feature distance 125 > 100"
+    },
+    {
+     "target": "iː",
+     "heard": "ɪ",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 2
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 58,
+     "miolingo_tables": "accept 0.3",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "ɛ",
+     "heard": "ɪ",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 1
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 42,
+     "miolingo_tables": "no",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "ɛː",
+     "heard": "eː",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 1
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 8,
+     "miolingo_tables": "accept 0.8",
+     "fails": [
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: 2 phrases (< 3)"
+    },
+    {
+     "target": "d",
+     "heard": "t",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 3,
+      "phrases": 1
+     },
+     "cost_base": 42,
+     "cost_present": 42,
+     "miolingo_tables": "no",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3); the owner also produces it (3)"
+    },
+    {
+     "target": "ɾ",
+     "heard": "r",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 2,
+      "phrases": 1
+     },
+     "cost_base": 0,
+     "cost_present": 0,
+     "miolingo_tables": "accept 1.0",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3); the owner also produces it (2)"
+    },
+    {
+     "target": "b",
+     "heard": "p",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 42,
+     "miolingo_tables": "no",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    },
+    {
+     "target": "oː",
+     "heard": "ɔ",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 58,
+     "miolingo_tables": "accept 0.3",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    },
+    {
+     "target": "yː",
+     "heard": "y",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 0
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 0,
+     "miolingo_tables": "accept 0.8",
+     "fails": [
+      "not produced by say",
+      "2 phrases (< 3)"
+     ],
+     "reason": "fails the rule: not produced by say; 2 phrases (< 3)"
+    },
+    {
+     "target": "ɑ",
+     "heard": "a",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 21,
+     "cost_present": 21,
+     "miolingo_tables": "no",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    },
+    {
+     "target": "ɔ",
+     "heard": "a",
+     "reference_counts": {
+      "gtts": 2,
+      "say": 0
+     },
+     "phrases": 2,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 125,
+     "cost_present": 125,
+     "miolingo_tables": "no",
+     "fails": [
+      "not produced by say",
+      "2 phrases (< 3)",
+      "feature distance 125 > 100"
+     ],
+     "reason": "fails the rule: not produced by say; 2 phrases (< 3); feature distance 125 > 100"
+    },
+    {
+     "target": "ə",
+     "heard": "ɪ",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 83,
+     "cost_present": 83,
+     "miolingo_tables": "no",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    },
+    {
+     "target": "ɛ",
+     "heard": "ə",
+     "reference_counts": {
+      "gtts": 1,
+      "say": 1
+     },
+     "phrases": 1,
+     "owner": {
+      "count": 0,
+      "phrases": 0
+     },
+     "cost_base": 42,
+     "cost_present": 42,
+     "miolingo_tables": "no",
+     "fails": [
+      "1 phrase (< 3)"
+     ],
+     "reason": "fails the rule: 1 phrase (< 3)"
+    }
+   ]
+  }
+ }
+}

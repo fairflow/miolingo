@@ -6,6 +6,7 @@ import time
 
 import env
 from . import paths
+from .engine_config import equiv_enabled, equivalents
 from .log import log
 
 
@@ -54,10 +55,22 @@ class Environment:
     def __init__(self):
         self.flags_given = 0
         self.flags_mismatch = 0
+        self.flags_equiv_dropped = 0        # warnings dropped because (sound, sounded like) is an equivalent pair
 
     def wav(self, take):
         p = paths.TAKES / f"{take}.wav"
         return str(p) if take.isalnum() and p.exists() else None
+
+    def drop_equivalent(self, fl, variant_code):
+        """With NEOLINGO_EQUIV=1: drop a warning whose (target sound, sounded like) is a pair of
+        data/symbol_equivalents.json for the language (a false alarm by the same evidence as the cost); count them."""
+        if not fl or not equiv_enabled():
+            return fl
+        lang = next((v["lang"] for v in env.variants() if v["code"] == variant_code), None)
+        pairs = set(equivalents(lang))
+        keep = [f for f in fl if (f["sound"], f["heardAs"]) not in pairs]
+        self.flags_equiv_dropped += len(fl) - len(keep)
+        return keep
 
     def answer(self, q):
         k = q["q"]
@@ -79,6 +92,7 @@ class Environment:
                 return {"flags": []}
             lib = env.sounds(w, q["target"], q["variant"])
             fl = flags_out(lib, q["target"])
+            fl = self.drop_equivalent(fl, q["variant"])
             flat = [env.norm_word(s) or s for word in q["target"] for s in word]
             bad = sum(not (0 <= f["at"] < len(flat) and flat[f["at"]] == f["sound"]) for f in fl)
             self.flags_given += len(fl)
