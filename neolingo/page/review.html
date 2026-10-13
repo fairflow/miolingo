@@ -39,6 +39,12 @@ button.link { border: 0; background: none; text-decoration: underline; color: va
 .banner.yes { color: var(--ok); } .banner.no { color: var(--bad); }
 dl { margin: 0 0 .5rem; display: grid; grid-template-columns: max-content 1fr; gap: .15rem .6rem; }
 dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: anywhere; font-family: ui-monospace, Menlo, monospace; }
+.grid { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin: 0 0 .6rem; font-family: ui-monospace, Menlo, monospace; }
+.gw { display: grid; grid-template-columns: repeat(var(--n), minmax(1.2ch, auto)); column-gap: .35rem; text-align: center; }
+.gw .t { color: var(--muted); } .gw .gap { color: var(--muted); }
+.gw .m1 { text-decoration: underline dotted; text-underline-offset: 3px; }
+.gw .m2 { text-decoration: underline solid; text-underline-offset: 3px; }
+.gridcap { color: var(--muted); font-size: .8rem; margin: 0 0 .15rem; }
 .warn { color: var(--warn); font-size: .9rem; margin: 0 0 .5rem; overflow-wrap: anywhere; }
 .player { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .5rem; }
 .wave { width: 100%; max-width: 280px; height: 40px; display: block; }
@@ -120,6 +126,22 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
     var p = a.play(); if (p && p.catch) p.catch(function () { done(); btn.textContent = 'No sound'; });
   }
 
+  // the two-row grid of the app: per word, the target sound over the heard sound, a gap shown as "–"
+  function grid(cols) {
+    var g = el('div', 'grid');
+    g.setAttribute('role', 'group'); g.setAttribute('aria-label', 'Target sounds over heard sounds, word by word');
+    cols.forEach(function (w) {
+      var gw = el('div', 'gw'); gw.style.setProperty('--n', String(w.length));
+      w.forEach(function (x) { gw.appendChild(el('span', 't' + (x.target ? '' : ' gap'), x.target || '–')); });
+      w.forEach(function (x) {
+        var m = x.mark === 2 ? ' m2' : x.mark === 1 ? ' m1' : '';
+        gw.appendChild(el('span', (x.heard ? '' : 'gap') + m, x.heard || '–'));
+      });
+      g.appendChild(gw);
+    });
+    return g;
+  }
+
   // ---- one card ----
   function card(c) {
     var j = c.judgement || {}, state = { verdict: j.verdict || null, note: j.note || '' };
@@ -139,9 +161,16 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
     var dl = el('dl');
     var heard = c.hear || {};
     dl.appendChild(el('dt', null, 'Target sounds')); dl.appendChild(el('dd', null, sounds(c.target) || '—'));
-    dl.appendChild(el('dt', null, 'Heard sounds')); dl.appendChild(el('dd', null, sounds(heard.ipa) || '—'));
+    var res = c.result || {}, cols = Array.isArray(c.columns) ? c.columns : (Array.isArray(res.columns) ? res.columns : null);
+    var grouped = res.heard && typeof res.heard.ipa === 'string' ? res.heard.ipa : null;   // the engine's own grouping, spaces between words
+    if (!grouped && cols) grouped = '[' + cols.map(function (w) {
+      return w.map(function (x) { return x.heard || ''; }).join('');
+    }).filter(Boolean).join(' ') + ']';
+    dl.appendChild(el('dt', null, 'Heard sounds'));
+    dl.appendChild(el('dd', null, grouped || ((sounds(heard.ipa) || '—') + (sounds(heard.ipa) ? '  (ungrouped)' : ''))));
     if (heard.text) { dl.appendChild(el('dt', null, 'Heard words')); dl.appendChild(el('dd', null, heard.text)); }
     root.appendChild(dl);
+    if (cols && cols.length) root.appendChild(grid(cols));
     (Array.isArray(c.flagLines) ? c.flagLines : []).forEach(function (t) { root.appendChild(el('p', 'warn', String(t))); });
     if (c.droppedFlags) root.appendChild(el('p', 'warn', c.droppedFlags + ' warning(s) dropped'));
 
