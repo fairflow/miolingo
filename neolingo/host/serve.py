@@ -21,6 +21,8 @@ in SQLite, answers the engine's questions from env, serves the page and the endp
   NEOLINGO_SLOTS=N       the number of session slots on the page (default 1; 2 shows two side by side)
   NEOLINGO_AUTOSIGNIN=U  after a real start the host signs U in at slot 1 if U is registered (default "me"; empty: start signed out)
   A clean stop (SIGTERM, SIGINT) signs every signed-in slot out first, so the settings changed since sign-in are saved.
+  A GUEST's session (the Screen's "guest":true) is kept nowhere: no archive line, no archived take, the take files deleted at
+  sign-out (and at a start or stop); GET /judgement?take= answers {"guest":true} for a guest's take and host.js draws nothing.
   NEOLINGO_JUDGING=0 turns off the judging buttons in the app page (the endpoints and /review stay)
 Bound to 127.0.0.1 only."""
 import argparse
@@ -126,6 +128,9 @@ class Host:
         self.started = False                      # the engine holds the session(s): a page's `start` is then a `state`
         self.held = {}                            # session -> the token of the latest recording held (a Check may ask nothing)
         self.uids = []                            # slot -> the learner signed in there ("" signed out), from the latest screens
+        self.guests = []                          # slot -> True while a GUEST is in the slot (the Screen's "guest")
+        self.guest_takes = {}                     # token -> slot of the guest who made it, or None: uploaded while a guest was in, owner unknown
+        self.discard_listed()                     # takes of a guest left over from a run that did not end cleanly
         self.store = Store(paths.DB)
         self.engine = Engine(build_config())
         with self.engine.lock:
@@ -134,12 +139,67 @@ class Host:
     def note_screens(self, d):
         if isinstance(d, dict) and d.get("screens"):
             self.uids = [(s.get("uid") or "") for s in d["screens"]]
+            self.guests = [bool(s.get("guest")) for s in d["screens"]]
+
+    def is_guest(self, r):
+        return isinstance(r, int) and 1 <= r <= len(self.guests) and self.guests[r - 1]
+
+    def list_guest_takes(self):
+        """var/guest_takes.txt names (not holds) the takes a guest may have made, so that a crash cannot leave them."""
+        try:
+            paths.GUEST_LIST.write_text("".join(t + "\n" for t in sorted(self.guest_takes)), "utf-8")
+        except OSError as e:
+            log(f"guest: cannot write {paths.GUEST_LIST}: {e}")
+
+    def discard_listed(self):
+        """At a start: delete the files of any guest take left over (listed in var/guest_takes.txt)."""
+        try:
+            toks = [t for t in paths.GUEST_LIST.read_text("utf-8").split() if archive.TOKEN.fullmatch(t)]
+        except OSError:
+            return
+        for t in toks:
+            self.remove_take_files(t, "left over from an earlier run")
+        paths.GUEST_LIST.unlink(missing_ok=True)
+
+    def remove_take_files(self, token, why):
+        gone = False
+        for d in (paths.TAKES, paths.ARCHIVE_TAKES):
+            f = d / f"{token}.wav"
+            if f.is_file():
+                try:
+                    f.unlink()
+                    gone = True
+                except OSError as e:
+                    log(f"guest: take {token} NOT deleted: {e}")
+        if gone:
+            log(f"guest: take {token} discarded ({why})")
+
+    def discard_guest_takes(self, slot=None, why="the guest signed out"):
+        """Delete the takes of the guest in `slot` (all guests if None).  Takes uploaded while a guest was in and not yet
+        recorded by anyone (owner unknown) go too unless a named learner is signed in in another slot."""
+        named_elsewhere = any(u for i, u in enumerate(self.uids, 1) if i != slot)
+        for t, r in list(self.guest_takes.items()):
+            if slot is None or r == slot or (r is None and not named_elsewhere):
+                self.remove_take_files(t, why)
+                del self.guest_takes[t]
+        self.list_guest_takes()
+
+    def note_upload(self, token, data):
+        """Keep an uploaded take in the archive unless a guest may have made it (then it is held back, and archived only
+        if a named learner's Record turns out to own it)."""
+        if any(self.guests):
+            self.guest_takes[token] = None
+            self.list_guest_takes()
+            log(f"take {token}: not archived, a guest is in a slot")
+            return
+        archive.save_take(token, data)
 
     def start_engine(self, model=False):
         """THE START OF A REAL HOST (protocol 2): N slots, all signed out, the whole store registered; then, if
         NEOLINGO_AUTOSIGNIN names a registered learner, the host signs that learner in at slot 1."""
         self.started = False
         self.held = {}
+        self.discard_guest_takes(why="the engine session ended")
         store = self.store.all_data()
         if not store:
             # The engine's register is no step while NOBODY is registered (checked 13 October 2026, against protocol 6.2,
@@ -192,6 +252,7 @@ class Host:
             try:
                 done = self.sign_out_all()
                 log(f"clean stop: signed out {', '.join(done) or 'nobody'}")
+                self.discard_guest_takes(why="the host stopped")
             finally:
                 try:
                     self.engine.proc.terminate()
@@ -219,15 +280,36 @@ class Host:
                     d = {"err": f"{e}; the engine was restarted: reload the page"}
                 except Exception as e2:
                     d = {"err": f"{e}; restart failed: {e2}"}
+            was_guest = self.is_guest(msg.get("session"))
             self.note_screens(d)
             if "press" in msg and d.get("screens"):
                 r = msg.get("session")
-                if msg["press"] == "record":
+                tok = msg.get("input")
+                if msg["press"] == "record" and self.is_guest(r):
+                    # NOTHING IS KEPT FOR A GUEST: no archive line, no archived take; the take is deleted at sign-out
+                    if isinstance(tok, str) and archive.TOKEN.fullmatch(tok):
+                        self.guest_takes[tok] = r
+                        self.list_guest_takes()
+                        if d.get("step"):
+                            self.held[r] = tok
+                    log(f"guest: record at slot {r}: nothing archived")
+                elif msg["press"] == "check" and self.is_guest(r):
+                    log(f"guest: check at slot {r}: nothing archived")
+                elif msg["press"] == "record":
+                    if isinstance(tok, str) and tok in self.guest_takes:        # held back at upload, a named learner's after all
+                        self.guest_takes.pop(tok)
+                        self.list_guest_takes()
+                        try:
+                            archive.save_take(tok, (paths.TAKES / f"{tok}.wav").read_bytes())
+                        except OSError as e:
+                            log(f"archive: take {tok} NOT kept: {e}")
                     archive.log_record(msg, d, self.engine.last_answers)
-                    if d.get("step") and isinstance(msg.get("input"), str):
-                        self.held[r] = msg["input"]
+                    if d.get("step") and isinstance(tok, str):
+                        self.held[r] = tok
                 elif msg["press"] == "check" and d.get("step"):
                     archive.log_check(msg, d, self.engine.last_answers, self.held.get(r), read_version())
+                elif msg["press"] == "signOut" and was_guest and not self.is_guest(r):
+                    self.discard_guest_takes(r)
                 elif msg["press"] in ("signIn", "register", "signOut"):
                     log(f"press {msg['press']} slot {r}: {'step' if d.get('step') else 'no step'}; slots now {self.uids}")
             d.pop("test", None)
@@ -289,6 +371,8 @@ class H(http.server.BaseHTTPRequestHandler):
                 take = (q.get("take") or [""])[0]
                 if not archive.TOKEN.fullmatch(take):
                     return self.json({"err": "bad take token"}, 400)
+                if take in HOST.guest_takes:                        # a guest's take is not judged: the page draws nothing
+                    return self.json({"guest": True})
                 return self.json(archive.latest_judgement(take))
             if u.path == "/archive":
                 def num(name, default):
@@ -354,6 +438,8 @@ class H(http.server.BaseHTTPRequestHandler):
                 msg = json.loads(self.body(20_000).decode("utf-8"))
                 if not isinstance(msg, dict):
                     raise ValueError("a JSON object is expected")
+                if msg.get("take") in HOST.guest_takes:
+                    raise ValueError("nothing is kept for a guest")
                 return self.json(archive.judge(msg.get("take"), msg.get("verdict"), msg.get("note")))
             if path == "/take":
                 data = self.body(MAX_TAKE)
@@ -362,7 +448,7 @@ class H(http.server.BaseHTTPRequestHandler):
                 token = "t" + secrets.token_hex(8)
                 (paths.TAKES / f"{token}.wav").write_bytes(data)
                 try:
-                    archive.save_take(token, data)
+                    HOST.note_upload(token, data)
                 except OSError as e:
                     log(f"archive: take {token} NOT kept: {e}")
                 log(f"take {token}: {len(data)} bytes")

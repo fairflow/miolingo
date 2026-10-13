@@ -75,6 +75,11 @@ class Host:
         with urllib.request.urlopen(r, timeout=120) as f:
             return json.load(f)
 
+    def press_raw(self, path, m):
+        r = urllib.request.Request(self.base + path, json.dumps(m).encode(), {"Content-Type": "application/json"})
+        with urllib.request.urlopen(r, timeout=60) as f:
+            return json.load(f)
+
     def do(self, press, input=None, session=1):
         return self.press(press=press, session=session, input=input)
 
@@ -99,6 +104,92 @@ def S(d, r=0):
 
 def log():
     return (VAR / "host.log").read_text("utf-8")
+
+
+def counts():
+    c = sqlite3.connect(VAR / "neolingo.sqlite")
+    try:
+        names = [r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")]
+        return {t: c.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0] for t in names}
+    finally:
+        c.close()
+
+
+def archive_state():
+    a = VAR / "archive"
+    lines = {n: ((a / n).read_text("utf-8").count("\n") if (a / n).exists() else 0) for n in ("records.jsonl", "checks.jsonl")}
+    return lines, sorted(p.name for p in (a / "takes").glob("*")) if (a / "takes").exists() else []
+
+
+def take_files():
+    return sorted(p.name for p in (VAR / "takes").glob("*.wav"))
+
+
+def guest_section():
+    """Nothing is kept for a guest: no write, no archive line, no archived take, take files deleted at sign-out.
+    Needs the speech models (one real Check)."""
+    print("\n=== a guest: nothing is kept (this loads the speech models) ===")
+    h = Host()
+    h.start()
+    d = h.press(cmd="start")
+    check(S(d)["uid"] == "me", "start: auto sign-in as me")
+    base_counts, base_arch = counts(), archive_state()
+    h.do("signOut")
+    d = h.do("guest")
+    s = S(d)
+    check(d["step"] and d["write"] is None and s["guest"] is True and s["uid"] == "" and s["summary"].startswith("Guest (nothing is kept) · ")
+          and s["body"]["kind"] == "practice", f"guest: a step, write null, uid empty, summary {s['summary']!r}")
+    fr = json.loads((ROOT / "data" / "fr.json").read_text("utf-8"))["phrases"]
+    chosen = [p for p in fr if len(p["text"].split()) >= 3][:2]
+    d = h.do("load", "\n".join(f"{p['text']} | {p.get('gloss', '')}" for p in chosen))
+    check(d["step"] and d["write"] is None and S(d)["guest"] is True, "guest: Load is a step, write null")
+    d = h.do("addWord", "chat")
+    check(d["step"] and d["write"] is None, "guest: adding a word, write null")
+    wav = VAR / "guest.wav"
+    subprocess.run([shutil.which("espeak-ng") or "espeak-ng", "-v", "fr-fr", "-w", str(wav), chosen[0]["text"]], check=True)
+    r = urllib.request.Request(h.base + "take", wav.read_bytes(), {"Content-Type": "audio/wav"})
+    with urllib.request.urlopen(r, timeout=60) as f:
+        tk = json.load(f)["take"]
+    check(f"{tk}.wav" in take_files(), "the take is under var/takes/ while the guest is in")
+    d = h.do("record", tk)
+    check(d["step"] and d["write"] is None, "guest: Record is a step, write null")
+    d = h.do("check")
+    check(d["step"] and d["write"] is None and S(d)["body"]["result"] is not None, "guest: Check gives a result, write null")
+    check(h.get(f"judgement?take={tk}") == {"guest": True}, "GET judgement for a guest's take says guest (the page draws no judging)")
+    try:
+        h.press_raw("judge", {"take": tk, "verdict": "fair"})
+        check(False, "POST judge for a guest's take is refused")
+    except urllib.error.HTTPError as e:
+        check(e.code == 400, f"POST judge for a guest's take is refused ({e.code})")
+    check(counts() == base_counts, "the store's row counts are unchanged")
+    check(archive_state() == base_arch, f"no archive line and no archived take: {archive_state()}")
+    d = h.do("signOut")
+    check(d["step"] and d["write"] is None and S(d)["guest"] is not True, "guest: sign-out writes nothing")
+    check(take_files() == [] , f"the guest's take files are deleted at sign-out ({take_files()})")
+    check("guest: take " + tk + " discarded" in log(), "the log says the take was discarded")
+    d = h.do("guest")
+    check(S(d)["guest"] is True and S(d)["body"]["kind"] == "practice" and S(d)["body"]["list"] == [], "guest again: an empty app")
+    d = h.do("show", "Vocabulary")
+    check(S(d)["body"]["rows"] == [] , "guest again: no vocabulary")
+    check(counts() == base_counts and archive_state() == base_arch, "counts and archive unchanged after the second guest")
+    # a take uploaded and left: deleted at the next start
+    r = urllib.request.Request(h.base + "take", wav.read_bytes(), {"Content-Type": "audio/wav"})
+    with urllib.request.urlopen(r, timeout=60) as f:
+        tk2 = json.load(f)["take"]
+    d = h.do("record", tk2)
+    h.proc.kill()
+    h.proc.wait(10)
+    check(f"{tk2}.wav" in take_files(), "after kill -9 the guest's take is still there")
+    h.start()
+    check(take_files() == [], "at the next start the guest's leftover take is deleted")
+    d = h.press(cmd="start")
+    s = S(d)
+    check(s["uid"] == "me" and s["body"]["kind"] == "practice", "then auto sign-in as me")
+    check(counts() == base_counts, "me: the counts are intact")
+    d = h.do("show", "Vocabulary")
+    check(len(S(d)["body"]["rows"]) == db("SELECT COUNT(*) FROM vocabulary WHERE uid='me' AND lang=?", LANG_OF[S(d)["settings"]["practised"]])[0][0]
+          and "chat" not in json.dumps(S(d)["body"]["rows"], ensure_ascii=False), "me: the vocabulary is intact, without the guest's word")
+    h.stop()
 
 
 def main():
@@ -266,6 +357,8 @@ def main():
     h3.start()
     check(S(h3.press(cmd="start"))["uid"] == "" and "'nobody' is not registered" in log(), "an auto sign-in name that is not registered: signed out, logged")
     h3.stop()
+
+    guest_section()
 
     print()
     if fails:

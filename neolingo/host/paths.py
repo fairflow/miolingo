@@ -10,6 +10,7 @@ TAKES = VAR / "takes"
 SPEECH = VAR / "speech"
 ARCHIVE = VAR / "archive"                 # kept for good: every take, and one line a Record and a Check
 ARCHIVE_TAKES = ARCHIVE / "takes"
+GUEST_LIST = VAR / "guest_takes.txt"       # tokens of takes a guest may have made, until deleted
 DB = VAR / "neolingo.sqlite"
 LOG = VAR / "host.log"
 ENGINE = os.environ.get("NEOLINGO_ENGINE") or "/Users/matthew/Lean/locus/.lake/build/bin/neolingo"

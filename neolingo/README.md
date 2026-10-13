@@ -125,6 +125,10 @@ The archive (`records.jsonl`, `checks.jsonl`, `judgements.jsonl`) carries `"uid"
 learner who made that take); lines from before count as `me`. `GET /archive?uid=` filters, items carry `uid`, and `/review`
 shows the learner on each card with a learner filter. Nothing is recorded in a signed-out slot (the log says so).
 
+**Guest** (the engine's `guest` press, offered in a signed-out slot): nothing is kept. The engine's replies carry `"write":null`; the host writes no
+archive line, does not archive the take, deletes the guest's files under `var/takes/` at sign-out (and at a start or stop; `var/guest_takes.txt`
+lists them meanwhile), logs `guest: take ... discarded`, and answers `GET /judgement?take=` with `{"guest":true}` so that `host.js` draws no judging controls.
+
 ## Testing with sound
 
 **The archive.** Every take uploaded is kept for good under `var/archive/takes/<token>.wav` (`host/archive.py`). `var/archive/records.jsonl`

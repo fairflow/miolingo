@@ -365,14 +365,14 @@
       judgingOn().then(function (on) {
         if (!on) return;                                    // judging is off: the element stays empty
         var c = judgeCache[take];
-        if (c && !c.then) { drawJudge(take, element, c); return; }
+        if (c && !c.then) { if (!c.guest) drawJudge(take, element, c); return; }   // a guest's take: nothing drawn
         if (!c) {
           c = fetch('judgement?take=' + encodeURIComponent(take)).then(function (r) { return r.ok ? r.json() : {}; })
             .then(function (j) { return j || {}; }, function () { return {}; });
           rememberJudgement(take, c);
           c.then(function (j) { if (judgeCache[take] === c) rememberJudgement(take, j); });
         }
-        c.then(function (j) { drawJudge(take, element, j); });
+        c.then(function (j) { if (!(j && j.guest)) drawJudge(take, element, j); });
       }).then(null, function () {});
     } catch (e) {}
   }
