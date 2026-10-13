@@ -1,3 +1,6 @@
+0.25	A phrase file is phrase, a tab, meaning (or phrase | meaning): a comma no longer splits a line.
+0.24	The result compares sound by sound, the heard sounds under the target's; the heard sounds are shown word by word even when the recogniser gives no word breaks.
+0.23	The version beside the title; a file can fill the Load and Upload boxes; nothing else can be pressed while a recording is being made.
 0.22	Ready for a real host: Hear it, the host's lists, a recorder area (shown only when the host provides them); a flag line names its word only when it can.
 0.21	Version line in the foot (what this page is, which engine, what is new); the test host keeps what is stored across restarts.
 0.20	Runs on any host of the engine; test controls only on a test host.

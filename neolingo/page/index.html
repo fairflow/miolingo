@@ -25,6 +25,8 @@
     font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   main { max-width: 34rem; margin: 0 auto; padding: 12px 16px 32px; }
   h1 { font-size: 1.15rem; margin: 4px 0 8px; font-weight: 650; }
+  .vshort { font-size: .78rem; font-weight: 400; opacity: .65; margin-left: 6px; }
+  .filerow { margin-bottom: 6px; font-size: .9rem; }
   h2 { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
     margin: 18px 0 6px; font-weight: 600; }
   .ipa { font-family: "Charis SIL", "Doulos SIL", "Gentium Plus", "Noto Serif", "Times New Roman", serif;
@@ -101,6 +103,12 @@
   .test { border: 1px dashed var(--rule); border-radius: 8px; padding: 8px 10px; margin-top: 10px; font-size: .9rem; color: var(--muted); }
   .test select { min-height: 36px; padding: 5px 8px; color: var(--fg); max-width: 100%; }
   button.hear { min-height: 32px; padding: 3px 10px; font-size: .85rem; font-weight: 400; vertical-align: middle; }
+  .cmpbox { overflow-x: auto; max-width: 100%; }
+  table.cmp { border-collapse: collapse; font-size: 1.2rem; }
+  table.cmp td { text-align: center; padding: 1px 5px; min-width: 1.1em; }
+  table.cmp th { font: 400 .78rem system-ui, sans-serif; opacity: .65; text-align: left; padding-right: 10px; white-space: nowrap; }
+  table.cmp td.gapw { min-width: .9em; padding: 0; }
+  table.cmp td.none { opacity: .45; }
   .recorder:empty { display: none; }
   .recorder { margin-top: 8px; }
   .held { margin-top: 8px; }
@@ -189,7 +197,7 @@
     </fieldset>
     <div>Not part of the app. A change of start begins new sessions from what is stored.</div>
   </details>
-  <h1>Neolingo</h1>
+  <h1>Neolingo <span id="vshort" class="vshort"></span></h1>
   <div id="app" class="sessions"></div>
   <hr class="sep">
   <details id="modelopen" class="modelopen">
@@ -243,6 +251,27 @@ var app = document.getElementById('app'), EXTRA = { takes: [], testList: '' };
 var HOST = window.NeolingoHost || {}, RECORDING = 0, LISTS = null;
 function hear(text, sc) {
   return btn('Hear it', true, function () { Promise.resolve(HOST.speak(text, sc.settings.practised, sc.settings.slow)).catch(function () {}); }, 'hear');
+}
+// A FILE as the source of a list: a look, not a press. Its text is put in the box (one item a line); for phrases
+// a tab between phrase and meaning becomes " | " (a comma never splits: phrases are full of commas). Load and Upload stay the model's presses.
+function fileInto(box, label, pairs) {
+  var inp = el('input', { type: 'file', accept: '.txt,.csv,.tsv,text/plain', 'aria-label': label });
+  inp.addEventListener('change', function () {
+    var f = inp.files && inp.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      var lines = String(rd.result).replace(/^\ufeff/, '').split(/\r\n|\r|\n/).map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+      if (pairs) lines = lines.map(function (l) {
+        if (l.indexOf('|') >= 0) return l;
+        var i = l.indexOf('\t');
+        return i < 0 ? l : l.slice(0, i).trim() + ' | ' + l.slice(i + 1).trim();
+      });
+      box().value = lines.join('\n'); inp.value = ''; askAll();
+    };
+    rd.readAsText(f);
+  });
+  return el('div', { 'class': 'filerow' }, [el('label', {}, [label + ': ', inp])]);
 }
 var TEST = false, MODE = 'one', MODELOPEN = document.getElementById('modelopen');
 var MARK = ['s-ok', 's-check', 's-off'];
@@ -429,7 +458,7 @@ function session(root, sc, r) {
                if (!HOST.record) { say('No recorder is connected.'); return; }
                // while the host records: the button says so, the other practice buttons wait; the host's own script
                // draws its level display and Stop control in the recorder element
-               var me = ev.currentTarget, others = [].slice.call(s.querySelectorAll('button')).filter(function (x) { return x !== me; });
+               var me = ev.currentTarget, others = [].slice.call(root.querySelectorAll('button, select, input[type=file]')).filter(function (x) { return x !== me; });
                RECORDING = r; me.textContent = 'Recording\u2026'; me.disabled = true;
                others.forEach(function (x) { x.dataset.was = x.disabled ? '1' : ''; x.disabled = true; });
                var done = function () { RECORDING = 0; me.textContent = 'Record'; me.disabled = false;
@@ -472,6 +501,20 @@ function session(root, sc, r) {
           el('div', {}, [el('dt', { text: 'Target' }), el('dd', {}, [el('span', { text: res.target.text }), tsounds])]),
           el('div', {}, [el('dt', { text: 'Heard' }), el('dd', {}, nothing ? [el('span', { text: 'nothing' })]
             : [el('span', { text: res.heard.text }), el('div', { 'class': 'ipa', text: res.heard.ipa })])]),
+          // the model's columns: the target's sounds over the heard ones, column by column, a gap as a dot
+          !(res.columns && res.columns.length) ? null : el('div', {}, [el('dt', { text: 'Sound by sound' }), el('dd', {}, [
+            el('div', { 'class': 'cmpbox' }, [el('table', { 'class': 'cmp ipa' }, [['target', 'Target'], ['heard', 'Heard']].map(function (rw) {
+              var tr = el('tr', {}, [el('th', { scope: 'row', text: rw[1] })]);
+              res.columns.forEach(function (g, i) {
+                if (i) tr.appendChild(el('td', { 'class': 'gapw' }));
+                g.forEach(function (c) {
+                  var v = c[rw[0]];
+                  tr.appendChild(el('td', { 'class': v == null ? 'none' : (rw[0] === 'target' ? MARK[c.mark] : ''), text: v == null ? '\u00b7' : v }));
+                });
+              });
+              return tr;
+            }))])
+          ])]),
           el('div', {}, [el('dt', { text: 'Understood' }), el('dd', { text: res.understoodLine })]),
           !res.flagLines.length ? null : el('div', {}, [el('dt', { text: 'Sounds to check' }), el('dd', {}, [
             el('ul', { 'class': 'flags' }, res.flagLines.map(function (l) { return el('li', { text: l }); })),
@@ -504,6 +547,7 @@ function session(root, sc, r) {
         });
         return el('div', { 'class': 'row', style: 'margin-bottom:6px' }, [sel]);
       })() : null,
+      fileInto(function () { return root.querySelector('[data-k="' + K('list') + '"]'); }, 'From a file', true),
       el('textarea', { 'data-k': K('list'), 'aria-label': 'Phrases, one a line', placeholder: 'One phrase a line; its meaning after a bar:  Bonjour | Hello' }),
       el('div', { 'class': 'row' }, [
         ibtn('Load', b.load, 'load', function () { return val('list'); }, ['list', 'load'], 'primary', yL),
@@ -568,6 +612,7 @@ function session(root, sc, r) {
     s.appendChild(el('div', { 'class': 'row', style: 'margin-top:12px' }, [nbtn('Practise these', b.practise, 'practise', 'primary')]));
     s.appendChild(el('details', { 'class': 'more', 'data-d': K('upload') }, [
       el('summary', { text: 'Upload a list of words' }),
+      fileInto(function () { return root.querySelector('[data-k="' + K('upload') + '"]'); }, 'From a file', false),
       el('textarea', { 'data-k': K('upload'), 'aria-label': 'Words, one a line', placeholder: 'One word a line' }),
       el('div', { 'class': 'row' }, [ibtn('Upload', b.upload, 'upload', function () { return val('upload'); }, ['upload'], 'primary', yU)]), yU
     ]));
@@ -744,6 +789,7 @@ function drawModel(m) {
 
 // what this page is: the host says (its /version); a host without one leaves the line empty
 fetch('version').then(function (r) { return r.json(); }).then(function (v) {
+  document.getElementById('vshort').textContent = v.page + (v.instance ? ' \u00b7 ' + v.instance : '');
   document.getElementById('version').textContent = 'Version ' + v.page + (v.instance ? ' (' + v.instance + ')' : '') +
     (v.engine ? ' · engine ' + v.engine + (v.built ? ', built ' + v.built : '') : '') + (v.changed ? ' · New: ' + v.changed : '');
 }).catch(function () {});
