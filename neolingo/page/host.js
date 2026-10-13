@@ -1,4 +1,4 @@
-// The real host's own script: window.NeolingoHost = { record, speak, lists, playTake, showTake, judgeResult }.
+// The real host's own script: window.NeolingoHost = { record, speak, lists, wordLists, playTake, showTake, judgeResult }.
 // record(session): Web Audio capture -> 16 kHz mono 16-bit WAV built here (no MediaRecorder, no ffmpeg) -> POST take.
 (function () {
   'use strict';
@@ -142,7 +142,10 @@
     stopPlayer();
     var gen = ++playGen;
     return fetch(url).then(function (r) {
-      if (!r.ok) throw new Error(failMsg);
+      if (!r.ok) {                                          // the host's reason, when it gave one ({"err": ...})
+        var j = typeof r.json === 'function' ? r.json() : Promise.resolve({});
+        return Promise.resolve(j).catch(function () { return {}; }).then(function (b) { throw new Error((b && b.err) || failMsg); });
+      }
       return r.blob();
     }).then(function (blob) {
       if (gen !== playGen) return;                          // another play began while this was being fetched
@@ -375,6 +378,9 @@
   // ---- lists() ----
   function lists() { return fetch('lists').then(function (r) { return r.json(); }); }
 
-  window.NeolingoHost = { record: record, speak: speak, lists: lists, playTake: playTake, showTake: showTake, judgeResult: judgeResult,
+  // ---- wordLists() ----   [{name, lang, words:[text, ...]}]: the lists offered under "Upload a list of words"
+  function wordLists() { return fetch('wordlists').then(function (r) { if (!r.ok) throw new Error('no word lists'); return r.json(); }); }
+
+  window.NeolingoHost = { record: record, speak: speak, lists: lists, wordLists: wordLists, playTake: playTake, showTake: showTake, judgeResult: judgeResult,
                           _wav16: wav16, _resample: resample, _parseWav: parseWav, _peaks: peaks, _reduce: reduce };
 })();

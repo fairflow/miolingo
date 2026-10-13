@@ -21,6 +21,8 @@ function makeHost() {
     getComputedStyle: win.getComputedStyle, Float32Array, Int16Array, DataView, ArrayBuffer, Blob, Promise, Math, Date, setTimeout, clearInterval, JSON,
     URL: { createObjectURL: () => 'blob:x', revokeObjectURL() {} },
     fetch: (url, opt) => {
+      if (url === 'wordlists') return Promise.resolve({ ok: true, json: () => Promise.resolve([{ name: 'French words, level A', lang: 'fr', words: ['bonjour', 'merci'] }]) });
+      if (url.startsWith('speak?')) return Promise.resolve({ ok: false, json: () => Promise.resolve({ err: 'No voice is available just now' }) });
       if (url === 'version') return Promise.resolve({ ok: true, json: () => Promise.resolve({ judging }) });
       if (url.startsWith('judgement?take=')) { jfetches++; return Promise.resolve({ ok: true, json: () => Promise.resolve(judgements[url.split('=')[1]] || {}) }); }
       if (url === 'judge') {
@@ -130,5 +132,11 @@ const H = makeHost().NeolingoHost;
   const off = makeHost().NeolingoHost, j6 = el('div'); off.judgeResult(T, j6); await flush();
   assert.strictEqual(j6.children.length, 0);
   console.log('  ok   with judging off (version says so) the element stays empty');
+  // wordLists(): a promise of [{name, lang, words}]; speak(): the host's reason is what the page gets when no voice is available
+  const wlists = await H.wordLists();
+  assert.deepStrictEqual(wlists, [{ name: 'French words, level A', lang: 'fr', words: ['bonjour', 'merci'] }]);
+  console.log('  ok   wordLists() resolves to the host\'s [{name, lang, words}]');
+  await assert.rejects(() => H.speak('Bonjour', 'fr-fr', false), /No voice is available just now/);
+  console.log('  ok   speak(): when the host has no voice, the page gets the host\'s reason as the error');
   console.log('host.js checks passed');
 })().catch(e => { console.error('FAIL', e); process.exit(1); });
