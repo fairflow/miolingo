@@ -1,0 +1,7 @@
+0.22	Ready for a real host: Hear it, the host's lists, a recorder area (shown only when the host provides them); a flag line names its word only when it can.
+0.21	Version line in the foot (what this page is, which engine, what is new); the test host keeps what is stored across restarts.
+0.20	Runs on any host of the engine; test controls only on a test host.
+0.19	A tap on an inactive button says why.
+0.18	An inactive control says why; a step says what it did.
+0.17	Every button is active only when its press would do something.
+0.16	Record and Load say a status message each time.

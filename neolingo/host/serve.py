@@ -4,17 +4,16 @@ Drives the engine (`explore neohost`, docs/neolingo-host-protocol.md in the locu
 in SQLite, answers the engine's questions from env, serves the page and the endpoints:
   GET  /  /index.html   the page, with <script src="host.js"> placed before its own script
   GET  /host.js         the recorder and the player
-  GET  /version         JSON: page version, SOURCE hash, host git hash, start time
+  GET  /version         JSON: page, changed, engine, built, instance, host, tts, started
   POST /press           the page's messages, forwarded to the engine
   POST /take            a 16 kHz mono 16-bit WAV body; answers {"take": token}
-  GET  /speak?text=&variant=&slow=   a WAV, made locally
+  GET  /speak?text=&variant=&slow=   speech: MP3 (gTTS) or WAV (say, espeak); NEOLINGO_TTS
   GET  /lists           the phrase lists of data/{en,fr,de}.json
 Bound to 127.0.0.1 only."""
 import argparse
 import http.server
 import json
 import os
-import re
 import secrets
 import subprocess
 import threading
@@ -45,9 +44,27 @@ def git_hash(path):
         return "unknown"
 
 
-def page_version(html):
-    m = re.search(r"·\s*(v\d+\.\d+)\s*·", html)
-    return m.group(1) if m else "unknown"
+def read_version():
+    """What /version says (the fields the page reads, as the reference host gives them): `page` and `changed` from
+    the first line of page/CHANGES ("version<TAB>text", newest first); `engine` the locus hash in page/SOURCE;
+    `built` the engine binary's modification time; `instance` "real"; also `host` (this repository's short git
+    hash), `tts` (the speech engine in use) and `started`."""
+    v = {"page": "unknown", "changed": "", "engine": "", "built": "", "instance": "real",
+         "host": git_hash(paths.ROOT), "tts": speech.IN_USE, "started": STARTED}
+    try:
+        first = (paths.PAGE / "CHANGES").read_text("utf-8").splitlines()[0].split("\t", 1)
+        v["page"], v["changed"] = first[0], (first[1] if len(first) > 1 else "")
+    except (OSError, IndexError):
+        pass
+    try:
+        v["engine"] = (paths.PAGE / "SOURCE").read_text().strip()
+    except OSError:
+        pass
+    try:
+        v["built"] = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.stat(paths.ENGINE).st_mtime))
+    except OSError:
+        pass
+    return v
 
 
 def read_lists():
@@ -75,10 +92,6 @@ class Host:
         log(f"host starting; var = {paths.VAR}; engine = {paths.ENGINE}; {clean_takes()} old takes deleted")
         self.store = Store(paths.DB)
         self.engine = Engine(build_config())
-        self.page_html = (paths.PAGE / "index.html").read_text("utf-8")
-        self.version = {"page": page_version(self.page_html),
-                        "source": (paths.PAGE / "SOURCE").read_text().strip() if (paths.PAGE / "SOURCE").exists() else "unknown",
-                        "host": git_hash(paths.ROOT), "started": STARTED}
         with self.engine.lock:
             self.start_engine()
 
@@ -86,7 +99,7 @@ class Host:
         return self.engine.ask({"cmd": "start", "sessions": [UID], "store": [self.store.data(UID)], "model": model}, self.store)
 
     def page(self):
-        h = self.page_html
+        h = (paths.PAGE / "index.html").read_text("utf-8")      # read each time: update_page.sh needs no restart
         i = h.index("<script>")
         return (h[:i] + '<script src="host.js"></script>\n' + h[i:]).encode("utf-8")
 
@@ -151,7 +164,7 @@ class H(http.server.BaseHTTPRequestHandler):
             if u.path == "/host.js":
                 return self.send((paths.PAGE / "host.js").read_bytes(), "text/javascript; charset=utf-8")
             if u.path == "/version":
-                return self.json(HOST.version)
+                return self.json(read_version())
             if u.path == "/lists":
                 return self.json(read_lists())
             if u.path == "/speak":
@@ -162,9 +175,10 @@ class H(http.server.BaseHTTPRequestHandler):
                     return self.json({"err": "bad text"}, 400)
                 env.variant(variant)
                 t0 = time.perf_counter()
-                p = speech.speak_wav(text, variant, slow)
-                log(f"speak {variant} slow={slow} {text[:60]!r}: {(time.perf_counter() - t0) * 1000:.0f} ms")
-                return self.send(p.read_bytes(), "audio/wav")
+                only = (q.get("engine") or [None])[0]       # for the tests: one engine, no fallback
+                p, ctype, engine = speech.speak(text, variant, slow, only=only if only in speech.CHAINS else None)
+                log(f"speak {variant} slow={slow} {text[:60]!r}: {engine}, {(time.perf_counter() - t0) * 1000:.0f} ms")
+                return self.send(p.read_bytes(), ctype)
         except KeyError as e:
             return self.json({"err": f"unknown variant {e}"}, 400)
         except Exception as e:

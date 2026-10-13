@@ -128,15 +128,27 @@
   }
 
   // ---- speak(text, variant, slow) ----
-  var player = null;
+  // The host answers with whatever the speech engine makes (audio/mpeg from gTTS, audio/wav from say or espeak): the
+  // reply is fetched as a blob and played by an Audio element on a blob URL, which takes either content type.
+  var player = null, playerUrl = null;
+  function stopPlayer() {
+    if (player) { try { player.pause(); } catch (e) {} player = null; }
+    if (playerUrl) { URL.revokeObjectURL(playerUrl); playerUrl = null; }
+  }
   function speak(text, variant, slow) {
-    if (player) { try { player.pause(); } catch (e) {} }
+    stopPlayer();
     var url = 'speak?text=' + encodeURIComponent(text) + '&variant=' + encodeURIComponent(variant || 'fr-fr') + '&slow=' + (slow ? 'true' : 'false');
-    var a = player = new Audio(url);
-    return new Promise(function (resolve, reject) {
-      a.onended = function () { resolve(); };
-      a.onerror = function () { reject(new Error('the host could not make the speech')); };
-      var p = a.play(); if (p && p.catch) p.catch(reject);
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('the host could not make the speech');
+      return r.blob();
+    }).then(function (blob) {
+      stopPlayer();
+      var u = playerUrl = URL.createObjectURL(blob), a = player = new Audio(u);
+      return new Promise(function (resolve, reject) {
+        a.onended = function () { if (player === a) stopPlayer(); resolve(); };
+        a.onerror = function () { if (player === a) stopPlayer(); reject(new Error('the browser could not play the speech')); };
+        var p = a.play(); if (p && p.catch) p.catch(reject);
+      });
     });
   }
 

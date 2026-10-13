@@ -1,4 +1,13 @@
-"""Local speech for `speak`: macOS `say` with a voice of the right language, else espeak-ng.  Cached by hash."""
+"""Speech for `speak`.  The engine is chosen by NEOLINGO_TTS = gtts (default) | say | espeak.
+
+  gtts    Google's text-to-speech through the `gtts` package (the ONE network use allowed): MP3.  Language from
+          the variant (fr, en with tld co.uk for en-gb and com for en-us, de), `slow=` from the setting.  If the
+          call fails: `say`, then espeak-ng.
+  say     macOS `say` with a voice of the right language + afconvert: WAV.  If unavailable: espeak-ng.
+  espeak  espeak-ng: WAV.
+
+Cached under var/speech/, keyed by the engine that made the file + text + variant + slow.  The log says which
+engine answered each request."""
 import hashlib
 import os
 import re
@@ -7,6 +16,7 @@ import subprocess
 import tempfile
 
 import env
+from .log import log
 from .paths import SPEECH
 
 LOCALE = {"en-gb": "en_GB", "en-us": "en_US", "fr-fr": "fr_FR", "de": "de_DE"}
@@ -36,24 +46,80 @@ def pick_voice(variant):
     return vs[0] if vs else None
 
 
-def speak_wav(text, variant, slow):
-    """Path of a cached 16-bit mono WAV of `text` said in `variant`."""
-    v = env.variant(variant)
+GTTS = {"fr-fr": ("fr", "fr"), "en-gb": ("en", "co.uk"), "en-us": ("en", "com"), "de": ("de", "de")}
+CHAINS = {"gtts": ["gtts", "say", "espeak"], "say": ["say", "espeak"], "espeak": ["espeak"]}
+TTS = os.environ.get("NEOLINGO_TTS", "gtts").strip().lower()
+if TTS not in CHAINS:
+    raise SystemExit(f"NEOLINGO_TTS={TTS!r}: expected gtts, say or espeak")
+IN_USE = TTS                    # the engine that answered the latest request (the configured one until then)
+CTYPE = {"gtts": "audio/mpeg", "say": "audio/wav", "espeak": "audio/wav"}
+
+
+def _key(engine, text, variant, slow):
+    extra = pick_voice(variant) if engine == "say" else ""
+    return hashlib.sha1(f"{engine}\0{text}\0{variant}\0{int(slow)}\0{extra}".encode("utf-8")).hexdigest()[:24]
+
+
+def _path(engine, text, variant, slow):
+    return SPEECH / f"{_key(engine, text, variant, slow)}.{'mp3' if engine == 'gtts' else 'wav'}"
+
+
+def _make_gtts(text, variant, slow, out):
+    from gtts import gTTS
+    lang, tld = GTTS[variant]
+    with tempfile.TemporaryDirectory(dir=SPEECH) as td:
+        tmp = os.path.join(td, "o.mp3")
+        gTTS(text=text, lang=lang, tld=tld, slow=bool(slow)).save(tmp)
+        if os.path.getsize(tmp) < 500:
+            raise RuntimeError("gTTS returned almost nothing")
+        os.replace(tmp, out)
+
+
+def _make_say(text, variant, slow, out):
     voice = pick_voice(variant)
-    key = hashlib.sha1(f"{text}\0{variant}\0{int(slow)}\0{voice}".encode("utf-8")).hexdigest()[:24]
-    out = SPEECH / f"{key}.wav"
-    if out.exists():
-        return out
+    if not (voice and shutil.which("say") and shutil.which("afconvert")):
+        raise RuntimeError("no `say` voice for " + variant)
+    with tempfile.TemporaryDirectory(dir=SPEECH) as td:
+        tmp, tf, aiff = os.path.join(td, "o.wav"), os.path.join(td, "t.txt"), os.path.join(td, "o.aiff")
+        with open(tf, "w", encoding="utf-8") as f:
+            f.write(text)
+        subprocess.run(["say", "-v", voice, "-r", "110" if slow else "175", "-o", aiff, "-f", tf], check=True)
+        subprocess.run(["afconvert", "-f", "WAVE", "-d", "LEI16@22050", "-c", "1", aiff, tmp], check=True)
+        os.replace(tmp, out)
+
+
+def _make_espeak(text, variant, slow, out):
+    v = env.variant(variant)
     with tempfile.TemporaryDirectory(dir=SPEECH) as td:
         tmp = os.path.join(td, "o.wav")
-        if voice and shutil.which("say") and shutil.which("afconvert"):
-            tf, aiff = os.path.join(td, "t.txt"), os.path.join(td, "o.aiff")
-            with open(tf, "w", encoding="utf-8") as f:
-                f.write(text)
-            subprocess.run(["say", "-v", voice, "-r", "110" if slow else "175", "-o", aiff, "-f", tf], check=True)
-            subprocess.run(["afconvert", "-f", "WAVE", "-d", "LEI16@22050", "-c", "1", aiff, tmp], check=True)
-        else:
-            subprocess.run([shutil.which("espeak-ng") or "espeak-ng", "-v", v["espeak"], "-s", "110" if slow else "160",
-                            "-w", tmp, "--", text], check=True)
+        subprocess.run([shutil.which("espeak-ng") or "espeak-ng", "-v", v["espeak"], "-s", "110" if slow else "160",
+                        "-w", tmp, "--", text], check=True)
         os.replace(tmp, out)
-    return out
+
+
+MAKERS = {"gtts": _make_gtts, "say": _make_say, "espeak": _make_espeak}
+
+
+def speak(text, variant, slow, only=None):
+    """(path, content type, engine) of cached speech of `text` in `variant`: the first engine of the chain that
+    has it cached or can make it.  `only` restricts the chain to one engine (the tests)."""
+    global IN_USE
+    env.variant(variant)
+    chain = [only] if only else CHAINS[TTS]
+    for engine in chain:               # a cached file of an engine earlier in the chain wins: it was made in earnest
+        p = _path(engine, text, variant, slow)
+        if p.exists():
+            IN_USE = engine
+            return p, CTYPE[engine], engine
+    for engine in chain:
+        p = _path(engine, text, variant, slow)
+        try:
+            MAKERS[engine](text, variant, slow, p)
+        except Exception as e:
+            log(f"speech: {engine} failed ({type(e).__name__}: {str(e)[:150]})" + ("; falling back" if engine != chain[-1] else ""))
+            if engine == chain[-1]:
+                raise
+            continue
+        IN_USE = engine
+        return p, CTYPE[engine], engine
+    raise RuntimeError("no speech engine")
