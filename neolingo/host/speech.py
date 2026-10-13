@@ -1,4 +1,6 @@
-"""Speech for `speak`.  The engine is chosen by NEOLINGO_TTS = gtts (default) | say.
+"""Speech for `speak`.  The engine is chosen by NEOLINGO_TTS = gtts (default) | say, or per variant:
+NEOLINGO_TTS="en-gb=say,fr-fr=gtts" (a variant not named: gtts).  `run.sh` sets en-gb=say: the owner's choice by ear
+on 14 October 2026 (Serena (Premium) for British English 6 of 6; Google for French 5 of 6 and German 6 of 6).
 
   gtts    Google's text-to-speech through the `gtts` package (the ONE network use allowed): MP3.  Language from
           the variant (fr, en with tld co.uk for en-gb and com for en-us, de), `slow=` from the setting.  If the
@@ -24,7 +26,8 @@ from .log import log
 from .paths import SPEECH
 
 LOCALE = {"en-gb": "en_GB", "en-us": "en_US", "fr-fr": "fr_FR", "de": "de_DE"}
-PREFERRED = ["Daniel", "Samantha", "Thomas", "Anna"]
+# Apple's Premium voices first where installed (System Settings > Accessibility > Spoken Content), then the compact ones.
+PREFERRED = ["Serena (Premium)", "Daniel", "Samantha", "Audrey (Premium)", "Thomas", "Petra (Premium)", "Anna"]
 _voices = None
 
 
@@ -52,9 +55,32 @@ def pick_voice(variant):
 
 GTTS = {"fr-fr": ("fr", "fr"), "en-gb": ("en", "co.uk"), "en-us": ("en", "com"), "de": ("de", "de")}
 CHAINS = {"gtts": ["gtts", "say"], "say": ["say"]}
-TTS = os.environ.get("NEOLINGO_TTS", "gtts").strip().lower()
-if TTS not in CHAINS:
-    raise SystemExit(f"NEOLINGO_TTS={TTS!r}: expected gtts or say (espeak is not a voice)")
+
+
+def _parse_tts(s):
+    """(the engine for a variant not named, {variant: engine})."""
+    s = s.strip().lower()
+    if s in CHAINS:
+        return s, {}
+    per = {}
+    for part in s.split(","):
+        k, _, v = part.partition("=")
+        k, v = k.strip(), v.strip()
+        if k not in GTTS or v not in CHAINS:
+            raise SystemExit(f"NEOLINGO_TTS={s!r}: expected gtts, say, or variant=engine pairs such as en-gb=say,de=gtts "
+                             f"(variants {sorted(GTTS)}; espeak is not a voice)")
+        per[k] = v
+    return "gtts", per
+
+
+TTS, TTS_BY_VARIANT = _parse_tts(os.environ.get("NEOLINGO_TTS", "gtts"))
+
+
+def engine_for(variant):
+    """The engine configured for a variant."""
+    return TTS_BY_VARIANT.get(variant, TTS)
+
+
 IN_USE = TTS                    # the engine that answered the latest request (the configured one until then)
 CTYPE = {"gtts": "audio/mpeg", "say": "audio/wav", "espeak": "audio/wav"}
 
@@ -113,7 +139,7 @@ def speak(text, variant, slow, only=None):
     has it cached or can make it.  `only` restricts the chain to one engine (the tests)."""
     global IN_USE
     env.variant(variant)
-    chain = [only] if only else CHAINS[TTS]
+    chain = [only] if only else CHAINS[engine_for(variant)]
     for engine in chain:               # a cached file of an engine earlier in the chain wins: it was made in earnest
         p = _path(engine, text, variant, slow)
         if p.exists():
