@@ -11,8 +11,9 @@ CURVE = {"kind": "sqrt", "scale": 2250000}
 def build_costs(table):
     """cost entries in thousandths.
 
-    Generic entries (no variant): the full panphon-based matrix, off the diagonal (an equal pair is not
-    asked: the engine treats it as 0).  Variant entries override, for each variant of a language:
+    Generic entries (neither variant nor lang): the full panphon-based matrix, off the diagonal (an equal pair
+    is not asked: the engine treats it as 0).  Entries with "lang":L override for every variant of language L
+    (protocol section 5; they were sent once per variant before, which doubled English).  They are:
       tolerated pairs -> 0 (both directions); accept[t][h] = w -> base * (1 - w); unreliable targets -> 0
       against every phone of the table.
     A pair not listed costs `costOtherwise` (the table's unknown_cost)."""
@@ -20,8 +21,8 @@ def build_costs(table):
     base = {(P[i], P[j]): C[i][j] for i in range(len(P)) for j in range(len(P)) if i != j}
     out = [{"target": t, "heard": h, "cost": c} for (t, h), c in base.items()]
     other = table["unknown_cost"]
-    for v in env.variants():
-        lang = table["langs"].get(v["lang"])
+    for code in dict.fromkeys(v["lang"] for v in env.variants()):
+        lang = table["langs"].get(code)
         if not lang:
             continue
         over = {}
@@ -37,7 +38,7 @@ def build_costs(table):
         for t in lang["unreliable"]:
             for h in P:
                 put(t, h, 0)
-        out += [{"variant": v["code"], "target": t, "heard": h, "cost": c} for (t, h), c in over.items()
+        out += [{"lang": code, "target": t, "heard": h, "cost": c} for (t, h), c in over.items()
                 if base.get((t, h), other) != c]
     return out
 
