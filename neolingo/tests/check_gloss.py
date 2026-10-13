@@ -134,7 +134,7 @@ def http():
     try:
         print(f"   scratch host on port {h.port}, var in {tmp}; started in {h.start():.1f} s (no --preload)")
         h.press(cmd="start")
-        h.press(press="practised", session=1, input="fr-fr")
+        h.setting("practised", "fr-fr")
         frj = json.loads((ROOT / "data" / "fr.json").read_text("utf-8"))
         listed = {w.lower() for x in json.loads((ROOT / "data" / "words_fr.json").read_text("utf-8")) for w in x["words"]}
         listed |= {p["text"].lower() for p in frj["phrases"]} | {v["word"].lower() for v in frj["vocabulary"]}

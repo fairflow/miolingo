@@ -77,6 +77,14 @@ class Host:
         with urllib.request.urlopen(r, timeout=600) as f:
             return json.load(f)
 
+    def setting(self, which, value, session=1):
+        """Change a setting.  Since 13 October the settings are a view of their own: `practised`, `own` and `slow` are
+        steps only while it is open, so open it, change, close it.  Returns the reply to the change itself."""
+        self.press(press="openSettings", session=session, input=None)
+        d = self.press(press=which, session=session, input=value)
+        self.press(press="closeSettings", session=session, input=None)
+        return d
+
     def take(self, wav):
         r = urllib.request.Request(self.base + "take", Path(wav).read_bytes(), {"Content-Type": "audio/wav"})
         with urllib.request.urlopen(r, timeout=60) as f:
@@ -125,7 +133,7 @@ def main():
     for variant in ("fr-fr", "en-gb", "de"):
         print(f"\n=== {variant} ===")
         if variant != "fr-fr":
-            d = h.press(press="practised", session=1, input=variant)
+            d = h.setting("practised", variant)
             check(d["step"], f"practised {variant}")
         lst = next(l for l in lists if l["variant"] == variant)["items"]
         chosen = [p for p in lst if len(p["text"].split()) >= 3][:3]
@@ -195,7 +203,7 @@ def main():
 
     print("\n=== a reload loses nothing: `start` is answered with the engine's present state ===")
     h.press(press="show", session=1, input="Practice")
-    h.press(press="practised", session=1, input="fr-fr")
+    h.setting("practised", "fr-fr")
     three = [p for p in next(l for l in lists if l["variant"] == "fr-fr")["items"] if len(p["text"].split()) >= 3][:5]
     d = h.press(press="load", session=1, input="\n".join(f"{p['text']} | {p['gloss']}" for p in three))
     d = h.press(press="goto", session=1, input=3)
@@ -220,11 +228,14 @@ def main():
     check(d.get("model") is not None, "reload with model:true carries the model view")
     rows_before = db_counts()
     d = h.press(cmd="start", fresh=True)
-    check(body(d)["list"] == [] and body(d)["phrase"] is None and body(d)["result"] is None and not body(d)["held"],
-          "start with fresh:true starts afresh: no list, no phrase, no result, nothing held")
+    # Since the stored practice lists: a session starts on the STORED list of the language practised (Load wrote it), at
+    # its first phrase; the place, the recording held and the result are per session and are gone.
+    check([x["text"] for x in body(d)["list"]] == [p["text"] for p in three] and body(d)["position"]["at"] == 1
+          and body(d)["phrase"]["text"] == three[0]["text"] and body(d)["result"] is None and not body(d)["held"],
+          "start with fresh:true starts afresh: the stored list at its first phrase, no result, nothing held")
     check(db_counts() == rows_before, "the fresh start leaves the stored data as it was")
     check("fresh, as asked" in open(VAR / "host.log").read(), "the log says the start was fresh")
-    h.press(press="practised", session=1, input="de")        # the later sections run in German, as before
+    h.setting("practised", "de")        # the later sections run in German, as before
 
     print("\n=== vocabulary and restart ===")
     h.press(press="show", session=1, input="Vocabulary")
@@ -350,10 +361,10 @@ def main():
     print("\n=== word lists: choose a list, upload its words, see the meanings ===")
     wl = json.loads(h.get("wordlists")[0])
     report = {}
-    h.press(press="own", session=1, input="en")
+    h.setting("own", "en")
     for lang in ("fr", "de", "en"):                      # for English the engine moves the learner's own language off English (to fr)
         variant = {"fr": "fr-fr", "de": "de", "en": "en-gb"}[lang]
-        h.press(press="practised", session=1, input=variant)
+        h.setting("practised", variant)
         h.press(press="show", session=1, input="Vocabulary")
         own = h.press(cmd="state")["screens"][0]["settings"]["own"]
         offered = got = 0
@@ -372,7 +383,7 @@ def main():
     check(report[("fr", "en")][1] >= 0.9 * report[("fr", "en")][0] and report[("de", "en")][1] >= 0.9 * report[("de", "en")][0],
           "at least 90% of the French and of the German words have an English meaning")
     check(db_counts()["vocabulary"] > 500, "the vocabulary rows are in SQLite")
-    h.press(press="own", session=1, input="en")
+    h.setting("own", "en")
 
     print("\nCheck timings (seconds), cold = first Check in that language in this host process, warm = second:")
     for v, (c, w) in timings.items():
