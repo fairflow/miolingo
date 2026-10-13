@@ -50,7 +50,7 @@ class Host:
     def start(self):
         t0 = time.perf_counter()
         self.proc = subprocess.Popen([sys.executable, "-m", "host.serve", "--port", str(self.port)], cwd=ROOT,
-                                     env=dict(os.environ, NEOLINGO_VAR=str(VAR)),
+                                     env=dict(os.environ, NEOLINGO_VAR=str(VAR), NEOLINGO_JUDGING="1"),
                                      stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         while True:
             if self.proc.poll() is not None:
@@ -211,6 +211,63 @@ def main():
     check(len(body(d)["rows"]) >= 1, f"history after restart: {len(body(d)['rows'])} row(s) shown for the variant practised")
     print("   history view:", hist[:300])
     check(s["settings"] == settings_before and s["settings"]["practised"] == "de", f"settings after restart as before: {s['settings']}")
+
+    print("\n=== judgements, the archive listing, the review page ===")
+    def post_json(path, obj, raw=None):
+        r = urllib.request.Request(h.base + path, raw if raw is not None else json.dumps(obj).encode(), {"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(r, timeout=30) as f:
+                return f.status, json.load(f)
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read() or b"{}")
+
+    def get_json(path):
+        try:
+            return 200, json.loads(h.get(path)[0])
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read() or b"{}")
+
+    arch = json.loads(h.get("archive?limit=50")[0])
+    items = arch["items"]
+    check(len(items) >= 6 and arch["total"] == len(items) and arch["judged"] == 0, f"archive: {len(items)} checks, none judged ({arch['judged']} of {arch['total']})")
+    check(all(a["time"] >= b["time"] for a, b in zip(items, items[1:])) and all(i["judgement"] is None for i in items), "archive: newest first, each with judgement null")
+    check(all(k in items[0] for k in ("take", "variant", "text", "banner", "target", "hear")), "archive: the lines of checks.jsonl, with their fields")
+    t1, t2 = items[0]["take"], items[1]["take"]
+    check(get_json(f"judgement?take={t1}") == (200, {}), "judgement of an unjudged take is {}")
+    st, j = post_json("judge", {"take": t1, "verdict": "harsh", "note": "the rise was fine"})
+    check(st == 200 and j["verdict"] == "harsh" and j["who"] == "me" and j["take"] == t1, f"judge: harsh stored ({st})")
+    st, j = post_json("judge", {"take": t1, "verdict": "fair"})
+    check(st == 200, "judge: a later line for the same take")
+    got = get_json(f"judgement?take={t1}")[1]
+    check(got["verdict"] == "fair" and "note" not in got, f"judgement: the later line supersedes ({got})")
+    post_json("judge", {"take": t2, "verdict": "generous", "note": "  heard a vowel that was not there "})
+    got = get_json(f"judgement?take={t2}")[1]
+    check(got["verdict"] == "generous" and got["note"] == "heard a vowel that was not there", "judgement: a note is kept (trimmed)")
+    lines = [json.loads(l) for l in open(VAR / "archive" / "judgements.jsonl")]
+    check(len(lines) == 3 and all(l["time"][:4].isdigit() and l["who"] == "me" for l in lines), "judgements.jsonl: one line a judgement, appended")
+    for what, bad in (("bad verdict", {"take": t1, "verdict": "great"}), ("no verdict", {"take": t1}), ("bad token", {"take": "../x", "verdict": "fair"}),
+                       ("short token", {"take": "t12", "verdict": "fair"}), ("no take", {"verdict": "fair"}), ("note not text", {"take": t1, "verdict": "fair", "note": 5})):
+        check(post_json("judge", bad)[0] == 400, f"judge refused: {what}")
+    check(post_json("judge", None, raw=b"not json")[0] == 400 and post_json("judge", None, raw=b"[1]")[0] == 400, "judge refused: not a JSON object")
+    check(len(open(VAR / "archive" / "judgements.jsonl").read().splitlines()) == 3, "the refused ones wrote nothing")
+    check(get_json("judgement?take=nonsense")[0] == 400, "judgement: bad token refused")
+    arch = json.loads(h.get("archive?limit=50")[0])
+    byt = {i["take"]: i for i in arch["items"]}
+    check(byt[t1]["judgement"]["verdict"] == "fair" and byt[t2]["judgement"]["verdict"] == "generous" and arch["judged"] == 2,
+          "archive: lines joined with the latest judgement; judged 2")
+    un = json.loads(h.get("archive?unjudged=1")[0])
+    check(t1 not in [i["take"] for i in un["items"]] and len(un["items"]) == len(items) - 2 and un["total"] == len(items), "archive: unjudged=1 leaves the judged out")
+    one = json.loads(h.get("archive?limit=2")[0])
+    rest = json.loads(h.get("archive?limit=50&before=" + urllib.request.quote(one["next"]))[0])
+    check(len(one["items"]) == 2 and one["next"] and [i["take"] for i in one["items"] + rest["items"]] == [i["take"] for i in arch["items"]] and rest["next"] is None,
+          "archive: paging with before= gives the same lines, no overlap")
+    fr = json.loads(h.get("archive?variant=fr-fr")[0])
+    check(fr["items"] and all(i["variant"] == "fr-fr" for i in fr["items"]) and fr["total"] < len(items), "archive: variant filter")
+    check(get_json("archive?limit=x")[0] == 400, "archive: bad limit refused")
+    data, ctype = h.get("review")
+    check(b"<title>Neolingo: review of takes</title>" in data and ctype.startswith("text/html") and b"http://" not in data and b"https://" not in data,
+          "review: HTML with its title, no external resource")
+    check(json.loads(h.get("version")[0])["judging"] is True, "version: judging true by default")
 
     print("\n=== speak ===")
     CT = {"gtts": "audio/mpeg", "say": "audio/wav", "espeak": "audio/wav"}

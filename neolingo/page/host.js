@@ -1,4 +1,4 @@
-// The real host's own script: window.NeolingoHost = { record, speak, lists, playTake, showTake }.
+// The real host's own script: window.NeolingoHost = { record, speak, lists, playTake, showTake, judgeResult }.
 // record(session): Web Audio capture -> 16 kHz mono 16-bit WAV built here (no MediaRecorder, no ffmpeg) -> POST take.
 (function () {
   'use strict';
@@ -252,9 +252,129 @@
     } catch (e) {}
   }
 
+  // ---- judgeResult(take, element): "Was this result fair?" (a test tool; the host's NEOLINGO_JUDGING=0 turns it off) ----
+  // The page calls this again with a NEW empty element at every redraw: the judgement held is cached by token, so a redraw
+  // shows it at once.  A tap is stored at once (POST judge) and marks the button; tapping the marked one again leaves it.
+  var VERDICTS = [['fair', 'Fair'], ['harsh', 'Too harsh'], ['generous', 'Too generous']];
+  var judgeCache = {}, judgeOrder = [], judgingP = null;     // token -> {verdict, note} (ready) or a Promise of it
+  function judgingOn() {                                    // a Promise<boolean>, asked once: GET version says "judging"
+    if (!judgingP) {
+      judgingP = fetch('version').then(function (r) { return r.json(); }).then(function (v) { return v.judging !== false; },
+                                                                            function () { return false; });
+    }
+    return judgingP;
+  }
+  function rememberJudgement(token, value) {
+    if (!(token in judgeCache)) { judgeOrder.push(token); if (judgeOrder.length > 200) delete judgeCache[judgeOrder.shift()]; }
+    judgeCache[token] = value;
+  }
+  function tint(colour) {                                   // 'rgb(r, g, b)' -> the same at 18% opacity, or ''
+    var m = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/.exec(colour || '');
+    return m ? 'rgba(' + m[1] + ',' + m[2] + ',' + m[3] + ',0.18)' : '';
+  }
+  function drawJudge(take, element, j) {
+    element.innerHTML = '';
+    var colour = '', tinted = '';
+    try { colour = getComputedStyle(element).color || ''; tinted = tint(colour); } catch (e) {}
+    var state = { verdict: (j && j.verdict) || null, note: (j && j.note) || '' };
+    var box = document.createElement('div');
+    box.style.cssText = 'margin-top:.6em;font-size:.9em;line-height:1.4';
+    var q = document.createElement('div'); q.textContent = 'Was this result fair?'; q.style.cssText = 'opacity:.85;margin-bottom:.3em';
+    var row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:.4em;align-items:center';
+    var msg = document.createElement('div'); msg.style.cssText = 'font-size:.9em;margin-top:.3em;min-height:1.2em';
+    var shown = document.createElement('div'); shown.style.cssText = 'font-style:italic;margin-top:.3em;word-break:break-word';
+    var field = document.createElement('div'), input = null;
+    var buttons = {};
+    function say(t) { msg.textContent = t || ''; }
+    function showNote() { shown.textContent = state.note ? '“' + state.note + '”' : ''; }
+    function mark() {
+      VERDICTS.forEach(function (v) {
+        var on = state.verdict === v[0], b = buttons[v[0]];
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        b.textContent = (on ? '✓ ' : '') + v[1];
+        b.style.fontWeight = on ? '600' : 'normal';
+        b.style.borderWidth = on ? '2px' : '1px';
+        b.style.background = on && tinted ? tinted : 'transparent';
+      });
+    }
+    function store(verdict, note, previous) {                // optimistic: marked at once, put back if the host refuses
+      state.verdict = verdict; state.note = note; mark(); showNote(); say('');
+      rememberJudgement(take, { verdict: verdict, note: note });
+      var body = { take: take, verdict: verdict }; if (note) body.note = note;
+      try {
+        fetch('judge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { if (!r.ok) throw new Error('refused'); }).then(null, function () {
+            state.verdict = previous.verdict; state.note = previous.note;
+            rememberJudgement(take, previous.verdict ? previous : {});
+            mark(); showNote(); say('Not saved: the host did not take it.');
+          });
+      } catch (e) { say('Not saved.'); }
+    }
+    function btn(label) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = label;
+      b.style.cssText = 'font:inherit;color:inherit;background:transparent;border:1px solid ' + (colour || 'currentColor') +
+        ';border-radius:.4em;padding:.35em .7em;min-height:40px;cursor:pointer';
+      return b;
+    }
+    VERDICTS.forEach(function (v) {
+      var b = btn(v[1]); buttons[v[0]] = b;
+      b.onclick = function () {
+        try {
+          if (state.verdict === v[0]) return;               // the marked one again: leave it
+          store(v[0], input ? input.value.trim() : state.note, { verdict: state.verdict, note: state.note });
+        } catch (e) {}
+      };
+      row.appendChild(b);
+    });
+    var link = document.createElement('button');
+    link.type = 'button'; link.textContent = 'note';
+    link.style.cssText = 'font:inherit;color:inherit;background:none;border:0;padding:.5em .3em;min-height:40px;text-decoration:underline;cursor:pointer;opacity:.85';
+    link.onclick = function () {
+      try {
+        if (input) { input.focus(); return; }
+        input = document.createElement('input'); input.type = 'text'; input.maxLength = 500; input.value = state.note;
+        input.setAttribute('aria-label', 'Note on this result');
+        input.style.cssText = 'font:inherit;color:inherit;background:transparent;border:1px solid ' + (colour || 'currentColor') +
+          ';border-radius:.4em;padding:.35em .5em;min-height:40px;flex:1 1 12em;min-width:0;box-sizing:border-box';
+        var save = btn('Save');
+        save.onclick = function () {
+          try {
+            if (!state.verdict) { say('Choose Fair, Too harsh or Too generous first; the note goes with it.'); return; }
+            store(state.verdict, input.value.trim(), { verdict: state.verdict, note: state.note });
+          } catch (e) {}
+        };
+        field.style.cssText = 'display:flex;flex-wrap:wrap;gap:.4em;margin-top:.4em';
+        field.appendChild(input); field.appendChild(save);
+        input.focus();
+      } catch (e) {}
+    };
+    row.appendChild(link);
+    mark(); showNote();
+    box.appendChild(q); box.appendChild(row); box.appendChild(shown); box.appendChild(field); box.appendChild(msg);
+    element.appendChild(box);
+  }
+  function judgeResult(take, element) {
+    try {
+      if (!element || !take) return;
+      judgingOn().then(function (on) {
+        if (!on) return;                                    // judging is off: the element stays empty
+        var c = judgeCache[take];
+        if (c && !c.then) { drawJudge(take, element, c); return; }
+        if (!c) {
+          c = fetch('judgement?take=' + encodeURIComponent(take)).then(function (r) { return r.ok ? r.json() : {}; })
+            .then(function (j) { return j || {}; }, function () { return {}; });
+          rememberJudgement(take, c);
+          c.then(function (j) { if (judgeCache[take] === c) rememberJudgement(take, j); });
+        }
+        c.then(function (j) { drawJudge(take, element, j); });
+      }).then(null, function () {});
+    } catch (e) {}
+  }
+
   // ---- lists() ----
   function lists() { return fetch('lists').then(function (r) { return r.json(); }); }
 
-  window.NeolingoHost = { record: record, speak: speak, lists: lists, playTake: playTake, showTake: showTake,
+  window.NeolingoHost = { record: record, speak: speak, lists: lists, playTake: playTake, showTake: showTake, judgeResult: judgeResult,
                           _wav16: wav16, _resample: resample, _parseWav: parseWav, _peaks: peaks, _reduce: reduce };
 })();
