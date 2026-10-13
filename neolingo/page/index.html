@@ -29,7 +29,9 @@
   .filerow { margin-bottom: 6px; font-size: .9rem; }
   h2 { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
     margin: 18px 0 6px; font-weight: 600; }
-  .ipa { font-family: "Charis SIL", "Doulos SIL", "Gentium Plus", "Noto Serif", "Times New Roman", serif;
+  /* NOT "Noto Serif": its length mark U+02D0 has no advance, so a long vowel ran into the next sound ("oːi" drawn
+     as one blot). Measured 13 October: 0 px there, 6.7 px in Times New Roman at this size. */
+  .ipa { font-family: "Charis SIL", "Doulos SIL", "Gentium Plus", "Times New Roman", "Times", serif;
     font-size: 1.5rem; line-height: 1.35; }
   .muted { color: var(--muted); }
   button, select, input[type=text] { font: inherit; color: inherit; }

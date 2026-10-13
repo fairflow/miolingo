@@ -1,3 +1,4 @@
+0.34	A long vowel no longer runs into the next sound in the lines of sounds.
 0.33	Continue as a guest: the whole app, and nothing is kept.
 0.32	Sign in, register and sign out. Your settings are saved when you sign out.
 0.31	The settings are a view of their own: Settings opens it, Done returns to the app as you left it.
