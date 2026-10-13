@@ -192,7 +192,8 @@ synthetic voices have been run); no cleanup of `var/speech/`.
 
 ## Keeping it alive (written 2026-10-13, when the work was set down)
 
-Nothing starts the host at login. After a reboot, from this folder:
+To have the host start at login and restart if it fails, run `./install_login_item.sh` ONCE yourself
+(`./install_login_item.sh remove` undoes it). Without that, nothing starts it; after a reboot, from this folder:
 
     NEOLINGO_SLOTS=2 nohup ./run.sh --port 8810 >> var/host.log 2>&1 &
 
