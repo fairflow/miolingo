@@ -88,6 +88,16 @@ from the host log and the history table (opened read-only); they lack the banner
 runs each archived take through `env.audible / hear / sounds` and a scratch engine session and prints SAME or CHANGED (with what) a take;
 exit code 1 if anything changed. A change is not always a fault: a better recogniser or a new rule changes results; read it, then decide.
 
+**Human judgements.** `var/archive/judgements.jsonl` has one line a judgement: `time`, `take`, `verdict` (`fair`, `harsh` or `generous`), an optional
+`note`, `who` (`"me"`); a later line for the same take supersedes an earlier one. `POST /judge` `{"take","verdict","note"}` writes one (token and verdict
+validated); `GET /judgement?take=` returns the latest or `{}`. The app page, once it calls the host's `judgeResult(take, element)` hook (protocol section 8),
+shows "Was this result fair?" with Fair / Too harsh / Too generous and a note under each result. **The switch:** `NEOLINGO_JUDGING=0` in the host's
+environment hides it (default on); `GET /version` reports `"judging": true|false`. **The review page**, `http://127.0.0.1:8810/review` (`page/review.html`; a test
+tool, not part of the app), lists the archived checks newest first with the banner, target and heard sounds, warnings, a Play button, a waveform and the
+same buttons and note; filters: variant and "not yet judged" (default on), "Load more" pages 50 at a time (`GET /archive?limit=&before=&variant=&unjudged=`
+gives the lines joined with their latest judgement). `replay_archive.py` shows each take's judgement, counts them, and takes `--judged` (only judged takes);
+it also reports, of the takes judged too harsh, how many now score higher.
+
 **Reference sweep**: `venv/bin/python neolingo/tests/reference_sweep.py [--engines gtts,say,espeak] [--langs en,fr,de] [--limit N]` makes every phrase of
 `data/{en,fr,de}.json` with the host's speech code (gTTS uses the network the first time; results are cached), decodes it to 16 kHz mono under
 `var/sweep/`, checks it as a learner's take, and writes `var/sweep/results.jsonl` and `var/sweep/report.txt` (not audible, not understood, score
@@ -109,7 +119,7 @@ tokens carrying ː and writes length; the French specialist has only a lone "ː"
 
 ## Not here yet
 
-HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `record`) and the drawing and playing of takes (`showTake`, `playTake`) are untested in a browser;
+HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `record`) and the drawing and playing of takes (`showTake`, `playTake`) are untested in a browser; `judgeResult` is tested only under node with a fake DOM (and called by hand in a desktop browser pane), not inside the real app page;
 the page does not yet call `speak` or `lists` (they work from the console); the stretched score curve (the engine has
 only sqrt and linear); the sign-in and more than one learner; accuracy of the recognisers on real learners (only
 synthetic voices have been run); no cleanup of `var/speech/`.

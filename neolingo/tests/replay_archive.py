@@ -1,6 +1,6 @@
 """Replay the archive: the regression test with real sound.
 
-    <miolingo venv python> tests/replay_archive.py [--variant fr-fr] [--since 2026-10-13] [--limit N]
+    <miolingo venv python> tests/replay_archive.py [--variant fr-fr] [--since 2026-10-13] [--limit N] [--judged]
 
 For every line of var/archive/checks.jsonl the take (var/archive/takes/<token>.wav) is run again through
 env.audible, env.hear and env.sounds, as the host answers the engine's questions, inside a scratch engine session
@@ -8,6 +8,10 @@ env.audible, env.hear and env.sounds, as the host answers the engine's questions
 recorded: the text heard, the sounds heard, the flags, the score, whether it was understood; and, where the
 line has them (not for "reconstructed" lines), the target sounds, the banner, the flag lines, the aligned columns and
 droppedFlags.  One line a take: SAME, or CHANGED with what changed.  Exit code 1 if anything changed.
+
+Each line also shows the latest human judgement of the take (var/archive/judgements.jsonl: fair, harsh, generous, or
+unjudged), the summary counts them, and --judged replays only the judged takes.  So a change can be read as "of the takes
+judged too harsh, how many now score higher": the score shown is "old -> new" for a CHANGED line.
 
 The scratch session has its own in-memory store and its log goes to var/replay/; the live database and the
 archive are only read.  Nothing here touches the network (Hugging Face is offline)."""
@@ -23,6 +27,7 @@ os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from host import paths                                    # noqa: E402
+from host import archive                                  # noqa: E402
 
 (paths.VAR / "replay").mkdir(parents=True, exist_ok=True)
 paths.LOG = paths.VAR / "replay" / "replay.log"
@@ -111,6 +116,7 @@ def main():
     ap.add_argument("--variant")
     ap.add_argument("--since", help="a date, YYYY-MM-DD: lines of that day and later")
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--judged", action="store_true", help="only the takes that have a human judgement")
     a = ap.parse_args()
     f = paths.ARCHIVE / "checks.jsonl"
     if not f.exists():
@@ -120,23 +126,40 @@ def main():
         lines = [l for l in lines if l["variant"] == a.variant]
     if a.since:
         lines = [l for l in lines if l["time"][:10] >= a.since]
+    js = archive.judgements()
+    if a.judged:
+        lines = [l for l in lines if l["take"] in js]
     if a.limit:
         lines = lines[:a.limit]
     eng = Engine(build_config())
     eng.env = ArchiveEnvironment()
     same = changed = 0
+    verdicts = {"fair": 0, "harsh": 0, "generous": 0, "unjudged": 0}
+    harsh_up = harsh_n = gen_down = gen_n = 0               # of "too harsh" takes how many now score higher; of "too generous" lower
     t0 = time.perf_counter()
     for l in lines:
         tag = " (reconstructed)" if l.get("reconstructed") else ""
+        new = None
         try:
-            ch = compare(l, replay_one(eng, None, l))
+            new = replay_one(eng, None, l)
+            ch = compare(l, new)
         except Exception as e:
             ch = [f"ERROR {type(e).__name__}: {e}"]
             try:
                 eng.restart()
             except Exception:
                 pass
-        head = f"{l['time'][5:19]} {l['variant']:5} {l['take']} {l['text']!r} score {l.get('score')}{tag}"
+        verdict = (js.get(l["take"]) or {}).get("verdict") or "unjudged"
+        verdicts[verdict if verdict in verdicts else "unjudged"] += 1
+        old_s, new_s = l.get("score"), (new or {}).get("score")
+        if verdict == "harsh" and isinstance(old_s, (int, float)) and isinstance(new_s, (int, float)):
+            harsh_n += 1
+            harsh_up += new_s > old_s
+        if verdict == "generous" and isinstance(old_s, (int, float)) and isinstance(new_s, (int, float)):
+            gen_n += 1
+            gen_down += new_s < old_s
+        head = (f"{l['time'][5:19]} {l['variant']:5} {l['take']} {l['text']!r} score {old_s}"
+                + (f" -> {new_s}" if new_s is not None and new_s != old_s else "") + f" [{verdict}]{tag}")
         if ch:
             changed += 1
             print(f"CHANGED {head}\n          " + "\n          ".join(ch))
@@ -146,6 +169,11 @@ def main():
     rec = sum(1 for l in lines if l.get("reconstructed"))
     print(f"\nreplayed {len(lines)} takes ({rec} reconstructed lines) in {time.perf_counter() - t0:.0f} s: "
           f"{same} SAME, {changed} CHANGED")
+    print(f"judged: {verdicts['fair']} fair, {verdicts['harsh']} harsh, {verdicts['generous']} generous, {verdicts['unjudged']} unjudged")
+    if harsh_n:
+        print(f"of the {harsh_n} takes judged too harsh, {harsh_up} now score higher")
+    if gen_n:
+        print(f"of the {gen_n} takes judged too generous, {gen_down} now score lower")
     eng.proc.terminate()
     sys.exit(1 if changed else 0)
 
