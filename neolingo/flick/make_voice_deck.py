@@ -8,6 +8,8 @@ network).  Which engine is A and which is B is decided by a hash of the phrase, 
 from the position; the engine is recorded in the card (`a.engine`, `b.engine`) for the tally, and the page
 shows only "A" and "B"."""
 import argparse
+import subprocess
+import tempfile
 import hashlib
 import json
 import re
@@ -23,6 +25,24 @@ from host import speech                      # noqa: E402
 VAR = ROOT / "var" / "flick"
 AUDIO = VAR / "audio"
 LANGS = [("en", "en-gb"), ("fr", "fr-fr"), ("de", "de")]
+# The Mac voices to compare with Google's: Apple's Premium voices where installed (System Settings > Accessibility >
+# Spoken Content), else the compact voice the host picks.  Spoken at the host's own rate (175), kept at full quality.
+MAC = {"en-gb": "Serena (Premium)", "fr-fr": "Audrey (Premium)", "de": "Petra (Premium)"}
+
+
+def mac_voice(variant):
+    want = MAC.get(variant)
+    installed = [v for vs in speech.say_voices().values() for v in vs]
+    return want if want in installed else speech.pick_voice(variant)
+
+
+def say_to(text, voice, out):
+    """`say` with a named voice to an AAC file (no network)."""
+    with tempfile.TemporaryDirectory() as td:
+        tf, aiff = Path(td) / "t.txt", Path(td) / "o.aiff"
+        tf.write_text(text, "utf-8")
+        subprocess.run(["say", "-v", voice, "-r", "175", "-o", str(aiff), "-f", str(tf)], check=True)
+        subprocess.run(["afconvert", "-f", "m4af", "-d", "aac", str(aiff), str(out)], check=True)
 
 
 def phrases(lang, per):
@@ -41,18 +61,20 @@ def main():
     for lang, variant in LANGS:
         for n, text in enumerate(phrases(lang, a.per)):
             got = {}
-            for engine in ("gtts", "say"):
-                p, _ctype, used = speech.speak(text, variant, False, only=engine)
-                name = f"voices-{lang}-{n}-{engine}{Path(p).suffix}"
-                shutil.copyfile(p, AUDIO / name)
-                got[engine] = name
+            p, _ctype, _used = speech.speak(text, variant, False, only="gtts")
+            got["gtts"] = f"voices-{lang}-{n}-gtts{Path(p).suffix}"
+            shutil.copyfile(p, AUDIO / got["gtts"])
+            got["say"] = f"voices-{lang}-{n}-mac.m4a"
+            say_to(text, mac_voice(variant), AUDIO / got["say"])
             first = "gtts" if int(hashlib.sha1(text.encode("utf-8")).hexdigest(), 16) % 2 == 0 else "say"
             second = "say" if first == "gtts" else "gtts"
             cards.append({"id": f"voices-{lang}-{n}", "kind": "voice", "variant": variant, "phrase": text,
-                          "a": {"label": "Voice A", "audio": f"/audio/{got[first]}", "engine": first},
-                          "b": {"label": "Voice B", "audio": f"/audio/{got[second]}", "engine": second}})
+                          "a": {"label": "Voice A", "audio": f"/audio/{got[first]}", "engine": first,
+                                "voice": "Google" if first == "gtts" else mac_voice(variant)},
+                          "b": {"label": "Voice B", "audio": f"/audio/{got[second]}", "engine": second,
+                                "voice": "Google" if second == "gtts" else mac_voice(variant)}})
     deck = {"title": "Which voice would you rather imitate?", "made": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-            "config": f"gTTS (Google) against macOS say ({', '.join(str(speech.pick_voice(v)) for _l, v in LANGS)}), "
+            "config": f"gTTS (Google) against macOS say ({', '.join(str(mac_voice(v)) for _l, v in LANGS)}), "
                       "normal speed; A/B order by hash of the phrase",
             "cards": cards}
     (VAR / "deck-voices.json").write_text(json.dumps(deck, ensure_ascii=False, indent=1), "utf-8")
