@@ -1,0 +1,207 @@
+"""The host, over HTTP only (plus a look into its SQLite file).
+
+    ~/Software/working/miolingo/venv/bin/python neolingo/tests/check_host.py
+
+Starts the host on a free port with its own var/ directory (var/check_host/, git-ignored, emptied first), so the
+running host's database is untouched.  Every recording is SYNTHETIC (espeak-ng); the microphone is not exercised.
+The phrase said is the first phrase of the list with at least three words: the first phrase of each list is a
+single short word ("Oui"), under the quarter second of sound that env.audible requires.
+"""
+import json
+import os
+import shutil
+import socket
+import sqlite3
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+VAR = ROOT / "var" / "check_host"
+ESPEAK = shutil.which("espeak-ng") or "espeak-ng"
+VOICE = {"fr-fr": "fr-fr", "en-gb": "en-gb", "de": "de"}
+LANG_OF = {"fr-fr": "fr", "en-gb": "en", "de": "de"}
+fails = []
+
+
+def check(cond, what):
+    print(("  ok   " if cond else "  FAIL ") + what)
+    if not cond:
+        fails.append(what)
+
+
+def free_port():
+    s = socket.socket()
+    s.bind(("127.0.0.1", 0))
+    p = s.getsockname()[1]
+    s.close()
+    return p
+
+
+class Host:
+    def __init__(self):
+        self.port = free_port()
+        self.base = f"http://127.0.0.1:{self.port}/"
+        self.proc = None
+
+    def start(self):
+        t0 = time.perf_counter()
+        self.proc = subprocess.Popen([sys.executable, "-m", "host.serve", "--port", str(self.port)], cwd=ROOT,
+                                     env=dict(os.environ, NEOLINGO_VAR=str(VAR)),
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        while True:
+            if self.proc.poll() is not None:
+                sys.exit("the host exited: " + self.proc.stderr.read().decode()[-2000:])
+            try:
+                self.get("version")
+                break
+            except (urllib.error.URLError, ConnectionError):
+                time.sleep(0.2)
+            if time.perf_counter() - t0 > 180:
+                sys.exit("the host did not come up")
+        return time.perf_counter() - t0
+
+    def stop(self):
+        self.proc.terminate()
+        self.proc.wait(20)
+
+    def get(self, path):
+        with urllib.request.urlopen(self.base + path, timeout=300) as r:
+            return r.read(), r.headers.get("Content-Type")
+
+    def press(self, **m):
+        r = urllib.request.Request(self.base + "press", json.dumps(m).encode(), {"Content-Type": "application/json"})
+        with urllib.request.urlopen(r, timeout=600) as f:
+            return json.load(f)
+
+    def take(self, wav):
+        r = urllib.request.Request(self.base + "take", Path(wav).read_bytes(), {"Content-Type": "audio/wav"})
+        with urllib.request.urlopen(r, timeout=60) as f:
+            return json.load(f)["take"]
+
+
+def db_counts():
+    c = sqlite3.connect(VAR / "neolingo.sqlite")
+    try:
+        return {t: c.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in ("settings", "vocabulary", "history")}
+    finally:
+        c.close()
+
+
+def body(d):
+    return d["screens"][0]["body"]
+
+
+def main():
+    shutil.rmtree(VAR, ignore_errors=True)
+    VAR.mkdir(parents=True)
+    h = Host()
+    print(f"engine and host start: {h.start():.1f} s (first start, models not yet loaded)")
+    print(open(VAR / "host.log").read().strip().splitlines()[1])
+    ver = json.loads(h.get("version")[0])
+    print("version:", ver)
+    check(ver["page"].startswith("v") and ver["source"] != "unknown" and ver["host"] != "unknown", "version has page, source and host hash")
+    page = h.get("")[0].decode()
+    check(page.index('<script src="host.js"></script>') < page.index("// v0.20"), "the page carries host.js before its own script")
+    check(b"NeolingoHost" in h.get("host.js")[0], "host.js is served")
+    lists = json.loads(h.get("lists")[0])
+    check([l["variant"] for l in lists] == ["en-gb", "fr-fr", "de"] and all(len(l["items"]) > 10 for l in lists), "lists: en, fr, de")
+
+    d = h.press(cmd="start")
+    check("test" not in d and "takes" not in d, "start: a real host (no 'test', no 'takes')")
+    check(d["screens"][0]["settings"] == {"own": "en", "practised": "fr-fr", "slow": False}, "default settings en / fr-fr / not slow")
+
+    timings = {}
+    for variant in ("fr-fr", "en-gb", "de"):
+        print(f"\n=== {variant} ===")
+        if variant != "fr-fr":
+            d = h.press(press="practised", session=1, input=variant)
+            check(d["step"], f"practised {variant}")
+        lst = next(l for l in lists if l["variant"] == variant)["items"]
+        chosen = [p for p in lst if len(p["text"].split()) >= 3][:3]
+        text = "\n".join(f"{p['text']} | {p['gloss']}" for p in chosen)
+        d = h.press(press="load", session=1, input=text)
+        b = body(d)
+        check(b["phrase"] and b["phrase"]["text"] == chosen[0]["text"], f"load: first phrase is {chosen[0]['text']!r}, ipa {b['phrase']['ipa'] if b['phrase'] else None}")
+        c = h.press(cmd="can", asks=[{"press": "record", "session": 1, "input": "x"}, {"press": "check", "session": 1, "input": None}])
+        check(c["can"] == [True, False], f"can: record yes, check not yet ({c['can']})")
+        wav = VAR / f"{variant}.wav"
+        subprocess.run([ESPEAK, "-v", VOICE[variant], "-w", str(wav), chosen[0]["text"]], check=True)
+        tk = h.take(wav)
+        check(tk.isalnum(), f"take uploaded: {tk}")
+        check((VAR / "takes" / f"{tk}.wav").exists(), "take file is under var/takes/")
+        d = h.press(press="record", session=1, input=tk)
+        check(d["step"] and body(d)["held"], f"record: step, held ({d['message']!r})")
+        before = db_counts()["history"]
+        runs = []
+        for run in ("cold", "warm"):
+            t0 = time.perf_counter()
+            d = h.press(press="check", session=1, input=None)
+            runs.append(time.perf_counter() - t0)
+            check(d["step"] and "write" in d and d["write"], f"check ({run}): a step with a write, {runs[-1]:.2f} s")
+            if run == "cold":
+                res = body(d)["result"]
+                check(res is not None, "check: a result")
+                print("   result:", json.dumps(res, ensure_ascii=False)[:400])
+                check(db_counts()["history"] == before + 1, "check: exactly one history row written to SQLite")
+                check(isinstance(d["write"]["row"]["score"], int), f"score {d['write']['row']['score']}%")
+            if run == "cold":
+                shown = len(body(d)["result"]["flags"])
+                flaglog = [l for l in open(VAR / "host.log").read().splitlines() if "flags given" in l][-1]
+                print(f"   flags: {shown} shown on the screen; host log: {flaglog[20:]}")
+                tk = h.take(wav)                         # a NEW token: the engine remembers answers per take
+                d = h.press(press="record", session=1, input=tk)
+                check(d["step"], "record again (new token) for the warm Check")
+        timings[variant] = runs
+
+    print("\n=== vocabulary and restart ===")
+    h.press(press="show", session=1, input="Vocabulary")
+    d = h.press(press="addWord", session=1, input="gare")
+    check(d["step"], f"addWord: {d['message']!r}")
+    counts = db_counts()
+    print("   database:", counts)
+    check(counts["history"] == 6 and counts["vocabulary"] >= 1, "SQLite holds the history rows and the word")
+    settings_before = h.press(cmd="state")["screens"][0]["settings"]
+    h.stop()
+    print(f"host stopped; restart: {h.start():.1f} s")
+    d = h.press(cmd="start")
+    s = d["screens"][0]
+    check(db_counts() == counts, "after restart the database is unchanged")
+    d = h.press(press="show", session=1, input="Vocabulary")
+    rows = body(d)["rows"]
+    check(any("gare" in json.dumps(r, ensure_ascii=False) for r in rows), f"vocabulary after restart has 'gare' ({len(rows)} rows)")
+    d = h.press(press="show", session=1, input="History")
+    hist = json.dumps(body(d), ensure_ascii=False)
+    check(len(body(d)["rows"]) >= 1, f"history after restart: {len(body(d)['rows'])} row(s) shown for the variant practised")
+    print("   history view:", hist[:300])
+    check(s["settings"] == settings_before and s["settings"]["practised"] == "de", f"settings after restart as before: {s['settings']}")
+
+    print("\n=== speak ===")
+    for variant, text in (("fr-fr", "Je cherche la gare"), ("en-gb", "Thank you very much"), ("de", "Guten Tag")):
+        t0 = time.perf_counter()
+        data, ctype = h.get("speak?text=" + urllib.request.quote(text) + f"&variant={variant}&slow=false")
+        t1 = time.perf_counter() - t0
+        check(data[:4] == b"RIFF" and data[8:12] == b"WAVE" and len(data) > 5000 and ctype == "audio/wav", f"speak {variant}: WAV, {len(data)} bytes, {t1:.2f} s")
+    data, _ = h.get("speak?text=Bonjour&variant=fr-fr&slow=true")
+    check(data[:4] == b"RIFF", "speak slow")
+    check(len(list((VAR / "speech").glob("*.wav"))) >= 4, "speech cached under var/speech/")
+
+    print("\nCheck timings (seconds), cold = first Check in that language in this host process, warm = second:")
+    for v, (c, w) in timings.items():
+        print(f"   {v}: cold {c:.2f}, warm {w:.2f}")
+    log = open(VAR / "host.log").read()
+    print("flag lines of the host log:")
+    for l in log.splitlines():
+        if "flags given" in l:
+            print("  ", l)
+    h.stop()
+    if fails:
+        sys.exit(f"{len(fails)} FAILED: {fails}")
+    print("\nall checks passed")
+
+
+if __name__ == "__main__":
+    main()

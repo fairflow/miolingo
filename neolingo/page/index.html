@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neolingo</title>
+<style>
+  :root {
+    --bg: #fbfbf9; --panel: #ffffff; --fg: #1c1d1f; --muted: #5d6066; --rule: #d9dad6;
+    --accent: #1f4e79; --accent-fg: #ffffff;
+    --ok: #1d6b34; --check: #9a5200; --off: #b3201c;
+    --ok-bg: #e8f3ea; --off-bg: #fbe9e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151618; --panel: #1e2023; --fg: #ecece8; --muted: #a3a6ad; --rule: #383b40;
+      --accent: #8fbce6; --accent-fg: #10161c;
+      --ok: #7fd093; --check: #f0b25c; --off: #ff8f88;
+      --ok-bg: #1c2b21; --off-bg: #33201f;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 34rem; margin: 0 auto; padding: 12px 16px 32px; }
+  h1 { font-size: 1.15rem; margin: 4px 0 8px; font-weight: 650; }
+  h2 { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+    margin: 18px 0 6px; font-weight: 600; }
+  .ipa { font-family: "Charis SIL", "Doulos SIL", "Gentium Plus", "Noto Serif", "Times New Roman", serif;
+    font-size: 1.5rem; line-height: 1.35; }
+  .muted { color: var(--muted); }
+  button, select, input[type=text] { font: inherit; color: inherit; }
+  button { border: 1px solid var(--rule); background: var(--panel); border-radius: 8px; padding: 9px 14px;
+    min-height: 44px; }
+  button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; }
+  button:disabled, button.primary:disabled, button[aria-disabled=true], button.primary[aria-disabled=true] { color: var(--muted); background: transparent; border: 1px dashed var(--rule);
+    font-weight: 400; opacity: .55; cursor: not-allowed; }
+  nav.tabs button:disabled, nav.tabs button[aria-disabled=true] { border: 0; border-bottom: 3px solid transparent; opacity: 1; cursor: default; }
+  input[type=text], select { border: 1px solid var(--rule); background: var(--panel); border-radius: 8px;
+    padding: 9px 10px; min-height: 44px; min-width: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .row > input[type=text] { flex: 1 1 8rem; }
+  .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; }
+
+  details.settings { border-bottom: 1px solid var(--rule); padding-bottom: 8px; margin-bottom: 8px; }
+  details.settings summary { cursor: pointer; padding: 8px 0; }
+  .settings .grid { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 6px 0 4px; }
+  .settings label { display: flex; flex-direction: column; gap: 3px; font-size: .875rem; color: var(--muted); }
+  .settings label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--fg); font-size: 1rem;
+    min-height: 44px; }
+
+  nav.tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--rule); margin-bottom: 12px; }
+  nav.tabs button { border: 0; border-radius: 0; background: none; padding: 10px 2px; font-size: .95rem;
+    border-bottom: 3px solid transparent; color: var(--muted); }
+  nav.tabs button[aria-selected=true] { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }
+
+  .phrase { font-size: 1.5rem; line-height: 1.3; font-weight: 600; margin: 2px 0; text-wrap: balance; }
+  .counter { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .banner { border-radius: 8px; padding: 10px 12px; font-weight: 600; font-size: 1.05rem; margin-bottom: 10px; }
+  .banner.no { background: var(--off-bg); }
+  .banner.yes { background: var(--ok-bg); }
+  dl.result { margin: 0; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  dl.result dt { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  dl.result dd { margin: 0; }
+  .s-ok { color: var(--ok); }
+  .s-check { color: var(--check); text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; font-weight: 700; }
+  .s-off { color: var(--off); text-decoration: underline solid; text-decoration-thickness: 3px; text-underline-offset: 5px; font-weight: 700; }
+  ul.flags { margin: 6px 0 0; padding-left: 1.1em; }
+  ul.flags li { margin: 2px 0; }
+  .legend { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+
+  .day { font-weight: 600; margin: 14px 0 4px; }
+  .hrow { border-top: 1px solid var(--rule); padding: 8px 0; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; }
+  .hrow .score { font-variant-numeric: tabular-nums; font-weight: 600; align-self: start; }
+  .hrow .ipa { font-size: 1.2rem; }
+  .hrow span.k { color: var(--muted); }
+
+  .figs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fig { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px; }
+  .fig b { display: block; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+  .fig span { color: var(--muted); font-size: .9rem; }
+
+  .vrow { border-top: 1px solid var(--rule); padding: 10px 0; }
+  .vrow .head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .vrow .w { font-weight: 600; font-size: 1.1rem; }
+  .vrow .ipa { font-size: 1.2rem; }
+  .vrow .acts button { min-height: 36px; padding: 5px 10px; font-size: .9rem; }
+  .vrow form { display: grid; gap: 8px; margin-top: 8px; }
+  .vrow form label { display: flex; flex-direction: column; gap: 3px; font-size: .875rem; color: var(--muted); }
+
+  footer { margin-top: 28px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 8px; }
+  [hidden] { display: none !important; }
+
+  textarea { font: inherit; color: inherit; border: 1px solid var(--rule); background: var(--panel); border-radius: 8px;
+    padding: 9px 10px; width: 100%; min-height: 6.5em; }
+  details.more { margin-top: 12px; }
+  details.more summary { cursor: pointer; padding: 6px 0; color: var(--muted); }
+  details.more .row { margin-top: 6px; }
+  .test { border: 1px dashed var(--rule); border-radius: 8px; padding: 8px 10px; margin-top: 10px; font-size: .9rem; color: var(--muted); }
+  .test select { min-height: 36px; padding: 5px 8px; color: var(--fg); max-width: 100%; }
+  .held { margin-top: 8px; }
+  /* a status message is an event of the press: it flashes each time, also when its text is the same as before */
+  .reason { color: var(--check); font-size: .9rem; min-height: 0; margin-top: 3px; }
+  .reason:empty, .status:empty { display: none; }
+  .status { margin-top: 8px; font-weight: 600; border-radius: 6px; padding: 2px 6px; margin-left: -6px; animation: said 1.2s ease-out; }
+  @keyframes said { from { background: var(--accent); color: var(--accent-fg); } to { background: transparent; color: inherit; } }
+  @media (prefers-reduced-motion: reduce) { .status { animation: none; } }
+  .earlier { font-weight: 600; margin: 0 0 6px; }
+  .card.stale { opacity: .45; filter: grayscale(1); }
+  .hline { overflow-wrap: anywhere; }
+  .note { min-height: 1.4em; color: var(--fg); }
+  footer a { color: var(--accent); }
+
+  main.wide { max-width: 72rem; }
+  .strip { border: 1px dashed var(--rule); border-radius: 8px; padding: 6px 10px; margin-bottom: 12px; font-size: .875rem; color: var(--muted); }
+  .strip summary { cursor: pointer; }
+  .strip fieldset { border: 0; padding: 4px 0; margin: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .strip legend { float: left; margin-right: 10px; font-weight: 600; padding: 0; }
+  .strip label { white-space: nowrap; }
+  .sessions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 24px; align-items: start; }
+  .sess { min-width: 0; }
+  .sesslabel { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600;
+    border-top: 3px solid var(--rule); padding-top: 6px; margin-bottom: 4px; }
+  .model { border: 1px dashed var(--rule); border-radius: 8px; padding: 4px 12px 12px; margin-top: 24px; font-size: .9rem; min-width: 0; }
+  .model h2 { margin-top: 16px; }
+  .model .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 8px 24px; }
+  .model pre { margin: 0; font: .85rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-x: auto; }
+  .model .reg { font-weight: 600; margin-top: 6px; }
+  .model .tw { overflow-x: auto; }
+  .model table { border-collapse: collapse; width: 100%; }
+  .model td, .model th { text-align: left; vertical-align: top; padding: 3px 10px 3px 0; border-top: 1px solid var(--rule); }
+  .model th { color: var(--muted); font-weight: 600; border-top: 0; }
+  .model code, .model .c { font: .85rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+  .model .c span { display: inline-block; margin-right: 10px; }
+  .model .apart { color: var(--muted); opacity: .6; }
+  .model .bad { color: var(--off); font-weight: 600; }
+  .model ul { margin: 4px 0; padding-left: 1.2em; }
+
+  /* the bigraph drawings of the model view */
+  .bgwrap { overflow-x: auto; padding-bottom: 4px; }
+  .bg { position: relative; display: flex; gap: 90px; align-items: flex-start; width: max-content; min-width: 100%; }
+  .bg svg { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+  .bgregions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+  .breg { border: 2px dashed var(--muted); border-radius: 12px; padding: 4px 8px 8px; }
+  .breg > .cap { font-size: .75rem; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 4px; }
+  /* children one under another: a wire then runs right from its port across borders only, never across a sibling */
+  .bkids { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .bn { border: 1.5px solid var(--fg); border-radius: 10px; padding: 2px 6px 5px; background: var(--panel); }
+  .bn.leaf { border-radius: 999px; padding: 1px 8px; border-width: 1px; }
+  .bn.hi { box-shadow: 0 0 0 3px var(--accent); }
+  .bn > .hd { font: 600 .8rem/1.5 system-ui, sans-serif; white-space: nowrap; }
+  .bn.leaf > .hd { font-weight: 400; }
+  .bn > .bkids { margin-top: 3px; }
+  .bport { display: inline-block; margin-left: 6px; font: .72rem/1 ui-monospace, Menlo, monospace; color: var(--muted); white-space: nowrap; }
+  .bport i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-left: 2px; vertical-align: -1px; }
+  .bsite { border: 1.5px dashed var(--muted); border-radius: 8px; padding: 1px 8px; color: var(--muted); font-size: .8rem; }
+  .bglinks { display: flex; flex-direction: column; gap: 3px; }
+  .blk { font-size: .8rem; white-space: nowrap; cursor: pointer; border-radius: 6px; padding: 1px 6px 1px 2px; }
+  .blk i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+  .blk b { font: 600 .8rem ui-monospace, Menlo, monospace; }
+  .blk .tag { color: var(--muted); font-style: italic; }
+  .blk.lit { background: var(--ok-bg); }
+  .model select { max-width: 100%; }
+  .rulesides { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: flex-start; }
+  .rulesides .arrow { font-size: 1.6rem; align-self: center; }
+  .rulesides > div { min-width: 0; max-width: 100%; }
+  hr.sep { border: 0; border-top: 1px solid var(--rule); margin: 28px 0 8px; }
+  .modelopen > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
+  .modelopen .model { margin-top: 4px; }
+  details.plist { margin-top: 2px; }
+  .plist ol { margin: 4px 0 6px; padding-left: 1.8em; }
+  .plist li.now { font-weight: 600; }
+  .plist li.now::marker { color: var(--accent); }
+</style>
+</head>
+<body>
+<main id="main">
+  <details class="strip" id="strip" hidden>
+    <summary id="stripsum">Test controls</summary>
+    <fieldset><legend>Start</legend>
+      <label><input type="radio" name="mode" value="one"> One learner</label>
+      <label><input type="radio" name="mode" value="two"> Two learners</label>
+      <label><input type="radio" name="mode" value="same"> One learner in two sessions</label>
+    </fieldset>
+    <div>Not part of the app. A change of start begins new sessions from what is stored.</div>
+  </details>
+  <h1>Neolingo</h1>
+  <div id="app" class="sessions"></div>
+  <hr class="sep">
+  <details id="modelopen" class="modelopen">
+    <summary>Model</summary>
+    <div id="model" class="model"></div>
+  </details>
+  <footer>
+    <div class="note" id="note" role="status"></div>
+    <div id="testfoot" hidden>Test page on the model. Sound is not connected: Record takes one of the test recordings (hand-written stand-ins for the microphone, kept outside the model), and nothing is played.</div>
+    <div>Every press is answered by the compiled model; this page only draws what it is sent. A reload starts new sessions from what is stored.</div>
+    <div><span id="timing"></span> · v0.20 · <a href="http://macbook.tailcac48d.ts.net:8797/">the explorer of the earlier model (design C)</a></div>
+  </footer>
+</main>
+<script>
+// v0.20: the page runs on any host of the engine (docs/neolingo-host-protocol.md): the test strip and the test
+// recordings show only when the host says "test"; on a real host Record takes its take from window.NeolingoHost.
+// v0.19: an inactive button without a field can be tapped: it says its reason in the status line and sends nothing.
+// v0.18: an inactive control says why (the model's reason: under its field, or as the button's tooltip); a
+// step whose change is on another view says what it did; no Listen button; no dot or brackets for nothing.
+// v0.17: EVERY button, with or without an input, is active iff the engine says its press is a step.
+// v0.16: Record and Load say a status message on every step; a message flashes each time it is said.
+// v0.15: refused = inactive: a button that carries an input is active only while the engine says its press
+// would be a step (a question that changes nothing, asked after each redraw and while typing).
+// v0.14: the recording held is named and has a Listen button (a look: nothing is sent; nothing is played here).
+// v0.13: an open form whose row is not listed (hidden by the search, or deleted elsewhere) is shown, with Cancel.
+// v0.12: the whole list of phrases can be opened under the counter (a look: it changes nothing).
+// v0.11: no "Your sounds" section: the Target row's sounds carry the marks, Heard is beneath in the same
+// size, the flag lines are headed "Sounds to check" (only when there are any).
+// v0.9: the status of a press is shown in its session, under the buttons; with nothing recognised the
+// Heard row reads "nothing".
+// v0.8: three stages: after Record only "Recording held."; what was heard appears in the result, after Check.
+// A result of an earlier phrase or recording is greyed, with the note at its top.
+// v0.7: no switch of view: the learner's page is always shown, and the model opens below it (closed at first;
+// its data fetched only while open).
+// v0.6: the test recordings offered are those made for the phrase shown (a fixture file of the page's
+// harness, not the model); texts are shown as given, with no capital added.
+// v0.5: the model view DRAWS the bigraph (the state, the pressed state with the occurrence, the rule's two
+// sides, any rule of the list), from the engine's data; the text tree is a fold-out.
+// v0.3: a strip of test controls (the start: one learner, two learners, one learner in two sessions; the
+// view: user's or model).  Every session is drawn by the same code from its Screen; the model view is
+// drawn from what the engine sends.  The page keeps no state of the app: only what is being typed, which
+// boxes are open, the chosen test recording, and the two choices of the strip.
+var app = document.getElementById('app'), EXTRA = { takes: [], testList: '' };
+var TEST = false, MODE = 'one', MODELOPEN = document.getElementById('modelopen');
+var MARK = ['s-ok', 's-check', 's-off'];
+// the status of the last press, shown in the session it was made in (what was stored goes to the foot)
+var STATUS = { r: 0, text: '' };
+var MODES = { one: 'one learner', two: 'two learners', same: 'one learner in two sessions' };
+
+function el(tag, attrs, kids) {
+  var e = document.createElement(tag), k;
+  for (k in (attrs || {})) {
+    if (k === 'text') e.textContent = attrs[k];
+    else if (k === 'on') { for (var ev in attrs.on) e.addEventListener(ev, attrs.on[ev]); }
+    else if (attrs[k] === true) e.setAttribute(k, '');
+    else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+  }
+  (kids || []).forEach(function (c) { if (c != null) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return e;
+}
+function btn(label, on, click, cls) {
+  return el('button', { text: label, disabled: !on, 'class': cls || null, type: 'button', on: { click: click } });
+}
+
+function send(msg, clear) {
+  var t0 = performance.now();
+  msg.model = MODELOPEN.open;
+  return fetch('press', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.err) { document.getElementById('note').textContent = 'The engine did not accept that: ' + d.err; return; }
+      EXTRA = { takes: d.takes || [], testList: d.testList || '' };
+      MODE = d.mode || 'one';
+      TEST = !!d.test;
+      STATUS = { r: msg.session || 0, text: d.message || '' };
+      draw(d.screens, d.step === false ? [] : (clear || []));
+      drawModel(d.model);
+      strip();
+      document.getElementById('note').textContent = d.stored || '';
+      requestAnimationFrame(function () {
+        document.getElementById('timing').textContent = 'Last press: ' + Math.round(performance.now() - t0) +
+          ' ms from press to redrawn screen (measured by this page)' +
+          (d.engineMicros != null ? ', ' + (d.engineMicros / 1000).toFixed(1) + ' ms in the host and the engine' : '');
+      });
+    })
+    .catch(function () { document.getElementById('note').textContent = 'The engine did not answer.'; });
+}
+
+function strip() {
+  // the strip of test controls is shown only on a test host
+  document.getElementById('strip').hidden = !TEST;
+  document.getElementById('testfoot').hidden = !TEST;
+  document.getElementById('stripsum').textContent = 'Test controls: ' + MODES[MODE];
+  document.querySelectorAll('input[name=mode]').forEach(function (x) { x.checked = x.value === MODE; });
+  document.getElementById('main').className = (MODE !== 'one' || MODELOPEN.open) ? 'wide' : '';
+}
+document.querySelectorAll('input[name=mode]').forEach(function (x) {
+  x.addEventListener('change', function () { app.textContent = ''; send({ cmd: 'start', mode: x.value }); });
+});
+// the model is fetched and drawn only while its opener is open
+MODELOPEN.addEventListener('toggle', function () {
+  if (MODELOPEN.open) send({ cmd: 'state' }); else { document.getElementById('model').textContent = ''; DRAWN = []; strip(); }
+});
+
+// REFUSED = INACTIVE.  The page does not decide whether a press would do something: for every control that
+// carries an input it ASKS the engine ("would this press, with this input, be a step?"), a question that
+// changes nothing, and draws the button inactive while the answer is no.  Asked after each redraw and, a
+// moment after the last keystroke, while typing.
+var ASKS = [], askTimer = null, askSeq = 0;
+function askAll() {
+  var list = ASKS.slice(), seq = ++askSeq;
+  if (!list.length) return;
+  ask({ cmd: 'can', asks: list.map(function (a) { return { press: a.click, session: a.r, input: a.input() }; }) })
+    .then(function (d) {
+      if (seq !== askSeq || !d.can) return;
+      list.forEach(function (a, i) {
+        // an inactive control says why (the model's reason).  With a field: the button is disabled and the reason
+        // stands under the field.  Without a field: the button keeps the inactive look but can be tapped, and a tap
+        // puts the reason in the session's status line (a phone shows no tooltip); the press is NOT sent.
+        var off = !(a.offered && d.can[i]), w = off ? (d.why[i] || '') : '';
+        if (a.reason) { a.btn.disabled = off; a.reason.textContent = w; }
+        else { a.btn.disabled = false; a.btn.setAttribute('aria-disabled', off ? 'true' : 'false'); a.btn.title = w; a.btn.dataset.why = w; }
+      });
+    }).catch(function () {});
+}
+function askSoon() { clearTimeout(askTimer); askTimer = setTimeout(askAll, 120); }
+app.addEventListener('input', askSoon);
+app.addEventListener('change', askSoon);
+
+function draw(screens, clear) {
+  ASKS = [];
+  // what is being typed, and what is open, survives the redraw
+  var typed = {}, open = {};
+  app.querySelectorAll('[data-k]').forEach(function (x) { typed[x.dataset.k] = x.value; });
+  app.querySelectorAll('details[data-d]').forEach(function (x) { open[x.dataset.d] = x.open; });
+  clear.forEach(function (k) { delete typed[k]; delete open[k]; });
+  app.textContent = '';
+  screens.forEach(function (sc, i) {
+    var r = i + 1, root = el('div', { 'class': 'sess' });
+    if (screens.length > 1) root.appendChild(el('div', { 'class': 'sesslabel', text: 'Session ' + r + ' · learner ' + sc.uid }));
+    session(root, sc, r);
+    app.appendChild(root);
+  });
+  app.querySelectorAll('[data-k]').forEach(function (x) { if (typed[x.dataset.k] !== undefined) x.value = typed[x.dataset.k]; });
+  app.querySelectorAll('details[data-d]').forEach(function (x) { if (open[x.dataset.d]) x.open = true; });
+  askAll();
+}
+
+// One session: the same code whichever session it is.  `K(key)` names a typed field of this session.
+function session(root, sc, r) {
+  function K(key) { return r + ':' + key; }
+  function val(key) { var x = root.querySelector('[data-k="' + K(key) + '"]'); return x ? x.value : ''; }
+  function press(click, input, clear) {
+    return send({ press: click, session: r, input: input === undefined ? null : input }, (clear || []).map(K));
+  }
+  // a button whose press carries an input: active only while the engine says the press would be a step
+  // the session's status line: always there (empty: not shown), so a reason can be said into it
+  var status = el('div', { 'class': 'status', role: 'status', text: STATUS.r === r ? STATUS.text : '' });
+  function say(text) {
+    if (!text) return;
+    status.textContent = text;
+    status.style.animation = 'none'; void status.offsetWidth; status.style.animation = '';
+  }
+  // a tap on a button that looks inactive says its reason and sends nothing
+  function tap(b, go) { return function () { if (b.getAttribute('aria-disabled') === 'true') say(b.dataset.why); else go(); }; }
+  function ibtn(label, offered, click, input, clear, cls, reason, act) {
+    var b = btn(label, !reason, null, cls);
+    if (reason) b.disabled = true; else b.setAttribute('aria-disabled', 'true');
+    b.addEventListener('click', tap(b, act || function () { press(click, input(), clear); }));
+    ASKS.push({ btn: b, r: r, click: click, input: input, offered: offered, reason: reason });
+    return b;
+  }
+  function why() { return el('div', { 'class': 'reason', role: 'status' }); }
+  // a button without an input: the same rule (active iff the engine says the press is a step); until the
+  // answer comes it is drawn by the Screen's flag, which the answer can only narrow
+  function nbtn(label, offered, click, cls) {
+    var b = btn(label, true, null, cls);
+    b.setAttribute('aria-disabled', offered ? 'false' : 'true');
+    b.addEventListener('click', tap(b, function () { press(click); }));
+    ASKS.push({ btn: b, r: r, click: click, input: function () { return null; }, offered: offered });
+    return b;
+  }
+  var p = sc.settings;
+  root.appendChild(el('details', { 'class': 'settings', 'data-d': K('settings') }, [
+    el('summary', { text: sc.summary }),
+    el('div', { 'class': 'grid' }, [
+      el('label', {}, ['Your language', el('select', { on: { change: function (e) { press('own', e.target.value); } } },
+        sc.languages.map(function (l) { return el('option', { text: l.name, value: l.code, selected: l.code === p.own }); }))]),
+      el('label', {}, ['Language practised', el('select', { on: { change: function (e) { press('practised', e.target.value); } } },
+        sc.variants.map(function (v) { return el('option', { text: v.name, value: v.code, selected: v.code === p.practised }); }))]),
+      el('label', { 'class': 'inline' }, [el('input', { type: 'checkbox', checked: p.slow,
+        on: { change: function (e) { press('slow', e.target.checked); } } }), ' Slow speech'])
+    ])
+  ]));
+  root.appendChild(el('nav', { 'class': 'tabs', role: 'tablist' }, sc.tabs.map(function (t) {
+    var tb = el('button', { role: 'tab', type: 'button', 'aria-selected': t.shown ? 'true' : 'false', text: t.view,
+      'aria-disabled': t.offered ? 'false' : 'true' });
+    tb.addEventListener('click', tap(tb, function () { press('show', t.view); }));
+    ASKS.push({ btn: tb, r: r, click: 'show', input: function () { return t.view; }, offered: t.offered });
+    return tb;
+  })));
+  var b = sc.body, s = el('section');
+  root.appendChild(s);
+
+  if (b.kind === 'practice') {
+    s.appendChild(el('div', { 'class': 'row', style: 'justify-content:space-between' }, [
+      el('span', { 'class': 'counter', text: b.phrase ? b.position.at + ' of ' + b.position.of : 'No phrase' }),
+      el('span', { 'class': 'row' }, [nbtn('Previous', b.prev, 'prev'), nbtn('Next', b.next, 'next')])
+    ]));
+    if (b.list.length) s.appendChild(el('details', { 'class': 'more plist', 'data-d': K('plist') }, [
+      el('summary', { text: 'The list (' + b.list.length + ')' }),
+      el('ol', {}, b.list.map(function (q, i) {
+        return el('li', { 'class': i + 1 === b.position.at ? 'now' : null }, [q.text, q.gloss ? el('span', { 'class': 'muted', text: '  ' + q.gloss }) : null]);
+      }))
+    ]));
+    if (b.phrase) {
+      s.appendChild(el('p', { 'class': 'phrase', text: b.phrase.text }));
+      s.appendChild(el('div', { 'class': 'muted', text: b.phrase.gloss }));
+      s.appendChild(el('div', { 'class': 'ipa', text: b.phrase.ipa }));
+    }
+    s.appendChild(el('div', { 'class': 'row', style: 'margin-top:10px' }, [
+      // on a test host the take is the test recording chosen; on a real host it comes from the host's own
+      // recorder: window.NeolingoHost.record(session) resolves to a take's token (a refusal: no press)
+      TEST ? ibtn('Record', b.record, 'record', function () { return val('take:' + (b.phrase ? b.phrase.text : '')); })
+           : ibtn('Record', b.record, 'record', function () { return ''; }, null, null, null, function () {
+               var H = window.NeolingoHost;
+               if (!H || !H.record) { say('No recorder is connected.'); return; }
+               Promise.resolve(H.record(r)).then(function (k) { if (k != null) press('record', k); }, function () {});
+             }),
+      nbtn('Remove recording', b.remove, 'remove'),
+      nbtn('Check', b.check, 'check', 'primary')
+    ]));
+    var tk = EXTRA.takes[r - 1] || [];
+    if (TEST) s.appendChild(el('div', { 'class': 'test' }, [tk.length ? el('label', {}, ['Test recordings of this phrase: ',
+      el('select', { 'data-k': K('take:' + (b.phrase ? b.phrase.text : '')) }, tk.map(function (t) { return el('option', { text: t.label, value: t.id }); }))])
+      : (b.phrase ? 'No test recording was made for this phrase: Record gives silence.' : 'Test recordings appear when a phrase is shown.')]));
+    if (b.held) {
+      // the take held can be looked at: Listen sends nothing to the engine (here it plays nothing, and says so)
+      var lab = (tk.filter(function (t) { return t.id === b.take; })[0] || {}).label || b.take;
+      s.appendChild(el('div', { 'class': 'held muted', text: TEST ? 'Recording held: test recording \u201c' + lab + '\u201d.' : 'Recording held.' }));
+    }
+    s.appendChild(status);
+    if (b.result) {
+      // a sound-by-sound comparison: the target's sounds carry the marks, what was heard is beneath in the same size
+      var res = b.result, tsounds = el('div', { 'class': 'ipa' });
+      if (res.marked.length) {
+        tsounds.appendChild(el('span', { 'class': 's-ok', text: '[' }));
+        res.marked.forEach(function (w, i) {
+          if (i) tsounds.appendChild(el('span', { 'class': 's-ok', text: ' ' }));
+          w.forEach(function (x) { tsounds.appendChild(el('span', { 'class': MARK[x.mark], text: x.sound })); });
+        });
+        tsounds.appendChild(el('span', { 'class': 's-ok', text: ']' }));
+      } else tsounds.textContent = res.target.ipa;
+      var nothing = res.heard.text === '' && res.heard.ipa === '[]';
+      s.appendChild(el('h2', { text: 'Result' }));
+      if (!res.current) s.appendChild(el('div', { 'class': 'earlier', text: 'This result is of an earlier phrase or recording, not of what is shown above.' }));
+      s.appendChild(el('div', { 'class': 'card' + (res.current ? '' : ' stale') }, [
+        el('div', { 'class': 'banner ' + (res.understood ? 'yes' : 'no'), text: res.banner }),
+        el('dl', { 'class': 'result' }, [
+          el('div', {}, [el('dt', { text: 'Target' }), el('dd', {}, [el('span', { text: res.target.text }), tsounds])]),
+          el('div', {}, [el('dt', { text: 'Heard' }), el('dd', {}, nothing ? [el('span', { text: 'nothing' })]
+            : [el('span', { text: res.heard.text }), el('div', { 'class': 'ipa', text: res.heard.ipa })])]),
+          el('div', {}, [el('dt', { text: 'Understood' }), el('dd', { text: res.understoodLine })]),
+          !res.flagLines.length ? null : el('div', {}, [el('dt', { text: 'Sounds to check' }), el('dd', {}, [
+            el('ul', { 'class': 'flags' }, res.flagLines.map(function (l) { return el('li', { text: l }); })),
+            el('div', { 'class': 'legend', text: res.legend })
+          ])])
+        ])
+      ]));
+    }
+    var yW = why();
+    s.appendChild(el('div', { 'class': 'row', style: 'margin-top:10px' }, [
+      el('input', { type: 'text', 'data-k': K('word'), 'aria-label': 'A word to keep', placeholder: 'A word to keep' }),
+      ibtn('Add to vocabulary', sc.addWord, 'addWord', function () { return val('word'); }, ['word'], null, yW)
+    ]));
+    s.appendChild(yW);
+    var yL = why();
+    s.appendChild(el('details', { 'class': 'more', 'data-d': K('load') }, [
+      el('summary', { text: 'Load a list of phrases' }),
+      el('textarea', { 'data-k': K('list'), 'aria-label': 'Phrases, one a line', placeholder: 'One phrase a line; its meaning after a bar:  Bonjour | Hello' }),
+      el('div', { 'class': 'row' }, [
+        ibtn('Load', b.load, 'load', function () { return val('list'); }, ['list', 'load'], 'primary', yL),
+        TEST ? btn('Put in the test list', true, function () { root.querySelector('[data-k="' + K('list') + '"]').value = EXTRA.testList; askAll(); }) : null
+      ]), yL
+    ]));
+  } else if (b.kind === 'vocabulary') {
+    s.appendChild(status);
+    var yS = why(), yA = why(), yU = why();
+    s.appendChild(el('div', { 'class': 'row' }, [
+      el('input', { type: 'text', 'data-k': K('search'), 'aria-label': 'Search', placeholder: 'Search', value: b.search,
+        on: { keydown: function (e) { if (e.key === 'Enter') press('search', e.target.value); } } }),
+      ibtn('Search', true, 'search', function () { return val('search'); }, null, null, yS),
+      el('select', { 'aria-label': 'Sort', on: { change: function (e) { press('sort', e.target.value); } } },
+        b.sorts.map(function (o) { return el('option', { text: o.label, value: o.key, selected: o.key === b.sort }); }))
+    ]));
+    s.appendChild(yS);
+    s.appendChild(el('div', { 'class': 'row', style: 'margin-top:8px' }, [
+      el('input', { type: 'text', 'data-k': K('new'), 'aria-label': 'A new word', placeholder: 'A new word' }),
+      ibtn('Add', b.add, 'addWord', function () { return val('new'); }, ['new'], null, yA)
+    ]));
+    s.appendChild(yA);
+    var rows = el('div', { style: 'margin-top:10px' });
+    if (!b.rows.length) rows.appendChild(el('p', { 'class': 'muted', text: 'No words.' }));
+    b.rows.forEach(function (w) {
+      var kT = 'tr:' + w.word, kN = 'nt:' + w.word, kQ = 'qn:' + w.word, row = el('div', { 'class': 'vrow' }), yN = why();
+      row.appendChild(el('div', { 'class': 'head' }, [
+        el('span', {}, [el('span', { 'class': 'w', text: w.word }), w.translation ? ' · ' + w.translation : null]),
+        w.editing ? null : el('span', { 'class': 'acts row' }, [
+          ibtn('Edit', b.edit, 'edit', function () { return w.word; }),
+          ibtn('Delete', b['delete'], 'delete', function () { return w.word; })])
+      ]));
+      if (w.ipa !== '[]') row.appendChild(el('div', { 'class': 'ipa', text: w.ipa }));
+      if (w.editing) {
+        row.appendChild(el('form', { on: { submit: function (e) { e.preventDefault(); } } }, [
+          el('label', {}, ['Translation ', el('input', { type: 'text', 'data-k': K(kT), value: w.translation })]),
+          el('label', {}, ['Note ', el('input', { type: 'text', 'data-k': K(kN), value: w.notes })]),
+          el('div', { 'class': 'row' }, [
+            ibtn('Save', b.save, 'save', function () { return { word: w.word, translation: val(kT), notes: val(kN) }; }, [kT, kN], 'primary'),
+            ibtn('Cancel', b.cancel, 'cancel', function () { return w.word; }, [kT, kN]),
+            ibtn('Delete', b['delete'], 'delete', function () { return w.word; }, [kT, kN])])
+        ]));
+      } else {
+        if (w.notes) row.appendChild(el('div', { 'class': 'muted', text: 'Note: ' + w.notes }));
+        row.appendChild(el('details', { 'class': 'more', 'data-d': K('note:' + w.word), style: 'margin-top:4px' }, [
+          el('summary', { text: w.notes ? 'Change the note' : 'Add a note' }),
+          el('div', { 'class': 'row' }, [
+            el('input', { type: 'text', 'data-k': K(kQ), 'aria-label': 'Note', value: w.notes }),
+            ibtn('Save note', b.notes, 'notes', function () { return { key: w.word, text: val(kQ) }; }, [kQ], null, yN)]), yN
+        ]));
+      }
+      rows.appendChild(row);
+    });
+    b.unlisted.forEach(function (u) {
+      rows.appendChild(el('div', { 'class': 'vrow' }, [el('div', { 'class': 'head' }, [
+        el('span', {}, [el('span', { 'class': 'w', text: u.word }), el('span', { 'class': 'muted', text: u.row
+          ? ' · its form is open; the search hides its row' : ' · its form is open; the word is no longer in the vocabulary' })]),
+        el('span', { 'class': 'acts row' }, [ibtn('Cancel', b.cancel, 'cancel', function () { return u.word; })])])]));
+    });
+    s.appendChild(rows);
+    s.appendChild(el('div', { 'class': 'row', style: 'margin-top:12px' }, [nbtn('Practise these', b.practise, 'practise', 'primary')]));
+    s.appendChild(el('details', { 'class': 'more', 'data-d': K('upload') }, [
+      el('summary', { text: 'Upload a list of words' }),
+      el('textarea', { 'data-k': K('upload'), 'aria-label': 'Words, one a line', placeholder: 'One word a line' }),
+      el('div', { 'class': 'row' }, [ibtn('Upload', b.upload, 'upload', function () { return val('upload'); }, ['upload'], 'primary', yU)]), yU
+    ]));
+  } else if (b.kind === 'statistics') {
+    s.appendChild(status);
+    var fig = function (n, label) { return el('div', { 'class': 'fig' }, [el('b', { text: String(n) }), el('span', { text: label })]); };
+    s.appendChild(el('div', { 'class': 'figs' }, [fig(b.practices, 'practices'), fig(b.understood, 'understood'),
+      fig(b.mean + '%', 'average score'), fig(b.recent + '%', 'average of the last ten')]));
+    s.appendChild(el('p', { 'class': 'muted', style: 'margin-top:10px', text: 'Of the language practised. Worked out from your history each time; nothing else is kept.' }));
+  } else {
+    s.appendChild(status);
+    if (!b.rows.length) s.appendChild(el('p', { 'class': 'muted', text: 'No practices yet in the language practised.' }));
+    b.rows.forEach(function (h) {
+      s.appendChild(el('div', { 'class': 'hrow' }, [el('div', { 'class': 'hline', text: h.line }), el('div', { 'class': 'score', text: h.score + '%' })]));
+    });
+  }
+}
+
+// A bigraph, drawn from the engine's data alone (the BD as Lean has it): roots as dashed outer boxes, nodes
+// nested by the place graph and labelled with their controls, sites as dashed holes, every link a set of
+// wires from its ports to its label (name, and datum when it has one).  The page computes only positions.
+var DRAWN = [];
+function drawBg(bg) {
+  var wrap = el('div', { 'class': 'bgwrap' }), stage = el('div', { 'class': 'bg' });
+  var regs = el('div', { 'class': 'bgregions' }), labs = el('div', { 'class': 'bglinks' });
+  var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  var kids = {}, hue = {}, lit = null;
+  function key(par) { return par.root !== undefined ? 'r' + par.root : 'n' + par.node; }
+  bg.nodes.forEach(function (n) { (kids[key(n.par)] = kids[key(n.par)] || []).push({ node: n }); });
+  bg.sites.forEach(function (x) { (kids[key(x.par)] = kids[key(x.par)] || []).push({ site: x }); });
+  bg.links.forEach(function (l, i) { hue[l.id] = (i * 137 + 20) % 360; });
+  function colour(id) { return 'hsl(' + hue[id] + ' 65% 45%)'; }
+  function box(k) {
+    if (k.site) return el('div', { 'class': 'bsite', text: k.site.label });
+    var n = k.node, ks = kids['n' + n.id] || [];
+    var b = el('div', { 'class': 'bn' + (ks.length ? '' : ' leaf') + (n.hi ? ' hi' : '') });
+    var hd = el('div', { 'class': 'hd' }, [n.c]);
+    n.ports.forEach(function (p) {
+      var dot = el('i'); dot.style.background = colour(p.l);
+      hd.appendChild(el('span', { 'class': 'bport', 'data-l': p.l }, [p.p, dot]));
+    });
+    b.appendChild(hd);
+    if (ks.length) b.appendChild(el('div', { 'class': 'bkids' }, ks.map(box)));
+    return b;
+  }
+  bg.roots.forEach(function (cap, r) {
+    regs.appendChild(el('div', { 'class': 'breg' }, [el('div', { 'class': 'cap', text: cap }),
+      el('div', { 'class': 'bkids' }, (kids['r' + r] || []).map(box))]));
+  });
+  stage.appendChild(regs); stage.appendChild(labs); stage.appendChild(svg); wrap.appendChild(stage);
+  function wires() {
+    if (!stage.isConnected || !stage.offsetWidth) return;
+    var o = stage.getBoundingClientRect();
+    var ports = {};
+    stage.querySelectorAll('.bport').forEach(function (p) {
+      var r = p.lastChild.getBoundingClientRect();
+      (ports[p.dataset.l] = ports[p.dataset.l] || []).push({ x: r.left + r.width / 2 - o.left, y: r.top + r.height / 2 - o.top });
+    });
+    // the labels, ordered by where their ports are (a link without a port last)
+    if (!labs.childNodes.length) {
+      bg.links.map(function (l) {
+        var ps = ports[l.id] || [];
+        return { l: l, y: ps.length ? ps.reduce(function (a, p) { return a + p.y; }, 0) / ps.length : 1e9 };
+      }).sort(function (a, b) { return a.y - b.y; }).forEach(function (x) {
+        var l = x.l, dot = el('i'); dot.style.background = colour(l.id);
+        var lab = el('div', { 'class': 'blk', 'data-l': l.id }, [dot, el('b', { text: l.name }),
+          l.datum != null ? ' ' + l.datum : '', l.outer ? el('span', { 'class': 'tag', text: ' (name of the outer face' + ((ports[l.id] || []).length ? ')' : ', no port on this side)') }) : null]);
+        lab.addEventListener('click', function () { lit = lit === l.id ? null : l.id; wires(); });
+        labs.appendChild(lab);
+      });
+      o = stage.getBoundingClientRect();
+    }
+    svg.setAttribute('width', o.width); svg.setAttribute('height', o.height);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    labs.querySelectorAll('.blk').forEach(function (lab) {
+      var id = lab.dataset.l, r = lab.firstChild.getBoundingClientRect();
+      var x2 = r.left - o.left, y2 = r.top + r.height / 2 - o.top;
+      lab.className = 'blk' + (lit === id ? ' lit' : '');
+      (ports[id] || []).forEach(function (p) {
+        var xe = regs.getBoundingClientRect().right - o.left + 4, dx = (x2 - xe) / 2;
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M' + p.x + ' ' + p.y + ' H' + xe + ' C' + (xe + dx) + ' ' + p.y + ', ' + (x2 - dx) + ' ' + y2 + ', ' + x2 + ' ' + y2);
+        path.setAttribute('fill', 'none'); path.setAttribute('stroke', colour(id));
+        path.setAttribute('stroke-width', lit === id ? 3 : 1.5);
+        path.setAttribute('opacity', lit === null ? 0.75 : (lit === id ? 1 : 0.12));
+        svg.appendChild(path);
+      });
+    });
+  }
+  DRAWN.push(wires);
+  return wrap;
+}
+function rewire() { DRAWN.forEach(function (w) { w(); }); }
+window.addEventListener('resize', rewire);
+
+function drawRule(r) {
+  return el('div', {}, [
+    el('div', {}, ['Rule ', el('code', { text: r.name }), ', of the click ', el('code', { text: r.click }), '. Left side, right side:']),
+    el('div', { 'class': 'rulesides' }, [drawBg(r.lhs), el('div', { 'class': 'arrow', text: '→' }), drawBg(r.rhs)]),
+    el('div', {}, ['Constraint: ', el('code', { text: r.constraint.join(' ∧ ') || 'none' })]),
+    el('div', { 'class': 'muted', text: 'A dashed hole is a site; a hole of the right side carries the number of the left hole whose contents it receives. A primed link is new.' })
+  ]);
+}
+function ask(msg) {
+  return fetch('press', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }).then(function (r) { return r.json(); });
+}
+
+// The model view: drawn from what the engine sends; the page computes nothing of it.
+function drawModel(m) {
+  var box = document.getElementById('model');
+  box.textContent = '';
+  DRAWN = [];
+  if (!m) return;
+  var conj = function (list) {
+    return el('div', { 'class': 'c' }, list.map(function (x) { return el('span', { 'class': x.connected ? null : 'apart', text: x.t }); }));
+  };
+  box.appendChild(el('div', { 'class': 'muted', text: 'Not part of the app: the state of the model behind the page above, drawn from the engine\u2019s data.' }));
+  box.appendChild(el('h2', { text: 'The state: a bigraph' }));
+  box.appendChild(el('div', { 'class': 'muted', text: 'Dashed outer boxes: the regions. Boxes: nodes, nested as the place graph has them, each with its control. Coloured dots: ports; each link is the wires from its ports to its name, with the Lean value it carries. Press a link\u2019s name to pick it out.' }));
+  box.appendChild(drawBg(m.bg));
+  box.appendChild(el('details', { 'class': 'more', 'data-m': 'tree' }, [el('summary', { text: 'The same as a text tree' }),
+    el('div', { 'class': 'cols' }, m.regions.map(function (r) {
+      return el('div', {}, [el('div', { 'class': 'reg', text: r.label }),
+        el('pre', { text: r.lines.map(function (l) { return new Array(l.d + 1).join('  ') + l.t; }).join('\n') })]);
+    }))]));
+  var L = m.last;
+  box.appendChild(el('h2', { text: 'The last press' }));
+  if (!L) box.appendChild(el('div', { 'class': 'muted', text: 'No press yet since the start.' }));
+  else {
+    box.appendChild(el('div', {}, [L.press + '. ', L.rule ? el('span', {}, ['Rule: ', el('code', { text: L.rule }), '.']) : 'No reaction.']));
+    if (L.rule) box.appendChild(el('div', {}, ['Its constraint, on the links of the state after (an input is the click\u2019s link, now a hidden variable z): ',
+      el('code', { text: L.constraint.join(' \u2227 ') || 'none' })]));
+    if (L.rule) {
+      box.appendChild(el('div', { style: 'margin-top:6px', text: 'The state as pressed: the click node beside its session' + ' (with its input on the link i, when it has one); outlined: the occurrence of the rule\u2019s left side.' }));
+      box.appendChild(drawBg(L.agent));
+      box.appendChild(drawRule(L.ruleDrawn));
+    }
+    box.appendChild(el('div', {}, ['Write to the store: ', el('code', { text: L.write })]));
+    if (L.checks) box.appendChild(el('div', { 'class': /FAILED/.test(L.checks) ? 'bad' : 'muted', text: L.checks }));
+  }
+  var host = el('div');
+  box.appendChild(el('h2', { text: 'Any rule of the ' + m.rules.length }));
+  box.appendChild(el('select', { 'aria-label': 'A rule', on: { change: function (e) {
+    host.textContent = '';
+    if (e.target.value === '') return;
+    ask({ cmd: 'rule', i: Number(e.target.value) }).then(function (d) { if (d.ruleDrawn) { host.appendChild(drawRule(d.ruleDrawn)); requestAnimationFrame(rewire); } });
+  } } }, [el('option', { text: 'Choose a rule to draw', value: '' })].concat(m.rules.map(function (n, i) { return el('option', { text: (i + 1) + '. ' + n, value: String(i) }); }))));
+  box.appendChild(host);
+  box.appendChild(el('h2', { text: 'The links and their data' }));
+  box.appendChild(el('div', { 'class': 'tw' }, [el('table', {}, [el('tr', {}, [el('th', { text: 'Link' }), el('th', { text: 'Datum' }), el('th', { text: 'On it' })])].concat(
+    m.links.map(function (l) { return el('tr', {}, [el('td', {}, [el('code', { text: l.name })]), el('td', { text: l.datum }), el('td', {}, [el('code', { text: l.on })])]); })))]));
+  box.appendChild(el('h2', { text: 'The facts the nodes assert' }));
+  box.appendChild(el('div', { 'class': 'c' }, m.facts.map(function (f) { return el('span', { text: f }); })));
+  box.appendChild(el('h2', { text: 'The constraint extracted along the run' }));
+  box.appendChild(el('div', { 'class': 'muted', text: 'By ' + m.extraction + ', since the start. ' +
+    (m.holds ? 'TESTED: true of the data, the hidden variables at the data their links had.' : '') }));
+  if (!m.holds) box.appendChild(el('div', { 'class': 'bad', text: 'A CHECK FAILED: the constraint is false of the data.' }));
+  box.appendChild(el('div', {}, ['On the links of the state:']));
+  box.appendChild(conj(m.live));
+  if (m.hiddenCount) {
+    box.appendChild(el('div', { style: 'margin-top:6px' }, ['\u2203 ' + m.witnesses.map(function (w) { return w.z; }).join(' ') + '.' +
+      (m.hiddenCount > m.hidden.length ? ' (the last ' + m.hidden.length + ' of ' + m.hiddenCount + ')' : '')]));
+    box.appendChild(conj(m.hidden));
+    box.appendChild(el('div', { 'class': 'muted', text: 'Greyed: not connected to any link of the state through shared variables (' + m.connectedBy + '); such a conjunct says nothing of the state.' }));
+    box.appendChild(el('div', { 'class': 'tw', style: 'margin-top:6px' }, [el('table', {}, [el('tr', {}, [el('th', { text: 'Hidden' }), el('th', { text: 'The datum its link had' })])].concat(
+      m.witnesses.map(function (w) { return el('tr', {}, [el('td', {}, [el('code', { text: w.z })]), el('td', { text: w.datum })]); })))]));
+  }
+  box.appendChild(el('h2', { text: 'Proved of every reachable state' }));
+  box.appendChild(el('ul', {}, m.proved.map(function (x) { return el('li', {}, [x.what + ' ', el('code', { text: '[' + x.theorems + ']' })]); })));
+  box.querySelectorAll('details').forEach(function (d) { d.addEventListener('toggle', rewire); });
+  requestAnimationFrame(rewire);
+  box.appendChild(el('div', { 'class': 'muted', text: 'PROVED: kernel-checked in Logic/Examples/LinkModel/Neo*.lean, for every state reachable from the three test starts (docs/neolingo-spec.md, section 8). The checks named under the last press are tests run at that press only.' }));
+}
+
+send({ cmd: 'start' });
+</script>
+</body>
+</html>

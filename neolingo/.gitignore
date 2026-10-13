@@ -3,3 +3,4 @@ var/
 *.sqlite
 __pycache__/
 *.pyc
+!page/index.html
