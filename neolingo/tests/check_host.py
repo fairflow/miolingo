@@ -107,13 +107,16 @@ def main():
     check(ver["page"] == first[0] and ver["page"] != "unknown" and ver["changed"] == first[1], f"version.page/changed are the first line of CHANGES ({ver['page']})")
     check(ver["engine"] == (ROOT / "page" / "SOURCE").read_text().strip() and ver["engine"], f"version.engine is the hash in SOURCE ({ver['engine']})")
     check(len(ver["built"]) >= 16 and ver["instance"] == "real" and ver["host"] not in ("", "unknown"), f"version.built {ver['built']!r}, instance, host {ver['host']}")
-    check(ver["tts"] in ("gtts", "say", "espeak"), f"version.tts = {ver['tts']}")
+    check(ver["tts"] in ("gtts", "say"), f"version.tts = {ver['tts']} (espeak is not a voice)")
     page = h.get("")[0].decode()
     check(page.index('<script src="host.js"></script>') < page.index("<script>"), "the page carries host.js before its own script")
     check(b"NeolingoHost" in h.get("host.js")[0], "host.js is served")
     lists = json.loads(h.get("lists")[0])
     check([l["variant"] for l in lists] == ["en-gb", "fr-fr", "de"] and all(len(l["items"]) > 10 for l in lists), "lists: en, fr, de")
 
+    wl = json.loads(h.get("wordlists")[0])
+    check(len(wl) >= 8 and all(set(l) == {"name", "lang", "words"} and l["words"] and all(isinstance(w, str) and w for w in l["words"]) for l in wl)
+          and {l["lang"] for l in wl} == {"en", "fr", "de"}, f"wordlists: {len(wl)} lists, {sum(len(l['words']) for l in wl)} words, languages en fr de")
     d = h.press(cmd="start")
     check("test" not in d and "takes" not in d, "start: a real host (no 'test', no 'takes')")
     check(d["screens"][0]["settings"] == {"own": "en", "practised": "fr-fr", "slow": False}, "default settings en / fr-fr / not slow")
@@ -190,13 +193,46 @@ def main():
     check("iː" in rs and not any(c == "ː" and (k == 0 or rs[k - 1] in " [\"]") for k, c in enumerate(rs)),
           "the result shows the long sound 'iː' attached to its sound, no lone ː")
 
+    print("\n=== a reload loses nothing: `start` is answered with the engine's present state ===")
+    h.press(press="show", session=1, input="Practice")
+    h.press(press="practised", session=1, input="fr-fr")
+    three = [p for p in next(l for l in lists if l["variant"] == "fr-fr")["items"] if len(p["text"].split()) >= 3][:5]
+    d = h.press(press="load", session=1, input="\n".join(f"{p['text']} | {p['gloss']}" for p in three))
+    d = h.press(press="goto", session=1, input=3)
+    check(body(d)["position"] == {"at": 3, "of": 5}, f"goto 3: place {body(d)['position']}")
+    wav = VAR / "reload.wav"
+    subprocess.run([ESPEAK, "-v", "fr-fr", "-w", str(wav), three[2]["text"]], check=True)
+    tk = h.take(wav)
+    d = h.press(press="record", session=1, input=tk)
+    check(d["step"] and body(d)["held"], "record: held")
+    d = h.press(cmd="start")                                   # the page loads again
+    b = body(d)
+    check(b["position"] == {"at": 3, "of": 5} and b["phrase"]["text"] == three[2]["text"] and len(b["list"]) == 5 and b["held"],
+          f"reload: still phrase 3 of 5, list kept, recording held ({b['position']}, held {b['held']})")
+    check("screens" in d and d["screens"][0]["settings"]["practised"] == "fr-fr", "reload: a full set of screens, settings as before")
+    d = h.press(press="check", session=1, input=None)
+    check(d["step"] and body(d)["result"] is not None, "check: a result")
+    res1 = json.dumps(body(d)["result"], sort_keys=True)
+    d = h.press(cmd="start")
+    check(body(d)["result"] is not None and json.dumps(body(d)["result"], sort_keys=True) == res1 and body(d)["position"]["at"] == 3,
+          "reload after Check: the result is still there, unchanged")
+    d = h.press(cmd="start", model=True)
+    check(d.get("model") is not None, "reload with model:true carries the model view")
+    rows_before = db_counts()
+    d = h.press(cmd="start", fresh=True)
+    check(body(d)["list"] == [] and body(d)["phrase"] is None and body(d)["result"] is None and not body(d)["held"],
+          "start with fresh:true starts afresh: no list, no phrase, no result, nothing held")
+    check(db_counts() == rows_before, "the fresh start leaves the stored data as it was")
+    check("fresh, as asked" in open(VAR / "host.log").read(), "the log says the start was fresh")
+    h.press(press="practised", session=1, input="de")        # the later sections run in German, as before
+
     print("\n=== vocabulary and restart ===")
     h.press(press="show", session=1, input="Vocabulary")
     d = h.press(press="addWord", session=1, input="gare")
     check(d["step"], f"addWord: {d['message']!r}")
     counts = db_counts()
     print("   database:", counts)
-    check(counts["history"] == 7 and counts["vocabulary"] >= 1, "SQLite holds the history rows and the word")
+    check(counts["history"] == 8 and counts["vocabulary"] >= 1, "SQLite holds the history rows and the word")
     settings_before = h.press(cmd="state")["screens"][0]["settings"]
     h.stop()
     print(f"host stopped; restart: {h.start():.1f} s")
@@ -269,9 +305,19 @@ def main():
           "review: HTML with its title, no external resource")
     check(json.loads(h.get("version")[0])["judging"] is True, "version: judging true by default")
 
+    tv = items[2]["take"]
+    (VAR / "archive" / "overseer_takes.txt").write_text(f"# test\n{tv}  2026-10-13 13:57  fr-fr  x  macOS say\n", "utf-8")
+    arch2 = json.loads(h.get("archive?limit=50")[0])
+    check({i["take"]: i.get("source") for i in arch2["items"]}.get(tv) == "test-voice" and sum(1 for i in arch2["items"] if i.get("source")) == 1
+          and len(arch2["items"]) == len(items), "archive: source test-voice on the listed take, no take removed")
+    arch3 = json.loads(h.get("archive?limit=50&hidetest=1")[0])
+    check(tv not in [i["take"] for i in arch3["items"]] and len(arch3["items"]) == len(items) - 1, "archive: hidetest=1 leaves it out")
+    check(b"hide test voices" in data and b"Mac voice (test)" in data, "review: has the filter and the label")
+    (VAR / "archive" / "overseer_takes.txt").unlink()
+
     print("\n=== speak ===")
     CT = {"gtts": "audio/mpeg", "say": "audio/wav", "espeak": "audio/wav"}
-    for engine in ("espeak", "say", "gtts"):
+    for engine in ("say", "gtts"):
         for variant, text in (("fr-fr", "Je cherche la gare"), ("en-gb", "Thank you very much"), ("en-us", "Thank you very much"), ("de", "Guten Tag")):
             t0 = time.perf_counter()
             try:
@@ -284,17 +330,48 @@ def main():
             t1 = time.perf_counter() - t0
             ok = (data[:4] == b"RIFF" and data[8:12] == b"WAVE") if CT[engine] == "audio/wav" else (data[:3] == b"ID3" or data[:2] == b"\xff\xfb" or data[:2] == b"\xff\xf3")
             check(ok and len(data) > 3000 and ctype == CT[engine], f"speak {engine} {variant}: {ctype}, {len(data)} bytes, {t1:.2f} s")
-    data, ctype = h.get("speak?text=Bonjour&variant=fr-fr&slow=true&engine=espeak")
+    data, ctype = h.get("speak?text=Bonjour&variant=fr-fr&slow=true&engine=say")
     check(data[:4] == b"RIFF", "speak slow")
+    import re
+    chains = re.search(r"^CHAINS = (.*)$", (ROOT / "host" / "speech.py").read_text("utf-8"), re.M).group(1)
+    check("espeak" not in chains, f"no speech chain contains espeak ({chains})")
+    data, ctype = h.get("speak?text=Bonjour&variant=fr-fr&slow=false&engine=espeak")      # a request for espeak is not honoured
+    check(not (ctype == "audio/wav" and len(data) > 3000 and json.loads(h.get("version")[0])["tts"] == "espeak"), "speak: engine=espeak is not honoured")
     data, ctype = h.get("speak?text=Bonjour%20tout%20le%20monde&variant=fr-fr&slow=false")      # the default engine, with its fallbacks
     ver = json.loads(h.get("version")[0])
     print(f"   default speak: {ctype}, {len(data)} bytes, engine in use: {ver['tts']}")
     check(ctype == CT[ver["tts"]] and len(data) > 3000, "default speak answers in the engine reported by /version")
     names = {p.suffix for p in (VAR / "speech").iterdir() if p.is_file()}
-    check(".wav" in names, f"speech cached under var/speech/ ({sorted(names)})")
+    check(bool(names & {".wav", ".mp3"}), f"speech cached under var/speech/ ({sorted(names)})")
     spoken = [l for l in open(VAR / "host.log").read().splitlines() if " speak " in l]
     print("   host log:", spoken[-1][20:])
     print(f"   droppedFlags on the Check presses: {dropped}")
+
+    print("\n=== word lists: choose a list, upload its words, see the meanings ===")
+    wl = json.loads(h.get("wordlists")[0])
+    report = {}
+    h.press(press="own", session=1, input="en")
+    for lang in ("fr", "de", "en"):                      # for English the engine moves the learner's own language off English (to fr)
+        variant = {"fr": "fr-fr", "de": "de", "en": "en-gb"}[lang]
+        h.press(press="practised", session=1, input=variant)
+        h.press(press="show", session=1, input="Vocabulary")
+        own = h.press(cmd="state")["screens"][0]["settings"]["own"]
+        offered = got = 0
+        for l in (x for x in wl if x["lang"] == lang):
+            d = h.press(press="upload", session=1, input=l["words"])
+            check(d["step"], f"upload {l['name']!r} ({len(l['words'])} words), own {own}: {d['message']!r}")
+            rows = {r["word"]: r["translation"] for r in body(d)["rows"]}
+            offered += len(l["words"]); got += sum(1 for w in l["words"] if rows.get(w))
+        report[(lang, own)] = (offered, got)
+        print(f"   words of {lang} lists with a meaning in own language {own}: {got} of {offered}")
+    gl = json.loads((ROOT / "data" / "gloss.json").read_text("utf-8"))
+    for own in ("fr", "de", "pt"):                       # English words, by the table itself, for other own languages
+        n = sum(1 for l in wl if l["lang"] == "en" for w in l["words"] if gl["en"].get(" ".join(w.lower().split()), {}).get(own))
+        print(f"   words of en lists with a meaning in own language {own} (table): {n}")
+    check(report[("fr", "en")][1] >= 0.9 * report[("fr", "en")][0] and report[("de", "en")][1] >= 0.9 * report[("de", "en")][0],
+          "at least 90% of the French and of the German words have an English meaning")
+    check(db_counts()["vocabulary"] > 500, "the vocabulary rows are in SQLite")
+    h.press(press="own", session=1, input="en")
 
     print("\nCheck timings (seconds), cold = first Check in that language in this host process, warm = second:")
     for v, (c, w) in timings.items():

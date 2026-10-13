@@ -52,17 +52,36 @@ machines need HTTPS (not arranged here).
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
 | the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_host.py` (runs `tests/check_host_js.js` under node) |
+| test | `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices; no models); `tests/check_flags.py` |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
-`GET /host.js`, `GET /version`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
+`GET /host.js`, `GET /version`, `GET /wordlists`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
 (speech, cached under `var/speech/`; see below), `GET /lists`.
 `GET /version` answers `page` and `changed` (first line of `page/CHANGES`), `engine` (the locus hash in `page/SOURCE`), `built`
 (the engine binary's modification time), `instance` (`real`), `host` (this repository's short hash), `tts`, `started`.
 `./update_page.sh` copies `index.html` and `CHANGES` from the locus repository and writes `SOURCE` (no restart needed).
 
 Speech: `NEOLINGO_TTS` = `gtts` (default; Google's text-to-speech through the `gtts` package, MP3, the only network use; falls back
-to `say`, then `espeak`, and the log says which answered) | `say` | `espeak` (both WAV). `host.js` plays whatever content type comes back.
+to `say`, and the log says which answered) | `say` (WAV). **espeak-ng is not a voice** (the owner, 13 October 2026: "so horrible to hear that we won't go there
+again"); it stays the source of the target sounds and the tests' synthetic voice. If both voices fail, `GET /speak` answers 503 with `{"err": ...}`
+and `host.js`'s `speak()` rejects with that text, for the page to show. `host.js` plays whatever content type comes back.
+
+**A reload loses nothing.** The page sends `{"cmd":"start"}` when it loads. If the engine process is alive and holds the session (it does from the
+host's own start until the engine is restarted), the host answers with the engine's present state (`{"cmd":"state"}`): the list, the place, the
+recording held and the result are as they were. A real new start happens only when the host starts, or the engine was restarted. For testing,
+`{"cmd":"start","fresh":true}` does the old thing (the stored data are untouched). Tested in `tests/check_host.py` (phrase 3 of 5 with a recording held, then a
+Check, each followed by a reload).
+
+**Stored practice lists** (engine side being built; written to this text, protocol additions below). `start` sends each learner's `"lists":[{"lang":L,
+"items":[{"text":...,"gloss":...}]}]` beside vocab, history and settings (`[]` when none); the new write `{"kind":"putList","uid":U,"lang":L,"items":[...]}` replaces
+that learner's list for L in one transaction. SQLite table `lists (uid, lang, position, text, gloss, PRIMARY KEY (uid, lang, position))`, created if missing
+(an existing database keeps working: tested on a database made without it). An unknown write kind is logged as `ERROR UNKNOWN WRITE KIND ... NOT APPLIED` and the
+reply carries `"hostWarning"`. The engine of 13 October 15:19 does not yet know `putList`; the host's side is tested as a unit (`tests/check_store.py`) and
+the engine accepts `"lists":[]` in `start`.
+
+**Word lists.** `GET /wordlists` answers `[{name, lang, words}]` from `data/words_{en,fr,de}.json` (sources in `data/README.md`), `window.NeolingoHost.wordLists()`
+resolves to it; the page offers them under "Upload a list of words"; the model's `upload` asks the host `fill(word, own, variant)` for each word and `fill`
+answers from `data/gloss.json` (`env.gloss`). Words with an apostrophe or a hyphen are not offered: the model's upload drops or changes them.
 
 One learner, uid `me`, no sign-in. Takes are never deleted (see the archive, below). `NEOLINGO_VAR` moves `var/` (the test uses it).
 
@@ -97,6 +116,8 @@ tool, not part of the app), lists the archived checks newest first with the bann
 same buttons and note; filters: variant and "not yet judged" (default on), "Load more" pages 50 at a time (`GET /archive?limit=&before=&variant=&unjudged=`
 gives the lines joined with their latest judgement). `replay_archive.py` shows each take's judgement, counts them, and takes `--judged` (only judged takes);
 it also reports, of the takes judged too harsh, how many now score higher.
+**Test voices.** The takes listed in `var/archive/overseer_takes.txt` (first field of each non-comment line) were made by a Mac voice, not the owner. `GET /archive` gives
+their items `"source":"test-voice"`; the review page labels them "Mac voice (test)" and has a "hide test voices" filter (default off; `hidetest=1`). Nothing is removed.
 
 **Reference sweep**: `venv/bin/python neolingo/tests/reference_sweep.py [--engines gtts,say,espeak] [--langs en,fr,de] [--limit N]` makes every phrase of
 `data/{en,fr,de}.json` with the host's speech code (gTTS uses the network the first time; results are cached), decodes it to 16 kHz mono under
@@ -130,6 +151,6 @@ tokens carrying ː and writes length; the French specialist has only a lone "ː"
 ## Not here yet
 
 HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `record`) and the drawing and playing of takes (`showTake`, `playTake`) are untested in a browser; `judgeResult` is tested only under node with a fake DOM (and called by hand in a desktop browser pane), not inside the real app page;
-the page does not yet call `speak` or `lists` (they work from the console); the stretched score curve (the engine has
+the page does not yet call `speak`, `lists` or `wordLists` (they work from the console); the stretched score curve (the engine has
 only sqrt and linear); the sign-in and more than one learner; accuracy of the recognisers on real learners (only
 synthetic voices have been run); no cleanup of `var/speech/`.
