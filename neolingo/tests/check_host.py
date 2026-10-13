@@ -364,9 +364,10 @@ def main():
             offered += len(l["words"]); got += sum(1 for w in l["words"] if rows.get(w))
         report[(lang, own)] = (offered, got)
         print(f"   words of {lang} lists with a meaning in own language {own}: {got} of {offered}")
-    gl = json.loads((ROOT / "data" / "gloss.json").read_text("utf-8"))
-    for own in ("fr", "de", "pt"):                       # English words, by the table itself, for other own languages
-        n = sum(1 for l in wl if l["lang"] == "en" for w in l["words"] if gl["en"].get(" ".join(w.lower().split()), {}).get(own))
+    sys.path.insert(0, str(ROOT))
+    import env                                           # the meaning tables (gloss.json, meanings.json), no model loaded
+    for own in ("fr", "de"):                             # English words, by the tables themselves, for other own languages
+        n = sum(1 for l in wl if l["lang"] == "en" for w in l["words"] if env.gloss(w, own, "en-gb"))
         print(f"   words of en lists with a meaning in own language {own} (table): {n}")
     check(report[("fr", "en")][1] >= 0.9 * report[("fr", "en")][0] and report[("de", "en")][1] >= 0.9 * report[("de", "en")][0],
           "at least 90% of the French and of the German words have an English meaning")
