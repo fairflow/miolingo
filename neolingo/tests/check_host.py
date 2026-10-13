@@ -137,6 +137,8 @@ def main():
         tk = h.take(wav)
         check(tk.isalnum(), f"take uploaded: {tk}")
         check((VAR / "takes" / f"{tk}.wav").exists(), "take file is under var/takes/")
+        got, gct = h.get(f"take/{tk}.wav")
+        check(got == wav.read_bytes() and gct == "audio/wav", f"GET take/{tk}.wav returns the uploaded bytes ({len(got)}, {gct})")
         d = h.press(press="record", session=1, input=tk)
         check(d["step"] and body(d)["held"], f"record: step, held ({d['message']!r})")
         before = db_counts()["history"]
@@ -162,6 +164,14 @@ def main():
                 d = h.press(press="record", session=1, input=tk)
                 check(d["step"], "record again (new token) for the warm Check")
         timings[variant] = runs
+
+    for bad in ("take/t0000000000000000.wav", "take/nonsense.wav", "take/..%2Fneolingo.sqlite", "take/t0123456789abcdef.wav.x",
+                "take/%2e%2e/%2e%2e/etc/passwd", "take/", "take/t0000000000000000"):
+        try:
+            h.get(bad)
+            check(False, f"GET {bad} should be 404")
+        except urllib.error.HTTPError as e:
+            check(e.code == 404, f"GET {bad}: {e.code} (404 expected)")
 
     print("\n=== German, a long vowel (length is kept: 'iː' is one sound, not 'i') ===")
     d = h.press(press="load", session=1, input="Ihnen geht es gut | You are well")
@@ -238,6 +248,13 @@ def main():
         if "flags:" in l:
             print("  ", l)
     h.stop()
+    node = shutil.which("node")
+    if node:
+        r = subprocess.run([node, str(ROOT / "tests" / "check_host_js.js")], capture_output=True, text=True)
+        print(r.stdout + r.stderr)
+        check(r.returncode == 0, "tests/check_host_js.js (WAV parser, peaks, showTake cache) under node")
+    else:
+        print("   SKIPPED tests/check_host_js.js: node is not installed")
     if fails:
         sys.exit(f"{len(fails)} FAILED: {fails}")
     print("\nall checks passed")

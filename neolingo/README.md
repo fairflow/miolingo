@@ -50,12 +50,12 @@ machines need HTTPS (not arranged here).
 |---|---|
 | host, split: store / engine + environment / config / speech | `host/store.py`, `host/engine.py`, `host/engine_config.py`, `host/speech.py` |
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
-| the host's own script: `window.NeolingoHost.record / speak / lists` | `page/host.js` |
+| the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_host.py` |
+| test | `tests/check_host.py` (runs `tests/check_host_js.js` under node) |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
-`GET /host.js`, `GET /version`, `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
+`GET /host.js`, `GET /version`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
 (speech, cached under `var/speech/`; see below), `GET /lists`.
 `GET /version` answers `page` and `changed` (first line of `page/CHANGES`), `engine` (the locus hash in `page/SOURCE`), `built`
 (the engine binary's modification time), `instance` (`real`), `host` (this repository's short hash), `tts`, `started`.
@@ -88,7 +88,7 @@ tokens carrying ː and writes length; the French specialist has only a lone "ː"
 
 ## Not here yet
 
-HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `record`) is untested in a browser;
+HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `record`) and the drawing and playing of takes (`showTake`, `playTake`) are untested in a browser;
 the page does not yet call `speak` or `lists` (they work from the console); the stretched score curve (the engine has
 only sqrt and linear); the sign-in and more than one learner; accuracy of the recognisers on real learners (only
 synthetic voices have been run); no cleanup of `var/speech/`.
