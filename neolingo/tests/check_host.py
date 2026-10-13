@@ -163,13 +163,30 @@ def main():
                 check(d["step"], "record again (new token) for the warm Check")
         timings[variant] = runs
 
+    print("\n=== German, a long vowel (length is kept: 'iː' is one sound, not 'i') ===")
+    d = h.press(press="load", session=1, input="Ihnen geht es gut | You are well")
+    b = body(d)
+    check(b["phrase"] and "ː" in b["phrase"]["ipa"], f"load: the Target line shows a length mark: {b['phrase']['ipa'] if b['phrase'] else None}")
+    wav = VAR / "de_long.wav"
+    subprocess.run([ESPEAK, "-v", "de", "-w", str(wav), "Ihnen geht es gut"], check=True)
+    d = h.press(press="record", session=1, input=h.take(wav))
+    check(d["step"], "record: step")
+    d = h.press(press="check", session=1, input=None)
+    check(d["step"] and d.get("droppedFlags") == 0, f"check: droppedFlags = {d.get('droppedFlags')!r} (0 expected)")
+    dropped.append(d.get("droppedFlags"))
+    res = body(d)["result"]
+    print("   result:", json.dumps(res, ensure_ascii=False)[:600])
+    rs = json.dumps(res, ensure_ascii=False)
+    check("iː" in rs and not any(c == "ː" and (k == 0 or rs[k - 1] in " [\"]") for k, c in enumerate(rs)),
+          "the result shows the long sound 'iː' attached to its sound, no lone ː")
+
     print("\n=== vocabulary and restart ===")
     h.press(press="show", session=1, input="Vocabulary")
     d = h.press(press="addWord", session=1, input="gare")
     check(d["step"], f"addWord: {d['message']!r}")
     counts = db_counts()
     print("   database:", counts)
-    check(counts["history"] == 6 and counts["vocabulary"] >= 1, "SQLite holds the history rows and the word")
+    check(counts["history"] == 7 and counts["vocabulary"] >= 1, "SQLite holds the history rows and the word")
     settings_before = h.press(cmd="state")["screens"][0]["settings"]
     h.stop()
     print(f"host stopped; restart: {h.start():.1f} s")

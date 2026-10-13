@@ -7,9 +7,11 @@ import unicodedata
 from . import _miolingo as mio
 from .variants import variant
 
-# The spec's `norm`: stress marks, length marks and punctuation removed; kept:
-# letters, the linking mark U+203F, the tie bars U+0361/U+035C (combining).
-_STRESS_LENGTH = set("ˈˌːˑ")
+# The engine's `norm` (since 13 October): stress marks and punctuation removed; kept: letters, the linking
+# mark U+203F, the tie bars U+0361/U+035C (combining), and LENGTH MARKS (U+02D0 ː, U+02D1 ˑ): a long sound is
+# another sound ("iː" is not "i"), and the mark belongs to its sound as ONE string (see `join_length`).
+_STRESS = set("ˈˌ")
+LENGTH = "ːˑ"
 _KEEP = {"‿"}
 
 
@@ -19,7 +21,7 @@ def norm_word(s: str) -> str:
     for ch in unicodedata.normalize("NFC", s):
         if ch in _KEEP:
             out.append(ch)
-        elif ch in _STRESS_LENGTH:
+        elif ch in _STRESS:
             continue
         elif ord(ch) < 128 and not ch.isalpha():   # ASCII non-letters
             continue
@@ -28,6 +30,21 @@ def norm_word(s: str) -> str:
         else:
             out.append(ch)
     return "".join(out)
+
+
+def join_length(segs: list[str]) -> list[str]:
+    """THE one place where a length mark is attached to its sound: a segment that is only length marks (a
+    recogniser token "ː", or what a cutter leaves) is joined to the sound before it; one with no sound before
+    it is dropped.  Every path that produces sounds ends here (`phones_of`), so no lone "ː" is ever a sound."""
+    out: list[str] = []
+    for s in segs:
+        if s and all(c in LENGTH for c in s):
+            if out and out[-1] != "‿":
+                out[-1] += s
+            continue
+        if s:
+            out.append(s)
+    return out
 
 
 def phones_of(word: str) -> list[str]:
@@ -42,7 +59,7 @@ def phones_of(word: str) -> list[str]:
         segs += [unicodedata.normalize("NFC", s)
                  for s in mio.phone_distance._FT.ipa_segs(
                      unicodedata.normalize("NFD", part))]
-    return [s for s in segs if s]
+    return join_length([s for s in segs if s])
 
 
 def _text_words(text: str) -> list[str]:
@@ -67,8 +84,8 @@ def target_ipa(text: str, variant_code: str) -> list[list[list[str]]]:
     of the text.  If espeak's words do not line up one-to-one with the
     text's tokens (it can merge or split across a space), each token is
     transcribed on its own instead, so `len(result) == number of tokens`
-    always holds.  Normalised by `norm_word`: no stress, no length marks,
-    no punctuation."""
+    always holds.  Normalised by `norm_word`: no stress, no punctuation; length marks kept,
+    attached to their sound ("iː")."""
     v = variant(variant_code)
     toks = _text_words(text)
     if not toks:

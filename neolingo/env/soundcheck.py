@@ -57,8 +57,8 @@ def sounds(wav_path: str, target: list[list[str]], variant_code: str) -> list[di
             Miolingo's French model writes a nasal vowel as two tokens
             (vowel, then U+0303), so that gives two flags at one `at`;
       word  index of the word it is in.
-    A flag whose `like` equals its `sound` once length marks are removed
-    (the take differed only in length, which `norm` ignores) is dropped.
+    Length marks are kept (a long sound is another sound): `sound` and `like` carry them
+    attached ("iː"); a flag whose `like` equals its `sound` is dropped.
     [] when nothing is flagged, or when the check cannot run (a model
     without a CTC vocabulary, or a take too short for the target)."""
     v = variant(variant_code)

@@ -75,6 +75,17 @@ target the engine sent; the engine's `droppedFlags` is logged (a warning when no
 target, cost table and recogniser cut sounds the same way; an `unreliable` target costs 0 only against phones of the table (others cost `costOtherwise`).
 The engine takes about 11 s to print its `{"ready":1}` line (the host waits for it, no timeout); the host start is about 12 s before it serves.
 
+## Length
+
+Length marks are KEPT (owner's decision, 13 October 2026; the engine's `norm` removes only stress marks and punctuation): a long
+sound is another sound, "iː" is not "i" (German "Ihnen" [iːnən] against "innen" [ɪnən]). A length mark (ː, ˑ) is always attached to its
+sound as ONE string, in `target_ipa`, `hear`, the sound check's flags and the cost table alike. `env.join_length` is the one function
+that does it (called at the end of `phones_of`, which every path uses): a lone "ː" from a recogniser, or from the cutter, is joined to
+the sound before it, and dropped if there is none. The cost table has the long sounds as keys (37 of its 168 sounds), costed as any
+other pair by panphon's weighted feature distance (it has a `long` feature) with Miolingo's accept and tolerated entries for the
+language kept as they are; nothing is tuned. Of the two phone models, the multilingual xlsr-53 espeak model (English, German) has 48
+tokens carrying ː and writes length; the French specialist has only a lone "ː" token. `tests/check_segmentation.py` checks all of this.
+
 ## Not here yet
 
 HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `record`) is untested in a browser;

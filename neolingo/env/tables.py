@@ -132,9 +132,8 @@ def cost_table(include_vocab: bool = True) -> dict:
     langs = {}
     for l in LANGS:
         cfg = mio.sound_check.lang_config(l)
-        # Keys are passed through `norm` (no length marks), since the engine's
-        # phones are normalised; Miolingo's own tables keep e.g. "yː".  Where
-        # two raw keys collapse to one, the larger weight wins.
+        # Keys are passed through `norm` (stress and punctuation removed; LENGTH KEPT, as Miolingo's own
+        # tables write e.g. "yː").  Where two raw keys collapse to one, the larger weight wins.
         def n(x):
             if x == mio.sound_check.DEL:       # "deleted": kept as the symbol itself
                 return x
