@@ -87,6 +87,9 @@ One learner, uid `me`, no sign-in. Takes are never deleted (see the archive, bel
 
     ~/Software/working/miolingo/venv/bin/python neolingo/tests/check_host.py
 
+Since 13 October the settings are a view of their own: `practised`, `own` and `slow` are steps only between `openSettings` and `closeSettings`. The page does that itself;
+the tests change a setting through `Host.setting(which, value)` in `tests/check_host.py`, which opens and closes the settings around it.
+
 Choices a reader should know: the cost list sent to the engine is the whole matrix (about 18,600 entries, 1 MiB) with
 per-variant overrides for tolerated pairs, accept weights and unreliable targets; `hear` gives the sounds as one word;
 flags are mapped `like` -> `heardAs` (null when left out), one flag for each target sound a finding covers, `sound` taken from the
