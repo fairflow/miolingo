@@ -110,6 +110,11 @@
   table.cmp th { font: 400 .78rem system-ui, sans-serif; opacity: .65; text-align: left; padding-right: 10px; white-space: nowrap; }
   table.cmp td.gapw { min-width: .9em; padding: 0; }
   table.cmp td.none { opacity: .45; }
+  button.line { min-height: 32px; padding: 3px 8px; font-weight: 400; text-align: left; background: none; border: 1px solid transparent; }
+  button.line[aria-disabled=false] { border-color: var(--line, #ccc); cursor: pointer; }
+  li.now button.line { font-weight: 650; opacity: 1; }
+  .take:empty { display: none; }
+  .take { margin-top: 6px; max-width: 100%; overflow-x: auto; }
   .recorder:empty { display: none; }
   .recorder { margin-top: 8px; }
   .held { margin-top: 8px; }
@@ -248,6 +253,8 @@ var app = document.getElementById('app'), EXTRA = { takes: [], testList: '' };
 //   record(session, element) -> Promise<take token>   the microphone; `element` is the <div id="recorder"> to draw in
 //   speak(text, variant, slow) -> Promise              plays the reference; the page then shows "Hear it" buttons
 //   lists() -> Promise<[{name, variant, items: [{text, gloss}]}]>   lists to choose from in "Load a list of phrases"
+//   playTake(take) -> Promise                          plays the recording held; the page then shows "Play it"
+//   showTake(take, element)                            draws the recording held (its waveform) in the element
 // None of them is a press of the model.
 var HOST = window.NeolingoHost || {}, RECORDING = 0, LISTS = null;
 function hear(text, sc) {
@@ -443,7 +450,10 @@ function session(root, sc, r) {
     if (b.list.length) s.appendChild(el('details', { 'class': 'more plist', 'data-d': K('plist') }, [
       el('summary', { text: 'The list (' + b.list.length + ')' }),
       el('ol', {}, b.list.map(function (q, i) {
-        return el('li', { 'class': i + 1 === b.position.at ? 'now' : null }, [q.text, q.gloss ? el('span', { 'class': 'muted', text: '  ' + q.gloss }) : null]);
+        // each line is the press "go to phrase i+1": active iff the model says it would be a step (not the place shown)
+        return el('li', { 'class': i + 1 === b.position.at ? 'now' : null }, [
+          ibtn(q.text, b.goto, 'goto', function () { return i + 1; }, null, 'line'),
+          q.gloss ? el('span', { 'class': 'muted', text: '  ' + q.gloss }) : null]);
       }))
     ]));
     if (b.phrase) {
@@ -479,7 +489,18 @@ function session(root, sc, r) {
     if (b.held) {
       // the take held can be looked at: Listen sends nothing to the engine (here it plays nothing, and says so)
       var lab = (tk.filter(function (t) { return t.id === b.take; })[0] || {}).label || b.take;
-      s.appendChild(el('div', { 'class': 'held muted', text: TEST ? 'Recording held: test recording \u201c' + lab + '\u201d.' : 'Recording held.' }));
+      var heldRow = el('div', { 'class': 'held muted' }, [TEST ? 'Recording held: test recording \u201c' + lab + '\u201d.' : 'Recording held.']);
+      s.appendChild(heldRow);
+      // looks of a real host, no press of the model: play the take held, and a picture of it drawn by the host
+      if (!TEST && HOST.playTake) {
+        heldRow.appendChild(document.createTextNode(' '));
+        heldRow.appendChild(btn('Play it', true, function () { Promise.resolve(HOST.playTake(b.take)).catch(function () {}); }, 'hear'));
+      }
+      if (!TEST && HOST.showTake) {
+        var pic = el('div', { 'class': 'take', id: r === 1 ? 'take' : 'take-' + r });
+        s.appendChild(pic);
+        try { HOST.showTake(b.take, pic); } catch (e) {}
+      }
     }
     s.appendChild(status);
     if (b.result) {
