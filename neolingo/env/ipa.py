@@ -1,8 +1,10 @@
 """`norm` and `target_ipa`."""
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
+from pathlib import Path
 
 from . import _miolingo as mio
 from .variants import variant
@@ -76,6 +78,24 @@ def _espeak(text: str, espeak_voice: str) -> str:
     return s
 
 
+_EXC_FILE = Path(__file__).resolve().parent.parent / "data" / "ipa_exceptions.json"
+_EXC: dict | None = None
+
+
+def _word_key(token: str) -> str:
+    """Lower-cased token with everything but letters and digits removed (the key form of ipa_exceptions.json)."""
+    return "".join(c for c in token.lower() if c.isalnum())
+
+
+def ipa_exceptions(lang: str) -> dict[str, str]:
+    """{word key: IPA} that replaces espeak's output for those words (data/ipa_exceptions.json; keys not
+    starting with "_" are language codes)."""
+    global _EXC
+    if _EXC is None:
+        _EXC = json.loads(_EXC_FILE.read_text("utf-8")) if _EXC_FILE.exists() else {}
+    return {_word_key(w): i for w, i in _EXC.get(lang, {}).items()}
+
+
 def target_ipa(text: str, variant_code: str) -> list[list[list[str]]]:
     """The target sounds of a phrase: a list of words, each a list of phones.
 
@@ -85,7 +105,8 @@ def target_ipa(text: str, variant_code: str) -> list[list[list[str]]]:
     text's tokens (it can merge or split across a space), each token is
     transcribed on its own instead, so `len(result) == number of tokens`
     always holds.  Normalised by `norm_word`: no stress, no punctuation; length marks kept,
-    attached to their sound ("iː")."""
+    attached to their sound ("iː").
+    A word listed in data/ipa_exceptions.json for the variant's language uses the listed IPA (word by word)."""
     v = variant(variant_code)
     toks = _text_words(text)
     if not toks:
@@ -93,5 +114,6 @@ def target_ipa(text: str, variant_code: str) -> list[list[list[str]]]:
     whole = _espeak(" ".join(toks), v["espeak"]).split()
     if len(whole) != len(toks):
         whole = [w for t in toks for w in [" ".join(_espeak(t, v["espeak"]).split())]]
-    out = [phones_of(norm_word(w.replace(" ", ""))) for w in whole]
+    exc = ipa_exceptions(v["lang"])      # words espeak reads wrongly (loanwords): the listed IPA instead
+    out = [phones_of(norm_word(exc.get(_word_key(t), w).replace(" ", ""))) for t, w in zip(toks, whole)]
     return out
