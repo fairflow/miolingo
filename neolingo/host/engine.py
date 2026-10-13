@@ -10,31 +10,90 @@ from .engine_config import equiv_enabled, equivalents
 from .log import log
 
 
+def distribute(targets, like):
+    """A finding on a recogniser token that covers several target sounds `targets` (["t", "ʃ"] for the token "tʃ"),
+    which the checker says sounded like the string `like`.  Cut `like` into sounds and align it with `targets`
+    in order, keeping as many equal sounds as possible (an equal sound is no complaint).  Returns, for each target
+    sound, what it sounded like: the sound itself (no complaint), another sound, or None (left out); or None
+    when the finding cannot be distributed truthfully (no sound in common and a different number of sounds, so
+    any split would be a guess)."""
+    heard = env.phones_of(like) if like else []
+    n, m = len(targets), len(heard)
+    if not m or not (set(targets) & set(heard)) and n != m:
+        return None
+    # least edit distance (a pairing of two different sounds, a target sound left out, an extra heard sound: 1 each)
+    d = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(n + 1):
+        d[i][0] = i
+    for j in range(m + 1):
+        d[0][j] = j
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (targets[i - 1] != heard[j - 1]))
+    out, i, j = [None] * n, n, m
+    while i > 0 and j > 0:
+        if d[i][j] == d[i - 1][j - 1] + (targets[i - 1] != heard[j - 1]):
+            out[i - 1] = heard[j - 1]
+            i, j = i - 1, j - 1
+        elif d[i][j] == d[i - 1][j] + 1:
+            i -= 1                                      # left out
+        else:
+            j -= 1                                      # an extra heard sound
+    return out
+
+
 def flags_out(libflags, target):
     """The library's findings -> the protocol's flags F = {at, sound, heardAs, off} (section 3.1 item 3).
 
-    ONE flag for EACH target sound a finding covers, each with its own `at`, `sound` exactly the string the engine
-    holds at that place (taken from `target`, the sounds the engine sent in the question), and `heardAs` the same
-    on each.  A finding covers `span` sounds from `at` (a recogniser token such as "tʃ" or "ju" can cover several).
+    A flag for each target sound, each with its own `at`, `sound` exactly the string the engine holds at that
+    place (taken from `target`, the sounds the engine sent in the question).  A finding of the library covers
+    `span` sounds from `at` when a recogniser token such as "tʃ" or "ju" covers several.  Such a finding is
+    reported sound by sound, TRUTHFULLY: what the checker says the token sounded like is cut into sounds and
+    aligned in order with the target sounds it covers (`distribute`): [tʃ] heard as [tʃ] gives no flag at all,
+    [tʃ] heard as [ʃ] gives "[t] left out" and nothing on [ʃ].  If it cannot be distributed (nothing in common
+    and a different number of sounds) the finding is attached to the FIRST sound of the span only, with `heardAs`
+    the whole token as returned; no "left out" is ever invented.  A token the checker says was left out
+    leaves out every sound it covers.
     Where a target sound is cut by the recogniser into several tokens (the French model writes the nasal vowel
     "ɛ̃" as "ɛ" and U+0303) the findings land on one `at`: they are merged into one flag, `off` if any is off, and
     `heardAs` the target sound with each flagged token replaced by what it sounded like (nothing, if left out)."""
     flat = [env.norm_word(s) or s for word in target for s in word]
-    by_at, order = {}, []
+    by_at, order, resolved = {}, [], {}
     for f in libflags:
-        like = "" if f.get("left_out") else (f.get("like") or "")
+        left = bool(f.get("left_out"))
+        like = "" if left else (f.get("like") or "")
         span = max(1, int(f.get("span") or 1))
-        for k in range(span):
-            at = f["at"] + k
-            if not 0 <= at < len(flat):
+        first = f["at"]
+        covered = [a for a in range(first, first + span) if 0 <= a < len(flat)]
+        if span > 1 and covered and len(covered) == span:
+            if left:
+                parts = [None] * span
+            else:
+                parts = distribute([flat[a] for a in covered], like)
+            if parts is not None:
+                for a, p in zip(covered, parts):
+                    if p == flat[a]:
+                        continue                        # heard as it should be: no complaint
+                    old = resolved.get(a)
+                    resolved[a] = (p, bool(f["off"]) or bool(old and old[1]))
+                    if a not in order:
+                        order.append(a)
                 continue
+            covered = covered[:1]                       # cannot be distributed: the first sound only
+        for at in covered:
             if at not in by_at:
                 by_at[at] = []
-                order.append(at)
+                if at not in order:
+                    order.append(at)
             by_at[at].append((f.get("sound") or "", like, span, bool(f["off"])))
     out = []
     for at in sorted(order):
-        t, items = flat[at], by_at[at]
+        t = flat[at]
+        if at in resolved and at not in by_at:
+            p, off = resolved[at]
+            out.append({"at": at, "sound": t, "heardAs": p if p and p != t else None, "off": off})
+            continue
+        items = by_at[at]
         heard, off = t, any(o for (_s, _l, _n, o) in items)
         whole = [(l, n) for (_s, l, n, _o) in items if n > 1 or _s == t]
         if whole:                                     # the token IS the sound (or covers several sounds)
