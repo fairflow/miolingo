@@ -448,7 +448,11 @@ function session(root, sc, r) {
       el('div', { 'class': 'row' }, [
         el('input', { type: 'text', 'data-k': K('newname'), 'aria-label': 'A name, one word', placeholder: 'A name, one word', autocapitalize: 'none' }),
         ibtn('Register', sc.body.register, 'register', function () { return val('newname'); }, ['newname'], null, yR)]),
-      yR, status
+      yR,
+      // a guest: the whole app, nothing kept (the model's memory-only guest); a press of the model
+      el('div', { 'class': 'row', style: 'margin-top:14px' }, [
+        nbtn('Continue as a guest', sc.guestIn, 'guest'), el('span', { 'class': 'muted', text: 'Nothing is kept.' })]),
+      status
     ]));
     return;
   }
