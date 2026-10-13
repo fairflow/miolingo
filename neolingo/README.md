@@ -56,15 +56,23 @@ machines need HTTPS (not arranged here).
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
 `GET /host.js`, `GET /version`, `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
-(macOS `say` + `afconvert`, else `espeak-ng`; cached by hash), `GET /lists`.
+(speech, cached under `var/speech/`; see below), `GET /lists`.
+`GET /version` answers `page` and `changed` (first line of `page/CHANGES`), `engine` (the locus hash in `page/SOURCE`), `built`
+(the engine binary's modification time), `instance` (`real`), `host` (this repository's short hash), `tts`, `started`.
+`./update_page.sh` copies `index.html` and `CHANGES` from the locus repository and writes `SOURCE` (no restart needed).
+
+Speech: `NEOLINGO_TTS` = `gtts` (default; Google's text-to-speech through the `gtts` package, MP3, the only network use; falls back
+to `say`, then `espeak`, and the log says which answered) | `say` | `espeak` (both WAV). `host.js` plays whatever content type comes back.
+
 One learner, uid `me`, no sign-in. Takes older than a day are deleted at start. `NEOLINGO_VAR` moves `var/` (the test uses it).
 
     ~/Software/working/miolingo/venv/bin/python neolingo/tests/check_host.py
 
-Choices a reader should know: the cost list sent to the engine is the whole matrix (about 19,500 entries, 1 MiB) with
+Choices a reader should know: the cost list sent to the engine is the whole matrix (about 18,600 entries, 1 MiB) with
 per-variant overrides for tolerated pairs, accept weights and unreliable targets; `hear` gives the sounds as one word;
-flags are mapped `like` -> `heardAs` (null when left out); the engine drops a flag whose sound is not the target's at `at`
-(each answer logs how many); an `unreliable` target costs 0 only against phones of the table (others cost `costOtherwise`).
+flags are mapped `like` -> `heardAs` (null when left out), one flag for each target sound a finding covers, `sound` taken from the
+target the engine sent; the engine's `droppedFlags` is logged (a warning when not 0); `tests/check_segmentation.py` checks that
+target, cost table and recogniser cut sounds the same way; an `unreliable` target costs 0 only against phones of the table (others cost `costOtherwise`).
 The engine takes about 11 s to print its `{"ready":1}` line (the host waits for it, no timeout); the host start is about 12 s before it serves.
 
 ## Not here yet

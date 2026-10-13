@@ -103,9 +103,13 @@ def main():
     print(open(VAR / "host.log").read().strip().splitlines()[1])
     ver = json.loads(h.get("version")[0])
     print("version:", ver)
-    check(ver["page"].startswith("v") and ver["source"] != "unknown" and ver["host"] != "unknown", "version has page, source and host hash")
+    first = (ROOT / "page" / "CHANGES").read_text("utf-8").splitlines()[0].split("\t", 1)
+    check(ver["page"] == first[0] and ver["page"] != "unknown" and ver["changed"] == first[1], f"version.page/changed are the first line of CHANGES ({ver['page']})")
+    check(ver["engine"] == (ROOT / "page" / "SOURCE").read_text().strip() and ver["engine"], f"version.engine is the hash in SOURCE ({ver['engine']})")
+    check(len(ver["built"]) >= 16 and ver["instance"] == "real" and ver["host"] not in ("", "unknown"), f"version.built {ver['built']!r}, instance, host {ver['host']}")
+    check(ver["tts"] in ("gtts", "say", "espeak"), f"version.tts = {ver['tts']}")
     page = h.get("")[0].decode()
-    check(page.index('<script src="host.js"></script>') < page.index("// v0.20"), "the page carries host.js before its own script")
+    check(page.index('<script src="host.js"></script>') < page.index("<script>"), "the page carries host.js before its own script")
     check(b"NeolingoHost" in h.get("host.js")[0], "host.js is served")
     lists = json.loads(h.get("lists")[0])
     check([l["variant"] for l in lists] == ["en-gb", "fr-fr", "de"] and all(len(l["items"]) > 10 for l in lists), "lists: en, fr, de")
@@ -114,7 +118,7 @@ def main():
     check("test" not in d and "takes" not in d, "start: a real host (no 'test', no 'takes')")
     check(d["screens"][0]["settings"] == {"own": "en", "practised": "fr-fr", "slow": False}, "default settings en / fr-fr / not slow")
 
-    timings = {}
+    timings, dropped = {}, []
     for variant in ("fr-fr", "en-gb", "de"):
         print(f"\n=== {variant} ===")
         if variant != "fr-fr":
@@ -142,6 +146,8 @@ def main():
             d = h.press(press="check", session=1, input=None)
             runs.append(time.perf_counter() - t0)
             check(d["step"] and "write" in d and d["write"], f"check ({run}): a step with a write, {runs[-1]:.2f} s")
+            check(d.get("droppedFlags") == 0, f"check ({run}): droppedFlags = {d.get('droppedFlags')!r} (0 expected)")
+            dropped.append(d.get("droppedFlags"))
             if run == "cold":
                 res = body(d)["result"]
                 check(res is not None, "check: a result")
@@ -150,7 +156,7 @@ def main():
                 check(isinstance(d["write"]["row"]["score"], int), f"score {d['write']['row']['score']}%")
             if run == "cold":
                 shown = len(body(d)["result"]["flags"])
-                flaglog = [l for l in open(VAR / "host.log").read().splitlines() if "flags given" in l][-1]
+                flaglog = [l for l in open(VAR / "host.log").read().splitlines() if "flags:" in l][-1]
                 print(f"   flags: {shown} shown on the screen; host log: {flaglog[20:]}")
                 tk = h.take(wav)                         # a NEW token: the engine remembers answers per take
                 d = h.press(press="record", session=1, input=tk)
@@ -180,14 +186,31 @@ def main():
     check(s["settings"] == settings_before and s["settings"]["practised"] == "de", f"settings after restart as before: {s['settings']}")
 
     print("\n=== speak ===")
-    for variant, text in (("fr-fr", "Je cherche la gare"), ("en-gb", "Thank you very much"), ("de", "Guten Tag")):
-        t0 = time.perf_counter()
-        data, ctype = h.get("speak?text=" + urllib.request.quote(text) + f"&variant={variant}&slow=false")
-        t1 = time.perf_counter() - t0
-        check(data[:4] == b"RIFF" and data[8:12] == b"WAVE" and len(data) > 5000 and ctype == "audio/wav", f"speak {variant}: WAV, {len(data)} bytes, {t1:.2f} s")
-    data, _ = h.get("speak?text=Bonjour&variant=fr-fr&slow=true")
+    CT = {"gtts": "audio/mpeg", "say": "audio/wav", "espeak": "audio/wav"}
+    for engine in ("espeak", "say", "gtts"):
+        for variant, text in (("fr-fr", "Je cherche la gare"), ("en-gb", "Thank you very much"), ("en-us", "Thank you very much"), ("de", "Guten Tag")):
+            t0 = time.perf_counter()
+            try:
+                data, ctype = h.get("speak?text=" + urllib.request.quote(text) + f"&variant={variant}&slow=false&engine={engine}")
+            except urllib.error.HTTPError as e:
+                if engine == "gtts":
+                    print(f"   SKIPPED gtts {variant}: the network call failed (HTTP {e.code}: {e.read()[:120]!r}); no network?")
+                    continue
+                raise
+            t1 = time.perf_counter() - t0
+            ok = (data[:4] == b"RIFF" and data[8:12] == b"WAVE") if CT[engine] == "audio/wav" else (data[:3] == b"ID3" or data[:2] == b"\xff\xfb" or data[:2] == b"\xff\xf3")
+            check(ok and len(data) > 3000 and ctype == CT[engine], f"speak {engine} {variant}: {ctype}, {len(data)} bytes, {t1:.2f} s")
+    data, ctype = h.get("speak?text=Bonjour&variant=fr-fr&slow=true&engine=espeak")
     check(data[:4] == b"RIFF", "speak slow")
-    check(len(list((VAR / "speech").glob("*.wav"))) >= 4, "speech cached under var/speech/")
+    data, ctype = h.get("speak?text=Bonjour%20tout%20le%20monde&variant=fr-fr&slow=false")      # the default engine, with its fallbacks
+    ver = json.loads(h.get("version")[0])
+    print(f"   default speak: {ctype}, {len(data)} bytes, engine in use: {ver['tts']}")
+    check(ctype == CT[ver["tts"]] and len(data) > 3000, "default speak answers in the engine reported by /version")
+    names = {p.suffix for p in (VAR / "speech").iterdir() if p.is_file()}
+    check(".wav" in names, f"speech cached under var/speech/ ({sorted(names)})")
+    spoken = [l for l in open(VAR / "host.log").read().splitlines() if " speak " in l]
+    print("   host log:", spoken[-1][20:])
+    print(f"   droppedFlags on the Check presses: {dropped}")
 
     print("\nCheck timings (seconds), cold = first Check in that language in this host process, warm = second:")
     for v, (c, w) in timings.items():
@@ -195,7 +218,7 @@ def main():
     log = open(VAR / "host.log").read()
     print("flag lines of the host log:")
     for l in log.splitlines():
-        if "flags given" in l:
+        if "flags:" in l:
             print("  ", l)
     h.stop()
     if fails:
