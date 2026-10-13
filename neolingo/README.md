@@ -52,12 +52,12 @@ machines need HTTPS (not arranged here).
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
 | the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices; no models); `tests/check_flags.py` |
+| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices; no models); `tests/check_flags.py` |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
 `GET /host.js`, `GET /version`, `GET /wordlists`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
 (speech, cached under `var/speech/`; see below), `GET /lists`.
-`GET /version` answers `page` and `changed` (first line of `page/CHANGES`), `engine` (the locus hash in `page/SOURCE`), `built`
+`GET /version` answers `slots`, `autosignin`, `page` and `changed` (first line of `page/CHANGES`), `engine` (the locus hash in `page/SOURCE`), `built`
 (the engine binary's modification time), `instance` (`real`), `host` (this repository's short hash), `tts`, `started`.
 `./update_page.sh` copies `index.html` and `CHANGES` from the locus repository and writes `SOURCE` (no restart needed).
 
@@ -83,7 +83,7 @@ the engine accepts `"lists":[]` in `start`.
 resolves to it; the page offers them under "Upload a list of words"; the model's `upload` asks the host `fill(word, own, variant)` for each word and `fill`
 answers from `data/gloss.json` (`env.gloss`). Words with an apostrophe or a hyphen are not offered: the model's upload drops or changes them.
 
-One learner, uid `me`, no sign-in. Takes are never deleted (see the archive, below). `NEOLINGO_VAR` moves `var/` (the test uses it).
+Takes are never deleted (see the archive, below). `NEOLINGO_VAR` moves `var/` (the test uses it).
 
     ~/Software/working/miolingo/venv/bin/python neolingo/tests/check_host.py
 
@@ -96,6 +96,34 @@ flags are mapped `like` -> `heardAs` (null when left out), one flag for each tar
 target the engine sent; the engine's `droppedFlags` is logged (a warning when not 0); `tests/check_segmentation.py` checks that
 target, cost table and recogniser cut sounds the same way; an `unreliable` target costs 0 only against phones of the table (others cost `costOtherwise`).
 The engine takes about 11 s to print its `{"ready":1}` line (the host waits for it, no timeout); the host start is about 12 s before it serves.
+
+## Sign-in
+
+The page shows one or more SLOTS; a slot is signed out or signed in as one learner (no password: a name is chosen or typed; protocol
+section 6.2). The host starts the engine with `{"cmd":"start","slots":N,"store":[every learner]}`, so every learner of
+`var/neolingo.sqlite` is registered and every slot is signed out.
+
+| Switch | Default | Meaning |
+|---|---|---|
+| `NEOLINGO_SLOTS=N` | `1` | the number of session slots (1 to 8); `2` shows two sessions side by side, for testing two learners |
+| `NEOLINGO_AUTOSIGNIN=name` | `me` | after a real start the host itself signs `name` in at slot 1 if registered, so the owner's page opens in the app as before; he can still sign out and register someone else. Empty: start signed out. The log says what was done |
+
+`GET /version` reports `slots` and `autosignin`. A new database has no learner and the engine's `register` is not a step then, so
+the host registers the first learner itself (the autosignin name, else `me`) and logs it.
+
+**What is saved when.** History, vocabulary and practice lists are written at once. A change of a setting is NOT written: the
+settings are written by `signOut` (`putSettings`), a new learner by `register` (`putLearner`).
+
+- **Clean stop** (SIGTERM, SIGINT, or the host's own exit): the host sends `signOut` for every signed-in slot, applies the writes, then
+  stops the engine. The log says `clean stop: signed out ...`. At the next start the auto sign-in returns to the app, so a normal
+  restart (`pkill -TERM -f host.serve`) keeps the settings. `{"cmd":"start","fresh":true}` also signs out first.
+- **Unclean stop** (`kill -9`, a crash, a power cut, or the engine dying and being restarted): the settings changed since sign-in are
+  LOST (everything else was already written). Sign out in the app before such a stop if the settings matter.
+- Same learner in two slots: the last to sign out wins.
+
+The archive (`records.jsonl`, `checks.jsonl`, `judgements.jsonl`) carries `"uid"` on every new line (a judgement gets the uid of the
+learner who made that take); lines from before count as `me`. `GET /archive?uid=` filters, items carry `uid`, and `/review`
+shows the learner on each card with a learner filter. Nothing is recorded in a signed-out slot (the log says so).
 
 ## Testing with sound
 
@@ -155,5 +183,5 @@ tokens carrying ː and writes length; the French specialist has only a lone "ː"
 
 HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `record`) and the drawing and playing of takes (`showTake`, `playTake`) are untested in a browser; `judgeResult` is tested only under node with a fake DOM (and called by hand in a desktop browser pane), not inside the real app page;
 the page does not yet call `speak`, `lists` or `wordLists` (they work from the console); the stretched score curve (the engine has
-only sqrt and linear); the sign-in and more than one learner; accuracy of the recognisers on real learners (only
+only sqrt and linear); accuracy of the recognisers on real learners (only
 synthetic voices have been run); no cleanup of `var/speech/`.

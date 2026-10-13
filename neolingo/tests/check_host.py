@@ -85,6 +85,12 @@ class Host:
         self.press(press="closeSettings", session=session, input=None)
         return d
 
+    def begin(self):
+        """The page's `start`; a new database gets `me` (registered by the host) and auto sign-in."""
+        d = self.press(cmd="start")
+        assert d["screens"][0]["uid"] == "me", "not signed in as me"
+        return d
+
     def take(self, wav):
         r = urllib.request.Request(self.base + "take", Path(wav).read_bytes(), {"Content-Type": "audio/wav"})
         with urllib.request.urlopen(r, timeout=60) as f:
@@ -127,6 +133,8 @@ def main():
           and {l["lang"] for l in wl} == {"en", "fr", "de"}, f"wordlists: {len(wl)} lists, {sum(len(l['words']) for l in wl)} words, languages en fr de")
     d = h.press(cmd="start")
     check("test" not in d and "takes" not in d, "start: a real host (no 'test', no 'takes')")
+    check(d["screens"][0]["uid"] == "me" and d["screens"][0]["body"]["kind"] == "practice",
+          "a new database has no learner: the host registers me (the engine cannot register the first) and signs me in")
     check(d["screens"][0]["settings"] == {"own": "en", "practised": "fr-fr", "slow": False}, "default settings en / fr-fr / not slow")
 
     timings, dropped = {}, []
@@ -279,6 +287,11 @@ def main():
     check(len(items) >= 6 and arch["total"] == len(items) and arch["judged"] == 0, f"archive: {len(items)} checks, none judged ({arch['judged']} of {arch['total']})")
     check(all(a["time"] >= b["time"] for a, b in zip(items, items[1:])) and all(i["judgement"] is None for i in items), "archive: newest first, each with judgement null")
     check(all(k in items[0] for k in ("take", "variant", "text", "banner", "target", "hear")), "archive: the lines of checks.jsonl, with their fields")
+    check(all(i["uid"] == "me" for i in items) and all(json.loads(l)["uid"] == "me" for l in open(VAR / "archive" / "checks.jsonl")),
+          "archive: every check line and item carries the learner (me)")
+    check(all(json.loads(l)["uid"] == "me" for l in open(VAR / "archive" / "records.jsonl")), "archive: every record line carries the learner")
+    check(json.loads(h.get("archive?uid=me")[0])["total"] == len(items) and json.loads(h.get("archive?uid=anna")[0])["total"] == 0,
+          "archive: the uid filter")
     t1, t2 = items[0]["take"], items[1]["take"]
     check(get_json(f"judgement?take={t1}") == (200, {}), "judgement of an unjudged take is {}")
     st, j = post_json("judge", {"take": t1, "verdict": "harsh", "note": "the rise was fine"})
@@ -297,6 +310,7 @@ def main():
         check(post_json("judge", bad)[0] == 400, f"judge refused: {what}")
     check(post_json("judge", None, raw=b"not json")[0] == 400 and post_json("judge", None, raw=b"[1]")[0] == 400, "judge refused: not a JSON object")
     check(len(open(VAR / "archive" / "judgements.jsonl").read().splitlines()) == 3, "the refused ones wrote nothing")
+    check(all(json.loads(l)["uid"] == "me" for l in open(VAR / "archive" / "judgements.jsonl")), "every judgement carries the learner of its take")
     check(get_json("judgement?take=nonsense")[0] == 400, "judgement: bad token refused")
     arch = json.loads(h.get("archive?limit=50")[0])
     byt = {i["take"]: i for i in arch["items"]}

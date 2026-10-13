@@ -88,6 +88,42 @@ check([i["take"] for i in H["items"]] == ["t0123456789abcdef"] and H["total"] ==
 (paths.ARCHIVE / "overseer_takes.txt").unlink()
 check(archive.test_voice_tokens() == set() and all("source" not in i for i in archive.listing()["items"]), "no overseer_takes.txt: nothing labelled")
 
+# sign-in: putLearner, the whole store, the learner in the archive
+t = Store(Path(tmp) / "new.sqlite")
+check(t.uids() == [] and t.all_data() == [], "a new store has no learner")
+P = {"own": "en", "practised": "fr-fr", "slow": False}
+r = t.apply({"kind": "putLearner", "uid": "anna", "settings": P})
+check(t.uids() == ["anna"] and t.data("anna") == {"uid": "anna", "settings": P, "vocab": [], "history": [], "lists": []}, f"putLearner adds a learner with nothing kept ({r})")
+t.apply({"kind": "putEntry", "uid": "anna", "lang": "fr", "entry": {"word": "chat", "translation": "cat", "notes": ""}})
+r = t.apply({"kind": "putLearner", "uid": "anna", "settings": dict(P, slow=True)})
+check(t.data("anna")["settings"] == P and len(t.data("anna")["vocab"]) == 1, f"putLearner on a name that exists does nothing ({r})")
+t.apply({"kind": "putLearner", "uid": "bo", "settings": P})
+check(t.uids() == ["anna", "bo"] and [x["uid"] for x in t.all_data()] == ["anna", "bo"], "all_data: every learner")
+check(s.uids()[0] == "me" and s.all_data()[0]["uid"] == "me", "an old database: its one learner is found")
+
+paths.make_dirs()
+reply = {"screens": [{"uid": "anna", "body": {}}, {"uid": "", "body": {}}]}
+check(archive.learner_of({"session": 1}, reply) == "anna" and archive.learner_of({"session": 2}, reply) == ""
+      and archive.learner_of({"session": 3}, reply) == "", "learner_of: the session's learner, empty when signed out or unknown")
+n = len(archive.read_lines("records.jsonl"))
+archive.log_record({"press": "record", "session": 2, "input": "t0123456789abcdef"}, dict(reply, step=True), [])
+check(len(archive.read_lines("records.jsonl")) == n, "a Record line is not written for a signed-out session")
+archive.log_record({"press": "record", "session": 1, "input": "t0123456789abcdef"}, dict(reply, step=True), [])
+check(archive.read_lines("records.jsonl")[-1]["uid"] == "anna", "a Record line carries the learner")
+rows = [{"time": "2026-10-13T12:00:00", "uid": "anna", "take": "t1111111111111111", "variant": "fr-fr"},
+        {"time": "2026-10-13T12:01:00", "uid": "me", "take": "t2222222222222222", "variant": "fr-fr"}]
+with open(paths.ARCHIVE / "checks.jsonl", "a", encoding="utf-8") as f:
+    f.write("\n".join(json.dumps(x) for x in rows) + "\n")
+L = archive.listing()
+check({i["take"]: i["uid"] for i in L["items"]} == {"t7719675e889caccd": "me", "t0123456789abcdef": "me", "t1111111111111111": "anna", "t2222222222222222": "me"},
+      "listing: every item has a uid; lines without one count as me")
+A = archive.listing(uid="anna")
+check([i["take"] for i in A["items"]] == ["t1111111111111111"] and A["total"] == 1, "listing: the uid filter (and the count)")
+check(archive.listing(uid="me")["total"] == 3, "listing: me includes the older lines")
+j = archive.judge("t1111111111111111", "fair")
+check(j["uid"] == "anna" and archive.judge("t7719675e889caccd", "harsh")["uid"] == "me" and archive.judge("t3333333333333333", "fair")["uid"] == "me",
+      "judge: the uid of the take's learner (older or unknown takes: me)")
+
 if bad:
     sys.exit(f"{len(bad)} FAILED")
 print("all passed")
