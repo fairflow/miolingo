@@ -1,10 +1,14 @@
-"""Speech for `speak`.  The engine is chosen by NEOLINGO_TTS = gtts (default) | say | espeak.
+"""Speech for `speak`.  The engine is chosen by NEOLINGO_TTS = gtts (default) | say.
 
   gtts    Google's text-to-speech through the `gtts` package (the ONE network use allowed): MP3.  Language from
           the variant (fr, en with tld co.uk for en-gb and com for en-us, de), `slow=` from the setting.  If the
-          call fails: `say`, then espeak-ng.
-  say     macOS `say` with a voice of the right language + afconvert: WAV.  If unavailable: espeak-ng.
-  espeak  espeak-ng: WAV.
+          call fails: `say`.
+  say     macOS `say` with a voice of the right language + afconvert: WAV.
+
+espeak-ng is NOT a voice (the owner, 13 October 2026: too horrible to hear).  If every voice of the chain fails,
+`speak` raises SpeechUnavailable and the endpoint answers an error the page can show.  espeak-ng remains the source of
+the target sounds (env.target_ipa) and the tests' synthetic voice (`speak(..., only="espeak")` is kept for the tests,
+never reached by the chain).
 
 Cached under var/speech/, keyed by the engine that made the file + text + variant + slow.  The log says which
 engine answered each request."""
@@ -47,10 +51,10 @@ def pick_voice(variant):
 
 
 GTTS = {"fr-fr": ("fr", "fr"), "en-gb": ("en", "co.uk"), "en-us": ("en", "com"), "de": ("de", "de")}
-CHAINS = {"gtts": ["gtts", "say", "espeak"], "say": ["say", "espeak"], "espeak": ["espeak"]}
+CHAINS = {"gtts": ["gtts", "say"], "say": ["say"]}
 TTS = os.environ.get("NEOLINGO_TTS", "gtts").strip().lower()
 if TTS not in CHAINS:
-    raise SystemExit(f"NEOLINGO_TTS={TTS!r}: expected gtts, say or espeak")
+    raise SystemExit(f"NEOLINGO_TTS={TTS!r}: expected gtts or say (espeak is not a voice)")
 IN_USE = TTS                    # the engine that answered the latest request (the configured one until then)
 CTYPE = {"gtts": "audio/mpeg", "say": "audio/wav", "espeak": "audio/wav"}
 
@@ -100,6 +104,10 @@ def _make_espeak(text, variant, slow, out):
 MAKERS = {"gtts": _make_gtts, "say": _make_say, "espeak": _make_espeak}
 
 
+class SpeechUnavailable(RuntimeError):
+    """Every voice of the chain failed (espeak-ng is never a voice)."""
+
+
 def speak(text, variant, slow, only=None):
     """(path, content type, engine) of cached speech of `text` in `variant`: the first engine of the chain that
     has it cached or can make it.  `only` restricts the chain to one engine (the tests)."""
@@ -117,9 +125,7 @@ def speak(text, variant, slow, only=None):
             MAKERS[engine](text, variant, slow, p)
         except Exception as e:
             log(f"speech: {engine} failed ({type(e).__name__}: {str(e)[:150]})" + ("; falling back" if engine != chain[-1] else ""))
-            if engine == chain[-1]:
-                raise
             continue
         IN_USE = engine
         return p, CTYPE[engine], engine
-    raise RuntimeError("no speech engine")
+    raise SpeechUnavailable("No voice is available just now: Google's voice needs the network, and the Mac voice failed.")

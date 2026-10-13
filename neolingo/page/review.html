@@ -64,6 +64,7 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
 <div class="filters">
   <label>Variant <select id="variant"><option value="">all</option></select></label>
   <label><input type="checkbox" id="unjudged" checked> not yet judged</label>
+  <label><input type="checkbox" id="hidetest"> hide test voices</label>
   <span id="count" aria-live="polite"></span>
 </div>
 <div id="list"></div>
@@ -77,7 +78,7 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
   var PAGE = 50, VERDICTS = [['fair', 'Fair'], ['harsh', 'Too harsh'], ['generous', 'Too generous']];
   var $ = function (id) { return document.getElementById(id); };
   var next = null, loading = false, generation = 0, current = null;
-  var variantSel = $('variant'), unj = $('unjudged'), list = $('list'), more = $('more'), count = $('count'), empty = $('empty');
+  var variantSel = $('variant'), unj = $('unjudged'), hideTest = $('hidetest'), list = $('list'), more = $('more'), count = $('count'), empty = $('empty');
   var H = window.NeolingoHost || {}, waves = {};
 
   function el(tag, cls, text) {
@@ -150,6 +151,7 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
     meta.appendChild(el('span', null, (c.time || '').replace('T', ' ').slice(0, 19)));
     meta.appendChild(el('span', null, c.variant || '?'));
     if (c.reconstructed) meta.appendChild(el('span', 'tag', 'reconstructed'));
+    if (c.source === 'test-voice') meta.appendChild(el('span', 'tag', 'Mac voice (test)'));
     root.appendChild(meta);
     root.appendChild(el('div', 'phrase', c.text || '(phrase not recorded)'));
     var banner = c.banner;
@@ -248,7 +250,7 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
     loading = true; var g = generation;
     if (reset) { generation = g = generation + 1; next = null; list.innerHTML = ''; shown = []; waves = {}; current = null; }
     var q = 'archive?limit=' + PAGE + (next ? '&before=' + encodeURIComponent(next) : '') +
-      (variantSel.value ? '&variant=' + encodeURIComponent(variantSel.value) : '') + (unj.checked ? '&unjudged=1' : '');
+      (variantSel.value ? '&variant=' + encodeURIComponent(variantSel.value) : '') + (unj.checked ? '&unjudged=1' : '') + (hideTest.checked ? '&hidetest=1' : '');
     getJSON(q).then(function (d) {
       if (g !== generation) return;
       if (!current) current = { judged: d.judged, total: d.total }; else { current.judged = d.judged; current.total = d.total; shown.forEach(function (c) { c._was = !!c.judgement; }); }
@@ -266,6 +268,7 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
   }
   variantSel.onchange = function () { load(true); };
   unj.onchange = function () { load(true); };
+  hideTest.onchange = function () { load(true); };
   more.onclick = function () { load(false); };
 
   // the variants present, from the archive itself

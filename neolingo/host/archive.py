@@ -155,15 +155,37 @@ def latest_judgement(take):
     return judgements().get(take) or {}
 
 
-def listing(limit=50, before=None, variant=None, unjudged=False):
+def test_voice_tokens():
+    """The takes NOT recorded by the owner (made by a Mac voice for testing), from var/archive/overseer_takes.txt: the
+    first field of each line that is not a comment.  Empty when the file does not exist."""
+    out = set()
+    try:
+        text = (paths.ARCHIVE / "overseer_takes.txt").read_text("utf-8")
+    except OSError:
+        return out
+    for l in text.splitlines():
+        l = l.strip()
+        if l and not l.startswith("#"):
+            tok = l.split()[0]
+            if TOKEN.fullmatch(tok):
+                out.add(tok)
+    return out
+
+
+def listing(limit=50, before=None, variant=None, unjudged=False, hide_test=False):
     """The archived checks, newest first, each joined with the latest judgement of its take (key "judgement", null if none).
+    Items of the takes in overseer_takes.txt carry "source": "test-voice" (never removed unless `hide_test`, which the
+    review page's "hide test voices" sets; the counts then leave them out too).
     `before`: "time" or "time|take" of the last line already seen.  `variant` and `unjudged` filter.  Returns
     {"items": [...], "total": n, "judged": k, "next": before-for-the-next-page or null}, the counts over the lines of
     `variant` (all variants if none), judged or not."""
     js = judgements()
     rows = [l for l in read_lines("checks.jsonl") if isinstance(l, dict) and l.get("take")]
+    test = test_voice_tokens()
     if variant:
         rows = [l for l in rows if l.get("variant") == variant]
+    if hide_test:
+        rows = [l for l in rows if l["take"] not in test]
     total, judged = len(rows), sum(1 for l in rows if l["take"] in js)
     rows.sort(key=lambda l: (l.get("time") or "", l["take"]), reverse=True)
     if before:
@@ -173,5 +195,5 @@ def listing(limit=50, before=None, variant=None, unjudged=False):
         rows = [l for l in rows if l["take"] not in js]
     page = rows[:limit]
     nxt = f"{page[-1].get('time') or ''}|{page[-1]['take']}" if len(rows) > limit else None
-    items = [dict(l, judgement=js.get(l["take"])) for l in page]
+    items = [dict(l, judgement=js.get(l["take"]), **({"source": "test-voice"} if l["take"] in test else {})) for l in page]
     return {"items": items, "total": total, "judged": judged, "next": nxt}
