@@ -116,6 +116,8 @@
   .take:empty { display: none; }
   .take { margin-top: 6px; max-width: 100%; overflow-x: auto; }
   .setline { padding: 6px 0; gap: 10px; }
+  .signin { padding: 10px 0 14px; }
+  .signin select { min-width: 10em; }
   .setview { padding: 8px 0 14px; }
   .recorder:empty { display: none; }
   .recorder { margin-top: 8px; }
@@ -205,6 +207,7 @@
       <label><input type="radio" name="mode" value="one"> One learner</label>
       <label><input type="radio" name="mode" value="two"> Two learners</label>
       <label><input type="radio" name="mode" value="same"> One learner in two sessions</label>
+      <label><input type="radio" name="mode" value="out"> Two slots, signed out</label>
     </fieldset>
     <div>Not part of the app. A change of start begins new sessions from what is stored.</div>
   </details>
@@ -292,7 +295,7 @@ var TEST = false, MODE = 'one', MODELOPEN = document.getElementById('modelopen')
 var MARK = ['s-ok', 's-check', 's-off'];
 // the status of the last press, shown in the session it was made in (what was stored goes to the foot)
 var STATUS = { r: 0, text: '' };
-var MODES = { one: 'one learner', two: 'two learners', same: 'one learner in two sessions' };
+var MODES = { one: 'one learner', two: 'two learners', same: 'one learner in two sessions', out: 'two slots, signed out' };
 
 function el(tag, attrs, kids) {
   var e = document.createElement(tag), k;
@@ -384,7 +387,7 @@ function draw(screens, clear) {
   app.textContent = '';
   screens.forEach(function (sc, i) {
     var r = i + 1, root = el('div', { 'class': 'sess' });
-    if (screens.length > 1) root.appendChild(el('div', { 'class': 'sesslabel', text: 'Session ' + r + ' · learner ' + sc.uid }));
+    if (screens.length > 1) root.appendChild(el('div', { 'class': 'sesslabel', text: 'Session ' + r + (sc.uid ? ' · learner ' + sc.uid : '') }));
     session(root, sc, r);
     app.appendChild(root);
   });
@@ -430,10 +433,30 @@ function session(root, sc, r) {
   var p = sc.settings;
   // THE TWO MAJOR VIEWS: the app, with the settings in one line and a button to open them; or the settings view
   // (the model's body `settings`), where the app's tabs and views are not shown. Opening and closing are presses.
+  // A SLOT WITH NO ONE SIGNED IN: what can be done there. A name registered is chosen, or a new one is typed.
+  // Sign in and Register are presses of the model; there is no password (the mechanics of sign-in are not modelled).
+  if (sc.body.kind === 'signedOut') {
+    var yI = why(), yR = why(), people = sc.body.people;
+    root.appendChild(el('div', { 'class': 'signin' }, [
+      el('h2', { text: 'Sign in', style: 'margin-top:0' }),
+      people.length ? el('div', { 'class': 'row' }, [
+        el('select', { 'data-k': K('who'), 'aria-label': 'Learner', on: { change: askSoon } },
+          people.map(function (u) { return el('option', { text: u, value: u }); })),
+        ibtn('Sign in', sc.body.signIn, 'signIn', function () { return val('who'); }, null, 'primary', yI)]) : el('div', { 'class': 'muted', text: 'No one is registered yet.' }),
+      yI,
+      el('h2', { text: 'New here?' }),
+      el('div', { 'class': 'row' }, [
+        el('input', { type: 'text', 'data-k': K('newname'), 'aria-label': 'A name, one word', placeholder: 'A name, one word', autocapitalize: 'none' }),
+        ibtn('Register', sc.body.register, 'register', function () { return val('newname'); }, ['newname'], null, yR)]),
+      yR, status
+    ]));
+    return;
+  }
   if (sc.body.kind === 'settings') {
     root.appendChild(el('div', { 'class': 'setview' }, [
       el('div', { 'class': 'row', style: 'justify-content:space-between' }, [
-        el('h2', { text: 'Settings', style: 'margin:0' }), nbtn('Done', sc.closeSettings, 'closeSettings', 'primary')]),
+        el('h2', { text: 'Settings', style: 'margin:0' }),
+        el('span', { 'class': 'row' }, [nbtn('Sign out', sc.signOut, 'signOut', 'hear'), nbtn('Done', sc.closeSettings, 'closeSettings', 'primary')])]),
       el('div', { 'class': 'muted', style: 'margin:6px 0 10px', text: sc.summary }),
       el('div', { 'class': 'grid' }, [
         el('label', {}, ['Your language', el('select', { on: { change: function (e) { press('own', e.target.value); } } },
@@ -448,7 +471,8 @@ function session(root, sc, r) {
     return;
   }
   root.appendChild(el('div', { 'class': 'setline row', style: 'justify-content:space-between' }, [
-    el('span', { 'class': 'muted', text: sc.summary }), nbtn('Settings', sc.openSettings, 'openSettings', 'hear')]));
+    el('span', { 'class': 'muted', text: (sc.uid ? sc.uid + ' · ' : '') + sc.summary }),
+    el('span', { 'class': 'row' }, [nbtn('Settings', sc.openSettings, 'openSettings', 'hear'), nbtn('Sign out', sc.signOut, 'signOut', 'hear')])]));
   root.appendChild(el('nav', { 'class': 'tabs', role: 'tablist' }, sc.tabs.map(function (t) {
     var tb = el('button', { role: 'tab', type: 'button', 'aria-selected': t.shown ? 'true' : 'false', text: t.view,
       'aria-disabled': t.offered ? 'false' : 'true' });
