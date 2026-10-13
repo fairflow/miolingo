@@ -5,14 +5,18 @@ in SQLite, answers the engine's questions from env, serves the page and the endp
   GET  /  /index.html   the page, with <script src="host.js"> placed before its own script
   GET  /host.js         the recorder and the player
   GET  /version         JSON: page, changed, engine, built, instance, host, tts, started
-  POST /press           the page's messages, forwarded to the engine
+  POST /press           the page's messages, forwarded to the engine.  `start` is answered with the engine's present
+                        state when it already holds the session (a reload loses nothing); {"cmd":"start","fresh":true}
+                        starts afresh
   GET  /take/<token>.wav   the stored WAV of that take, from var/takes or else the archive (404 if unknown)
   POST /take            a 16 kHz mono 16-bit WAV body; answers {"take": token}
-  GET  /speak?text=&variant=&slow=   speech: MP3 (gTTS) or WAV (say, espeak); NEOLINGO_TTS
+  GET  /speak?text=&variant=&slow=   speech: MP3 (gTTS) or WAV (say); NEOLINGO_TTS; 503 {"err"} if no voice (never espeak)
   GET  /lists           the phrase lists of data/{en,fr,de}.json
+  GET  /wordlists       the word lists of data/words_{en,fr,de}.json: [{name, lang, words:[...]}]
   POST /judge           {"take", "verdict": fair|harsh|generous, "note"}: appended to var/archive/judgements.jsonl
   GET  /judgement?take=  the latest judgement of that take, or {}
-  GET  /archive?limit=&before=&variant=&unjudged=   archived checks, newest first, joined with their judgements
+  GET  /archive?limit=&before=&variant=&unjudged=&hidetest=   archived checks, newest first, joined with their
+                        judgements; "source":"test-voice" on the takes of var/archive/overseer_takes.txt
   GET  /review          the review page (page/review.html): a test tool for judging takes afterwards
   NEOLINGO_JUDGING=0 turns off the judging buttons in the app page (the endpoints and /review stay)
 Bound to 127.0.0.1 only."""
@@ -80,6 +84,14 @@ def read_version():
     return v
 
 
+def read_wordlists():
+    out = []
+    for lang in ("en", "fr", "de"):
+        for l in json.loads((paths.DATA / f"words_{lang}.json").read_text("utf-8")):
+            out.append({"name": l["name"], "lang": l["lang"], "words": l["words"]})
+    return out
+
+
 def read_lists():
     out = []
     for lang in ("en", "fr", "de"):
@@ -94,6 +106,7 @@ class Host:
     def __init__(self):
         paths.make_dirs()
         log(f"host starting; var = {paths.VAR}; engine = {paths.ENGINE}; takes are kept for good (archive: {paths.ARCHIVE})")
+        self.started = False                      # the engine holds the session(s): a page's `start` is then a `state`
         self.held = None                          # the token of the latest recording held (a Check may ask nothing)
         self.store = Store(paths.DB)
         self.engine = Engine(build_config())
@@ -101,7 +114,13 @@ class Host:
             self.start_engine()
 
     def start_engine(self, model=False):
-        return self.engine.ask({"cmd": "start", "sessions": [UID], "store": [self.store.data(UID)], "model": model}, self.store)
+        self.started = False
+        d = self.engine.ask({"cmd": "start", "sessions": [UID], "store": [self.store.data(UID)], "model": model}, self.store)
+        self.started = True
+        return d
+
+    def holds_session(self):
+        return self.started and self.engine.proc is not None and self.engine.proc.poll() is None
 
     def page(self):
         h = (paths.PAGE / "index.html").read_text("utf-8")      # read each time: update_page.sh needs no restart
@@ -139,7 +158,11 @@ class Host:
 
     def once(self, msg):
         if msg.get("cmd") == "start":
-            return self.start_engine(bool(msg.get("model")))
+            model = bool(msg.get("model"))
+            if msg.get("fresh") is True or not self.holds_session():
+                log("start: " + ("fresh, as asked" if msg.get("fresh") is True else "the engine holds no session; new start"))
+                return self.start_engine(model)
+            return self.engine.ask({"cmd": "state", "model": model}, self.store)    # a reload: nothing is lost
         if "press" in msg and not isinstance(msg.get("session"), int):
             raise ValueError("bad press")
         return self.engine.ask(msg, self.store)
@@ -190,7 +213,8 @@ class H(http.server.BaseHTTPRequestHandler):
                         raise ValueError(f"bad {name}")
                 return self.json(archive.listing(num("limit", 50), (q.get("before") or [None])[0],
                                                  (q.get("variant") or [None])[0] or None,
-                                                 (q.get("unjudged") or ["0"])[0].lower() in ("1", "true", "yes")))
+                                                 (q.get("unjudged") or ["0"])[0].lower() in ("1", "true", "yes"),
+                                                 (q.get("hidetest") or ["0"])[0].lower() in ("1", "true", "yes")))
             if u.path == "/version":
                 return self.json(read_version())
             m = re.fullmatch(r"/take/(t[0-9a-f]{16})\.wav", u.path)       # the host's own tokens only: no slash, no dot
@@ -202,6 +226,8 @@ class H(http.server.BaseHTTPRequestHandler):
                 return self.send_error(404)
             if u.path == "/lists":
                 return self.json(read_lists())
+            if u.path == "/wordlists":
+                return self.json(read_wordlists())
             if u.path == "/speak":
                 text = (q.get("text") or [""])[0].strip()
                 variant = (q.get("variant") or ["fr-fr"])[0]
@@ -214,6 +240,9 @@ class H(http.server.BaseHTTPRequestHandler):
                 p, ctype, engine = speech.speak(text, variant, slow, only=only if only in speech.CHAINS else None)
                 log(f"speak {variant} slow={slow} {text[:60]!r}: {engine}, {(time.perf_counter() - t0) * 1000:.0f} ms")
                 return self.send(p.read_bytes(), ctype)
+        except speech.SpeechUnavailable as e:
+            log(f"speak: no voice available: {e}")
+            return self.json({"err": str(e)}, 503)
         except ValueError as e:
             return self.json({"err": f"bad request: {e}"}, 400)
         except KeyError as e:
