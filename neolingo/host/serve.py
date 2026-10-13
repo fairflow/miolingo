@@ -6,10 +6,15 @@ in SQLite, answers the engine's questions from env, serves the page and the endp
   GET  /host.js         the recorder and the player
   GET  /version         JSON: page, changed, engine, built, instance, host, tts, started
   POST /press           the page's messages, forwarded to the engine
-  GET  /take/<token>.wav   the stored WAV of that take (404 if unknown)
+  GET  /take/<token>.wav   the stored WAV of that take, from var/takes or else the archive (404 if unknown)
   POST /take            a 16 kHz mono 16-bit WAV body; answers {"take": token}
   GET  /speak?text=&variant=&slow=   speech: MP3 (gTTS) or WAV (say, espeak); NEOLINGO_TTS
   GET  /lists           the phrase lists of data/{en,fr,de}.json
+  POST /judge           {"take", "verdict": fair|harsh|generous, "note"}: appended to var/archive/judgements.jsonl
+  GET  /judgement?take=  the latest judgement of that take, or {}
+  GET  /archive?limit=&before=&variant=&unjudged=   archived checks, newest first, joined with their judgements
+  GET  /review          the review page (page/review.html): a test tool for judging takes afterwards
+  NEOLINGO_JUDGING=0 turns off the judging buttons in the app page (the endpoints and /review stay)
 Bound to 127.0.0.1 only."""
 import argparse
 import http.server
@@ -39,6 +44,10 @@ UID = paths.UID
 MAX_TAKE = 8_000_000                          # bytes: 30 s of 16 kHz 16-bit is under 1 MB
 
 
+def judging_on():
+    return os.environ.get("NEOLINGO_JUDGING", "1").strip() != "0"
+
+
 def git_hash(path):
     try:
         return subprocess.run(["git", "-C", str(path), "rev-parse", "--short", "HEAD"], capture_output=True,
@@ -53,7 +62,8 @@ def read_version():
     `built` the engine binary's modification time; `instance` "real"; also `host` (this repository's short git
     hash), `tts` (the speech engine in use) and `started`."""
     v = {"page": "unknown", "changed": "", "engine": "", "built": "", "instance": "real",
-         "host": git_hash(paths.ROOT), "tts": speech.IN_USE, "started": STARTED}
+         "host": git_hash(paths.ROOT), "tts": speech.IN_USE, "started": STARTED,
+         "judging": judging_on()}
     try:
         first = (paths.PAGE / "CHANGES").read_text("utf-8").splitlines()[0].split("\t", 1)
         v["page"], v["changed"] = first[0], (first[1] if len(first) > 1 else "")
@@ -165,13 +175,30 @@ class H(http.server.BaseHTTPRequestHandler):
                 return self.send(HOST.page(), "text/html; charset=utf-8")
             if u.path == "/host.js":
                 return self.send((paths.PAGE / "host.js").read_bytes(), "text/javascript; charset=utf-8")
+            if u.path in ("/review", "/review.html"):
+                return self.send((paths.PAGE / "review.html").read_bytes(), "text/html; charset=utf-8")
+            if u.path == "/judgement":
+                take = (q.get("take") or [""])[0]
+                if not archive.TOKEN.fullmatch(take):
+                    return self.json({"err": "bad take token"}, 400)
+                return self.json(archive.latest_judgement(take))
+            if u.path == "/archive":
+                def num(name, default):
+                    try:
+                        return max(1, min(500, int((q.get(name) or [default])[0])))
+                    except ValueError:
+                        raise ValueError(f"bad {name}")
+                return self.json(archive.listing(num("limit", 50), (q.get("before") or [None])[0],
+                                                 (q.get("variant") or [None])[0] or None,
+                                                 (q.get("unjudged") or ["0"])[0].lower() in ("1", "true", "yes")))
             if u.path == "/version":
                 return self.json(read_version())
             m = re.fullmatch(r"/take/(t[0-9a-f]{16})\.wav", u.path)       # the host's own tokens only: no slash, no dot
             if m:
-                f = paths.TAKES / f"{m.group(1)}.wav"
-                if f.is_file():
-                    return self.send(f.read_bytes(), "audio/wav")
+                for d in (paths.TAKES, paths.ARCHIVE_TAKES):                  # the archive keeps what var/takes may not
+                    f = d / f"{m.group(1)}.wav"
+                    if f.is_file():
+                        return self.send(f.read_bytes(), "audio/wav")
                 return self.send_error(404)
             if u.path == "/lists":
                 return self.json(read_lists())
@@ -187,6 +214,8 @@ class H(http.server.BaseHTTPRequestHandler):
                 p, ctype, engine = speech.speak(text, variant, slow, only=only if only in speech.CHAINS else None)
                 log(f"speak {variant} slow={slow} {text[:60]!r}: {engine}, {(time.perf_counter() - t0) * 1000:.0f} ms")
                 return self.send(p.read_bytes(), ctype)
+        except ValueError as e:
+            return self.json({"err": f"bad request: {e}"}, 400)
         except KeyError as e:
             return self.json({"err": f"unknown variant {e}"}, 400)
         except Exception as e:
@@ -206,6 +235,11 @@ class H(http.server.BaseHTTPRequestHandler):
             if path == "/press":
                 msg = json.loads(self.body(1_000_000).decode("utf-8"))
                 return self.json(HOST.press(msg))
+            if path == "/judge":
+                msg = json.loads(self.body(20_000).decode("utf-8"))
+                if not isinstance(msg, dict):
+                    raise ValueError("a JSON object is expected")
+                return self.json(archive.judge(msg.get("take"), msg.get("verdict"), msg.get("note")))
             if path == "/take":
                 data = self.body(MAX_TAKE)
                 if data[:4] != b"RIFF" or data[8:12] != b"WAVE":

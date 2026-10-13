@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neolingo: review of takes</title>
+<style>
+:root {
+  --bg: #f6f6f3; --card: #ffffff; --fg: #1d1d1b; --muted: #5d5d58; --line: #cfcfc8;
+  --accent: #1f5fa8; --accent-bg: #dde9f6; --ok: #1d6b3a; --bad: #a3321f; --warn: #8a5a00;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161615; --card: #20201e; --fg: #ebebe6; --muted: #a3a39b; --line: #44443f;
+    --accent: #7db2ee; --accent-bg: #26364a; --ok: #6fcf93; --bad: #f08a78; --warn: #e3b25a;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 46rem; margin: 0 auto; padding: 16px; }
+h1 { font-size: 1.25rem; margin: 0 0 .25rem; }
+.tool { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
+.filters { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; margin-bottom: 1rem; }
+.filters label { display: inline-flex; align-items: center; gap: .4rem; min-height: 40px; }
+select, input[type=text] { font: inherit; color: var(--fg); background: var(--card); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 8px; min-height: 40px; }
+input[type=checkbox] { width: 20px; height: 20px; }
+button { font: inherit; color: var(--fg); background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 6px 12px; min-height: 40px; cursor: pointer; }
+button[aria-pressed=true] { background: var(--accent-bg); border: 2px solid var(--accent); font-weight: 600; }
+button.link { border: 0; background: none; text-decoration: underline; color: var(--muted); padding: 6px 4px; }
+#count { color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin: 0 0 12px; }
+.meta { color: var(--muted); font-size: .85rem; display: flex; flex-wrap: wrap; gap: .25rem .75rem; }
+.tag { border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; font-size: .8rem; }
+.phrase { font-size: 1.15rem; font-weight: 600; margin: .35rem 0; overflow-wrap: anywhere; }
+.banner { margin: .2rem 0 .5rem; overflow-wrap: anywhere; }
+.banner.yes { color: var(--ok); } .banner.no { color: var(--bad); }
+dl { margin: 0 0 .5rem; display: grid; grid-template-columns: max-content 1fr; gap: .15rem .6rem; }
+dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: anywhere; font-family: ui-monospace, Menlo, monospace; }
+.warn { color: var(--warn); font-size: .9rem; margin: 0 0 .5rem; overflow-wrap: anywhere; }
+.player { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .5rem; }
+.wave { width: 100%; max-width: 280px; height: 40px; display: block; }
+.verdicts { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.noteline { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .4rem; }
+.noteline input { flex: 1 1 10rem; min-width: 0; }
+.said { font-style: italic; margin-top: .3rem; overflow-wrap: anywhere; }
+.msg { color: var(--bad); font-size: .9rem; min-height: 1.2em; }
+#more { display: block; margin: 0 auto 2rem; }
+#empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Neolingo: review of takes</h1>
+<p class="tool">A test tool, not part of the app. Judge afterwards whether each result was fair; judgements are kept in var/archive/judgements.jsonl.</p>
+<div class="filters">
+  <label>Variant <select id="variant"><option value="">all</option></select></label>
+  <label><input type="checkbox" id="unjudged" checked> not yet judged</label>
+  <span id="count" aria-live="polite"></span>
+</div>
+<div id="list"></div>
+<p id="empty" hidden>Nothing to show with these filters.</p>
+<button id="more" type="button" hidden>Load more</button>
+</main>
+<script src="host.js"></script>
+<script>
+(function () {
+  'use strict';
+  var PAGE = 50, VERDICTS = [['fair', 'Fair'], ['harsh', 'Too harsh'], ['generous', 'Too generous']];
+  var $ = function (id) { return document.getElementById(id); };
+  var next = null, loading = false, generation = 0, current = null;
+  var variantSel = $('variant'), unj = $('unjudged'), list = $('list'), more = $('more'), count = $('count'), empty = $('empty');
+  var H = window.NeolingoHost || {}, waves = {};
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function sounds(words) {              // [[sound, ...], ...] -> "ʊnt iːnən": sounds joined, words apart
+    if (!Array.isArray(words)) return '';
+    return words.map(function (w) { return Array.isArray(w) ? w.join('') : String(w); }).join(' ');
+  }
+  function getJSON(url) {
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+  function post(body) {
+    return fetch('judge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { if (!r.ok) throw new Error('refused'); return r.json(); });
+  }
+
+  // ---- the waveform of a take, drawn on demand (peaks code of host.js) ----
+  function drawWave(cv, take) {
+    var dpr = window.devicePixelRatio || 1, w = 280, h = 40;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    fetch('take/' + encodeURIComponent(take) + '.wav').then(function (r) {
+      if (!r.ok) throw new Error('no take'); return r.arrayBuffer();
+    }).then(function (b) {
+      var wv = H._parseWav(b), q = H._reduce(H._peaks(wv.samples, 1024), cv.width), g = cv.getContext('2d');
+      var mid = cv.height / 2, half = mid - 1.5 * dpr;
+      g.fillStyle = getComputedStyle(cv).color;
+      for (var i = 0; i < cv.width; i++) {
+        var top = mid - Math.max(-1, Math.min(1, q.max[i])) * half, bot = mid - Math.max(-1, Math.min(1, q.min[i])) * half;
+        g.fillRect(i, top, 1, Math.max(1, bot - top));
+      }
+      cv.setAttribute('aria-label', 'Waveform, ' + (wv.samples.length / wv.rate).toFixed(1) + ' seconds');
+    }).catch(function () { cv.style.display = 'none'; });
+  }
+
+  var audio = null, audioBtn = null;
+  function play(take, btn) {
+    if (audio) { audio.pause(); if (audioBtn) audioBtn.textContent = 'Play'; var same = audioBtn === btn; audio = audioBtn = null; if (same) return; }
+    audio = new Audio('take/' + encodeURIComponent(take) + '.wav'); audioBtn = btn; btn.textContent = 'Stop';
+    var a = audio;
+    function done() { if (audio === a) { audio = audioBtn = null; } btn.textContent = 'Play'; }
+    a.onended = done; a.onerror = function () { done(); btn.textContent = 'No sound'; };
+    var p = a.play(); if (p && p.catch) p.catch(function () { done(); btn.textContent = 'No sound'; });
+  }
+
+  // ---- one card ----
+  function card(c) {
+    var j = c.judgement || {}, state = { verdict: j.verdict || null, note: j.note || '' };
+    var root = el('div', 'card');
+    var meta = el('div', 'meta');
+    meta.appendChild(el('span', null, (c.time || '').replace('T', ' ').slice(0, 19)));
+    meta.appendChild(el('span', null, c.variant || '?'));
+    if (c.reconstructed) meta.appendChild(el('span', 'tag', 'reconstructed'));
+    root.appendChild(meta);
+    root.appendChild(el('div', 'phrase', c.text || '(phrase not recorded)'));
+    var banner = c.banner;
+    if (!banner) {
+      banner = (c.understood === true ? '✓ understood' : c.understood === false ? '✗ not understood' : '(no banner)') +
+        (c.score != null ? ' · ' + c.score + '% pronunciation' : '');
+    }
+    root.appendChild(el('div', 'banner ' + (/^✓/.test(banner) || c.understood === true ? 'yes' : 'no'), banner));
+    var dl = el('dl');
+    var heard = c.hear || {};
+    dl.appendChild(el('dt', null, 'Target sounds')); dl.appendChild(el('dd', null, sounds(c.target) || '—'));
+    dl.appendChild(el('dt', null, 'Heard sounds')); dl.appendChild(el('dd', null, sounds(heard.ipa) || '—'));
+    if (heard.text) { dl.appendChild(el('dt', null, 'Heard words')); dl.appendChild(el('dd', null, heard.text)); }
+    root.appendChild(dl);
+    (Array.isArray(c.flagLines) ? c.flagLines : []).forEach(function (t) { root.appendChild(el('p', 'warn', String(t))); });
+    if (c.droppedFlags) root.appendChild(el('p', 'warn', c.droppedFlags + ' warning(s) dropped'));
+
+    var pl = el('div', 'player'), pb = el('button', null, 'Play');
+    pb.type = 'button'; pb.onclick = function () { play(c.take, pb); };
+    var cv = el('canvas', 'wave'); cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', 'Waveform');
+    pl.appendChild(pb); pl.appendChild(cv); root.appendChild(pl);
+    waves[c.take] = function () { drawWave(cv, c.take); };
+
+    var vb = el('div', 'verdicts'), btns = {};
+    var said = el('div', 'said'), msg = el('div', 'msg'), nl = el('div', 'noteline'), input = null;
+    function mark() {
+      VERDICTS.forEach(function (v) {
+        var on = state.verdict === v[0];
+        btns[v[0]].setAttribute('aria-pressed', on ? 'true' : 'false');
+        btns[v[0]].textContent = (on ? '✓ ' : '') + v[1];
+      });
+      said.textContent = state.note ? '“' + state.note + '”' : '';
+      c.judgement = state.verdict ? { verdict: state.verdict, note: state.note || undefined } : null;
+      refreshCount();
+    }
+    function store(verdict, note) {
+      var prev = { verdict: state.verdict, note: state.note };
+      state.verdict = verdict; state.note = note; msg.textContent = ''; mark();
+      var body = { take: c.take, verdict: verdict }; if (note) body.note = note;
+      post(body).catch(function () { state.verdict = prev.verdict; state.note = prev.note; mark(); msg.textContent = 'Not saved.'; });
+    }
+    VERDICTS.forEach(function (v) {
+      var b = el('button', null, v[1]); b.type = 'button'; btns[v[0]] = b;
+      b.onclick = function () { if (state.verdict !== v[0]) store(v[0], input ? input.value.trim() : state.note); };
+      vb.appendChild(b);
+    });
+    var link = el('button', 'link', 'note'); link.type = 'button';
+    link.onclick = function () {
+      if (input) { input.focus(); return; }
+      input = el('input'); input.type = 'text'; input.maxLength = 500; input.value = state.note;
+      input.setAttribute('aria-label', 'Note on this result');
+      var save = el('button', null, 'Save'); save.type = 'button';
+      save.onclick = function () {
+        if (!state.verdict) { msg.textContent = 'Choose a verdict first; the note goes with it.'; return; }
+        store(state.verdict, input.value.trim());
+      };
+      nl.appendChild(input); nl.appendChild(save); input.focus();
+    };
+    vb.appendChild(link);
+    root.appendChild(vb); root.appendChild(nl); root.appendChild(said); root.appendChild(msg);
+    mark();
+    return root;
+  }
+
+  // ---- the list ----
+  var shown = [];
+  function refreshCount() {
+    if (!current) return;
+    var judged = current.judged;       // the host's count at load; adjust by what was judged here since
+    var delta = 0;
+    shown.forEach(function (c) { if (!!c.judgement !== !!c._was) delta += c.judgement ? 1 : -1; });
+    count.textContent = 'judged ' + (judged + delta) + ' of ' + current.total;
+  }
+  function observe() {
+    if (!('IntersectionObserver' in window)) { Object.keys(waves).forEach(function (k) { waves[k](); delete waves[k]; }); return; }
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { io.unobserve(e.target); var f = e.target._draw; if (f) f(); }
+      });
+    }, { rootMargin: '200px' });
+    Array.prototype.forEach.call(list.querySelectorAll('canvas.wave:not([data-seen])'), function (cv) {
+      cv.setAttribute('data-seen', '1');
+      cv._draw = function () { var take = cv._take; if (take && waves[take]) { waves[take](); delete waves[take]; } };
+      io.observe(cv);
+    });
+  }
+  function load(reset) {
+    if (loading) return;
+    loading = true; var g = generation;
+    if (reset) { generation = g = generation + 1; next = null; list.innerHTML = ''; shown = []; waves = {}; current = null; }
+    var q = 'archive?limit=' + PAGE + (next ? '&before=' + encodeURIComponent(next) : '') +
+      (variantSel.value ? '&variant=' + encodeURIComponent(variantSel.value) : '') + (unj.checked ? '&unjudged=1' : '');
+    getJSON(q).then(function (d) {
+      if (g !== generation) return;
+      if (!current) current = { judged: d.judged, total: d.total }; else { current.judged = d.judged; current.total = d.total; shown.forEach(function (c) { c._was = !!c.judgement; }); }
+      d.items.forEach(function (c) {
+        c._was = !!c.judgement; shown.push(c);
+        var node = card(c); list.appendChild(node);
+        node.querySelector('canvas.wave')._take = c.take;
+      });
+      next = d.next; more.hidden = !next;
+      empty.hidden = shown.length > 0;
+      refreshCount(); observe();
+    }).catch(function (e) {
+      count.textContent = 'Could not load the archive: ' + e.message;
+    }).then(function () { loading = false; });
+  }
+  variantSel.onchange = function () { load(true); };
+  unj.onchange = function () { load(true); };
+  more.onclick = function () { load(false); };
+
+  // the variants present, from the archive itself
+  getJSON('archive?limit=500').then(function (d) {
+    var seen = {};
+    d.items.forEach(function (c) { if (c.variant) seen[c.variant] = 1; });
+    Object.keys(seen).sort().forEach(function (v) { var o = el('option', null, v); o.value = v; variantSel.appendChild(o); });
+  }).catch(function () {}).then(function () { load(true); });
+})();
+</script>
+</body>
+</html>

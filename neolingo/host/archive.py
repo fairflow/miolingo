@@ -3,11 +3,13 @@
   takes/<token>.wav   every take uploaded, for good
   records.jsonl       one line at each Record press
   checks.jsonl        one line at each Check press that is a step
+  judgements.jsonl    one line each time the owner judges a take (fair / harsh / generous); a later line supersedes
 
 so that every recording can be replayed later as a test (tests/replay_archive.py).  Archiving never fails a press:
 an error is logged and the press goes on."""
 import json
 import os
+import re
 import threading
 import time
 
@@ -98,3 +100,78 @@ def log_check(reply, answers, held_take, version):
         _append("checks.jsonl", line)
     except Exception as e:
         log(f"archive: check line failed: {type(e).__name__}: {e}")
+
+
+# ---- human judgements of the results (var/archive/judgements.jsonl) ----
+VERDICTS = ("fair", "harsh", "generous")
+TOKEN = re.compile(r"t[0-9a-f]{16}")             # the host's own take tokens
+MAX_NOTE = 2000
+
+
+def judge(take, verdict, note=None):
+    """Record a judgement (a later line for the same take supersedes an earlier one).  ValueError if the token or the
+    verdict is not valid.  Returns the line written."""
+    if not isinstance(take, str) or not TOKEN.fullmatch(take):
+        raise ValueError("bad take token")
+    if verdict not in VERDICTS:
+        raise ValueError("verdict must be one of " + ", ".join(VERDICTS))
+    if note is not None and not isinstance(note, str):
+        raise ValueError("note must be text")
+    line = {"time": now(), "take": take, "verdict": verdict}
+    note = (note or "").strip()
+    if note:
+        line["note"] = note[:MAX_NOTE]
+    line["who"] = "me"
+    _append("judgements.jsonl", line)
+    return line
+
+
+def read_lines(name):
+    """The lines of an archive file that parse (a half-written last line is skipped)."""
+    out = []
+    try:
+        with _lock:
+            text = (paths.ARCHIVE / name).read_text("utf-8")
+    except OSError:
+        return out
+    for l in text.splitlines():
+        try:
+            out.append(json.loads(l))
+        except ValueError:
+            pass
+    return out
+
+
+def judgements():
+    """take -> the latest judgement line."""
+    d = {}
+    for j in read_lines("judgements.jsonl"):
+        if isinstance(j, dict) and isinstance(j.get("take"), str):
+            d[j["take"]] = j
+    return d
+
+
+def latest_judgement(take):
+    return judgements().get(take) or {}
+
+
+def listing(limit=50, before=None, variant=None, unjudged=False):
+    """The archived checks, newest first, each joined with the latest judgement of its take (key "judgement", null if none).
+    `before`: "time" or "time|take" of the last line already seen.  `variant` and `unjudged` filter.  Returns
+    {"items": [...], "total": n, "judged": k, "next": before-for-the-next-page or null}, the counts over the lines of
+    `variant` (all variants if none), judged or not."""
+    js = judgements()
+    rows = [l for l in read_lines("checks.jsonl") if isinstance(l, dict) and l.get("take")]
+    if variant:
+        rows = [l for l in rows if l.get("variant") == variant]
+    total, judged = len(rows), sum(1 for l in rows if l["take"] in js)
+    rows.sort(key=lambda l: (l.get("time") or "", l["take"]), reverse=True)
+    if before:
+        t, _, k = before.partition("|")
+        rows = [l for l in rows if ((l.get("time") or ""), l["take"]) < (t, k or "\uffff")]
+    if unjudged:
+        rows = [l for l in rows if l["take"] not in js]
+    page = rows[:limit]
+    nxt = f"{page[-1].get('time') or ''}|{page[-1]['take']}" if len(rows) > limit else None
+    items = [dict(l, judgement=js.get(l["take"])) for l in page]
+    return {"items": items, "total": total, "judged": judged, "next": nxt}
