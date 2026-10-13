@@ -10,7 +10,7 @@ TAKES = VAR / "takes"
 SPEECH = VAR / "speech"
 DB = VAR / "neolingo.sqlite"
 LOG = VAR / "host.log"
-ENGINE = os.environ.get("NEOLINGO_ENGINE") or "/Users/matthew/Lean/locus/.lake/build/bin/explore"
+ENGINE = os.environ.get("NEOLINGO_ENGINE") or "/Users/matthew/Lean/locus/.lake/build/bin/neolingo"
 UID = "me"
 
 
