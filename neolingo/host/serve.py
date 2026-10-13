@@ -15,9 +15,12 @@ in SQLite, answers the engine's questions from env, serves the page and the endp
   GET  /wordlists       the word lists of data/words_{en,fr,de}.json: [{name, lang, words:[...]}]
   POST /judge           {"take", "verdict": fair|harsh|generous, "note"}: appended to var/archive/judgements.jsonl
   GET  /judgement?take=  the latest judgement of that take, or {}
-  GET  /archive?limit=&before=&variant=&unjudged=&hidetest=   archived checks, newest first, joined with their
+  GET  /archive?limit=&before=&variant=&unjudged=&hidetest=&uid=   archived checks, newest first, joined with their
                         judgements; "source":"test-voice" on the takes of var/archive/overseer_takes.txt
   GET  /review          the review page (page/review.html): a test tool for judging takes afterwards
+  NEOLINGO_SLOTS=N       the number of session slots on the page (default 1; 2 shows two side by side)
+  NEOLINGO_AUTOSIGNIN=U  after a real start the host signs U in at slot 1 if U is registered (default "me"; empty: start signed out)
+  A clean stop (SIGTERM, SIGINT) signs every signed-in slot out first, so the settings changed since sign-in are saved.
   NEOLINGO_JUDGING=0 turns off the judging buttons in the app page (the endpoints and /review stay)
 Bound to 127.0.0.1 only."""
 import argparse
@@ -26,6 +29,7 @@ import json
 import os
 import re
 import secrets
+import signal
 import subprocess
 import threading
 import time
@@ -39,13 +43,26 @@ from . import paths                           # noqa: E402
 from .engine_config import build_config              # noqa: E402
 from .engine import Engine                    # noqa: E402
 from .log import log                          # noqa: E402
-from .store import Store                      # noqa: E402
+from .store import Store, DEFAULT_SETTINGS    # noqa: E402
 from . import speech                          # noqa: E402
 from . import archive                         # noqa: E402
 
 STARTED = time.strftime("%Y-%m-%d %H:%M:%S %z")
 UID = paths.UID
 MAX_TAKE = 8_000_000                          # bytes: 30 s of 16 kHz 16-bit is under 1 MB
+
+
+def slots():
+    """NEOLINGO_SLOTS: how many session slots the engine is started with (default 1)."""
+    try:
+        return max(1, min(8, int(os.environ.get("NEOLINGO_SLOTS", "1").strip() or "1")))
+    except ValueError:
+        return 1
+
+
+def autosignin():
+    """NEOLINGO_AUTOSIGNIN: the learner the host signs in at slot 1 after a real start (default "me"; empty: none)."""
+    return os.environ.get("NEOLINGO_AUTOSIGNIN", "me").strip().lower()
 
 
 def judging_on():
@@ -67,7 +84,7 @@ def read_version():
     hash), `tts` (the speech engine in use) and `started`."""
     v = {"page": "unknown", "changed": "", "engine": "", "built": "", "instance": "real",
          "host": git_hash(paths.ROOT), "tts": speech.IN_USE, "started": STARTED,
-         "judging": judging_on()}
+         "judging": judging_on(), "slots": slots(), "autosignin": autosignin()}
     try:
         first = (paths.PAGE / "CHANGES").read_text("utf-8").splitlines()[0].split("\t", 1)
         v["page"], v["changed"] = first[0], (first[1] if len(first) > 1 else "")
@@ -107,17 +124,79 @@ class Host:
         paths.make_dirs()
         log(f"host starting; var = {paths.VAR}; engine = {paths.ENGINE}; takes are kept for good (archive: {paths.ARCHIVE})")
         self.started = False                      # the engine holds the session(s): a page's `start` is then a `state`
-        self.held = None                          # the token of the latest recording held (a Check may ask nothing)
+        self.held = {}                            # session -> the token of the latest recording held (a Check may ask nothing)
+        self.uids = []                            # slot -> the learner signed in there ("" signed out), from the latest screens
         self.store = Store(paths.DB)
         self.engine = Engine(build_config())
         with self.engine.lock:
             self.start_engine()
 
+    def note_screens(self, d):
+        if isinstance(d, dict) and d.get("screens"):
+            self.uids = [(s.get("uid") or "") for s in d["screens"]]
+
     def start_engine(self, model=False):
+        """THE START OF A REAL HOST (protocol 2): N slots, all signed out, the whole store registered; then, if
+        NEOLINGO_AUTOSIGNIN names a registered learner, the host signs that learner in at slot 1."""
         self.started = False
-        d = self.engine.ask({"cmd": "start", "sessions": [UID], "store": [self.store.data(UID)], "model": model}, self.store)
+        self.held = {}
+        store = self.store.all_data()
+        if not store:
+            # The engine's register is no step while NOBODY is registered (checked 13 October 2026, against protocol 6.2,
+            # which lets the first learner register), so the host registers the first learner itself.
+            first = autosignin() or UID
+            log("start: the store has no learner; the engine cannot register the first one, so the host does: " +
+                self.store.apply({"kind": "putLearner", "uid": first, "settings": dict(DEFAULT_SETTINGS)}))
+            store = self.store.all_data()
+        n = slots()
+        d = self.engine.ask({"cmd": "start", "slots": n, "store": store, "model": model}, self.store)
         self.started = True
+        self.note_screens(d)
+        names = [x["uid"] for x in store]
+        log(f"start: {n} slot(s), signed out; {len(names)} learner(s) registered: {', '.join(names) or 'none'}")
+        who = autosignin()
+        if who and who in names:
+            d = self.engine.ask({"press": "signIn", "session": 1, "input": who, "model": model}, self.store)
+            self.note_screens(d)
+            log(f"auto sign-in: {who} at slot 1 ({'done' if d.get('step') else 'REFUSED: ' + str(d.get('message'))})")
+        elif who:
+            log(f"auto sign-in: {who!r} is not registered; starting signed out")
+        else:
+            log("auto sign-in: off; starting signed out")
         return d
+
+    def sign_out_all(self):
+        """Send `signOut` for every signed-in slot and apply the writes (putSettings), so that the settings changed since
+        sign-in are kept.  Needs the engine alive and holding the session.  Returns the learners signed out."""
+        done = []
+        if not self.holds_session():
+            if any(self.uids):
+                log("sign-out: the engine is gone; settings changed since sign-in are lost for " + ", ".join(u for u in self.uids if u))
+            return done
+        for r, u in enumerate(self.uids, 1):
+            if not u:
+                continue
+            try:
+                d = self.engine.ask({"press": "signOut", "session": r, "input": None}, self.store)
+                self.note_screens(d)
+                log(f"sign-out: slot {r} ({u}) {'settings saved' if d.get('step') else 'NOT a step: ' + str(d.get('message'))}")
+                if d.get("step"):
+                    done.append(u)
+            except Exception as e:
+                log(f"sign-out: slot {r} ({u}) FAILED: {type(e).__name__}: {e}")
+        return done
+
+    def close(self):
+        """A clean stop: sign everybody out (settings saved), then stop the engine."""
+        with self.engine.lock:
+            try:
+                done = self.sign_out_all()
+                log(f"clean stop: signed out {', '.join(done) or 'nobody'}")
+            finally:
+                try:
+                    self.engine.proc.terminate()
+                except Exception:
+                    pass
 
     def holds_session(self):
         return self.started and self.engine.proc is not None and self.engine.proc.poll() is None
@@ -140,13 +219,17 @@ class Host:
                     d = {"err": f"{e}; the engine was restarted: reload the page"}
                 except Exception as e2:
                     d = {"err": f"{e}; restart failed: {e2}"}
+            self.note_screens(d)
             if "press" in msg and d.get("screens"):
+                r = msg.get("session")
                 if msg["press"] == "record":
                     archive.log_record(msg, d, self.engine.last_answers)
                     if d.get("step") and isinstance(msg.get("input"), str):
-                        self.held = msg["input"]
+                        self.held[r] = msg["input"]
                 elif msg["press"] == "check" and d.get("step"):
-                    archive.log_check(d, self.engine.last_answers, self.held, read_version())
+                    archive.log_check(msg, d, self.engine.last_answers, self.held.get(r), read_version())
+                elif msg["press"] in ("signIn", "register", "signOut"):
+                    log(f"press {msg['press']} slot {r}: {'step' if d.get('step') else 'no step'}; slots now {self.uids}")
             d.pop("test", None)
             d.pop("takes", None)
             if "screens" in d:
@@ -161,6 +244,8 @@ class Host:
             model = bool(msg.get("model"))
             if msg.get("fresh") is True or not self.holds_session():
                 log("start: " + ("fresh, as asked" if msg.get("fresh") is True else "the engine holds no session; new start"))
+                if msg.get("fresh") is True:
+                    self.sign_out_all()                  # the settings changed since sign-in are saved first
                 return self.start_engine(model)
             return self.engine.ask({"cmd": "state", "model": model}, self.store)    # a reload: nothing is lost
         if "press" in msg and not isinstance(msg.get("session"), int):
@@ -214,7 +299,8 @@ class H(http.server.BaseHTTPRequestHandler):
                 return self.json(archive.listing(num("limit", 50), (q.get("before") or [None])[0],
                                                  (q.get("variant") or [None])[0] or None,
                                                  (q.get("unjudged") or ["0"])[0].lower() in ("1", "true", "yes"),
-                                                 (q.get("hidetest") or ["0"])[0].lower() in ("1", "true", "yes")))
+                                                 (q.get("hidetest") or ["0"])[0].lower() in ("1", "true", "yes"),
+                                                 (q.get("uid") or [None])[0] or None))
             if u.path == "/version":
                 return self.json(read_version())
             m = re.fullmatch(r"/take/(t[0-9a-f]{16})\.wav", u.path)       # the host's own tokens only: no slash, no dot
@@ -305,12 +391,20 @@ def main():
         threading.Thread(target=pre, daemon=True).start()
     srv = http.server.ThreadingHTTPServer(("127.0.0.1", a.port), H)
     srv.daemon_threads = True
+
+    def stop(signum, _frame):                  # shutdown() must not run in the thread that is in serve_forever()
+        log(f"signal {signal.Signals(signum).name}: stopping cleanly")
+        threading.Thread(target=srv.shutdown, daemon=True).start()
+
+    signal.signal(signal.SIGTERM, stop)
+    signal.signal(signal.SIGINT, stop)
     print(f"Neolingo host: http://127.0.0.1:{a.port}/  (var: {paths.VAR})", flush=True)
     log(f"serving on 127.0.0.1:{a.port}")
     try:
         srv.serve_forever()
     finally:
-        HOST.engine.proc.terminate()
+        HOST.close()                           # sign out every slot (settings saved), then stop the engine
+        log("host stopped")
 
 
 if __name__ == "__main__":

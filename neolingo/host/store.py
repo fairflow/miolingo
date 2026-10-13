@@ -1,4 +1,4 @@
-"""The store: SQLite, the three tables of protocol section 4, ONE learner."""
+"""The store: SQLite, the tables of protocol section 4, any number of learners."""
 import json
 import sqlite3
 import threading
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS history (uid TEXT NOT NULL, seq INTEGER NOT NULL, var
 CREATE TABLE IF NOT EXISTS lists (uid TEXT NOT NULL, lang TEXT NOT NULL, position INTEGER NOT NULL, text TEXT NOT NULL,
   gloss TEXT NOT NULL, PRIMARY KEY (uid, lang, position));
 """
-KNOWN_WRITES = ("appendRow", "putEntry", "putEntries", "dropEntry", "putSettings", "putList")
+KNOWN_WRITES = ("appendRow", "putEntry", "putEntries", "dropEntry", "putSettings", "putList", "putLearner")
 
 
 class Store:
@@ -25,6 +25,20 @@ class Store:
         self.db = sqlite3.connect(str(path), check_same_thread=False, isolation_level=None)
         self.lock = threading.Lock()
         self.db.executescript(SCHEMA)
+
+    def uids(self):
+        """Every learner the store knows: a name in any table, in the order first met (settings first)."""
+        with self.lock:
+            out = []
+            for t in ("settings", "vocabulary", "history", "lists"):
+                for (u,) in self.db.execute(f"SELECT DISTINCT uid FROM {t} ORDER BY uid"):
+                    if u and u not in out:
+                        out.append(u)
+            return out
+
+    def all_data(self):
+        """The WHOLE store, every learner, as `start` wants it (protocol section 2)."""
+        return [self.data(u) for u in self.uids()]
 
     def data(self, uid):
         """The stored data of one learner, as `start` wants it."""
@@ -101,6 +115,13 @@ class Store:
                     s = w["settings"]
                     c.execute("INSERT OR REPLACE INTO settings VALUES (?,?,?,?)", (uid, s["own"], s["practised"], int(bool(s["slow"]))))
                     what = f"settings {s}"
+                elif k == "putLearner":
+                    s = w["settings"]
+                    if c.execute("SELECT 1 FROM settings WHERE uid=?", (uid,)).fetchone():
+                        what = f"learner {uid} already there; nothing done"
+                    else:
+                        c.execute("INSERT INTO settings VALUES (?,?,?,?)", (uid, s["own"], s["practised"], int(bool(s["slow"]))))
+                        what = f"learner {uid} registered, settings {s}"
                 elif k == "putList":
                     items = w["items"]
                     c.execute("DELETE FROM lists WHERE uid=? AND lang=?", (uid, w["lang"]))

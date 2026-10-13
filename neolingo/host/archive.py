@@ -56,24 +56,47 @@ def answer_of(answers, kind):
     return None, None
 
 
+DEFAULT_UID = "me"                 # lines written before the learner was recorded count as this learner
+
+
+def learner_of(msg, reply):
+    """The learner of the session the press was made in, after the press: "" when signed out or unknown."""
+    try:
+        return (reply["screens"][msg.get("session", 1) - 1].get("uid")) or ""
+    except (KeyError, IndexError, TypeError, AttributeError):
+        return ""
+
+
+def uid_of(line):
+    return line.get("uid") or DEFAULT_UID
+
+
 def log_record(msg, reply, answers):
     try:
         token = msg.get("input")
         if not isinstance(token, str):
             return
+        uid = learner_of(msg, reply)
+        if not uid:
+            log("archive: record line NOT written, the session is signed out")
+            return
         q, a = answer_of(answers, "audible")
         dur, peak = level(paths.ARCHIVE_TAKES / f"{token}.wav")
-        _append("records.jsonl", {"time": now(), "take": token, "duration_s": dur, "peak": peak,
+        _append("records.jsonl", {"time": now(), "uid": uid, "take": token, "duration_s": dur, "peak": peak,
                                   "audible": a["audible"] if a else None, "step": bool(reply.get("step"))})
     except Exception as e:
         log(f"archive: record line failed: {type(e).__name__}: {e}")
 
 
-def log_check(reply, answers, held_take, version):
+def log_check(msg, reply, answers, held_take, version):
     """One line for a Check press that is a step.  Fields the reply does not carry are recorded as null and named
     in "missing"."""
     try:
-        scr = (reply.get("screens") or [{}])[0]
+        uid = learner_of(msg, reply)
+        if not uid:
+            log("archive: check line NOT written, the session is signed out")
+            return
+        scr = reply["screens"][msg.get("session", 1) - 1]
         body = scr.get("body") or {}
         phrase = body.get("phrase") or {}
         res = body.get("result") or {}
@@ -83,7 +106,7 @@ def log_check(reply, answers, held_take, version):
         token = (hq or sq or {}).get("take") or held_take
         row = (reply.get("write") or {}).get("row") or {}
         line = {
-            "time": now(), "take": token, "variant": variant, "text": phrase.get("text"),
+            "time": now(), "uid": uid, "take": token, "variant": variant, "text": phrase.get("text"),
             "target": sq["target"] if sq else None,
             "hear": ha, "sounds": sa["flags"] if sa else None,
             "score": row.get("score"), "understood": row.get("understood"),
@@ -108,16 +131,25 @@ TOKEN = re.compile(r"t[0-9a-f]{16}")             # the host's own take tokens
 MAX_NOTE = 2000
 
 
+def learner_of_take(take):
+    """The learner who made that take: from its Check line, else its Record line, else the default (older lines)."""
+    for name in ("checks.jsonl", "records.jsonl"):
+        for l in reversed(read_lines(name)):
+            if isinstance(l, dict) and l.get("take") == take:
+                return uid_of(l)
+    return DEFAULT_UID
+
+
 def judge(take, verdict, note=None):
     """Record a judgement (a later line for the same take supersedes an earlier one).  ValueError if the token or the
-    verdict is not valid.  Returns the line written."""
+    verdict is not valid.  The line carries "uid", the learner whose session made the take.  Returns the line written."""
     if not isinstance(take, str) or not TOKEN.fullmatch(take):
         raise ValueError("bad take token")
     if verdict not in VERDICTS:
         raise ValueError("verdict must be one of " + ", ".join(VERDICTS))
     if note is not None and not isinstance(note, str):
         raise ValueError("note must be text")
-    line = {"time": now(), "take": take, "verdict": verdict}
+    line = {"time": now(), "uid": learner_of_take(take), "take": take, "verdict": verdict}
     note = (note or "").strip()
     if note:
         line["note"] = note[:MAX_NOTE]
@@ -172,10 +204,11 @@ def test_voice_tokens():
     return out
 
 
-def listing(limit=50, before=None, variant=None, unjudged=False, hide_test=False):
+def listing(limit=50, before=None, variant=None, unjudged=False, hide_test=False, uid=None):
     """The archived checks, newest first, each joined with the latest judgement of its take (key "judgement", null if none).
     Items of the takes in overseer_takes.txt carry "source": "test-voice" (never removed unless `hide_test`, which the
     review page's "hide test voices" sets; the counts then leave them out too).
+    Every item carries "uid" (lines written before it was recorded: "me"); `uid` filters on it.
     `before`: "time" or "time|take" of the last line already seen.  `variant` and `unjudged` filter.  Returns
     {"items": [...], "total": n, "judged": k, "next": before-for-the-next-page or null}, the counts over the lines of
     `variant` (all variants if none), judged or not."""
@@ -184,6 +217,8 @@ def listing(limit=50, before=None, variant=None, unjudged=False, hide_test=False
     test = test_voice_tokens()
     if variant:
         rows = [l for l in rows if l.get("variant") == variant]
+    if uid:
+        rows = [l for l in rows if uid_of(l) == uid]
     if hide_test:
         rows = [l for l in rows if l["take"] not in test]
     total, judged = len(rows), sum(1 for l in rows if l["take"] in js)
@@ -195,5 +230,5 @@ def listing(limit=50, before=None, variant=None, unjudged=False, hide_test=False
         rows = [l for l in rows if l["take"] not in js]
     page = rows[:limit]
     nxt = f"{page[-1].get('time') or ''}|{page[-1]['take']}" if len(rows) > limit else None
-    items = [dict(l, judgement=js.get(l["take"]), **({"source": "test-voice"} if l["take"] in test else {})) for l in page]
+    items = [dict(l, uid=uid_of(l), judgement=js.get(l["take"]), **({"source": "test-voice"} if l["take"] in test else {})) for l in page]
     return {"items": items, "total": total, "judged": judged, "next": nxt}
