@@ -8,7 +8,10 @@ from . import _miolingo as mio
 
 # Decided here (the pipeline document says Miolingo has no such test):
 ABS_FLOOR_RMS = 0.003      # about -50 dBFS: below this a frame is silence
-MIN_VOICED_SECONDS = 0.25  # at least this much sound above the floor
+# At least this much sound above the floor.  Measured 13 October 2026: genuine one-word clips "Ja", "Oui", "Prost"
+# have 0.20 to 0.24 s of voiced sound (the earlier 0.25 s refused them); the owner's shortest real takes have 0.26
+# to 0.38 s; silence and hiss measure 0.00 s and a click 0.02 s.  0.10 s sits between the click and the shortest word.
+MIN_VOICED_SECONDS = 0.10
 FRAME = 0.02               # seconds, as Miolingo's trim_silence
 # Relative threshold: Miolingo's `silence_threshold` setting is a fraction of
 # the 95th-percentile frame ENERGY; as an RMS ratio it is its square root.
