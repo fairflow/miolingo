@@ -344,8 +344,13 @@ function strip() {
   document.getElementById('testfoot').hidden = !TEST;
   document.getElementById('stripsum').textContent = 'Test controls: ' + MODES[MODE];
   document.querySelectorAll('input[name=mode]').forEach(function (x) { x.checked = x.value === MODE; });
-  document.getElementById('main').className = (MODE !== 'one' || MODELOPEN.open) ? 'wide' : '';
+  widen();
 }
+// TWO SESSIONS SIDE BY SIDE: the page is wide whenever it draws more than one session (on a real host too, where
+// there is no test mode), or the model is open; the grid then gives each session a column while the window has
+// room for two (20rem each), and stacks them on a narrow screen.
+var NSESS = 1;
+function widen() { document.getElementById('main').className = (NSESS > 1 || MODELOPEN.open) ? 'wide' : ''; }
 document.querySelectorAll('input[name=mode]').forEach(function (x) {
   x.addEventListener('change', function () { app.textContent = ''; send({ cmd: 'start', mode: x.value }); });
 });
@@ -380,6 +385,7 @@ app.addEventListener('input', askSoon);
 app.addEventListener('change', askSoon);
 
 function draw(screens, clear) {
+  NSESS = screens.length; widen();
   ASKS = [];
   // what is being typed, and what is open, survives the redraw
   var typed = {}, open = {};
