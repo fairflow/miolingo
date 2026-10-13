@@ -100,6 +100,9 @@
   details.more .row { margin-top: 6px; }
   .test { border: 1px dashed var(--rule); border-radius: 8px; padding: 8px 10px; margin-top: 10px; font-size: .9rem; color: var(--muted); }
   .test select { min-height: 36px; padding: 5px 8px; color: var(--fg); max-width: 100%; }
+  button.hear { min-height: 32px; padding: 3px 10px; font-size: .85rem; font-weight: 400; vertical-align: middle; }
+  .recorder:empty { display: none; }
+  .recorder { margin-top: 8px; }
   .held { margin-top: 8px; }
   /* a status message is an event of the press: it flashes each time, also when its text is the same as before */
   .reason { color: var(--check); font-size: .9rem; min-height: 0; margin-top: 3px; }
@@ -197,10 +200,12 @@
     <div class="note" id="note" role="status"></div>
     <div id="testfoot" hidden>Test page on the model. Sound is not connected: Record takes one of the test recordings (hand-written stand-ins for the microphone, kept outside the model), and nothing is played.</div>
     <div>Every press is answered by the compiled model; this page only draws what it is sent. A reload starts new sessions from what is stored.</div>
-    <div><span id="timing"></span> · v0.20 · <a href="http://macbook.tailcac48d.ts.net:8797/">the explorer of the earlier model (design C)</a></div>
+    <div id="version"></div>
+    <div><span id="timing"></span> · <a href="http://macbook.tailcac48d.ts.net:8797/">the explorer of the earlier model (design C)</a></div>
   </footer>
 </main>
 <script>
+// (the version and what changed are now in the file CHANGES beside this page, newest first; the host serves them)
 // v0.20: the page runs on any host of the engine (docs/neolingo-host-protocol.md): the test strip and the test
 // recordings show only when the host says "test"; on a real host Record takes its take from window.NeolingoHost.
 // v0.19: an inactive button without a field can be tapped: it says its reason in the status line and sends nothing.
@@ -230,6 +235,15 @@
 // drawn from what the engine sends.  The page keeps no state of the app: only what is being typed, which
 // boxes are open, the chosen test recording, and the two choices of the strip.
 var app = document.getElementById('app'), EXTRA = { takes: [], testList: '' };
+// THE HOST'S HOOKS (a real host defines window.NeolingoHost before this script; all are optional):
+//   record(session, element) -> Promise<take token>   the microphone; `element` is the <div id="recorder"> to draw in
+//   speak(text, variant, slow) -> Promise              plays the reference; the page then shows "Hear it" buttons
+//   lists() -> Promise<[{name, variant, items: [{text, gloss}]}]>   lists to choose from in "Load a list of phrases"
+// None of them is a press of the model.
+var HOST = window.NeolingoHost || {}, RECORDING = 0, LISTS = null;
+function hear(text, sc) {
+  return btn('Hear it', true, function () { Promise.resolve(HOST.speak(text, sc.settings.practised, sc.settings.slow)).catch(function () {}); }, 'hear');
+}
 var TEST = false, MODE = 'one', MODELOPEN = document.getElementById('modelopen');
 var MARK = ['s-ok', 's-check', 's-off'];
 // the status of the last press, shown in the session it was made in (what was stored goes to the foot)
@@ -301,7 +315,7 @@ function askAll() {
   if (!list.length) return;
   ask({ cmd: 'can', asks: list.map(function (a) { return { press: a.click, session: a.r, input: a.input() }; }) })
     .then(function (d) {
-      if (seq !== askSeq || !d.can) return;
+      if (seq !== askSeq || !d.can || RECORDING) return;
       list.forEach(function (a, i) {
         // an inactive control says why (the model's reason).  With a field: the button is disabled and the reason
         // stands under the field.  Without a field: the button keeps the inactive look but can be tapped, and a tap
@@ -351,7 +365,7 @@ function session(root, sc, r) {
     status.style.animation = 'none'; void status.offsetWidth; status.style.animation = '';
   }
   // a tap on a button that looks inactive says its reason and sends nothing
-  function tap(b, go) { return function () { if (b.getAttribute('aria-disabled') === 'true') say(b.dataset.why); else go(); }; }
+  function tap(b, go) { return function (ev) { if (b.getAttribute('aria-disabled') === 'true') say(b.dataset.why); else go(ev); }; }
   function ibtn(label, offered, click, input, clear, cls, reason, act) {
     var b = btn(label, !reason, null, cls);
     if (reason) b.disabled = true; else b.setAttribute('aria-disabled', 'true');
@@ -403,7 +417,7 @@ function session(root, sc, r) {
       }))
     ]));
     if (b.phrase) {
-      s.appendChild(el('p', { 'class': 'phrase', text: b.phrase.text }));
+      s.appendChild(el('p', { 'class': 'phrase' }, [b.phrase.text, HOST.speak ? ' ' : null, HOST.speak ? hear(b.phrase.text, sc) : null]));
       s.appendChild(el('div', { 'class': 'muted', text: b.phrase.gloss }));
       s.appendChild(el('div', { 'class': 'ipa', text: b.phrase.ipa }));
     }
@@ -411,14 +425,23 @@ function session(root, sc, r) {
       // on a test host the take is the test recording chosen; on a real host it comes from the host's own
       // recorder: window.NeolingoHost.record(session) resolves to a take's token (a refusal: no press)
       TEST ? ibtn('Record', b.record, 'record', function () { return val('take:' + (b.phrase ? b.phrase.text : '')); })
-           : ibtn('Record', b.record, 'record', function () { return ''; }, null, null, null, function () {
-               var H = window.NeolingoHost;
-               if (!H || !H.record) { say('No recorder is connected.'); return; }
-               Promise.resolve(H.record(r)).then(function (k) { if (k != null) press('record', k); }, function () {});
+           : ibtn('Record', b.record, 'record', function () { return ''; }, null, null, null, function (ev) {
+               if (!HOST.record) { say('No recorder is connected.'); return; }
+               // while the host records: the button says so, the other practice buttons wait; the host's own script
+               // draws its level display and Stop control in the recorder element
+               var me = ev.currentTarget, others = [].slice.call(s.querySelectorAll('button')).filter(function (x) { return x !== me; });
+               RECORDING = r; me.textContent = 'Recording\u2026'; me.disabled = true;
+               others.forEach(function (x) { x.dataset.was = x.disabled ? '1' : ''; x.disabled = true; });
+               var done = function () { RECORDING = 0; me.textContent = 'Record'; me.disabled = false;
+                 others.forEach(function (x) { x.disabled = x.dataset.was === '1'; }); recorder.textContent = ''; };
+               Promise.resolve(HOST.record(r, recorder)).then(function (k) { done(); if (k != null) press('record', k); else askAll(); },
+                 function () { done(); askAll(); });
              }),
       nbtn('Remove recording', b.remove, 'remove'),
       nbtn('Check', b.check, 'check', 'primary')
     ]));
+    var recorder = el('div', { 'class': 'recorder', id: r === 1 ? 'recorder' : 'recorder-' + r });
+    s.appendChild(recorder);
     var tk = EXTRA.takes[r - 1] || [];
     if (TEST) s.appendChild(el('div', { 'class': 'test' }, [tk.length ? el('label', {}, ['Test recordings of this phrase: ',
       el('select', { 'data-k': K('take:' + (b.phrase ? b.phrase.text : '')) }, tk.map(function (t) { return el('option', { text: t.label, value: t.id }); }))])
@@ -466,6 +489,21 @@ function session(root, sc, r) {
     var yL = why();
     s.appendChild(el('details', { 'class': 'more', 'data-d': K('load') }, [
       el('summary', { text: 'Load a list of phrases' }),
+      HOST.lists ? (function () {
+        // the host's lists: choosing one fills the box; Load is still the model's press
+        var sel = el('select', { 'aria-label': 'A list to load' }, [el('option', { text: 'Choose a list\u2026', value: '' })]);
+        LISTS = LISTS || Promise.resolve(HOST.lists()).catch(function () { return []; });
+        LISTS.then(function (ls) {
+          (ls || []).forEach(function (l, i) { sel.appendChild(el('option', { text: l.name + (l.variant ? ' (' + l.variant + ')' : ''), value: String(i) })); });
+          sel.addEventListener('change', function () {
+            var l = ls[Number(sel.value)];
+            if (!l || sel.value === '') return;
+            root.querySelector('[data-k="' + K('list') + '"]').value = l.items.map(function (q) { return q.text + (q.gloss ? ' | ' + q.gloss : ''); }).join('\n');
+            askAll();
+          });
+        });
+        return el('div', { 'class': 'row', style: 'margin-bottom:6px' }, [sel]);
+      })() : null,
       el('textarea', { 'data-k': K('list'), 'aria-label': 'Phrases, one a line', placeholder: 'One phrase a line; its meaning after a bar:  Bonjour | Hello' }),
       el('div', { 'class': 'row' }, [
         ibtn('Load', b.load, 'load', function () { return val('list'); }, ['list', 'load'], 'primary', yL),
@@ -493,7 +531,8 @@ function session(root, sc, r) {
     b.rows.forEach(function (w) {
       var kT = 'tr:' + w.word, kN = 'nt:' + w.word, kQ = 'qn:' + w.word, row = el('div', { 'class': 'vrow' }), yN = why();
       row.appendChild(el('div', { 'class': 'head' }, [
-        el('span', {}, [el('span', { 'class': 'w', text: w.word }), w.translation ? ' · ' + w.translation : null]),
+        el('span', {}, [el('span', { 'class': 'w', text: w.word }), w.translation ? ' · ' + w.translation : null,
+          HOST.speak ? ' ' : null, HOST.speak ? hear(w.word, sc) : null]),
         w.editing ? null : el('span', { 'class': 'acts row' }, [
           ibtn('Edit', b.edit, 'edit', function () { return w.word; }),
           ibtn('Delete', b['delete'], 'delete', function () { return w.word; })])
@@ -703,6 +742,11 @@ function drawModel(m) {
   box.appendChild(el('div', { 'class': 'muted', text: 'PROVED: kernel-checked in Logic/Examples/LinkModel/Neo*.lean, for every state reachable from the three test starts (docs/neolingo-spec.md, section 8). The checks named under the last press are tests run at that press only.' }));
 }
 
+// what this page is: the host says (its /version); a host without one leaves the line empty
+fetch('version').then(function (r) { return r.json(); }).then(function (v) {
+  document.getElementById('version').textContent = 'Version ' + v.page + (v.instance ? ' (' + v.instance + ')' : '') +
+    (v.engine ? ' · engine ' + v.engine + (v.built ? ', built ' + v.built : '') : '') + (v.changed ? ' · New: ' + v.changed : '');
+}).catch(function () {});
 send({ cmd: 'start' });
 </script>
 </body>
