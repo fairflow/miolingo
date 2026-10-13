@@ -664,6 +664,12 @@ footer.voice .b-good { border-color: var(--vb); background: var(--card); border-
   var start = '';
   try { start = decodeURIComponent((location.hash || '').replace(/^#/, '')); } catch (e) { start = ''; }
   if (NAME_RE.test(start)) openDeck(start); else loadDecks();
+  // The list of decks keeps itself current (a new deck appears without a reload): when the page comes back into
+  // view, and every 20 s while the list is what is shown.
+  function refreshDecks() { if (!$('v-decks').hidden && !document.hidden) loadDecks(); }
+  document.addEventListener('visibilitychange', refreshDecks);
+  window.addEventListener('focus', refreshDecks);
+  setInterval(refreshDecks, 20000);
 })();
 </script>
 </body>
