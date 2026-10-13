@@ -66,9 +66,10 @@
   dl.result { margin: 0; display: grid; grid-template-columns: 1fr; gap: 10px; }
   dl.result dt { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
   dl.result dd { margin: 0; }
-  .s-ok { color: var(--ok); }
-  .s-check { color: var(--check); text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; font-weight: 700; }
-  .s-off { color: var(--off); text-decoration: underline solid; text-decoration-thickness: 3px; text-underline-offset: 5px; font-weight: 700; }
+  /* warnings, not errors: ONE warning colour in two strengths, told apart without colour (dotted / solid underline) */
+  .s-ok { }
+  .s-check { color: var(--check); text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; font-weight: 600; }
+  .s-off { color: var(--check); text-decoration: underline solid; text-decoration-thickness: 3px; text-underline-offset: 5px; font-weight: 700; }
   ul.flags { margin: 6px 0 0; padding-left: 1.1em; }
   ul.flags li { margin: 2px 0; }
   .legend { font-size: .85rem; color: var(--muted); margin-top: 6px; }
@@ -483,24 +484,26 @@ function session(root, sc, r) {
     s.appendChild(status);
     if (b.result) {
       // a sound-by-sound comparison: the target's sounds carry the marks, what was heard is beneath in the same size
-      var res = b.result, tsounds = el('div', { 'class': 'ipa' });
+      // the Target line is plain; the HEARD line carries the warnings' marks (the model's `marked`)
+      var res = b.result, tsounds = el('div', { 'class': 'ipa', text: res.target.ipa }), hsounds = el('div', { 'class': 'ipa' });
       if (res.marked.length) {
-        tsounds.appendChild(el('span', { 'class': 's-ok', text: '[' }));
+        hsounds.appendChild(document.createTextNode('['));
         res.marked.forEach(function (w, i) {
-          if (i) tsounds.appendChild(el('span', { 'class': 's-ok', text: ' ' }));
-          w.forEach(function (x) { tsounds.appendChild(el('span', { 'class': MARK[x.mark], text: x.sound })); });
+          if (i) hsounds.appendChild(document.createTextNode(' '));
+          w.forEach(function (x) { hsounds.appendChild(el('span', { 'class': MARK[x.mark], text: x.sound })); });
         });
-        tsounds.appendChild(el('span', { 'class': 's-ok', text: ']' }));
-      } else tsounds.textContent = res.target.ipa;
+        hsounds.appendChild(document.createTextNode(']'));
+      } else hsounds.textContent = res.heard.ipa;
       var nothing = res.heard.text === '' && res.heard.ipa === '[]';
       s.appendChild(el('h2', { text: 'Result' }));
       if (!res.current) s.appendChild(el('div', { 'class': 'earlier', text: 'This result is of an earlier phrase or recording, not of what is shown above.' }));
       s.appendChild(el('div', { 'class': 'card' + (res.current ? '' : ' stale') }, [
         el('div', { 'class': 'banner ' + (res.understood ? 'yes' : 'no'), text: res.banner }),
+        res.scoreNote ? el('div', { 'class': 'legend', style: 'margin:0 0 10px', text: res.scoreNote }) : null,
         el('dl', { 'class': 'result' }, [
           el('div', {}, [el('dt', { text: 'Target' }), el('dd', {}, [el('span', { text: res.target.text }), tsounds])]),
           el('div', {}, [el('dt', { text: 'Heard' }), el('dd', {}, nothing ? [el('span', { text: 'nothing' })]
-            : [el('span', { text: res.heard.text }), el('div', { 'class': 'ipa', text: res.heard.ipa })])]),
+            : [el('span', { text: res.heard.text }), hsounds])]),
           // the model's columns: the target's sounds over the heard ones, column by column, a gap as a dot
           !(res.columns && res.columns.length) ? null : el('div', {}, [el('dt', { text: 'Sound by sound' }), el('dd', {}, [
             el('div', { 'class': 'cmpbox' }, [el('table', { 'class': 'cmp ipa' }, [['target', 'Target'], ['heard', 'Heard']].map(function (rw) {
@@ -509,14 +512,15 @@ function session(root, sc, r) {
                 if (i) tr.appendChild(el('td', { 'class': 'gapw' }));
                 g.forEach(function (c) {
                   var v = c[rw[0]];
-                  tr.appendChild(el('td', { 'class': v == null ? 'none' : (rw[0] === 'target' ? MARK[c.mark] : ''), text: v == null ? '\u00b7' : v }));
+                  // the marks are on the HEARD row: on the heard sound, or on the gap when the flagged sound was left out
+                  tr.appendChild(el('td', { 'class': (rw[0] === 'heard' ? MARK[c.mark] : '') + (v == null && !(rw[0] === 'heard' && c.mark) ? ' none' : ''), text: v == null ? '\u00b7' : v }));
                 });
               });
               return tr;
             }))])
           ])]),
           el('div', {}, [el('dt', { text: 'Understood' }), el('dd', { text: res.understoodLine })]),
-          !res.flagLines.length ? null : el('div', {}, [el('dt', { text: 'Sounds to check' }), el('dd', {}, [
+          !res.flagLines.length ? null : el('div', {}, [el('dt', { text: res.warningsTitle || 'Warnings from the sound check' }), el('dd', {}, [
             el('ul', { 'class': 'flags' }, res.flagLines.map(function (l) { return el('li', { text: l }); })),
             el('div', { 'class': 'legend', text: res.legend })
           ])])

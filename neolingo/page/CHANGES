@@ -1,3 +1,4 @@
+0.26	Warnings, not errors: the marks are on the sounds heard, in one colour (dotted: worth a listen; solid: likely off); a line says what the percentage measures.
 0.25	A phrase file is phrase, a tab, meaning (or phrase | meaning): a comma no longer splits a line.
 0.24	The result compares sound by sound, the heard sounds under the target's; the heard sounds are shown word by word even when the recogniser gives no word breaks.
 0.23	The version beside the title; a file can fill the Load and Upload boxes; nothing else can be pressed while a recording is being made.
