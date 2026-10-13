@@ -189,3 +189,35 @@ HTTPS (needed for the microphone off the Mac); the microphone path (`host.js` `r
 the page does not yet call `speak`, `lists` or `wordLists` (they work from the console); the stretched score curve (the engine has
 only sqrt and linear); accuracy of the recognisers on real learners (only
 synthetic voices have been run); no cleanup of `var/speech/`.
+
+## Keeping it alive (written 2026-10-13, when the work was set down)
+
+Nothing starts the host at login. After a reboot, from this folder:
+
+    NEOLINGO_SLOTS=2 nohup ./run.sh --port 8810 >> var/host.log 2>&1 &
+
+(`NEOLINGO_SLOTS=1`, or leaving it out, gives one session.) It answers at
+http://127.0.0.1:8810/ after about a minute, when the recognisers are loaded;
+`curl http://127.0.0.1:8810/version` says which page, engine and host it runs.
+Stop it by its port, never by name, so that it signs every session out and
+saves the settings: `kill -TERM $(lsof -ti tcp:8810 -sTCP:LISTEN)`.
+
+It needs: the compiled engine at `~/Lean/locus/.lake/build/bin/neolingo`
+(`cd ~/Lean/locus && lake build neolingo`; or set `NEOLINGO_ENGINE`), and the
+Python of the Miolingo checkout (`~/Software/working/miolingo/venv`).
+
+The learner's data is in `var/` and is NOT in git: `var/neolingo.sqlite`
+(learners, settings, vocabulary, history, lists) and `var/archive/` (takes,
+results, judgements). A copy made on 2026-10-13 is in
+`~/neolingo-backups/2026-10-13/`. To back up again:
+
+    sqlite3 var/neolingo.sqlite ".backup $HOME/neolingo-backups/<date>/neolingo.sqlite"
+    cp -Rc var/archive $HOME/neolingo-backups/<date>/archive
+
+To restore: stop the host, copy `neolingo.sqlite` and `archive/` back into
+`var/` (or start the host with `NEOLINGO_VAR=<the backup folder>`), start it.
+
+To move the host to a newer model: `cd ~/Lean/locus && git pull --rebase &&
+lake build neolingo`, run `neolingo neocheck`, `neoconform` and
+`python3 scripts/neolingo_conform.py` there, then here `./update_page.sh`,
+stop and start as above, commit `page/`, push to branch `neolingo`.
