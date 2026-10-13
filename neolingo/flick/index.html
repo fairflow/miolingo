@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f3f3ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)">
+<title>Flick</title>
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --bg: #f3f3ef; --card: #ffffff; --fg: #1d1d1b; --muted: #5d5d58; --line: #cfcfc8; --tile: rgba(0, 0, 0, .045);
+  --accent: #1f5fa8; --accent-bg: #dde9f6;
+  /* the sound colours: heard sounds are drawn in these (never colour alone: see the cell styles below) */
+  --ok: #1b6e3a; --near: #8f5d00; --off: #b3261e; --added: #1f5fa8; --unj: #66665f; --faint: #a3a39b;
+  --good: #1b6e3a; --good-bg: #e2f1e7; --bad: #b3261e; --bad-bg: #f8e4e1; --skip-bg: #ebebe6;
+  --wash-a: rgba(60, 120, 215, .36); --wash-b: rgba(150, 90, 205, .36); --va: #1f5fa8; --vb: #7a3fb0;
+  --wash-good: rgba(40, 165, 85, .40); --wash-bad: rgba(215, 55, 45, .38); --wash-skip: rgba(110, 110, 125, .32);
+  --shadow: 0 8px 28px rgba(0, 0, 0, .14);
+  --ipa: "Charis SIL", "Doulos SIL", "Gentium Plus", "Times New Roman", Times, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141413; --card: #1f1f1d; --fg: #ecece7; --muted: #a8a8a0; --line: #45453f; --tile: rgba(255, 255, 255, .06);
+    --accent: #7db6f5; --accent-bg: #223349;
+    --ok: #6fd08f; --near: #ebb44c; --off: #ff8c7a; --added: #7db6f5; --unj: #a8a8a0; --faint: #6c6c65;
+    --good: #6fd08f; --good-bg: #1d3226; --bad: #ff8c7a; --bad-bg: #3a2220; --skip-bg: #2b2b28;
+    --wash-a: rgba(90, 150, 240, .40); --wash-b: rgba(180, 130, 235, .40); --va: #7db6f5; --vb: #c9a3f2;
+    --wash-good: rgba(60, 190, 105, .42); --wash-bad: rgba(240, 85, 70, .42); --wash-skip: rgba(150, 150, 165, .34);
+    --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; background: var(--bg); color: var(--fg); }
+body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+button, .btn { font: inherit; color: var(--fg); touch-action: manipulation; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .4em; min-height: 44px; min-width: 44px; padding: 0 14px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
+.btn:active { background: var(--tile); }
+.btn:focus-visible, .deck:focus-visible, .switch input:focus-visible + .knob { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+@media (prefers-color-scheme: dark) { .btn.primary { color: #0b1a2b; } }
+
+/* ---- the list of decks ---- */
+#v-decks { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px 16px 24px; }
+.wrapw { width: 100%; max-width: 640px; margin: 0 auto; }
+h1.top { font-size: 1.6rem; margin: 6px 0 2px; }
+.sub { color: var(--muted); margin: 0 0 16px; }
+.deck { display: block; width: 100%; text-align: left; margin: 0 0 12px; padding: 14px 16px; min-height: 72px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 14px; cursor: pointer; }
+.deck .dt { font-size: 1.1rem; font-weight: 650; overflow-wrap: anywhere; }
+.deck .dn { color: var(--muted); font-size: .92rem; margin-top: 2px; }
+.deck .bar { margin-top: 10px; }
+.deck[disabled] { opacity: .55; cursor: default; }
+.bar { height: 6px; border-radius: 3px; background: var(--tile); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); }
+.note { color: var(--muted); }
+.error { color: var(--bad); font-weight: 600; }
+
+/* ---- the card view ---- */
+header { display: flex; align-items: center; gap: 8px; padding: 6px 12px 4px; }
+header .btn { padding: 0 12px; }
+#prog { flex: 1; text-align: center; font-weight: 650; font-variant-numeric: tabular-nums; }
+#topbar { height: 3px; margin: 0 12px; border-radius: 2px; background: var(--tile); overflow: hidden; }
+#topbar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+#stage { position: relative; flex: 1; min-height: 0; padding: 10px 12px; display: flex; justify-content: center; }
+.card { position: relative; width: 100%; max-width: 680px; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab;
+  transform-origin: 50% 100%; will-change: transform; --fs: 1; }
+.card.enter { animation: enter .18s ease-out; }
+@keyframes enter { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+.card .wash { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 2; }
+.card .wash.right { background: var(--wash-good); } .card .wash.left { background: var(--wash-bad); } .card .wash.up { background: var(--wash-skip); }
+/* voice cards: A and B are not good and bad, so they get their own two neutral colours */
+.card.voice .wash.left { background: var(--wash-a); } .card.voice .wash.right { background: var(--wash-b); }
+.card .stamp { position: absolute; z-index: 3; top: 18px; padding: 4px 14px; border: 4px solid currentColor; border-radius: 10px; opacity: 0;
+  font-size: 1.8rem; font-weight: 800; letter-spacing: .04em; pointer-events: none; background: var(--card); }
+.stamp.right { left: 16px; color: var(--good); transform: rotate(-8deg); }
+.stamp.left { right: 16px; color: var(--bad); transform: rotate(8deg); }
+.card.voice .stamp.left { color: var(--va); } .card.voice .stamp.right { color: var(--vb); }
+.stamp.up { left: 50%; margin-left: -3.2rem; color: var(--muted); top: 14px; }
+.card .pill { position: absolute; z-index: 1; top: 10px; right: 12px; font-size: .8rem; padding: 2px 10px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--tile); color: var(--muted); }
+.card .err { position: absolute; z-index: 4; left: 12px; right: 12px; top: 12px; padding: 9px 12px; border-radius: 12px; background: var(--bad); color: #fff;
+  font-weight: 650; text-align: center; }
+@media (prefers-color-scheme: dark) { .card .err { color: #2a0d09; } }
+.content { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 14px 12px 12px; }
+.inner { margin: auto; width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; gap: calc(var(--fs) * 12px); }
+.meta { min-height: 1.2em; }
+.tag { font-size: .78rem; color: var(--muted); border: 1px solid var(--line); border-radius: 5px; padding: 0 6px; }
+.phrase { margin: 0; font-size: calc(var(--fs) * clamp(1.55rem, 6.6vw, 2.8rem)); line-height: 1.15; font-weight: 650; overflow-wrap: anywhere; }
+.status { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 2px 14px; font-size: calc(var(--fs) * 1.05rem); max-width: 100%; }
+.status .u { overflow-wrap: anywhere; }
+.status .u.yes { color: var(--ok); } .status .u.no { color: var(--off); font-weight: 600; }
+.score { font-size: calc(var(--fs) * 2.1rem); font-weight: 750; line-height: 1; font-variant-numeric: tabular-nums; }
+.before { margin: 0; color: var(--muted); font-size: calc(var(--fs) * .92rem); }
+.legend { margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 1px 9px; color: var(--muted); font-size: calc(var(--fs) * clamp(.74rem, 2vw, .88rem)); line-height: 1.5; }
+.legend .c { display: inline-block; padding: 0 .05em; font-size: 1.25em; min-width: 0; }
+
+/* THE PICTURE: words side by side; each word a grid of three rows (text, target sounds, heard sounds) sharing its columns */
+.pic { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: calc(var(--fs) * 12px) calc(var(--fs) * 14px);
+  width: 100%; max-width: 100%; cursor: pointer; font-size: calc(var(--fs) * clamp(1.35rem, 6.4vw, 2.7rem)); }
+.word { display: grid; row-gap: 0; column-gap: .17em; padding: .12em .32em .2em; border-radius: .45em; background: var(--tile); max-width: 100%; }
+.wt { grid-row: 1; grid-column: 1 / -1; min-height: 1.3em; font: 600 .4em/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); text-align: center;
+  white-space: nowrap; }
+.c { font-family: var(--ipa); line-height: 1.22; min-width: .62em; padding: 0 .03em; text-align: center; white-space: nowrap; }
+.c.t { grid-row: 2; } .c.h { grid-row: 3; }
+.g { display: inline-block; }
+.c.t.k-off .g { text-decoration: underline; text-decoration-color: var(--off); text-decoration-thickness: .08em; text-underline-offset: .13em; }
+.c.t.k-added { color: var(--faint); }
+.c.h.k-ok { color: var(--ok); }
+.c.h.k-near { color: var(--near); }
+.c.h.k-near .g { text-decoration: underline dotted; text-decoration-thickness: .07em; text-underline-offset: .13em; }
+.c.h.k-off { color: var(--off); font-weight: 700; }
+.c.h.k-missing { color: var(--off); }
+.c.h.k-added { color: var(--added); }
+.c.h.k-unjudged { color: var(--unj); font-style: italic; }
+.legend .c.k-off { font-weight: 700; color: var(--off); } .legend .c.k-ok { color: var(--ok); } .legend .c.k-near { color: var(--near); }
+.legend .c.k-near .g { text-decoration: underline dotted; } .legend .c.k-missing { color: var(--off); } .legend .c.k-added { color: var(--added); }
+.legend .c.k-unjudged { color: var(--unj); font-style: italic; }
+
+.playrow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 16px; }
+.playrow .btn { min-width: 8.5rem; font-weight: 650; }
+.switch { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; color: var(--muted); font-size: .92rem; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch .knob { position: relative; width: 44px; height: 26px; border-radius: 13px; background: var(--line); transition: background .15s; flex: none; }
+.switch .knob::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .15s; }
+.switch input:checked + .knob { background: var(--accent); }
+.switch input:checked + .knob::after { transform: translateX(18px); }
+
+.voices { display: flex; gap: 12px; width: 100%; }
+.vbtn { flex: 1 1 0; min-width: 0; min-height: calc(var(--fs) * 150px); flex-direction: column; font-size: calc(var(--fs) * 1.25rem); font-weight: 700; border-radius: 18px; }
+.vbtn .big { font-size: calc(var(--fs) * 2.6rem); line-height: 1; }
+.vbtn.playing { background: var(--accent-bg); border: 2px solid var(--accent); }
+.vhint { margin: 0; color: var(--muted); font-size: calc(var(--fs) * .95rem); }
+
+footer { display: flex; gap: 10px; width: 100%; max-width: 704px; margin: 0 auto; padding: 4px 12px 10px; }
+footer .btn { flex: 1 1 0; min-width: 0; min-height: 58px; font-size: 1.1rem; font-weight: 650; flex-direction: column; gap: 0; line-height: 1.2; padding: 4px 8px; }
+footer .btn small { font-weight: 400; font-size: .72rem; color: var(--muted); display: none; }
+@media (hover: hover) and (pointer: fine) { footer .btn small { display: block; } }
+footer .b-bad { border-color: var(--bad); background: var(--bad-bg); }
+footer .b-good { border-color: var(--good); background: var(--good-bg); }
+footer .b-skip { background: var(--skip-bg); }
+footer.voice .b-bad { border-color: var(--va); background: var(--card); border-width: 2px; }
+footer.voice .b-good { border-color: var(--vb); background: var(--card); border-width: 2px; }
+
+/* ---- the end ---- */
+#v-end { align-items: center; justify-content: center; padding: 20px 16px; text-align: center; overflow-y: auto; }
+#v-end h2 { font-size: 1.7rem; margin: 0 0 4px; }
+.tally { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 18px 0 22px; }
+.tally > div { min-width: 6.5rem; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.tally b { display: block; font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tally span { color: var(--muted); font-size: .9rem; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+@media (prefers-reduced-motion: reduce) { .card.enter { animation: none; } #topbar > i, .switch .knob, .switch .knob::after { transition: none; } }
+</style>
+</head>
+<body>
+<noscript>This page needs JavaScript.</noscript>
+<div id="app">
+  <section class="view" id="v-decks" hidden>
+    <div class="wrapw">
+      <h1 class="top">Flick</h1>
+      <p class="sub">Pick a deck. Right is good, left is bad, up is skip.</p>
+      <div id="decklist"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-card" hidden>
+    <header>
+      <button class="btn" id="b-decks" type="button" aria-label="Back to the decks">&lsaquo; Decks</button>
+      <div id="prog" aria-live="polite"></div>
+      <button class="btn" id="b-prev" type="button" aria-label="Previous card">&#8630; Back</button>
+    </header>
+    <div id="topbar"><i></i></div>
+    <div id="stage"></div>
+    <footer>
+      <button class="btn b-bad" id="b-left" type="button"></button>
+      <button class="btn b-skip" id="b-up" type="button"></button>
+      <button class="btn b-good" id="b-right" type="button"></button>
+    </footer>
+  </section>
+
+  <section class="view" id="v-end" hidden>
+    <div class="wrapw">
+      <h2 id="end-title">Done</h2>
+      <div class="note" id="end-sub"></div>
+      <div class="tally" id="tally"></div>
+      <div class="actions">
+        <button class="btn primary" id="e-decks" type="button">Back to the decks</button>
+        <button class="btn" id="e-prev" type="button">&#8630; Back one card</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------------------------------------------------------------- small helpers
+  var $ = function (id) { return document.getElementById(id); };
+  function h(tag, attrs) {
+    var e = document.createElement(tag), i, k, v;
+    if (attrs) for (k in attrs) {
+      v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k === 'style') e.style.cssText = v;
+      else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    for (i = 2; i < arguments.length; i++) append(e, arguments[i]);
+    return e;
+  }
+  function append(e, kid) {
+    if (kid == null || kid === false) return;
+    if (Array.isArray(kid)) { kid.forEach(function (x) { append(e, x); }); return; }
+    e.appendChild(typeof kid === 'string' ? document.createTextNode(kid) : kid);
+  }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function rel(u) { return String(u || '').replace(/^\/+/, ''); }      // "/take/x.wav" -> "take/x.wav": works under a path prefix too
+
+  function getJSON(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+  function postJudge(body) {
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 8000);
+    return fetch('judge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok || !j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+        });
+      })
+      .catch(function (e) { throw new Error(e && e.name === 'AbortError' ? 'no answer from the server' : (e && e.message) || 'failed'); })
+      .then(function (x) { clearTimeout(timer); return x; }, function (e) { clearTimeout(timer); throw e; });
+  }
+  function store(key, val) {
+    try { if (val === undefined) return localStorage.getItem(key); localStorage.setItem(key, val); } catch (e) { /* storage may be blocked */ }
+    return null;
+  }
+
+  // ---------------------------------------------------------------- state
+  var S = { name: null, deck: null, cards: [], i: 0, busy: false, autoplay: store('flick.autoplay') === '1', view: 'decks', cur: null };
+  var LABEL = { good: 'good', bad: 'bad', skip: 'skipped', a: 'A is better', b: 'B is better', same: 'no difference' };
+  var NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+  var KINDS = { ok: 1, near: 1, off: 1, missing: 1, added: 1, unjudged: 1 };
+
+  function show(view) {
+    S.view = view;
+    ['decks', 'card', 'end'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
+  }
+
+  // ---------------------------------------------------------------- audio: one element for everything
+  // (iOS lets an element that a tap has started be driven by script afterwards, which is what "play each take" needs)
+  var player = new Audio();
+  player.preload = 'auto';
+  var playingBtn = null;
+  function setPlay(btn, on, text) {
+    if (!btn) return;
+    btn.classList.toggle('playing', !!on);
+    var lab = btn.getAttribute('data-label') || '';
+    var icon = btn.querySelector('.ico');
+    if (text) { if (icon) icon.textContent = '⚠'; btn.querySelector('.lab').textContent = text; return; }
+    if (icon) icon.textContent = on ? '■' : '▶';
+    btn.querySelector('.lab').textContent = on ? 'Stop' + (lab ? ' ' + lab : '') : (lab || 'Play');
+  }
+  function stopAudio() {
+    try { player.pause(); } catch (e) { /* nothing */ }
+    if (playingBtn) { setPlay(playingBtn, false); playingBtn = null; }
+  }
+  function playUrl(url, btn, opts) {
+    opts = opts || {};
+    if (playingBtn === btn && !opts.restart && !player.paused) { stopAudio(); return; }
+    stopAudio();
+    playingBtn = btn;
+    setPlay(btn, true);
+    player.src = rel(url);
+    var p;
+    try { p = player.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(function () {
+      if (playingBtn === btn) { playingBtn = null; setPlay(btn, false, opts.quiet ? null : 'No sound'); }
+    });
+  }
+  player.addEventListener('ended', function () { if (playingBtn) { setPlay(playingBtn, false); playingBtn = null; } });
+  player.addEventListener('error', function () {
+    if (playingBtn && player.getAttribute('src')) { var b = playingBtn; playingBtn = null; setPlay(b, false, 'No sound'); }
+  });
+
+  // ---------------------------------------------------------------- the list of decks
+  function loadDecks(flash) {
+    show('decks');
+    stopAudio();
+    var box = $('decklist'), note = typeof flash === 'string' ? h('p', { class: 'error', text: flash }) : null;
+    box.replaceChildren(h('p', { class: 'note', text: 'Loading…' }));
+    getJSON('decks').then(function (list) {
+      box.replaceChildren();
+      if (note) box.append(note);
+      if (!list.length) { box.append(h('p', { class: 'note', text: 'No decks yet. They appear here when a file deck-NAME.json is put in var/flick/.' })); return; }
+      list.forEach(function (d) {
+        var pct = d.cards ? Math.round(100 * d.judged / d.cards) : 0;
+        var line = d.error ? 'could not be read' : d.cards + ' card' + (d.cards === 1 ? '' : 's') + ' · ' + d.judged + ' judged' + (d.judged === d.cards && d.cards ? ' · done' : '');
+        box.append(h('button', { class: 'deck', type: 'button', disabled: d.error ? true : null, onclick: function () { openDeck(d.name); } },
+          h('div', { class: 'dt', text: d.title || d.name }),
+          h('div', { class: 'dn', text: line }),
+          h('div', { class: 'bar', 'aria-hidden': 'true' }, h('i', { style: 'width:' + pct + '%' }))));
+      });
+    }).catch(function (e) {
+      box.replaceChildren(h('p', { class: 'error', text: 'Could not load the decks (' + e.message + ').' }),
+        h('button', { class: 'btn', type: 'button', text: 'Try again', onclick: function () { loadDecks(); } }));
+    });
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* nothing */ }
+  }
+
+  // ---------------------------------------------------------------- a deck
+  function openDeck(name) {
+    stopAudio();
+    return getJSON('deck/' + encodeURIComponent(name)).then(function (d) {
+      S.name = name; S.deck = d; S.cards = Array.isArray(d.cards) ? d.cards : []; S.busy = false;
+      try { history.replaceState(null, '', '#' + encodeURIComponent(name)); } catch (e) { /* nothing */ }
+      var first = -1;
+      for (var i = 0; i < S.cards.length; i++) if (!S.cards[i].judged) { first = i; break; }
+      if (!S.cards.length) { endScreen(); return; }
+      if (first < 0) { endScreen(); return; }
+      showCard(first);
+    }).catch(function (e) {
+      loadDecks('Could not open that deck (' + e.message + ').');
+    });
+  }
+
+  function verdictFor(card, dir) {
+    if (card.kind === 'voice') return dir === 'right' ? 'b' : dir === 'left' ? 'a' : 'same';
+    return dir === 'right' ? 'good' : dir === 'left' ? 'bad' : 'skip';
+  }
+  function dirLabels(card) {
+    return card.kind === 'voice'
+      ? { left: ['A is better', '←'], up: ['No difference', '↑'], right: ['B is better', '→'] }
+      : { left: ['✗ Bad', '←'], up: ['Skip', '↑ or space'], right: ['✓ Good', '→'] };
+  }
+  function stampText(card, dir) {
+    if (card.kind === 'voice') return dir === 'right' ? 'B' : dir === 'left' ? 'A' : 'SAME';
+    return dir === 'right' ? '✓ GOOD' : dir === 'left' ? '✗ BAD' : 'SKIP';
+  }
+
+  // ---------------------------------------------------------------- the picture
+  function cell(kindClass, k, text) {
+    return h('div', { class: 'c ' + kindClass + ' k-' + k }, h('span', { class: 'g', text: text }));
+  }
+  function picture(words) {
+    var pic = h('div', { class: 'pic', role: 'group', 'aria-label': 'Target sounds above, heard sounds below, word by word' });
+    (Array.isArray(words) ? words : []).forEach(function (w) {
+      var ss = Array.isArray(w.sounds) ? w.sounds : [];
+      var word = h('div', { class: 'word', style: 'grid-template-columns:repeat(' + Math.max(1, ss.length) + ',auto)' },
+        h('div', { class: 'wt', text: w.text || '' }));
+      ss.forEach(function (s, n) {
+        var k = KINDS[s.k] ? s.k : 'unjudged';
+        var t = k === 'added' || !s.t ? '·' : s.t;
+        var hd = k === 'missing' ? '∅' : (s.h || (k === 'ok' ? s.t : '') || '');
+        var tc = cell('t', k, t), hc = cell('h', k, hd);
+        tc.style.gridColumn = hc.style.gridColumn = String(n + 1);
+        if (k === 'added') tc.classList.add('k-added');
+        word.append(tc, hc);
+      });
+      pic.append(word);
+    });
+    return pic;
+  }
+  function legend() {
+    function chip(k, glyph, text) { return h('span', null, cell('h', k, glyph), ' ' + text); }
+    return h('p', { class: 'legend' },
+      h('span', { text: 'above: target, below: heard' }),
+      chip('ok', 'ɛ', 'ok'), chip('near', 'ɛ', 'near'), chip('off', 'ɛ', 'off (target underlined)'),
+      chip('missing', '∅', 'left out'), chip('added', 'ɛ', 'added (· above)'), chip('unjudged', 'ɛ', 'not judged'));
+  }
+
+  // ---------------------------------------------------------------- one card
+  function playRow(card) {
+    var btn = h('button', { class: 'btn', type: 'button', 'data-label': '', 'aria-label': 'Play the recording' },
+      h('span', { class: 'ico', 'aria-hidden': 'true', text: '▶' }), h('span', { class: 'lab', text: 'Play' }));
+    btn.addEventListener('click', function () { playUrl(card.audio, btn); btn.blur(); });
+    var cb = h('input', { type: 'checkbox', role: 'switch' });
+    cb.checked = S.autoplay;
+    cb.addEventListener('change', function () {
+      S.autoplay = cb.checked; store('flick.autoplay', cb.checked ? '1' : '0');
+      if (cb.checked && S.cur && S.cur.card.kind === 'result') playUrl(S.cur.card.audio, S.cur.playBtn, { restart: true });
+      cb.blur();
+    });
+    return { btn: btn, row: h('div', { class: 'playrow' }, btn, h('label', { class: 'switch' }, cb, h('span', { class: 'knob', 'aria-hidden': 'true' }), 'play each take')) };
+  }
+
+  function buildCard(card) {
+    var el = h('div', { class: 'card enter' + (card.kind === 'voice' ? ' voice' : '') });
+    var wash = h('div', { class: 'wash' }), stamp = h('div', { class: 'stamp' });
+    var inner = h('div', { class: 'inner' }), content = h('div', { class: 'content' }, inner);
+    var playBtn = null, voiceBtns = null;
+    if (card.judged) el.append(h('div', { class: 'pill', text: 'you said: ' + (LABEL[card.judged] || card.judged) }));
+
+    inner.append(h('div', { class: 'meta' }, card.variant ? h('span', { class: 'tag', text: card.variant }) : null));
+    inner.append(h('h1', { class: 'phrase', text: card.phrase || '' }));
+
+    if (card.kind === 'voice') {
+      var mk = function (side) {
+        var s = card[side] || {}, who = s.label || ('Voice ' + side.toUpperCase());
+        var b = h('button', { class: 'btn vbtn', type: 'button', 'data-label': who, 'aria-label': 'Play ' + who },
+          h('span', { class: 'ico big', 'aria-hidden': 'true', text: '▶' }), h('span', { class: 'lab', text: who }));
+        b.addEventListener('click', function () { playUrl(s.audio, b); b.blur(); });
+        b._audio = s.audio;
+        return b;
+      };
+      voiceBtns = { a: mk('a'), b: mk('b') };
+      inner.append(h('p', { class: 'vhint', text: 'Which voice is better to imitate?' }), h('div', { class: 'voices' }, voiceBtns.a, voiceBtns.b),
+        h('p', { class: 'vhint', text: '← A is better · ↑ no difference · B is better →' }));
+    } else {
+      var understood = card.understood === true;
+      inner.append(h('div', { class: 'status' },
+        h('span', { class: 'u ' + (understood ? 'yes' : 'no'), text: understood ? '✓ understood' : '✗ heard: ' + (card.heardText || '—') }),
+        card.score != null ? h('span', { class: 'score', 'aria-label': 'score ' + card.score + ' percent', text: Math.round(card.score) + '%' }) : null));
+      var pic = picture(card.words);
+      pic.addEventListener('click', function () { /* taps are handled with the pointer events below */ });
+      inner.append(pic, legend());
+      if (card.before && (card.before.score != null || card.before.different != null)) {
+        var b = card.before, parts = [];
+        if (b.score != null) parts.push(Math.round(b.score) + '%');
+        if (b.different != null) parts.push(b.different + ' sound' + (b.different === 1 ? '' : 's') + ' different');
+        inner.append(h('p', { class: 'before', text: 'before: ' + parts.join(', ') }));
+      }
+      var pr = playRow(card);
+      playBtn = pr.btn;
+      inner.append(pr.row);
+    }
+    el.append(content, wash, stamp);
+    return { el: el, card: card, wash: wash, stamp: stamp, content: content, inner: inner, playBtn: playBtn, voiceBtns: voiceBtns };
+  }
+
+  function fit(cur) {
+    var el = cur.el, content = cur.content, inner = cur.inner, pic = el.querySelector('.pic'), s = 1, n;
+    var cs = getComputedStyle(content), padV = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    for (n = 0; n < 18; n++) {
+      el.style.setProperty('--fs', s.toFixed(3));
+      var over = inner.offsetHeight > content.clientHeight - padV + 1 || content.scrollWidth > content.clientWidth + 1 ||
+                 (pic && pic.scrollWidth > pic.clientWidth + 1);
+      if (!over) return;
+      s -= 0.04;
+      if (s < 0.4) { el.style.setProperty('--fs', '0.4'); return; }
+    }
+  }
+
+  function showCard(i) {
+    stopAudio();
+    S.i = i; S.busy = false;
+    show('card');
+    var card = S.cards[i], cur = buildCard(card);
+    S.cur = cur;
+    $('stage').replaceChildren(cur.el);
+    fit(cur);
+    attachDrag(cur);
+    $('prog').textContent = (i + 1) + ' / ' + S.cards.length;
+    $('topbar').firstChild.style.width = Math.round(100 * (i + 1) / S.cards.length) + '%';
+    $('b-prev').disabled = i === 0;
+    $('b-prev').style.opacity = i === 0 ? .4 : 1;
+    var L = dirLabels(card);
+    $('v-card').querySelector('footer').classList.toggle('voice', card.kind === 'voice');
+    [['b-left', 'left'], ['b-up', 'up'], ['b-right', 'right']].forEach(function (p) {
+      var b = $(p[0]);
+      b.replaceChildren(h('span', { text: L[p[1]][0] }), h('small', { text: L[p[1]][1] }));
+      b.setAttribute('aria-label', L[p[1]][0]);
+    });
+    if (S.autoplay && cur.playBtn) playUrl(card.audio, cur.playBtn, { restart: true, quiet: true });
+  }
+
+  // ---------------------------------------------------------------- judging
+  function showErr(cur, msg) {
+    var old = cur.el.querySelector('.err');
+    if (old) old.remove();
+    cur.el.append(h('div', { class: 'err', role: 'alert', text: 'Not saved (' + msg + '). Judge again to retry.' }));
+  }
+  function setWash(cur, dir, strength) {
+    var w = cur.wash, st = cur.stamp;
+    if (!dir) { w.style.opacity = 0; st.style.opacity = 0; return; }
+    w.className = 'wash ' + dir; w.style.opacity = String(Math.min(1, strength));
+    st.className = 'stamp ' + dir; st.textContent = stampText(cur.card, dir); st.style.opacity = String(Math.min(1, strength * 1.2));
+  }
+  function springBack(cur) {
+    cur.el.style.transition = REDUCED ? 'none' : 'transform .3s cubic-bezier(.2,.9,.3,1.15)';
+    cur.el.style.transform = '';
+    cur.wash.style.transition = cur.stamp.style.transition = REDUCED ? 'none' : 'opacity .25s';
+    setWash(cur, null);
+  }
+
+  function commit(dir, fromDrag) {
+    var cur = S.cur;
+    if (!cur || S.busy) return;
+    S.busy = true;
+    stopAudio();
+    var card = cur.card, verdict = verdictFor(card, dir);
+    var old = cur.el.querySelector('.err');
+    if (old) old.remove();
+    var W = cur.el.offsetWidth, H = cur.el.offsetHeight;
+    cur.wash.style.transition = cur.stamp.style.transition = 'none';
+    setWash(cur, dir, 1);
+    cur.el.style.transition = REDUCED ? 'none' : 'transform .16s ease-in, opacity .16s ease-in';
+    var tx = dir === 'right' ? W * 1.3 : dir === 'left' ? -W * 1.3 : 0, ty = dir === 'up' ? -H * 1.15 : 0;
+    var rot = dir === 'right' ? 14 : dir === 'left' ? -14 : 0;
+    cur.el.style.transform = 'translate(' + tx + 'px,' + ty + 'px) rotate(' + rot + 'deg)';
+    var anim = sleep(REDUCED ? 0 : 160);
+    postJudge({ deck: S.name, id: String(card.id), verdict: verdict }).then(function () {
+      return anim.then(function () {
+        card.judged = verdict;
+        S.busy = false;
+        advance();
+      });
+    }, function (e) {
+      return anim.then(function () {
+        springBack(cur);
+        showErr(cur, e.message);
+        S.busy = false;
+      });
+    });
+  }
+
+  function advance() {
+    for (var j = S.i + 1; j < S.cards.length; j++) if (!S.cards[j].judged) { showCard(j); return; }
+    endScreen();
+  }
+  function goBack() {
+    if (S.busy || S.view === 'decks') return;
+    if (S.view === 'end') { if (S.cards.length) showCard(S.cards.length - 1); return; }
+    if (S.i > 0) showCard(S.i - 1);
+  }
+
+  function endScreen() {
+    stopAudio();
+    show('end');
+    S.cur = null;
+    $('tally').replaceChildren();
+    $('end-sub').textContent = 'Saving is automatic. Counting…';
+    $('e-prev').hidden = !S.cards.length;
+    getJSON('tally/' + encodeURIComponent(S.name)).then(function (t) {
+      var voice = S.cards.some(function (c) { return c.kind === 'voice'; }) && !S.cards.some(function (c) { return c.kind !== 'voice'; });
+      var order = voice ? [['a', 'A is better'], ['b', 'B is better'], ['same', 'no difference']] : [['good', 'good'], ['bad', 'bad'], ['skip', 'skipped']];
+      var extra = voice ? [['good', 'good'], ['bad', 'bad'], ['skip', 'skipped']] : [['a', 'A is better'], ['b', 'B is better'], ['same', 'no difference']];
+      extra.forEach(function (p) { if (t.counts[p[0]]) order.push(p); });
+      $('end-title').textContent = t.unjudged ? 'Not finished' : 'Done';
+      $('end-sub').textContent = (t.title || S.name) + ': ' + t.judged + ' of ' + t.total + ' judged' + (t.unjudged ? ', ' + t.unjudged + ' left' : '') + '.';
+      $('tally').replaceChildren.apply($('tally'), order.map(function (p) { return h('div', null, h('b', { text: String(t.counts[p[0]] || 0) }), h('span', { text: p[1] })); }));
+    }).catch(function (e) {
+      $('end-sub').textContent = 'Could not read the tally (' + e.message + ').';
+    });
+  }
+
+  // ---------------------------------------------------------------- dragging the card
+  var drag = null, swallow = false;
+  function attachDrag(cur) {
+    var el = cur.el;
+    el.addEventListener('pointerdown', function (e) {
+      if (S.busy || S.cur !== cur || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      var t0 = performance.now();
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: t0, dx: 0, dy: 0, axis: null, pts: [[t0, e.clientX, e.clientY]], target: e.target };
+      el.style.transition = 'none';
+      cur.wash.style.transition = cur.stamp.style.transition = 'none';
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      drag.dx = e.clientX - drag.x; drag.dy = e.clientY - drag.y;
+      var now = performance.now();
+      drag.pts.push([now, e.clientX, e.clientY]);
+      while (drag.pts.length > 2 && now - drag.pts[0][0] > 120) drag.pts.shift();
+      if (!drag.axis) {
+        if (Math.hypot(drag.dx, drag.dy) < 9) return;
+        drag.axis = Math.abs(drag.dx) > Math.abs(drag.dy) ? 'x' : (drag.dy < 0 ? 'up' : 'down');
+        swallow = true;
+        try { el.setPointerCapture(drag.id); } catch (err) { /* nothing */ }
+      }
+      var W = el.offsetWidth, H = el.offsetHeight, tx = drag.dx, ty = drag.dy, rot = 0, dir = null, strength = 0;
+      if (drag.axis === 'x') {
+        ty = drag.dy * 0.25; rot = drag.dx / W * 14;
+        dir = drag.dx > 0 ? 'right' : 'left'; strength = Math.abs(drag.dx) / (W * 0.25);
+      } else if (drag.axis === 'up') {
+        tx = drag.dx * 0.25; ty = Math.min(0, drag.dy);
+        dir = 'up'; strength = -drag.dy / (H * 0.22);
+      } else { tx = drag.dx * 0.2; ty = drag.dy * 0.2; }
+      el.style.transform = 'translate(' + tx + 'px,' + ty + 'px) rotate(' + rot + 'deg)';
+      setWash(cur, dir, strength);
+    });
+    function finish(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var d = drag; drag = null;
+      setTimeout(function () { swallow = false; }, 60);
+      if (!d.axis) {                                    // a tap, not a drag
+        if (!cancelled && performance.now() - d.t < 700 && d.target.closest && d.target.closest('.pic') && cur.card.audio) {
+          playUrl(cur.card.audio, cur.playBtn, { restart: true });
+        }
+        return;
+      }
+      var W = el.offsetWidth, H = el.offsetHeight, first = d.pts[0], last = d.pts[d.pts.length - 1];
+      var dt = Math.max(1, last[0] - first[0]), vx = (last[1] - first[1]) / dt, vy = (last[2] - first[2]) / dt;
+      if (!cancelled) {
+        if (d.axis === 'x') {
+          var flick = Math.abs(vx) > 0.6 && Math.abs(d.dx) > 40 && (vx > 0) === (d.dx > 0);
+          if (Math.abs(d.dx) > W * 0.25 || flick) { commit(d.dx > 0 ? 'right' : 'left', true); return; }
+        } else if (d.axis === 'up') {
+          if (-d.dy > H * 0.22 || (vy < -0.6 && -d.dy > 40)) { commit('up', true); return; }
+        }
+      }
+      springBack(cur);
+    }
+    el.addEventListener('pointerup', function (e) { finish(e, false); });
+    el.addEventListener('pointercancel', function (e) { finish(e, true); });
+    el.addEventListener('lostpointercapture', function (e) { if (drag && e.pointerId === drag.id) finish(e, true); });
+    el.addEventListener('click', function (e) { if (swallow) { e.stopPropagation(); e.preventDefault(); } }, true);
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+
+  // ---------------------------------------------------------------- buttons and keys
+  $('b-left').addEventListener('click', function () { commit('left'); this.blur(); });
+  $('b-up').addEventListener('click', function () { commit('up'); this.blur(); });
+  $('b-right').addEventListener('click', function () { commit('right'); this.blur(); });
+  $('b-prev').addEventListener('click', function () { goBack(); this.blur(); });
+  $('b-decks').addEventListener('click', function () { loadDecks(); });
+  $('e-decks').addEventListener('click', function () { loadDecks(); });
+  $('e-prev').addEventListener('click', goBack);
+
+  var KEYS = { ArrowLeft: 1, ArrowRight: 1, ArrowUp: 1, ArrowDown: 1, ' ': 1, Backspace: 1 };
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target && e.target.tagName === 'INPUT') return;
+    var k = e.key, cur = S.cur;
+    if (S.view === 'end' && (k === 'Backspace' || k === 'ArrowDown' || k === 'ArrowLeft')) { e.preventDefault(); goBack(); return; }
+    if (S.view !== 'card' || !cur) return;
+    if (KEYS[k]) e.preventDefault();
+    if (e.repeat) return;
+    if (k === 'ArrowLeft') commit('left');
+    else if (k === 'ArrowRight') commit('right');
+    else if (k === 'ArrowUp' || k === ' ') commit('up');
+    else if (k === 'Backspace' || k === 'ArrowDown') goBack();
+    else if (k === 'p' || k === 'P') { if (cur.playBtn) playUrl(cur.card.audio, cur.playBtn); else if (cur.voiceBtns) playUrl(cur.voiceBtns.a._audio, cur.voiceBtns.a); }
+    else if ((k === 'a' || k === 'A') && cur.voiceBtns) playUrl(cur.voiceBtns.a._audio, cur.voiceBtns.a);
+    else if ((k === 'b' || k === 'B') && cur.voiceBtns) playUrl(cur.voiceBtns.b._audio, cur.voiceBtns.b);
+  });
+  document.addEventListener('keyup', function (e) { if (S.view === 'card' && e.key === ' ' && !(e.target && e.target.tagName === 'INPUT')) e.preventDefault(); });
+
+  var resizeTimer = 0;
+  window.addEventListener('resize', function () {
+    cancelAnimationFrame(resizeTimer);
+    resizeTimer = requestAnimationFrame(function () { if (S.view === 'card' && S.cur && !S.busy) fit(S.cur); });
+  });
+  window.addEventListener('orientationchange', function () { setTimeout(function () { if (S.view === 'card' && S.cur && !S.busy) fit(S.cur); }, 250); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (S.view === 'card' && S.cur && !S.busy) fit(S.cur); });
+
+  // ---------------------------------------------------------------- start
+  var start = '';
+  try { start = decodeURIComponent((location.hash || '').replace(/^#/, '')); } catch (e) { start = ''; }
+  if (NAME_RE.test(start)) openDeck(start); else loadDecks();
+})();
+</script>
+</body>
+</html>
