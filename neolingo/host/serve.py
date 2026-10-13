@@ -32,6 +32,7 @@ from .engine import Engine                    # noqa: E402
 from .log import log                          # noqa: E402
 from .store import Store                      # noqa: E402
 from . import speech                          # noqa: E402
+from . import archive                         # noqa: E402
 
 STARTED = time.strftime("%Y-%m-%d %H:%M:%S %z")
 UID = paths.UID
@@ -79,19 +80,11 @@ def read_lists():
     return out
 
 
-def clean_takes(max_age=86400):
-    n = 0
-    for p in paths.TAKES.glob("*.wav"):
-        if time.time() - p.stat().st_mtime > max_age:
-            p.unlink(missing_ok=True)
-            n += 1
-    return n
-
-
 class Host:
     def __init__(self):
         paths.make_dirs()
-        log(f"host starting; var = {paths.VAR}; engine = {paths.ENGINE}; {clean_takes()} old takes deleted")
+        log(f"host starting; var = {paths.VAR}; engine = {paths.ENGINE}; takes are kept for good (archive: {paths.ARCHIVE})")
+        self.held = None                          # the token of the latest recording held (a Check may ask nothing)
         self.store = Store(paths.DB)
         self.engine = Engine(build_config())
         with self.engine.lock:
@@ -118,6 +111,13 @@ class Host:
                     d = {"err": f"{e}; the engine was restarted: reload the page"}
                 except Exception as e2:
                     d = {"err": f"{e}; restart failed: {e2}"}
+            if "press" in msg and d.get("screens"):
+                if msg["press"] == "record":
+                    archive.log_record(msg, d, self.engine.last_answers)
+                    if d.get("step") and isinstance(msg.get("input"), str):
+                        self.held = msg["input"]
+                elif msg["press"] == "check" and d.get("step"):
+                    archive.log_check(d, self.engine.last_answers, self.held, read_version())
             d.pop("test", None)
             d.pop("takes", None)
             if "screens" in d:
@@ -212,6 +212,10 @@ class H(http.server.BaseHTTPRequestHandler):
                     return self.json({"err": "not a WAV file"}, 400)
                 token = "t" + secrets.token_hex(8)
                 (paths.TAKES / f"{token}.wav").write_bytes(data)
+                try:
+                    archive.save_take(token, data)
+                except OSError as e:
+                    log(f"archive: take {token} NOT kept: {e}")
                 log(f"take {token}: {len(data)} bytes")
                 return self.json({"take": token})
         except (ValueError, UnicodeDecodeError) as e:

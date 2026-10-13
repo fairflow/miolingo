@@ -92,6 +92,7 @@ class Engine:
     def __init__(self, config):
         self.config = config
         self.env = Environment()
+        self.last_answers = []
         self.dropped_last = None            # "droppedFlags" of the latest Check press (the tests read it)
         self.lock = threading.Lock()      # ONE request at a time, engine traffic and environment calls included
         self.proc = None
@@ -126,6 +127,7 @@ class Engine:
 
     def ask(self, msg, store):
         """One request: answer the engine's questions until it gives its result; apply its write (BEFORE returning)."""
+        self.last_answers = []              # every (question, answer) of this request, for the archive
         d = self.line(msg)
         while "ask" in d:
             answers = []
@@ -141,6 +143,7 @@ class Engine:
                 log(f"question {q['q']} {json.dumps({k: v for k, v in q.items() if k != 'q'}, ensure_ascii=False)[:120]} "
                     f"-> {(time.perf_counter() - t0) * 1000:.0f} ms")
                 answers.append({"q": q, "a": a})
+                self.last_answers.append({"q": q, "a": a})
             d = self.line({"answers": answers})
         if "droppedFlags" in d:
             n = d["droppedFlags"]

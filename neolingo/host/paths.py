@@ -8,6 +8,8 @@ PAGE = ROOT / "page"
 DATA = ROOT / "data"
 TAKES = VAR / "takes"
 SPEECH = VAR / "speech"
+ARCHIVE = VAR / "archive"                 # kept for good: every take, and one line a Record and a Check
+ARCHIVE_TAKES = ARCHIVE / "takes"
 DB = VAR / "neolingo.sqlite"
 LOG = VAR / "host.log"
 ENGINE = os.environ.get("NEOLINGO_ENGINE") or "/Users/matthew/Lean/locus/.lake/build/bin/neolingo"
@@ -15,5 +17,5 @@ UID = "me"
 
 
 def make_dirs():
-    for d in (VAR, TAKES, SPEECH):
+    for d in (VAR, TAKES, SPEECH, ARCHIVE, ARCHIVE_TAKES):
         d.mkdir(parents=True, exist_ok=True)
