@@ -33,8 +33,9 @@
   }
 
   // ---- the recorder's controls ----
-  function panel() {
-    var host = document.getElementById('recorder'), own = !host;
+  function panel(element, session) {
+    // the element the page gives (one for each session); else the session's own id; else a floating panel of our own
+    var host = element || document.getElementById(session > 1 ? 'recorder-' + session : 'recorder'), own = !host;
     if (own) {
       host = document.createElement('div');
       host.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;background:#fff;' +
@@ -69,7 +70,8 @@
   }
 
   // ---- record(session) ----
-  function record(session) {
+  // record(session, element): any session (1, 2, ...); one microphone at a time, whichever session asks
+  function record(session, element) {
     if (active) return Promise.reject(new Error('already recording'));
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       var m = 'The microphone needs a secure page (https, or http://127.0.0.1).';
@@ -78,7 +80,7 @@
     var AC = window.AudioContext || window.webkitAudioContext;
     var ctx = new AC();                                  // made in the click, so that iOS lets it run
     if (ctx.resume) ctx.resume();
-    var ui = panel(); ui.say('Waiting for the microphone…');
+    var ui = panel(element, session); ui.say('Waiting for the microphone…');
     active = true;
     return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true, channelCount: 1 } })
       .then(function (stream) {
