@@ -1,4 +1,4 @@
-"""The Neolingo host.   <miolingo venv python> -m host.serve --port 8800     (from neolingo/)
+"""The Neolingo host.   <miolingo venv python> -m host.serve --port 8810     (from neolingo/)
 
 Drives the engine (`explore neohost`, docs/neolingo-host-protocol.md in the locus repository), keeps the store
 in SQLite, answers the engine's questions from env, serves the page and the endpoints:
@@ -203,7 +203,7 @@ class H(http.server.BaseHTTPRequestHandler):
 def main():
     global HOST
     ap = argparse.ArgumentParser()
-    ap.add_argument("--port", type=int, default=8800)
+    ap.add_argument("--port", type=int, default=8810)
     ap.add_argument("--preload", action="store_true", help="load the speech models for every variant now, in the background")
     a = ap.parse_args()
     HOST = Host()

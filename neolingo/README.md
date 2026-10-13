@@ -40,10 +40,10 @@ Regenerate the data: `venv/bin/python neolingo/data/build_data.py`, then
 configuration, keeps the store in SQLite, answers the engine's five questions from `env`, and serves the page.
 Protocol: `docs/neolingo-host-protocol.md` in the locus repository.
 
-    ./run.sh [--port 8800]          # same as: <miolingo venv python> -m host.serve --preload --port 8800   (from neolingo/)
+    ./run.sh [--port 8810]          # same as: <miolingo venv python> -m host.serve --preload --port 8810   (from neolingo/)
     nohup ./run.sh >> var/host.log 2>&1 &
 
-Bound to 127.0.0.1 only. The microphone needs a secure context: `http://127.0.0.1:8800/` on the Mac works; other
+Bound to 127.0.0.1 only. The microphone needs a secure context: `http://127.0.0.1:8810/` on the Mac works; other
 machines need HTTPS (not arranged here).
 
 | What | Where |
@@ -65,7 +65,7 @@ Choices a reader should know: the cost list sent to the engine is the whole matr
 per-variant overrides for tolerated pairs, accept weights and unreliable targets; `hear` gives the sounds as one word;
 flags are mapped `like` -> `heardAs` (null when left out); the engine drops a flag whose sound is not the target's at `at`
 (each answer logs how many); an `unreliable` target costs 0 only against phones of the table (others cost `costOtherwise`).
-The engine takes about 10 s to print its first line; the host start is about 12 s before it serves.
+The engine takes about 11 s to print its `{"ready":1}` line (the host waits for it, no timeout); the host start is about 12 s before it serves.
 
 ## Not here yet
 
