@@ -224,7 +224,10 @@ class Engine:
                 f"the checker and targetIpa disagree")
             self.dropped_last = n
         if d.get("write"):
-            log("write " + store.apply(d["write"]))
+            done = store.apply(d["write"])
+            log("write " + done)
+            if done.startswith("UNKNOWN WRITE"):
+                d["hostWarning"] = done
         return d
 
     def restart(self):

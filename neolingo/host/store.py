@@ -3,6 +3,8 @@ import json
 import sqlite3
 import threading
 
+from .log import log
+
 DEFAULT_SETTINGS = {"own": "en", "practised": "fr-fr", "slow": False}
 
 SCHEMA = """
@@ -12,7 +14,10 @@ CREATE TABLE IF NOT EXISTS vocabulary (uid TEXT NOT NULL, lang TEXT NOT NULL, wo
 CREATE TABLE IF NOT EXISTS history (uid TEXT NOT NULL, seq INTEGER NOT NULL, variant TEXT NOT NULL, target TEXT NOT NULL,
   recognised TEXT NOT NULL, ipa TEXT NOT NULL, score INTEGER NOT NULL, understood INTEGER NOT NULL, flags TEXT NOT NULL,
   PRIMARY KEY (uid, seq));
+CREATE TABLE IF NOT EXISTS lists (uid TEXT NOT NULL, lang TEXT NOT NULL, position INTEGER NOT NULL, text TEXT NOT NULL,
+  gloss TEXT NOT NULL, PRIMARY KEY (uid, lang, position));
 """
+KNOWN_WRITES = ("appendRow", "putEntry", "putEntries", "dropEntry", "putSettings", "putList")
 
 
 class Store:
@@ -42,12 +47,16 @@ class Store:
                         "understood": bool(u), "flags": json.loads(f)}
                        for (v, t, r, i, s, u, f) in c.execute(
                 "SELECT variant, target, recognised, ipa, score, understood, flags FROM history WHERE uid=? ORDER BY seq", (uid,))]
-            return {"uid": uid, "settings": settings, "vocab": vocab, "history": history}
+            lists = []
+            for (lang,) in c.execute("SELECT lang FROM lists WHERE uid=? GROUP BY lang ORDER BY lang", (uid,)).fetchall():
+                lists.append({"lang": lang, "items": [{"text": t, "gloss": g} for (t, g) in c.execute(
+                    "SELECT text, gloss FROM lists WHERE uid=? AND lang=? ORDER BY position", (uid, lang))]})
+            return {"uid": uid, "settings": settings, "vocab": vocab, "history": history, "lists": lists}
 
     def counts(self, uid):
         with self.lock:
             q = lambda t: self.db.execute(f"SELECT COUNT(*) FROM {t} WHERE uid=?", (uid,)).fetchone()[0]
-            return {"vocabulary": q("vocabulary"), "history": q("history")}
+            return {"vocabulary": q("vocabulary"), "history": q("history"), "lists": q("lists")}
 
     def _put(self, uid, lang, e):
         c = self.db
@@ -61,7 +70,11 @@ class Store:
 
     def apply(self, w):
         """One write of the engine, in one transaction.  Returns a line saying what was done."""
-        k, uid = w["kind"], w["uid"]
+        k, uid = w.get("kind"), w.get("uid")
+        if k not in KNOWN_WRITES:           # never ignored silently: the log says so, and so does the line returned
+            msg = f"UNKNOWN WRITE KIND {k!r} NOT APPLIED (the engine sent {json.dumps(w, ensure_ascii=False)[:300]})"
+            log("ERROR " + msg)
+            return msg
         with self.lock:
             c = self.db
             c.execute("BEGIN")
@@ -88,8 +101,12 @@ class Store:
                     s = w["settings"]
                     c.execute("INSERT OR REPLACE INTO settings VALUES (?,?,?,?)", (uid, s["own"], s["practised"], int(bool(s["slow"]))))
                     what = f"settings {s}"
-                else:
-                    raise ValueError(f"unknown write {k!r}")
+                elif k == "putList":
+                    items = w["items"]
+                    c.execute("DELETE FROM lists WHERE uid=? AND lang=?", (uid, w["lang"]))
+                    for i, it in enumerate(items):
+                        c.execute("INSERT INTO lists VALUES (?,?,?,?,?)", (uid, w["lang"], i, it["text"], it.get("gloss", "")))
+                    what = f"list {w['lang']}: {len(items)} items"
                 c.execute("COMMIT")
             except Exception:
                 c.execute("ROLLBACK")
