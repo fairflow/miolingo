@@ -349,6 +349,14 @@ function strip() {
 // TWO SESSIONS SIDE BY SIDE: the page is wide whenever it draws more than one session (on a real host too, where
 // there is no test mode), or the model is open; the grid then gives each session a column while the window has
 // room for two (20rem each), and stacks them on a narrow screen.
+// the language part of a variant or language code ("fr-ca" -> "fr"); a list with no language stated fits any
+function sameLang(a, b) { return !a || String(a).split('-')[0].toLowerCase() === String(b).split('-')[0].toLowerCase(); }
+// the name of the language practised, as the Screen gives it (the model's names; the code if it has none)
+function langName(sc) {
+  var code = String(sc.settings.practised).split('-')[0];
+  var l = (sc.languages || []).filter(function (x) { return x.code === code; })[0];
+  return l ? l.name : code;
+}
 var NSESS = 1;
 function widen() { document.getElementById('main').className = (NSESS > 1 || MODELOPEN.open) ? 'wide' : ''; }
 document.querySelectorAll('input[name=mode]').forEach(function (x) {
@@ -622,7 +630,14 @@ function session(root, sc, r) {
         var sel = el('select', { 'aria-label': 'A list to load' }, [el('option', { text: 'Choose a list\u2026', value: '' })]);
         LISTS = LISTS || Promise.resolve(HOST.lists()).catch(function () { return []; });
         LISTS.then(function (ls) {
-          (ls || []).forEach(function (l, i) { sel.appendChild(el('option', { text: l.name + (l.variant ? ' (' + l.variant + ')' : ''), value: String(i) })); });
+          // ONLY THE LISTS OF THE LANGUAGE PRACTISED in this session (a list with no language stated is offered
+          // too): Load keeps a list as the list of the language practised, whatever its phrases are
+          var n = 0;
+          (ls || []).forEach(function (l, i) {
+            if (!sameLang(l.variant, p.practised)) return;
+            n++; sel.appendChild(el('option', { text: l.name + (l.variant ? ' (' + l.variant + ')' : ''), value: String(i) }));
+          });
+          if (!n) sel.options[0].textContent = 'No list here for ' + langName(sc) + '.';
           sel.addEventListener('change', function () {
             var l = ls[Number(sel.value)];
             if (!l || sel.value === '') return;
@@ -703,7 +718,12 @@ function session(root, sc, r) {
         var sel = el('select', { 'aria-label': 'A list of words to upload' }, [el('option', { text: 'Choose a list\u2026', value: '' })]);
         WORDLISTS = WORDLISTS || Promise.resolve(HOST.wordLists()).catch(function () { return []; });
         WORDLISTS.then(function (ls) {
-          (ls || []).forEach(function (l, i) { sel.appendChild(el('option', { text: l.name + (l.lang ? ' (' + l.lang + ')' : ''), value: String(i) })); });
+          var n = 0;
+          (ls || []).forEach(function (l, i) {
+            if (!sameLang(l.lang, p.practised)) return;
+            n++; sel.appendChild(el('option', { text: l.name + (l.lang ? ' (' + l.lang + ')' : ''), value: String(i) }));
+          });
+          if (!n) sel.options[0].textContent = 'No list here for ' + langName(sc) + '.';
           sel.addEventListener('change', function () {
             var l = ls[Number(sel.value)];
             if (!l || sel.value === '') return;
