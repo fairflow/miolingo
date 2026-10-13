@@ -64,7 +64,7 @@ Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its o
 Speech: `NEOLINGO_TTS` = `gtts` (default; Google's text-to-speech through the `gtts` package, MP3, the only network use; falls back
 to `say`, then `espeak`, and the log says which answered) | `say` | `espeak` (both WAV). `host.js` plays whatever content type comes back.
 
-One learner, uid `me`, no sign-in. Takes older than a day are deleted at start. `NEOLINGO_VAR` moves `var/` (the test uses it).
+One learner, uid `me`, no sign-in. Takes are never deleted (see the archive, below). `NEOLINGO_VAR` moves `var/` (the test uses it).
 
     ~/Software/working/miolingo/venv/bin/python neolingo/tests/check_host.py
 
@@ -74,6 +74,27 @@ flags are mapped `like` -> `heardAs` (null when left out), one flag for each tar
 target the engine sent; the engine's `droppedFlags` is logged (a warning when not 0); `tests/check_segmentation.py` checks that
 target, cost table and recogniser cut sounds the same way; an `unreliable` target costs 0 only against phones of the table (others cost `costOtherwise`).
 The engine takes about 11 s to print its `{"ready":1}` line (the host waits for it, no timeout); the host start is about 12 s before it serves.
+
+## Testing with sound
+
+**The archive.** Every take uploaded is kept for good under `var/archive/takes/<token>.wav` (`host/archive.py`). `var/archive/records.jsonl`
+gets a line at each Record (time, take, duration, peak level, the `audible` answer) and `var/archive/checks.jsonl` one at each Check that is a
+step: time, take, variant, phrase, the target sounds as the engine sent them, the host's answers (`hear`, `sounds`), score, understood, banner,
+flag lines, flags, aligned columns, `droppedFlags`, the whole result, the versions, the phone model and the Whisper size.
+`tests/reconstruct_archive.py` (run once) copies the takes of `var/takes/` into the archive and rebuilds lines marked `"reconstructed": true`
+from the host log and the history table (opened read-only); they lack the banner, columns and the like.
+
+**Replay**, the regression test with real sound: `venv/bin/python neolingo/tests/replay_archive.py [--variant V] [--since YYYY-MM-DD] [--limit N]`
+runs each archived take through `env.audible / hear / sounds` and a scratch engine session and prints SAME or CHANGED (with what) a take;
+exit code 1 if anything changed. A change is not always a fault: a better recogniser or a new rule changes results; read it, then decide.
+
+**Reference sweep**: `venv/bin/python neolingo/tests/reference_sweep.py [--engines gtts,say,espeak] [--langs en,fr,de] [--limit N]` makes every phrase of
+`data/{en,fr,de}.json` with the host's speech code (gTTS uses the network the first time; results are cached), decodes it to 16 kHz mono under
+`var/sweep/`, checks it as a learner's take, and writes `var/sweep/results.jsonl` and `var/sweep/report.txt` (not audible, not understood, score
+distribution, the lowest scores, the differing sound pairs, left out and extra sounds, warnings by sound, timings). The voices are synthetic: the
+report shows where the sources (espeak target, reference voice, recogniser) disagree, not how accurate the app is on learners.
+
+All outputs stay under `var/` (git-ignored; the archive holds the owner's own voice and must never be committed).
 
 ## Length
 
