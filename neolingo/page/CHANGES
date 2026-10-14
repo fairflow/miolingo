@@ -1,3 +1,8 @@
+0.41	A take that was not understood shows the sounds as the recogniser heard them; only an understood take shows them checked against the sound check.
+0.40	What counts as heard: a sound heard differently, or left out, counts only where the sound check flagged it; elsewhere the target's sound is taken. A variant that costs nothing is shown as the target's sound. Sounds the recogniser cannot judge are marked “not judged”.
+0.39	One session per learner: a name signed in on another screen is marked so in the list, and signing in as it is refused, with the reason. With a form open, Sign out and a change of the language practised wait until it is saved or cancelled, so no typed change is lost. (The lock of 0.38 is gone: it guarded two sessions of one learner, which can no longer happen.)
+0.38	A word whose form is open in your other session is locked here: its row says it is being edited in your other session, and Edit, its note and Delete are greyed until that form is closed (Cancel, Save, a change of language or sign-out there).
+0.37	The result is one picture: each word with its target sounds and the sounds heard beneath, coloured by how close they are. The words heard are written as the phrase writes them.
 0.36	The choosers of lists offer only lists of the language you practise; Load says which language the list is kept under.
 0.35	Two sessions stand side by side on a wide window.
 0.34	A long vowel no longer runs into the next sound in the lines of sounds.

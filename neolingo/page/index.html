@@ -9,6 +9,7 @@
     --bg: #fbfbf9; --panel: #ffffff; --fg: #1c1d1f; --muted: #5d6066; --rule: #d9dad6;
     --accent: #1f4e79; --accent-fg: #ffffff;
     --ok: #1d6b34; --check: #9a5200; --off: #b3201c;
+    --near: #8f5d00; --added: #1f5fa8; --unj: #66665f; --faint: #a3a39b; --tile: #f1f1ed;
     --ok-bg: #e8f3ea; --off-bg: #fbe9e8;
   }
   @media (prefers-color-scheme: dark) {
@@ -16,6 +17,7 @@
       --bg: #151618; --panel: #1e2023; --fg: #ecece8; --muted: #a3a6ad; --rule: #383b40;
       --accent: #8fbce6; --accent-fg: #10161c;
       --ok: #7fd093; --check: #f0b25c; --off: #ff8f88;
+      --near: #ebb44c; --added: #7db6f5; --unj: #a8a8a0; --faint: #6c6c65; --tile: #26282c;
       --ok-bg: #1c2b21; --off-bg: #33201f;
       color-scheme: dark;
     }
@@ -106,12 +108,6 @@
   .test { border: 1px dashed var(--rule); border-radius: 8px; padding: 8px 10px; margin-top: 10px; font-size: .9rem; color: var(--muted); }
   .test select { min-height: 36px; padding: 5px 8px; color: var(--fg); max-width: 100%; }
   button.hear { min-height: 32px; padding: 3px 10px; font-size: .85rem; font-weight: 400; vertical-align: middle; }
-  .cmpbox { overflow-x: auto; max-width: 100%; }
-  table.cmp { border-collapse: collapse; font-size: 1.2rem; }
-  table.cmp td { text-align: center; padding: 1px 5px; min-width: 1.1em; }
-  table.cmp th { font: 400 .78rem system-ui, sans-serif; opacity: .65; text-align: left; padding-right: 10px; white-space: nowrap; }
-  table.cmp td.gapw { min-width: .9em; padding: 0; }
-  table.cmp td.none { opacity: .45; }
   button.line { min-height: 32px; padding: 3px 8px; font-weight: 400; text-align: left; background: none; border: 1px solid transparent; }
   button.line[aria-disabled=false] { border-color: var(--line, #ccc); cursor: pointer; }
   li.now button.line { font-weight: 650; opacity: 1; }
@@ -121,6 +117,34 @@
   .signin { padding: 10px 0 14px; }
   .signin select { min-width: 10em; }
   .setview { padding: 8px 0 14px; }
+  /* THE PICTURE of a result (the same layout and fonts as the judging deck, flick/index.html): words side by
+     side, wrapping; each word a grid of three rows (the token, the target's sounds, the heard sounds) sharing its
+     columns. Kinds: ok green; accepted amber; near amber, dotted underline; off red and bold with the target
+     underlined; missing a red empty-set sign; added blue with a faint dot above; unjudged grey italic. */
+  .pic { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; width: 100%; max-width: 100%;
+    font-size: clamp(1.25rem, 5.2vw, 1.9rem); margin-top: 4px; }
+  .word { display: grid; row-gap: 0; column-gap: .17em; padding: .12em .32em .2em; border-radius: .45em; background: var(--tile); max-width: 100%;
+    overflow-x: auto; }
+  .wt { grid-row: 1; grid-column: 1 / -1; min-height: 1.3em; font: 600 .5em/1.5 system-ui, -apple-system, sans-serif; color: var(--muted);
+    text-align: center; white-space: nowrap; }
+  .c { font-family: "Charis SIL", "Doulos SIL", "Gentium Plus", "Times New Roman", Times, serif; line-height: 1.22; min-width: .62em;
+    padding: 0 .03em; text-align: center; white-space: nowrap; }
+  .c.t { grid-row: 2; } .c.h { grid-row: 3; }
+  .g { display: inline-block; }
+  .c.t.k-off .g { text-decoration: underline; text-decoration-color: var(--off); text-decoration-thickness: .08em; text-underline-offset: .13em; }
+  .c.t.k-added { color: var(--faint); }
+  .c.h.k-ok { color: var(--ok); }
+  .c.h.k-near { color: var(--near); }
+  .c.h.k-near .g { text-decoration: underline dotted; text-decoration-thickness: .07em; text-underline-offset: .13em; }
+  .c.h.k-off { color: var(--off); font-weight: 700; }
+  .c.h.k-missing { color: var(--off); }
+  .c.h.k-added { color: var(--added); }
+  .c.h.k-unjudged { color: var(--unj); font-style: italic; }
+  /* the sound check's warning on a heard sound: a box (dotted: worth a listen; solid: likely off) */
+  .c.h.w1 .g { outline: 1.5px dotted var(--check); outline-offset: 1px; border-radius: 3px; }
+  .c.h.w2 .g { outline: 2px solid var(--check); outline-offset: 1px; border-radius: 3px; }
+  .piclegend { margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 1px 10px; color: var(--muted); font-size: .82rem; line-height: 1.6; }
+  .piclegend .c { display: inline-block; padding: 0 .05em; font-size: 1.25em; min-width: 0; }
   .recorder:empty { display: none; }
   .recorder { margin-top: 8px; }
   .held { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
@@ -295,6 +319,7 @@ function fileInto(box, label, pairs) {
 }
 var TEST = false, MODE = 'one', MODELOPEN = document.getElementById('modelopen');
 var MARK = ['s-ok', 's-check', 's-off'];
+var KINDS = { ok: 1, near: 1, off: 1, missing: 1, added: 1, unjudged: 1 };
 // the status of the last press, shown in the session it was made in (what was stored goes to the foot)
 var STATUS = { r: 0, text: '' };
 var MODES = { one: 'one learner', two: 'two learners', same: 'one learner in two sessions', out: 'two slots, signed out' };
@@ -457,7 +482,9 @@ function session(root, sc, r) {
       el('h2', { text: 'Sign in', style: 'margin-top:0' }),
       people.length ? el('div', { 'class': 'row' }, [
         el('select', { 'data-k': K('who'), 'aria-label': 'Learner', on: { change: askSoon } },
-          people.map(function (u) { return el('option', { text: u, value: u }); })),
+          // a name signed in on another screen: marked (the model's `elsewhere`); Sign in as it is refused, with the reason
+          people.map(function (u) { return el('option', { text: (sc.body.elsewhere || []).indexOf(u) >= 0
+            ? u + ' · signed in on another screen' : u, value: u }); })),
         ibtn('Sign in', sc.body.signIn, 'signIn', function () { return val('who'); }, null, 'primary', yI)]) : el('div', { 'class': 'muted', text: 'No one is registered yet.' }),
       yI,
       el('h2', { text: 'New here?' }),
@@ -565,17 +592,36 @@ function session(root, sc, r) {
     }
     s.appendChild(status);
     if (b.result) {
-      // a sound-by-sound comparison: the target's sounds carry the marks, what was heard is beneath in the same size
-      // the Target line is plain; the HEARD line carries the warnings' marks (the model's `marked`)
-      var res = b.result, tsounds = el('div', { 'class': 'ipa', text: res.target.ipa }), hsounds = el('div', { 'class': 'ipa' });
-      if (res.marked.length) {
-        hsounds.appendChild(document.createTextNode('['));
-        res.marked.forEach(function (w, i) {
-          if (i) hsounds.appendChild(document.createTextNode(' '));
-          w.forEach(function (x) { hsounds.appendChild(el('span', { 'class': MARK[x.mark], text: x.sound })); });
+      // THE ONE RENDERING OF THE SOUNDS OF A RESULT: the model's picture (14 October). Per word of the target a block
+      // of three aligned rows: the phrase's token, the target's sounds, the heard sounds; each column has a KIND
+      // (ok, accepted, near, off, missing, added, unjudged) drawn by colour and a second cue. The sound check's
+      // warning mark (worth a listen / likely off) is a box round the heard sound. The page decides none of it.
+      var res = b.result;
+      function cell(row, k, text, mark) {
+        return el('div', { 'class': 'c ' + row + ' k-' + k + (mark ? ' w' + mark : '') }, [el('span', { 'class': 'g', text: text })]);
+      }
+      function picture(words) {
+        var pic = el('div', { 'class': 'pic', role: 'group', 'aria-label': 'Target sounds above, heard sounds below, word by word' });
+        words.forEach(function (w) {
+          var word = el('div', { 'class': 'word', style: 'grid-template-columns:repeat(' + Math.max(1, w.sounds.length) + ',auto)' },
+            [el('div', { 'class': 'wt', text: w.token || '' })]);
+          w.sounds.forEach(function (c, n) {
+            var k = KINDS[c.kind] ? c.kind : 'unjudged';
+            var tc = cell('t', k, c.target == null ? '\u00b7' : c.target, 0);
+            var hc = cell('h', k, c.heard == null ? '\u2205' : c.heard, c.mark);
+            tc.style.gridColumn = hc.style.gridColumn = String(n + 1);
+            word.appendChild(tc); word.appendChild(hc);
+          });
+          pic.appendChild(word);
         });
-        hsounds.appendChild(document.createTextNode(']'));
-      } else hsounds.textContent = res.heard.ipa;
+        return pic;
+      }
+      function pictureLegend(items) {
+        var GLYPH = { missing: '\u2205' };
+        return el('p', { 'class': 'piclegend' }, [el('span', { text: 'above: target, below: heard' })].concat(items.map(function (x) {
+          return el('span', {}, [cell('h', x.kind, GLYPH[x.kind] || '\u025b', 0), ' ' + x.text]);
+        })));
+      }
       var nothing = res.heard.text === '' && res.heard.ipa === '[]';
       s.appendChild(el('h2', { text: 'Result' }));
       if (!res.current) s.appendChild(el('div', { 'class': 'earlier', text: 'This result is of an earlier phrase or recording, not of what is shown above.' }));
@@ -583,24 +629,9 @@ function session(root, sc, r) {
         el('div', { 'class': 'banner ' + (res.understood ? 'yes' : 'no'), text: res.banner }),
         res.scoreNote ? el('div', { 'class': 'legend', style: 'margin:0 0 10px', text: res.scoreNote }) : null,
         el('dl', { 'class': 'result' }, [
-          el('div', {}, [el('dt', { text: 'Target' }), el('dd', {}, [el('span', { text: res.target.text }), tsounds])]),
-          el('div', {}, [el('dt', { text: 'Heard' }), el('dd', {}, nothing ? [el('span', { text: 'nothing' })]
-            : [el('span', { text: res.heard.text }), hsounds])]),
-          // the model's columns: the target's sounds over the heard ones, column by column, a gap as a dot
-          !(res.columns && res.columns.length) ? null : el('div', {}, [el('dt', { text: 'Sound by sound' }), el('dd', {}, [
-            el('div', { 'class': 'cmpbox' }, [el('table', { 'class': 'cmp ipa' }, [['target', 'Target'], ['heard', 'Heard']].map(function (rw) {
-              var tr = el('tr', {}, [el('th', { scope: 'row', text: rw[1] })]);
-              res.columns.forEach(function (g, i) {
-                if (i) tr.appendChild(el('td', { 'class': 'gapw' }));
-                g.forEach(function (c) {
-                  var v = c[rw[0]];
-                  // the marks are on the HEARD row: on the heard sound, or on the gap when the flagged sound was left out
-                  tr.appendChild(el('td', { 'class': (rw[0] === 'heard' ? MARK[c.mark] : '') + (v == null && !(rw[0] === 'heard' && c.mark) ? ' none' : ''), text: v == null ? '\u00b7' : v }));
-                });
-              });
-              return tr;
-            }))])
-          ])]),
+          el('div', {}, [el('dt', { text: 'Heard' }), el('dd', { text: nothing ? 'nothing' : res.heard.text })]),
+          !(res.picture && res.picture.length) ? null : el('div', {}, [el('dt', { text: 'Sound by sound' }), el('dd', {}, [
+            picture(res.picture), pictureLegend(res.pictureLegend || [])])]),
           el('div', {}, [el('dt', { text: 'Understood' }), el('dd', { text: res.understoodLine })]),
           !res.flagLines.length ? null : el('div', {}, [el('dt', { text: res.warningsTitle || 'Warnings from the sound check' }), el('dd', {}, [
             el('ul', { 'class': 'flags' }, res.flagLines.map(function (l) { return el('li', { text: l }); })),
