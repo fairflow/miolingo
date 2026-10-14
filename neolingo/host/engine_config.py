@@ -79,6 +79,16 @@ def apply_candidate(config, cand):
             config["costs"].append({"lang": l, "target": t, "heard": h, "cost": 0})
     config["significant"] = cand.get("significant") or round(candidate_cost(SIGNIFICANT, cand))
     config["curve"] = {**config["curve"], "scale": round(config["curve"]["scale"] * cand.get("S", 1.0) * k * k)}
+    # the engine mechanisms of locus 977af82 (protocol section 5; absent = today's behaviour): `offFloor`, a
+    # substitution at a sound the check flags likely off costs at least this; `splits`, one target sound heard as two
+    # (a list, or the name of a file of data/ holding {"splits": [...]}).  Both in the same units as the costs (times k).
+    if cand.get("offFloor"):
+        config["offFloor"] = round(cand["offFloor"] * k)
+    sp = cand.get("splits")
+    if isinstance(sp, str):
+        sp = json.loads((DATA / sp).read_text("utf-8"))["splits"]
+    if sp:
+        config["splits"] = [{**x, "cost": round(x.get("cost", 0) * k)} for x in sp]
     return config
 
 

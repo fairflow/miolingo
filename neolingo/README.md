@@ -117,7 +117,10 @@ The host log's `flags:` line names each such flag with its ratio.
 the costs of a candidate of `data/cost_candidates.json` (`host/engine_config.apply_candidate`); unset or `live`, the
 file's entry `live`: since 14 October (the owner's go, 21:1x) today's costs and curve with the German vocalised r
 free (espeak's [ɜ] and [ɐ] heard as [r] or [ɾ]: cost 0, shown as the target, the warning dropped; the third run's B),
-reaching the real host at its next restart. An unknown name stops the host. A candidate may stretch
+and the SPLITS of `data/splits.json` (one target sound heard as two: German ɜ/ɐ heard as r or ɾ with a schwa, cost 0;
+the engine of locus 977af82, `splits` in protocol section 5; no `offFloor`: measured and not taken, `lab/RESULTS-3.md`
+"Follow-up"), reaching the real host at its next restart. `NEOLINGO_COSTS=plain` gives the configuration before 14
+October 21:1x (rollback). An unknown name stops the host. A candidate may stretch
 the substitution costs (Miolingo's min(1, (4c)^p)), floor them, stand for another insertion and deletion cost `I` (the
 engine's own is fixed at 1000, so every substitution cost and `costOtherwise` are multiplied by 1000/I and the curve's
 scale by (1000/I)^2: the same scores), multiply the curve's scale, and make pairs free (cost 0, shown as the target; the

@@ -65,6 +65,9 @@ def config_for(spec, v):
             EC.cost_option = real
     else:
         config = EC.build_config()
+    # the variant decides the floor and the splits (the default configuration may carry them since 14 October)
+    config.pop("offFloor", None)
+    config.pop("splits", None)
     f = spec["fields"]
     if v.get("off_floor") is not None:
         config[f["off_floor"]] = v["off_floor"]
@@ -281,7 +284,9 @@ def cmd_measure(a):
     for x in res:
         x["auc_ok"] = all(x["guards"][l]["auc"] is not None and ref["guards"][l]["auc"] is not None
                           and x["guards"][l]["auc"] >= ref["guards"][l]["auc"] - 0.02 for l in LANGS)
-        x["splits_ok"] = all((x["guards"][l]["cp_diff"] or 0) <= (ref["guards"][l]["cp_diff"] or 0) for l in LANGS)
+        # the splits against the same variant without them (same floor): the natives' differences must not rise
+        twin = next((y for y in res if y["name"] == x["name"].replace("splits+", "").replace("splits", ref["name"])), ref)
+        x["splits_ok"] = all((x["guards"][l]["cp_diff"] or 0) <= (twin["guards"][l]["cp_diff"] or 0) for l in LANGS)
     eligible = [x for x in res if x["auc_ok"]]
     idx = list(range(min(len(v) for v in vecs.values())))
     chosen, best = C.choose(eligible, vecs, idx)
@@ -309,6 +314,69 @@ def cmd_measure(a):
     print("\n".join(w))
 
 
+# ------------------------------------------------------------------ the floor on a pair that costs nothing
+def cmd_tolerated(a):
+    """How often the off floor would price a pair that costs nothing: per set and language, the "likely off" flags the
+    host sends (after dropping the free pairs' warnings), and of those, how many fall on a sound the free reading
+    heard as ANOTHER sound costing 0 under the default costs (a tolerated or accepted pair, an unreliable target, the
+    vocalised-r pairs): the engine's floor makes such a pair cost F and draws it.  The alignment is the lab's (the
+    engine's `align` copied, the default costs); a deletion is not a substitution and is counted apart."""
+    spec = json.loads(a.spec.read_text("utf-8"))
+    v = next(x for x in spec["variants"] if x["name"] == "live")
+    combo = C.Combo(vr=True)
+    cnt = collections.Counter()
+    pairs = collections.Counter()
+    for it in RUN.items():
+        if it["set"] not in ("cp", "reference", "archive", "nearmiss", "positive"):
+            continue
+        if it["set"] == "archive" and it.get("voice") != "learner":
+            continue
+        try:
+            target, G, findings = answers(it)
+        except KeyError:
+            continue
+        if not G:
+            continue
+        flags = [f for f in flags_for(v, it, target, findings) if f["off"]]
+        cfg = C.cfg_for(combo, it["lang"])
+        cost = A.costs_for(it["lang"], cfg["cost"], cfg["unchecked"])
+        T = E.flat(target)
+        heard_at, i = {}, 0
+        for (t, h) in E.align(cost, T, list(G)):
+            if t is None:
+                continue
+            heard_at[i] = h
+            i += 1
+        key = (it["set"], it["lang"])
+        cnt[key + ("items",)] += 1
+        hit = False
+        for f in flags:
+            h = heard_at.get(f["at"])
+            t = T[f["at"]] if f["at"] < len(T) else None
+            cnt[key + ("off",)] += 1
+            if h is None:
+                cnt[key + ("deleted",)] += 1
+            elif h == t:
+                cnt[key + ("same",)] += 1
+            elif cost(t, h) == 0:
+                cnt[key + ("free",)] += 1
+                pairs[(it["lang"], t, h)] += 1
+                hit = True
+            else:
+                cnt[key + ("costing",)] += 1
+        cnt[key + ("items_free",)] += int(hit)
+    out = {"counts": {"|".join(k): n for k, n in cnt.items()},
+           "pairs": [{"lang": l, "target": t, "heard": h, "n": n} for (l, t, h), n in pairs.most_common()]}
+    write_json(OUT / "tolerated.json", out, indent=1)
+    for s in ("cp", "reference", "archive", "nearmiss", "positive"):
+        for l in LANGS:
+            g = lambda k: cnt[(s, l, k)]          # noqa: E731
+            if g("items"):
+                print(f"{s:9} {l}: items {g('items')}, off flags {g('off')}: heard the same {g('same')}, left out "
+                      f"{g('deleted')}, a pair costing 0 {g('free')} (in {g('items_free')} items), costing {g('costing')}")
+    print("pairs costing 0 under an off flag:", [(x["lang"], x["target"], x["heard"], x["n"]) for x in out["pairs"][:15]])
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd")
@@ -319,12 +387,17 @@ def main():
     r.add_argument("--sets", nargs="*", default=["archive", "reference", "nearmiss", "positive", "cp", "cpflip"])
     r.add_argument("--shard", default="0/1")
     r.add_argument("--only", nargs="*")
+    tl = sub.add_parser("tolerated")
+    tl.add_argument("--spec", type=lambda s: ROOT / s if not s.startswith("/") else __import__("pathlib").Path(s),
+                    default=SPEC)
     m = sub.add_parser("measure")
     m.add_argument("--spec", type=lambda s: ROOT / s if not s.startswith("/") else __import__("pathlib").Path(s),
                    default=SPEC)
     a = ap.parse_args()
     if a.cmd == "run":
         cmd_run(a)
+    elif a.cmd == "tolerated":
+        cmd_tolerated(a)
     elif a.cmd == "measure":
         cmd_measure(a)
     else:

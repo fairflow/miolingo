@@ -1,4 +1,4 @@
-# Neolingo lab, third run: costs against the owner's verdicts (2026-10-14 21:08 BST)
+# Neolingo lab, third run: costs against the owner's verdicts (2026-10-14 22:08 BST)
 
 The third run of the bench (`lab/costfit.py`; the first two: `lab/RESULTS.md`).  Question: are the live costs out of proportion (an added sound costs 1000 thousandths, a substitution the check calls off can cost 42), and does another set of costs agree better with the owner's verdicts?  Also: the German vocalised r (B), length (C), "understood" on three takes (D), and a candidate host and deck (F).  The live analysis is the lab's `rec de` / `rec en` / `rec fr` (V2 with the German ü/ö rule), what the real host runs since 14 October 11:28.  For this run only the owner's notes were read by hand to sort his takes into causes; no note is quoted here.
 
@@ -204,6 +204,36 @@ One of the three flips at m = 0; m = 2 would flip all three.  Near misses taken 
 German at larger margins: inflation m = 0: 2.3%, m = 1: 3.1%, m = 2: 6.3%; positives m = 0: 70.7%, m = 1: 76.3%, m = 2: 81.5%.
 
 Learner takes that flip at m = 0: 4 (et vous? (harsh), bonne soirée (fair), Einen schönen Abend noch (harsh), bisschen (unjudged)).  The gain is one of the three takes for a doubling of German inflation: keep the live rule.
+
+
+## Follow-up: the off floor and the splits on the real engine
+
+The language lane's engine (locus 977af82: `offFloor`, `splits`, protocol section 5), given the host's answers from the caches (`lab/engine_measure.py`; 2026-10-14 22:02 BST).  The reference is today's default (vocalised-r pairs free); the splits are `data/splits.json` (German ɜ/ɐ heard as r or ɾ with a schwa, either order, cost 0).
+
+| variant | agree | against the reference | two takes | AUC de / en / fr | ref =100 de / en / fr | natives diff de / en / fr |
+|---|---|---|---|---|---|---|
+| live | 41/56 | 0:0 (p 1) | 86 / 95 | 0.742 / 0.737 / 0.800 | 67.4% / 85.0% / 79.9% | 3.18 / 1.57 / 1.31 |
+| floor100 | 43/56 | 2:0 (p 0.5) | 86 / 94 | 0.742 / 0.740 / 0.802 | 67.4% / 81.7% / 79.9% | 3.23 / 1.75 / 1.33 |
+| floor250 | 45/56 | 4:0 (p 0.125) | 86 / 92 | 0.745 / 0.744 / 0.805 | 67.4% / 81.7% / 79.9% | 3.23 / 1.75 / 1.33 |
+| floor500 | 41/56 | 3:3 (p 1) | 86 / 85 | 0.755 / 0.747 / 0.805 | 67.4% / 81.7% / 79.9% | 3.24 / 1.75 / 1.34 |
+| floor800 | 41/56 | 3:3 (p 1) | 86 / 76 | 0.760 / 0.750 / 0.802 | 67.4% / 81.7% / 79.9% | 3.25 / 1.75 / 1.34 |
+| splits | 42/56 | 1:0 (p 1) | 100 / 95 | 0.742 / 0.737 / 0.800 | 67.4% / 85.0% / 79.9% | 3.18 / 1.57 / 1.31 |
+| splits+floor100 | 44/56 | 3:0 (p 0.25) | 100 / 94 | 0.742 / 0.740 / 0.802 | 67.4% / 81.7% / 79.9% | 3.23 / 1.75 / 1.33 |
+| splits+floor250 | 46/56 | 5:0 (p 0.0625) | 100 / 92 | 0.745 / 0.744 / 0.805 | 67.4% / 81.7% / 79.9% | 3.23 / 1.75 / 1.33 |
+| splits+floor500 | 42/56 | 4:3 (p 1) | 100 / 85 | 0.755 / 0.747 / 0.805 | 67.4% / 81.7% / 79.9% | 3.24 / 1.75 / 1.34 |
+| splits+floor800 | 42/56 | 4:3 (p 1) | 100 / 76 | 0.760 / 0.750 / 0.802 | 67.4% / 81.7% / 79.9% | 3.25 / 1.75 / 1.34 |
+
+The rule picks live (best agreement splits+floor250, not separated from it).  The splits change no guard (natives' differences unchanged) and give the first "dauert" take 100: they are the default since 14 October (`data/cost_candidates.json`, entry live).  The floor is not: the verdicts do not separate it, and it costs English reference phrases at 100 and raises the natives' differences in all three languages.
+
+**Why the floor raises false differences**: it also prices a substitution that costs nothing (a tolerated or accepted pair, an unreliable target, the vocalised-r pairs) when the check flags the sound likely off. Flags "likely off" (after the free pairs' warnings are dropped) whose free reading is such a pair:
+
+| set | German | English | French |
+|---|---|---|---|
+| natives | 14 of 317 flags (14 of 249 items) | 52 of 255 flags (42 of 300 items) | 6 of 185 flags (6 of 300 items) |
+| reference phrases | 4 of 34 flags (4 of 144 items) | 11 of 26 flags (7 of 120 items) | 2 of 22 flags (2 of 144 items) |
+| learner takes | 4 of 40 flags (4 of 58 items) | 1 of 10 flags (1 of 11 items) | 0 of 7 flags (0 of 18 items) |
+| near misses | 1 of 610 flags (1 of 745 items) | 20 of 517 flags (19 of 744 items) | 0 of 699 flags (0 of 705 items) |
+| positives | 0 of 145 flags (0 of 602 items) | 6 of 83 flags (6 of 584 items) | 0 of 151 flags (0 of 518 items) |
 
 
 ## What needs an engine change

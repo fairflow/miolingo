@@ -1,8 +1,8 @@
 {
-  "about": "Cost configurations for the host (lab/RESULTS-3.md, the lab's third run, 14 October 2026). \"live\" is the DEFAULT (NEOLINGO_COSTS unset or \"live\"): today's costs and curve with the German vocalised-r pairs free (the owner's go, 14 October 21:1x). A host started with NEOLINGO_COSTS=<name> sends the named candidate instead (host/engine_config.apply_candidate). Fields: p = Miolingo's stretch exponent (null: none); F = floor on a substitution that costs anything (0: none); I = the insertion and deletion cost it stands for (the engine's own is fixed at 1000, so every substitution cost and costOtherwise are multiplied by 1000/I and the curve's scale by (1000/I)^2: the same scores); S = the curve's scale as a multiple of the live 2250000; free = [language, target, heard] pairs that cost 0 and are shown as the target (the sound check's warning for such a pair is dropped).",
+  "about": "Cost configurations for the host (lab/RESULTS-3.md, the lab's third run, 14 October 2026). \"live\" is the DEFAULT (NEOLINGO_COSTS unset or \"live\"): today's costs and curve with the German vocalised-r pairs free (the owner's go, 14 October 21:1x). A host started with NEOLINGO_COSTS=<name> sends the named candidate instead (host/engine_config.apply_candidate). Fields: p = Miolingo's stretch exponent (null: none); F = floor on a substitution that costs anything (0: none); I = the insertion and deletion cost it stands for (the engine's own is fixed at 1000, so every substitution cost and costOtherwise are multiplied by 1000/I and the curve's scale by (1000/I)^2: the same scores); S = the curve's scale as a multiple of the live 2250000; free = [language, target, heard] pairs that cost 0 and are shown as the target (the sound check's warning for such a pair is dropped); offFloor = the engine's floor on a substitution at a sound flagged likely off (0: none); splits = one target sound heard as two (a list, or a file of data/ holding {\"splits\": [...]}); both need the engine of locus 977af82 or later.",
   "candidates": {
     "live": {
-      "describe": "today's costs and curve; German espeak [ɜ]/[ɐ] heard as [r]/[ɾ] free (the third run's B, made the default on 14 October)",
+      "describe": "today's costs and curve; German espeak [ɜ]/[ɐ] heard as [r]/[ɾ] free (the third run's B, made the default on 14 October); the splits of data/splits.json (ɜ/ɐ heard as r or ɾ with a schwa, cost 0; engine of locus 977af82); no off floor (measured on the real engine 14 October: not separated by the verdicts, and it prices the pairs that cost nothing)",
       "p": null,
       "F": 0,
       "I": 1000,
@@ -28,7 +28,9 @@
           "ɐ",
           "ɾ"
         ]
-      ]
+      ],
+      "offFloor": 0,
+      "splits": "splits.json"
     },
     "run3": {
       "describe": "insertion and deletion 900 instead of 1000 (the third run's choice: the fewest parameters among the candidates the owner's verdicts do not separate from the best), and German espeak [ɜ]/[ɐ] heard as [r]/[ɾ] free (B)",
@@ -64,6 +66,14 @@
       "p": null,
       "F": 0,
       "I": 900,
+      "S": 1.0,
+      "free": []
+    },
+    "plain": {
+      "describe": "the configuration before 14 October 21:1x (no free pairs, no splits, no floor): for comparison and rollback",
+      "p": null,
+      "F": 0,
+      "I": 1000,
       "S": 1.0,
       "free": []
     }

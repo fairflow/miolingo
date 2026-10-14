@@ -1,7 +1,8 @@
 """NEOLINGO_COSTS (host/engine_config.cost_option, data/cost_candidates.json; the lab's third run).
 
   * unset and "live" give the same configuration: the plain one (today's costs and curve) plus exactly the German
-    vocalised-r pairs at 0 (ɜ, ɐ heard as r, ɾ), nothing else changed; their warnings are dropped (free_pairs);
+    vocalised-r pairs at 0 (ɜ, ɐ heard as r, ɾ), and the live entry's `offFloor` and `splits` (the engine mechanisms of
+    locus 977af82) when it has them, nothing else changed; the pairs' warnings are dropped (free_pairs);
   * a candidate (run3, ...) transforms every entry as lab/engine_py.transform does, its free pairs at 0;
   * an unknown name stops the host.
 No models, no engine.   <miolingo venv python> tests/check_costs.py   (from neolingo/)"""
@@ -49,6 +50,19 @@ def main():
     print("ok   unset and live give the same configuration")
     for k in ("costOtherwise", "significant", "curve", "unjudged", "variants", "languages"):
         assert default[k] == base[k], k
+    live = json.loads((ROOT / "data" / "cost_candidates.json").read_text("utf-8"))["candidates"]["live"]
+    want_floor = live.get("offFloor") or None
+    want_splits = live.get("splits") or None
+    if isinstance(want_splits, str):
+        want_splits = json.loads((ROOT / "data" / want_splits).read_text("utf-8"))["splits"]
+    assert default.get("offFloor") == want_floor and "offFloor" not in base, ("offFloor", default.get("offFloor"))
+    assert default.get("splits") == want_splits and "splits" not in base, "splits"
+    for x in default.get("splits") or []:
+        assert isinstance(x["heard"], list) and len(x["heard"]) == 2 and x["cost"] >= 0, x
+    extra = set(default) - set(base) - {"offFloor", "splits"}
+    assert not extra, extra
+    print(f"ok   offFloor {default.get('offFloor')}, splits {len(default.get('splits') or [])} entries "
+          f"(the live entry's; each heard as exactly two sounds)")
     b, d = entries(base), entries(default)
     assert set(d) - set(b) <= VR and all(d[k] == 0 for k in VR), "the vocalised-r pairs are not 0"
     assert {k: v for k, v in d.items() if k not in VR} == {k: v for k, v in b.items() if k not in VR}, "other entries changed"

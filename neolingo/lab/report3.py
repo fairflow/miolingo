@@ -308,6 +308,7 @@ def main():
       f"The gain is one of the three takes for a doubling of German inflation: keep the live rule.\n")
 
     # ------------------------------------------------------------ method and caveats
+    follow_up(A)
     A("\n## What needs an engine change\n")
     A("- A floor on *likely off* substitutions only (A3): the score would read the flag's level.\n"
       "- B's one-to-two rule for the vocalised r.\n"
@@ -332,6 +333,45 @@ def main():
       "    NEOLINGO_COSTS=run3 ...                 # a host with the candidate (default: live)\n")
     OUT.write_text("\n".join(w) + "\n", "utf-8")
     print(OUT)
+
+
+def follow_up(A):
+    """The follow-up on the real engine (lab/engine_measure.py), when it has run."""
+    mf, tf = C.OUT / "engine" / "measure.json", C.OUT / "engine" / "tolerated.json"
+    if not mf.exists():
+        return
+    m = json.loads(mf.read_text("utf-8"))
+    A("\n## Follow-up: the off floor and the splits on the real engine\n")
+    A(f"The language lane's engine (locus 977af82: `offFloor`, `splits`, protocol section 5), given the host's answers "
+      f"from the caches (`lab/engine_measure.py`; {m['made']}).  The reference is today's default (vocalised-r pairs "
+      f"free); the splits are `data/splits.json` (German ɜ/ɐ heard as r or ɾ with a schwa, either order, cost 0).\n")
+    A("| variant | agree | against the reference | two takes | AUC de / en / fr | ref =100 de / en / fr | natives diff de / en / fr |")
+    A("|---|---|---|---|---|---|---|")
+    for x in m["variants"]:
+        g, s = x["guards"], m["sep"][x["name"]]
+        A(f"| {x['name']} | {x['agree']}/{x['n']} | {s['a_only']}:{s['b_only']} (p {s['p']:.3g}) | {x['two'][0]} / "
+          f"{x['two'][1]} | " + " / ".join(f2(g[l]['auc']) for l in ('de', 'en', 'fr')) + " | "
+          + " / ".join(p(g[l]['ref100']) for l in ('de', 'en', 'fr')) + " | "
+          + " / ".join(f2(g[l]['cp_diff'], 2) for l in ('de', 'en', 'fr')) + " |")
+    A(f"\nThe rule picks {m['chosen']} (best agreement {m['best']}, not separated from it).  The splits change no guard "
+      f"(natives' differences unchanged) and give the first \"dauert\" take 100: they are the default since 14 October "
+      f"(`data/cost_candidates.json`, entry live).  The floor is not: the verdicts do not separate it, and it costs "
+      f"English reference phrases at 100 and raises the natives' differences in all three languages.\n")
+    if tf.exists():
+        t = json.loads(tf.read_text("utf-8"))["counts"]
+        A("**Why the floor raises false differences**: it also prices a substitution that costs nothing (a tolerated "
+          "or accepted pair, an unreliable target, the vocalised-r pairs) when the check flags the sound likely off. "
+          "Flags \"likely off\" (after the free pairs' warnings are dropped) whose free reading is such a pair:\n")
+        A("| set | German | English | French |")
+        A("|---|---|---|---|")
+        for s_, nm in (("cp", "natives"), ("reference", "reference phrases"), ("archive", "learner takes"),
+                       ("nearmiss", "near misses"), ("positive", "positives")):
+            cells = []
+            for l in ("de", "en", "fr"):
+                g = lambda k: t.get(f"{s_}|{l}|{k}", 0)          # noqa: E731
+                cells.append(f"{g('free')} of {g('off')} flags ({g('items_free')} of {g('items')} items)")
+            A(f"| {nm} | " + " | ".join(cells) + " |")
+        A("")
 
 
 def run3_two(exrows, c, S):
