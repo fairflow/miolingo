@@ -125,6 +125,21 @@ header .btn { padding: 0 12px; }
 .legend .c.k-near .g { text-decoration: underline dotted; } .legend .c.k-missing { color: var(--off); } .legend .c.k-added { color: var(--added); }
 .legend .c.k-unjudged { color: var(--unj); font-style: italic; }
 
+/* a candidate card: the old analysis below the new one, smaller, and the earlier verdict with its note */
+.pic.small { font-size: calc(var(--fs) * clamp(1rem, 4.6vw, 1.9rem)); }
+.oldhead { margin: 0; color: var(--muted); font-size: calc(var(--fs) * 1rem); }
+.oldhead b { font-variant-numeric: tabular-nums; color: var(--fg); }
+.score .lbl { font-size: .45em; font-weight: 600; color: var(--muted); margin-right: .3em; }
+.earlier { margin: 0; color: var(--muted); font-size: calc(var(--fs) * .92rem); max-width: 100%; overflow-wrap: anywhere; }
+.earlier q { color: var(--fg); font-style: italic; }
+
+/* the optional note: one line under the card, saved with the verdict */
+#notebar { width: 100%; max-width: 704px; margin: 0 auto; padding: 0 12px 6px; }
+#note { width: 100%; min-height: 44px; padding: 0 12px; font: inherit; font-size: 16px; color: var(--fg); background: var(--card);
+  border: 1px solid var(--line); border-radius: 12px; }
+#note:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+#note::placeholder { color: var(--muted); }
+
 .playrow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 16px; }
 .playrow .btn { min-width: 8.5rem; font-weight: 650; }
 .switch { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; color: var(--muted); font-size: .92rem; }
@@ -181,6 +196,10 @@ footer.voice .b-good { border-color: var(--vb); background: var(--card); border-
     </header>
     <div id="topbar"><i></i></div>
     <div id="stage"></div>
+    <div id="notebar">
+      <input id="note" type="text" maxlength="1000" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"
+             placeholder="Note (optional), saved with your verdict" aria-label="Note, optional, saved with the verdict">
+    </div>
     <footer>
       <button class="btn b-bad" id="b-left" type="button"></button>
       <button class="btn b-skip" id="b-up" type="button"></button>
@@ -424,14 +443,32 @@ footer.voice .b-good { border-color: var(--vb); background: var(--card); border-
       inner.append(h('p', { class: 'vhint', text: 'Which voice is better to imitate?' }), h('div', { class: 'voices' }, voiceBtns.a, voiceBtns.b),
         h('p', { class: 'vhint', text: '← A is better · ↑ no difference · B is better →' }));
     } else {
-      var understood = card.understood === true;
+      var understood = card.understood === true, old = card.old && typeof card.old === 'object' ? card.old : null;
+      var scoreEl = null;
+      if (card.score != null) {
+        scoreEl = h('span', { class: 'score', 'aria-label': (old ? 'new score ' : 'score ') + card.score + ' percent' },
+          old ? h('span', { class: 'lbl', text: 'new' }) : null, Math.round(card.score) + '%');
+      }
       inner.append(h('div', { class: 'status' },
         h('span', { class: 'u ' + (understood ? 'yes' : 'no'), text: understood ? '✓ understood' : '✗ heard: ' + (card.heardText || '—') }),
-        card.score != null ? h('span', { class: 'score', 'aria-label': 'score ' + card.score + ' percent', text: Math.round(card.score) + '%' }) : null));
+        scoreEl));
       var pic = picture(card.words);
       pic.addEventListener('click', function () { /* taps are handled with the pointer events below */ });
       inner.append(pic, legend());
-      if (card.before && (card.before.score != null || card.before.different != null)) {
+      if (old) {
+        inner.append(h('p', { class: 'oldhead' }, 'old' + (old.label ? ' (' + old.label + ')' : '') + ': ',
+          h('b', { text: old.score != null ? Math.round(old.score) + '%' : '—' })));
+        var opic = picture(old.words);
+        opic.classList.add('small');
+        opic.setAttribute('aria-label', 'The old analysis: target sounds above, heard sounds below');
+        inner.append(opic);
+      }
+      var er = card.earlier && typeof card.earlier === 'object' ? card.earlier : null;
+      if (er && (er.text || er.note)) {
+        inner.append(h('p', { class: 'earlier' }, er.text ? 'earlier: ' + er.text : '', er.text && er.note ? ' · ' : '',
+          er.note ? h('q', { text: er.note }) : null));
+      }
+      if (!old && card.before && (card.before.score != null || card.before.different != null)) {
         var b = card.before, parts = [];
         if (b.score != null) parts.push(Math.round(b.score) + '%');
         if (b.different != null) parts.push(b.different + ' sound' + (b.different === 1 ? '' : 's') + ' different');
@@ -464,6 +501,7 @@ footer.voice .b-good { border-color: var(--vb); background: var(--card); border-
     show('card');
     var card = S.cards[i], cur = buildCard(card);
     S.cur = cur;
+    $('note').value = typeof card.note === 'string' ? card.note : '';     // the note stored with an earlier verdict
     $('stage').replaceChildren(cur.el);
     fit(cur);
     attachDrag(cur);
@@ -516,9 +554,13 @@ footer.voice .b-good { border-color: var(--vb); background: var(--card); border-
     var rot = dir === 'right' ? 14 : dir === 'left' ? -14 : 0;
     cur.el.style.transform = 'translate(' + tx + 'px,' + ty + 'px) rotate(' + rot + 'deg)';
     var anim = sleep(REDUCED ? 0 : 160);
-    postJudge({ deck: S.name, id: String(card.id), verdict: verdict }).then(function () {
+    var note = $('note').value.replace(/\s+/g, ' ').trim();
+    var body = { deck: S.name, id: String(card.id), verdict: verdict };
+    if (note) body.note = note;
+    postJudge(body).then(function () {
       return anim.then(function () {
         card.judged = verdict;
+        card.note = note;
         S.busy = false;
         advance();
       });
@@ -632,6 +674,8 @@ footer.voice .b-good { border-color: var(--vb); background: var(--card); border-
   $('b-decks').addEventListener('click', function () { loadDecks(); });
   $('e-decks').addEventListener('click', function () { loadDecks(); });
   $('e-prev').addEventListener('click', goBack);
+  // Return in the note box ends the typing (the arrow keys flick again); it does not judge
+  $('note').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
 
   var KEYS = { ArrowLeft: 1, ArrowRight: 1, ArrowUp: 1, ArrowDown: 1, ' ': 1, Backspace: 1 };
   document.addEventListener('keydown', function (e) {

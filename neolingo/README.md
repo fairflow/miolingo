@@ -52,7 +52,7 @@ machines need HTTPS (not arranged here).
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
 | the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_verify_de.py` (the German ü/ö rule against the lab) |
+| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_verify_de.py` (the German ü/ö rule against the lab); `tests/check_costs.py` (`NEOLINGO_COSTS`: unset is today's configuration, a candidate transforms every entry) |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
 `GET /host.js`, `GET /version`, `GET /wordlists`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
@@ -112,6 +112,19 @@ flagged ü heard as [u] is aligned and costed as the lab did (y→u costs 42: dr
 count it (V2, `unjudged`). `tests/check_verify_de.py` compares `env.sounds` with the lab's analysis on the lab's cached
 German items (18 of 18 agree on 14 October: 6 each of the owner's archived takes, near misses and positives; the rule fired on 9).
 The host log's `flags:` line names each such flag with its ratio.
+
+**Cost candidates** (the lab's third run, `lab/RESULTS-3.md`; 14 October): `NEOLINGO_COSTS=<name>` makes the host send
+the costs of a candidate of `data/cost_candidates.json` (`host/engine_config.apply_candidate`); unset or `live`, the
+configuration is exactly today's (checked byte for byte), and an unknown name stops the host. A candidate may stretch
+the substitution costs (Miolingo's min(1, (4c)^p)), floor them, stand for another insertion and deletion cost `I` (the
+engine's own is fixed at 1000, so every substitution cost and `costOtherwise` are multiplied by 1000/I and the curve's
+scale by (1000/I)^2: the same scores), multiply the curve's scale, and make pairs free (cost 0, shown as the target; the
+sound check's warning for such a pair is dropped, as `NEOLINGO_EQUIV` does). `significant` moves with the costs.
+`GET /version` reports `costs`. `run3` (insertion and deletion 900; German espeak [ɜ]/[ɐ] heard as [r]/[ɾ] free) runs on
+a scratch host for trial: `NEOLINGO_VAR=var/candidate NEOLINGO_SLOTS=2 NEOLINGO_COSTS=run3
+NEOLINGO_ENGINE=var/candidate/neolingo-engine-51ded95 ./run.sh --port 8811` (a copy of `var/` made as in step 1 below, and
+a copy of the engine binary of the real host's update, so that a rebuild in locus does not change it), stopped by its
+port. The real host is not changed by any of this until it is restarted with the variable set.
 
 Choices a reader should know: the cost list sent to the engine is the whole matrix (about 18,600 entries, 1 MiB) with
 per-variant overrides for tolerated pairs, accept weights and unreliable targets; `hear` gives the sounds as one word;
@@ -184,6 +197,14 @@ same buttons and note (a line since 14 October shows the engine's picture, drawn
 text as shown beside what the recogniser wrote; an older line shows its two-row grid of columns); filters: variant and "not yet judged" (default on), "Load more" pages 50 at a time (`GET /archive?limit=&before=&variant=&unjudged=`
 gives the lines joined with their latest judgement). `replay_archive.py` shows each take's judgement, counts them, and takes `--judged` (only judged takes);
 it also reports, of the takes judged too harsh, how many now score higher.
+**Flick** (`python3 flick/serve.py --port 8812`, standard library, 127.0.0.1): a page for judging cards fast on a phone
+(right good, left bad, up skip), one deck per `var/flick/deck-<name>.json` (made by the lab: `lab/deck.py`,
+`lab/costfit.py deck`), verdicts appended to `var/flick/judgements.jsonl`. Since 14 October a one-line note box under
+the card (dictation works) is saved with the verdict (`"note"`, only when not empty; at most 1000 characters); a card
+judged before shows its note again. Restart it by its port: `kill -TERM $(lsof -ti tcp:8812 -sTCP:LISTEN)`.
+A candidate card may carry `old` (the score and picture of the live analysis) and `earlier` (the earlier verdict and
+its note), drawn under the new picture.
+
 **Test voices.** The takes listed in `var/archive/overseer_takes.txt` (first field of each non-comment line) were made by a Mac voice, not the owner. `GET /archive` gives
 their items `"source":"test-voice"`; the review page labels them "Mac voice (test)" and has a "hide test voices" filter (default off; `hidetest=1`). Nothing is removed.
 

@@ -8,8 +8,9 @@ Standard library only.  Binds 127.0.0.1 only (reach it from a phone with a tunne
 
     GET  /                 flick/index.html
     GET  /decks            JSON list of the decks in var/flick/deck-*.json
-    GET  /deck/<name>      that deck, each card carrying its stored judgement as "judged"
-    POST /judge            {"deck", "id", "verdict"}: appends a line to var/flick/judgements.jsonl
+    GET  /deck/<name>      that deck, each card carrying its stored judgement as "judged" (and its note as "note")
+    POST /judge            {"deck", "id", "verdict", "note" (optional, one line, at most 1000 characters)}: appends
+                           a line to var/flick/judgements.jsonl (the note only when there is one)
     GET  /tally/<name>     counts per verdict for that deck
     GET  /take/<tok>.wav   var/archive/takes/<tok>.wav          (tok = t + 16 hex digits)
     GET  /audio/<file>     var/flick/audio/<file>               (wav, mp3 or m4a, a plain file name)
@@ -46,7 +47,8 @@ RE_TAKE = re.compile(r'^/take/(t[0-9a-f]{16})\.wav$')
 RE_AUDIO = re.compile(r'^/audio/([A-Za-z0-9._-]+\.(?:wav|mp3|m4a))$')
 RE_RANGE = re.compile(r'^bytes=(\d*)-(\d*)$')
 AUDIO_TYPES = {'.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4'}
-MAX_BODY = 4096
+MAX_BODY = 8192
+MAX_NOTE = 1000                            # characters
 CHUNK = 64 * 1024
 
 PAGE_CSP = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; "
@@ -83,13 +85,14 @@ def card_ids(deck):
 
 
 class Judgements:
-    """var/flick/judgements.jsonl: append-only; the last line per (deck, id) wins."""
+    """var/flick/judgements.jsonl: append-only; the last line per (deck, id) wins (its verdict and its note)."""
 
     def __init__(self, path):
         self.path = path
         self.lock = threading.Lock()
         self.sig = None
         self.last = {}
+        self.notes = {}
 
     def _refresh(self):                    # call with the lock held
         try:
@@ -100,7 +103,7 @@ class Judgements:
         sig = (st.st_mtime_ns, st.st_size)
         if sig == self.sig:
             return
-        last = {}
+        last, notes = {}, {}
         with open(self.path, encoding='utf-8') as f:
             for line in f:
                 try:
@@ -109,16 +112,25 @@ class Judgements:
                     continue               # a torn or foreign line is ignored, never fatal
                 if isinstance(o, dict) and isinstance(o.get('deck'), str) and 'id' in o and o.get('verdict') in VERDICTS:
                     last[(o['deck'], str(o['id']))] = o['verdict']
-        self.last, self.sig = last, sig
+                    n = o.get('note')
+                    notes[(o['deck'], str(o['id']))] = n if isinstance(n, str) else ''
+        self.last, self.notes, self.sig = last, notes, sig
 
     def for_deck(self, name):
         with self.lock:
             self._refresh()
             return {i: v for (d, i), v in self.last.items() if d == name}
 
-    def add(self, deck, cid, verdict):
-        line = json.dumps({'time': datetime.now().astimezone().strftime('%Y-%m-%dT%H:%M:%S%z'),
-                           'deck': deck, 'id': cid, 'verdict': verdict}, ensure_ascii=False) + '\n'
+    def notes_for_deck(self, name):
+        with self.lock:
+            self._refresh()
+            return {i: v for (d, i), v in self.notes.items() if d == name and v}
+
+    def add(self, deck, cid, verdict, note=None):
+        o = {'time': datetime.now().astimezone().strftime('%Y-%m-%dT%H:%M:%S%z'), 'deck': deck, 'id': cid, 'verdict': verdict}
+        if note:
+            o['note'] = note
+        line = json.dumps(o, ensure_ascii=False) + '\n'
         with self.lock:
             FLICK.mkdir(parents=True, exist_ok=True)
             with open(self.path, 'ab') as f:
@@ -317,6 +329,7 @@ class Handler(BaseHTTPRequestHandler):
         if d is None:
             return self._not_found(head)
         stored = J.for_deck(name)
+        notes = J.notes_for_deck(name)
         cards = []
         for c in d['cards']:
             if isinstance(c, dict):
@@ -324,6 +337,8 @@ class Handler(BaseHTTPRequestHandler):
                 v = stored.get(str(c.get('id')))
                 if v:
                     c['judged'] = v
+                    if notes.get(str(c.get('id'))):
+                        c['note'] = notes[str(c.get('id'))]
             cards.append(c)
         out = dict(d)
         out['name'] = name
@@ -384,6 +399,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({'ok': False, 'error': 'verdict must be one of ' + ', '.join(VERDICTS)}, 400)
         if not isinstance(deck, str) or not isinstance(cid, str):
             return self._json({'ok': False, 'error': 'deck and id must be strings'}, 400)
+        note = o.get('note')
+        if note is not None and not isinstance(note, str):
+            return self._json({'ok': False, 'error': 'note must be a string'}, 400)
+        note = ' '.join((note or '').split())        # one line: newlines and tabs become spaces
+        if len(note) > MAX_NOTE:
+            return self._json({'ok': False, 'error': 'note longer than %d characters' % MAX_NOTE}, 400)
         try:
             d = load_deck(deck)
         except ValueError as e:
@@ -393,7 +414,7 @@ class Handler(BaseHTTPRequestHandler):
         if cid not in card_ids(d):
             return self._json({'ok': False, 'error': 'no such card in that deck'}, 404)
         try:
-            J.add(deck, cid, verdict)
+            J.add(deck, cid, verdict, note or None)
         except OSError as e:
             return self._json({'ok': False, 'error': 'could not write: %s' % e.strerror}, 500)
         self._json({'ok': True})

@@ -6,7 +6,7 @@ import time
 
 import env
 from . import paths
-from .engine_config import equiv_enabled, equivalents
+from .engine_config import equiv_enabled, equivalents, free_pairs
 from .log import log
 
 
@@ -122,11 +122,14 @@ class Environment:
 
     def drop_equivalent(self, fl, variant_code):
         """With NEOLINGO_EQUIV=1: drop a warning whose (target sound, sounded like) is a pair of
-        data/symbol_equivalents.json for the language (a false alarm by the same evidence as the cost); count them."""
-        if not fl or not equiv_enabled():
+        data/symbol_equivalents.json for the language (a false alarm by the same evidence as the cost); count them.
+        With a cost candidate (NEOLINGO_COSTS) the same for the pairs it makes free (engine_config.free_pairs)."""
+        if not fl:
             return fl
         lang = next((v["lang"] for v in env.variants() if v["code"] == variant_code), None)
-        pairs = set(equivalents(lang))
+        pairs = (set(equivalents(lang)) if equiv_enabled() else set()) | free_pairs(lang)
+        if not pairs:
+            return fl
         keep = [f for f in fl if (f["sound"], f["heardAs"]) not in pairs]
         self.flags_equiv_dropped += len(fl) - len(keep)
         return keep

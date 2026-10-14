@@ -1,0 +1,15 @@
+{
+  "about": "Cost candidates for the host (lab/RESULTS-3.md, the lab's third run, 14 October 2026). A host started with NEOLINGO_COSTS=<name> sends the named candidate's costs, curve scale and `significant` (host/engine_config.apply_candidate); unset or \"live\", today's configuration, unchanged. Fields: p = Miolingo's stretch exponent (null: none); F = floor on a substitution that costs anything (0: none); I = the insertion and deletion cost it stands for (the engine's own is fixed at 1000, so every substitution cost and costOtherwise are multiplied by 1000/I and the curve's scale by (1000/I)^2: the same scores); S = the curve's scale as a multiple of the live 2250000; free = [language, target, heard] pairs that cost 0 and are shown as the target (the sound check's warning for such a pair is dropped).",
+  "candidates": {
+    "run3": {
+      "describe": "insertion and deletion 900 instead of 1000 (the third run's choice: the fewest parameters among the candidates the owner's verdicts do not separate from the best), and German espeak [ɜ]/[ɐ] heard as [r]/[ɾ] free (B)",
+      "p": null, "F": 0, "I": 900, "S": 1.0,
+      "free": [["de", "ɜ", "r"], ["de", "ɜ", "ɾ"], ["de", "ɐ", "r"], ["de", "ɐ", "ɾ"]]
+    },
+    "run3-indel": {
+      "describe": "insertion and deletion 900 instead of 1000, nothing else",
+      "p": null, "F": 0, "I": 900, "S": 1.0,
+      "free": []
+    }
+  }
+}
