@@ -253,7 +253,7 @@ To restore: stop the host, copy `neolingo.sqlite` and `archive/` back into
 
 A copy made on 2026-10-14 (before the update to page 0.41) is in `~/neolingo-backups/2026-10-14/`.
 
-### The next update of the real host (written 2026-10-14; NOT yet performed)
+### The update of the real host of 14 October (written 2026-10-14; performed 11:28: host 017176f, engine locus 51ded95, backup ~/neolingo-backups/2026-10-14-1122)
 
 The running host serves `page/` from THIS folder and reads the Python code of this folder only when it starts: a
 change committed here reaches the page at once (`page/`) and the engine's answers at the next restart (`host/`,
