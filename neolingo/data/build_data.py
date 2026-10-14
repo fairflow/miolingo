@@ -7,6 +7,7 @@ Reads (never writes) Miolingo's `language_materials/` in the parent checkout
 from __future__ import annotations
 
 import json
+import re
 import os
 import sys
 from pathlib import Path
@@ -36,6 +37,19 @@ def rows(path: Path):
             yield parts[0], parts[1]
 
 
+def clean(text: str) -> tuple[str, str]:
+    """(the phrase to practise, a note): a bracketed note ("And you? (formal)", "I'm lost (m)") is not part of what
+    one says, and of alternatives "A / B" ("Okay / Agreed") the first is practised; both go into the note.  The owner,
+    13 October: "was I meant to say (formal)? I don't think so!  Bad import." """
+    notes = re.findall(r"\(([^)]*)\)", text)
+    t = re.sub(r"\s*\([^)]*\)", "", text).strip()
+    alts = [a.strip() for a in t.split(" / ")]
+    t = alts[0]
+    if len(alts) > 1:
+        notes.append("also: " + " / ".join(alts[1:]))
+    return t, "; ".join(n for n in notes if n)
+
+
 def spread(items: list, n: int) -> list:
     if len(items) <= n:
         return items
@@ -59,6 +73,13 @@ def main():
         for w, g in rows(MAT / lang / "words" / "dictionary-complete.txt"):
             d = glosses.setdefault(lang, {}).setdefault(_key(w), {})
             d.setdefault("en", g)
+    # gloss.json has been EXTENDED since by other work (meanings for words added by hand): a rebuild keeps every
+    # key already there, with its value, and only adds what the material has that the file lacks.
+    try:
+        kept = json.loads((HERE / "gloss.json").read_text("utf-8"))
+    except FileNotFoundError:
+        kept = {}
+    glosses = {l: {**glosses.get(l, {}), **kept.get(l, {})} for l in ("en", "fr", "de")}
     (HERE / "gloss.json").write_text(
         json.dumps({l: glosses[l] for l in ("en", "fr", "de")}, ensure_ascii=False,
                    separators=(",", ":"), sort_keys=True), "utf-8")
@@ -69,10 +90,14 @@ def main():
         for stem in PHRASE_FILES:
             src = MAT / lang / "phrases" / f"{stem}.txt"
             rs = list(rows(src))
-            for text, g in spread(rs, PER_FILE):
-                phrases.append({"text": text, "gloss": g, "gloss_language": gl_lang,
-                                "source": f"language_materials/{lang}/phrases/{stem}.txt",
-                                "ipa": env.target_ipa(text, VARIANT[lang])})
+            for raw, g in spread(rs, PER_FILE):
+                text, note = clean(raw)
+                item = {"text": text, "gloss": g, "gloss_language": gl_lang,
+                        "source": f"language_materials/{lang}/phrases/{stem}.txt",
+                        "ipa": env.target_ipa(text, VARIANT[lang])}
+                if note:
+                    item["note"] = note
+                phrases.append(item)
         if lang == "en":
             vsrcs = [MAT / "en" / "words" / f"dictionary{i}.txt" for i in (1, 2, 3, 4)]
             vgl = "pt"
