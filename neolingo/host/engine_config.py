@@ -3,6 +3,8 @@ import json
 import os
 
 import env
+from env.soundcheck import VERIFY_LANGS
+from lab.analyse import FULL_VOWELS
 from .paths import DATA
 
 LANGUAGE_NAMES = {"en": "English", "fr": "French", "de": "German"}
@@ -38,7 +40,10 @@ def build_costs(table):
     (protocol section 5; they were sent once per variant before, which doubled English).  They are:
       tolerated pairs -> 0 (both directions); with NEOLINGO_EQUIV=1 also the pairs of data/symbol_equivalents.json
       -> 0 (target -> heard only); accept[t][h] = w -> base * (1 - w); unreliable targets -> 0
-      against every phone of the table.
+      against every phone of the table, EXCEPT, in a language of the German ü/ö rule (env.soundcheck.VERIFY_LANGS),
+      against a full vowel of the language (lab.analyse.FULL_VOWELS), where the plain panphon cost stands: the lab's
+      "phoneme" cost mode of `rec de`, so that a substitution the rule flags (ü heard as u, confirmed by the likelihood
+      ratio) is aligned and costed as the lab did; an unflagged one is not counted by the engine (V2, `unjudged`).
     A pair not listed costs `costOtherwise` (the table's unknown_cost)."""
     P, C = table["phones"], table["cost"]
     base = {(P[i], P[j]): C[i][j] for i in range(len(P)) for j in range(len(P)) if i != j}
@@ -60,9 +65,13 @@ def build_costs(table):
         for t, d in lang["accept"].items():
             for h, w in d.items():
                 put(t, h, round(base.get((t, h), other) * (1000 - w) / 1000))
+        verified = FULL_VOWELS.get(code, set()) if code in VERIFY_LANGS else set()
         for t in lang["unreliable"]:
             for h in P:
-                put(t, h, 0)
+                if h in verified:
+                    over.pop((t, h), None)          # the plain cost (the lab's Costs "phoneme": generic entry)
+                else:
+                    put(t, h, 0)
         out += [{"lang": code, "target": t, "heard": h, "cost": c} for (t, h), c in over.items()
                 if base.get((t, h), other) != c]
     return out

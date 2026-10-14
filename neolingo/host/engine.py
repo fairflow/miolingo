@@ -156,7 +156,9 @@ class Environment:
             bad = sum(not (0 <= f["at"] < len(flat) and flat[f["at"]] == f["sound"]) for f in fl)
             self.flags_given += len(fl)
             self.flags_mismatch += bad
-            log(f"flags: {len(lib)} findings -> {len(fl)} sent, sound not the target's at 'at' (the engine drops these) {bad}")
+            ver = [f"[{f['sound']}] as [{f['like']}] ratio {f['verified']}" for f in lib if "verified" in f]
+            log(f"flags: {len(lib)} findings -> {len(fl)} sent, sound not the target's at 'at' (the engine drops these) {bad}"
+                + (f"; German ü/ö rule: {', '.join(ver)}" if ver else ""))
             return {"flags": fl}
         raise ValueError(f"unknown question {q!r}")
 

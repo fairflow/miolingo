@@ -146,6 +146,33 @@ def phoneme_keep(lang: str, t: str, h: str, costs) -> bool:
     return not costs.accepted_any(t, h)
 
 
+def unreliable_subs(lang: str, target, greedy: list[str], phones: list[dict], lr_of, tau: float = 2.0) -> list:
+    """The A5 "phoneme+lr" rule ALONE (unchecked == "phoneme_lr", as in `analyse`): the substitutions of the free
+    reading `greedy` at target sounds the check leaves `unchecked` that the rule KEEPS: the greedy sound is a full vowel
+    of the language that is not a rendering of the target (`phoneme_keep`) AND log P(target with that vowel) -
+    log P(target) >= tau.  `phones`: the per-sound verdicts (check.phones_from_tokens); `lr_of(edits)` gives the ratios
+    (check.lr_from_lp on the take's log-probabilities).  The alignment is `analyse`'s first one, under the costs of the
+    "phoneme" mode.  -> [(i, heard sound, ratio)], i the flat index of the target sound.  The host's env.sounds emits a
+    flag for each (German), so that the engine's V2 keeps exactly these substitutions."""
+    cost = costs_for(lang, "raw", "phoneme_lr")
+    T = E.flat(target)
+    ph = list(phones)
+    for a, p in enumerate(ph):                   # as in `analyse`: no verdict at an `unreliable` target -> unchecked
+        if p["level"] is None and a < len(T) and T[a] in cost.unreliable:
+            ph[a] = {**p, "level": "unchecked"}
+    subs, i = [], 0
+    for (t, h) in E.align(cost, T, list(greedy)):
+        if t is None:
+            continue
+        if h is not None and h != t and i < len(ph) and ph[i]["level"] == "unchecked" and phoneme_keep(lang, t, h, cost):
+            subs.append((i, h))
+        i += 1
+    if not subs:
+        return []
+    vals = lr_of([("sub", i, h) for (i, h) in subs])
+    return [(i, h, v) for (i, h), v in zip(subs, vals) if v is not None and v >= tau]
+
+
 # ------------------------------------------------------------------ the analysis
 def analyse(item: dict, config: dict | None = None) -> dict:
     cfg = {**BASELINE, **(config or {})}

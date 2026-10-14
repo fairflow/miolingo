@@ -125,8 +125,15 @@ def lib_findings(tokens) -> list[dict]:
 def verdicts(wav, model_id: str, target, variant: str) -> dict:
     """{"ran", "note", "tokens", "flags" (as the engine keeps them), "dropped" (flags the engine would drop),
     "phones": [{"level", "p_ok", "alt"}] per target sound}."""
-    from host.engine import flags_out
     raw = raw_tokens(wav, model_id, target, variant)
+    return {"ran": raw["ran"], "note": raw["note"], **phones_from_tokens(raw["tokens"], target)}
+
+
+def phones_from_tokens(tokens, target) -> dict:
+    """The per-target-sound verdicts of `verdicts`, from the check's tokens (no cache, no file: the host's
+    env.sounds calls it with the tokens of the take in hand).  -> {"tokens", "flags", "dropped", "phones"}."""
+    from host.engine import flags_out
+    raw = {"tokens": tokens}
     words = [w for w in target if w]
     n = sum(len(w) for w in words)
     lib = lib_findings(raw["tokens"])
@@ -152,8 +159,7 @@ def verdicts(wav, model_id: str, target, variant: str) -> dict:
             phones.append({"level": "unchecked", "p_ok": p_ok, "alt": None})
         else:
             phones.append({"level": "ok", "p_ok": p_ok, "alt": None})
-    return {"ran": raw["ran"], "note": raw["note"], "tokens": raw["tokens"], "flags": kept,
-            "dropped": len(sent) - len(kept), "phones": phones}
+    return {"tokens": raw["tokens"], "flags": kept, "dropped": len(sent) - len(kept), "phones": phones}
 
 
 # ------------------------------------------------------------------ the likelihood-ratio test of ONE edit (V4)
@@ -177,6 +183,35 @@ def apply_edit(words, edit):
     raise IndexError(f"edit {edit!r} outside the target")
 
 
+def lr_from_lp(lp, vocab, blank, words, edits) -> list:
+    """The V4 test on log-probabilities in hand (numpy (T, V) or a torch tensor): for each edit, log P(edited target |
+    audio) - log P(target | audio), rounded to 4 places, or None (take too short for the sequence, or the edit
+    disappears when cut into recogniser tokens).  No cache: `lr_edits` caches it; the host's env.sounds calls it."""
+    mio = _mio()
+    import torch
+    lpt = lp if isinstance(lp, torch.Tensor) else torch.from_numpy(np.asarray(lp, dtype=np.float32))
+    lpt = lpt.float()
+
+    def ids_of(ws):
+        return [vocab[t] for t, _ in mio.sound_check.tokenize(ipa_str(ws), vocab)]
+
+    words = [w for w in words if w]
+    base = ids_of(words)
+    T = lpt.shape[0]
+    if not base or T < 2 * len(base):
+        return [None] * len(edits)
+    seqs, idx = [base], []
+    for e in edits:
+        q = ids_of(apply_edit(words, e))
+        if not q or q == base or T < len(q) + sum(1 for a, b in zip(q, q[1:]) if a == b):
+            idx.append(None)
+        else:
+            idx.append(len(seqs))
+            seqs.append(q)
+    ll = -mio.sound_check._nll(lpt, seqs, blank)
+    return [None if k is None else round(float(ll[k] - ll[0]), 4) for k in idx]
+
+
 def lr_edits(wav, model_id: str, target, variant: str, edits) -> list:
     """For each edit: log P(edited target | audio) - log P(target | audio), or None."""
     edits = [tuple(e) for e in edits]
@@ -189,30 +224,8 @@ def lr_edits(wav, model_id: str, target, variant: str, edits) -> list:
         return _MEM[key]
     got = _disk_get("lr", key)
     if got is None:
-        mio = _mio()
         vocab, blank = cache.get_vocab(model_id)
-        lp = cache.get_lp(wav, model_id)["lp"]
-        import torch
-        lpt = torch.from_numpy(np.asarray(lp, dtype=np.float32))
-
-        def ids_of(ws):
-            return [vocab[t] for t, _ in mio.sound_check.tokenize(ipa_str(ws), vocab)]
-
-        base = ids_of(words)
-        T = lp.shape[0]
-        if not base or T < 2 * len(base):
-            got = [None] * len(edits)
-        else:
-            seqs, idx = [base], []
-            for e in edits:
-                q = ids_of(apply_edit(words, e))
-                if not q or q == base or T < len(q) + sum(1 for a, b in zip(q, q[1:]) if a == b):
-                    idx.append(None)
-                else:
-                    idx.append(len(seqs))
-                    seqs.append(q)
-            ll = -mio.sound_check._nll(lpt, seqs, blank)
-            got = [None if k is None else round(float(ll[k] - ll[0]), 4) for k in idx]
+        got = lr_from_lp(cache.get_lp(wav, model_id)["lp"], vocab, blank, words, edits)
         _disk_put("lr", key, got)
     _MEM[key] = got
     return got

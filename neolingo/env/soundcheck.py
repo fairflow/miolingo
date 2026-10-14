@@ -11,6 +11,14 @@ from .variants import variant
 STRIP = mio.sound_check.STRIP
 DEL = mio.sound_check.DEL
 
+# THE GERMAN ü/ö RULE (the lab's recommendation `rec de`, lab/RESULTS.md, rule A5 "phoneme+lr"): a target sound on the
+# language's calibrated `unreliable` list (German y yː øː œ ɔø), which the check itself never flags, is flagged
+# "likely off" exactly when the free reading hears a different FULL vowel of the language there and the likelihood
+# ratio log P(target with that vowel | audio) - log P(target | audio) >= VERIFY_TAU.  The rule is the lab's own code
+# (lab.analyse.unreliable_subs, lab.check.phones_from_tokens and lr_from_lp), called on the take in hand.
+VERIFY_LANGS = {"de"}
+VERIFY_TAU = 2.0
+
 
 def _map_tokens_to_phones(words: list[list[str]], ref: list[tuple[str, int]],
                           hidden: set[int]) -> dict[int, tuple[int, int]]:
@@ -59,6 +67,9 @@ def sounds(wav_path: str, target: list[list[str]], variant_code: str) -> list[di
       word  index of the word it is in.
     Length marks are kept (a long sound is another sound): `sound` and `like` carry them
     attached ("iː"); a flag whose `like` equals its `sound` is dropped.
+    GERMAN (VERIFY_LANGS): an `unreliable` target sound (y yː øː œ ɔø), which the check leaves unflagged, gets a "likely
+    off" finding when the free reading hears another full vowel there and the likelihood ratio confirms it (>= 2);
+    such a finding also carries "verified" (the ratio).  See verified_unreliable.
     [] when nothing is flagged, or when the check cannot run (a model
     without a CTC vocabulary, or a take too short for the target)."""
     v = variant(variant_code)
@@ -82,11 +93,13 @@ def sounds(wav_path: str, target: list[list[str]], variant_code: str) -> list[di
         hidden = {i for i, (t, _) in enumerate(ref) if t == "ʔ"}
     visible = [i for i in range(len(ref)) if i not in hidden]   # res.phones skips hidden
     place = _map_tokens_to_phones(words, ref, hidden)
-    out = []
+    out, tokens = [], []
     for pv, i in zip(res.phones, visible):
+        first, last = place.get(i, (0, 0))
+        tokens.append({"tok": pv.phone, "word": pv.word_index, "p_ok": pv.p_ok, "level": pv.level,
+                       "heard": pv.heard, "p_heard": pv.p_heard, "first": first, "last": last})
         if pv.level not in ("check", "off"):
             continue
-        first, last = place.get(i, (0, 0))
         like = "" if pv.heard in (None, DEL) else norm_word(pv.heard)
         sound = norm_word(pv.phone) or pv.phone
         if like and like == sound:
@@ -94,4 +107,33 @@ def sounds(wav_path: str, target: list[list[str]], variant_code: str) -> list[di
         out.append({"at": first, "span": last - first + 1, "off": pv.level == "off",
                     "like": like, "left_out": pv.heard == DEL,
                     "sound": sound, "word": pv.word_index})
+    if v["lang"] in VERIFY_LANGS and any(t["level"] == "unchecked" for t in tokens):
+        out += verified_unreliable(v["lang"], words, tokens, lp, vocab, blank, model_id)
+        out.sort(key=lambda f: f["at"])
     return out
+
+
+def free_reading(lp, model_id: str) -> list[str]:
+    """The phone model's own greedy reading of the take, from the log-probabilities in hand, cut as env.hear and the
+    lab cut it (the same decode as mio.phone_recognizer.phones_from_audio: argmax, then the processor's decode)."""
+    from lab.analyse import _cut
+    with _LOCK:
+        processor, _model = mio.phone_recognizer._load(model_id)
+        decode = processor.batch_decode(lp.argmax(-1).unsqueeze(0))[0]
+    return list(_cut(" ".join(decode.split())))
+
+
+def verified_unreliable(lang: str, words, tokens, lp, vocab, blank, model_id: str) -> list[dict]:
+    """The findings of the German ü/ö rule (see VERIFY_LANGS): one "likely off" finding, `like` the heard vowel, at each
+    unreliable target sound where lab.analyse.unreliable_subs keeps the free reading's substitution.  Each carries
+    "verified": the likelihood ratio.  [] when the rule finds nothing (or cannot run)."""
+    from lab.analyse import unreliable_subs
+    from lab.check import phones_from_tokens, lr_from_lp
+    target = [[norm_word(x) or x for x in w] for w in words]      # as the engine holds it (flags_out does the same)
+    flat = [s for w in target for s in w]
+    word_of = [k for k, w in enumerate(target) for _ in w]
+    phones = phones_from_tokens(tokens, target)["phones"]
+    kept = unreliable_subs(lang, target, free_reading(lp, model_id), phones,
+                           lambda edits: lr_from_lp(lp, vocab, blank, target, edits), VERIFY_TAU)
+    return [{"at": i, "span": 1, "off": True, "like": h, "left_out": False, "sound": flat[i], "word": word_of[i],
+             "verified": round(r, 2)} for (i, h, r) in kept]

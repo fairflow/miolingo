@@ -52,7 +52,7 @@ machines need HTTPS (not arranged here).
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
 | the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices; no models); `tests/check_flags.py` |
+| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_verify_de.py` (the German ü/ö rule against the lab) |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
 `GET /host.js`, `GET /version`, `GET /wordlists`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
@@ -100,6 +100,18 @@ the raw-cost equivalent of Miolingo's 340 on its stretched costs. And `unjudged`
 engine ignores it): per language the target sounds the recogniser cannot judge, taken from the cost table's `unreliable` lists (which
 come from Miolingo's calibrated sound check): German y yː øː œ ɔø, English a eə iə ɒ ɔɪ əʊ ʊə, French none. Such a sound with no flag
 at its place is drawn `unjudged` (grey italic, "not judged") and its heard sound taken as the target's.
+
+**The German ü/ö rule** (the lab's `rec de`, `lab/RESULTS.md` "Recommendation"): the check itself never flags y yː øː œ
+ɔø, so `env.sounds` flags one "likely off" (`like` the heard vowel) exactly when the free reading (the phone model's
+greedy decode, aligned with the target as the lab aligns it) hears a different FULL vowel of German there and the
+likelihood ratio log P(target with that vowel | audio) − log P(target | audio) is at least 2 (CTC likelihoods from the
+same log-probabilities, `sound_check._nll`). The code is the lab's own (`lab.analyse.unreliable_subs`,
+`lab.check.phones_from_tokens`, `lab.check.lr_from_lp`), called on the take in hand. With it, the German cost entries
+of those five sounds against German full vowels are the plain panphon costs (the lab's "phoneme" cost mode), so that a
+flagged ü heard as [u] is aligned and costed as the lab did (y→u costs 42: drawn `off`); unflagged, the engine does not
+count it (V2, `unjudged`). `tests/check_verify_de.py` compares `env.sounds` with the lab's analysis on the lab's cached
+German items (18 of 18 agree on 14 October: 6 each of the owner's archived takes, near misses and positives; the rule fired on 9).
+The host log's `flags:` line names each such flag with its ratio.
 
 Choices a reader should know: the cost list sent to the engine is the whole matrix (about 18,600 entries, 1 MiB) with
 per-variant overrides for tolerated pairs, accept weights and unreliable targets; `hear` gives the sounds as one word;
@@ -239,7 +251,61 @@ results, judgements). A copy made on 2026-10-13 is in
 To restore: stop the host, copy `neolingo.sqlite` and `archive/` back into
 `var/` (or start the host with `NEOLINGO_VAR=<the backup folder>`), start it.
 
-To move the host to a newer model: `cd ~/Lean/locus && git pull --rebase &&
-lake build neolingo`, run `neolingo neocheck`, `neoconform` and
-`python3 scripts/neolingo_conform.py` there, then here `./update_page.sh`,
-stop and start as above, commit `page/`, push to branch `neolingo`.
+A copy made on 2026-10-14 (before the update to page 0.41) is in `~/neolingo-backups/2026-10-14/`.
+
+### The next update of the real host (written 2026-10-14; NOT yet performed)
+
+The running host serves `page/` from THIS folder and reads the Python code of this folder only when it starts: a
+change committed here reaches the page at once (`page/`) and the engine's answers at the next restart (`host/`,
+`env/`, `lab/`, `data/`). So nothing half-done is left uncommitted here, and `./update_page.sh` runs only in step 4.
+The update carries the German ü/ö rule (`env.soundcheck.VERIFY_LANGS`, with its costs in `host/engine_config.py`)
+and whatever engine and page locus main has then. From this folder, in a terminal:
+
+1. **Back up `var/` first** (a second backup on the same day gets the time in its name):
+
+        B="$HOME/neolingo-backups/$(date +%F)"; [ -e "$B" ] && B="$B-$(date +%H%M)"; mkdir -p "$B"
+        sqlite3 var/neolingo.sqlite ".backup $B/neolingo.sqlite"
+        cp -Rc var/archive "$B/archive"
+        sqlite3 "$B/neolingo.sqlite" "PRAGMA integrity_check; SELECT COUNT(*) FROM settings; SELECT COUNT(*) FROM vocabulary; SELECT COUNT(*) FROM history;"
+        wc -l var/archive/*.jsonl "$B"/archive/*.jsonl
+
+   `integrity_check` must print `ok`, and the counts must be those of `var/` (`sqlite3 var/neolingo.sqlite` the same
+   queries).
+2. **The engine**: `cd ~/Lean/locus && git pull --rebase && lake build neolingo`, then there
+   `.lake/build/bin/neolingo neocheck`, `.lake/build/bin/neolingo neoconform` and `python3 scripts/neolingo_conform.py`:
+   each must end in `ok`. (The build replaces the binary by a new file, so the running engine is not disturbed; only
+   the running host's `/version` "built" changes.) Note the locus hash: `git -C ~/Lean/locus rev-parse --short HEAD`.
+3. **The host's tests here, against that engine** (Miolingo's venv python, `HF_HUB_OFFLINE=1`): `tests/check_store.py`,
+   `tests/check_flags.py`, `tests/check_gloss.py`, `tests/check_ipa_exceptions.py`, `tests/check_verify_de.py`,
+   `tests/check_signin.py`, `tests/check_host.py` must all pass; `tests/replay_archive.py` with `NEOLINGO_VAR` set to a
+   copy of `var/` (made as in step 1) prints SAME / CHANGED: read the changes (score and picture changes on German
+   takes with ü/ö are the rule's; other changes come from the engine's own changes, named in locus `docs/neolingo-page/CHANGES`).
+   Optionally a scratch host first: `NEOLINGO_VAR=<copy> NEOLINGO_PAGE=<folder with the new index.html, CHANGES,
+   SOURCE, and links to host.js and review.html> NEOLINGO_SLOTS=2 ./run.sh --port 8811`, stopped by its port.
+4. **The page**: `./update_page.sh` (copies `index.html` and `CHANGES` from locus `docs/neolingo-page/`, writes
+   `SOURCE`). From here until step 5 the running host serves the new page with the old engine: go straight on.
+5. **Restart**: `kill -TERM $(lsof -ti tcp:8810 -sTCP:LISTEN)`, wait until `lsof -ti tcp:8810 -sTCP:LISTEN` prints
+   nothing and `var/host.log` ends with `host stopped` (before it: `clean stop: signed out ...`), then
+   `NEOLINGO_SLOTS=2 nohup ./run.sh --port 8810 >> var/host.log 2>&1 &`. (If `./install_login_item.sh` has been run,
+   launchd restarts the host by itself: use `launchctl kill TERM gui/$(id -u)/io.miolingo.neolingo` instead; it was
+   not installed on 14 October.) Never stop it by name.
+6. **Check after the restart** (it serves after about 15 s; the recognisers load within a minute):
+   - `curl -s http://127.0.0.1:8810/version`: `page` and `changed` are the first line of `page/CHANGES`, `engine` the
+     locus hash of step 2 (`page/SOURCE`), `built` the time of the build, `host` this folder's new commit, `slots` 2,
+     `autosignin` "me", `started` just now.
+   - `var/host.log` since the restart: `engine started ... config (N cost entries ...)` and no `refused the
+     configuration`; `start: 2 slot(s), signed out; ... learner(s) registered: ...` with every learner; `auto
+     sign-in: me at slot 1 (done)`; `preloaded en-gb`, `fr-fr`, `de`; no `ERROR` and no `FAILED`.
+   - The page `http://127.0.0.1:8810/`: the version beside the title is the new page; slot 1 is me's app; slot 2's
+     name list marks "me · signed in on another screen", and Sign in as me there is refused.
+   - One German Check (a phrase with ü or ö) shows the picture; `var/host.log` has its `flags:` line (with
+     `German ü/ö rule: ...` when the rule fired) and `droppedFlags 0`.
+   - `http://127.0.0.1:8810/review` shows the new line with its picture and the older lines with their grid.
+   - The store is intact: the counts of step 1 again on `var/neolingo.sqlite` (a Check adds one history row).
+7. **Record it**: commit `page/` (and anything else changed) here with the locus hash in the message, and push:
+   `git push origin HEAD:refs/heads/neolingo` (never to main).
+
+If something is wrong after step 5: stop the host by its port, `git checkout <the previous commit> -- page host env lab
+data` here, copy the backup's `neolingo.sqlite` and `archive/` back into `var/` if the store was harmed, and start it
+again. The engine binary of the previous locus commit is gone once rebuilt: an older engine with a newer page (or the
+other way round) does not work, so roll back the page with the engine, or not at all.
