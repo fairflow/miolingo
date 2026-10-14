@@ -15,8 +15,14 @@ A configuration (all keys optional; the defaults are the live pipeline):
     keep_del   bool: the heard rule (V1 to V4) applies to substitutions only; every deletion of the greedy reading is kept
     zero_equal bool: a heard sound that the language's table makes free for the target (tolerated, or accepted at
                full weight; not an `unreliable` target) is shown as the target sound (display only: the score is the same)
-    cost       "raw" | "stretched"                            (part B)
+    cost       "raw" | "stretched" | ("tx", p, F, k, extra)   (part B; the tuple: the third run, engine_py.transform)
     curve      "sqrt" | "linear"
+    scale      the sqrt curve's scale (default the live 2250000)
+    vocal_r12  bool, German only (third run, B; an ENGINE rule, not data): a target [ɜ] or [ɐ] heard as [ə]/[ɐ]/[ɜ] with
+               an extra [r]/[ɾ] beside it, or as [r]/[ɾ] with an extra [ə]/[ɐ]/[ɜ] beside it, is the target sound (the
+               extra sound is dropped)
+    length     "v2" (live: a substitution that differs only by a length mark is kept, like any other, only where
+               the check flags the sound) | "count" (third run, C: every such substitution of the free reading kept)
     understood "free" | "prompt" | ("tf", m) | ("either", m)  (part D)
 
 The steps:
@@ -121,8 +127,14 @@ def _cut(decode: str) -> tuple:
     return tuple(E.flat(E.norm([env.phones_of(joined)] if joined else [])))
 
 
+_DECODE: dict = {}
+
+
 def greedy_of(wav, model_id: str) -> list[str]:
-    return list(_cut(cache.get_lp(wav, model_id)["decode"]))
+    k = (wav, model_id)
+    if k not in _DECODE:                      # the decode string only (the third run analyses an item many times)
+        _DECODE[k] = cache.get_lp(wav, model_id)["decode"]
+    return list(_cut(_DECODE[k]))
 
 
 @lru_cache(maxsize=None)
@@ -173,6 +185,38 @@ def unreliable_subs(lang: str, target, greedy: list[str], phones: list[dict], lr
     return [(i, h, v) for (i, h), v in zip(subs, vals) if v is not None and v >= tau]
 
 
+def length_only(t: str, h) -> bool:
+    """t and h differ, and only by length marks (iː / i, a / aː)."""
+    return h is not None and h != t and h.replace("ː", "").replace("ˑ", "") == t.replace("ː", "").replace("ˑ", "")
+
+
+VOCAL_R_TARGETS = {"ɜ", "ɐ"}          # espeak's German vocalised r (dauert d a ʊ ɜ t, Überweisung yː b ɜ v ...)
+R_HEARD = {"r", "ɾ"}
+SCHWA_HEARD = {"ə", "ɐ", "ɜ"}
+
+
+def vocal_r_merge(al):
+    """Third run, B (an engine rule, emulated here): in an alignment [(t, h)], a target ɜ/ɐ paired with a schwa-like
+    sound with an extra r/ɾ in the column just before or after it, or paired with r/ɾ with an extra schwa-like sound
+    beside it, becomes (t, t) and the extra column is dropped: "r plus ə" for one vocalised r is that r."""
+    out = list(al)
+    i = 0
+    while i < len(out):
+        t, h = out[i]
+        if t in VOCAL_R_TARGETS and h is not None:
+            want = R_HEARD if h in SCHWA_HEARD else SCHWA_HEARD if h in R_HEARD else None
+            if want:
+                for j in (i + 1, i - 1):
+                    if 0 <= j < len(out) and out[j][0] is None and out[j][1] in want:
+                        out[i] = (t, t)
+                        del out[j]
+                        if j < i:
+                            i -= 1
+                        break
+        i += 1
+    return out
+
+
 # ------------------------------------------------------------------ the analysis
 def analyse(item: dict, config: dict | None = None) -> dict:
     cfg = {**BASELINE, **(config or {})}
@@ -189,6 +233,8 @@ def analyse(item: dict, config: dict | None = None) -> dict:
     ph = chk["phones"]
     dele = cost.dele if cfg.get("del_accept") else None
     al0 = E.align(cost, T, G, dele)
+    if cfg.get("vocal_r12") and lang == "de":
+        al0 = vocal_r_merge(al0)
 
     # the edits of the greedy alignment
     edits, i = [], 0                                        # (kind, i, h, column index)
@@ -201,19 +247,26 @@ def analyse(item: dict, config: dict | None = None) -> dict:
             elif h != t:
                 edits.append(("sub", i, h, c))
             i += 1
-    need_lr = cfg["heard"] == "V4" or cfg["ins"] == "lr" or cfg["unchecked"] == "phoneme_lr"
-    lr = {}
-    if need_lr and edits and has_check:
-        vals = check.lr_edits(wav, model, target, variant,
-                              [(k, i) if k == "del" else (k, i, h) for (k, i, h, _c) in edits])
-        lr = {e[3]: v for e, v in zip(edits, vals)}
-
     # a target sound the check cannot judge: level "unchecked"; where the check gave no verdict at all (too short to
     # check, no token covering it) the language's `unreliable` list decides, so that A5 does not depend on the check
     # having run
     for a, p in enumerate(ph):
         if p["level"] is None and a < len(T) and T[a] in cost.unreliable:
             ph[a] = {**p, "level": "unchecked"}
+
+    need_lr = cfg["heard"] == "V4" or cfg["ins"] == "lr" or cfg["unchecked"] == "phoneme_lr"
+    lr = {}
+    if need_lr and edits and has_check:
+        ask = edits
+        if cfg["heard"] != "V4" and cfg["ins"] != "lr":
+            # only the ü/ö rule reads ratios: those of substitutions at `unchecked` sounds (each edit's ratio is
+            # computed on its own, so asking fewer changes no value; it keeps the cache key stable when costs move
+            # the other edits: the third run)
+            ask = [e for e in edits if e[0] == "sub" and e[1] < len(ph) and ph[e[1]]["level"] == "unchecked"]
+        if ask:
+            vals = check.lr_edits(wav, model, target, variant,
+                                  [(k, i) if k == "del" else (k, i, h) for (k, i, h, _c) in ask])
+            lr = {e[3]: v for e, v in zip(ask, vals)}
     unj = set()
     if cfg["unchecked"] in ("unjudged", "phoneme", "phoneme_lr"):
         unj = {a for a, p in enumerate(ph) if p["level"] == "unchecked"}
@@ -243,6 +296,8 @@ def analyse(item: dict, config: dict | None = None) -> dict:
         rule = cfg["heard"]
         if k == "del" and cfg.get("keep_del"):        # lab variant: the verified rules judge substitutions only
             rule = "greedy"
+        if k == "sub" and cfg.get("length") == "count" and length_only(T[i], h):
+            rule = "greedy"                           # third run, C: a length-only difference is counted unflagged too
         if rule == "greedy":
             keep[c] = True
         elif rule == "V4":
@@ -302,7 +357,7 @@ def analyse(item: dict, config: dict | None = None) -> dict:
     d = sum((0 if t == h else cost(t, h)) if (t is not None and h is not None) else
             (dele(t) if (dele and h is None) else E.INDEL) for (t, h) in al)
     n = max(len(T), len(H))
-    sc = E.curve(d, n, cfg["curve"]) if not nothing else 0
+    sc = E.curve(d, n, cfg["curve"], cfg.get("scale") or E.SCALE) if not nothing else 0
     kinds, i = [], 0
     for (t, h) in al:
         if t is None:

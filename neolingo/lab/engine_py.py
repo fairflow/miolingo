@@ -142,18 +142,35 @@ def cost_table():
     return _host_entries()[3]
 
 
-def stretch(c: int) -> int:
-    """Miolingo's stretched substitution cost: min(1, (4 c)^0.6), c a fraction; here in thousandths (0 stays 0)."""
+def stretch(c: int, p: float = 0.6) -> int:
+    """Miolingo's stretched substitution cost: min(1, (4 c)^0.6), c a fraction; here in thousandths (0 stays 0).
+    `p` the exponent (0.6 is Miolingo's; the third run of the lab tries others)."""
     if c <= 0:
         return 0
-    return min(1000, round(1000 * (4 * c / 1000) ** 0.6))
+    return min(1000, round(1000 * (4 * c / 1000) ** p))
+
+
+def transform(c: int, tx) -> int:
+    """The third run's cost candidates (lab/costfit.py), applied to one substitution cost c (thousandths), in order:
+    stretch with exponent p (None: none), a floor F on a cost that is not 0, then the factor k (the "scale trick":
+    every substitution cost times k = 1000 / I and the curve's scale times k^2 give exactly the scores of an
+    insertion and deletion cost of I with the engine's fixed 1000).  tx = ("tx", p, F, k, extra zero pairs)."""
+    _tag, p, F, k, _extra = tx
+    if c <= 0:
+        return 0
+    if p:
+        c = stretch(c, p)
+    if F:
+        c = max(c, F)
+    return round(c * k) if k != 1 else c
 
 
 class Costs:
     """cost(t, u) for one language under a cost variant.
 
     kind      "raw" (the live host: panphon feature distance) | "stretched" (Miolingo's accuracy curve applied to
-              the same entries)
+              the same entries) | ("tx", p, F, k, extra): the third run's candidates (`transform`), `extra` a frozenset
+              of (target, heard) pairs that cost 0 (the German vocalised r, lab/costfit.py)
     unrel     "zero" (the live host: an `unreliable` target costs 0 against every sound of the table) |
               "phoneme" (lab variant: such a target costs 0 only against sounds that are NOT in `phoneme_set`; against a
               sound of that set it costs the plain panphon entry)"""
@@ -194,6 +211,8 @@ class Costs:
             c = self.raw(t, u)
             if self.kind == "stretched":
                 c = stretch(c)
+            elif isinstance(self.kind, tuple):
+                c = 0 if k in self.kind[4] else transform(c, self.kind)
             self._memo[k] = c
         return c
 
