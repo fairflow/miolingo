@@ -52,7 +52,7 @@ machines need HTTPS (not arranged here).
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
 | the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_verify_de.py` (the German ü/ö rule against the lab); `tests/check_costs.py` (`NEOLINGO_COSTS`: unset is today's configuration, a candidate transforms every entry) |
+| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_verify_de.py` (the German ü/ö rule against the lab); `tests/check_costs.py` (`NEOLINGO_COSTS`: the default adds exactly the vocalised-r pairs, a candidate transforms every entry) |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
 `GET /host.js`, `GET /version`, `GET /wordlists`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
@@ -115,7 +115,9 @@ The host log's `flags:` line names each such flag with its ratio.
 
 **Cost candidates** (the lab's third run, `lab/RESULTS-3.md`; 14 October): `NEOLINGO_COSTS=<name>` makes the host send
 the costs of a candidate of `data/cost_candidates.json` (`host/engine_config.apply_candidate`); unset or `live`, the
-configuration is exactly today's (checked byte for byte), and an unknown name stops the host. A candidate may stretch
+file's entry `live`: since 14 October (the owner's go, 21:1x) today's costs and curve with the German vocalised r
+free (espeak's [ɜ] and [ɐ] heard as [r] or [ɾ]: cost 0, shown as the target, the warning dropped; the third run's B),
+reaching the real host at its next restart. An unknown name stops the host. A candidate may stretch
 the substitution costs (Miolingo's min(1, (4c)^p)), floor them, stand for another insertion and deletion cost `I` (the
 engine's own is fixed at 1000, so every substitution cost and `costOtherwise` are multiplied by 1000/I and the curve's
 scale by (1000/I)^2: the same scores), multiply the curve's scale, and make pairs free (cost 0, shown as the target; the
@@ -124,7 +126,8 @@ sound check's warning for such a pair is dropped, as `NEOLINGO_EQUIV` does). `si
 a scratch host for trial: `NEOLINGO_VAR=var/candidate NEOLINGO_SLOTS=2 NEOLINGO_COSTS=run3
 NEOLINGO_ENGINE=var/candidate/neolingo-engine-51ded95 ./run.sh --port 8811` (a copy of `var/` made as in step 1 below, and
 a copy of the engine binary of the real host's update, so that a rebuild in locus does not change it), stopped by its
-port. The real host is not changed by any of this until it is restarted with the variable set.
+port. `GET /version` reports `host` as the commit the host STARTED from (read once at start; before 14 October it was the
+folder's HEAD at the time of the request).
 
 Choices a reader should know: the cost list sent to the engine is the whole matrix (about 18,600 entries, 1 MiB) with
 per-variant overrides for tolerated pairs, accept weights and unreliable targets; `hear` gives the sounds as one word;

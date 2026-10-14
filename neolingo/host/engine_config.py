@@ -13,20 +13,23 @@ CURVE = {"kind": "sqrt", "scale": 2250000}
 # this much or more is drawn `off`, less (and not 0) `near`.  The costs sent are raw panphon feature distances
 # (thousandths), not Miolingo's stretched ones, so the number is small: 42 is the raw-cost equivalent of Miolingo's 340.
 SIGNIFICANT = 42
-# NEOLINGO_COSTS (cost_option below; default "live"): the lab's third run puts candidate costs in
-# data/cost_candidates.json; a host started with NEOLINGO_COSTS=<name> sends that candidate's costs, curve scale and
-# `significant` instead (lab/RESULTS-3.md).  Unset, the configuration is exactly today's.
+# NEOLINGO_COSTS (cost_option below; default "live"): data/cost_candidates.json.  "live" (the default) is today's costs
+# and curve with the German vocalised-r pairs free (ɜ, ɐ heard as r, ɾ: cost 0, shown as the target, their warning
+# dropped; the owner's go of 14 October); a host started with NEOLINGO_COSTS=<name> sends that candidate's costs,
+# curve scale and `significant` instead (lab/RESULTS-3.md).
 
 
 def cost_option():
-    """The switch NEOLINGO_COSTS: "live" (default; also when unset or empty) = today's costs and curve, unchanged; a
-    name of data/cost_candidates.json = that candidate (the lab's third run, lab/RESULTS-3.md).  -> (name, candidate
-    dict or None).  An unknown name stops the host: a typo must not silently give the live costs."""
+    """The switch NEOLINGO_COSTS: "live" (default; also when unset or empty) = the entry "live" of
+    data/cost_candidates.json: today's costs and curve with the German vocalised-r pairs free (since 14 October,
+    the owner's go); another name of that file = that candidate (the lab's third run, lab/RESULTS-3.md).  -> (name,
+    candidate dict or None: None only when the file has no entry "live").  An unknown name stops the host: a typo must
+    not silently give the live costs."""
     name = (os.environ.get("NEOLINGO_COSTS") or "live").strip() or "live"
-    if name == "live":
-        return "live", None
     f = DATA / "cost_candidates.json"
     cands = json.loads(f.read_text("utf-8")).get("candidates", {}) if f.exists() else {}
+    if name == "live":
+        return "live", cands.get("live")
     if name not in cands:
         raise SystemExit(f"NEOLINGO_COSTS={name!r}: not a candidate of {f} (known: live, {', '.join(sorted(cands))})")
     return name, cands[name]

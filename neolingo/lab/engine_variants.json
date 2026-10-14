@@ -1,0 +1,70 @@
+{
+ "about": "Variants for lab/engine_measure.py (the off floor and the splits on the real engine). The field names are the language lane's (protocol section 5): fill them in when it reports them; `splits` null takes data/splits.json as it is (replace with the lane's shape if it differs). The first variant with no parameter is the reference.",
+ "fields": {
+  "off_floor": "<from the language lane>",
+  "splits": "<from the language lane>"
+ },
+ "splits": null,
+ "variants": [
+  {
+   "name": "live",
+   "base": "live",
+   "off_floor": null,
+   "splits": false
+  },
+  {
+   "name": "floor100",
+   "base": "live",
+   "off_floor": 100,
+   "splits": false
+  },
+  {
+   "name": "floor250",
+   "base": "live",
+   "off_floor": 250,
+   "splits": false
+  },
+  {
+   "name": "floor500",
+   "base": "live",
+   "off_floor": 500,
+   "splits": false
+  },
+  {
+   "name": "floor800",
+   "base": "live",
+   "off_floor": 800,
+   "splits": false
+  },
+  {
+   "name": "splits",
+   "base": "live",
+   "off_floor": null,
+   "splits": true
+  },
+  {
+   "name": "splits+floor100",
+   "base": "live",
+   "off_floor": 100,
+   "splits": true
+  },
+  {
+   "name": "splits+floor250",
+   "base": "live",
+   "off_floor": 250,
+   "splits": true
+  },
+  {
+   "name": "splits+floor500",
+   "base": "live",
+   "off_floor": 500,
+   "splits": true
+  },
+  {
+   "name": "splits+floor800",
+   "base": "live",
+   "off_floor": 800,
+   "splits": true
+  }
+ ]
+}

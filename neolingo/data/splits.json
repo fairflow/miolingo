@@ -1,0 +1,77 @@
+{
+ "about": "The splits table (the language lane's engine mechanism SPLITS, 14 October): one target sound heard as two consecutive sounds, per language, at a cost (thousandths). German: espeak writes -er as [ɜ] (or [ɐ]); a learner who sounds the r is heard [r] or [ɾ] with a schwa before or after it (the third run's B, lab/RESULTS-3.md). lab/engine_measure.py converts this list to the configuration's shape once the lane gives it.",
+ "splits": [
+  {
+   "lang": "de",
+   "target": "ɜ",
+   "heard": [
+    "r",
+    "ə"
+   ],
+   "cost": 0
+  },
+  {
+   "lang": "de",
+   "target": "ɜ",
+   "heard": [
+    "ə",
+    "r"
+   ],
+   "cost": 0
+  },
+  {
+   "lang": "de",
+   "target": "ɜ",
+   "heard": [
+    "ɾ",
+    "ə"
+   ],
+   "cost": 0
+  },
+  {
+   "lang": "de",
+   "target": "ɜ",
+   "heard": [
+    "ə",
+    "ɾ"
+   ],
+   "cost": 0
+  },
+  {
+   "lang": "de",
+   "target": "ɐ",
+   "heard": [
+    "r",
+    "ə"
+   ],
+   "cost": 0
+  },
+  {
+   "lang": "de",
+   "target": "ɐ",
+   "heard": [
+    "ə",
+    "r"
+   ],
+   "cost": 0
+  },
+  {
+   "lang": "de",
+   "target": "ɐ",
+   "heard": [
+    "ɾ",
+    "ə"
+   ],
+   "cost": 0
+  },
+  {
+   "lang": "de",
+   "target": "ɐ",
+   "heard": [
+    "ə",
+    "ɾ"
+   ],
+   "cost": 0
+  }
+ ]
+}

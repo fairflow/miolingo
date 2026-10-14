@@ -30,7 +30,7 @@ in SQLite, answers the engine's questions from env, serves the page and the endp
   sign-out (and at a start or stop); GET /judgement?take= answers {"guest":true} for a guest's take and host.js draws nothing.
   NEOLINGO_JUDGING=0 turns off the judging buttons in the app page (the endpoints and /review stay)
   NEOLINGO_COSTS=<name>  the costs and curve of a candidate of data/cost_candidates.json (the lab's third run); default
-                        "live": today's, unchanged.  /version reports it as "costs"
+                        "live": today's costs with the German vocalised-r pairs free.  /version reports it as "costs"
 Bound to 127.0.0.1 only."""
 import argparse
 import http.server
@@ -86,13 +86,18 @@ def git_hash(path):
         return "unknown"
 
 
+# the commit this host STARTED from, read once: the code in memory is that commit's, whatever the folder's HEAD
+# becomes later (a commit while the host runs reaches it only at the next restart)
+HOST_COMMIT = git_hash(paths.ROOT)
+
+
 def read_version():
     """What /version says (the fields the page reads, as the reference host gives them): `page` and `changed` from
     the first line of page/CHANGES ("version<TAB>text", newest first); `engine` the locus hash in page/SOURCE;
-    `built` the engine binary's modification time; `instance` "real"; also `host` (this repository's short git
-    hash), `tts` (the speech engine in use), `started`, and `costs` (NEOLINGO_COSTS: "live" or a candidate's name)."""
+    `built` the engine binary's modification time; `instance` "real"; also `host` (the short git hash of this repository's
+    commit the host started from, read once at start), `tts` (the speech engine in use), `started`, and `costs` (NEOLINGO_COSTS: "live" or a candidate's name)."""
     v = {"page": "unknown", "changed": "", "engine": "", "built": "", "instance": "real",
-         "host": git_hash(paths.ROOT), "tts": speech.IN_USE, "started": STARTED,
+         "host": HOST_COMMIT, "tts": speech.IN_USE, "started": STARTED,
          "judging": judging_on(), "slots": slots(), "autosignin": autosignin(), "costs": cost_option()[0]}
     try:
         first = (paths.PAGE / "CHANGES").read_text("utf-8").splitlines()[0].split("\t", 1)

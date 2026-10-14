@@ -819,10 +819,13 @@ def cmd_deck(a):
 
 # ------------------------------------------------------------------ the candidate as the host sends it, on the real engine
 def candidate(name: str):
-    """(Combo, S, the entry) of a candidate of data/cost_candidates.json ("live": today's costs)."""
-    if name == "live":
+    """(Combo, S, the entry) of a candidate of data/cost_candidates.json.  "live" is the file's entry (since 14 October
+    the vocalised-r pairs: Combo(vr=True)); without one, the plain live costs (LIVE_COMBO, which is also what this
+    run's tables call "live": the costs before that change)."""
+    cands = json.loads((DATA / "cost_candidates.json").read_text("utf-8"))["candidates"]
+    if name == "live" and "live" not in cands:
         return LIVE_COMBO, 1.0, {"free": [], "describe": "the live costs"}
-    cand = json.loads((DATA / "cost_candidates.json").read_text("utf-8"))["candidates"][name]
+    cand = cands[name]
     vr = any(l == "de" and (t, h) in VR_PAIRS for (l, t, h) in cand.get("free", []))
     return Combo(cand.get("p"), cand.get("F", 0), cand.get("I", 1000), vr), cand.get("S", 1.0), cand
 
