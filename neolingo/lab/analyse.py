@@ -1,0 +1,340 @@
+"""`analyse(item, config) -> record`: one take against one target under one configuration.
+
+A configuration (all keys optional; the defaults are the live pipeline):
+
+    model      phone model id; default: the language's (env.variants.phone_model)
+    heard      "greedy" | "V1" | "V2" | "V3" | "V4"         what counts as heard (part A)
+    tau        V4: keep an edit iff its likelihood ratio >= tau
+    ins        "all" | "edges" | "lr"                         extra heard sounds
+    tau_ins    for ins == "lr"
+    unchecked  "baseline" | "unjudged" | "phoneme" | "phoneme_lr"   target sounds the check marks unchecked
+    tau_unrel  for "phoneme_lr" (default 2.0)
+    converse   bool: where greedy agrees with the target but the check says off, take the check's alternative
+    del_accept bool: leaving out a target sound costs 1000 x (1 - w), w the weight of "∅" on that sound's accept list
+               (German ə, ʔ, ɜ; English ə; French ə); the engine itself has one deletion cost, 1000
+    keep_del   bool: the heard rule (V1 to V4) applies to substitutions only; every deletion of the greedy reading is kept
+    zero_equal bool: a heard sound that the language's table makes free for the target (tolerated, or accepted at
+               full weight; not an `unreliable` target) is shown as the target sound (display only: the score is the same)
+    cost       "raw" | "stretched"                            (part B)
+    curve      "sqrt" | "linear"
+    understood "free" | "prompt" | ("tf", m) | ("either", m)  (part D)
+
+The steps:
+  1. target sounds: env.target_ipa, then the engine's norm
+  2. greedy heard sounds: the phone model's own decode, cut as env.hear cuts it
+  3. the sound check per target sound (lab/check.py)
+  4. the alignment of the target with the greedy sounds (the engine's `align` under the configuration's costs)
+  5. each difference of that alignment is an EDIT at a target sound (a substitution, a deletion) or between two
+     (an insertion); the configuration decides which edits are kept; an edit not kept is undone (the heard sound there
+     is taken to be the target's; an extra sound is dropped)
+  6. the FINAL heard sequence, its score and its alignment (the engine's `score` and `align` again)
+  7. per target sound a kind: ok | near | off | missing | unjudged, and the `added` sounds
+  An empty greedy reading is the engine's "nothing recognised": score 0, no columns, under every configuration.
+
+Rules of step 5, for an edit at target sound i with the check's level L (lab/check.py) and alternative A:
+  greedy  keep
+  V1      keep iff L == off
+  V2      keep iff L in (check, off)
+  V3      keep iff L == off, or L == check and A agrees with the greedy sound (the same sound; "left out" for a deletion)
+  V4      keep iff LR(edit) >= tau
+  For V1 to V3 a sound with NO verdict (L None: the check could not run) or an `unchecked` one keeps the greedy edit:
+  there is nothing to verify it with.  For V4 an edit whose ratio cannot be computed is kept.
+  unchecked == "unjudged": every target sound with L == unchecked is not judged: heard := target, kind `unjudged`.
+  unchecked == "phoneme":  a substitution at such a sound is kept (at the plain panphon cost) iff the greedy sound is a
+                           full vowel of the language that is not a rendering of the target (PHONEME_KEEP); otherwise the
+                           sound is `unjudged`; a deletion there follows the rule above.
+  unchecked == "phoneme_lr": as "phoneme", and the substitution must also pass the likelihood-ratio test of V4 with
+                           threshold tau_unrel (log P(target with the sound replaced) - log P(target) >= tau_unrel).
+
+`near`: the sounds differ and the pair costs under 340 thousandths under the configuration's costs, or the language's
+table accepts it (lowers its cost).  `off`: they differ and it costs 340 or more."""
+from __future__ import annotations
+
+import atexit
+import json
+from functools import lru_cache
+
+from . import cache, check
+from . import engine_py as E
+from . import understood as U
+from .common import BASE_MODEL, CACHE, PKL
+
+BASELINE = {"heard": "greedy", "ins": "all", "unchecked": "baseline", "converse": False, "cost": "raw",
+            "curve": "sqrt", "understood": "free"}
+
+# Full vowels of each language in the target's (espeak) symbols, and the classes that are "another rendering".
+FRONT_ROUNDED = {"y", "yː", "ʏ", "ʏː", "ø", "øː", "œ", "œː", "ɵ", "ʉ", "ʉː"}
+FULL_VOWELS = {
+    "de": {"i", "iː", "ɪ", "e", "eː", "ɛ", "ɛː", "a", "aː", "ɑ", "ɑː", "u", "uː", "ʊ", "o", "oː", "ɔ"},
+    "en": {"i", "iː", "ɪ", "ɛ", "a", "æ", "ɑː", "ɒ", "ɔː", "ʊ", "uː", "ʌ", "ɜː", "e", "o", "u", "ɑ", "ɔ"},
+    "fr": set(),
+}
+
+# ------------------------------------------------------------------ target sounds (cached on disk: espeak is slow)
+_TFILE = CACHE / "target_ipa.json"
+_TCACHE: dict | None = None
+_TDIRTY = False
+
+
+def _save_targets():
+    if _TDIRTY and _TCACHE is not None:
+        import os
+        CACHE.mkdir(parents=True, exist_ok=True)
+        tmp = _TFILE.with_suffix(f".{os.getpid()}.tmp")
+        tmp.write_text(json.dumps(_TCACHE, ensure_ascii=False), "utf-8")
+        os.replace(tmp, _TFILE)
+
+
+atexit.register(_save_targets)
+
+
+def target_ipa(text: str, variant: str):
+    """env.target_ipa(text, variant), remembered on disk (the data file ipa_exceptions.json is part of the key)."""
+    global _TCACHE, _TDIRTY
+    if _TCACHE is None:
+        try:
+            _TCACHE = json.loads(_TFILE.read_text("utf-8"))
+        except (OSError, ValueError):
+            _TCACHE = {}
+        import hashlib
+        from .common import DATA
+        stamp = hashlib.sha1((DATA / "ipa_exceptions.json").read_bytes()).hexdigest()[:8]
+        if _TCACHE.get("_exceptions") != stamp:
+            _TCACHE = {"_exceptions": stamp}
+    k = f"{variant}|{text}"
+    if k not in _TCACHE:
+        import env
+        _TCACHE[k] = env.target_ipa(text, variant)
+        _TDIRTY = True
+    return _TCACHE[k]
+
+
+def target_of(text: str, variant: str):
+    return E.norm(target_ipa(text, variant))
+
+
+# ------------------------------------------------------------------ greedy heard sounds
+@lru_cache(maxsize=None)
+def _cut(decode: str) -> tuple:
+    import env
+    joined = "".join(env.norm_word(c) for c in decode.split())
+    return tuple(E.flat(E.norm([env.phones_of(joined)] if joined else [])))
+
+
+def greedy_of(wav, model_id: str) -> list[str]:
+    return list(_cut(cache.get_lp(wav, model_id)["decode"]))
+
+
+@lru_cache(maxsize=None)
+def _phones(s: str) -> tuple:
+    import env
+    return tuple(env.phones_of(env.norm_word(s)))
+
+
+@lru_cache(maxsize=None)
+def costs_for(lang: str, kind: str, unrel: str):
+    return E.Costs(lang, kind, "phoneme" if unrel in ("phoneme", "phoneme_lr") else "zero",
+                   frozenset(FULL_VOWELS.get(lang, ())))
+
+
+def phoneme_keep(lang: str, t: str, h: str, costs) -> bool:
+    """unchecked == "phoneme": is the greedy sound h a different full vowel of the language (not a rendering of t)?"""
+    if h not in FULL_VOWELS.get(lang, ()):
+        return False
+    if t in FRONT_ROUNDED and h in FRONT_ROUNDED:
+        return False
+    return not costs.accepted_any(t, h)
+
+
+# ------------------------------------------------------------------ the analysis
+def analyse(item: dict, config: dict | None = None) -> dict:
+    cfg = {**BASELINE, **(config or {})}
+    lang, variant, wav = item["lang"], item["variant"], item["wav"]
+    model = cfg.get("model") or BASE_MODEL[lang]
+    target = item["target"] if item.get("target") else target_of(item["text"], variant)
+    T = E.flat(target)
+    G = greedy_of(wav, model)
+    cost = costs_for(lang, cfg["cost"], cfg["unchecked"])
+    has_check = model != PKL
+    chk = check.verdicts(wav, model, target, variant) if (has_check and T) else \
+        {"ran": False, "note": "no check for this model", "tokens": [], "flags": [], "dropped": 0,
+         "phones": [{"level": None, "p_ok": None, "alt": None} for _ in T]}
+    ph = chk["phones"]
+    dele = cost.dele if cfg.get("del_accept") else None
+    al0 = E.align(cost, T, G, dele)
+
+    # the edits of the greedy alignment
+    edits, i = [], 0                                        # (kind, i, h, column index)
+    for c, (t, h) in enumerate(al0):
+        if t is None:
+            edits.append(("ins", i, h, c))
+        else:
+            if h is None:
+                edits.append(("del", i, None, c))
+            elif h != t:
+                edits.append(("sub", i, h, c))
+            i += 1
+    need_lr = cfg["heard"] == "V4" or cfg["ins"] == "lr" or cfg["unchecked"] == "phoneme_lr"
+    lr = {}
+    if need_lr and edits and has_check:
+        vals = check.lr_edits(wav, model, target, variant,
+                              [(k, i) if k == "del" else (k, i, h) for (k, i, h, _c) in edits])
+        lr = {e[3]: v for e, v in zip(edits, vals)}
+
+    # a target sound the check cannot judge: level "unchecked"; where the check gave no verdict at all (too short to
+    # check, no token covering it) the language's `unreliable` list decides, so that A5 does not depend on the check
+    # having run
+    for a, p in enumerate(ph):
+        if p["level"] is None and a < len(T) and T[a] in cost.unreliable:
+            ph[a] = {**p, "level": "unchecked"}
+    unj = set()
+    if cfg["unchecked"] in ("unjudged", "phoneme", "phoneme_lr"):
+        unj = {a for a, p in enumerate(ph) if p["level"] == "unchecked"}
+    keep = {}
+    for (k, i, h, c) in edits:
+        if k == "ins":
+            if cfg["ins"] == "edges":
+                keep[c] = 0 < i < len(T)
+            elif cfg["ins"] == "lr":
+                v = lr.get(c)
+                keep[c] = v is None or v >= cfg.get("tau_ins", 0.0)
+            else:
+                keep[c] = True
+            continue
+        L = ph[i]["level"] if i < len(ph) else None
+        if L == "unchecked" and cfg["unchecked"] == "unjudged":
+            keep[c] = False
+            continue
+        if L == "unchecked" and cfg["unchecked"] in ("phoneme", "phoneme_lr") and k == "sub":
+            keep[c] = phoneme_keep(lang, T[i], h, cost)
+            if keep[c] and cfg["unchecked"] == "phoneme_lr":        # ... and the likelihood ratio confirms it
+                v = lr.get(c)
+                keep[c] = v is not None and v >= cfg.get("tau_unrel", 2.0)
+            if keep[c]:
+                unj.discard(i)
+            continue
+        rule = cfg["heard"]
+        if k == "del" and cfg.get("keep_del"):        # lab variant: the verified rules judge substitutions only
+            rule = "greedy"
+        if rule == "greedy":
+            keep[c] = True
+        elif rule == "V4":
+            v = lr.get(c)
+            keep[c] = v is None or v >= cfg.get("tau", 0.0)
+        elif L is None or L == "unchecked":
+            keep[c] = True
+        elif rule == "V1":
+            keep[c] = L == "off"
+        elif rule == "V2":
+            keep[c] = L in ("check", "off")
+        elif rule == "V3":
+            alt = ph[i]["alt"]
+            agrees = (alt == "" and k == "del") or (k == "sub" and alt == h)
+            keep[c] = L == "off" or (L == "check" and agrees)
+        else:
+            raise ValueError(f"unknown heard rule {rule!r}")
+        if L == "unchecked" and cfg["unchecked"] in ("phoneme", "phoneme_lr") and keep[c]:
+            unj.discard(i)
+
+    # the final heard sequence
+    H, i = [], 0
+    for c, (t, h) in enumerate(al0):
+        if t is None:
+            if keep[c]:
+                H.append(h)
+            continue
+        if h == t:
+            p = ph[i] if i < len(ph) else {}
+            if cfg["converse"] and p.get("level") == "off" and p.get("alt") is not None:
+                if p["alt"] != "":
+                    alt = list(_phones(p["alt"]))
+                    H += alt if alt and alt != [t] else [t]
+            else:
+                H.append(t)
+        elif keep[c]:
+            if h is None and cfg.get("zero_equal") and dele is not None and dele(t) == 0:
+                H.append(t)                     # a deletion the table makes free: shown as the target sound
+            elif h is not None:
+                # zero_equal: a pair the language's table makes free (tolerated, or accepted at full weight) is
+                # shown as the target sound; an `unreliable` target is left to the A5 rule
+                if cfg.get("zero_equal") and cost(t, h) == 0 and t not in cost.unreliable:
+                    H.append(t)
+                else:
+                    H.append(h)
+        else:
+            H.append(t)
+        i += 1
+
+    nothing = not G
+    if nothing:
+        # the recogniser heard nothing: the engine answers "nothing recognised", score 0, no columns (checked on the
+        # real engine).  No heard rule may fill the target in from nothing (the check, given the target, can still
+        # rate its sounds "ok" when nothing was heard): every variant keeps this case as it is.
+        H = []
+    al = E.align(cost, T, H, dele) if not nothing else []
+    d = sum((0 if t == h else cost(t, h)) if (t is not None and h is not None) else
+            (dele(t) if (dele and h is None) else E.INDEL) for (t, h) in al)
+    n = max(len(T), len(H))
+    sc = E.curve(d, n, cfg["curve"]) if not nothing else 0
+    kinds, i = [], 0
+    for (t, h) in al:
+        if t is None:
+            kinds.append("added")
+            continue
+        if h is None:
+            kinds.append("missing")
+        elif h == t:
+            kinds.append("unjudged" if i in unj else "ok")
+        else:
+            cc = cost(t, h)
+            kinds.append("near" if (cc < E.SIGNIFICANT or cost.accepted(t, h)) else "off")
+        i += 1
+    cols = [(t, h, k) for (t, h), k in zip(al, kinds)]
+    judged = [p["p_ok"] for p in ph if p["level"] in ("ok", "check", "off")]
+    tx = U.texts(item)
+    und, heard_text = U.decide(cfg["understood"], item, target, target_ipa, tx)
+    return {
+        "id": item["id"], "set": item["set"], "lang": lang, "variant": variant, "text": item["text"], "model": model,
+        "target": target, "greedy": G, "heard": H, "score": sc, "dist": d, "n": n,
+        "understood": und, "heard_text": heard_text,
+        "align0": al0, "kept": [keep.get(c) for c in range(len(al0))],
+        "lr": [lr.get(c) for c in range(len(al0))] if need_lr else None,
+        "columns": cols, "check": ph, "check_ran": chk["ran"], "flags": chk["flags"], "dropped_flags": chk["dropped"],
+        "score_check": round(100 * sum(judged) / len(judged)) if judged else None,
+        "n_diff": sum(k in ("near", "off", "missing", "added") for k in kinds),
+        "n_cost": sum(1 for (t, h) in al if t is None or (h is None and (dele is None or dele(t) > 0))
+                      or (h is not None and t != h and cost(t, h) > 0)),
+        "n_unjudged": sum(k == "unjudged" for k in kinds),
+        "n_warn": len(chk["flags"]),
+        "nothing": nothing,
+    }
+
+
+def word_columns(rec: dict):
+    """The record's columns by the target's words: [[(t, h, kind)]] (the engine's `byWord`)."""
+    groups = E.by_word(rec["target"], [(t, h) for (t, h, _k) in rec["columns"]])
+    # by_word keeps the order inside a word but regroups: rebuild with the kinds by walking the tagged order
+    lens = [len(w) for w in rec["target"]]
+    out = [[] for _ in range(max(1, len(lens)))]
+
+    def word_of(k):
+        tot = 0
+        for w, n in enumerate(lens):
+            tot += n
+            if k < tot:
+                return w
+        return len(lens) - 1
+
+    k, lastw = 0, 0
+    for (t, h, kind) in rec["columns"]:
+        if t is not None and h is not None:
+            w = word_of(k)
+            out[w].append((t, h, kind))
+            k, lastw = k + 1, w
+        elif t is not None:
+            out[word_of(k)].append((t, h, kind))
+            k += 1
+        else:
+            out[lastw].append((t, h, kind))
+    assert [[(t, h) for (t, h, _k) in g] for g in out] == groups
+    return out
