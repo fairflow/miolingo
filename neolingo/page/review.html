@@ -8,11 +8,14 @@
 :root {
   --bg: #f6f6f3; --card: #ffffff; --fg: #1d1d1b; --muted: #5d5d58; --line: #cfcfc8;
   --accent: #1f5fa8; --accent-bg: #dde9f6; --ok: #1d6b3a; --bad: #a3321f; --warn: #8a5a00;
+  /* the picture's colours, as the app's page (docs/neolingo-page/index.html in locus) */
+  --pok: #1d6b34; --check: #9a5200; --off: #b3201c; --near: #8f5d00; --added: #1f5fa8; --unj: #66665f; --faint: #a3a39b; --tile: #f1f1ed;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #161615; --card: #20201e; --fg: #ebebe6; --muted: #a3a39b; --line: #44443f;
     --accent: #7db2ee; --accent-bg: #26364a; --ok: #6fcf93; --bad: #f08a78; --warn: #e3b25a;
+    --pok: #7fd093; --check: #f0b25c; --off: #ff8f88; --near: #ebb44c; --added: #7db6f5; --unj: #a8a8a0; --faint: #6c6c65; --tile: #26282c;
   }
 }
 * { box-sizing: border-box; }
@@ -45,6 +48,34 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
 .gw .m1 { text-decoration: underline dotted; text-underline-offset: 3px; }
 .gw .m2 { text-decoration: underline solid; text-underline-offset: 3px; }
 .gridcap { color: var(--muted); font-size: .8rem; margin: 0 0 .15rem; }
+/* THE PICTURE of a result (lines since 14 October), drawn as the app's page draws it: words side by side, wrapping; each
+   word a grid of three rows (the token, the target's sounds, the heard sounds) sharing its columns. Kinds: ok green;
+   accepted amber; near amber, dotted underline; off red and bold with the target underlined; missing a red empty-set
+   sign; added blue; unjudged grey italic. The sound check's mark: a box round the heard sound (dotted / solid). */
+.pic { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; width: 100%; max-width: 100%;
+  font-size: clamp(1.15rem, 4.6vw, 1.6rem); margin: .2rem 0 .3rem; }
+.word { display: grid; row-gap: 0; column-gap: .17em; padding: .12em .32em .2em; border-radius: .45em; background: var(--tile); max-width: 100%;
+  overflow-x: auto; }
+.wt { grid-row: 1; grid-column: 1 / -1; min-height: 1.3em; font: 600 .5em/1.5 system-ui, -apple-system, sans-serif; color: var(--muted);
+  text-align: center; white-space: nowrap; }
+.c { font-family: "Charis SIL", "Doulos SIL", "Gentium Plus", "Times New Roman", Times, serif; line-height: 1.22; min-width: .62em;
+  padding: 0 .03em; text-align: center; white-space: nowrap; }
+.c.t { grid-row: 2; } .c.h { grid-row: 3; }
+.g { display: inline-block; }
+.c.t.k-off .g { text-decoration: underline; text-decoration-color: var(--off); text-decoration-thickness: .08em; text-underline-offset: .13em; }
+.c.t.k-added { color: var(--faint); }
+.c.h.k-ok { color: var(--pok); }
+.c.h.k-accepted { color: var(--near); }
+.c.h.k-near { color: var(--near); }
+.c.h.k-near .g { text-decoration: underline dotted; text-decoration-thickness: .07em; text-underline-offset: .13em; }
+.c.h.k-off { color: var(--off); font-weight: 700; }
+.c.h.k-missing { color: var(--off); }
+.c.h.k-added { color: var(--added); }
+.c.h.k-unjudged { color: var(--unj); font-style: italic; }
+.c.h.w1 .g { outline: 1.5px dotted var(--check); outline-offset: 1px; border-radius: 3px; }
+.c.h.w2 .g { outline: 2px solid var(--check); outline-offset: 1px; border-radius: 3px; }
+.piclegend { margin: 4px 0 .6rem; display: flex; flex-wrap: wrap; gap: 1px 10px; color: var(--muted); font-size: .8rem; line-height: 1.6; }
+.piclegend .c { display: inline-block; padding: 0 .05em; font-size: 1.25em; min-width: 0; }
 .warn { color: var(--warn); font-size: .9rem; margin: 0 0 .5rem; overflow-wrap: anywhere; }
 .player { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .5rem; }
 .wave { width: 100%; max-width: 280px; height: 40px; display: block; }
@@ -128,7 +159,42 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
     var p = a.play(); if (p && p.catch) p.catch(function () { done(); btn.textContent = 'No sound'; });
   }
 
-  // the two-row grid of the app: per word, the target sound over the heard sound, a gap shown as "–"
+  // THE PICTURE (lines since 14 October): the engine's one rendering of the sounds, drawn as the app's page draws it
+  var KINDS = { ok: 1, accepted: 1, near: 1, off: 1, missing: 1, added: 1, unjudged: 1 };
+  function cell(row, k, text, mark) {
+    var c = el('div', 'c ' + row + ' k-' + k + (mark ? ' w' + mark : ''));
+    c.appendChild(el('span', 'g', text));
+    return c;
+  }
+  function picture(words) {
+    var pic = el('div', 'pic');
+    pic.setAttribute('role', 'group'); pic.setAttribute('aria-label', 'Target sounds above, heard sounds below, word by word');
+    words.forEach(function (w) {
+      var ss = Array.isArray(w.sounds) ? w.sounds : [];
+      var word = el('div', 'word'); word.style.gridTemplateColumns = 'repeat(' + Math.max(1, ss.length) + ',auto)';
+      word.appendChild(el('div', 'wt', w.token || ''));
+      ss.forEach(function (x, n) {
+        var k = KINDS[x.kind] ? x.kind : 'unjudged';
+        var tc = cell('t', k, x.target == null ? '\u00b7' : x.target, 0);
+        var hc = cell('h', k, x.heard == null ? '\u2205' : x.heard, x.mark);
+        tc.style.gridColumn = hc.style.gridColumn = String(n + 1);
+        word.appendChild(tc); word.appendChild(hc);
+      });
+      pic.appendChild(word);
+    });
+    return pic;
+  }
+  function pictureLegend(items) {
+    var p = el('p', 'piclegend'), GLYPH = { missing: '\u2205' };
+    p.appendChild(el('span', null, 'above: target, below: heard'));
+    items.forEach(function (x) {
+      var s = el('span'); s.appendChild(cell('h', KINDS[x.kind] ? x.kind : 'unjudged', GLYPH[x.kind] || '\u025b', 0));
+      s.appendChild(document.createTextNode(' ' + x.text)); p.appendChild(s);
+    });
+    return p;
+  }
+
+  // lines before 14 October: the two-row grid of the app then: per word, the target sound over the heard sound, a gap "–"
   function grid(cols) {
     var g = el('div', 'grid');
     g.setAttribute('role', 'group'); g.setAttribute('aria-label', 'Target sounds over heard sounds, word by word');
@@ -165,16 +231,28 @@ dt { color: var(--muted); font-size: .85rem; } dd { margin: 0; overflow-wrap: an
     var dl = el('dl');
     var heard = c.hear || {};
     dl.appendChild(el('dt', null, 'Target sounds')); dl.appendChild(el('dd', null, sounds(c.target) || '—'));
-    var res = c.result || {}, cols = Array.isArray(c.columns) ? c.columns : (Array.isArray(res.columns) ? res.columns : null);
+    var res = c.result || {};
+    var pic = Array.isArray(c.picture) ? c.picture : (Array.isArray(res.picture) ? res.picture : null);       // since 14 October
+    var cols = pic ? null : (Array.isArray(c.columns) ? c.columns : (Array.isArray(res.columns) ? res.columns : null));   // before
     var grouped = res.heard && typeof res.heard.ipa === 'string' ? res.heard.ipa : null;   // the engine's own grouping, spaces between words
     if (!grouped && cols) grouped = '[' + cols.map(function (w) {
       return w.map(function (x) { return x.heard || ''; }).join('');
     }).filter(Boolean).join(' ') + ']';
     dl.appendChild(el('dt', null, 'Heard sounds'));
     dl.appendChild(el('dd', null, grouped || ((sounds(heard.ipa) || '—') + (sounds(heard.ipa) ? '  (ungrouped)' : ''))));
-    if (heard.text) { dl.appendChild(el('dt', null, 'Heard words')); dl.appendChild(el('dd', null, heard.text)); }
+    var shownText = res.heard && typeof res.heard.text === 'string' ? res.heard.text : null;   // as the app shows it (since 14 October)
+    if (pic && shownText != null) {
+      dl.appendChild(el('dt', null, 'Heard (as shown)')); dl.appendChild(el('dd', null, shownText || 'nothing'));
+      if (heard.text && heard.text !== shownText) { dl.appendChild(el('dt', null, 'Recogniser wrote')); dl.appendChild(el('dd', null, heard.text)); }
+    } else if (heard.text) { dl.appendChild(el('dt', null, 'Heard words')); dl.appendChild(el('dd', null, heard.text)); }
     root.appendChild(dl);
-    if (cols && cols.length) root.appendChild(grid(cols));
+    if (pic && pic.length) {
+      root.appendChild(picture(pic));
+      root.appendChild(pictureLegend(Array.isArray(res.pictureLegend) ? res.pictureLegend : []));
+    } else if (cols && cols.length) {
+      root.appendChild(el('p', 'gridcap', 'Sound by sound (a line from before 14 October: no kinds)'));
+      root.appendChild(grid(cols));
+    }
     (Array.isArray(c.flagLines) ? c.flagLines : []).forEach(function (t) { root.appendChild(el('p', 'warn', String(t))); });
     if (c.droppedFlags) root.appendChild(el('p', 'warn', c.droppedFlags + ' warning(s) dropped'));
 

@@ -7,6 +7,10 @@ from .paths import DATA
 
 LANGUAGE_NAMES = {"en": "English", "fr": "French", "de": "German"}
 CURVE = {"kind": "sqrt", "scale": 2250000}
+# protocol 5, `significant` (since 14 October): for the PICTURE of a result only, never the score; a substitution costing
+# this much or more is drawn `off`, less (and not 0) `near`.  The costs sent are raw panphon feature distances
+# (thousandths), not Miolingo's stretched ones, so the number is small: 42 is the raw-cost equivalent of Miolingo's 340.
+SIGNIFICANT = 42
 
 
 def equiv_enabled():
@@ -64,6 +68,17 @@ def build_costs(table):
     return out
 
 
+def build_unjudged(table, langs):
+    """protocol 5, `unjudged` (since 14 October): per language, the target sounds the recogniser cannot judge, as
+    [{"lang": L, "sounds": [...]}] (a language with none is left out).  Taken from the cost table's `unreliable` list, which
+    env.tables builds from Miolingo's calibrated sound check (scoring/data/sound_check_calibrated.yaml, normalised as the
+    engine holds sounds, length attached): German y yː øː œ ɔø, English a eə iə ɒ ɔɪ əʊ ʊə, French none (its calibrated
+    entry is a lone length mark, which is no sound).  Such a sound with no flag at its place is drawn `unjudged` and its
+    heard sound taken as the target's; with a flag it is judged like any other."""
+    return [{"lang": l, "sounds": list(table["langs"][l]["unreliable"])} for l in langs
+            if (table["langs"].get(l) or {}).get("unreliable")]
+
+
 def build_config():
     vs = env.variants()
     table = json.loads((DATA / "cost_table.json").read_text("utf-8"))
@@ -71,4 +86,5 @@ def build_config():
     return {"cmd": "config",
             "variants": [{"code": v["code"], "name": v["name"]} for v in vs],
             "languages": [{"code": l, "name": LANGUAGE_NAMES[l]} for l in langs],
-            "costs": build_costs(table), "costOtherwise": table["unknown_cost"], "curve": CURVE}
+            "costs": build_costs(table), "costOtherwise": table["unknown_cost"], "significant": SIGNIFICANT,
+            "unjudged": build_unjudged(table, langs), "curve": CURVE}

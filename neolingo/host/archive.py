@@ -88,9 +88,30 @@ def log_record(msg, reply, answers):
         log(f"archive: record line failed: {type(e).__name__}: {e}")
 
 
+def columns_of(x):
+    """The alignment of a result as columns by word, [[{"target", "heard", "mark"}, ...], ...] (null at a gap), from an
+    archive line or a result: its "columns" (lines written before 14 October, when the engine sent them) or else its
+    "picture" (the engine since 14 October: per word {"token", "sounds": [{"target", "heard", "kind", "mark"}]}).
+    None when it has neither.  So old and new lines can be compared, and read by the studies, alike."""
+    if not isinstance(x, dict):
+        return None
+    if isinstance(x.get("columns"), list):
+        return x["columns"]
+    pic = x.get("picture")
+    if pic is None and isinstance(x.get("result"), dict):
+        return columns_of(x["result"])
+    if not isinstance(pic, list):
+        return None
+    return [[{"target": s.get("target"), "heard": s.get("heard"), "mark": s.get("mark", 0)} for s in (w.get("sounds") or [])]
+            for w in pic]
+
+
 def log_check(msg, reply, answers, held_take, version):
     """One line for a Check press that is a step.  Fields the reply does not carry are recorded as null and named
-    in "missing"."""
+    in "missing".  Since 14 October the line carries the result's "picture" (per word: token, and per sound target,
+    heard, kind, mark) where earlier lines carry "columns"; `columns_of` reads either.  "banner" and the result's
+    heard.text are the heard text AS SHOWN (in the phrase's spelling where the phrase's words were heard); the
+    recogniser's own writing is in "hear"."""
     try:
         uid = learner_of(msg, reply)
         if not uid:
@@ -111,13 +132,13 @@ def log_check(msg, reply, answers, held_take, version):
             "hear": ha, "sounds": sa["flags"] if sa else None,
             "score": row.get("score"), "understood": row.get("understood"),
             "banner": res.get("banner"), "flagLines": res.get("flagLines"), "flags": res.get("flags"),
-            "columns": res.get("columns"), "droppedFlags": reply.get("droppedFlags"),
+            "picture": res.get("picture"), "droppedFlags": reply.get("droppedFlags"),
             "result": res,                     # the whole result as the page gets it, so nothing in it is lost
             "version": version,
             "phone_model": env.variant(variant)["phone_model"] if variant else None,
             "whisper": env.hearing.WHISPER_SIZE,
         }
-        missing = [k for k in ("target", "hear", "sounds", "columns", "droppedFlags", "banner") if line[k] is None]
+        missing = [k for k in ("target", "hear", "sounds", "picture", "droppedFlags", "banner") if line[k] is None]
         if missing:
             line["missing"] = missing
         _append("checks.jsonl", line)

@@ -9,6 +9,11 @@ recorded: the text heard, the sounds heard, the flags, the score, whether it was
 line has them (not for "reconstructed" lines), the target sounds, the banner, the flag lines, the aligned columns and
 droppedFlags.  One line a take: SAME, or CHANGED with what changed.  Exit code 1 if anything changed.
 
+Since 14 October the engine gives a "picture" in place of "columns"; both are compared as columns (host.archive.columns_of:
+target, heard and mark of each column, by word), so an old line and a new result compare alike.  The banner now
+writes the heard text as the app shows it (the phrase's spelling where the phrase's words were heard): a banner that
+differs only so is reported as "banner: heard text now in the phrase's spelling" and counted apart in the summary.
+
 Each line also shows the latest human judgement of the take (var/archive/judgements.jsonl: fair, harsh, generous, or
 unjudged), the summary counts them, and --judged replays only the judged takes.  So a change can be read as "of the takes
 judged too harsh, how many now score higher": the score shown is "old -> new" for a CHANGED line.
@@ -80,8 +85,17 @@ def replay_one(eng, store_unused, line):
             "target": snd["q"]["target"] if snd else None,
             "hear": hear["a"] if hear else None, "sounds": snd["a"]["flags"] if snd else None,
             "score": row["score"], "understood": row["understood"], "banner": res.get("banner"),
-            "flagLines": res.get("flagLines"), "flags": res.get("flags"), "columns": res.get("columns"),
+            "flagLines": res.get("flagLines"), "flags": res.get("flags"), "picture": res.get("picture"),
+            "columns": archive.columns_of(res), "heardShown": (res.get("heard") or {}).get("text"),
             "droppedFlags": d.get("droppedFlags")}
+
+
+def spelling_only(old_banner, new_banner, old_heard, new_shown):
+    """True when two banners differ only in the heard text: the old one quoting the recogniser's writing, the new one
+    the text as shown (the phrase's spelling).  Compared with the heard texts cut out."""
+    if not (isinstance(old_banner, str) and isinstance(new_banner, str) and old_heard and new_shown is not None):
+        return False
+    return old_banner.replace(old_heard, "\0") == new_banner.replace(new_shown, "\0")
 
 
 def compare(old, new):
@@ -105,10 +119,25 @@ def compare(old, new):
         ch.append(f"score {old.get('score')} -> {new['score']}")
     if old.get("understood") != new["understood"]:
         ch.append(f"understood {old.get('understood')} -> {new['understood']}")
-    for k in ("target", "banner", "flagLines", "columns", "droppedFlags"):    # only where the line has them
+    for k in ("target", "flagLines", "droppedFlags"):                          # only where the line has them
         if old.get(k) is not None and old[k] != new[k]:
-            ch.append(f"{k} changed" if k in ("columns", "target") else f"{k} {old[k]!r} -> {new[k]!r}")
+            ch.append(f"{k} changed" if k == "target" else f"{k} {old[k]!r} -> {new[k]!r}")
+    if old.get("banner") is not None and old["banner"] != new["banner"]:
+        if spelling_only(old["banner"], new["banner"], (old.get("hear") or {}).get("text"), new.get("heardShown")):
+            ch.append(SPELLING)
+        else:
+            ch.append(f"banner {old['banner']!r} -> {new['banner']!r}")
+    oc = archive.columns_of(old)
+    if oc is not None and oc != new["columns"]:
+        ch.append("columns changed" + (" (only the marks)" if strip_marks(oc) == strip_marks(new["columns"]) else ""))
     return ch
+
+
+SPELLING = "banner: heard text now in the phrase's spelling (expected since 14 October)"
+
+
+def strip_marks(cols):
+    return [[(x.get("target"), x.get("heard")) for x in w] for w in (cols or [])]
 
 
 def main():
@@ -133,7 +162,7 @@ def main():
         lines = lines[:a.limit]
     eng = Engine(build_config())
     eng.env = ArchiveEnvironment()
-    same = changed = 0
+    same = changed = spelling_only_n = 0
     verdicts = {"fair": 0, "harsh": 0, "generous": 0, "unjudged": 0}
     harsh_up = harsh_n = gen_down = gen_n = 0               # of "too harsh" takes how many now score higher; of "too generous" lower
     t0 = time.perf_counter()
@@ -160,6 +189,8 @@ def main():
             gen_down += new_s < old_s
         head = (f"{l['time'][5:19]} {l['variant']:5} {l['take']} {l['text']!r} score {old_s}"
                 + (f" -> {new_s}" if new_s is not None and new_s != old_s else "") + f" [{verdict}]{tag}")
+        if ch == [SPELLING]:
+            spelling_only_n += 1
         if ch:
             changed += 1
             print(f"CHANGED {head}\n          " + "\n          ".join(ch))
@@ -168,7 +199,7 @@ def main():
             print(f"SAME    {head}")
     rec = sum(1 for l in lines if l.get("reconstructed"))
     print(f"\nreplayed {len(lines)} takes ({rec} reconstructed lines) in {time.perf_counter() - t0:.0f} s: "
-          f"{same} SAME, {changed} CHANGED")
+          f"{same} SAME, {changed} CHANGED ({spelling_only_n} of them only by the banner's heard text, now in the phrase's spelling)")
     print(f"judged: {verdicts['fair']} fair, {verdicts['harsh']} harsh, {verdicts['generous']} generous, {verdicts['unjudged']} unjudged")
     if harsh_n:
         print(f"of the {harsh_n} takes judged too harsh, {harsh_up} now score higher")

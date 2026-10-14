@@ -24,6 +24,7 @@ VAR = ROOT / "var" / "check_host"
 ESPEAK = shutil.which("espeak-ng") or "espeak-ng"
 VOICE = {"fr-fr": "fr-fr", "en-gb": "en-gb", "de": "de"}
 LANG_OF = {"fr-fr": "fr", "en-gb": "en", "de": "de"}
+KINDS = {"ok", "accepted", "near", "off", "missing", "added", "unjudged"}       # protocol 6.0, the picture's kinds
 fails = []
 
 
@@ -173,6 +174,14 @@ def main():
                 res = body(d)["result"]
                 check(res is not None, "check: a result")
                 print("   result:", json.dumps(res, ensure_ascii=False)[:400])
+                pic = res.get("picture")
+                check(isinstance(pic, list) and len(pic) == len(chosen[0]["text"].split()) and all(set(w) == {"token", "sounds"} for w in pic)
+                      and all(set(x) == {"target", "heard", "kind", "mark"} and x["kind"] in KINDS and x["mark"] in (0, 1, 2)
+                              for w in pic for x in w["sounds"]),
+                      f"check: the result's picture, one entry a word ({len(pic or [])}), kinds "
+                      f"{sorted({x['kind'] for w in pic or [] for x in w['sounds']})}")
+                check("columns" not in res and "marked" not in res and isinstance(res.get("pictureLegend"), list)
+                      and isinstance(res["heard"].get("text"), str), "check: no columns, no marked; pictureLegend and heard.text present")
                 check(db_counts()["history"] == before + 1, "check: exactly one history row written to SQLite")
                 check(isinstance(d["write"]["row"]["score"], int), f"score {d['write']['row']['score']}%")
             if run == "cold":
@@ -286,7 +295,13 @@ def main():
     items = arch["items"]
     check(len(items) >= 6 and arch["total"] == len(items) and arch["judged"] == 0, f"archive: {len(items)} checks, none judged ({arch['judged']} of {arch['total']})")
     check(all(a["time"] >= b["time"] for a, b in zip(items, items[1:])) and all(i["judgement"] is None for i in items), "archive: newest first, each with judgement null")
-    check(all(k in items[0] for k in ("take", "variant", "text", "banner", "target", "hear")), "archive: the lines of checks.jsonl, with their fields")
+    check(all(k in items[0] for k in ("take", "variant", "text", "banner", "target", "hear", "picture")), "archive: the lines of checks.jsonl, with their fields")
+    check(all(isinstance(i["picture"], list) and "columns" not in i and "missing" not in i for i in items),
+          "archive: every new line carries the picture (no columns), nothing missing")
+    sys.path.insert(0, str(ROOT))
+    from host.archive import columns_of
+    check(all([x["target"] for w in columns_of(i) for x in w if x["target"]] == [s for w in i["target"] for s in w] for i in items),
+          "archive: columns_of(picture) gives the target sounds the engine asked about, in order")
     check(all(i["uid"] == "me" for i in items) and all(json.loads(l)["uid"] == "me" for l in open(VAR / "archive" / "checks.jsonl")),
           "archive: every check line and item carries the learner (me)")
     check(all(json.loads(l)["uid"] == "me" for l in open(VAR / "archive" / "records.jsonl")), "archive: every record line carries the learner")

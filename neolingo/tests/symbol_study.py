@@ -60,12 +60,18 @@ def sweep_rows():
     return jl(paths.VAR / "sweep" / "results.jsonl")
 
 
+def with_columns(l):
+    """A line's aligned columns, from its "columns" (before 14 October) or its "picture" (since): host.archive.columns_of."""
+    from host.archive import columns_of
+    return dict(l, columns=columns_of(l))
+
+
 def live_checks():
-    return [l for l in jl(paths.ARCHIVE / "checks.jsonl") if not l.get("reconstructed")]
+    return [with_columns(l) for l in jl(paths.ARCHIVE / "checks.jsonl") if not l.get("reconstructed")]
 
 
 def all_checks():
-    return jl(paths.ARCHIVE / "checks.jsonl")
+    return [with_columns(l) for l in jl(paths.ARCHIVE / "checks.jsonl")]
 
 
 def subs(columns):

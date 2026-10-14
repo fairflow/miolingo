@@ -60,6 +60,10 @@ Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its o
 `GET /version` answers `slots`, `autosignin`, `page` and `changed` (first line of `page/CHANGES`), `engine` (the locus hash in `page/SOURCE`), `built`
 (the engine binary's modification time), `instance` (`real`), `host` (this repository's short hash), `tts`, `started`.
 `./update_page.sh` copies `index.html` and `CHANGES` from the locus repository and writes `SOURCE` (no restart needed).
+**The page and the engine go together** (since 14 October the result carries `picture` in place of `columns` and `marked`, which the
+page of 0.36 and before reads): run `./update_page.sh` only as part of moving the host to a newer engine ("Keeping it alive"), never
+while the running host still runs the older engine. `NEOLINGO_PAGE=<dir>` makes a host serve the page files from another folder (a
+scratch host can then try a newer page while the running host, from this folder, keeps its own).
 
 Speech: `NEOLINGO_TTS` = `gtts` (default; Google's text-to-speech through the `gtts` package, MP3, the only network use; falls back
 to `say`, and the log says which answered) | `say` (WAV). **espeak-ng is not a voice** (the owner, 13 October 2026: "so horrible to hear that we won't go there
@@ -90,6 +94,13 @@ Takes are never deleted (see the archive, below). `NEOLINGO_VAR` moves `var/` (t
 Since 13 October the settings are a view of their own: `practised`, `own` and `slow` are steps only between `openSettings` and `closeSettings`. The page does that itself;
 the tests change a setting through `Host.setting(which, value)` in `tests/check_host.py`, which opens and closes the settings around it.
 
+The configuration also sends `significant: 42` (protocol 5; for the result's picture only, never the score: a substitution costing
+this much or more is drawn `off`, less and not 0 `near`). The costs are raw panphon feature distances (thousandths), so the number is
+the raw-cost equivalent of Miolingo's 340 on its stretched costs. And `unjudged` (protocol 5, engine `ad5a947` and later; an older
+engine ignores it): per language the target sounds the recogniser cannot judge, taken from the cost table's `unreliable` lists (which
+come from Miolingo's calibrated sound check): German y yː øː œ ɔø, English a eə iə ɒ ɔɪ əʊ ʊə, French none. Such a sound with no flag
+at its place is drawn `unjudged` (grey italic, "not judged") and its heard sound taken as the target's.
+
 Choices a reader should know: the cost list sent to the engine is the whole matrix (about 18,600 entries, 1 MiB) with
 per-variant overrides for tolerated pairs, accept weights and unreliable targets; `hear` gives the sounds as one word;
 flags are mapped `like` -> `heardAs` (null when left out), one flag for each target sound a finding covers, `sound` taken from the
@@ -119,7 +130,13 @@ settings are written by `signOut` (`putSettings`), a new learner by `register` (
   restart (`pkill -TERM -f host.serve`) keeps the settings. `{"cmd":"start","fresh":true}` also signs out first.
 - **Unclean stop** (`kill -9`, a crash, a power cut, or the engine dying and being restarted): the settings changed since sign-in are
   LOST (everything else was already written). Sign out in the app before such a stop if the settings matter.
-- Same learner in two slots: the last to sign out wins.
+- ONE SESSION PER LEARNER (engine of 14 October, locus `bf61d93`..`938dcd8`): Sign in as a learner signed in in another slot is
+  refused ("“me” is already signed in."), and a signed-out slot's screen lists such names in `body.elsewhere` (the page marks them
+  "signed in on another screen"). The host never starts the engine with a learner named twice (the engine refuses such a start too).
+- Sign out and a change of the language practised are refused while a vocabulary form is open ("Save or cancel the open form
+  first."). At a clean stop or a `fresh` start the host then closes the settings view if open, shows Vocabulary, Cancels each open
+  form (its typed text lived only in the page, which the stop ends anyway) and signs out, so the settings are still saved; the log
+  says `sign-out: slot N (u) had open form(s) ...: cancelled so that the settings are saved`.
 
 The archive (`records.jsonl`, `checks.jsonl`, `judgements.jsonl`) carries `"uid"` on every new line (a judgement gets the uid of the
 learner who made that take); lines from before count as `me`. `GET /archive?uid=` filters, items carry `uid`, and `/review`
@@ -134,7 +151,10 @@ lists them meanwhile), logs `guest: take ... discarded`, and answers `GET /judge
 **The archive.** Every take uploaded is kept for good under `var/archive/takes/<token>.wav` (`host/archive.py`). `var/archive/records.jsonl`
 gets a line at each Record (time, take, duration, peak level, the `audible` answer) and `var/archive/checks.jsonl` one at each Check that is a
 step: time, take, variant, phrase, the target sounds as the engine sent them, the host's answers (`hear`, `sounds`), score, understood, banner,
-flag lines, flags, aligned columns, `droppedFlags`, the whole result, the versions, the phone model and the Whisper size.
+flag lines, flags, the result's `picture` (lines before 14 October: aligned `columns` instead), `droppedFlags`, the whole result, the versions,
+the phone model and the Whisper size. `host.archive.columns_of(line)` reads either as columns by word (`target`, `heard`, `mark`), so the
+replay and the studies treat old and new lines alike. Since 14 October the banner and the result's `heard.text` are the heard text AS SHOWN
+(the phrase's spelling where its words were heard); the recogniser's own writing is in `hear.text`.
 `tests/reconstruct_archive.py` (run once) copies the takes of `var/takes/` into the archive and rebuilds lines marked `"reconstructed": true`
 from the host log and the history table (opened read-only); they lack the banner, columns and the like.
 
@@ -148,7 +168,8 @@ validated); `GET /judgement?take=` returns the latest or `{}`. The app page, onc
 shows "Was this result fair?" with Fair / Too harsh / Too generous and a note under each result. **The switch:** `NEOLINGO_JUDGING=0` in the host's
 environment hides it (default on); `GET /version` reports `"judging": true|false`. **The review page**, `http://127.0.0.1:8810/review` (`page/review.html`; a test
 tool, not part of the app), lists the archived checks newest first with the banner, target and heard sounds, warnings, a Play button, a waveform and the
-same buttons and note; filters: variant and "not yet judged" (default on), "Load more" pages 50 at a time (`GET /archive?limit=&before=&variant=&unjudged=`
+same buttons and note (a line since 14 October shows the engine's picture, drawn as the app draws it, with its legend, and the heard
+text as shown beside what the recogniser wrote; an older line shows its two-row grid of columns); filters: variant and "not yet judged" (default on), "Load more" pages 50 at a time (`GET /archive?limit=&before=&variant=&unjudged=`
 gives the lines joined with their latest judgement). `replay_archive.py` shows each take's judgement, counts them, and takes `--judged` (only judged takes);
 it also reports, of the takes judged too harsh, how many now score higher.
 **Test voices.** The takes listed in `var/archive/overseer_takes.txt` (first field of each non-comment line) were made by a Mac voice, not the owner. `GET /archive` gives

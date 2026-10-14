@@ -124,6 +124,23 @@ j = archive.judge("t1111111111111111", "fair")
 check(j["uid"] == "anna" and archive.judge("t7719675e889caccd", "harsh")["uid"] == "me" and archive.judge("t3333333333333333", "fair")["uid"] == "me",
       "judge: the uid of the take's learner (older or unknown takes: me)")
 
+# columns_of: an old line's columns, a new line's picture, alike
+old_line = {"columns": [[{"target": "ɡ", "heard": "d", "mark": 2}]]}
+new_line = {"picture": [{"token": "gare", "sounds": [{"target": "ɡ", "heard": "d", "kind": "off", "mark": 2}]}]}
+check(archive.columns_of(old_line) == archive.columns_of(new_line) == old_line["columns"]
+      and archive.columns_of({"result": {"picture": new_line["picture"]}}) == old_line["columns"]
+      and archive.columns_of({"columns": None, "result": None}) is None, "columns_of: columns (before 14 October) and picture (since) alike")
+
+# the configuration's optional numbers (protocol 5): significant, and unjudged from the calibrated unreliable lists
+import json                          # noqa: E402
+from host.engine_config import build_config   # noqa: E402
+cfg = build_config()
+table = json.loads((paths.DATA / "cost_table.json").read_text("utf-8"))
+check(cfg["significant"] == 42, "config: significant 42 (raw panphon costs)")
+check(cfg["unjudged"] == [{"lang": "en", "sounds": table["langs"]["en"]["unreliable"]}, {"lang": "de", "sounds": ["y", "yː", "øː", "œ", "ɔø"]}]
+      and table["langs"]["en"]["unreliable"] and not table["langs"]["fr"]["unreliable"],
+      f"config: unjudged for en {cfg['unjudged'][0]['sounds']} and de, none for fr")
+
 if bad:
     sys.exit(f"{len(bad)} FAILED")
 print("all passed")

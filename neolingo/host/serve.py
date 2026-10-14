@@ -20,7 +20,12 @@ in SQLite, answers the engine's questions from env, serves the page and the endp
   GET  /review          the review page (page/review.html): a test tool for judging takes afterwards
   NEOLINGO_SLOTS=N       the number of session slots on the page (default 1; 2 shows two side by side)
   NEOLINGO_AUTOSIGNIN=U  after a real start the host signs U in at slot 1 if U is registered (default "me"; empty: start signed out)
-  A clean stop (SIGTERM, SIGINT) signs every signed-in slot out first, so the settings changed since sign-in are saved.
+  A clean stop (SIGTERM, SIGINT) signs every signed-in slot out first, so the settings changed since sign-in are saved
+  (a vocabulary form left open, which refuses Sign out since 14 October, is cancelled first: the page that held its
+  typed text is gone with the stop; the log names it).
+  ONE SESSION PER LEARNER (engine of 14 October): Sign in as a learner signed in in another slot is refused (the engine's
+  "“u” is already signed in."; a signed-out slot's screen lists such names in body.elsewhere); the host never starts the
+  engine with a learner named twice.
   A GUEST's session (the Screen's "guest":true) is kept nowhere: no archive line, no archived take, the take files deleted at
   sign-out (and at a start or stop); GET /judgement?take= answers {"guest":true} for a guest's take and host.js draws nothing.
   NEOLINGO_JUDGING=0 turns off the judging buttons in the app page (the endpoints and /review stay)
@@ -208,11 +213,14 @@ class Host:
             log("start: the store has no learner; the engine cannot register the first one, so the host does: " +
                 self.store.apply({"kind": "putLearner", "uid": first, "settings": dict(DEFAULT_SETTINGS)}))
             store = self.store.all_data()
+        names = [x["uid"] for x in store]
+        twice = sorted({u for u in names if names.count(u) > 1})
+        if twice:                                 # one session per learner: the engine refuses it too (protocol 2)
+            raise RuntimeError(f"the store names a learner twice ({', '.join(twice)}): not started")
         n = slots()
         d = self.engine.ask({"cmd": "start", "slots": n, "store": store, "model": model}, self.store)
         self.started = True
         self.note_screens(d)
-        names = [x["uid"] for x in store]
         log(f"start: {n} slot(s), signed out; {len(names)} learner(s) registered: {', '.join(names) or 'none'}")
         who = autosignin()
         if who and who in names:
@@ -239,12 +247,37 @@ class Host:
             try:
                 d = self.engine.ask({"press": "signOut", "session": r, "input": None}, self.store)
                 self.note_screens(d)
+                if not d.get("step"):
+                    d = self.close_forms_and_sign_out(r, u, d)
                 log(f"sign-out: slot {r} ({u}) {'settings saved' if d.get('step') else 'NOT a step: ' + str(d.get('message'))}")
                 if d.get("step"):
                     done.append(u)
             except Exception as e:
                 log(f"sign-out: slot {r} ({u}) FAILED: {type(e).__name__}: {e}")
         return done
+
+    def ask_slot(self, r, press, value=None):
+        d = self.engine.ask({"press": press, "session": r, "input": value}, self.store)
+        self.note_screens(d)
+        return d
+
+    def close_forms_and_sign_out(self, r, u, refused):
+        """Sign out refused (since 14 October Sign out is no step while a vocabulary form is open, so that no typed
+        change is dropped by the PAGE).  At a stop or a fresh start the page's typed text is lost anyway, and the
+        settings are worth keeping: close the settings view if open, show Vocabulary, Cancel every open form (the
+        rows with "editing", and "unlisted", the forms the search hides), then Sign out again.  Returns the last reply."""
+        if not any(str(refused.get("message") or "").startswith(p) for p in ("Save or cancel", "Close the settings")):
+            return refused
+        scr = (refused.get("screens") or [{}] * r)[r - 1]
+        if scr.get("closeSettings"):
+            self.ask_slot(r, "closeSettings")
+        d = self.ask_slot(r, "show", "Vocabulary")
+        body = d["screens"][r - 1].get("body") or {}
+        open_ = [w["word"] for w in body.get("rows") or [] if w.get("editing")] + [w["word"] for w in body.get("unlisted") or []]
+        for w in open_:
+            self.ask_slot(r, "cancel", w)
+        log(f"sign-out: slot {r} ({u}) had open form(s) {', '.join(open_) or 'none found'}: cancelled so that the settings are saved")
+        return self.ask_slot(r, "signOut")
 
     def close(self):
         """A clean stop: sign everybody out (settings saved), then stop the engine."""
@@ -311,7 +344,8 @@ class Host:
                 elif msg["press"] == "signOut" and was_guest and not self.is_guest(r):
                     self.discard_guest_takes(r)
                 elif msg["press"] in ("signIn", "register", "signOut"):
-                    log(f"press {msg['press']} slot {r}: {'step' if d.get('step') else 'no step'}; slots now {self.uids}")
+                    log(f"press {msg['press']} slot {r}: {'step' if d.get('step') else 'no step: ' + str(d.get('message'))}; "
+                        f"slots now {self.uids}")
             d.pop("test", None)
             d.pop("takes", None)
             if "screens" in d:

@@ -1,10 +1,11 @@
-"""Where things are.  NEOLINGO_VAR overrides var/ (the tests use it to keep their own database)."""
+"""Where things are.  NEOLINGO_VAR overrides var/ (the tests use it to keep their own database); NEOLINGO_PAGE overrides
+page/ (a scratch host can serve a newer page than the one in the folder, which a running host serves)."""
 import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 VAR = Path(os.environ.get("NEOLINGO_VAR") or ROOT / "var").resolve()
-PAGE = ROOT / "page"
+PAGE = Path(os.environ.get("NEOLINGO_PAGE") or ROOT / "page").resolve()
 DATA = ROOT / "data"
 TAKES = VAR / "takes"
 SPEECH = VAR / "speech"
