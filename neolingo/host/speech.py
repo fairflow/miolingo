@@ -1,6 +1,6 @@
 """Speech for `speak`.  The engine is chosen by NEOLINGO_TTS = gtts (default) | say, or per variant:
-NEOLINGO_TTS="en-gb=say,fr-fr=gtts" (a variant not named: gtts).  `run.sh` sets en-gb=say: the owner's choice by ear
-on 14 October 2026 (Serena (Premium) for British English 6 of 6; Google for French 5 of 6 and German 6 of 6).
+NEOLINGO_TTS="en-gb=say,fr-fr=gtts" (a variant not named: gtts).  `run.sh` sets en-gb=say,de=say: the owner's choice by ear
+on 14 October 2026: British English Serena (Premium), 6 of 6 twice; French Google, 5 of 6 twice; German Petra (Premium), 4 to 0 when judged as "a better example of the language difference" (the lab found Google and Petra not separated through the recogniser).
 
   gtts    Google's text-to-speech through the `gtts` package (the ONE network use allowed): MP3.  Language from
           the variant (fr, en with tld co.uk for en-gb and com for en-us, de), `slow=` from the setting.  If the
