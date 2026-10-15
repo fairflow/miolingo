@@ -1,5 +1,5 @@
 {
-  "_note": "Each entry was checked against espeak-ng's output (espeak-ng -q -v de --ipa) on 2026-10-13. Needed because espeak-ng reads these loanwords by German letter rules, giving a target that is clearly wrong against the standard German pronunciation (Duden). The IPA is written in the symbols espeak uses for German after env.norm_word: r between vowels or before a vowel and the flap ɾ before a consonant or finally, ɑː for long a, a for short a, øː, ɛː, ə for -e and -en. Only symbols that are keys of data/cost_table.json are used (no tie bars, no o with a non-syllabic mark, no long nasals). Keys: lower case, letters and digits only (so E-Mail is 'email'). Words where espeak is right or acceptable are deliberately not listed. Per language code.",
+  "_note": "Each entry was checked against espeak-ng's output (espeak-ng -q -v de --ipa) on 2026-10-13. Needed because espeak-ng reads these loanwords by German letter rules, giving a target that is clearly wrong against the standard German pronunciation (Duden). The IPA is written in the symbols espeak uses for German after env.norm_word: r between vowels or before a vowel and the flap ɾ before a consonant or finally, ɑː for long a, a for short a, øː, ɛː, ə for -e and -en. Only symbols that are keys of data/cost_table.json are used (no tie bars, no o with a non-syllabic mark, no long nasals). Keys: lower case, letters and digits only (so E-Mail is 'email'). Words where espeak is right or acceptable are deliberately not listed. Per language code. ABBREVIATIONS (added 2026-10-15): a key written with capitals matches only the word written so (key letters and digits, case kept), so that French 'PIN' is [pin] while the word 'pin' (pine) keeps espeak's [pɛ̃]; espeak spells an abbreviation in a phrase letter by letter ('The PIN code' gave [piːaɪɛn]). PIN: English [pɪn] (espeak's own reading of the word 'pin'); French [pin] (the IPA of Miolingo's fr/phrases/phrases-005.txt, 'Le code PIN'); German [pɪn] (Duden; Miolingo's de dictionary has espeak's [piːn] for lower-case 'pin-code'), and the compound 'PIN-Code' [pɪnkoːt] (espeak's [koːt] for 'Code').",
   "de": {
     "toilette": "toalɛtə",
     "toiletten": "toalɛtən",
@@ -20,6 +20,14 @@
     "email": "iːmeɪl",
     "steak": "ʃteːk",
     "toast": "toːst",
-    "sandwich": "zɛntvɪtʃ"
+    "sandwich": "zɛntvɪtʃ",
+    "PIN": "pɪn",
+    "pincode": "pɪnkoːt"
+  },
+  "en": {
+    "PIN": "pɪn"
+  },
+  "fr": {
+    "PIN": "pin"
   }
 }

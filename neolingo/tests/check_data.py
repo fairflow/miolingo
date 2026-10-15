@@ -1,4 +1,4 @@
-"""The data lint (D1 to D3 of locus docs/neolingo-test-design.md, section 4E) on the committed data, and the lint
+"""The data lint (D1 to D4; D1 to D3 of locus docs/neolingo-test-design.md, section 4E) on the committed data, and the lint
 watched failing on the faults that occurred.  Needs espeak-ng, no models, about 15 s:
 
     <miolingo venv python> tests/check_data.py
@@ -8,7 +8,8 @@ The checks are data/build_data.py's own functions (the same ones refuse a rebuil
   D2  every word of a practised text has a target (one per word, none empty, each sound a key of the cost table), a
       word listed in data/ipa_exceptions.json has the table's target, and the stored target of a phrase is the one
       the host computes (env.target_ipa);
-  D3  a rebuild only adds keys to gloss.json (checked over the file's history in git, and against the working copy).
+  D3  a rebuild only adds keys to gloss.json (checked over the file's history in git, and against the working copy);
+  D4  a word written in capitals in a practised phrase (an abbreviation) has a target listed in ipa_exceptions.json.
 The targets the host computes are checked for every variant of a language (English: en-gb and en-us).
 Exits 1 on failure."""
 import copy
@@ -65,8 +66,7 @@ for l in LANGS:
 
 print("\n== D2: the targets the host computes (env.target_ipa), every variant ==")
 for l in LANGS:
-    listed = B.table_targets(l)
-    in_lists = sorted({x for w in WORDS[l] for x in w["words"] if env_ipa._word_key(x) in listed})
+    in_lists = sorted({x for w in WORDS[l] for x in w["words"] if env_ipa.listed_ipa(l, x) is not None})
     for v in VARIANTS[l]:
         items = ([(f"{v} phrase", p["text"], env.target_ipa(p["text"], v)) for p in DATA[l]["phrases"]]
                  + [(f"{v} word", w["word"], env.target_ipa(w["word"], v)) for w in DATA[l]["vocabulary"]]
@@ -77,6 +77,12 @@ for l in LANGS:
              f"[{' '.join(map(''.join, t))}]"
              for p in DATA[l]["phrases"] for t in [env.target_ipa(p["text"], B.VARIANT[l])] if t != p["ipa"]]
     clean_run(stale, f"D2 {l}: each stored target is the one the host computes for {B.VARIANT[l]}")
+
+print("\n== D4: a word written in capitals in a phrase has a listed target ==")
+for l in LANGS:
+    ph = DATA[l]["phrases"]
+    clean_run(B.lint_capitals(l, [(f"{l} phrase", p["text"]) for p in ph]),
+              f"D4 {l}: {len(ph)} phrases, words in capitals {sorted({w for p in ph for w in env_ipa._text_words(p['text']) if B.capitals(w)})}")
 
 print("\n== D3: gloss.json only gains keys, over its history ==")
 
@@ -124,6 +130,19 @@ refused(B.lint_targets("de", [("planted", "Wo ist die Toilette bitte", good[:-1]
         "designed, an empty target")
 refused(B.lint_targets("en", [("planted", "water", [["w", "ɔː", "ɾ", "ɚ"]])], KEYS), "D2",
         "designed, a sound that is not a key of the cost table ([ɚ], en-us)")
+
+# D4, 13 October (the audit's sweep): "PIN" spelled out; the table without its PIN entries (before 15 October)
+saved = env_ipa._EXC
+env_ipa._EXC = {l: {k: v for k, v in m.items() if k.lower() not in ("pin", "pincode")} if isinstance(m, dict) else m
+                for l, m in json.loads((ROOT / "data" / "ipa_exceptions.json").read_text("utf-8")).items()}
+try:
+    f4 = [f for l in LANGS for f in B.lint_capitals(l, [(f"{l} phrase", p["text"]) for p in DATA[l]["phrases"]])]
+finally:
+    env_ipa._EXC = saved
+refused(f4, "D4", f"13 Oct, PIN spelled out, with the table's PIN entries removed ({len(f4)} phrases)")
+refused(B.lint_capitals("en", [("planted", "Where is the ATM?")]), "D4", "designed, another abbreviation: 'ATM'")
+check(not B.lint_capitals("en", [("planted", "I'm lost")]) and not B.lint_capitals("de", [("planted", "Wo ist die Toilette")]),
+      "designed, not an abbreviation: one capital ('I'm'), a capitalised noun ('Toilette')")
 
 # D3, 13 October: a rebuild from the material alone, which drops the meanings build_words.py added (own language pt)
 g = json.loads((ROOT / "data" / "gloss.json").read_text("utf-8"))

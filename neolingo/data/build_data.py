@@ -16,7 +16,10 @@ functions run on the committed files in tests/check_data.py.
       owner's take): espeak read the loanword "Toiletten" by German letter rules, [toːiːlɛtən].
   D3  a rebuild only adds keys to gloss.json: every (language, text, own language) of the file being replaced is
       in the new one with the same meaning.  Guards 13 October: a rebuild from the material alone dropped the
-      meanings build_words.py had added (the English word meanings)."""
+      meanings build_words.py had added (the English word meanings).
+  D4  a word written in capitals in a practised phrase (two or more letters, all capitals, alone or as a part of a
+      hyphenated word: an abbreviation) has a target listed in data/ipa_exceptions.json: espeak spells it letter by
+      letter.  Guards 13 October (the audit's sweep): "PIN" spelled out in all three languages, [piːaɪɛn] for [pɪn]."""
 from __future__ import annotations
 
 import argparse
@@ -60,16 +63,16 @@ def cost_keys() -> set[str]:
     return set(json.loads((HERE / "cost_table.json").read_text("utf-8"))["phones"])
 
 
-def table_targets(lang: str) -> dict[str, list[str]]:
-    """{word key: target sounds} of data/ipa_exceptions.json for a language, cut as target_ipa cuts them."""
-    return {k: env.phones_of(env.norm_word(v.replace(" ", ""))) for k, v in env_ipa.ipa_exceptions(lang).items()}
+def listed_target(lang: str, word: str) -> list[str] | None:
+    """The target sounds data/ipa_exceptions.json lists for this word of a text, cut as target_ipa cuts them; or None."""
+    listed = env_ipa.listed_ipa(lang, word)
+    return None if listed is None else env.phones_of(env.norm_word(listed.replace(" ", "")))
 
 
 def lint_targets(lang: str, items, keys: set[str]) -> list[str]:
     """D2 over [(where, text, target)], `target` as env.target_ipa gives it (a list of words, each a list of
     sounds): one target per word of the text, none empty, each sound a key of the cost table, and a listed loanword
     with the table's target."""
-    listed = table_targets(lang)
     out = []
     for where, text, target in items:
         words = env_ipa._text_words(text)
@@ -82,10 +85,29 @@ def lint_targets(lang: str, items, keys: set[str]) -> list[str]:
             unknown = [s for s in t if s not in keys]
             if unknown:
                 out.append(f"D2 {where}: {text!r}: {w!r} [{''.join(t)}]: not keys of the cost table: {unknown}")
-            k = env_ipa._word_key(w)
-            if k in listed and t != listed[k]:
+            want = listed_target(lang, w)
+            if want is not None and t != want:
                 out.append(f"D2 {where}: {text!r}: {w!r} is listed in ipa_exceptions.json as "
-                           f"[{''.join(listed[k])}], its target is [{''.join(t)}]")
+                           f"[{''.join(want)}], its target is [{''.join(t)}]")
+    return out
+
+
+def capitals(word: str) -> list[str]:
+    """The parts of a word (split at hyphens and apostrophes) written in capitals: two or more letters, all capitals."""
+    parts = re.split(r"[-'’]", word)
+    return [p for p in parts if len(l := "".join(c for c in p if c.isalpha())) >= 2 and l.isupper()]
+
+
+def lint_capitals(lang: str, items) -> list[str]:
+    """D4 over [(where, text)]: a word written in capitals has a target listed in data/ipa_exceptions.json."""
+    out = []
+    for where, text in items:
+        words = env_ipa._text_words(text)
+        bad = [i for i, w in enumerate(words) if capitals(w) and env_ipa.listed_ipa(lang, w) is None]
+        if bad:
+            target = env.target_ipa(text, VARIANT[lang])
+            out += [f"D4 {where}: {text!r}: {words[i]!r} is written in capitals and has no listed target in "
+                    f"ipa_exceptions.json (its target in the phrase: [{''.join(target[i])}])" for i in bad]
     return out
 
 
@@ -208,6 +230,7 @@ def main(argv=None):
                  for (w, g, s) in spread(vrows, N_VOCAB)]
         faults += lint_texts([(f"{lang} phrase", p["text"]) for p in phrases]
                              + [(f"{lang} word", v["word"]) for v in vocab])
+        faults += lint_capitals(lang, [(f"{lang} phrase", p["text"]) for p in phrases])
         faults += lint_targets(lang, [(f"{lang} phrase", p["text"], p["ipa"]) for p in phrases]
                                + [(f"{lang} word", v["word"], env.target_ipa(v["word"], VARIANT[lang])) for v in vocab],
                                keys)
@@ -228,7 +251,7 @@ def main(argv=None):
                    separators=(",", ":"), sort_keys=True), "utf-8")
     for lang, body in bodies.items():
         (out_dir / f"{lang}.json").write_text(body, "utf-8")
-    print(f"the data lint passed (D1, D2, D3); written to {out_dir}")
+    print(f"the data lint passed (D1 to D4); written to {out_dir}")
 
 
 if __name__ == "__main__":

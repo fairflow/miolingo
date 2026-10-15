@@ -82,18 +82,33 @@ _EXC_FILE = Path(__file__).resolve().parent.parent / "data" / "ipa_exceptions.js
 _EXC: dict | None = None
 
 
-def _word_key(token: str) -> str:
-    """Lower-cased token with everything but letters and digits removed (the key form of ipa_exceptions.json)."""
-    return "".join(c for c in token.lower() if c.isalnum())
+def _word_key(token: str, keep_case: bool = False) -> str:
+    """The token with everything but letters and digits removed, lower-cased unless `keep_case` (the key forms of
+    ipa_exceptions.json)."""
+    s = "".join(c for c in token if c.isalnum())
+    return s if keep_case else s.lower()
 
 
 def ipa_exceptions(lang: str) -> dict[str, str]:
     """{word key: IPA} that replaces espeak's output for those words (data/ipa_exceptions.json; keys not
-    starting with "_" are language codes)."""
+    starting with "_" are language codes).  A key written in lower case matches the word in any case ("toiletten",
+    "Toiletten!"); a key with a capital letter, an abbreviation, matches only the word written so (since 15 October:
+    "PIN" is [pin] in French, while the word "pin", pine, stays espeak's [pɛ̃])."""
     global _EXC
     if _EXC is None:
         _EXC = json.loads(_EXC_FILE.read_text("utf-8")) if _EXC_FILE.exists() else {}
-    return {_word_key(w): i for w, i in _EXC.get(lang, {}).items()}
+    return {(_word_key(w, True) if any(c.isupper() for c in w) else _word_key(w)): i
+            for w, i in _EXC.get(lang, {}).items()}
+
+
+def listed_ipa(lang: str, token: str) -> str | None:
+    """The IPA data/ipa_exceptions.json lists for this word of a text, or None: the key written with capitals first
+    (the word exactly as written), then the lower-case key."""
+    exc = ipa_exceptions(lang)
+    exact = _word_key(token, True)
+    if any(c.isupper() for c in exact) and exact in exc:
+        return exc[exact]
+    return exc.get(_word_key(token))          # a lower-case key (a key with capitals is never all lower case)
 
 
 def target_ipa(text: str, variant_code: str) -> list[list[list[str]]]:
@@ -114,6 +129,8 @@ def target_ipa(text: str, variant_code: str) -> list[list[list[str]]]:
     whole = _espeak(" ".join(toks), v["espeak"]).split()
     if len(whole) != len(toks):
         whole = [w for t in toks for w in [" ".join(_espeak(t, v["espeak"]).split())]]
-    exc = ipa_exceptions(v["lang"])      # words espeak reads wrongly (loanwords): the listed IPA instead
-    out = [phones_of(norm_word(exc.get(_word_key(t), w).replace(" ", ""))) for t, w in zip(toks, whole)]
+    out = []
+    for t, w in zip(toks, whole):        # words espeak reads wrongly (loanwords, abbreviations): the listed IPA instead
+        listed = listed_ipa(v["lang"], t)
+        out.append(phones_of(norm_word((w if listed is None else listed).replace(" ", ""))))
     return out
