@@ -19,6 +19,11 @@ at `ac88c35`; the `main` snapshot lacks `unified/`). Nothing is taken from
   (each phrase in en, fr, de, es, it, nl, pt). Words: French and German
   dictionaries above, with English glosses only.
 * `cost_table.json`: written by `env.write_cost_table()`; see `env/tables.py`.
+* **The data lint** (locus `docs/neolingo-test-design.md` 4E): `build_data.py` writes nothing when one fails, and
+  `tests/check_data.py` runs the same checks on the committed files. D1: a practised text has no bracket, slash or digit.
+  D2: every word of a practised text has a target (one per word, none empty, each sound a cost key), a word listed in
+  `ipa_exceptions.json` has the table's target, a stored target is the one `env.target_ipa` computes. D3: a rebuild
+  only adds keys to `gloss.json`. `build_data.py --out DIR` rebuilds into a scratch folder.
 
 * `words_en.json`, `words_fr.json`, `words_de.json`, `gloss.json` (extended): made by `build_words.py` (run after `build_data.py`), from the same
   parent checkout and branch; plain text only, nothing from `data/user-data`. Each file is `[{name, lang, words, source}]`.

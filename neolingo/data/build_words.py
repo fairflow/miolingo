@@ -1,5 +1,6 @@
 """Make data/words_{en,fr,de}.json (the word lists offered under "Upload a list of words") and extend data/gloss.json
-with the meanings of those words.  Run AFTER build_data.py (which rewrites gloss.json from scratch):
+with the meanings of those words (it only adds: a meaning already there is kept).  Run after build_data.py, which
+keeps every meaning already in gloss.json and refuses a rebuild that would drop one (its lint, D3):
 
     venv/bin/python neolingo/data/build_words.py
 
