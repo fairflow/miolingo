@@ -97,6 +97,26 @@ check([i["take"] for i in H["items"]] == ["t0123456789abcdef"] and H["total"] ==
 (paths.ARCHIVE / "overseer_takes.txt").unlink()
 check(archive.test_voice_tokens() == set() and all("source" not in i for i in archive.listing()["items"]), "no overseer_takes.txt: nothing labelled")
 
+# the vocabulary's order (protocol 4.1, locus 563b41f: "Most recent" reads the rows in the order kept): a putEntry of
+# a word already there keeps its place, a new word goes last, dropEntry removes its row, putEntries appends in order
+TAG = "designed 15 Oct (protocol 4.1, the vocabulary's order): "
+v = Store(Path(tmp) / "order.sqlite")
+E = lambda w, t="", n="": {"word": w, "translation": t, "notes": n}   # noqa: E731
+words = lambda st: [(e["word"], e["translation"], e["notes"]) for x in st.data("cy")["vocab"] if x["lang"] == "fr" for e in x["entries"]]   # noqa: E731
+v.apply({"kind": "putLearner", "uid": "cy", "settings": {"own": "en", "practised": "fr-fr", "slow": False}})
+for w in ("un", "deux", "trois"):
+    v.apply({"kind": "putEntry", "uid": "cy", "lang": "fr", "entry": E(w)})
+check([w for w, _t, _n in words(v)] == ["un", "deux", "trois"], "new words go last, in the order put")
+v.apply({"kind": "putEntry", "uid": "cy", "lang": "fr", "entry": E("un", "one")})
+check(words(v) == [("un", "one", ""), ("deux", "", ""), ("trois", "", "")], f"a putEntry of a word already there keeps its place ({words(v)})")
+v.apply({"kind": "dropEntry", "uid": "cy", "lang": "fr", "key": "deux"})
+v.apply({"kind": "putEntry", "uid": "cy", "lang": "fr", "entry": E("quatre")})
+check([w for w, _t, _n in words(v)] == ["un", "trois", "quatre"], f"dropEntry removes its row; the next new word goes last ({words(v)})")
+v.apply({"kind": "putEntries", "uid": "cy", "lang": "fr", "entries": [E("cinq"), E("trois", "three", "n"), E("six")]})
+check(words(v) == [("un", "one", ""), ("trois", "three", "n"), ("quatre", "", ""), ("cinq", "", ""), ("six", "", "")],
+      f"putEntries: the new words appended in the order given, the one already there updated in place ({words(v)})")
+check(words(Store(Path(tmp) / "order.sqlite")) == words(v), "the order survives a reopen")
+
 # sign-in: putLearner, the whole store, the learner in the archive
 TAG = "designed 13 Oct (85d5f9b, sign-in): "
 t = Store(Path(tmp) / "new.sqlite")
