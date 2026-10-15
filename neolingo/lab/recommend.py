@@ -304,8 +304,8 @@ METHOD = """## Method
 heard sounds = the phone model's own decode cut as `env.hear` cuts it (cached log-probabilities, float16, with
 the greedy path taken from the float32 logits); Miolingo's `sound_check.score` on the same log-probabilities with
 the live token-to-sound mapping and the host's `flags_out` and the engine's flag filter; the engine's alignment of
-target and greedy sounds (`lab/engine_py.py`, a copy of the engine's `dist`, `align` with its tie-break, `score`,
-`byWord`, `columnsFrom`, `understood`); each difference of that alignment is an edit; the variant decides which
+target and greedy sounds (until 15 October `lab/engine_py.py`, a copy of the engine's `dist`, `align` with its
+tie-break, `score`, `byWord`, `columnsFrom`, `understood`; since then the engine's own `align` command, `lab/align.py`); each difference of that alignment is an edit; the variant decides which
 edits are kept; the final heard sequence is aligned and scored again.
 
 **Validation before any variant was believed** (`var/lab/validate/`): (1) the replay of the 81 archived takes
@@ -375,7 +375,7 @@ COMMANDS = """## Commands (from `neolingo/`, Miolingo's venv python, `HF_HUB_OFF
     $PY -m lab.phone_run --model <hf id> --list var/lab/lists/all-de.txt --threads 4   # log-probabilities (one model a process)
     $PY -m lab.jobs reference nearmiss positive archive
     $PY -m lab.whisper_run --jobs var/lab/jobs/<set>.jsonl --shard K/N [--reverse]      # Whisper medium: free, prompt, teacher-forced
-    $PY -m lab.validate stored | replay | engine <sets> [--variant NAME] [--every K]
+    $PY -m lab.batch compare                                                      # the lab against the engine's batch (lab.validate: archived)
     $PY -m lab.run fill --workers 3                                              # sound check + likelihood ratios (cache)
     $PY -m lab.run variants [NAME ...]                                           # every variant -> var/lab/results/
     $PY -m lab.native_error                                                       # free-reading error per model

@@ -33,7 +33,7 @@ import sys
 from pathlib import Path
 
 from . import analyse as A
-from . import engine_py as E
+from .common import flat
 from .common import LAB, VARIANT, write_json, write_jsonl
 
 CP = Path.home() / "datasets" / "common_phone" / "CP"
@@ -151,7 +151,7 @@ def items():
                 bad["espeak wrote ?? for a sound"] += 1
                 continue
             target = A.target_of(c["text"], variant)
-            T = E.flat(target)
+            T = flat(target)
             if not T:
                 bad["no target"] += 1
                 continue

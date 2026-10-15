@@ -28,8 +28,7 @@ import os
 import numpy as np
 
 from . import cache
-from .common import CACHE, wav_sha
-from . import engine_py as E
+from .common import CACHE, flat, wav_sha
 
 CK = CACHE / "check"
 _MEM: dict = {}
@@ -138,7 +137,9 @@ def phones_from_tokens(tokens, target) -> dict:
     n = sum(len(w) for w in words)
     lib = lib_findings(raw["tokens"])
     sent = flags_out(lib, words) if lib else []
-    kept = E.keep_flags(sent, words)
+    # the flags the engine keeps: those naming the target's sound at their place (protocol section 3, `sounds`)
+    tf = flat(words)
+    kept = [f for f in sent if 0 <= f["at"] < len(tf) and tf[f["at"]] == f["sound"]]
     by_at = {f["at"]: f for f in kept}
     cover = [[] for _ in range(n)]
     for t in raw["tokens"]:

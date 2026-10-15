@@ -1,6 +1,6 @@
 """The engine's own judgement for the lab: `neolingo batch FILE` (locus a4c5878 and later; the format is written in
 locus Neolingo.lean beside the command).  It runs the engine's `judgeWith` per item, so the lab needs no second copy
-of the scoring (it replaces lab/engine_py.py for everything the engine itself decides: alignment, V2, splits, the off
+of the scoring (it replaced lab/engine_py.py, now in lab/archive/, for everything the engine itself decides: alignment, V2, splits, the off
 floor, the score, the picture, the flags kept, understood).
 
     run(config, items)            -> {id: result}; config = protocol section 5 (host.engine_config.build_config())
@@ -11,7 +11,8 @@ floor, the score, the picture, the flags kept, understood).
     item_for(it, target, G, flags, text)    one batch item, with the readings `sameSounds` needs (the German
                                   respellings of the text, each with its espeak sounds)
 
-    <python> -m lab.batch compare [--engine PATH]   the lab's analysis (lab/analyse.py on engine_py) against batch on
+    <python> -m lab.batch compare [--engine PATH]   the lab's analysis (lab/analyse.py: its own V2 rules on the engine's
+                                  alignment, lab/align.py) against batch on
                                   every item, under the default configuration (without and with the splits) and run3
                                   -> var/lab/batch/compare.md"""
 from __future__ import annotations
@@ -26,6 +27,7 @@ import tempfile
 import time
 from pathlib import Path
 
+from . import align as AL
 from . import analyse as A
 from . import cache, check
 from . import costfit as C
@@ -128,7 +130,7 @@ def flags_for(it, target, findings, free):
 def readings_for(variant, text):
     if not text:
         return []
-    from .engine_py import readings
+    from .understood import readings
     return [{"text": r, "ipa": A.target_ipa(r, variant)} for r in readings(variant, text)]
 
 
@@ -141,7 +143,6 @@ def item_for(it, target, G, flags, text):
 def lab_columns(rec, cost, sig, flags_kept, understood):
     """The lab's record as the engine draws it: by word, {target, heard, kind, mark}.  Understood: the verified columns
     (rec["columns"]); not understood: the free reading's own alignment (rec["align0"]), each column by kindOf."""
-    from .engine_py import by_word
     def kind_of(t, h, lab_kind=None):
         if t is None:
             return "added"
@@ -154,23 +155,21 @@ def lab_columns(rec, cost, sig, flags_kept, understood):
         c = cost(t, h)
         return "ok" if c == 0 else ("near" if c < sig else "off")
     if understood:
-        cols = [(t, (t if (t is not None and h is not None and t != h and cost(t, h) == 0) else h), kind_of(t, h, k))
-                for (t, h, k) in rec["columns"]]
+        cols = [(t, (t if (t is not None and h is not None and t != h and "‿" not in h and cost(t, h) == 0) else h),
+                 kind_of(t, h, k)) for (t, h, k) in rec["columns"]]
     else:
-        cols = [(t, h, kind_of(t, h)) for (t, h) in rec["align0"]]
-    groups = by_word(rec["target"], [(t, h) for (t, h, _k) in cols])
-    # the groups, concatenated, are the columns in their order (a word's columns follow the word before)
+        cols = [(t, "‿".join(h) if isinstance(h, tuple) else h, kind_of(t, h if not isinstance(h, tuple) else "‿".join(h)))
+                for (t, h) in rec["align0"]]
     marks = {f["at"]: (2 if f["off"] else 1) for f in flags_kept}
-    out, j, k_at = [], 0, 0
-    for g in groups:
+    out, k_at = [], 0
+    for g in A.word_columns({"target": rec["target"], "columns": cols}):
         row = []
-        for (t, h, k) in cols[j:j + len(g)]:
+        for (t, h, k) in g:
             m = 0
             if t is not None:
                 m = marks.get(k_at, 0)
                 k_at += 1
             row.append({"target": t, "heard": h, "kind": k, "mark": m})
-        j += len(g)
         out.append(row)
     return out
 
@@ -180,7 +179,9 @@ def norm_cols(cols):
 
 
 def compare_one(name, combo, S, config, its, engine, free_name):
-    from .engine_py import keep_flags
+    def keep_flags(fl, target):              # the flags the engine keeps (protocol section 3, `sounds`)
+        tf = [x for w in target for x in w]
+        return [f for f in fl if 0 <= f["at"] < len(tf) and tf[f["at"]] == f["sound"]]
     sig = config["significant"]
     items, labrecs, sent = [], {}, {}
     t0 = time.perf_counter()
@@ -201,6 +202,10 @@ def compare_one(name, combo, S, config, its, engine, free_name):
     t1 = time.perf_counter()
     res = run(config, items, engine)
     t2 = time.perf_counter()
+    # batch's "alignment" field against the `align` command on the same sounds and flags (the lab's analysis aligns
+    # with `align`, lab/align.py; both are Neo.alignFor)
+    al = AL.Aligner(engine)
+    al.configure({k: v for k, v in config.items() if k != "cmd"})
     diff = collections.Counter()
     rows = []
     for x in items:
@@ -209,6 +214,8 @@ def compare_one(name, combo, S, config, its, engine, free_name):
         b = res[i]
         und = rec["understood"] if rec["understood"] is not None else True
         ch = []
+        if b.get("alignment") != al.align(x["variant"], x["target"], x["heard"], x["flags"]):
+            ch.append("alignment")
         if b["score"] != rec["score"]:
             ch.append("score")
         if rec["understood"] is not None and b["understood"] != rec["understood"]:
@@ -223,6 +230,7 @@ def compare_one(name, combo, S, config, its, engine, free_name):
         if ch:
             rows.append({"id": i, "set": its_by[i]["set"], "lang": its_by[i]["lang"], "text": its_by[i]["text"],
                          "ch": ch, "lab": rec["score"], "engine": b["score"]})
+    al.close()
     return {"name": name, "n": len(items), "equal": len(items) - len(rows), "diff": dict(diff), "rows": rows,
             "time_lab": round(t1 - t0, 1), "time_batch": round(t2 - t1, 1)}, res
 
@@ -267,9 +275,10 @@ def cmd_compare(a):
         rec = A.analyse(it, C.cfg_for(C.Combo(vr=True, vr12=True), it["lang"]))
         agree12 += int(rec["score"] == x["with"])
     write_json(OUT / "compare.json", {"runs": out, "splits": sp, "splits_lab_vr12_same_score": agree12}, indent=1)
-    w = [f"# The lab's analysis (engine_py) against `neolingo batch` ({time.strftime('%Y-%m-%d %H:%M')})\n",
+    w = [f"# The lab's analysis (its V2 rules on the engine's alignment) against `neolingo batch` ({time.strftime('%Y-%m-%d %H:%M')})\n",
          f"Engine `{engine_path(a.engine)}`.  Items: {', '.join(a.sets)}.  Compared per item: score, understood (where "
-         f"Whisper's text is cached), the flags kept, the columns with their kinds and marks.\n"]
+         f"Whisper's text is cached), the flags kept, the columns with their kinds and marks, and batch's "
+         f"`alignment` field against the `align` command on the same sounds and flags.\n"]
     for r in out:
         w.append(f"## {r['name']}\n\nItems {r['n']}, equal **{r['equal']}**, different **{r['n'] - r['equal']}** "
                  f"({', '.join(f'{k} {v}' for k, v in sorted(r['diff'].items())) or 'none'}).  Time: lab {r['time_lab']} s, "

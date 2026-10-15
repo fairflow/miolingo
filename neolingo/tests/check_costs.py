@@ -4,7 +4,7 @@ lab's third run) and the shape of the cost list.
   * unset and "live" give the same configuration: the plain one (today's costs and curve) plus exactly the German
     vocalised-r pairs at 0 (ɜ, ɐ heard as r, ɾ), and the live entry's `offFloor` and `splits` (the engine mechanisms of
     locus 977af82) when it has them, nothing else changed; the pairs' warnings are dropped (free_pairs);
-  * a candidate (run3, ...) transforms every entry as lab/engine_py.transform does, its free pairs at 0;
+  * a candidate (run3, ...) transforms every entry as host/engine_config.candidate_cost does, its free pairs at 0;
   * an unknown name stops the host;
   * an override is sent once per language.
 No models, no engine.   <miolingo venv python> tests/check_costs.py   (from neolingo/)
@@ -26,7 +26,6 @@ sys.path.insert(0, str(ROOT))
 os.environ.setdefault("NEOLINGO_VAR", tempfile.mkdtemp(prefix="neolingo_costs_"))
 
 from host import engine_config as EC          # noqa: E402
-from lab import engine_py as E                # noqa: E402
 
 VR = {("de", "ɜ", "r"), ("de", "ɜ", "ɾ"), ("de", "ɐ", "r"), ("de", "ɐ", "ɾ")}
 F1, D = "F1 13 Oct: ", "designed 14 Oct: "
@@ -104,14 +103,14 @@ def main():
             continue
         c = build(name)
         k = 1000 / cand.get("I", 1000)
-        tx = ("tx", cand.get("p"), cand.get("F", 0), k, frozenset())
+        tx = {"p": cand.get("p"), "F": cand.get("F", 0), "I": cand.get("I", 1000)}
         free = {(l, t, h) for (l, t, h) in cand.get("free", [])}
         got = entries(c)
         wrong = [(e.get("lang"), e["target"], e["heard"]) for e in base["costs"]
                  if (e.get("lang"), e["target"], e["heard"]) not in free
-                 and got[(e.get("lang"), e["target"], e["heard"])] != E.transform(e["cost"], tx)]
-        check(c["costOtherwise"] == E.transform(base["costOtherwise"], tx)
-              and c["significant"] == E.transform(base["significant"], tx)
+                 and got[(e.get("lang"), e["target"], e["heard"])] != EC.candidate_cost(e["cost"], tx)]
+        check(c["costOtherwise"] == EC.candidate_cost(base["costOtherwise"], tx)
+              and c["significant"] == EC.candidate_cost(base["significant"], tx)
               and c["curve"]["scale"] == round(base["curve"]["scale"] * cand.get("S", 1.0) * k * k)
               and not wrong and all(got[key] == 0 for key in free),
               D + f"{name}: costOtherwise {c['costOtherwise']}, significant {c['significant']}, scale "

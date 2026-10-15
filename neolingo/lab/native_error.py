@@ -14,7 +14,7 @@ import statistics
 
 from . import analyse as A
 from . import cache
-from . import engine_py as E
+from .common import flat
 from .common import CNAM, LANGS, LV60, XLSR, write_json
 from .run import RES, items
 
@@ -45,12 +45,12 @@ def main():
                 for it in sel:
                     if not cache.has_lp(it["wav"], m):
                         continue
-                    T = E.flat(A.target_of(it["text"], it["variant"]))
+                    T = flat(A.target_of(it["text"], it["variant"]))
                     G = A.greedy_of(it["wav"], m)
                     n += 1
                     if not G:
                         empty += 1
-                    d = E.dist(cost, T, G)
+                    d = sum(c for (_t, _h, c) in A.engine_align(cost, it["variant"], A.target_of(it["text"], it["variant"]), G)) if G else 1000 * len(T)
                     we.append(d / (1000 * max(len(T), len(G), 1)))
                     per.append(lev(T, G) / max(1, len(T)))
                 out.setdefault(lang, {}).setdefault(A.short_model(m) if hasattr(A, "short_model") else m, {})[grp] = {

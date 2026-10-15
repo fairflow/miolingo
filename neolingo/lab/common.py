@@ -111,3 +111,24 @@ def write_json(path, obj, **kw):
 
 def slug(model_id: str) -> str:
     return model_id.replace("/", "--")
+
+
+# the protocol's normalisation of sounds (section 5: stress marks and punctuation are not sounds; empty sounds and
+# empty words dropped).  The engine applies the same `norm` to everything it is given; the lab applies it to its targets
+# and readings so that its indices of target sounds are the engine's.
+def no_sound(c: str) -> bool:
+    return c in "ˈˌ" or (ord(c) < 128 and not c.isalpha()) or c in "‿‖"
+
+
+def norm(ipa):
+    out = []
+    for w in ipa or []:
+        ww = ["".join(c for c in ph if not no_sound(c)) for ph in w]
+        ww = [p for p in ww if p]
+        if ww:
+            out.append(ww)
+    return out
+
+
+def flat(ipa):
+    return [p for w in ipa or [] for p in w]

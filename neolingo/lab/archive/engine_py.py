@@ -1,5 +1,8 @@
 """The engine's scoring, copied into Python so that a variant costs no engine process.
 
+ARCHIVED 15 October (lab/archive/README.md): the engine's `align` command (lab/align.py; the host's Engine.align)
+and `neolingo batch` (lab/batch.py) replace it everywhere.  The paragraph below is as it stood before.
+
 SUPERSEDED (15 October) for everything the engine itself decides by `lab/batch.py` (`neolingo batch`, the engine's own
 `judgeWith`; locus a4c5878): lab/engine_measure.py uses it, and `python -m lab.batch compare` checks this copy against
 it (var/lab/batch/compare.md: the scores agree except where the lab's own V2 emulation keeps an unflagged edit at a

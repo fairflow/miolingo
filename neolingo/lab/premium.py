@@ -53,9 +53,9 @@ def cmd_reference():
 
 def cmd_nearmiss():
     from . import build_nearmiss as B
-    from . import engine_py as E
+    from .costs import cost_table
     res = json.loads((B.OUT / "pairs.json").read_text("utf-8"))
-    cfg = E.cost_table()
+    cfg = cost_table()
     items = [i for i in read_jsonl(B.OUT / "items.jsonl") if i["voice"] != "premium"]
     for lang in LANGS:
         variant = VARIANT[lang]

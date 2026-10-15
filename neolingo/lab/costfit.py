@@ -13,7 +13,7 @@ module writes goes under var/lab/run3/ (and the deck to var/flick/deck-candidate
 
 A CANDIDATE is the live analysis of each language (lab/combos.py `rec de`, `rec en`, `rec fr`: what the real host runs
 since 14 October 11:28) with other costs.  Its parameters (the order in which they act on a substitution cost c in
-thousandths, engine_py.transform):
+thousandths, host/engine_config.candidate_cost):
     p   Miolingo's stretch min(1000, 1000 (4c/1000)^p) (None: the raw panphon distance, as live; Miolingo uses 0.6)
     F   a floor: a substitution that costs anything costs at least F (0: none)
     I   the cost of an insertion and of a deletion (live 1000).  The engine's is fixed at 1000, so it is given as DATA:
@@ -49,7 +49,8 @@ import time
 from datetime import datetime
 
 from . import analyse as A
-from . import engine_py as E
+from . import costs as K
+from .common import flat
 from . import run as RUN
 from .common import ARCHIVE, DATA, LAB, LANGS, ROOT, VAR, read_jsonl, write_json
 
@@ -169,7 +170,7 @@ def data_scale(c: Combo, S: float) -> int:
 
 
 def score_of(d, n, nothing, c: Combo, S: float) -> int:
-    return 0 if nothing else E.curve(d, n, "sqrt", data_scale(c, S))
+    return 0 if nothing else K.curve(d, n, "sqrt", data_scale(c, S))
 
 
 def cfg_for(c: Combo, lang: str, S: float = 1.0) -> dict:
@@ -197,7 +198,8 @@ def significant(c: Combo) -> int:
     """The picture's near / off line under the candidate: the raw 42 transformed as any cost (stretched 42 is 343, on
     the same side of every stretched raw cost as Miolingo's 340), as host/engine_config.apply_candidate sends it.
     With a floor at or above it every substitution that costs anything is drawn `off`."""
-    return E.transform(SIGNIFICANT_RAW, ("tx", c.p, c.F, c.k, frozenset()))
+    from host.engine_config import candidate_cost
+    return candidate_cost(SIGNIFICANT_RAW, {"p": c.p, "F": c.F, "I": c.I})
 
 
 # ------------------------------------------------------------------ the analysis of one item under a combination
@@ -582,7 +584,7 @@ def cmd_extras(a):
             continue
         kept = rec["kept"]
         i = 0
-        T = E.flat(rec["target"])
+        T = flat(rec["target"])
         for col, (t, h) in enumerate(rec["align0"]):
             if t is None:
                 continue
@@ -671,7 +673,7 @@ def cmd_offfloor(a):
             if t is not None:
                 i += 1
         offrows[it["id"]] = (subs, nid, rec["n"], rec["nothing"], rec["score"])
-    bad = [k for k, r in offrows.items() if not r[3] and E.curve(sum(c for c, _o in r[0]) + 1000 * r[1], r[2]) != r[4]]
+    bad = [k for k, r in offrows.items() if not r[3] and K.curve(sum(c for c, _o in r[0]) + 1000 * r[1], r[2]) != r[4]]
     vs = [v for v in verdict_set() if not v["excluded"]]
     gl = {i["id"]: i for i in guard_items()}
 
@@ -679,7 +681,7 @@ def cmd_offfloor(a):
         out = {}
         for k, (subs, nid, n, nothing, _s) in offrows.items():
             d = sum(max(c, F) if off and c > 0 else c for (c, off) in subs) + nid * I
-            out[k] = 0 if nothing else E.curve(d, n, "sqrt", round(SCALE * S))
+            out[k] = 0 if nothing else K.curve(d, n, "sqrt", round(SCALE * S))
         return out
 
     def aucs(sc):
@@ -831,96 +833,10 @@ def candidate(name: str):
 
 
 def cmd_validate(a):
-    """The real compiled engine, given the configuration the HOST builds with NEOLINGO_COSTS=<name>
-    (host/engine_config.apply_candidate) and the lab's cached answers (the candidate's final heard sounds, the flags):
-    its score and columns must equal the lab's analysis under the same candidate.  As lab/validate.py `engine`."""
-    import os
-    from . import cache, check
-    from .validate import _engine, flag_key, OUT as VOUT
-    c, S, _cand = candidate(a.name)
-    os.environ["NEOLINGO_COSTS"] = a.name
-    ra, paths = _engine()
-    from host.engine import Environment, flags_out
-    from host.engine_config import build_config
-    config = build_config()
-    state = {}
-
-    class CachedEnvironment(Environment):
-        def answer(self, q):
-            k = q["q"]
-            rec = state.get("rec")
-            if k == "targetIpa":
-                if rec is not None and q["text"] == rec["text"] and q["variant"] == rec["variant"]:
-                    return {"ipa": rec["target"]}
-                return {"ipa": A.target_ipa(q["text"], q["variant"])}
-            if k == "fill":
-                return {"translation": "", "notes": ""}
-            if k == "audible":
-                return {"audible": True}
-            if k == "hear":
-                return {"text": rec["heard_text"] or "", "ipa": [rec["heard"]] if rec["heard"] else []}
-            if k == "sounds":
-                return {"flags": rec["flags_sent"]}
-            raise ValueError(q)
-
-    eng = ra.Engine(config)
-    eng.env = CachedEnvironment()
-    items = [i for i in RUN.items() if i["set"] in a.sets][::a.every]
-    same, diff, t0 = 0, [], time.perf_counter()
-    for n, it in enumerate(items, 1):
-        cfg = cfg_for(c, it["lang"], S)
-        if not cache.has_lp(it["wav"], cfg["model"]):
-            continue
-        rec = A.analyse(it, cfg)
-        if not rec["heard"]:
-            continue
-        raw = check.raw_tokens(it["wav"], cfg["model"], rec["target"], it["variant"])
-        lib = check.lib_findings(raw["tokens"])
-        fl = flags_out(lib, rec["target"]) if lib else []
-        # the German ü/ö rule's findings (env.sounds adds them; the check's own findings never flag those sounds): a
-        # flag "likely off" at each `unreliable` target sound where the analysis kept a substitution
-        unrel = A.costs_for(it["lang"], cfg["cost"], cfg["unchecked"]).unreliable
-        if cfg["unchecked"] == "phoneme_lr":
-            i = 0
-            for (t, h, _k) in rec["columns"]:
-                if t is None:
-                    continue
-                if t in unrel and h is not None and h != t and not any(f["at"] == i for f in fl):
-                    fl.append({"at": i, "sound": t, "heardAs": h, "off": True})
-                i += 1
-            fl.sort(key=lambda f: f["at"])
-        free = {(t, h) for (l, t, h) in _cand.get("free", []) if l == it["lang"]}
-        rec["flags_sent"] = [f for f in fl if (f["sound"], f["heardAs"]) not in free]     # as host/engine.py drops them
-        state["rec"] = rec
-        new = ra.replay_one(eng, None, {"variant": it["variant"], "text": it["text"], "take": f"x{n:07d}"})
-        state.pop("rec", None)
-        if not new.get("checked"):
-            diff.append((it, ["not checked"]))
-            continue
-        ch = []
-        if new["score"] != rec["score"]:
-            ch.append(f"score engine {new['score']} lab {rec['score']}")
-        kept = E.keep_flags(rec["flags_sent"], rec["target"])
-        cols_lab = E.columns_from(kept, E.by_word(rec["target"], [(t, h) for (t, h, _k) in rec["columns"]]))
-        if new["columns"] != cols_lab:
-            ch.append("columns")
-        if ch:
-            diff.append((it, ch))
-        else:
-            same += 1
-        if n % 500 == 0:
-            print(f"  {n}/{len(items)}  {time.perf_counter() - t0:.0f} s  equal {same}  different {len(diff)}", flush=True)
-    eng.proc.terminate()
-    w = [f"# Candidate `{a.name}` on the real engine ({time.strftime('%Y-%m-%d %H:%M')})\n",
-         f"The configuration the host builds with NEOLINGO_COSTS={a.name} ({len(config['costs'])} cost entries, "
-         f"costOtherwise {config['costOtherwise']}, significant {config['significant']}, curve {config['curve']}); the "
-         f"engine `{paths.ENGINE}` given the lab's final heard sounds and the flags.  Sets: {', '.join(a.sets)} (every "
-         f"{a.every}th item).  Compared: score, columns with their marks.  Equal: **{same}**.  Different: **{len(diff)}**.\n"]
-    for it, ch in diff[:100]:
-        w.append(f"- `{it['id']}` {it['variant']} {it['text']!r}: {'; '.join(ch)}")
-    VOUT.mkdir(parents=True, exist_ok=True)
-    (VOUT / f"engine-candidate-{a.name}.md").write_text("\n".join(w) + "\n", "utf-8")
-    print("\n".join(w[:20]))
+    """Superseded on 15 October: the lab's analysis is checked against the engine's own judgement by
+    `python -m lab.batch compare` (lab/batch.py, `neolingo batch`), the alignment being the engine's since then
+    (lab/align.py).  The scratch-engine replay this command ran (with lab/validate.py, now in lab/archive/) is gone."""
+    sys.exit("superseded: python -m lab.batch compare (the lab's analysis against the engine's own judgement)")
 
 
 # ------------------------------------------------------------------ main

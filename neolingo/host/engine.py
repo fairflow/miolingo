@@ -152,7 +152,8 @@ class Environment:
         if k == "sounds":
             if not w:
                 return {"flags": []}
-            lib = env.sounds(w, q["target"], q["variant"])
+            # the German ü/ö rule aligns with THIS engine's own `align` (protocol section 2), on this connection
+            lib = env.sounds(w, q["target"], q["variant"], aligner=getattr(self, "aligner", None))
             fl = flags_out(lib, q["target"])
             fl = self.drop_equivalent(fl, q["variant"])
             flat = [env.norm_word(s) or s for word in q["target"] for s in word]
@@ -203,9 +204,20 @@ class Engine:
             raise RuntimeError("the engine stopped")
         return json.loads(out)
 
+    def align(self, variant, target, heard, flags=None):
+        """`{"cmd":"align"}` (protocol section 2, locus 0041de3): the alignment the judgement makes (`Neo.alignFor`)
+        under the configuration in force.  It needs no session and changes nothing, so it may be sent while the engine
+        waits for the answers to its questions (the German ü/ö rule asks it while answering `sounds`)."""
+        h = heard if (heard and isinstance(heard[0], list)) else ([list(heard)] if heard else [])
+        d = self.line({"cmd": "align", "variant": variant, "target": target, "heard": h, "flags": flags or []})
+        if "columns" not in d:
+            raise RuntimeError(f"the engine refused align: {d!r}")
+        return d
+
     def ask(self, msg, store):
         """One request: answer the engine's questions until it gives its result; apply its write (BEFORE returning)."""
         self.last_answers = []              # every (question, answer) of this request, for the archive
+        self.env.aligner = self.align       # the environment's German ü/ö rule aligns on this connection
         d = self.line(msg)
         while "ask" in d:
             answers = []

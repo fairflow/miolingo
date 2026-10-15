@@ -15,7 +15,10 @@ DEL = mio.sound_check.DEL
 # language's calibrated `unreliable` list (German y yː øː œ ɔø), which the check itself never flags, is flagged
 # "likely off" exactly when the free reading hears a different FULL vowel of the language there and the likelihood
 # ratio log P(target with that vowel | audio) - log P(target | audio) >= VERIFY_TAU.  The rule is the lab's own code
-# (lab.analyse.unreliable_subs, lab.check.phones_from_tokens and lr_from_lp), called on the take in hand.
+# (lab.analyse.unreliable_subs, lab.check.phones_from_tokens and lr_from_lp), called on the take in hand; since 15
+# October the free reading is aligned with the target by the ENGINE's own `align` (protocol section 2): the host passes
+# `aligner`, its own engine connection; without one (a lab tool) the lab starts an engine with the host's
+# configuration (lab/align.py).
 VERIFY_LANGS = {"de"}
 VERIFY_TAU = 2.0
 
@@ -50,7 +53,7 @@ def _map_tokens_to_phones(words: list[list[str]], ref: list[tuple[str, int]],
     return out
 
 
-def sounds(wav_path: str, target: list[list[str]], variant_code: str) -> list[dict]:
+def sounds(wav_path: str, target: list[list[str]], variant_code: str, aligner=None) -> list[dict]:
     """The sound check.  `target` is `target_ipa(...)`.
 
     Returns, for each target sound flagged:
@@ -108,7 +111,7 @@ def sounds(wav_path: str, target: list[list[str]], variant_code: str) -> list[di
                     "like": like, "left_out": pv.heard == DEL,
                     "sound": sound, "word": pv.word_index})
     if v["lang"] in VERIFY_LANGS and any(t["level"] == "unchecked" for t in tokens):
-        out += verified_unreliable(v["lang"], words, tokens, lp, vocab, blank, model_id)
+        out += verified_unreliable(v["lang"], words, tokens, lp, vocab, blank, model_id, variant_code, aligner)
         out.sort(key=lambda f: f["at"])
     return out
 
@@ -123,7 +126,8 @@ def free_reading(lp, model_id: str) -> list[str]:
     return list(_cut(" ".join(decode.split())))
 
 
-def verified_unreliable(lang: str, words, tokens, lp, vocab, blank, model_id: str) -> list[dict]:
+def verified_unreliable(lang: str, words, tokens, lp, vocab, blank, model_id: str, variant_code: str = None,
+                        aligner=None) -> list[dict]:
     """The findings of the German ü/ö rule (see VERIFY_LANGS): one "likely off" finding, `like` the heard vowel, at each
     unreliable target sound where lab.analyse.unreliable_subs keeps the free reading's substitution.  Each carries
     "verified": the likelihood ratio.  [] when the rule finds nothing (or cannot run)."""
@@ -134,6 +138,7 @@ def verified_unreliable(lang: str, words, tokens, lp, vocab, blank, model_id: st
     word_of = [k for k, w in enumerate(target) for _ in w]
     phones = phones_from_tokens(tokens, target)["phones"]
     kept = unreliable_subs(lang, target, free_reading(lp, model_id), phones,
-                           lambda edits: lr_from_lp(lp, vocab, blank, target, edits), VERIFY_TAU)
+                           lambda edits: lr_from_lp(lp, vocab, blank, target, edits), VERIFY_TAU,
+                           variant=variant_code or lang, aligner=aligner)
     return [{"at": i, "span": 1, "off": True, "like": h, "left_out": False, "sound": flat[i], "word": word_of[i],
              "verified": round(r, 2)} for (i, h, r) in kept]

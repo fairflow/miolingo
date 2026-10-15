@@ -15,12 +15,11 @@ A configuration (all keys optional; the defaults are the live pipeline):
     keep_del   bool: the heard rule (V1 to V4) applies to substitutions only; every deletion of the greedy reading is kept
     zero_equal bool: a heard sound that the language's table makes free for the target (tolerated, or accepted at
                full weight; not an `unreliable` target) is shown as the target sound (display only: the score is the same)
-    cost       "raw" | "stretched" | ("tx", p, F, k, extra)   (part B; the tuple: the third run, engine_py.transform)
+    cost       "raw" | "stretched" | ("tx", p, F, k, extra)   (part B; the tuple: the third run, host/engine_config.apply_candidate)
     curve      "sqrt" | "linear"
     scale      the sqrt curve's scale (default the live 2250000)
-    vocal_r12  bool, German only (third run, B; an ENGINE rule, not data): a target [ɜ] or [ɐ] heard as [ə]/[ɐ]/[ɜ] with
-               an extra [r]/[ɾ] beside it, or as [r]/[ɾ] with an extra [ə]/[ɐ]/[ɜ] beside it, is the target sound (the
-               extra sound is dropped)
+    vocal_r12  bool, German only (third run, B): the engine's splits (data/splits.json: ɜ/ɐ heard as r or ɾ with a
+               schwa, cost 0) in the configuration; until 15 October the lab emulated them
     length     "v2" (live: a substitution that differs only by a length mark is kept, like any other, only where
                the check flags the sound) | "count" (third run, C: every such substitution of the free reading kept)
     understood "free" | "prompt" | ("tf", m) | ("either", m)  (part D)
@@ -60,10 +59,14 @@ import atexit
 import json
 from functools import lru_cache
 
+from . import align as AL
 from . import cache, check
-from . import engine_py as E
+from . import costs as K
 from . import understood as U
-from .common import BASE_MODEL, CACHE, PKL
+from .common import BASE_MODEL, CACHE, PKL, flat, norm
+
+SIGNIFICANT = 340          # the lab's own near / off line on its columns (Miolingo's _SIGNIFICANT, thousandths)
+NOT_ENGINE = ("del_accept",)   # a lab variant the engine cannot be given (one deletion cost): it needed lab/archive/engine_py.py
 
 BASELINE = {"heard": "greedy", "ins": "all", "unchecked": "baseline", "converse": False, "cost": "raw",
             "curve": "sqrt", "understood": "free"}
@@ -116,7 +119,7 @@ def target_ipa(text: str, variant: str):
 
 
 def target_of(text: str, variant: str):
-    return E.norm(target_ipa(text, variant))
+    return norm(target_ipa(text, variant))
 
 
 # ------------------------------------------------------------------ greedy heard sounds
@@ -124,7 +127,7 @@ def target_of(text: str, variant: str):
 def _cut(decode: str) -> tuple:
     import env
     joined = "".join(env.norm_word(c) for c in decode.split())
-    return tuple(E.flat(E.norm([env.phones_of(joined)] if joined else [])))
+    return tuple(flat(norm([env.phones_of(joined)] if joined else [])))
 
 
 _DECODE: dict = {}
@@ -143,10 +146,62 @@ def _phones(s: str) -> tuple:
     return tuple(env.phones_of(env.norm_word(s)))
 
 
+class ConfigCosts:
+    """A lab cost variant for one language: the engine configuration it stands for (lab/costs.config_for; the engine
+    aligns and costs with it), and the table's data the lab's own rules read (`unreliable`, `accepted_any`, `accepted`)
+    and the cost the configuration gives a pair (`cost(t, h)`: the language's entry, else the generic one, else
+    costOtherwise; the configuration's data, as protocol section 5 orders it)."""
+
+    def __init__(self, lang, kind, unrel):
+        self.lang, self.kind = lang, kind
+        self.mode = "phoneme" if unrel in ("phoneme", "phoneme_lr") else "zero"
+        self._cfg, self._cfg_split, self._idx = None, None, None
+        tab = K.table(lang)
+        self.unreliable = tab.unreliable
+        self.accepted_any = tab.accepted_any
+        plain = K.config_for("raw", self.mode)
+        self._plain_lang = {(e["target"], e["heard"]): e["cost"] for e in plain["costs"] if e.get("lang") == lang}
+        self._plain_gen = {(e["target"], e["heard"]): e["cost"] for e in plain["costs"] if "lang" not in e}
+        self._plain_other = plain["costOtherwise"]
+
+    def config(self, splits=False):
+        if splits:
+            if self._cfg_split is None:
+                self._cfg_split = K.config_for(self.kind, self.mode, True)
+            return self._cfg_split
+        if self._cfg is None:
+            self._cfg = K.config_for(self.kind, self.mode)
+        return self._cfg
+
+    def __call__(self, t, h):
+        if t == h:
+            return 0
+        if self._idx is None:
+            c = self.config()
+            self._idx = ({(e["target"], e["heard"]): e["cost"] for e in c["costs"] if e.get("lang") == self.lang},
+                         {(e["target"], e["heard"]): e["cost"] for e in c["costs"] if "lang" not in e},
+                         c["costOtherwise"])
+        lang, gen, other = self._idx
+        x = lang.get((t, h))
+        return gen.get((t, h), other) if x is None else x
+
+    def accepted(self, t, h):
+        """The language's table lowers this pair (on the plain costs, before any candidate transform)."""
+        return t != h and (t, h) in self._plain_lang and \
+            self._plain_lang[(t, h)] < self._plain_gen.get((t, h), self._plain_other)
+
+
 @lru_cache(maxsize=None)
-def costs_for(lang: str, kind: str, unrel: str):
-    return E.Costs(lang, kind, "phoneme" if unrel in ("phoneme", "phoneme_lr") else "zero",
-                   frozenset(FULL_VOWELS.get(lang, ())))
+def costs_for(lang: str, kind, unrel: str):
+    return ConfigCosts(lang, kind, unrel)
+
+
+def engine_align(cost, variant, target, heard, splits=False):
+    """The engine's own alignment (lab/align.py) under the variant's configuration -> [(t, h, cost)], a split's heard
+    sounds a tuple."""
+    a = AL.aligner("lab")
+    a.configure(cost.config(splits))
+    return AL.pairs(a.align(variant, target, list(heard)))
 
 
 def phoneme_keep(lang: str, t: str, h: str, costs) -> bool:
@@ -158,25 +213,33 @@ def phoneme_keep(lang: str, t: str, h: str, costs) -> bool:
     return not costs.accepted_any(t, h)
 
 
-def unreliable_subs(lang: str, target, greedy: list[str], phones: list[dict], lr_of, tau: float = 2.0) -> list:
+def unreliable_subs(lang: str, target, greedy: list[str], phones: list[dict], lr_of, tau: float = 2.0,
+                    variant: str = None, aligner=None) -> list:
     """The A5 "phoneme+lr" rule ALONE (unchecked == "phoneme_lr", as in `analyse`): the substitutions of the free
     reading `greedy` at target sounds the check leaves `unchecked` that the rule KEEPS: the greedy sound is a full vowel
     of the language that is not a rendering of the target (`phoneme_keep`) AND log P(target with that vowel) -
     log P(target) >= tau.  `phones`: the per-sound verdicts (check.phones_from_tokens); `lr_of(edits)` gives the ratios
-    (check.lr_from_lp on the take's log-probabilities).  The alignment is `analyse`'s first one, under the costs of the
-    "phoneme" mode.  -> [(i, heard sound, ratio)], i the flat index of the target sound.  The host's env.sounds emits a
-    flag for each (German), so that the engine's V2 keeps exactly these substitutions."""
-    cost = costs_for(lang, "raw", "phoneme_lr")
-    T = E.flat(target)
+    (check.lr_from_lp on the take's log-probabilities).  The alignment is the ENGINE's (`align`, protocol section 2;
+    15 October): `aligner(variant, target, heard)` answers it, the host's own engine connection on the real host;
+    without one, the lab's engine given the host's configuration (lab/align.py).  -> [(i, heard sound, ratio)], i the
+    flat index of the target sound.  The host's env.sounds emits a flag for each (German), so that the engine's V2 keeps
+    exactly these substitutions."""
+    tab = K.table(lang)
+    T = flat(target)
+    variant = variant or lang
+    if aligner is None:
+        a = AL.aligner("host")
+        a.configure(K.host_config())
+        aligner = a.align
     ph = list(phones)
     for a, p in enumerate(ph):                   # as in `analyse`: no verdict at an `unreliable` target -> unchecked
-        if p["level"] is None and a < len(T) and T[a] in cost.unreliable:
+        if p["level"] is None and a < len(T) and T[a] in tab.unreliable:
             ph[a] = {**p, "level": "unchecked"}
     subs, i = [], 0
-    for (t, h) in E.align(cost, T, list(greedy)):
+    for (t, h, _c) in AL.pairs(aligner(variant, target, list(greedy))):
         if t is None:
             continue
-        if h is not None and h != t and i < len(ph) and ph[i]["level"] == "unchecked" and phoneme_keep(lang, t, h, cost):
+        if isinstance(h, str) and h != t and i < len(ph) and ph[i]["level"] == "unchecked" and phoneme_keep(lang, t, h, tab):
             subs.append((i, h))
         i += 1
     if not subs:
@@ -190,51 +253,28 @@ def length_only(t: str, h) -> bool:
     return h is not None and h != t and h.replace("ː", "").replace("ˑ", "") == t.replace("ː", "").replace("ˑ", "")
 
 
-VOCAL_R_TARGETS = {"ɜ", "ɐ"}          # espeak's German vocalised r (dauert d a ʊ ɜ t, Überweisung yː b ɜ v ...)
-R_HEARD = {"r", "ɾ"}
-SCHWA_HEARD = {"ə", "ɐ", "ɜ"}
-
-
-def vocal_r_merge(al):
-    """Third run, B (an engine rule, emulated here): in an alignment [(t, h)], a target ɜ/ɐ paired with a schwa-like
-    sound with an extra r/ɾ in the column just before or after it, or paired with r/ɾ with an extra schwa-like sound
-    beside it, becomes (t, t) and the extra column is dropped: "r plus ə" for one vocalised r is that r."""
-    out = list(al)
-    i = 0
-    while i < len(out):
-        t, h = out[i]
-        if t in VOCAL_R_TARGETS and h is not None:
-            want = R_HEARD if h in SCHWA_HEARD else SCHWA_HEARD if h in R_HEARD else None
-            if want:
-                for j in (i + 1, i - 1):
-                    if 0 <= j < len(out) and out[j][0] is None and out[j][1] in want:
-                        out[i] = (t, t)
-                        del out[j]
-                        if j < i:
-                            i -= 1
-                        break
-        i += 1
-    return out
-
-
 # ------------------------------------------------------------------ the analysis
 def analyse(item: dict, config: dict | None = None) -> dict:
     cfg = {**BASELINE, **(config or {})}
     lang, variant, wav = item["lang"], item["variant"], item["wav"]
     model = cfg.get("model") or BASE_MODEL[lang]
     target = item["target"] if item.get("target") else target_of(item["text"], variant)
-    T = E.flat(target)
+    T = flat(target)
     G = greedy_of(wav, model)
     cost = costs_for(lang, cfg["cost"], cfg["unchecked"])
+    if any(cfg.get(k) for k in NOT_ENGINE):
+        raise NotImplementedError(f"{[k for k in NOT_ENGINE if cfg.get(k)]}: not a configuration of the engine")
+    splits = bool(cfg.get("vocal_r12")) and lang == "de"     # the engine's splits (data/splits.json) since 15 October
     has_check = model != PKL
     chk = check.verdicts(wav, model, target, variant) if (has_check and T) else \
         {"ran": False, "note": "no check for this model", "tokens": [], "flags": [], "dropped": 0,
          "phones": [{"level": None, "p_ok": None, "alt": None} for _ in T]}
     ph = chk["phones"]
-    dele = cost.dele if cfg.get("del_accept") else None
-    al0 = E.align(cost, T, G, dele)
-    if cfg.get("vocal_r12") and lang == "de":
-        al0 = vocal_r_merge(al0)
+    # the free reading's alignment, the engine's own; a split that costs nothing is the target's sound (the engine
+    # draws an unflagged split so, and a flagged one at cost 0 costs nothing)
+    a0 = engine_align(cost, variant, target, G, splits) if G else [(t, None, 1000) for t in T]
+    al0 = [(t, t) if (isinstance(h, tuple) and c == 0) else (t, h) for (t, h, c) in a0]
+    cost0 = [c for (_t, _h, c) in a0]
 
     # the edits of the greedy alignment
     edits, i = [], 0                                        # (kind, i, h, column index)
@@ -263,6 +303,7 @@ def analyse(item: dict, config: dict | None = None) -> dict:
             # computed on its own, so asking fewer changes no value; it keeps the cache key stable when costs move
             # the other edits: the third run)
             ask = [e for e in edits if e[0] == "sub" and e[1] < len(ph) and ph[e[1]]["level"] == "unchecked"]
+        ask = [e for e in ask if not isinstance(e[2], tuple)]       # a split has no ratio
         if ask:
             vals = check.lr_edits(wav, model, target, variant,
                                   [(k, i) if k == "del" else (k, i, h) for (k, i, h, _c) in ask])
@@ -275,7 +316,7 @@ def analyse(item: dict, config: dict | None = None) -> dict:
         if k == "ins":
             if cfg["ins"] == "edges":
                 keep[c] = 0 < i < len(T)
-            elif cfg["ins"] == "lr":
+            elif cfg["ins"] == "lr" and not isinstance(h, tuple):
                 v = lr.get(c)
                 keep[c] = v is None or v >= cfg.get("tau_ins", 0.0)
             else:
@@ -334,13 +375,13 @@ def analyse(item: dict, config: dict | None = None) -> dict:
             else:
                 H.append(t)
         elif keep[c]:
-            if h is None and cfg.get("zero_equal") and dele is not None and dele(t) == 0:
-                H.append(t)                     # a deletion the table makes free: shown as the target sound
-            elif h is not None:
+            if h is not None:
                 # zero_equal: a pair the language's table makes free (tolerated, or accepted at full weight) is
                 # shown as the target sound; an `unreliable` target is left to the A5 rule
-                if cfg.get("zero_equal") and cost(t, h) == 0 and t not in cost.unreliable:
+                if cfg.get("zero_equal") and cost0[c] == 0 and t not in cost.unreliable:
                     H.append(t)
+                elif isinstance(h, tuple):
+                    H.extend(h)                 # a split kept: its two heard sounds
                 else:
                     H.append(h)
         else:
@@ -353,13 +394,16 @@ def analyse(item: dict, config: dict | None = None) -> dict:
         # real engine).  No heard rule may fill the target in from nothing (the check, given the target, can still
         # rate its sounds "ok" when nothing was heard): every variant keeps this case as it is.
         H = []
-    al = E.align(cost, T, H, dele) if not nothing else []
-    d = sum((0 if t == h else cost(t, h)) if (t is not None and h is not None) else
-            (dele(t) if (dele and h is None) else E.INDEL) for (t, h) in al)
+    # the final heard sequence: aligned and costed by the engine; the score is the configuration's curve of that
+    # distance (protocol section 5)
+    afin = engine_align(cost, variant, target, H, splits) if not nothing else []
+    al = [(t, "‿".join(h) if isinstance(h, tuple) else h) for (t, h, _c) in afin]
+    cfin = [c for (_t, _h, c) in afin]
+    d = sum(cfin)
     n = max(len(T), len(H))
-    sc = E.curve(d, n, cfg["curve"], cfg.get("scale") or E.SCALE) if not nothing else 0
+    sc = K.curve(d, n, cfg["curve"], cfg.get("scale") or K.SCALE) if not nothing else 0
     kinds, i = [], 0
-    for (t, h) in al:
+    for (t, h), cc in zip(al, cfin):
         if t is None:
             kinds.append("added")
             continue
@@ -368,8 +412,7 @@ def analyse(item: dict, config: dict | None = None) -> dict:
         elif h == t:
             kinds.append("unjudged" if i in unj else "ok")
         else:
-            cc = cost(t, h)
-            kinds.append("near" if (cc < E.SIGNIFICANT or cost.accepted(t, h)) else "off")
+            kinds.append("near" if (cc < SIGNIFICANT or ("‿" not in h and cost.accepted(t, h))) else "off")
         i += 1
     cols = [(t, h, k) for (t, h), k in zip(al, kinds)]
     judged = [p["p_ok"] for p in ph if p["level"] in ("ok", "check", "off")]
@@ -384,8 +427,8 @@ def analyse(item: dict, config: dict | None = None) -> dict:
         "columns": cols, "check": ph, "check_ran": chk["ran"], "flags": chk["flags"], "dropped_flags": chk["dropped"],
         "score_check": round(100 * sum(judged) / len(judged)) if judged else None,
         "n_diff": sum(k in ("near", "off", "missing", "added") for k in kinds),
-        "n_cost": sum(1 for (t, h) in al if t is None or (h is None and (dele is None or dele(t) > 0))
-                      or (h is not None and t != h and cost(t, h) > 0)),
+        "n_cost": sum(1 for (t, h), cc in zip(al, cfin) if t is None or h is None or (t != h and cc > 0)),
+        "costs": cfin,
         "n_unjudged": sum(k == "unjudged" for k in kinds),
         "n_warn": len(chk["flags"]),
         "nothing": nothing,
@@ -393,9 +436,9 @@ def analyse(item: dict, config: dict | None = None) -> dict:
 
 
 def word_columns(rec: dict):
-    """The record's columns by the target's words: [[(t, h, kind)]] (the engine's `byWord`)."""
-    groups = E.by_word(rec["target"], [(t, h) for (t, h, _k) in rec["columns"]])
-    # by_word keeps the order inside a word but regroups: rebuild with the kinds by walking the tagged order
+    """The record's columns by the target's words, for a lab deck: [[(t, h, kind)]]: a column with a target sound in
+    that sound's word, an added sound with the word of the paired column before it (the first word when none).  The
+    engine's own picture (by word) is what lab/batch.py returns; this groups the lab's records the same way."""
     lens = [len(w) for w in rec["target"]]
     out = [[] for _ in range(max(1, len(lens)))]
 
@@ -418,5 +461,4 @@ def word_columns(rec: dict):
             k += 1
         else:
             out[lastw].append((t, h, kind))
-    assert [[(t, h) for (t, h, _k) in g] for g in out] == groups
     return out

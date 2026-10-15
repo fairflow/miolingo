@@ -40,7 +40,7 @@ def _stretch(c, p):
 
 
 def candidate_cost(c, cand):
-    """One substitution cost (thousandths) under a candidate, as lab/engine_py.transform: Miolingo's stretch with
+    """One substitution cost (thousandths) under a candidate (the third run's transform): Miolingo's stretch with
     exponent p (if given), a floor F on a cost that is not 0, then times k = 1000 / I (I the insertion and deletion
     cost the candidate stands for: the engine's own is fixed at 1000, so the substitutions are scaled instead and the
     curve's scale by k^2)."""

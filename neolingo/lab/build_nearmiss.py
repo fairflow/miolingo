@@ -33,7 +33,7 @@ import unicodedata
 from pathlib import Path
 
 from . import analyse as A
-from . import engine_py as E
+from .costs import cost_table
 from .common import DATA, LAB, LANGS, VARIANT, write_json, write_jsonl
 
 OUT = LAB / "nearmiss"
@@ -120,7 +120,7 @@ def truth_of(a, b):
 def mine(lang: str):
     variant = VARIANT[lang]
     words = pool(lang)
-    cfg_unrel = set(E.cost_table()["langs"][lang]["unreliable"])
+    cfg_unrel = set(cost_table()["langs"][lang]["unreliable"])
     seqs: dict = {}                                # sound sequence -> (word, source), the first word wins
     bad: list = []
     skipped = collections.Counter()
@@ -275,7 +275,7 @@ def cmd_synth(with_gtts: bool):
     from host import paths
     paths.make_dirs()
     res = json.loads((OUT / "pairs.json").read_text("utf-8"))
-    cfg = E.cost_table()
+    cfg = cost_table()
     items, fails = [], []
     req_file = OUT / "gtts_requests.json"
     req = json.loads(req_file.read_text("utf-8")) if req_file.exists() else {"requests": 0, "words": {}}
