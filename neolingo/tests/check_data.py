@@ -5,7 +5,8 @@ watched failing on the faults that occurred.  Needs espeak-ng, no models, about 
 
 The checks are data/build_data.py's own functions (the same ones refuse a rebuild):
   D1  a practised text has no bracket, no slash, no digit;
-  D2  every word of a practised text has a target (one per word, none empty, each sound a key of the cost table), a
+  D2  every word of a practised text has a target (one per word, none empty, each sound a key of the cost table, no
+      symbol of the transcription lost by the cutter), a
       word listed in data/ipa_exceptions.json has the table's target, and the stored target of a phrase is the one
       the host computes (env.target_ipa);
   D3  a rebuild only adds keys to gloss.json (checked over the file's history in git, and against the working copy);
@@ -68,9 +69,9 @@ print("\n== D2: the targets the host computes (env.target_ipa), every variant ==
 for l in LANGS:
     in_lists = sorted({x for w in WORDS[l] for x in w["words"] if env_ipa.listed_ipa(l, x) is not None})
     for v in VARIANTS[l]:
-        items = ([(f"{v} phrase", p["text"], env.target_ipa(p["text"], v)) for p in DATA[l]["phrases"]]
-                 + [(f"{v} word", w["word"], env.target_ipa(w["word"], v)) for w in DATA[l]["vocabulary"]]
-                 + [(f"{v} listed word of a word list", x, env.target_ipa(x, v)) for x in in_lists])
+        items = ([(f"{v} phrase", p["text"], *B.watched(p["text"], v)) for p in DATA[l]["phrases"]]
+                 + [(f"{v} word", w["word"], *B.watched(w["word"], v)) for w in DATA[l]["vocabulary"]]
+                 + [(f"{v} listed word of a word list", x, *B.watched(x, v)) for x in in_lists])
         clean_run(B.lint_targets(l, items, KEYS),
                   f"D2 {v}: {len(items)} targets (phrases, vocabulary, the word lists' listed loanwords {in_lists})")
     stale = [f"D2 {l} phrase {p['text']!r}: stored [{' '.join(map(''.join, p['ipa']))}], computed "
@@ -124,6 +125,20 @@ old = [[s.replace("ː", "") for s in w] for w in p["ipa"]]
 stale = [p["text"]] if old != env.target_ipa(p["text"], "de") else []
 check(bool(stale), f"refused, 13-14 Oct, a stored target without the length marks: {p['text']!r} "
                    f"[{' '.join(map(''.join, old))}] is not the computed target")
+# D2, 13 October (the audit): en-us lost ɚ and ᵻ without a word (before 15 October: no env.ipa.EQUIVALENT)
+saved_eq = dict(env_ipa.EQUIVALENT)
+env_ipa.EQUIVALENT.clear()
+try:
+    t_us, lost_us = B.watched("Someone used my card without authorization", "en-us")
+finally:
+    env_ipa.EQUIVALENT.update(saved_eq)
+refused(B.lint_targets("en", [("planted", "Someone used my card without authorization", t_us, lost_us)], KEYS), "D2",
+        f"13 Oct, en-us lost {lost_us} (the cutter without its equivalents)")
+n_dropped = len(env_ipa.DROPPED)
+env.phones_of("aʚb")
+check(env_ipa.DROPPED[n_dropped:] == [("ʚ", "aʚb")],
+      f"designed 15 Oct: a symbol the cutter does not know is recorded and logged, never dropped silently "
+      f"({env_ipa.DROPPED[n_dropped:]})")
 good = env.target_ipa("Wo ist die Toilette bitte", "de")
 refused(B.lint_targets("de", [("planted", "Wo ist die Toilette bitte", good[:-1])], KEYS), "D2", "designed, a word without a target")
 refused(B.lint_targets("de", [("planted", "Wo ist die Toilette bitte", good[:-1] + [[]])], KEYS), "D2",

@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import unicodedata
+from collections import Counter
 from pathlib import Path
 
 from . import _miolingo as mio
@@ -49,18 +51,37 @@ def join_length(segs: list[str]) -> list[str]:
     return out
 
 
+# Symbols that espeak (en-us) and the phone recogniser (xlsr-53 espeak: tokens ɚ, ᵻ, aɪɚ) write and the segmenter does
+# not know, each written as the sound espeak's British English gives in the same place (15 October; before, they were
+# dropped): ɚ as ə ("better" en-us [bɛɾɚ], en-gb [bɛtə]; "doctor" [dɑːktɚ] / [dɒktə]; "hour" [aʊɚ] / [aʊə]), ᵻ as ɪ
+# ("roses" en-us [ɹoʊzᵻz], en-gb [ɹəʊzɪz]; "wanted" [wɔntᵻd] / [wɒntɪd]).  So an American unstressed -er is judged as
+# the British one: its r colouring is not judged (ɚ as ə followed by ɹ would judge it, but the same recogniser serves
+# German, whose -er is ɐ with splits to r/ɾ and ə: a choice for the owner).
+EQUIVALENT = {"ɚ": "ə", "ᵻ": "ɪ"}
+
+_LOG = logging.getLogger("neolingo.env.ipa")
+# Every symbol the segmenter could not place, as (symbol, word), since the process started: a symbol is never
+# dropped silently (15 October: espeak's en-us ɚ and ᵻ were dropped without a word).  Each is also logged as a warning.
+DROPPED: list[tuple[str, str]] = []
+
+
 def phones_of(word: str) -> list[str]:
     """Cut a normalised word into phones with Miolingo's own segmenter
     (panphon), as its scorer does.  The linking mark is kept as an element of
-    its own only if present."""
+    its own only if present.  ɚ and ᵻ are first written as ə and ɪ (EQUIVALENT).  A symbol the segmenter does not
+    know is dropped, but never silently: it is logged as a warning and recorded in DROPPED."""
     parts = word.split("‿")
     segs: list[str] = []
     for k, part in enumerate(parts):
         if k > 0:
             segs.append("‿")
-        segs += [unicodedata.normalize("NFC", s)
-                 for s in mio.phone_distance._FT.ipa_segs(
-                     unicodedata.normalize("NFD", part))]
+        nfd = unicodedata.normalize("NFD", "".join(EQUIVALENT.get(c, c) for c in part))
+        got = mio.phone_distance._FT.ipa_segs(nfd)
+        lost = Counter(nfd) - Counter("".join(got))
+        for c in sorted(lost):
+            DROPPED.append((unicodedata.normalize("NFC", c), word))
+            _LOG.warning("a symbol the segmenter does not know was dropped: %r (U+%04X) in [%s]", c, ord(c), word)
+        segs += [unicodedata.normalize("NFC", s) for s in got]
     return join_length([s for s in segs if s])
 
 

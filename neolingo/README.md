@@ -309,7 +309,8 @@ and whatever engine and page locus main has then. From this folder, in a termina
 3. **The host's checks here, against that engine** (Miolingo's venv python, `HF_HUB_OFFLINE=1`; the slimmed list of
    locus `docs/neolingo-test-design.md` 4D to 4F, since 15 October; each unit case is named by the fault it guards):
    - **Must pass.** The unit cases, about 12 s together and no models: `tests/check_data.py` (the data lint D1 to D3),
-     `tests/check_flags.py`, `tests/check_ipa_exceptions.py`, `tests/check_costs.py`, `tests/check_store.py`. The one
+     `tests/check_flags.py`, `tests/check_ipa_exceptions.py`, `tests/check_costs.py`, `tests/check_store.py`,
+     `tests/check_audible.py` (the audibility floor). The one
      integration test, `tests/check_signin.py`, on a copy of the real store (about 25 s; its guest section loads the
      speech models). H1, `tests/check_suite.py ~/Lean/locus/var/neolingo-suite.json`: the suite of step 2 through the
      host's own driver (Host.press, Engine.ask, Store.apply) with the suite's toy recognisers, about 3 s. And

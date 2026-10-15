@@ -12,8 +12,9 @@ functions run on the committed files in tests/check_data.py.
       (the owner: "was I meant to say (formal)?  Bad import."): "And you? (formal)" and "Okay / Agreed" were practised
       with the note and the alternative read aloud.
   D2  every word of a practised text has a target: one target per word of the text, none empty, each sound a key of
-      the cost table; and a word listed in data/ipa_exceptions.json has the table's target.  Guards 13 October (the
-      owner's take): espeak read the loanword "Toiletten" by German letter rules, [toːiːlɛtən].
+      the cost table, no symbol of the transcription lost by the cutter; and a word listed in
+      data/ipa_exceptions.json has the table's target.  Guards 13 October (the owner's take): espeak read the loanword
+      "Toiletten" by German letter rules, [toːiːlɛtən]; and 13 October (the audit): en-us lost ɚ and ᵻ without a word.
   D3  a rebuild only adds keys to gloss.json: every (language, text, own language) of the file being replaced is
       in the new one with the same meaning.  Guards 13 October: a rebuild from the material alone dropped the
       meanings build_words.py had added (the English word meanings).
@@ -69,12 +70,22 @@ def listed_target(lang: str, word: str) -> list[str] | None:
     return None if listed is None else env.phones_of(env.norm_word(listed.replace(" ", "")))
 
 
+def watched(text: str, variant: str) -> tuple[list, list[str]]:
+    """env.target_ipa of the text, and the symbols its cutter dropped on the way (env.ipa.DROPPED)."""
+    n = len(env_ipa.DROPPED)
+    target = env.target_ipa(text, variant)
+    return target, [c for c, _w in env_ipa.DROPPED[n:]]
+
+
 def lint_targets(lang: str, items, keys: set[str]) -> list[str]:
-    """D2 over [(where, text, target)], `target` as env.target_ipa gives it (a list of words, each a list of
-    sounds): one target per word of the text, none empty, each sound a key of the cost table, and a listed loanword
-    with the table's target."""
+    """D2 over [(where, text, target)] or [(where, text, target, lost)], `target` as env.target_ipa gives it (a list
+    of words, each a list of sounds) and `lost` the symbols its cutter dropped (`watched`): one target per word of the
+    text, none empty, each sound a key of the cost table, nothing lost, and a listed loanword with the table's target."""
     out = []
-    for where, text, target in items:
+    for where, text, target, *rest in items:
+        if rest and rest[0]:
+            out.append(f"D2 {where}: {text!r}: the target [{' '.join(map(''.join, target))}] lost {rest[0]} "
+                       f"(symbols the cutter does not know)")
         words = env_ipa._text_words(text)
         if len(target) != len(words):
             out.append(f"D2 {where}: {text!r}: {len(words)} word(s), {len(target)} target(s)")
@@ -205,7 +216,7 @@ def main(argv=None):
     bodies = {}
     for lang in ("en", "fr", "de"):
         gl_lang = "fr" if lang == "en" else "en"     # the phrase files' gloss column
-        phrases = []
+        phrases, item_lost = [], {}
         for stem in PHRASE_FILES:
             src = MAT / lang / "phrases" / f"{stem}.txt"
             rs = list(rows(src))
@@ -213,7 +224,9 @@ def main(argv=None):
                 text, note = clean(raw)
                 item = {"text": text, "gloss": g, "gloss_language": gl_lang,
                         "source": f"language_materials/{lang}/phrases/{stem}.txt",
-                        "ipa": env.target_ipa(text, VARIANT[lang])}
+                        "ipa": None}
+                item["ipa"], lost = watched(text, VARIANT[lang])
+                item_lost[id(item)] = lost
                 if note:
                     item["note"] = note
                 phrases.append(item)
@@ -231,8 +244,8 @@ def main(argv=None):
         faults += lint_texts([(f"{lang} phrase", p["text"]) for p in phrases]
                              + [(f"{lang} word", v["word"]) for v in vocab])
         faults += lint_capitals(lang, [(f"{lang} phrase", p["text"]) for p in phrases])
-        faults += lint_targets(lang, [(f"{lang} phrase", p["text"], p["ipa"]) for p in phrases]
-                               + [(f"{lang} word", v["word"], env.target_ipa(v["word"], VARIANT[lang])) for v in vocab],
+        faults += lint_targets(lang, [(f"{lang} phrase", p["text"], p["ipa"], item_lost[id(p)]) for p in phrases]
+                               + [(f"{lang} word", v["word"], *watched(v["word"], VARIANT[lang])) for v in vocab],
                                keys)
         dump = lambda o: json.dumps(o, ensure_ascii=False)
         bodies[lang] = ('{\n "language": %s,\n "variant": %s,\n "phrases": [\n  %s\n ],\n "vocabulary": [\n  %s\n ]\n}\n'

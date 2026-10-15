@@ -21,7 +21,8 @@ at `ac88c35`; the `main` snapshot lacks `unified/`). Nothing is taken from
 * `cost_table.json`: written by `env.write_cost_table()`; see `env/tables.py`.
 * **The data lint** (locus `docs/neolingo-test-design.md` 4E): `build_data.py` writes nothing when one fails, and
   `tests/check_data.py` runs the same checks on the committed files. D1: a practised text has no bracket, slash or digit.
-  D2: every word of a practised text has a target (one per word, none empty, each sound a cost key), a word listed in
+  D2: every word of a practised text has a target (one per word, none empty, each sound a cost key, no symbol of the
+  transcription lost by the cutter: `env.ipa.DROPPED`), a word listed in
   `ipa_exceptions.json` has the table's target, a stored target is the one `env.target_ipa` computes. D3: a rebuild
   only adds keys to `gloss.json`. D4 (15 October): a word written in capitals in a phrase (an abbreviation; espeak
   spells it in a phrase) has a target in `ipa_exceptions.json`, whose keys written with capitals match only the word
