@@ -324,7 +324,10 @@ and whatever engine and page locus main has then. From this folder, in a termina
      this folder's git log); a change nobody can explain goes to the overseer before step 4. Whether a change is
      better is measured in the lab on the judged takes (chosen on CHOOSE, reported on JUDGE: `lab/judged_split.json`),
      never decided by the replay.
-   Not run at an update: the archived tests (`tests/archive/`), the reference sweep and the lab.
+   - **At a change of the review page, `host.js` or the flick page**: the questions of
+     `tests/host-page-questions.md`, on a scratch host only.
+   Not run at an update: the archived tests (`tests/archive/`), the reference sweep and the lab. What the whole
+   suite catches, fault by fault (each historical fault reintroduced in a throwaway copy): `tests/acceptance.md`.
    Optionally a scratch host first: `NEOLINGO_VAR=<copy> NEOLINGO_PAGE=<folder with the new index.html, CHANGES,
    SOURCE, and links to host.js and review.html> NEOLINGO_SLOTS=2 ./run.sh --port 8811`, stopped by its port.
 4. **The page**: `./update_page.sh` (copies `index.html` and `CHANGES` from locus `docs/neolingo-page/`, writes
