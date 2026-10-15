@@ -13,5 +13,13 @@ Each still runs from `neolingo/` as `<miolingo venv python> tests/archive/<name>
   into `var/archive/` (lines marked `"reconstructed": true`); that is done, and every take since is archived as it
   is made (`host/archive.py`). No replacement needed.
 
+- `check_host_before_h1.py`: the full `check_host.py` of 14 October (88 checks), retired in part on 15 October.
+  REPLACED by H1, `tests/check_suite.py` (the generated suite through the host's own driver): `can` before a press,
+  the result's picture and fields, the long vowel kept, the vocabulary and the word-list upload; and by
+  `check_signin.py`: the reload, the fresh start, the store across a restart. The slimmed `tests/check_host.py` (57
+  checks) keeps what neither reaches: the host's endpoints, takes, Checks with the real recognisers (droppedFlags 0),
+  the archive, judgements, the review page, speech, host.js. Dropped without a replacement: the share of word-list
+  words with an English meaning (a data measurement; the meanings themselves are `check_gloss.py`'s).
+
 Moved, not retired: `check_verify_de.py` (the German ü/ö rule against the lab's analysis) is a measurement, now
 `lab/check_verify_de.py`, run as `python -m lab.check_verify_de` when the rule or the German phone model changes.

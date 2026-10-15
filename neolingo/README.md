@@ -52,7 +52,7 @@ machines need HTTPS (not arranged here).
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
 | the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_ipa_exceptions.py`; `tests/check_data.py` (the data lint D1-D3, `data/README.md`); `tests/check_costs.py` (`NEOLINGO_COSTS`: the default adds exactly the vocalised-r pairs, a candidate transforms every entry). Each unit case is named by the fault it guards (`F1 13 Oct`) or `designed`; retired tests are in `tests/archive/` (its README says why) |
+| test | `tests/check_suite.py <locus>/var/neolingo-suite.json` (H1: the generated suite through the host's own driver); `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (what H1 leaves out; runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_ipa_exceptions.py`; `tests/check_data.py` (the data lint D1-D3, `data/README.md`); `tests/check_costs.py` (`NEOLINGO_COSTS`: the default adds exactly the vocalised-r pairs, a candidate transforms every entry). Each unit case is named by the fault it guards (`F1 13 Oct`) or `designed`; retired tests are in `tests/archive/` (its README says why) |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
 `GET /host.js`, `GET /version`, `GET /wordlists`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
@@ -73,8 +73,8 @@ and `host.js`'s `speak()` rejects with that text, for the page to show. `host.js
 **A reload loses nothing.** The page sends `{"cmd":"start"}` when it loads. If the engine process is alive and holds the session (it does from the
 host's own start until the engine is restarted), the host answers with the engine's present state (`{"cmd":"state"}`): the list, the place, the
 recording held and the result are as they were. A real new start happens only when the host starts, or the engine was restarted. For testing,
-`{"cmd":"start","fresh":true}` does the old thing (the stored data are untouched). Tested in `tests/check_host.py` (phrase 3 of 5 with a recording held, then a
-Check, each followed by a reload).
+`{"cmd":"start","fresh":true}` does the old thing (the stored data are untouched). Tested in `tests/check_signin.py` (a reload returns the live
+state; a fresh start saves the settings first); the reload of phrase 3 of 5 with a recording held is in the archived `tests/archive/check_host_before_h1.py`.
 
 **Stored practice lists** (engine side being built; written to this text, protocol additions below). `start` sends each learner's `"lists":[{"lang":L,
 "items":[{"text":...,"gloss":...}]}]` beside vocab, history and settings (`[]` when none); the new write `{"kind":"putList","uid":U,"lang":L,"items":[...]}` replaces
@@ -303,16 +303,18 @@ and whatever engine and page locus main has then. From this folder, in a termina
    `integrity_check` must print `ok`, and the counts must be those of `var/` (`sqlite3 var/neolingo.sqlite` the same
    queries).
 2. **The engine**: `cd ~/Lean/locus && git pull --rebase && lake build neolingo`, then there
-   `.lake/build/bin/neolingo neocheck`, `.lake/build/bin/neolingo neoconform` and `python3 scripts/neolingo_conform.py`:
-   each must end in `ok`. (The build replaces the binary by a new file, so the running engine is not disturbed; only
+   `.lake/build/bin/neolingo runs` (it checks the runs' assertions and writes the generated suite
+   `var/neolingo-suite.json`) and `python3 scripts/neolingo_conform.py var/neolingo-suite.json`: each must end in `ok`. (The build replaces the binary by a new file, so the running engine is not disturbed; only
    the running host's `/version` "built" changes.) Note the locus hash: `git -C ~/Lean/locus rev-parse --short HEAD`.
 3. **The host's checks here, against that engine** (Miolingo's venv python, `HF_HUB_OFFLINE=1`; the slimmed list of
    locus `docs/neolingo-test-design.md` 4D to 4F, since 15 October; each unit case is named by the fault it guards):
    - **Must pass.** The unit cases, about 12 s together and no models: `tests/check_data.py` (the data lint D1 to D3),
      `tests/check_flags.py`, `tests/check_ipa_exceptions.py`, `tests/check_costs.py`, `tests/check_store.py`. The one
      integration test, `tests/check_signin.py`, on a copy of the real store (about 25 s; its guest section loads the
-     speech models). And `tests/check_host.py`, until the real host's driver replays the language lane's generated
-     suite (H1); it then keeps only what H1 leaves out (the archive, judgements, the review page, speech).
+     speech models). H1, `tests/check_suite.py ~/Lean/locus/var/neolingo-suite.json`: the suite of step 2 through the
+     host's own driver (Host.press, Engine.ask, Store.apply) with the suite's toy recognisers, about 3 s. And
+     `tests/check_host.py`, slimmed to what H1 leaves out (the host's endpoints, takes, Checks with the real
+     recognisers, the archive, judgements, the review page, speech; about 25 s).
    - **Only when what they rest on changed** (P8): `tests/check_gloss.py` (`data/gloss.json`, `data/meanings.json`,
      `env/gloss.py`); `tests/check_segmentation.py` (the cost table, `env/ipa.py`, a phone model); `tests/check_env.py`
      (`env/`, a model); the measurement `python -m lab.check_verify_de` (the German ü/ö rule or its phone model).
