@@ -203,6 +203,10 @@ same buttons and note (a line since 14 October shows the engine's picture, drawn
 text as shown beside what the recogniser wrote; an older line shows its two-row grid of columns); filters: variant and "not yet judged" (default on), "Load more" pages 50 at a time (`GET /archive?limit=&before=&variant=&unjudged=`
 gives the lines joined with their latest judgement). `replay_archive.py` shows each take's judgement, counts them, and takes `--judged` (only judged takes);
 it also reports, of the takes judged too harsh, how many now score higher.
+**CHOOSE and JUDGE** (15 October; locus `docs/neolingo-test-design.md` P6): the judged takes are split ONCE, by language and
+verdict with a fixed seed, into two halves listed by take id in `lab/judged_split.json` (`python -m lab.split_judged`
+made it and now checks it): every later choice of costs or rules is made on CHOOSE and reported on JUDGE. Test voices are
+left out; takes judged after the split are in neither half until the split is extended.
 **Flick** (`python3 flick/serve.py --port 8812`, standard library, 127.0.0.1): a page for judging cards fast on a phone
 (right good, left bad, up skip), one deck per `var/flick/deck-<name>.json` (made by the lab: `lab/deck.py`,
 `lab/costfit.py deck`), verdicts appended to `var/flick/judgements.jsonl`. Since 14 October a one-line note box under
