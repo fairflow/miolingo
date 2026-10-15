@@ -1,3 +1,4 @@
+0.46	With a form open, the language choices that would leave the language practised are greyed, with the reason. A take not understood: the banner says "not understood" and no longer repeats the words heard, which HEARD shows.
 0.45	The names of a slot that is signed out are listed A to Z.
 0.44	Each flagged sound is shown once: a box in the picture, or (where the sound is drawn as right) a warning line, never both. The settings keep each label on one line on a phone; the model view no longer makes the page scroll sideways.
 0.43	One sound heard as two (German “dauert” said with an [r] and a vowel) is drawn as one column, and costs what the host's table says. A sound the check finds likely off costs at least the host's floor.

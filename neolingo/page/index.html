@@ -509,12 +509,16 @@ function session(root, sc, r) {
       el('div', { 'class': 'muted', style: 'margin:6px 0 10px', text: sc.summary }),
       el('div', { 'class': 'grid' }, [
         el('label', {}, ['Your language', el('select', { on: { change: function (e) { press('own', e.target.value); } } },
-          sc.languages.map(function (l) { return el('option', { text: l.name, value: l.code, selected: l.code === p.own }); }))]),
+          sc.languages.map(function (l) { return el('option', { text: l.name, value: l.code, selected: l.code === p.own,
+            disabled: (sc.languagesOff || []).indexOf(l.code) >= 0 }); }))]),
         el('label', {}, ['Language practised', el('select', { on: { change: function (e) { press('practised', e.target.value); } } },
-          sc.variants.map(function (v) { return el('option', { text: v.name, value: v.code, selected: v.code === p.practised }); }))]),
+          sc.variants.map(function (v) { return el('option', { text: v.name, value: v.code, selected: v.code === p.practised,
+            disabled: (sc.variantsOff || []).indexOf(v.code) >= 0 }); }))]),
         el('label', { 'class': 'inline' }, [el('input', { type: 'checkbox', checked: p.slow,
           on: { change: function (e) { press('slow', e.target.checked); } } }), ' Slow speech'])
       ]),
+      // the screen foresees the refusal (U7): with a form open, the choices that leave the language are greyed
+      sc.changeLang === false ? el('p', { 'class': 'reason', text: 'Greyed: save or cancel the open form first.' }) : null,
       status
     ]));
     return;
