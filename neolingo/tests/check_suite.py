@@ -16,10 +16,10 @@ build_config).  For each run: the run's store is written into a fresh SQLite sto
 start: sessions signed in from the first moment; the host's own start with slots and the auto sign-in is
 check_signin's); then each press goes through Host.press, `can` first: compared are the step (and what `can` said),
 droppedFlags, the write, the message and every screen; at the end Store.all_data() against the run's endStore.
-The stores are compared with the order the protocol states (section 4: a language's vocabulary by position, the
-history by seq, a list's items in order); the order of the learners, and of a learner's languages, which the
-protocol does not state, is compared too but reported, not failed: the host keeps them by name, the model in the
-order they came (15 October: runs (xi) and (xiii) differ only so).
+The stores are compared with the order the protocol states (section 4.1, locus 563b41f: a language's vocabulary
+rows and the history ordered; a list's items in order); the learners and a learner's lists, which the protocol leaves
+unordered, are compared as sets, and a difference of their order is reported, not failed: the host keeps them by
+name, the model in the order they came (15 October: runs (xi) and (xiii) differ only so).
 
 Works in a temporary folder (NEOLINGO_VAR); the running host and var/ are not touched.  No speech model is loaded.
 Exits 1 on any difference."""
@@ -109,7 +109,7 @@ bad, presses, order = [], 0, []
 
 
 def canon(store):
-    """A store with the orders the protocol does not state (learners; a learner's languages) put by name."""
+    """A store with what the protocol leaves unordered (learners; a learner's languages) put by name."""
     return sorted(({**x, "vocab": sorted(x.get("vocab", []), key=lambda v: v["lang"]),
                     "lists": sorted(x.get("lists", []), key=lambda l: l["lang"])} for x in store), key=lambda x: x["uid"])
 
@@ -164,7 +164,7 @@ for k, run in enumerate(suite["runs"], 1):
 
 host.engine.proc.terminate()
 for o in order:
-    print("  REPORTED (an order the protocol does not state): " + o)
+    print("  REPORTED (an order the protocol leaves free, section 4.1): " + o)
 for b in bad[:A.show]:
     print("  " + b)
 if len(bad) > A.show:

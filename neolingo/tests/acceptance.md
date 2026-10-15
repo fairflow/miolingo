@@ -49,9 +49,9 @@ These cover the 13 model faults of section 2, plus three faults that the logic l
 
 | Id | Fault (date, finder) | Reintroduced as | Checks that fail | Verdict |
 |---|---|---|---|---|
-| C14 | A press slowing as the run grows (14 Oct, measurement) | Each line the engine reads waits 1 ms for each press of the session so far | the smoke's T2: the first five presses took 14 ms, the last five 293 ms | caught |
+| C14 | A press slowing as the run grows (14 Oct, measurement) | A delay on every line the engine reads, growing (i) with the presses of the session (1 ms each), (ii) with every line since the engine started (1 ms per 5 lines, per 2) | (i) T2 (14 to 301 ms); (ii) at the first run on d533e3d T2 passed (2.6 and 2.95 times); on 563b41f T2 over the engine's life fails on both (30 to 145 ms, 61 to 328 ms), and so does T2 | caught (all three since 563b41f) |
 | C15 | An 11 s start (14 Oct, measurement) | The engine waits 1.5 s before its ready line | the smoke's T1 (1.98 s) | caught |
-| C16 | `neocheck` accepted a run that printed TEST FAILED (14 Oct, reading) | `neolingo runs` prints its failures and exits 0. M12 was planted so that assertions fail, with the model's guards not enforced | No check of the checker itself: `runs` and `runs --plant` both pass. The planted model fault is still caught by the model guards and the regression module | MISSED as a checker fault |
+| C16 | `neocheck` accepted a run that printed TEST FAILED (14 Oct, reading) | The shared failure exit of `neolingo runs` (`failRuns`) prints the failures and returns. At the first run (d533e3d): `runs` exits 0 with M12 planted | the meta-check `runs --plant-failure` exits 0, so the gate's step (which requires a non-zero exit) fails. At the first run nothing caught it | caught (since 563b41f; a failure path that bypasses `failRuns` would not be seen) |
 
 ## Class D: host Python
 
@@ -84,21 +84,21 @@ These cover the 13 model faults of section 2, plus three faults that the logic l
 
 ## Totals
 
-33 faults: 16 in class B, 3 in C, 5 in D, 6 in E, 3 in G. Updated on 15 October, second round: D19 and E27, after
-`tests/check_audible.py`, the en-us fix and D2's lost-symbol clause.
+33 faults: 16 in class B, 3 in C, 5 in D, 6 in E, 3 in G. Updated on 15 October in three rounds: D19 and E27 after
+`tests/check_audible.py`, the en-us fix and D2's lost-symbol clause; C14 and C16 with the engine at locus 563b41f (its
+meta-check, and T2 over the engine's life).
 
-- **Reintroduced: 30.** Not reintroduced: 3. E24 was never fixed. G28 is the language lane's page and depended on
-  a web font. G29 is a matter of wording.
-- **Caught: 29.** All 16 model faults (no model fault was caught by the walks or by H1). C14 and C15. D17, D18 (by
-  the page question HP1 only), D19, D20 and D21. E22, E23, E25, E26 and E27. G30.
-- **Missed: 1.** C16: nothing checks that `neolingo runs` fails when an assertion fails. The language lane's
-  meta-check is to cover it; this row is re-run when it lands.
-- **A limit of T2, seen on C14.** A delay that grows with every line since the engine STARTED (1 ms for every 5 or
-  every 2 lines) did not fail T2: 2.6 and 2.95 times, under its bound of 3. T2 compares its first and last five
-  presses on an engine the smoke has already used, so growth since the engine's start is already in T2's baseline.
-  A delay that grows within the session failed T2 at once. To be re-run with the language lane's longer T2.
-- **Not caught, because never fixed: E24**, final devoicing in German compounds. An outside lexicon is waiting for
-  the owner's word.
-- **Not run: G28.** The page question U3 reaches it, on NEXT.
+- **Reintroduced: 30.** Not reintroduced: 3. E24 was never fixed (an outside lexicon for German final devoicing is
+  waiting for the owner's word). G28 is with the language lane: U3 on NEXT. G29 is a matter of wording, which the
+  page questions leave out on purpose.
+- **Caught: 30 of 30.**
+  - Class B, all 16. The model's own guards, `runs`, the regression module and the proof and witness files. Never the
+    walks or H1.
+  - Class C: C14, C15, C16.
+  - Class D: D17 to D21 (D18 by the page question HP1 only).
+  - Class E: E22, E23, E25, E26, E27.
+  - Class G: G30.
+- **Missed: none.** The two misses of the first run are covered: C16 by the meta-check, D19 by `check_audible`.
+  So is the limit seen in T2: T2 over the engine's life catches a delay that grows from the engine's start.
 
-The suite is NOT YET ACCEPTED: C16 is missed until the meta-check lands, and G28 waits for U3.
+THE SUITE IS ACCEPTED on its reintroduced faults: 30 of 30 caught. G28 waits for the language lane's U3.
