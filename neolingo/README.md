@@ -52,7 +52,7 @@ machines need HTTPS (not arranged here).
 | the page, UNCHANGED copy of locus `docs/neolingo-page/index.html` | `page/index.html`; the locus commit it came from: `page/SOURCE` |
 | the host's own script: `window.NeolingoHost.record / speak / lists / playTake / showTake` (showTake: waveform drawn from the WAV parsed in the browser, peaks cached by token) | `page/host.js` |
 | store (3 tables of protocol section 4), takes, speech cache, log | `var/neolingo.sqlite`, `var/takes/`, `var/speech/`, `var/host.log` (git-ignored) |
-| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_verify_de.py` (the German ü/ö rule against the lab); `tests/check_costs.py` (`NEOLINGO_COSTS`: the default adds exactly the vocalised-r pairs, a candidate transforms every entry) |
+| test | `tests/check_signin.py` (sign-in, on a copy of the real database); `tests/check_host.py` (runs `tests/check_host_js.js` under node); `tests/check_store.py` (store, lists, test voices, the configuration; no models); `tests/check_flags.py`; `tests/check_ipa_exceptions.py`; `tests/check_data.py` (the data lint D1-D3, `data/README.md`); `tests/check_costs.py` (`NEOLINGO_COSTS`: the default adds exactly the vocalised-r pairs, a candidate transforms every entry). Each unit case is named by the fault it guards (`F1 13 Oct`) or `designed`; retired tests are in `tests/archive/` (its README says why) |
 
 Endpoints: `GET /` (the page with `<script src="host.js">` inserted before its own script, at serve time),
 `GET /host.js`, `GET /version`, `GET /wordlists`, `GET /take/<token>.wav` (the stored take; 404 if unknown), `POST /press`, `POST /take` (WAV body, answers `{"take": token}`), `GET /speak?text=&variant=&slow=`
@@ -109,7 +109,7 @@ same log-probabilities, `sound_check._nll`). The code is the lab's own (`lab.ana
 `lab.check.phones_from_tokens`, `lab.check.lr_from_lp`), called on the take in hand. With it, the German cost entries
 of those five sounds against German full vowels are the plain panphon costs (the lab's "phoneme" cost mode), so that a
 flagged ü heard as [u] is aligned and costed as the lab did (y→u costs 42: drawn `off`); unflagged, the engine does not
-count it (V2, `unjudged`). `tests/check_verify_de.py` compares `env.sounds` with the lab's analysis on the lab's cached
+count it (V2, `unjudged`). `lab/check_verify_de.py` (a measurement, `python -m lab.check_verify_de`) compares `env.sounds` with the lab's analysis on the lab's cached
 German items (18 of 18 agree on 14 October: 6 each of the owner's archived takes, near misses and positives; the rule fired on 9).
 The host log's `flags:` line names each such flag with its ratio.
 
@@ -186,7 +186,7 @@ flag lines, flags, the result's `picture` (lines before 14 October: aligned `col
 the phone model and the Whisper size. `host.archive.columns_of(line)` reads either as columns by word (`target`, `heard`, `mark`), so the
 replay and the studies treat old and new lines alike. Since 14 October the banner and the result's `heard.text` are the heard text AS SHOWN
 (the phrase's spelling where its words were heard); the recogniser's own writing is in `hear.text`.
-`tests/reconstruct_archive.py` (run once) copies the takes of `var/takes/` into the archive and rebuilds lines marked `"reconstructed": true`
+`tests/archive/reconstruct_archive.py` (run once, 13 October; archived) copies the takes of `var/takes/` into the archive and rebuilds lines marked `"reconstructed": true`
 from the host log and the history table (opened read-only); they lack the banner, columns and the like.
 
 **Replay**, the regression test with real sound: `venv/bin/python neolingo/tests/replay_archive.py [--variant V] [--since YYYY-MM-DD] [--limit N]`
@@ -220,7 +220,7 @@ their items `"source":"test-voice"`; the review page labels them "Mac voice (tes
 distribution, the lowest scores, the differing sound pairs, left out and extra sounds, warnings by sound, timings). The voices are synthetic: the
 report shows where the sources (espeak target, reference voice, recogniser) disagree, not how accurate the app is on learners.
 
-**Symbol study**: `venv/bin/python neolingo/tests/symbol_study.py evidence|measure|floor|targets` (rerun as the archive grows). `evidence` tabulates, per
+**Symbol study** (ARCHIVED 15 October, its hypothesis refuted: `tests/archive/README.md`): `venv/bin/python neolingo/tests/archive/symbol_study.py evidence|measure|floor|targets`. `evidence` tabulates, per
 language, the differing aligned pairs (target -> heard) of the sweep (both voices) and of the owner's live takes (separate column, never
 evidence for inclusion) with the pair's panphon cost, its present cost and whether Miolingo's tables tolerate it, writes `var/study/symbol_pairs.md`
 and regenerates `data/symbol_equivalents.json` (committed: symbol pairs and counts only) by a mechanical rule stated at the top of that file.

@@ -1,6 +1,9 @@
 """The German ü/ö rule of env.sounds against the lab's analysis `rec de` (lab/RESULTS.md, "Recommendation").
 
-    <miolingo venv python> tests/check_verify_de.py [--limit N]
+    <miolingo venv python> -m lab.check_verify_de [--limit N]          (from neolingo/)
+
+A MEASUREMENT, not a host test (moved from tests/ on 15 October 2026, locus docs/neolingo-test-design.md 4F): run it
+when the rule, the German phone model or the lab's analysis changes, and read the agreement.
 
 For German items of the lab that have a target sound on the calibrated `unreliable` list (y yː øː œ ɔø): the owner's
 archived takes, and the lab's near misses (a voice says "Bruder" for "Brüder") and their positives, it runs

@@ -1,9 +1,10 @@
 """The symbol study: where the sources (espeak-ng target, recogniser) write different symbols for the same sound.
+ARCHIVED 15 October 2026 (tests/archive/README.md): its hypothesis was refuted; kept, still runnable.
 
-    <miolingo venv python> tests/symbol_study.py evidence [--no-data]   # tables + data/symbol_equivalents.json (no models)
-    <miolingo venv python> tests/symbol_study.py measure                 # switch off / on over sweep, archive, wrong references
-    <miolingo venv python> tests/symbol_study.py floor                   # audibility floor (no models)
-    <miolingo venv python> tests/symbol_study.py targets                 # phrases whose TARGET looks wrong (no models)
+    <miolingo venv python> tests/archive/symbol_study.py evidence [--no-data]   # tables + data/symbol_equivalents.json (no models)
+    <miolingo venv python> tests/archive/symbol_study.py measure                 # switch off / on over sweep, archive, wrong references
+    <miolingo venv python> tests/archive/symbol_study.py floor                   # audibility floor (no models)
+    <miolingo venv python> tests/archive/symbol_study.py targets                 # phrases whose TARGET looks wrong (no models)
 
 Reads var/sweep/results.jsonl (tests/reference_sweep.py) and var/archive/ (the owner's own takes; read only).  Writes
 only under var/study/ (git-ignored) and, for `evidence`, data/symbol_equivalents.json (symbol pairs and counts only: no
@@ -33,9 +34,9 @@ from pathlib import Path
 
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(ROOT / "tests"))      # replay_archive
 from host import paths                                              # noqa: E402
 
 BOUND = 100                 # thousandths (cost-table units); a->ae is 42, a->I is 167
@@ -241,8 +242,8 @@ def evidence(write_data=True):
                    f"missing from the table fails).  Nothing else decides inclusion.  The owner's own takes are counted in a separate column "
                    f"and are never evidence for inclusion (they may be his accent).  Direction is target -> heard; a reverse pair is included "
                    f"only if its own counts pass.  'not_included_for_owner_to_decide' lists pairs with >= 2 occurrences that fail the rule, "
-                   f"with the criterion failed.  The voices are synthetic.  Regenerate: tests/symbol_study.py evidence.")
-    doc = {"generated": time.strftime("%Y-%m-%d"), "script": "tests/symbol_study.py evidence", "rule": doc["rule"],
+                   f"with the criterion failed.  The voices are synthetic.  Regenerate: tests/archive/symbol_study.py evidence.")
+    doc = {"generated": time.strftime("%Y-%m-%d"), "script": "tests/archive/symbol_study.py evidence", "rule": doc["rule"],
            "bound": {"measure": "panphon feature distance, thousandths", "max": BOUND, "min_phrases": MIN_PHRASES, "voices": list(VOICES)},
            "sweep": {f"{l}/{v}": n_rows[(l, v)] for l in LANGS for v in VOICES},
            "owner_takes_with_columns": sum(1 for l in lines if l.get("columns")),

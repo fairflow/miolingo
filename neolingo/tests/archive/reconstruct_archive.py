@@ -1,6 +1,7 @@
 """One-off: put the takes that were kept before the archive existed INTO the archive.
+ARCHIVED 15 October 2026 (tests/archive/README.md): run once on 13 October; kept, still runnable.
 
-    <miolingo venv python> tests/reconstruct_archive.py
+    <miolingo venv python> tests/archive/reconstruct_archive.py
 
 Copies var/takes/*.wav to var/archive/takes/ (the originals stay; a file already there is left alone).  For each
 take, a line of var/archive/checks.jsonl is reconstructed, marked "reconstructed": true, when the host log
@@ -19,7 +20,7 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from host import paths        # noqa: E402
 import env                    # noqa: E402
