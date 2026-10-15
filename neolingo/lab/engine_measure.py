@@ -4,20 +4,15 @@ two engine mechanisms the language lane is building, measured the moment that en
     <python> -m lab.engine_measure run  --spec lab/engine_variants.json [--engine PATH] [--sets ...] [--shard K/N]
     <python> -m lab.engine_measure measure --spec lab/engine_variants.json
 
-`run` starts a scratch engine (`neolingo neohost`, as tests/replay_archive.py does; never the live host) per variant of
-the spec, with the configuration the HOST builds (host/engine_config.build_config: the default, i.e. today's costs with
-the German vocalised-r pairs free; or "base": "plain" for the configuration before that) plus the variant's own fields,
-and answers the engine's questions from the lab's caches EXACTLY as the host's environment would:
-    targetIpa  env.target_ipa (cached; a roles-reversed item's changed target)
-    audible    true
-    hear       the phone model's free reading (env.hear's sounds, cached), and as text the PHRASE ITSELF: the take is
-               then understood and the result's picture is the VERIFIED one, the one the score is computed on (whether a
-               take is understood is part D, not measured here)
-    sounds     the sound check's findings (env.sounds: the check's own, then the German ü/ö rule's, computed from the
-               cached log-probabilities with the same functions), through host.engine.flags_out, the warnings of the
-               configuration's free pairs dropped (as host/engine.py does)
-The engine computes everything else: alignment, V2, splits, off floor, score, picture.  Rows (score, the picture as
-(target, heard, kind) columns) -> var/lab/run3/engine/<variant>.<shard>.json.gz.
+`run` gives every item of the sets to the engine's own judgement, `neolingo batch` (lab/batch.py; locus a4c5878 and
+later; it replaced the scratch engine driven through the host protocol on 15 October), once per variant of the spec,
+with the configuration the HOST builds (host/engine_config.build_config: the default; or "base": "plain" for the
+configuration before 14 October 21:1x) with the variant's own `offFloor` and `splits`, and the host's answers from the
+lab's caches (lab/batch.answers: the free reading, the check's findings and the German ü/ö rule's, through
+host.engine.flags_out, the free pairs' warnings dropped).  As text the PHRASE ITSELF: the take is then understood and
+the columns are the VERIFIED ones, the ones the score is computed on (whether a take is understood is part D, not
+measured here).  The engine computes everything else: alignment, V2, splits, off floor, score, picture.  Rows (score,
+the columns as (target, heard, kind)) -> var/lab/run3/engine/<variant>.<shard>.json.gz.
 
 `measure` reads the rows of every variant and gives, per language: the near-miss AUC, near misses detected at the
 place, reference phrases at 100 and their differences, the natives' mean, share at 100 and DIFFERENCES (the splits
@@ -40,9 +35,8 @@ import sys
 import time
 
 from . import analyse as A
-from . import cache, check
+from . import batch as B
 from . import costfit as C
-from . import engine_py as E
 from . import run as RUN
 from .common import DATA, LANGS, ROOT, write_json
 
@@ -92,53 +86,14 @@ def free_pairs_of(v, lang):
     return EC.free_pairs(lang)
 
 
-# ------------------------------------------------------------------ the host's answers, from the caches
-def answers(it):
-    """(target as the engine holds it, the free reading, the findings env.sounds would return)."""
-    from env.ipa import norm_word
-    from env.soundcheck import VERIFY_LANGS, VERIFY_TAU
-    lang, variant, wav = it["lang"], it["variant"], it["wav"]
-    model = C.cfg_for(C.LIVE_COMBO, lang)["model"]
-    target = it["target"] if it.get("target") else A.target_of(it["text"], variant)
-    G = A.greedy_of(wav, model)
-    words = [w for w in target if w]
-    if not words:
-        return target, G, []
-    raw = check.raw_tokens(wav, model, target, variant)       # the check could not run: no tokens, no findings
-    findings = check.lib_findings(raw["tokens"]) if raw["tokens"] else []
-    tokens = raw["tokens"]
-    if lang in VERIFY_LANGS and any(t["level"] == "unchecked" for t in tokens):
-        tn = [[norm_word(x) or x for x in w] for w in words]
-        flat = [s for w in tn for s in w]
-        word_of = [k for k, w in enumerate(tn) for _ in w]
-        phones = check.phones_from_tokens(tokens, tn)["phones"]
-        lp = cache.get_lp(wav, model)["lp"]
-        vocab, blank = cache.get_vocab(model)
-        kept = A.unreliable_subs(lang, tn, G, phones, lambda e: check.lr_from_lp(lp, vocab, blank, tn, e), VERIFY_TAU)
-        findings += [{"at": i, "span": 1, "off": True, "like": h, "left_out": False, "sound": flat[i],
-                      "word": word_of[i], "verified": round(r, 2)} for (i, h, r) in kept]
-        findings.sort(key=lambda f: f["at"])
-    return target, G, findings
-
-
-def flags_for(v, it, target, findings):
-    from host.engine import flags_out
-    fl = flags_out(findings, target) if findings else []
-    free = free_pairs_of(v, it["lang"])
-    return [f for f in fl if (f["sound"], f["heardAs"]) not in free]
-
-
 # ------------------------------------------------------------------ run
-def columns_of(picture):
-    """The engine's picture -> [(target, heard, kind)] in order (a split shows its heard sounds joined)."""
-    out = []
-    for w in picture or []:
-        for s in w.get("sounds", []):
-            h = s.get("heard")
-            if isinstance(h, list):
-                h = "".join(h)
-            out.append((s.get("target"), h, s.get("kind")))
-    return out
+def flags_for(v, it, target, findings):
+    return B.flags_for(it, target, findings, free_pairs_of(v, it["lang"]))
+
+
+def columns_of(columns):
+    """batch's columns (by word) -> [(target, heard, kind)] in order (a split's heard sounds joined by "‿")."""
+    return [(c.get("target"), c.get("heard"), c.get("kind")) for w in columns or [] for c in w]
 
 
 def cmd_run(a):
@@ -147,10 +102,6 @@ def cmd_run(a):
     bad = [k for k, x in spec["fields"].items() if x == PLACEHOLDER]
     if bad and any(v.get("off_floor") is not None or v.get("splits") for v in spec["variants"] if v["name"] in names):
         sys.exit(f"the spec still holds placeholders for {bad}: fill in the language lane's field names first")
-    if a.engine:
-        os.environ["NEOLINGO_ENGINE"] = a.engine
-    from .validate import _engine
-    ra, paths = _engine()
     k, n = (int(x) for x in a.shard.split("/"))
     items = [i for i in RUN.items() if i["set"] in a.sets]
     items = [i for j, i in enumerate(items) if j % n == k]
@@ -158,51 +109,25 @@ def cmd_run(a):
     t0 = time.perf_counter()
     for it in items:
         try:
-            pre[it["id"]] = answers(it)
+            pre[it["id"]] = B.answers(it)
         except KeyError:                      # no cached log-probabilities
             continue
     print(f"answers for {len(pre)} items ({time.perf_counter() - t0:.0f} s)", flush=True)
-    state = {}
-    from host.engine import Environment
-
-    class CachedEnvironment(Environment):
-        def answer(self, q):
-            kq = q["q"]
-            it, target, G, flags = state["cur"]
-            if kq == "targetIpa":
-                if q["text"] == it["text"] and q["variant"] == it["variant"]:
-                    return {"ipa": target}
-                return {"ipa": A.target_ipa(q["text"], q["variant"])}
-            if kq == "fill":
-                return {"translation": "", "notes": ""}
-            if kq == "audible":
-                return {"audible": True}
-            if kq == "hear":
-                return {"text": it["text"], "ipa": [G] if G else []}
-            if kq == "sounds":
-                return {"flags": flags}
-            raise ValueError(q)
-
     for v in spec["variants"]:
         if v["name"] not in names:
             continue
-        eng = ra.Engine(config_for(spec, v))
-        eng.env = CachedEnvironment()
-        rows, t0 = {}, time.perf_counter()
-        for j, it in enumerate(items, 1):
+        t0 = time.perf_counter()
+        batch = [B.item_for(it, pre[it["id"]][0], pre[it["id"]][1], flags_for(v, it, pre[it["id"]][0], pre[it["id"]][2]),
+                            it["text"]) for it in items if it["id"] in pre]
+        res = B.run(config_for(spec, v), batch, a.engine)
+        rows = {}
+        for it in items:
             if it["id"] not in pre:
                 continue
-            target, G, findings = pre[it["id"]]
-            state["cur"] = (it, target, G, flags_for(v, it, target, findings))
-            new = ra.replay_one(eng, None, {"variant": it["variant"], "text": it["text"], "take": f"x{j:07d}"})
-            if not new.get("checked"):
-                rows[it["id"]] = {"x": True, "score": 0, "cols": []}
-                continue
-            rows[it["id"]] = {"x": not G, "score": new["score"], "cols": columns_of(new.get("picture")),
-                              "flags": len(new.get("flags") or [])}
-            if j % 1000 == 0:
-                print(f"  {v['name']}: {j}/{len(items)}  {time.perf_counter() - t0:.0f} s", flush=True)
-        eng.proc.terminate()
+            G = pre[it["id"]][1]
+            r = res[it["id"]]
+            rows[it["id"]] = {"x": not G, "score": r["score"], "cols": columns_of(r["columns"]),
+                              "flags": len(r.get("flags") or [])}      # x: nothing heard (left out of the measures)
         p = OUT / f"{v['name']}.{k}-{n}.json.gz"
         p.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(p, "wt", encoding="utf-8") as f:
@@ -326,23 +251,27 @@ def cmd_tolerated(a):
     combo = C.Combo(vr=True)
     cnt = collections.Counter()
     pairs = collections.Counter()
+    todo = []
     for it in RUN.items():
         if it["set"] not in ("cp", "reference", "archive", "nearmiss", "positive"):
             continue
         if it["set"] == "archive" and it.get("voice") != "learner":
             continue
         try:
-            target, G, findings = answers(it)
+            target, G, findings = B.answers(it)
         except KeyError:
             continue
-        if not G:
-            continue
-        flags = [f for f in flags_for(v, it, target, findings) if f["off"]]
+        if G:
+            todo.append((it, target, G, flags_for(v, it, target, findings)))
+    # the engine's own alignment of the free reading: a take NOT understood (text "") shows it unverified
+    res = B.run(config_for(spec, v), [B.item_for(it, target, G, fl, "") for (it, target, G, fl) in todo], a.engine)
+    for (it, target, G, fl) in todo:
+        flags = [f for f in fl if f["off"]]
         cfg = C.cfg_for(combo, it["lang"])
         cost = A.costs_for(it["lang"], cfg["cost"], cfg["unchecked"])
-        T = E.flat(target)
+        T = [s for w in target for s in w]
         heard_at, i = {}, 0
-        for (t, h) in E.align(cost, T, list(G)):
+        for (t, h, _k) in columns_of(res[it["id"]]["columns"]):
             if t is None:
                 continue
             heard_at[i] = h
@@ -388,6 +317,7 @@ def main():
     r.add_argument("--shard", default="0/1")
     r.add_argument("--only", nargs="*")
     tl = sub.add_parser("tolerated")
+    tl.add_argument("--engine")
     tl.add_argument("--spec", type=lambda s: ROOT / s if not s.startswith("/") else __import__("pathlib").Path(s),
                     default=SPEC)
     m = sub.add_parser("measure")

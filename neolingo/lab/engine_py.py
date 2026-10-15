@@ -1,5 +1,14 @@
 """The engine's scoring, copied into Python so that a variant costs no engine process.
 
+SUPERSEDED (15 October) for everything the engine itself decides by `lab/batch.py` (`neolingo batch`, the engine's own
+`judgeWith`; locus a4c5878): lab/engine_measure.py uses it, and `python -m lab.batch compare` checks this copy against
+it (var/lab/batch/compare.md: the scores agree except where the lab's own V2 emulation keeps an unflagged edit at a
+German sound the check cannot judge, the columns except where the lab marks `unjudged` by the check's token rather than
+by the engine's list).  NOT archived yet, because two users remain: the host's German ü/ö rule (env/soundcheck.py calls
+lab.analyse.unreliable_subs, which aligns with `align` and `Costs` here, on every German check of the real host) and
+the lab's experimental rules and the third run's cost grid (lab/analyse.py, lab/costfit.py: an alignment and a
+distance per item for thousands of candidate configurations).
+
 Copied from locus `Miolingo/Neo.lean` (`norm`, `words`, `understood`, `readings`, `sameSounds`, `dist`, `score`,
 `align` with its tie-break, `byWord`, `columnsFrom`) and `Neolingo.lean` (`Cfg.tables`: the cost lookup and the curve).
 The costs are exactly the entries the live host sends: `host.engine_config.build_costs(data/cost_table.json)`.
