@@ -189,7 +189,7 @@ replay and the studies treat old and new lines alike. Since 14 October the banne
 `tests/archive/reconstruct_archive.py` (run once, 13 October; archived) copies the takes of `var/takes/` into the archive and rebuilds lines marked `"reconstructed": true`
 from the host log and the history table (opened read-only); they lack the banner, columns and the like.
 
-**Replay**, the regression test with real sound: `venv/bin/python neolingo/tests/replay_archive.py [--variant V] [--since YYYY-MM-DD] [--limit N]`
+**Replay**, a change report with real sound (read at each update, never a gate: step 3 below): `venv/bin/python neolingo/tests/replay_archive.py [--variant V] [--since YYYY-MM-DD] [--limit N]`
 runs each archived take through `env.audible / hear / sounds` and a scratch engine session and prints SAME or CHANGED (with what) a take;
 exit code 1 if anything changed. A change is not always a fault: a better recogniser or a new rule changes results; read it, then decide.
 
@@ -306,11 +306,23 @@ and whatever engine and page locus main has then. From this folder, in a termina
    `.lake/build/bin/neolingo neocheck`, `.lake/build/bin/neolingo neoconform` and `python3 scripts/neolingo_conform.py`:
    each must end in `ok`. (The build replaces the binary by a new file, so the running engine is not disturbed; only
    the running host's `/version` "built" changes.) Note the locus hash: `git -C ~/Lean/locus rev-parse --short HEAD`.
-3. **The host's tests here, against that engine** (Miolingo's venv python, `HF_HUB_OFFLINE=1`): `tests/check_store.py`,
-   `tests/check_flags.py`, `tests/check_gloss.py`, `tests/check_ipa_exceptions.py`, `tests/check_verify_de.py`,
-   `tests/check_signin.py`, `tests/check_host.py` must all pass; `tests/replay_archive.py` with `NEOLINGO_VAR` set to a
-   copy of `var/` (made as in step 1) prints SAME / CHANGED: read the changes (score and picture changes on German
-   takes with ü/ö are the rule's; other changes come from the engine's own changes, named in locus `docs/neolingo-page/CHANGES`).
+3. **The host's checks here, against that engine** (Miolingo's venv python, `HF_HUB_OFFLINE=1`; the slimmed list of
+   locus `docs/neolingo-test-design.md` 4D to 4F, since 15 October; each unit case is named by the fault it guards):
+   - **Must pass.** The unit cases, about 12 s together and no models: `tests/check_data.py` (the data lint D1 to D3),
+     `tests/check_flags.py`, `tests/check_ipa_exceptions.py`, `tests/check_costs.py`, `tests/check_store.py`. The one
+     integration test, `tests/check_signin.py`, on a copy of the real store (about 25 s; its guest section loads the
+     speech models). And `tests/check_host.py`, until the real host's driver replays the language lane's generated
+     suite (H1); it then keeps only what H1 leaves out (the archive, judgements, the review page, speech).
+   - **Only when what they rest on changed** (P8): `tests/check_gloss.py` (`data/gloss.json`, `data/meanings.json`,
+     `env/gloss.py`); `tests/check_segmentation.py` (the cost table, `env/ipa.py`, a phone model); `tests/check_env.py`
+     (`env/`, a model); the measurement `python -m lab.check_verify_de` (the German ü/ö rule or its phone model).
+   - **A report, not a gate.** `tests/replay_archive.py` with `NEOLINGO_VAR` set to a copy of `var/` (made as in step
+     1) prints SAME or CHANGED for each archived take; its exit code 1 says only that something changed. Read every
+     change and name its cause (the engine's changes are listed in locus `docs/neolingo-page/CHANGES`, the host's in
+     this folder's git log); a change nobody can explain goes to the overseer before step 4. Whether a change is
+     better is measured in the lab on the judged takes (chosen on CHOOSE, reported on JUDGE: `lab/judged_split.json`),
+     never decided by the replay.
+   Not run at an update: the archived tests (`tests/archive/`), the reference sweep and the lab.
    Optionally a scratch host first: `NEOLINGO_VAR=<copy> NEOLINGO_PAGE=<folder with the new index.html, CHANGES,
    SOURCE, and links to host.js and review.html> NEOLINGO_SLOTS=2 ./run.sh --port 8811`, stopped by its port.
 4. **The page**: `./update_page.sh` (copies `index.html` and `CHANGES` from locus `docs/neolingo-page/`, writes
