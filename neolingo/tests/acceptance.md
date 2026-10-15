@@ -59,7 +59,7 @@ These cover the 13 model faults of section 2, plus three faults that the logic l
 |---|---|---|---|---|
 | D17 | A finding on [tʃ] copied onto [t] and [ʃ] (13 Oct, the owner's note) | `flags_out` as before 7eeeace | `check_flags`: the 18 F1 cases | caught |
 | D18 | The review page showed the recogniser's raw run, no word breaks (13 Oct, the owner's note) | The Heard row of a copy of `review.html` as before 2ea7ba8, served by a scratch host on a copy of the store | HP1 (`tests/host-page-questions.md`): NO, the row read "ɡiːptɛsmoːnatlɪçəɡəbyrən" with no "(ungrouped)" label; YES on the real file ("[ɡiːpt ɛs moːnɑːtlɪçə ɡəbyːrən]"). `check_host` passes | caught, by a page question only |
-| D19 | The audibility floor refused "Ja", "Oui" (13 Oct, measurement) | `MIN_VOICED_SECONDS` back to 0.25 s | No gate check: `check_host` and `check_signin` say phrases of three or more words, H1 uses the toy recognisers, and `check_env` only prints. The replay (a report) shows 1 of the 48 one-word archived takes refused | MISSED by the gate; seen only in the replay report |
+| D19 | The audibility floor refused "Ja", "Oui" (13 Oct, measurement) | `MIN_VOICED_SECONDS` back to 0.25 s | `check_audible` (added 15 Oct): the 3 F1 cases (synthetic Ja, Oui, Prost: 0.22, 0.20, 0.24 s of sound). At the first run no gate check failed and only the replay showed it (1 of 48 one-word takes refused) | caught (since 15 Oct) |
 | D20 | The cost overrides sent once per variant, English twice (13 Oct, reading) | The loop over variants in `build_costs` put back | `check_costs`: F1 (1238 entries sent twice) | caught |
 | D21 | A guest's takes were kept, archived and open to judging (13 Oct, reading) | The guest branches of `host/serve.py` removed (a copy with a copy of the store) | `check_signin`, guest section: 7 cases (no archive line, files deleted, judgement refused, ...) | caught |
 
@@ -72,7 +72,7 @@ These cover the 13 model faults of section 2, plus three faults that the logic l
 | E24 | Final devoicing inside German compounds (13 Oct, the owner) | Not reintroduced: it was never fixed (espeak has it wrong in every version; the lexicon needs the owner's word) | none | NOT FIXED, so no regression check yet |
 | E25 | "PIN" spelled out in all three languages (13 Oct, the audit's sweep) | The table's PIN entries removed | `check_data`: D4 on the real data (3 phrases), `build_data` refuses (D4); `check_ipa_exceptions`: 5 F2 cases | caught |
 | E26 | The gloss table cut by a rebuild, 289 English keys (13 Oct, reading) | `build_data` without the kept-merge (before 48ffb80); the English word meanings dropped from the working copy | `build_data`: D3 refuses 316 meanings, nothing written; `check_data`: D3 (last commit against the working copy) | caught |
-| E27 | American English drops ɚ and ᵻ from the target without warning (13 Oct, the audit) | Not reintroduced: still present (en-us) | none: D2 checks for an empty word target and unknown sounds, not for dropped symbols | NOT FIXED, so no regression check yet |
+| E27 | American English dropped ɚ and ᵻ from the target without a word (13 Oct, the audit) | Fixed 15 Oct (ɚ as ə, ᵻ as ɪ, the British equivalents; any other unknown symbol logged); reintroduced by removing the equivalents | `check_data`: D2 fails on 14 en-us targets ("I don't understand" [aɪ doʊnt ʌndstænd]) | caught (since 15 Oct) |
 
 ## Class G: page
 
@@ -84,27 +84,21 @@ These cover the 13 model faults of section 2, plus three faults that the logic l
 
 ## Totals
 
-33 faults: 16 in class B, 3 in C, 5 in D, 6 in E, 3 in G.
+33 faults: 16 in class B, 3 in C, 5 in D, 6 in E, 3 in G. Updated on 15 October, second round: D19 and E27, after
+`tests/check_audible.py`, the en-us fix and D2's lost-symbol clause.
 
-- **Reintroduced: 29.** Not reintroduced: 4. E24 and E27 were never fixed. G28 is the language lane's page and
-  depended on a web font. G29 is a matter of wording.
-- **Caught: 27.** All 16 model faults (no model fault was caught by the walks or by H1). C14 and C15. D17, D18 (by
-  the page question HP1 only), D20 and D21. E22, E23, E25 and E26. G30.
-- **Missed: 2.**
-  - C16: nothing checks that `neolingo runs` fails when an assertion fails. The cover would be a `--plant` step that
-    runs the failure path once and expects a non-zero exit (the language lane's).
-  - D19: no gate check sends a short word through `env.audible`. Only the replay, a report, shows the change: 1 of 48
-    one-word takes refused. The cover would be a unit case: a synthetic "Ja" (about 0.2 s of sound) must be audible.
+- **Reintroduced: 30.** Not reintroduced: 3. E24 was never fixed. G28 is the language lane's page and depended on
+  a web font. G29 is a matter of wording.
+- **Caught: 29.** All 16 model faults (no model fault was caught by the walks or by H1). C14 and C15. D17, D18 (by
+  the page question HP1 only), D19, D20 and D21. E22, E23, E25, E26 and E27. G30.
+- **Missed: 1.** C16: nothing checks that `neolingo runs` fails when an assertion fails. The language lane's
+  meta-check is to cover it; this row is re-run when it lands.
 - **A limit of T2, seen on C14.** A delay that grows with every line since the engine STARTED (1 ms for every 5 or
   every 2 lines) did not fail T2: 2.6 and 2.95 times, under its bound of 3. T2 compares its first and last five
   presses on an engine the smoke has already used, so growth since the engine's start is already in T2's baseline.
-  A delay that grows within the session failed T2 at once.
-- **Not caught, because never fixed:**
-  - E24, final devoicing in German compounds: an outside lexicon is waiting for the owner's word.
-  - E27, en-us dropping ɚ and ᵻ. `env.ipa.phones_of` (Miolingo's panphon segmenter) drops a symbol it does not know,
-    without a word. A warning would go there: compare the sounds, joined, with the normalised espeak text, and log
-    any symbol that was dropped. It would also go in the data lint, as a D2 clause, "no symbol of the transcription
-    dropped", for every variant. That clause would fail today on en-us.
+  A delay that grows within the session failed T2 at once. To be re-run with the language lane's longer T2.
+- **Not caught, because never fixed: E24**, final devoicing in German compounds. An outside lexicon is waiting for
+  the owner's word.
 - **Not run: G28.** The page question U3 reaches it, on NEXT.
 
-The suite is NOT YET ACCEPTED. Two reachable faults are missed (C16, D19), and G28 waits for U3.
+The suite is NOT YET ACCEPTED: C16 is missed until the meta-check lands, and G28 waits for U3.
