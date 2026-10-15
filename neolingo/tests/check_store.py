@@ -1,6 +1,11 @@
 """Unit cases of host.store (practice lists, unknown writes) and host.archive (test voices).  No models, no engine:
     <miolingo venv python> tests/check_store.py
-Works in a scratch folder; the running host's var/ is untouched."""
+Works in a scratch folder; the running host's var/ is untouched.
+
+Each case is named by the fault it guards (locus docs/neolingo-test-design.md 4D).  No case here guards a fault that
+occurred: each is "designed <date> (<commit>)", written with the feature it states.
+The faults of the store that did occur are guarded elsewhere: a guest's takes kept (13 Oct) in check_signin's guest
+section; the first learner of an empty store (13 Oct, the protocol's fault) in check_host."""
 import os
 import sqlite3
 import sys
@@ -15,15 +20,18 @@ from host import paths, archive      # noqa: E402
 from host.store import Store         # noqa: E402
 
 bad = []
+TAG = ""                                     # the case's name prefix: the feature's date and commit
 
 
 def check(cond, what):
+    what = TAG + what
     print(("ok   " if cond else "FAIL ") + what)
     if not cond:
         bad.append(what)
 
 
 paths.make_dirs()
+TAG = "designed 13 Oct (e1352e0, stored lists): "
 # a database made BEFORE the lists table existed: the three old tables, with data
 old = Path(tmp) / "old.sqlite"
 c = sqlite3.connect(old)
@@ -74,6 +82,7 @@ s2 = Store(old)
 check(s2.data("me")["lists"] == before["lists"], "the lists survive a reopen")
 
 # test voices
+TAG = "designed 13 Oct (66ff9a5, test voices): "
 (paths.ARCHIVE / "overseer_takes.txt").write_text("# comment\nt7719675e889caccd  2026-10-13 13:57  fr-fr  D'accord  macOS say\n\nnonsense line\n", "utf-8")
 check(archive.test_voice_tokens() == {"t7719675e889caccd"}, "overseer_takes.txt: first field of each non-comment line that is a take token")
 import json
@@ -89,6 +98,7 @@ check([i["take"] for i in H["items"]] == ["t0123456789abcdef"] and H["total"] ==
 check(archive.test_voice_tokens() == set() and all("source" not in i for i in archive.listing()["items"]), "no overseer_takes.txt: nothing labelled")
 
 # sign-in: putLearner, the whole store, the learner in the archive
+TAG = "designed 13 Oct (85d5f9b, sign-in): "
 t = Store(Path(tmp) / "new.sqlite")
 check(t.uids() == [] and t.all_data() == [], "a new store has no learner")
 P = {"own": "en", "practised": "fr-fr", "slow": False}
@@ -125,6 +135,7 @@ check(j["uid"] == "anna" and archive.judge("t7719675e889caccd", "harsh")["uid"] 
       "judge: the uid of the take's learner (older or unknown takes: me)")
 
 # columns_of: an old line's columns, a new line's picture, alike
+TAG = "designed 14 Oct (f13808e, the picture): "
 old_line = {"columns": [[{"target": "ɡ", "heard": "d", "mark": 2}]]}
 new_line = {"picture": [{"token": "gare", "sounds": [{"target": "ɡ", "heard": "d", "kind": "off", "mark": 2}]}]}
 check(archive.columns_of(old_line) == archive.columns_of(new_line) == old_line["columns"]
@@ -132,6 +143,7 @@ check(archive.columns_of(old_line) == archive.columns_of(new_line) == old_line["
       and archive.columns_of({"columns": None, "result": None}) is None, "columns_of: columns (before 14 October) and picture (since) alike")
 
 # the configuration's optional numbers (protocol 5): significant, and unjudged from the calibrated unreliable lists
+TAG = "designed 14 Oct (f13808e, the configuration): "
 import json                          # noqa: E402
 from host.engine_config import build_config   # noqa: E402
 cfg = build_config()

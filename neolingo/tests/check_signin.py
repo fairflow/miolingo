@@ -2,9 +2,18 @@
 
     ~/Software/working/miolingo/venv/bin/python neolingo/tests/check_signin.py
 
-Works in var/check_signin/ (git-ignored, emptied first) on a COPY of the real database (var/neolingo.sqlite, copied with
-SQLite's backup, read-only on the original), so the stored data are real.  The hosts are started WITHOUT --preload and
-nothing is recorded: no model is loaded.  The running host's database is never opened for writing.
+Works in var/check_signin/ (git-ignored, emptied first; NEOLINGO_CHECK_VAR=<folder> moves it) on a COPY of the real
+database (var/neolingo.sqlite, copied with SQLite's backup, read-only on the original), so the stored data are real.  The
+hosts are started WITHOUT --preload; only the guest section records and checks (it loads the speech models).  The
+running host's database is never opened for writing.
+
+The one integration test of the host (locus docs/neolingo-test-design.md 4D).  The faults it guards:
+  13 Oct (found by reading): a guest's takes were kept (archived, judged); the guest section: nothing is kept.
+  14 Oct (the owner: "What if one of those forms closed was in the middle of an edit?"): a sign-out or a change of
+      language dropped an open form; "a form open: ..." below: both refused, and a clean stop cancels the form and
+      saves the settings.
+  A fault of the test itself, 14 Oct 22:09 (b0013f8): "slow is not yet stored" assumed the real store held slow
+      off; it now sets slow to the opposite of what the store holds.
 """
 import json
 import os
@@ -20,7 +29,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-VAR = ROOT / "var" / "check_signin"
+VAR = Path(os.environ.get("NEOLINGO_CHECK_VAR") or ROOT / "var" / "check_signin")
 LANG_OF = {"fr-fr": "fr", "en-gb": "en", "en-us": "en", "de": "de"}
 fails = []
 
@@ -298,11 +307,13 @@ def main():
     h.do("show", "Practice")
 
     print("\n=== fresh: signs out (settings saved), then starts afresh ===")
-    h.setting("slow", True)
-    check(db("SELECT slow FROM settings WHERE uid='me'")[0][0] == 0, "slow is not yet stored")
+    was = db("SELECT slow FROM settings WHERE uid='me'")[0][0]
+    h.setting("slow", not was)                        # a change, whatever the real store holds
+    check(db("SELECT slow FROM settings WHERE uid='me'")[0][0] == was, f"slow changed to {not was} is not yet stored")
     d = h.press(cmd="start", fresh=True)
-    check(db("SELECT slow FROM settings WHERE uid='me'")[0][0] == 1, "fresh: the setting was saved by the sign-out")
-    check(S(d)["uid"] == "me" and S(d)["settings"]["slow"] is True and S(d)["body"]["kind"] == "practice", "then a start afresh, auto sign-in as me with slow kept")
+    check(db("SELECT slow FROM settings WHERE uid='me'")[0][0] == int(not was), "fresh: the setting was saved by the sign-out")
+    check(S(d)["uid"] == "me" and S(d)["settings"]["slow"] is (not was) and S(d)["body"]["kind"] == "practice",
+          "then a start afresh, auto sign-in as me with slow kept")
     h.setting("slow", False)
     h.do("signOut")
     h.do("signIn", "me")
