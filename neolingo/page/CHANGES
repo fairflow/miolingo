@@ -1,3 +1,4 @@
+0.44	Each flagged sound is shown once: a box in the picture, or (where the sound is drawn as right) a warning line, never both. The settings keep each label on one line on a phone; the model view no longer makes the page scroll sideways.
 0.43	One sound heard as two (German “dauert” said with an [r] and a vowel) is drawn as one column, and costs what the host's table says. A sound the check finds likely off costs at least the host's floor.
 0.42	One warning, not two: a sound the picture already shows as different (with its box) gets no warning line as well; a line is written only where the picture shows the sound as right.
 0.41	A take that was not understood shows the sounds as the recogniser heard them; only an understood take shows them checked against the sound check.

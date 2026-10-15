@@ -51,9 +51,10 @@
 
   details.settings { border-bottom: 1px solid var(--rule); padding-bottom: 8px; margin-bottom: 8px; }
   details.settings summary { cursor: pointer; padding: 8px 0; }
-  .settings .grid { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 6px 0 4px; }
-  .settings label { display: flex; flex-direction: column; gap: 3px; font-size: .875rem; color: var(--muted); }
-  .settings label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--fg); font-size: 1rem;
+  /* (0.44) the settings view (.setview) uses these too: its labels stood inline and broke mid-phrase at 375 px */
+  .settings .grid, .setview .grid { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 6px 0 4px; }
+  .settings label, .setview label { display: flex; flex-direction: column; gap: 3px; font-size: .875rem; color: var(--muted); }
+  .settings label.inline, .setview label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--fg); font-size: 1rem;
     min-height: 44px; }
 
   nav.tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--rule); margin-bottom: 12px; }
@@ -182,7 +183,9 @@
   .model table { border-collapse: collapse; width: 100%; }
   .model td, .model th { text-align: left; vertical-align: top; padding: 3px 10px 3px 0; border-top: 1px solid var(--rule); }
   .model th { color: var(--muted); font-weight: 600; border-top: 0; }
-  .model code, .model .c { font: .85rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+  /* (0.44) the model's constraint line wraps between its facts: the picture's cells share the class name `c`, whose
+     nowrap made the page scroll sideways when the model view was open */
+  .model code, .model .c { font: .85rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; white-space: normal; }
   .model .c span { display: inline-block; margin-right: 10px; }
   .model .apart { color: var(--muted); opacity: .6; }
   .model .bad { color: var(--off); font-weight: 600; }
@@ -232,7 +235,6 @@
     <fieldset><legend>Start</legend>
       <label><input type="radio" name="mode" value="one"> One learner</label>
       <label><input type="radio" name="mode" value="two"> Two learners</label>
-      <label><input type="radio" name="mode" value="same"> One learner in two sessions</label>
       <label><input type="radio" name="mode" value="out"> Two slots, signed out</label>
     </fieldset>
     <div>Not part of the app. A change of start begins new sessions from what is stored.</div>
@@ -322,7 +324,7 @@ var MARK = ['s-ok', 's-check', 's-off'];
 var KINDS = { ok: 1, near: 1, off: 1, missing: 1, added: 1, unjudged: 1 };
 // the status of the last press, shown in the session it was made in (what was stored goes to the foot)
 var STATUS = { r: 0, text: '' };
-var MODES = { one: 'one learner', two: 'two learners', same: 'one learner in two sessions', out: 'two slots, signed out' };
+var MODES = { one: 'one learner', two: 'two learners', out: 'two slots, signed out' };
 
 function el(tag, attrs, kids) {
   var e = document.createElement(tag), k;
