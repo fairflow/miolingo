@@ -1,3 +1,4 @@
+0.47	The model view's diagram shows a long list in a link's line as its first two items, an ellipsis and its last (each language separately); the table of links below keeps the whole list.
 0.46	With a form open, the language choices that would leave the language practised are greyed, with the reason. A take not understood: the banner says "not understood" and no longer repeats the words heard, which HEARD shows.
 0.45	The names of a slot that is signed out are listed A to Z.
 0.44	Each flagged sound is shown once: a box in the picture, or (where the sound is drawn as right) a warning line, never both. The settings keep each label on one line on a phone; the model view no longer makes the page scroll sideways.
