@@ -1,3 +1,4 @@
+0.48	The model view's diagram shows the history link by its count of rows alone; the table of links below keeps the whole line.
 0.47	The model view's diagram shows a long list in a link's line as its first two items, an ellipsis and its last (each language separately); the table of links below keeps the whole list.
 0.46	With a form open, the language choices that would leave the language practised are greyed, with the reason. A take not understood: the banner says "not understood" and no longer repeats the words heard, which HEARD shows.
 0.45	The names of a slot that is signed out are listed A to Z.
