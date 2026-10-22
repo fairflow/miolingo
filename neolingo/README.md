@@ -267,8 +267,8 @@ http://127.0.0.1:8810/ after about a minute, when the recognisers are loaded;
 Stop it by its port, never by name, so that it signs every session out and
 saves the settings: `kill -TERM $(lsof -ti tcp:8810 -sTCP:LISTEN)`.
 
-It needs: the compiled engine at `~/Lean/locus/.lake/build/bin/neolingo`
-(`cd ~/Lean/locus && lake build neolingo`; or set `NEOLINGO_ENGINE`), and the
+It needs: the compiled engine at `~/Lean/locus/.lake/build/bin/neolingo-serve` (since 22 October; `neolingo`
+beside it is the fallback) (`cd ~/Lean/locus && lake build neolingo neolingo-serve`; or set `NEOLINGO_ENGINE`), and the
 Python of the Miolingo checkout (`~/Software/working/miolingo/venv`).
 
 The learner's data is in `var/` and is NOT in git: `var/neolingo.sqlite`

@@ -14,7 +14,11 @@ ARCHIVE_TAKES = ARCHIVE / "takes"
 GUEST_LIST = VAR / "guest_takes.txt"       # tokens of takes a guest may have made, until deleted
 DB = VAR / "neolingo.sqlite"
 LOG = VAR / "host.log"
-ENGINE = os.environ.get("NEOLINGO_ENGINE") or "/Users/matthew/Lean/locus/.lake/build/bin/neolingo"
+_BIN = "/Users/matthew/Lean/locus/.lake/build/bin"
+# The production engine is `neolingo-serve` (locus stage 0, 22 October: the same protocol and answers, 4.6 MB
+# instead of 102 MB); `neolingo` (the tools, the gate's commands) answers `neohost` identically and is the fallback.
+ENGINE = os.environ.get("NEOLINGO_ENGINE") or (f"{_BIN}/neolingo-serve" if os.path.exists(f"{_BIN}/neolingo-serve")
+                                               else f"{_BIN}/neolingo")
 UID = "me"
 
 
